@@ -1,0 +1,35 @@
+<?
+$MESS["MOD_ACTION"] = "Aktion";
+$MESS["MOD_BACK"] = "Zurück zur Liste";
+$MESS["MOD_PARTNER_NAME"] = "Firma <a target='_blank' href='#URI#'>#NAME#</a>";
+$MESS["COPY_PUBLIC_FILES"] = "Öffentliche Dateien kopieren";
+$MESS["MOD_UNINST_DEL"] = "Modul löschen";
+$MESS["COPY_FOLDER"] = "Ordner, in den die Dateien kopiert werden:";
+$MESS["MOD_INSTALL_BUTTON"] = "Installieren";
+$MESS["MOD_INSTALL"] = "Installieren";
+$MESS["MOD_INST_ERR"] = "Es sind Fehler beim Installieren aufgetreten:";
+$MESS["MOD_INSTALLED"] = "Installiert";
+$MESS["MOD_UNINST_SAVE"] = "Daten in der Datenbanktabelle speichern:";
+$MESS["MOD_UNINST_SAVE_TABLES"] = "Tabellen speichern";
+$MESS["MOD_UNINST_SAVE_EVENTS"] = "Nachrichtenvorlagen und E-Mail-Eventtypen speichern";
+$MESS["MOD_DEMO_LINK"] = "Link";
+$MESS["MOD_MAIN_MODULE"] = "Hauptmodul";
+$MESS["TITLE"] = "Module verwalten";
+$MESS["MOD_NAME"] = "Überschrift";
+$MESS["MOD_NOT_INSTALLED"] = "Nicht installiert";
+$MESS["INSTALL_PUBLIC_REW"] = "Vorhandene Dateien überschreiben";
+$MESS["MOD_DELETE"] = "Löschen";
+$MESS["RESET"] = "Zurücksetzen";
+$MESS["SAVE"] = "Änderungen speichern";
+$MESS["MOD_DEMO_SITE"] = "Seite";
+$MESS["MOD_SETUP"] = "Status";
+$MESS["MOD_INST_OK"] = "Das Modul wurde erfolgreich installiert";
+$MESS["MOD_UNINST_OK"] = "Das Modul wurde erfolgreich deinstalliert";
+$MESS["MOD_MAIN_DESCRIPTION"] = "Bitrix Software Systemkern mit der Technologie #A1#\"SiteUpdate\"#A2#.";
+$MESS["MOD_UNINST_ERR"] = "Es sind Fehler beim Deinstallieren aufgetreten:";
+$MESS["MOD_DATE_UPDATE"] = "Aktualisierungsdatum";
+$MESS["MOD_DEMO_DIR"] = "Um die Arbeitsweise der Komponente im öffentlichen Bereich anzusehen, nutzen Sie folgende Links:";
+$MESS["MOD_VERSION"] = "Version";
+$MESS["MOD_UNINST_WARN"] = "Achtung! <br>Das Modul wird aus dem System entfernt";
+$MESS["MOD_UNINST_DEN"] = "Dieses Modul kann nicht deinstalliert werden.";
+?>

@@ -1,0 +1,31 @@
+<p>Der Cache der selbsterstellten Website-Komponenten ermöglicht es, zum einen die Seiten schneller zu erstellen und zum anderen die Belastung der 
+Datenbank zu minimieren. Diese Technologie darf allerdings nicht missbraucht werden, wenn im Cache beispielsweise enorm viele Auswahlergebnisse von
+ Anfragen an die Datenbank gespeichert werden. Das kann nämlich dazu führen, dass die Seiten nun viel länger erstellt werden und auch die Belastung 
+ auf die Software und Hardware wesentlich höher wird. </p>
+
+<p>Auch die Cache-Dateien, welche nicht benutzt werden oder veraltet sind, stellen ein Risiko dar. Um dieses Risiko zu vermeiden, sollte man im 
+Bereich "Einstellungen &gt; Systemeinstellungen &gt; Auto-Cache" auf der Registerkarte "Bereinigung der Cache-Dateien" die Option "Nur veraltete" aktivieren. </p>
+
+<p>Über 1Mb große Objekte sollten nicht im Cache gespeichert werden, dafür sollen Anfragen über API, Bitrix Framework sowie die Filterbedingungen
+ rechtzeitig optimiert werden. Man sollte außerdem den Systemordner  "/bitrix/cache" regelmäßig auf seine Größe hin überprüfen und die veralteten 
+ Dateien löschen. Dafür können sowohl spezielle Bitrix-Tools (Einstellungen > Systemeinstellungen > Auto-Cache) oder Tools des Betriebssystems als
+ auch der Cache-Modus memcached (wenn der veraltete Cache automatisch verdrängt wird) verwendet werden.</p>
+
+
+<ul>
+<li>Beim Lasttest können im Ansichtsbereich der Website Informationen zur Cache-Größe einer jeden Komponente sowie die Zusammenfassung zur Cache-Größe
+ der ganzen Seite angezeigt werden (dafür muss man in Ansichtsbereich auf die Schaltfläche "Performance" klicken, wodurch die Standardoption 
+ "Statistik-Zusammenfassung" aktiviert wird):
+<p><img height="422" border="0" width="447" src="/bitrix/images/main/checklist/de/QC0060.png" /></p>
+
+Auf diese Art und Weise sollte man alle oder zumindest die Seiten prüfen, welche besonders oft besucht werden. Werden die Testdaten nicht rechtzeitig
+ ausgewertet und zur Website hinzugefügt werden, kann eine mögliche Überschreitung der Cache-Größe unbemerkt bleiben. </li>
+<li>Auch beim Datei-Cache sollte man sicherstellen, dass Menge und Größe von Dateien und Ordnern im Cache-Systemordner "/bitrix/cache" kontrolliert 
+werden (z.B. mit der Software Nagios). Wegen bestimmter Integrationsfehler kann es nämlich passieren, dass dieser Systemordner, falls jegliche Kontrolle 
+fehlt, immer größer wird, so dass in diesem Ordner nach einem halben Jahr Websitenutzung beispielsweise 1 Mio. Dateien mit der Gesamtgröße 100Gb liegen könnten.
+
+Außerdem sollte sichergestellt werden, dass der Datei-Cache regelmäßig bereinigt wird (entweder mithilfe von Bitrix-Tools unter 
+Einstellungen > Systemeinstellungen > Auto-Cache auf der Registerkarte "Bereinigung der Cache-Dateien" oder aber mit speziellen Tools des Betriebssystems. </li> 
+ 
+ </ul>
+

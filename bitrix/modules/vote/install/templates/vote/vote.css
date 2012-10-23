@@ -1,0 +1,18 @@
+
+
+/* Vote :: public css*/
+
+.smalltxt {font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 11px; line-height: 13px; text-decoration: none}
+.errortext {font-family: Arial, Helvetica, sans-serif; font-size:10pt; color:red; font-weight:bold;}
+.notetext {font-family: Verdana,Arial,Helvetica,sans-serif; font-size:12px; font-weight: bold; color: green;}
+.filteron {color:#FF0000;}
+.filteroff {color:#1C7729;}
+.tablebodylink {font-family: Arial, Helvetica, sans-serif; font-size:12px; text-decoration: none;}
+a.tablebodylink:hover {text-decoration: underline;}
+.textmain {font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 12px; line-height: 15px; text-decoration: none;}
+INPUT.typeinput {background-color:#FFFFFF; font-size:12px;}
+INPUT.typeinput2 {background-color:#FFFFFF; font-size:12px; width: 100%}
+.navchain {font-family:Arial,Helvetica; font-size:12px; color:#1F5887;}
+.required {color:red;}
+.pointed {color:green;}
+.pointed2 {color:blue;}

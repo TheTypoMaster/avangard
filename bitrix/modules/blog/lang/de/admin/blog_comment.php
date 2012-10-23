@@ -1,0 +1,33 @@
+<?
+$MESS["BLB_GROUP_NAV"] = "Kommentare";
+$MESS["BLB_DATE_CREATE"] = "Erstellt am";
+$MESS["BLB_AUTHOR_ID"] = "Autor";
+$MESS["BLB_TITLE"] = "Kommentare";
+$MESS["BLB_F_ALL"] = "(Alle)";
+$MESS["BLB_YES"] = "Ja";
+$MESS["BLB_NO"] = "Nein";
+$MESS["BLB_DELETE_ALT"] = "Löschen";
+$MESS["BLB_DELETE_CONF"] = "Möchten Sie diesen Kommentar wirklich löschen?";
+$MESS["BLB_HIDE_ALT"] = "Ausblenden";
+$MESS["BLB_SHOW_ALT"] = "Anzeigen";
+$MESS["BLB_DELETE_ERROR"] = "Fehler beim Löschen des Kommentars.";
+$MESS["BLB_HIDE_ERROR"] = "Fehler beim Ausblenden des Kommentars.";
+$MESS["BLB_SHOW_ERROR"] = "Fehler beim Einblenden des Kommentars.";
+$MESS["BLB_VIEW_ALT"] = "Den Kommentar auf der Website anzeigen";
+$MESS["BLB_AUTHOR_NAME"] = "Name des Autors";
+$MESS["BLB_AUTHOR_EMAIL"] = "E-Mail des Autors";
+$MESS["BLB_AUTHOR_IP"] = "Autor-IP";
+$MESS["BLB_AUTHOR_IP1"] = "Autor-IP1";
+$MESS["BLB_PUBLISH_STATUS"] = "Veröffentlicht";
+$MESS["BLB_POST_TEXT"] = "Kommentartext";
+$MESS["BLB_BLOG_ID"] = "Blog";
+$MESS["BLB_POST_ID"] = "Nachricht";
+$MESS["BLB_BLOG_OWNER_ID"] = "Blogbesitzer";
+$MESS["BLB_BLOG_SOCNET_GROUP_ID"] = "Gruppe-Blogbesitzer";
+$MESS["BLB_BLOG_ACTIVE"] = "Das Blog ist aktiv";
+$MESS["BLB_BLOG_GROUP_ID"] = "Bloggruppe";
+$MESS["BLB_BLOG_GROUP_SITE_ID"] = "Website";
+$MESS["BLB_COMMENT"] = "Kommentar";
+$MESS["BLB_AUTHOR_ANONYM"] = "Anonym";
+$MESS["BLB_STOP_LIST"] = "Sperrliste";
+?>

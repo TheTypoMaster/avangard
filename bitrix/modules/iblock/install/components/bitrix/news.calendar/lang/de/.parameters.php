@@ -1,0 +1,29 @@
+<?
+$MESS ['T_IBLOCK_DESC_CAL_DATE_ACTIVE_FROM'] = "aktiv von";
+$MESS ['T_IBLOCK_DESC_CAL_DATE_ACTIVE_TO'] = "aktiv von";
+$MESS ['T_IBLOCK_DESC_CAL_TYPE'] = "Kalendertyp";
+$MESS ['T_IBLOCK_DESC_CAL_DATE_CREATE'] = "Erstellt";
+$MESS ['T_IBLOCK_DESC_CAL_DATE_FIELD'] = "Datumfeld";
+$MESS ['T_IBLOCK_DESC_CAL_SHOW_MONTH_LIST'] = "Dropdown-Liste der Monate anzeigen";
+$MESS ['T_IBLOCK_DESC_CAL_SHOW_CURRENT_DATE'] = "Aktuellen Monat und Jahr anzeigen";
+$MESS ['T_IBLOCK_DESC_CAL_SHOW_TIME'] = "Newszeit anzeigen";
+$MESS ['T_IBLOCK_DESC_CAL_TYPE_EVENTS'] = "Events";
+$MESS ['T_IBLOCK_DESC_CAL_WS_5'] = "Freitag";
+$MESS ['T_IBLOCK_DESC_LIST_ID'] = "Informationsblock ID";
+$MESS ['T_IBLOCK_DESC_CAL_TIMESTAMP_X'] = "Zeit der letzten Änderung";
+$MESS ['T_IBLOCK_DESC_CAL_WS_1'] = "Montag";
+$MESS ['T_IBLOCK_DESC_CAL_TYPE_NEWS'] = "News";
+$MESS ['T_IBLOCK_DESC_CAL_NEWS_COUNT'] = "Anzahl der News pro Tag (0 - unbegrenzt)";
+$MESS ['T_IBLOCK_DESC_CAL_WS_6'] = "Samstag";
+$MESS ['T_IBLOCK_DESC_CAL_SHOW_YEAR'] = "Übergang nach Jahren anzeigen";
+$MESS ['T_IBLOCK_DESC_CAL_WS'] = "Anfang der Woche";
+$MESS ['T_IBLOCK_DESC_CAL_WS_0'] = "Sonntag";
+$MESS ['T_IBLOCK_DESC_CAL_WS_4'] = "Donnerstag";
+$MESS ['T_IBLOCK_DESC_CAL_TITLE_LEN'] = "Länge der Überschrift (0 - nicht begrenzt)";
+$MESS ['T_IBLOCK_DESC_CAL_WS_2'] = "Dienstag";
+$MESS ['T_IBLOCK_DESC_LIST_TYPE'] = "Informationsblocktyp (wird nur für die Prüfung benutzt)";
+$MESS ['IBLOCK_DETAIL_URL'] = "URL - Bereichs-Elemente";
+$MESS ['T_IBLOCK_DESC_CAL_MVN'] = "Variable für den Monat";
+$MESS ['T_IBLOCK_DESC_CAL_YVN'] = "Variable für das Jahr";
+$MESS ['T_IBLOCK_DESC_CAL_WS_3'] = "Mittwoch";
+?>

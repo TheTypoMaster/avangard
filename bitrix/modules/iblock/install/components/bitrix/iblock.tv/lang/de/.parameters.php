@@ -1,0 +1,32 @@
+<?
+$MESS["BITRIXTV_GROUP_SETTINGS"] = "Allgemeine Komponenteneinstellungen";
+$MESS["BITRIXTV_GROUP_PREVIEW_TV"] = "Player-Einstellungen";
+$MESS["BITRIXTV_GROUP_PREVIEW_TV_PLAYER"] = "Listeneinstellungen";
+$MESS["BITRIXTV_SETTING_IBLOCK_TYPE"] = "Informationsblocktyp";
+$MESS["BITRIXTV_SETTING_IBLOCK_ID"] = "Informationsblock";
+$MESS["BITRIXTV_SETTING_ALLOW_SWF"] = "Wiedergabe der swf Dateien erlauben (wird nicht empfohlen)";
+$MESS["BITRIXTV_SETTING_PATH_TO_FILE"] = "Eigenschaft, in der der Pfad zum Video gespeichert ist";
+$MESS["BITRIXTV_SETTING_DURATION"] = "Eigenschaft, in der die Länge des Videos gespeichert ist";
+$MESS["BITRIXTV_SETTING_PREVIEW_TV_ELEMENT"] = "Element";
+$MESS["BITRIXTV_SETTING_PREVIEW_TV_SECTION"] = "Bereich";
+$MESS["BITRIXTV_SETTING_PREVIEW_WIDTH"] = "Breite des Playerbereichs";
+$MESS["BITRIXTV_SETTING_PREVIEW_HEIGHT"] = "Höhe des Playerbereichs";
+$MESS["BITRIXTV_SETTING_DEFAULT_SMALL_IMAGE"] = "Kleines Bild als Voreinstellung";
+$MESS["BITRIXTV_SETTING_DEFAULT_BIG_IMAGE"] = "Großes Bild als Standard";
+$MESS["BITRIXTV_SETTING_LOGO"] = "Logo";
+$MESS["T_IBLOCK_DESC_ASC"] = "Aufsteigend";
+$MESS["T_IBLOCK_DESC_DESC"] = "Absteigend";
+$MESS["T_IBLOCK_DESC_FID"] = "ID";
+$MESS["T_IBLOCK_DESC_FNAME"] = "Überschrift";
+$MESS["T_IBLOCK_DESC_FACT"] = "Aktivierungsdatum";
+$MESS["T_IBLOCK_DESC_FSORT"] = "Sortierung";
+$MESS["T_IBLOCK_DESC_FTSAMP"] = "Letzte Änderung";
+$MESS["T_IBLOCK_DESC_IBORD1"] = "Feld für den ersten Sortierdurchgang der News";
+$MESS["T_IBLOCK_DESC_IBBY1"] = "Sortierrichtung für den ersten Sortierdurchgang der News";
+$MESS["BITRIXTV_SETTING_STAT"] = "Statistik ansehen";
+$MESS["BITRIXTV_SETTING_STAT_EVENT"] = "Ereignisse in Web Analytics messen";
+$MESS["BITRIXTV_SETTING_STAT_EVENT1"] = "event1";
+$MESS["BITRIXTV_SETTING_STAT_EVENT2"] = "event2";
+$MESS["BITRIXTV_SETTING_SHOW_COUNTER_EVENT"] = "Zähler für Elementenansicht erhöhen";
+$MESS["CP_BIT_CACHE_GROUPS"] = "Zugriffsrechte berücksichtigen";
+?>

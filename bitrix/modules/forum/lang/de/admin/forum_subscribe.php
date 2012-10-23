@@ -1,0 +1,35 @@
+<?
+$MESS["FM_FLT_SEARCH_TITLE"] = "Geben Sie den Suchbegriff ein";
+$MESS["FM_FLT_SEARCH"] = "Suchen";
+$MESS["FM_FLT_LOGIN"] = "Loginname";
+$MESS["FM_FLT_EMAIL"] = "E-Mail";
+$MESS["FM_FLT_FIO"] = "Nachname, Vorname";
+$MESS["FM_FLT_START_DATE"] = "Startdatum des Abonnements";
+$MESS["FM_FLT_START_DATE_ALT"] = "Startdatum des Abonnements";
+$MESS["FM_FLT_FORUM"] = "Forum";
+$MESS["FM_FLT_FORUM_ALT"] = "Forum";
+$MESS["FM_FLT_SUBSCR_TYPE"] = "Abonnement-Typ";
+$MESS["FM_FLT_SUBSCR_TYPE_ALT"] = "Abonnement-Typ";
+$MESS["FM_NO"] = "nein";
+$MESS["FM_ACT_DELETE"] = "Löschen";
+$MESS["FM_ACT_EDIT"] = "Bearbeiten";
+$MESS["FM_TITLE"] = "Abonnements verwalten";
+$MESS["FM_TITLE_PAGE"] = "Forumuser";
+$MESS["FM_HEAD_FORUM_USER_ID"] = "FID";
+$MESS["FM_HEAD_USER_ID"] = "ID";
+$MESS["FM_HEAD_EMAIL"] = "E-Mail";
+$MESS["FM_HEAD_LOGIN"] = "Loginname";
+$MESS["FM_HEAD_NAME"] = "Name";
+$MESS["FM_HEAD_LAST_NAME"] = "Nachname";
+$MESS["FM_HEAD_SUBSC"] = "Anzahl der Abonnements";
+$MESS["FM_HEAD_START_DATE"] = "Start des Abonnements";
+$MESS["FM_WRONG_DATE_FROM"] = "Geben Sie das Erstelldatum \"Von\" korrekt ein";
+$MESS["FM_WRONG_DATE_TO"] = "Geben Sie das Erstelldatum \"Bis\" korrekt ein";
+$MESS["FM_WRONG_PERIOD"] = "Der Zeitraum wurde falsch definiert";
+$MESS["FM_NEW_TOPIC_ONLY"] = "Nur neue Themen";
+$MESS["FM_ALL_MESSAGE"] = "Alle Forenbeiträge";
+$MESS["FM_TYPICAL"] = "Neue Themenbeiträge";
+$MESS["FM_ACT_DEL_CONFIRM"] = "Wollen Sie ALLE User Abonnements wirklich löschen?";
+$MESS["FM_SPACE"] = "Nicht ausgewählt";
+$MESS["FM_MAIN_EDIT_TITLE"] = "Nutzerprofil bearbeiten";
+?>

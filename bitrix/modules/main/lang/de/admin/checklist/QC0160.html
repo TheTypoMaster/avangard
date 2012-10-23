@@ -1,0 +1,11 @@
+<p>Komponenten und eingebettete Bereich sollten einen vollständigen HTML-Block mit geschlossenen Tags zurücksenden: So können die Web-Seiten 
+im visuellen Editor einfacher bearbeitet werden, der modulartige Systemaufbau wird verbessert, die Funktionalität der Komponenten kann einfacher 
+unterstützt und weiter entwickelt werden.</p>
+
+<p>Beispiel: Die Komponente soll eine Tabelle vollständig ausgeben. Es ist also nicht korrekt, wenn Folgendes passiert: Noch bevor die Komponente
+ aufgerufen wurde, wird die Tabellenüberschrift ausgegeben und dann die Zeilen und Tabellenfelder. Erst wenn die Komponente aufgerufen wurde, 
+ der Abschlusstag der Tabelle eingefügt. Die Komponente sollte auch eine Liste ("OL"/"UL") mit allen eingefügten Tags vollständig ausgeben, 
+ und nicht nur einzelne Punkte der Liste ("LI").</p>
+ 
+
+<p>Vorlagen von allen selbsterstellten Komponenten der Website überprüfen. Die Vorlagen sollten einen vollständigen HTML-Code liefern.</p>

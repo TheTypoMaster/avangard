@@ -1,0 +1,119 @@
+/* Context menu sublist */
+div.subcontextmenu {margin:16px 0px 16px 0px;}
+table.subcontextmenu {width:100%;}
+table.subcontextmenu td {background-color:#FDFDFD; font-size:70%;}
+table.subcontextmenu tr.top td {border: 0 none transparent; border-top:1px solid #D9D9D9;}
+table.subcontextmenu td.left {border: 0 none transparent; background-image:url(images/toolbar/l.gif); background-repeat:no-repeat; background-position:left top;}
+table.subcontextmenu td.right {border: 0 none transparent; background-image:url(images/toolbar/r.gif); background-repeat:no-repeat; background-position:left top;}
+table.subcontextmenu tr.top td.left {border: 0 none transparent; background-image:url(images/toolbar/lt.gif); height:2px; width:2px;}
+table.subcontextmenu tr.top td.right {border: 0 none transparent; background-image:url(images/toolbar/rt.gif); height:2px; width:3px;}
+table.subcontextmenu tr.bottom td {background-color:#EAEAEA; border: 0 none transparent; }
+table.subcontextmenu tr.bottom td.left {border: 0 none transparent; background-image:url(images/toolbar/lb.gif); height:1px; width:2px;}
+table.subcontextmenu tr.bottom td.right {border: 0 none transparent; background-image:url(images/toolbar/rb.gif); height:1px; width:3px;}
+table.subcontextmenu tr.bottom-all td {background-color:#F2F2F2; border-top:1px solid #B5B5B5; background-color: transparent; }
+table.subcontextmenu tr.bottom-all td.left {border:0px; background-image:url(images/toolbar/bl.gif); height:3px; width:2px;}
+table.subcontextmenu tr.bottom-all td.right {border:0px; background-image:url(images/toolbar/br.gif); height:3px; width:3px;}
+/*table.subcontextmenu td.subcontent {height:24px; background-image:url(images/toolbar/bg.png); background-repeat:repeat-x; background-position:left center;} */
+table.subcontextmenu td.subcontent {height:24px; }
+table.subcontextmenu td.subcontent table td {padding:0px; background-color:transparent;}
+table.subcontextmenu div {box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box;}
+table.subcontextmenu div.section-separator {width:3px; height:13px; border-left:1px solid #B1B1B1; border-right:1px solid #B3B3B3; margin:0px 0px 0px 6px;}
+table.subcontextmenu div.separator {width:1px; height:13px; border-left:1px solid #B1B1B1; margin:0px 0px 0px 6px;}
+table.subcontextmenu a.context-button {display:block; box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; height:20px; padding:2px; padding-top:3px; border:0px; margin:1px 1px 1px 5px; white-space:nowrap;}
+table.subcontextmenu a.context-button:hover {height:22px; margin:0px 0px 0px 4px; border:1px solid #AEB6C2; background-color:#DBE3F2;}
+table.subcontextmenu a.icon {padding-left:21px; background-repeat:no-repeat; background-position:left top;}
+table.subcontextmenu a.pressed {height:22px; margin:0px 0px 0px 4px; border:1px solid #A6A6A6; background-color:white;}
+table.subcontextmenu a, table.subcontextmenu a:visited, table.subcontextmenu a:active {color:#5D5D5D; text-decoration:none;}
+table.subcontextmenu a:hover {color:black;}
+table.subcontextmenu img.arrow {border:0px; margin:0px 0px 2px 4px; width:5px; height:3px;}
+table.subcontextmenu select.form-select, table.subcontextmenu input.form-text {margin-top:2px; font-size:11px; font-family:Verdana,Arial,Helvetica,sans-serif;}
+table.subcontextmenu input.form-button {font-size:11px; height:21px; font-family:Verdana,Arial,Helvetica,sans-serif;}
+
+/* Context common icons sublist */
+table.subcontextmenu #btn_list {background-image:url(images/buttons/list.gif);}
+table.subcontextmenu #btn_sub_new {background-image:url(images/buttons/new.gif);}
+table.subcontextmenu #btn_sub_delete {background-image:url(images/buttons/delete.gif);}
+table.subcontextmenu #btn_sub_copy {background-image:url(images/buttons/copy.gif);}
+table.subcontextmenu #btn_sub_excel {background-image:url(images/buttons/excel.gif);}
+table.subcontextmenu #btn_sub_settings {background-image:url(images/buttons/settings.gif);}
+table.subcontextmenu #btn_sub_refresh {background-image:url(images/buttons/refresh.gif);}
+
+/* List of items sublist */
+table.sublist {width:100%; cursor:default;}
+table.sublist td {padding:4px; font-size:70%; border-bottom:1px solid #D5D5D5;  vertical-align:top;}
+table.sublist td.subleft {border-left:1px solid #BDC6E0; padding: 4px; }
+table.sublist td.subright {border-right:1px solid #BDC6E0; padding: 4px; }
+table.sublist tr.top td { border-top: 0 none transparent; }
+table.sublist tr.bottom td {border-bottom:1px solid #BDC6E0 !important; }
+table.sublist tr.bottom table td {border:0 none transparent !important;}
+table.sublist tr.subeven td {background-color:#FAFAFA; border-bottom:1px solid #D5D5D5; padding: 4px;}
+table.sublist tr.subodd td {background-color:white; border-bottom:1px solid #D5D5D5; padding: 4px;}
+table.sublist tr.subodd td table tr td, table.sublist tr.subeven td table tr td { padding: 0; border: 0 none transparent; } 
+table.sublist tr td.subsorted, table.sublist tr.subeven td.subsorted, table.sublist tr.subodd td.subsorted {background-color:#F5F7FA;}
+table.sublist tr.head td { padding: 0 4px 0 4px; border:1px solid #BDC6E0; border-top:none; border-left:none; background-color:#E6E9F4; background-image:url(images/listhead.gif); background-repeat:repeat-x; background-position:top; cursor:default;}
+table.sublist tr.head td.subsorted {background-color:#F9FAFD; background-image:none;}
+table.sublist tr.head td.subleft {border-left:1px solid #BDC6E0; padding-bottom: 4px; }
+table.sublist tr.head td.subright {}
+table.sublist tr.gutter td {height:5px; background-color:#F1F3FA; border:1px solid #BDC6E0; border-bottom:none; border-left:none; padding:0px;}
+table.sublist tr.gutter td.subsorted {background-color:#F9FAFD;}
+table.sublist tr.gutter td.subover {background-image:url(images/gutter_bg.gif); background-repeat:repeat-x;}
+table.sublist tr.gutter td.subleft {border-left:1px solid #BDC6E0;}
+table.sublist tr.selected td, table.sublist tr.selected td.subsorted {background-color:#eaf8df; }
+table.sublist tr.subover td, table.sublist tr.subover td.subsorted {background-color:#fefdea; }
+table.sublist tr.footer td {background-color:#EAEDF7; border-right:1px solid #BDC6E0;}
+table.sublist td table td {border:0px; padding:0px;}
+table.sublist div {box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; background-repeat:no-repeat;}
+table.sublist a.context-button {display:block; box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; background-repeat:no-repeat; padding:3px; padding-top:2px; border:0px; margin:1px; white-space:nowrap;}
+table.sublist a.context-button:hover {height:20px; margin:0px; border:1px solid #AEB6C2; background-color:#DBE3F2;}
+table.sublist a.icon {height:18px; padding-left:20px; background-repeat:no-repeat; background-position:1px 1px;}
+table.sublist a.pressed {height:20px; margin:0px; border:1px solid #A6A6A6; background-color:white;}
+table.sublist img.arrow {border:0px; margin:6px 0px 2px 0px; width:5px; height:3px;}
+table.sublist a.action {background-image:url(images/action.gif);}
+table.sublist tr.head div.action {background-image:url(images/action_head.gif); width:100%; height:15px; background-repeat:no-repeat; background-position:center 3px;}
+
+/* Footer of subList of items */
+table.sublistfooter {color:#5556AB; width:100%;}
+table.sublistfooter td.sublf {font-size:70%; padding:4px 5px 4px 5px; border:1px solid #BDC6E0; border-top:none; border-left:none; background-color:#EAEDF7; white-space:nowrap;}
+table.sublistfooter td.left {border-left:1px solid #BDC6E0;}
+table.sublistfooter td.right {width:100%;}
+table.sublistfooter span {color:black;}
+
+/* Sorting sublist */
+table.sublist table.subsorting {width:100%;}
+table.sublist table.subsorting td {width:100%; padding: 0; border:0px; cursor:pointer; background-image:none; background-color:transparent; vertical-align: top;}
+table.sublist table.subsorting td.sign {padding: 0;width:7px; background-image:url(images/sort_no.gif); background-repeat:no-repeat; background-position:right 5px;}
+table.sublist table.subsorting td.sign div.empty {width:10px;}
+table.sublist table.subsorting td.up {background-image:url(images/sort_up.gif);}
+table.sublist table.subsorting td.down {background-image:url(images/sort_down.gif);}
+
+/* Multiple Actions */
+div.submultiaction {margin:16px 0px 16px 0px;}
+table.submultiaction {width:100%; height:36px; background-color:#E6E9F4; background-image:url(images/actions/actions_bg.gif); background-repeat:repeat-x; }
+table.submultiaction td {padding:0px; font-size:70%; color:black;}
+table.submultiaction tr.top td {border-top:1px solid #BDC6E0;}
+table.submultiaction td.left {border-left:1px solid #BDC6E0;}
+table.submultiaction td.right {border-right:1px solid #BDC6E0;}
+table.submultiaction tr.top td.left {border:0px; background-image:url(images/actions/lt.gif); height:2px; width:2px;}
+table.submultiaction tr.top td.right {border:0px; background-image:url(images/actions/rt.gif); height:2px; width:2px;}
+table.submultiaction tr.bottom td {border-bottom:1px solid #BDC6E0;}
+table.submultiaction tr.bottom td.left {border:0px; background-image:url(images/actions/lb.gif); height:2px; width:2px;}
+table.submultiaction tr.bottom td.right {border:0px; background-image:url(images/actions/rb.gif); height:2px; width:2px;}
+table.submultiaction td.content {padding:4px;}
+table.submultiaction div {box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; background-repeat:no-repeat;}
+table.submultiaction div.separator {width:1px; height:20px; border-left:1px solid #BEC7E0; margin:0px 8px 0px 8px; overflow:hidden;}
+table.submultiaction a.context-button {display:block; box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; background-repeat:no-repeat; padding:0px; border:0px; margin:1px 2px 1px 2px; white-space:nowrap;}
+table.submultiaction a.context-button:hover {height:22px; margin:0px 1px 0px 1px; border:1px solid #AEB6C2; background-color:#DBE3F2;}
+table.submultiaction a.icon {height:20px; padding-left:20px; background-repeat:no-repeat; background-position:0px 0px;}
+table.submultiaction a.pressed {height:22px; margin:0px 1px 0px 1px; border:1px solid #A6A6A6; background-color:white;}
+table.submultiaction a, table.submultiaction a:visited, table.submultiaction a:active {color:#5556AB; text-decoration:none;}
+table.submultiaction a:hover {color:black;}
+
+table.submultiaction a.action-edit-button {background-image:url(images/actions/edit_button.gif); }
+table.submultiaction a.action-delete-button {background-image:url(images/actions/delete_button.gif); }
+table.submultiaction a.action-edit-button-dis {background-image:url(images/actions/edit_button_dis.gif); }
+table.submultiaction a.action-delete-button-dis {background-image:url(images/actions/delete_button_dis.gif); }
+
+/* Form edit settings */
+.dialog-foot a#btn_subsettings { background-image:url(icons/iblock/sku_form_sett2.png); background-repeat:no-repeat; background-position:left top; cursor: pointer; }
+.dialog-foot a#btn_subsettings_enable { background-image:url(images/buttons/settings_on.gif); background-repeat:no-repeat; background-position:left top; cursor: pointer; }
+.dialog-foot a#btn_subsettings_disable { background-image:url(images/buttons/settings_off.gif); background-repeat:no-repeat; background-position:left top; cursor: pointer; }

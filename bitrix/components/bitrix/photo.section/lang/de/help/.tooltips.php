@@ -1,0 +1,35 @@
+<?
+$MESS ['CACHE_TYPE_TIP'] = "<i>Automatisch</i>: Der Cache ist gültig gemäß Definition in den Cache-Einstellungen;<br /><i>Cache</i>: immer cachen für den Zeitraum, der im nächsten Feld definiert wird;<br /><i>Nicht cachen</i>: es wird kein Caching ausgeführt.";
+$MESS ['CACHE_FILTER_TIP'] = "Wenn diese Option aktiv ist, wird jedes Filgerergebniss zwischengespeichert.";
+$MESS ['ADD_SECTIONS_CHAIN_TIP'] = "Diese Option ermöglicht das Hinzufügen der Bereichsbezeichnung in die Navigationskette.";
+$MESS ['AJAX_OPTION_HISTORY_TIP'] = "\"Zurück\" und \"Vorwärts\" Browserfunktionen für AJAX-Übergänge erlauben.";
+$MESS ['META_KEYWORDS_TIP'] = "Schlüsselwörter der Seite aus den Eigenschaften definieren.";
+$MESS ['PAGE_ELEMENT_COUNT_TIP'] = "Elemente pro Seite. Die restlichen werden mit Hilfe der Seitennavigation angezeigt.";
+$MESS ['AJAX_MODE_TIP'] = "AJAX-Modus für die Komponente aktivieren.";
+$MESS ['PAGER_SHOW_ALWAYS_TIP'] = "Wenn dieser Flag aktiv ist, wird die Seitennavigation angezeigt, auch wenn alle Elemente auf eine Seite passen.";
+$MESS ['DISPLAY_BOTTOM_PAGER_TIP'] = "Wenn diese Option aktiv ist, wird die Seitennavigation auf der Seite unten angezeigt.";
+$MESS ['DISPLAY_TOP_PAGER_TIP'] = "Wenn diese Option aktiv ist, wird die Seitennavigation auf der Seite oben angezeigt.";
+$MESS ['SET_TITLE_TIP'] = "Wenn diese Option aktiv ist, wird als Seitenüberschrift die eingestellte Bereichsbezeichnung angezeigt.";
+$MESS ['DISPLAY_PANEL_TIP'] = "Wenn diese Option aktiv ist, werden Buttons im Modus \"Inhalte\" auf dem administrativen Pannel und in der Zusammenstellung des Bearbeitungsbereichs der Komponente angezeigt.";
+$MESS ['FIELD_CODE_TIP'] = "Zwischen den aufgezählten Feldern kann man zusätzliche Felder für die Anzeige der Elementliste im Bereich wählen. Beim Auswählen des Punktes (nicht gewählt)-> und ohne die Angabe der Feld ID's in den unteren Zeilen, werden auf der Seite die Standardfelder angezeigt.";
+$MESS ['PROPERTY_CODE_TIP'] = "Zwischen den Informationsblock-Eigenschaften kann man die wählen, die in der Elementliste im Bereich angezeigt werden. Beim Auswählen des Punktes (nicht gewählt)-> und ohne die Angabe der Feld ID's in den unteren Zeilen, werden die Eigenschaften nicht angezeigt.";
+$MESS ['IBLOCK_TYPE_TIP'] = "Wählen aus der angezeigten Liste einen Informationsblocktyp. Nachdem Sie <b><i>ok</i></b> gedrückt haben, werden Informationsblöcke vom ausgewählten Typ geladen.";
+$MESS ['IBLOCK_ID_TIP'] = "Wählen Sie ein Informationsblock aus. Wenn der Punkt (andere)-> gewählt ist, müssen Sie im Feld daneben die ID des Informationsblocks eingeben.";
+$MESS ['META_DESCRIPTION_TIP'] = "Seitenbeschreibung aus den Eigenschaften definieren.";
+$MESS ['LINE_ELEMENT_COUNT_TIP'] = "Anzahl der Fotos in einer Tabellenzeile bei der Ausgabe der Bereichselemente.";
+$MESS ['AJAX_OPTION_STYLE_TIP'] = "Bei AJAX-Übergängen werden CSS-Styles, die durch die Komponente aufgerufen werden, mitgeladen.";
+$MESS ['AJAX_OPTION_JUMP_TIP'] = "Wenn die Ajax-Abfrage beendet ist, wird die Seite zur Komponente gescrollt.";
+$MESS ['AJAX_OPTION_SHADOW_TIP'] = "Beim Ausführen des Übergangs, wird der Bereich, der sich ändern soll, schattiert.";
+$MESS ['DETAIL_URL_TIP'] = "Hier wird der Pfad zur Seite mit der detailierten Beschreibung des Informationsblock-Elements angegeben.";
+$MESS ['CACHE_TIME_TIP'] = "Geben Sie die Cache-Laufzeit in Sekunden an.";
+$MESS ['SECTION_CODE_TIP'] = "Geben Sie den Bereichscode an. Das Feld kann leer gelassen werden, wenn <i>Bereichs ID</i> angegeben wurde.";
+$MESS ['SECTION_URL_TIP'] = "Geben Sie die URL zur Seite mit dem Bereichsinhalt an.";
+$MESS ['ELEMENT_SORT_FIELD_TIP'] = "Hier wird das Feld angegeben, nach dem die Sortierung der Fotos in jedem Bereich erfolgt.";
+$MESS ['ELEMENT_SORT_ORDER_TIP'] = "In welcher Reihenfolge werden Fotos in jedem Bereich sortiert.";
+$MESS ['FILTER_NAME_TIP'] = "Geben Sie die Variable an, der das Parameterarray aus dem Filter übergeben wird. Es dient der Bestimmung der Elemente. Sie können das Feld leer lassen, um die Standardeinstellung zu nutzen.";
+$MESS ['PAGER_TITLE_TIP'] = "Geben Sie die Kategorie-Überschrift an, der in der Navigation angezeigt wird.";
+$MESS ['PAGER_TEMPLATE_TIP'] = "Geben Sie die Seitennavigations-Vorlage an. Wenn das Feld leer ist, wird die Standardvorlage (.default) eingesetzt. Im System ist auch die Vorlage <i>orange</i> angelegt.";
+$MESS ['SECTION_ID_TIP'] = "Das Feld enthält den Code in dem die Bereichs ID übergeben wird. Als Standard enthält das Feld ={\$_REQUEST[\"SECTION_ID\"]}. Das Feld kann leer gelassen werden, wenn die <i>Bereichs ID</i> angegeben ist.";
+$MESS ['PAGER_DESC_NUMBERING_CACHE_TIME_TIP'] = "Cache-Laufzeit für die ersten Seiten in Sekunden bei der Nutzung der rückwärtigen Navigation.";
+$MESS ['PAGER_DESC_NUMBERING_TIP'] = "Nutzen Sie diese Option, wenn das neue Informationsblock-Element immer an die erste Stelle der Liste kommt. Auf diese Weise ändert sich nur die Letzte Navigationsseite. Alle vorhergehenden kann man für lange Zeit cachen.";
+?>

@@ -1,0 +1,71 @@
+<p>Will man relativ viele Objekte in einem Informationsblock speichern, kann man dafür einen speziellen Speichermodus benutzen, bei welchem die 
+Informationsblockobjekte in einer extra Tabelle gespeichert werden (Technologie "Infoblöcke 2.0"). Um den Speichermodus für Objekte im Informationsblock 
+zu ändern, muss die Anwendung selbst kaum modifiziert werden. (d.h. in den meisten Fällen kann man den Speichermodus ändern, nachdem die Website bereits 
+gestartet wurde). </p>
+
+<p>Wenn die Informationsblockobjekte in einer extra Tabelle gespeichert werden, kann die Belastung der Datenbank sowie die Komplexität und Anzahl der 
+SQL-Anfragen wesentlich reduziert werden. Auch die Arbeitsgänge der Tabellenverbindungen können minimiert werden, da die Eigenschaftswerte der 
+Informationsblockobjekte im Rahmen eines Tabelleneintrags gespeichert sind. Für jeden Informationsblock mit allen seinen Eigenschaften wird eine 
+extra SQL-Tabelle erstellt.  </p>
+
+<p>Wenn jedoch viele Anfragen an einen konkreten Informationsblock erwartet werden, und zwar mit dem Filtern nach bestimmten Eigenschaften, welche 
+schon in der Phase der Website-Entwicklung bekannt waren, kann man die Geschwindigkeit der Anfragen wesentlich erhöhen und gleichzeitig die Belastung 
+der Datenbank reduzieren. Dafür sollten Indexe zu diesen Eigenschaften in der Datenbank hinzugefügt werden. Wird das Bitrix Framework aktualisiert,
+ bleiben hinzugefügte Indexe erhalten. </p>
+
+<p>Der Auswahlprozess in der Datenbank wird also beschleunigt, indem Indexe hinzugefügt werden. Dabei sollte die regelmäßige Optimierung von Tabellen
+ und Indexen nicht vergessen werden. Sie kann im Bereich "Einstellungen &gt; Tools &gt; Datenbankoptimierung" durchgeführt werden. </p>
+
+<ol>
+<li>In der Entwicklungsphase wird meist beschlossen, dass bestimmte Objekte der Website in den Infoblöcken 2.0 gespeichert werden. </li>
+
+<li>Zuerst werden typische Anfragen an die Daten der Web-Anwendung festgestellt, z.B.: Auswahl der Produktbeschreibung nach Produkt-Identifikator 
+(70%), Auswahl der Produktliste im Katalogbereich (10%), Filtern der Produkte nach Hersteller (5%) usw. Für jeden Informationsblock werden so die 
+Eigenschaften festgelegt, nach welchen gefiltert wird. Im Informationsblock der Produkte wird beispielsweise ein intensives Filtern nach der Eigenschaft
+ der Produktanbindung an den Informationsblock der Hersteller oder nach einem zusätzlichen Zertifizierungscode erwartet u.Ä.
+<p>Jetzt sollte man überprüfen, dass es in der Tabelle mit den Eigenschaftwerten des Informationsblocks Produkte einen Index für die Eigenschaft gibt,
+ welche mit dem Informationsblock der Hersteller verknüpft ist. Im Bereich "Inhalt > Infoblöcke > Informationsblocktypen >Produkte" auf der Registerkarte 
+ "Eigenschaften" wird in der ersten Spalte (ID-Spalte) der Identifikator der Anbindungseigenschaft angezeigt. Auf der Registerkarte "Informationsblock"
+ ist der Identifikator des Informationsblocks angegeben (Eigenschaft "ID"). Nun sollte in der Datenbank eine Tabelle gefunden werden, in welcher die 
+ Eigenschaftwerte des Informationsblocks Produkte gespeichert werden. Das Namensmuster für Tabellen sieht wie folgt aus: 
+ "show create table b_iblock_element_prop_s#Informationsblock-ID#", z.B.: "b_iblock_element_prop_s1" ("s" steht für Tabellen mit einzelnen Eigenschaftswerten, 
+ "m" - für Tabellen mit mehrfachen Eigenschaftswerten). </p>
+
+<p>Jetzt sollte überprüft werden, dass für die erforderliche Eigenschaft ein Index hinzugefügt wurde. Die Anfrage wird im Bereich 
+"Einstellungen &gt; Tools &gt; SQL Abfragen" ausgeführt. Hier ein Beispiel der Syntax für MySQL:  </p>
+
+<p>show create table b_iblock_element_prop_s1</p>
+
+<p>Die Tabellenstruktur wird ausgegeben, z.B.:
+CREATE TABLE `b_iblock_element_prop_s1` (
+  `IBLOCK_ELEMENT_ID` int(11) NOT NULL,
+  `PROPERTY_11` text collate utf8_unicode_ci,
+  `DESCRIPTION_11` varchar(255) collate utf8_unicode_ci default NULL,
+  `PROPERTY_12` decimal(18,4) default NULL,
+  `DESCRIPTION_12` varchar(255) collate utf8_unicode_ci default NULL,
+  `PROPERTY_13` int(11) default NULL,
+  `DESCRIPTION_13` varchar(255) collate utf8_unicode_ci default NULL,
+  `PROPERTY_14` int(11) default NULL,
+  `DESCRIPTION_14` varchar(255) collate utf8_unicode_ci default NULL,
+  PRIMARY KEY  (`IBLOCK_ELEMENT_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci</p>
+
+<p>In diesem Fall wird die Eigenschaft der Anbindung in der Spalte `PROPERTY_13` gespeichert. Dabei können wir sehen, dass es in der Tabelle nur einen Schlüssel gibt. 
+ <br>"PRIMARY KEY  (`IBLOCK_ELEMENT_ID`)".</p>
+
+<p>Nun wird zur Spalte der Index hinzugefügt: <br>
+alter table b_iblock_element_prop_s1 add index ix_prop13 (PROPERTY_13)</p>
+
+<p>Wenn jetzt die Anfrage "show create table b_iblock_element_prop_s1"ausgeführt wird, kann der hinzugefügte Eigenschaftsindex angezeigt werden: 
+<br>
+KEY `ix_prop13` (`PROPERTY_13`)</p>
+
+<p>Weitere Informationen zu den Indexen in der Tabelle kann man mit folgender Anfrage bekommen: "show indexes in b_iblock_element_prop_s1".</p>
+Ähnlich werden Indexe zur Tabelle hinzugefügt, in welcher mehrfache Eigenschaftswerte des Informationsblocks gespeichert werden.
+Man sollte also überprüfen, dass die Indexe für alle Informationsblockeigenschaften verfügbar sind, wenn diese intensiv gefiltert und im Format 
+"2.0" gespeichert werden. </li> 
+<li>Man sollte sicherstellen, dass die Tabellen der Datenbank (und entsprechend die Indexe) im Bereich "Einstellungen > Tools > Datenbankoptimierung"
+ oder aber mit den internen Tools der Datenbankverwaltung regelmäßig optimiert werden. Die Optimierungshäufigkeit hängt davon ab, wie viele Daten 
+ gespeichert und wie oft sie hinzugefügt/geändert werden. Oft wird praktiziert, dass alle Datenbanktabellen einmal im Monat optimiert werden, und 
+ zwar zum dem Zeitpunkt, an dem die Website am wenigsten besucht wird. </li> 
+ </ol>

@@ -1,0 +1,56 @@
+<?
+$MESS ['PM_SEARCH_USER'] = "User search";
+$MESS ['PM_POST_FULLY'] = "Used space:";
+$MESS ['PM_HEAD_FROM'] = "From:";
+$MESS ['PM_HEAD_TO'] = "To:";
+$MESS ['PM_HEAD_MESS'] = "Message:";
+$MESS ['PM_HEAD_SUBJ'] = "Subject:";
+$MESS ['PM_SMILES'] = "Smileys";
+$MESS ['PM_ACT_SEND'] = "Send";
+$MESS ['PM_ACT_SAVE'] = "Save";
+$MESS ['PM_COPY_TO_OUTBOX'] = "Save a message copy in the \"Sent\" folder";
+$MESS ['PM_REQUEST_IS_READ'] = "Request read confirmation";
+$MESS ['FORUM_MAIN_WAIT'] = "...";
+
+$MESS ['PM_FONT'] = "Font";
+$MESS ['PM_FONT_TITLE'] = "Font";
+$MESS ['PM_COLOR'] = "Color";
+$MESS ['PM_CLOSE_OPENED_TAGS'] = "Close all opened tags";
+$MESS ['PM_CLOSE_ALL_TAGS'] = "Close all tags";
+$MESS ['PM_WANT_ALLOW_SMILES'] = "Do you want to <B>use</B> smileys in this message?";
+$MESS ['PM_BOLD'] = "Bold (alt+b)";
+$MESS ['PM_ITAL'] = "Italic (alt+i)";
+$MESS ['PM_UNDER'] = "Underlined (alt+u)";
+$MESS ['PM_HYPERLINK_TITLE'] = "Hyperlink (alt+h)";
+$MESS ['PM_IMAGE_TITLE'] = "Image attachment (alt+g)";
+$MESS ['PM_QUOTE_TITLE'] = "Quote (alt+q)";
+$MESS ['PM_CODE_TITLE'] = "Code (alt+p)";
+$MESS ['PM_LIST_TITLE'] = "Create list (alt+l)";
+$MESS ['PM_TRANSLIT_TITLE'] = "Translit (alt+t)";
+
+$MESS ['FORUM_TRANSLIT_EN'] = "Translit";
+$MESS ['FORUM_LIST_PROMPT'] = "Enter the list item. Click 'Cancel' or leave the space symbol for completing the list";
+$MESS ['FORUM_TEXT_ENTER_URL'] = "Enter the full address (URL)";
+$MESS ['FORUM_TEXT_ENTER_URL_NAME'] = "Enter the text to be shown as a hyperlink";
+$MESS ['FORUM_TEXT_ENTER_IMAGE'] = "Enter the full image path (URL)";
+$MESS ['JQOUTE_AUTHOR_WRITES'] = "wrote";
+$MESS ['FORUM_ERROR_NO_URL'] = "You should specify the site address (URL)";
+$MESS ['FORUM_ERROR_NO_TITLE'] = "You have to specify the title";
+$MESS ['FORUM_HELP_BOLD'] = "Bold (alt + b)";
+$MESS ['FORUM_HELP_ITALIC'] = "Italic (alt + i)";
+$MESS ['FORUM_HELP_UNDER'] = "Underlined (alt + u)";
+$MESS ['FORUM_HELP_FONT'] = "Font face";
+$MESS ['FORUM_HELP_COLOR'] = "Font color";
+$MESS ['FORUM_HELP_CLOSE'] = "Close all open tags";
+$MESS ['FORUM_HELP_URL'] = "Hyperlink (alt + h)";
+$MESS ['FORUM_HELP_IMG'] = "Attach image (alt + g)";
+$MESS ['FORUM_HELP_QUOTE'] = "Quote (alt + q)";
+$MESS ['FORUM_HELP_LIST'] = "List (alt + l)";
+$MESS ['FORUM_HELP_CODE'] = "Code (alt + p)";
+$MESS ['FORUM_HELP_CLICK_CLOSE'] = "Click the button to close the tag";
+$MESS ['FORUM_HELP_TRANSLIT'] = "Convert to transliterated Romans (alt+t)";
+$MESS ['JERROR_NO_TOPIC_NAME'] = "Please provide message title. ";
+$MESS ['JERROR_NO_MESSAGE'] = "Please provide your message. ";
+$MESS ['JERROR_MAX_LEN1'] = "Maximum message length is ";
+$MESS ['JERROR_MAX_LEN2'] = "symbols. Total symbols: ";
+?>

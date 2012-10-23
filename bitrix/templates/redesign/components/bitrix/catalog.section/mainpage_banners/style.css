@@ -1,0 +1,13 @@
+.mainpage_banners {
+	margin: 30px 0px;
+}
+.mainpage_banners .mainpage_banner {
+	float: left;
+	margin-right: 24px;
+	border: 2px solid #c5c5c5;
+	width: 230px;
+	height: 115px;
+}
+.mainpage_banners .mainpage_banner.last {
+	margin-right: 0px;
+}

@@ -1,0 +1,10 @@
+.second_menu_bottom_table a {
+color: #000000;
+}
+.second_menu_bottom_table a:hover {
+text-decoration: none;
+color: #d41f1f;
+}
+.second_menu_bottom_table td{
+color: #d41f1f;
+}

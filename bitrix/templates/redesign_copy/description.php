@@ -1,0 +1,1 @@
+<?$arTemplate = Array("NAME"=>"redesign without scroll", "DESCRIPTION"=>"Редизайн сайта \"Авангард\" без прокрутки");?>

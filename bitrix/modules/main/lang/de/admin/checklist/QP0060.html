@@ -1,0 +1,26 @@
+<p>Oft ist es erforderlich, die maximale Leistung der Website zu bewerten: Was "schafft" ein System in der derzeitigen Konfiguration, ohne dass dabei 
+die Seiten im Browser der Websitebesucher langsamer geladen werden?  </p>
+
+<p>Ein Beispiel: Eine Website ist auf eine mögliche Hochbelastung eingestellt und verfügt dabei über eine leistungsfähige Hardware. Ein Lasttest hat
+ bei einem simulierten Traffic von 3.000.000 Hits pro Tag folgende Ergebnisse gezeigt: Durchschnittliche Zeit der Seitengenerierung betrug 0,5 Sek., 
+ durchschnittliche Zeit, welche der Besucherbrowser zum Laden einer Seite benötigte, betrug 1 Sek.  </p>
+
+<p>Im Laufe dieses Tests wurde festgestellt, dass eine maximale Leistung des aktuell konfigurierten Systems (Software + Hardware) 5.500.000 Hits pro 
+Tag beträgt, mit der Durchschnittszeit der Seitengenerierung von 1 Sek. und Durchschnittszeit, welche zum Laden einer Seite im Besucherbrowser benötigt 
+wird, von 3 Sek. Bei solchen Ergebnissen kann man damit rechnen, dass das System auch bei plötzlichen Traffic-Erhöhungen stabil funktionieren wird.   </p>
+
+
+<p>Sicherstellen, dass ein Lasttest zur Feststellung einer maximalen Websiteleistung unter "Einstellungen &gt; Performance &gt; Performance Panel &gt; Skalierbarkeit"
+ durchgeführt wurde. Folgende Ausgangsdaten sollten dabei benutzt werden: </p>
+
+<ul>
+<li>Gleichzeitige Verbindungen am Anfang: 1 </li>
+<li>Gleichzeitige Verbindungen am Ende: 5 </li> 
+<li>Erhöhung der Anzahl gleichzeitiger Verbindungen mit: 1 </li> 
+<li>Maximale Testdauer: 5 Min. </li>
+<li>Seite: Startseite der Website (beispielsweise /index.php). Man kann dabei aber auch eine beliebige Seite auswählen, die besucht wird.  </li> 
+ </ul>
+
+<p>Die Zeit der Seitengenerierung sollte 0,5 Sekunden nicht übersteigen und soll sich auch nicht wesentlich erhöhen, wenn die Anzahl gleichzeitiger 
+Verbindungen beim Test steigt. In der Spalte "Fehler" soll der Wert bei 0 liegen. Die Mindestanzahl der Seiten pro Sekunde soll der zu erwartenden 
+Höchstbelastung (Hits pro Tag) geteilt durch 86.400 entsprechen. Die Zeit, die zum Herunterladen einer Seite benötigt wird, sollte 1 Sekunde nicht übersteigen.  </p>

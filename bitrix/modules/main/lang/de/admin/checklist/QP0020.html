@@ -1,0 +1,21 @@
+<p>Das Framework ist mit der PHP-Programmiersprache erstellt. Die Websiteleistung hängt also direkt davon ab, wie die PHP-Einstellungen sind. 
+Daher ist eine der wichtigsten Voraussetzungen für die maximale Websitegeschwindigkeit, dass ein PHP-Beschleuniger / PHP-Optimierer (APC, ZendOptimizer+, 
+eAccelerator, XCache, WinCache) verfügbar und korrekt eingestellt ist.  </p>
+
+<p>Es wird empfohlen, die Einstellungen im administrativen Bereich des PHP-Beschleunigers so vorzunehmen, dass eine Bewertung dessen Effektivität in 
+Echtzeit möglich wird. So können die Beschleuniger-Parameter bei Bedarf direkt geändert werden: Zum Beispiel kann man die Cache-Größe an die Größe und
+ den Umfang der Websitedateien anpassen, "unnötige" Dateien, welche Cache Platz wegnehmen, bestimmen etc. Man sollte außerdem darauf achten, dass Parameter 
+ wie "open_basedir", "realpath_cache_size"  usw. optimal eingestellt sind, denn sie sorgen dafür, dass PHP korrekt funktioniert. </p>
+ 
+<p><img height="456" border="0" width="500" src="/bitrix/images/main/checklist/de/QP0020.png" /></p>
+ 
+<ol>
+<li>Im administrativen Bereich auf der Seite "Einstellungen &gt; Performance  &gt; Performance Panel &gt; Konfiguration" sollte in der Zeile "PHP-Einstellungen"
+ der Wert "Optimal" angezeigt sein. Ist das nicht der Fall, sollten die PHP-Einstellungen und PHP-Module optimiert werden, damit sie den Systemempfehlungen 
+ entsprechen. </li>
+<li>Stellen Sie sicher, dass der für PHP bereitgestellte Arbeitsspeicher ausreichend ist, um die Ziele der Website zu erreichen. Dazu wird in der Regel
+ das PHP-Fehlerprotokoll eingeschaltet. Die eventuell auftretenden PHP-Fehler der Website werden überwacht und in einer extra Datei protokolliert. So 
+ können die Fehler bestimmt werden, die durch unzureichenden Arbeitsspeicher verursacht wurden. Werden solche Fehler gefunden, wird der Arbeitsspeicher 
+ für PHP (memory_limit) vergrößert. Dabei muss allerdings beachtet werden, dass wenn die Web-Seiten oder Skripte zu viel Arbeitsspeicher benötigen 
+ (kritische Werte liegen dabei üblicherweise über 128Mb), diese auch optimiert werden sollten. </li> 
+ </ol>

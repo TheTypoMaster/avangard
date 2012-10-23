@@ -1,0 +1,12 @@
+.DS_Store
+.svn
+bitrix/cache
+bitrix/managed_cache
+nbproject
+dbconn.php
+bitrix/backup
+bitrix/stack_cache
+upload
+.htaccess
+db_log.php
+myYML.xml

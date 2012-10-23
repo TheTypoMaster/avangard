@@ -1,0 +1,12 @@
+div.news-list img.preview_picture
+{
+	float:left;
+	margin:0 4px 6px 0;
+}
+.news-date-time {
+	color:#000;
+}
+
+a.links:link {color: #e20a17; font-family:Tahoma; text-decoration: underline; font-size: 12px; font-weight:bold}
+a.links:visited {color: #e20a17; font-family:Tahoma; font-size: 12px; font-weight:bold; text-decoration: underline;}
+a.links:hover {color: #e20a17; font-family:Tahoma; font-size: 12px; text-decoration: none; font-weight:bold}

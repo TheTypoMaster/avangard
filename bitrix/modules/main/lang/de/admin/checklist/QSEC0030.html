@@ -1,0 +1,71 @@
+<p>Die Websites werden in der Regel durch verschiedene Nutzergruppen verwaltet: Die wichtigste ist dabei die Gruppe "Administratoren", sie verfügt über maximale 
+Zugriffsberechtigungen. Die Nutzergruppen sowie mögliche Szenarien derer Arbeit mit der Website werden üblicherweise in der Website-Spezifikation bestimmt. 
+Um eine maximale Sicherheit der Website zu erreichen, wird es ausdrücklich empfohlen, jeder Nutzergruppe nur die Rechte zu vergeben, die dieser Gruppe zur 
+Erledigung gruppenspezifischen Aufgaben auch tatsächlich erforderlich sind. Dabei gilt das Prinzip der Erhöhung der Zugriffsrechte: Zuerst sollten grundsätzlich 
+alle Zugriffsrechte entzogen werden; dann werden nur die jeweils erforderlichen Rechte der jeweiligen Gruppe vergeben. </p>
+
+<p>Zum Beispiel: Soll ein Nutzer lediglich die Telefonnummer im Website-Footer bearbeiten können, dann wird für diesen Nutzer eine Gruppe erstellt, welche
+ nur dazu berechtigt ist, diese Informationen zu bearbeiten, so dass der Nutzer aus diesem Beispiel nicht etwa noch irgendeinen Menüpunkt oder die Seite 
+ "Über das Unternehmen" bearbeiten könnte. Oder wenn ein Nutzer zwei Informationsblöcke verwaltet, sollte er entsprechende Zugriffsrechte eben nur für 
+ diese zwei Informationsblöcke haben, und nicht gleich für 50. </p>
+
+<p>Was ist das Ziel dieser Einschränkungen?</p>
+
+<ol>
+<li>Sie ermöglichen es, bestimmten Nutzern nur bestimmte Websiteinformationen verfügbar zu machen, denn mit diesen Einschränkungen bekommen die Nutzer 
+den Zugriff nur auf solche Website-Bereiche, die sie im Rahmen ihrer Arbeitsaufgaben bearbeiten sollen. </li>
+<li>Theoretisch kann der Account eines beliebigen Nutzers angegriffen werden: 
+<ul>
+<li>Ob ein Computervirus, ein schwaches Passwort oder ein Fehler des Nutzers, oder irgendeine interne Sicherheitslücke des Systems - die Gefahren eines
+ potenziellen Missbrauchs sind groß und zahlreich.</li> 
+
+ </ul>
+</li> 
+
+ </ol>
+
+<p>Die Zugriffsrechte auf die Website müssen also mit Rücksicht auf die Websitesicherheit vergeben werden.</p>
+
+<p>Diese Regel wird jedoch oft nicht eingehalten, so dass sehr viele Nutzer die Website bearbeiten und dabei sogar Administratorenrechte haben, was 
+für die Websitesicherheit sehr gefährlich werden kann.</p>
+
+
+<ol>
+<li>Im Bereich "Einstellungen &gt; Nutzer &gt; Nutzergruppen" überprüfen, welche Gruppen im System definiert sind. In jeder Gruppe sollen dann die festgelegten 
+Zugriffsrechte überprüft werden (die Gruppe "Administratoren" wird extra geprüft - siehe unten).</li>
+
+<li>Bei jeder Gruppe sollen auf der Registerkarte "Zugriff" die Zugriffsrechte auf Systemmodule überprüft werden. Ist beim Zugriffsrecht der Wert 
+"Standard" gesetzt, soll überprüft werden, was dieser Wert für jedes einzelne Modul bedeutet (Einstellungen > Systemeinstellungen > Moduleinstellungen > 
+ein konkretes Modul,  Registerkarte "Zugriff", Feld "Standard"). 
+
+<p>Üblicherweise wird eine restriktive Bedeutung dieses Werts ausgewählt, etwa "Zugriff verweigert". Man soll sicherstellen, dass inzwischen nicht 
+ein anderer Wert gesetzt wurde. Im Vorfeld sollte man in der Dokumentation lesen, welche Aktionen innerhalb eines konkreten Moduls den definierten 
+Zugriffsrechten entsprechen. Zum Beispiel: Bedeutet das Zugriffsrecht "Bestellungen bearbeiten" im Modul "Online-Shop" auch die Möglichkeit, die
+ Kundenkonten entweder angezeigt zu bekommen oder nicht, etc. </p></li> 
+
+<li>Wenn eine Nutzergruppe den Zugriff auf das Modul "Datei-Manager" hat und über die Berechtigung "Dateien und Ordner bearbeiten" verfügt, sollte 
+im Bereich "Inhalt &gt; Seitenstruktur &gt; Dateien und Ordner" genau geprüft werden, auf welche Dateien und Ordner diese Gruppe zugreifen kann. Wenn sie 
+beispielsweise nur dafür berechtigt ist, Dateien im Ordner "/about/company" zu bearbeiten, sollte sichergestellt werden, dass alle anderen Dateien 
+durch diese Nutzergruppe nicht geändert werden können. </li> 
+
+<li>Im Bereich "Inhalt &gt; Infoblöcke &gt; Informationsblocktypen &gt; ein konkreter Informationsblock" auf der Registerkarte "Zugriff" sollten die Zugriffsrechte
+ auf jeden einzelnen Informationsblock überprüft werden. Brauchen bestimmte Nutzer diverse Informationen aus einem Informationsblock, sollte das entsprechende 
+ Zugriffsrecht den Wert "Lesen" aufweisen. </li>
+
+<li>Überprüfen, dass die Zugriffsrechte jeder einzelnen Nutzergruppe für die Websitebereiche Ansicht und Administration den Aufgaben in der 
+Website-Spezifikation entsprechen (dafür meldet man sich mit  einem Account der betreffenden Gruppe im jeweiligen Bereich an).
+<p>Die Nutzer sollten nur die Informationen angezeigt bekommen, für welche sie berechtigt sind. Bei Bedarf kann der Zugriff auf den administrativen 
+Bereich eingeschränkt werden. </p></li> 
+
+<li> 
+Die Zugriffsrechte eines jeden Accounts sollten reibungslos funktionieren: Wenn eine Nutzergruppe bestimmte Ordner auf der Website bearbeiten soll,
+ sollte dies in den Zugriffsrechten des Accounts festgelegt werden (manchmal kommt es vor, dass die Arbeitsfähigkeit eines Accounts innerhalb der Gruppe 
+ "Administratoren" geprüft wird, wo der Account logischerweise auch alle Berechtigungen hat. Wenn er aber später in eine speziell eingestellte Gruppe 
+ übertragen wird, treten Probleme mit unzureichenden Rechten auf.</li>
+
+<li>Accounts in der Gruppe "Administratoren" im Bereich "Einstellungen &gt; Nutzer &gt; Nutzergruppen" auf der Registerkarte "Parameter" im Unterbereich 
+"Nutzer in der Gruppe" überprüfen, ob jeder Nutzer diese Zugriffsrechte auch tatsächlich benötigt. </li>
+</ol>
+
+<p>In Folge der durchgeführten Überprüfung werden die Zugriffsrechte der Nutzergruppen eingestellt, welche für die Arbeit dieser Gruppen erforderlich 
+sind. Alle überflüssigen Accounts werden gelöscht. All das führt zu einer wesentlichen Erhöhung der Websitesicherheit. </p>

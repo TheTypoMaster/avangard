@@ -1,0 +1,1 @@
+<?$arTemplate = Array("NAME"=>"Шаблон без шапки для seo-статей", "DESCRIPTION"=>"");?>

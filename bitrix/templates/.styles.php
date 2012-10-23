@@ -1,0 +1,6 @@
+<?
+$arStyles = Array(
+	"" => "",
+);
+return $arStyles;
+?>

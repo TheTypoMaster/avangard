@@ -1,0 +1,13 @@
+#header img {border:none;}
+
+.hconn {width:1000px; height: 264px; background: #ffffff; padding-bottom: 0px;}
+
+.polotno_table td.pttd {padding: 0px; height:40px;}
+.polotno_table td.pttd2 {height:146px; vertical-align: bottom; padding: 0px; margin: 0px;}
+
+.fonst {font-weight:bold; color: #e20a17}
+
+.megadiv {height:32px; text-align: right; padding: 0px;  padding-top: 6px; margin: 0px; padding-right: 10px;}
+
+.lmbb {margin-bottom:12px;}
+.lc_img_block p {font-size: 11px;}

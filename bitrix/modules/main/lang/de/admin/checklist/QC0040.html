@@ -1,0 +1,36 @@
+<p>Warum sollte der Komponenten-Cache bei selbsterstellten 2.0 Komponenten benutzt werden? Ist es nicht einfacher, direkt über die API eine Anfrage
+ an die Datenbank zu senden, so die erforderlichen Informationen zu bekommen, diese Informationen in der Komponentenvorlage zu formatieren und dann 
+ dem Nutzer anzuzeigen? </p> 
+
+<p>Alles hängt mit  der Website-Leistung und deren Nutzungsbelastung zusammen. Hat eine 2.0 Komponente ohne Cache eine Ausführungszeit von 0,1 Sek. 
+und kann sie innerhalb dieser Zeit etwa 100 Anfragen an die Datenbank senden, so wird bei einer gleichzeitigen Nutzung von 100 Besuchern die Belastung 
+des Datenbankservers wesentlich höher und die Ausführungszeit der Komponente kann einen Wert zwischen 5 und 10 Sek. erreichen.</p>
+
+<p>Ein weiterer wichtiger Aspekt ist die Ausführungszeit der Komponente, wenn sie Daten aus dem Cache bekommt. Beträgt die Ausführungszeit einer 
+Komponente ohne Cache für jeden Nutzer beispielsweise 2 Sek., ändert sich die Situation bei der Komponente mit Cache wie folgt: Für den ersten Nutzer 
+wird die Komponente 2 Sek. Ausführungszeit brauchen, während dann weitere 100 Nutzer in der nächsten halben Stunde jeweils von innerhalb 0,1 Sek. 
+"bedient" werden.  </p>
+
+<p>Welche Cache-Laufzeit soll für die Informationen bei selbsterstellten 2.0 Komponenten eingestellt werden? Beim Modus "Auto verwaltet" werden die 
+Informationen aus dem Cache solange bereitgestellt, bis sie in der Datenbank aktualisiert werden, danach wird der Cache automatisch verworfen. </p> 
+
+<p>Der Einsatz des Komponenten-Cache (bei selbsterstellten 2.0 Komponenten) hat also folgende Vorteile: </p>
+<ul>
+<li>Die Websiteleistung und die Belastungsresistenz werden wesentlich höher, weil die Belastung auf die Datenbank minimiert wird, so dass die 
+Website beispielsweise nicht 50.000, sondern über 1.000.00 Nutzer täglich bedienen kann. </li>
+<li>Web-Seiten werden im Browser des Nutzers wesentlich schneller geladen, weil die Informationen, die zum Aufbau der Seiten erforderlich sind,
+ nicht mehr aus der Datenbank sondern direkt vom Server genommen werden. </li> 
+ </ul>
+
+   
+<p>In den Einstellungen einer jeden selbsterstellten 2.0 Komponente sollte im Ansichtsbereich der Website geprüft werden, dass der Cache aktiviert 
+und auch die für die Website erforderliche Cache-Zeit eingestellt ist. </p>
+
+<p>Üblicherweise befinden sich die Einstellungen dazu unter Cache-Einstellungen in den Komponenten-Parametern und heißen "Cachetyp" und "Cache-Laufzeit 
+(Sek.)". Der Cachetyp sollte auf "Auto verwaltet" gesetzt werden. </p>
+
+<p>Im administrativen Bereich sollte unter "Einstellungen &gt; Systemeinstellungen &gt; Auto-Cache" auf der Registerkarte "Komponenten Cache" der Auto-Cache
+ aktiviert werden. Auf der Registerkarte "Verwalteter Cache" soll der verwaltete Cache aktiviert werden. 
+Die Cache-Laufzeit im Modus "Auto verwaltet" sollte sehr groß sein, beispielsweise 1 Jahr. Grundsätzlich hängt die Cache-Laufzeit davon ab, wie oft
+ die Informationen in den Komponenten aktualisiert werden: Werden sie oft aktualisiert, wird es empfohlen, entweder den Modus "Auto verwaltet" zu
+ aktivieren (falls er aus irgendwelchen Gründen deaktiviert wurde) oder eine Cache-Laufzeit von etwa 10 Min. einzustellen.</p>

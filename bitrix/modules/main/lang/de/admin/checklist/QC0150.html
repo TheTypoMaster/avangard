@@ -1,0 +1,21 @@
+<p>Web-Seiten mit Inhalten sowie eingebettete Bereiche, welche im visuellen Editor bearbeitet werden können, sollten den PHP-Code nicht 
+direkt enthalten. Der Code sollte sich ausschließlich innerhalb von Komponenten befinden. Dadurch wird der modulartige Systemaufbau noch 
+verbessert, so dass die Wartungskosten für die Website reduziert werden können. Darüber hinaus können solche Seiten im visuellen Editor 
+einfacher bearbeitet werden.  </p>
+
+
+<p>Sicherstellen, dass die Web-Seiten mit Inhalten sowie eingebettete Bereiche, welche im visuellen Editor bearbeitet werden sollen, 
+den PHP-Code nicht direkt enthalten (bis auf Service-Header und Service-Footer):</p>
+
+
+<p>&lt;?<br>
+PHP-Code, welcher keiner Komponente zugeordnet ist: <br>
+?&gt; </p>
+
+<p>Code, welcher in Komponenten enthalten ist: </p>
+<p>
+&lt;?<br>
+$APPLICATION->IncludeComponent(...);<br>
+$APPLICATION->IncludeComponent(...);<br>
+...<br>
+?&gt;</p>

@@ -1,0 +1,14 @@
+<p>Wird der speziell für die Website erstellte Code immer größer, dann wird es empfohlen, diesen Code in Form eines Moduls des Bitrix Framework 
+zu gestalten. So kann dieser Code strukturiert, einfacher gemacht und die Codekonfiguration besser verwaltet werden. Außerdem ist es sinnvoll, 
+eventuelle Aktualisierungen für selbsterstellte Module im Marketplace zu verbreiten. </p>
+
+<p> Ist der Code zu groß und/oder ist er relativ kompliziert, wird es empfohlen, Technologien der objektorientierten Programmierung (Datenkapselung,
+ Polymorphie, Vererbung usw.) sowie bewährte "Entwicklungsvorlagen" zu benutzen, um dadurch etwaige Fehler und die Wartungskosten für die Website zu minimieren. </p>
+
+<p>Manchmal wird der Code einer ganzen Website innerhalb von Initialisierungsdateien (init.php und ähnliche) platziert. Da aber solche Dateien enorm
+ umfangreich werden können, macht das die Websiteverwaltung kompliziert, erhöht die Wahrscheinlichkeit der Fehler und reduziert die Leistung des Systems.
+ Noch schlimmer ist es, wenn von den Initialisierungsdateien aus über die API des Bitrix Framework intensive Anfragen an die Datenbank gesendet werden.</p>
+
+
+<p>Sicherstellen, dass der selbsterstellte und umfangreiche Website-Code nicht in den verschiedenen Initialisierungsdateien (init.php u.Ä.) 
+"verstreut", sondern in Form eines Moduls des Bitrix Frameworks strukturiert ist. </p>

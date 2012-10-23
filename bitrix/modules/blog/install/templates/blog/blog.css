@@ -1,0 +1,133 @@
+.blogCalHighlight {color: #000000; background-color: #8FB0D2; font-family: Arial, Helvetica, sans-serif; font-size:9pt;}
+.blogCalDefault {color: #000000; background-color: #FBFBFB; font-family: Arial, Helvetica, sans-serif; font-size:9pt;}
+.blogCalWeekend {color: #888888; background-color: #FBFBFB; font-family: Arial, Helvetica, sans-serif; font-size:9pt;}
+.blogCalSelected {color: #000000; background-color: #C8C8C8; font-family: Arial, Helvetica, sans-serif; font-size:9pt;}
+.blogCalToday {color: #000000; background-color: #FBFBFB; font-weight: bold; font-family: Arial, Helvetica, sans-serif; font-size:9pt;}
+.blogCalWeek {color: #000000; background-color: #FBFBFB; font-family: Arial, Helvetica, sans-serif; font-size:9pt; padding-left:2px; padding-right:2px;}
+.blogCalTitle {color: #000000; background-color: #FBFBFB; font-family: Arial, Helvetica, sans-serif; font-size:9pt;}
+.blogCalDisable {color: #999999; background-color: #FBFBFB; font-family: Arial, Helvetica, sans-serif; font-size:9pt;}
+.blogCalBack {background-color: #FBFBFB;}
+
+.blogError{color:#FF0000; font-size:90%; font-family: Arial, Helvetica, sans-serif; font-weight: bold; margin:5px 0px 15px 0px;}
+.blogOK{color:#00AA00; font-size:90%; font-family: Arial, Helvetica, sans-serif; font-weight: bold; margin:5px 0px 15px 0px;}
+.blogMessage{color:#000000; font-size:90%; font-family: Arial, Helvetica, sans-serif; margin:5px 0px 15px 0px;}
+
+.blogLine{color:#99BAD7; background-image:url('/images/point.gif'); background-repeat:repeat-x; background-position:center center; font-size:70%; font-family: Arial, Helvetica, sans-serif; margin:5px 0px 7px 0px}
+.blogLine b{background-color:#FFFFFF;padding-right:5px;font-weight:normal}
+
+.blogPostTitle{color:#3A84C4; margin:7px 0px 2px 0px; font-family: Arial, Helvetica, sans-serif; font-size:100%; font-weight: bold;}
+.blogText{color:#000000; font-family: Arial, Helvetica, sans-serif; font-size:90%;}
+
+.blogtoolblock {
+	border-left: 1px solid #CEDEEC; 
+	border-top: 1px solid #CEDEEC; 
+	border-right: 0px solid; 
+	border-bottom: 0px solid; 
+}
+
+.blogtoolbar {
+	background-color: #F1F5FA; 
+	height:25px;
+	border-left: 1px solid #FFFFFF; 
+	border-top: 1px solid #FFFFFF; 
+	border-right: 1px solid #CEDEEC; 
+	border-bottom: 1px solid #CEDEEC; 
+}
+
+.blogtoolsection {
+	border-left: 1px solid #FFFFFF;
+	border-top: 1px solid #FFFFFF; 
+	border-right: 1px solid #CEDEEC; 
+	border-bottom: 1px solid #CEDEEC; 
+	width: 3px; 
+	height: 21px; 
+	margin-left: 1px; 
+	margin-right:0px;
+	box-sizing:border-box; 
+	-moz-box-sizing:border-box;
+}
+
+.blogtoolbutton, .blogmessbuttontext {
+	font-family: Verdana,Arial,Hevetica,sans-serif; 
+	font-size: 11px; 
+	color: #456A74; 
+	text-decoration: none;
+}
+
+a.blogtoolbutton:hover, .blogmessbuttontext:hover {
+	color: #456A74; 
+	text-decoration:underline; 
+}
+
+.blogtoolseparator {
+	border-left: 1px solid #CEDEEC;
+	border-right: 1px solid #FFFFFF; 
+	width: 2px; 
+	height: 21px; 
+	margin-left: 6px; 
+	margin-right:1px;
+	box-sizing:border-box; 
+	-moz-box-sizing:border-box;
+}
+
+
+.blogtitle {
+	border: 1px solid #99BAD7;
+	padding: 4px;
+	background-color: #CEDEEC;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 13px;
+	color: #000000;
+	font-weight: bold;
+}
+
+.blogtitletext {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 13px;
+	color: #000000;
+}
+
+
+.blognewtopicButton {
+	BACKGROUND: #CEDEEC;
+	border: 1px solid #99BAD7;
+	COLOR: #000000;
+	FONT-FAMILY: Arial, Verdana, Helvetica, sans-serif;
+	FONT-SIZE: 10pt;
+	font-weight: bold;
+	height: 25px;
+	width: 170px;
+}
+
+.blogquote {font-family: Arial, Helvetica, sans-serif; font-size:8pt; color: #000000; background-color: #FBFBF9; border : 1px solid Black;padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px; text-indent: 2pt;}
+.blogcode {font-family: Arial, Helvetica, sans-serif; font-size:8pt; color: #333333; background-color: #FBFBF9; border : 1px solid Black; padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px; text-indent: 2pt;}
+
+.blogButton
+{
+	font-size: 8.5pt;
+	font-family: Arial, Verdana, helvetica, sans-serif;
+	border-style:none;
+}
+
+.blogButton:hover
+{
+	background-color:#FFFFEE;
+}
+.blogtableborder{background-color:#8FB0D2;}
+.blogtablehead{background-color:#F1F5FA;}
+.blogtablebody{background-color:#FFFFFF;}
+
+.blogtext, .blogcommentlink, .blogpostdate, .blogauthor, .blogtextsm, .blogheadtext{
+	font-family: Verdana,Arial,Hevetica,sans-serif; 
+	font-size: 12px; 
+	color: #000000; 
+}
+
+.blogheadtext{font-weight:bold;color: #456A74;} 
+.blogpostdate{color: #456A74;}
+.blogpostdate a{color: #456A74;}
+.blogauthor {color:#000000;}
+.blogauthor a{color:#000000;}
+.blogcommentlink a{color:#2974B2; font-size:11px;}
+.blogcommentlink{color:#2974B2; font-size:11px;}
+.blogtextsm{font-size: 11px; }

@@ -1,0 +1,55 @@
+<p>Nach der Entwicklung einer eigenen Komponente sollte deren Code aufgrund von Testdaten optimiert werden. Das wird die Leistung und 
+Stabilität der Website wesentlich erhöhen. </p>
+
+<p>Die Optimierung der Komponente hinsichtlich der Nutzung des Arbeitsspeichers kann man mithilfe von PHP-Funktionen "memory_get_usage" 
+und "memory_get_peak_usage" durchführen. Dabei sollte die maximale Größe des Arbeitsspeichers festgelegt werden, welche für die Komponente verfügbar bleiben soll. </p> 
+
+<p>Ein Beispiel: Wenn eine Website den Arbeitsspeicher von maximal 64 Mb zur Verfügung hat, darf keine Komponente einen größeren Arbeitsspeicher
+ für sich in Anspruch nehmen, sonst werden auf der Website diverse Fehler auftreten: von einem weißen Bildschirm bis hin zum (im schlimmsten Fall)
+ Abbruch eines wichtigen Geschäftsprozesses, bei dem eventuell auch wichtige Daten verloren gehen könnten. </p>
+
+<p>Grundsätzlich können aufgrund der Überschreitung des Arbeitsspeichers und der Prozessorkapazität folgende Fehler auftreten:</p>
+
+<ul>
+<li>Die Komponente speichert die Ergebnisse der Anfragen an die Datenbank (über API Bitrix Framework) in den PHP-Daten. Bei einer Erhöhung des 
+Informationenumfangs in der Datenbank kann die Größe der Komponentendaten den Arbeitsspeicher überschreiten, welcher der gesamten Website bereitgestellt wurde. 
+Um solche Situationen zu vermeiden, wird es empfohlen, den Umfang von Informationen, welche die Komponente speichert, zu optimieren: Dafür können 
+temporäre Tabellen der Datenbank benutzt werden oder die Anfragen können anders formuliert werden. Der Sinn dieser Maßnahmen ist, dass dadurch Folgendes 
+gewährleistet wird: Die Komponente überschreitet nie ein gewisses Arbeitsspeicherlimit (beispielsweise 8Mb), unabhängig davon, wie groß die Daten sind, 
+die von dieser Komponente bearbeitet werden.   </li>
+
+<li>Die Komponente versucht, Ergebnisse der Anfragen an API Bitrix Framework zu vereinigen, indem diese Ergebnisse zuerst zu den Daten hinzugefügt und
+ dann im Arbeitsspeicher bearbeitet werden. In diesem Fall versucht die Komponente, mittels Programmiersprache die Arbeit der Datenbank zu machen und 
+ so die Informationen zu vereinigen (JOIN). Diese Aufgabe ist manchmal erforderlich, wenn Informationen aus mehreren Informationsblöcken vereinigt werden sollen. 
+
+Zur Vereinigung (JOIN) verschiedener ausgewählter Daten und Informationen werden spezielle integrierte Möglichkeiten der Informationsblöcke empfohlen.
+ Außerdem kann man auch eigene Tabellen in der Datenbank erstellen, mit diesen Tabellen über API Bitrix Framework arbeiten und dabei integrierte Tools 
+ der Datenbank zur Vereinigung der Daten benutzen. </li> 
+
+<li>Die Komponente platziert ganze Dateien im Arbeitsspeicher, um sie dann zu bearbeiten. Wenn dabei eine Datei zu groß ist, wird die Arbeit der 
+Komponente aufgrund eines Fehlers  abgebrochen. Große Dateien sollten aufgeteilt werden, bevor sie bearbeitet werden.  </li> 
+
+<li>Die Komponente führt bestimmte Kalkulationen sehr intensiv durch: Deshalb werden Prozessoren überbelastet und die Seiten werden langsamer erstellt.
+ 
+In solchen Situationen wird es empfohlen, entweder Kalkulationen in einem asynchronen Modus durchzuführen und den Nutzern bereits fertige 
+Kalkulationsergebnisse zur Verfügung zu stellen oder aber  den Cache dafür zu verwenden.</li>
+ </ul>
+
+<p>Manchmal wird leider versucht, den hier als Beispiele erwähnten Fehlern vorzubeugen, indem der Website ein riesengroßer Arbeitsspeicher 
+(etwa 512 Mb oder höher) bereit gestellt wird. Das beeinträchtigt zum einen die Leistung und Stabilität der gesamten Website und führt zum 
+anderen dazu, dass die Server-Hardware nicht effektiv genutzt wird. </p> 
+
+<p>Empfohlen wird gerade das Gegenteil: Der Arbeitsspeicher, welcher der Website zur Verfügung steht, sollte immer kleiner gemacht werden, 
+solange eine optimale Größe nicht gefunden wird (der für Bitrix Framework empfohlene Arbeitsspeicher soll mindestens 64Mb groß sein).</p>
+
+<ol>
+<li>Bei der Erstellung von eigenen Komponenten sollte sichergestellt werden, dass alle oben erwähnten Empfehlungen umgesetzt wurden.</li>
+
+<li>Gemeinsam mit dem Systemadministrator sollte das Protokoll der PHP-Fehler oder des Web-Servers überprüft werden (das kann man nach einem 
+durchgeführten Lasttest oder einfach jede Woche machen). Dabei sollte man speziell auf die Fehler achten, die mit einem für die Web-Seiten fehlenden 
+Arbeitsspeicher verbunden sind. Werden solche Fehler festgestellt, sollte man die Ursachen finden und die Komponenten entsprechend optimieren. 
+
+So können allmählich alle Komponenten, welche eventuelle Probleme verursachen, gefunden und optimiert werden. Für die Arbeit der Website sollte 
+ein kleiner festgelegter Arbeitsspeicher ausreichend sein, wovon wiederum andere Softwares wie etwa Web-Server, Datenbank oder Datei-Cache des 
+Betriebssystems profitieren werden. </li> 
+ </ol>

@@ -1,0 +1,29 @@
+<?
+$MESS ['subscr_descr_name'] = "Newsletter module";
+$MESS ['subscr_descr_form'] = "Subscription form";
+$MESS ['subscr_descr_form_desc'] = "The subscription form to include into the site design.";
+$MESS ['subscr_descr_form_page'] = "Subscription edit page (#SITE_DIR# macro is available)";
+$MESS ['subscr_descr_subscr'] = "Newsletter subscription page";
+$MESS ['subscr_descr_subscr_desc'] = "The page with newsletter categories and subscriptions forms.";
+$MESS ['subscr_descr_subscr_page'] = "Subscription edit page";
+$MESS ['subscr_descr_subscr_count'] = "Show number of subscribers";
+$MESS ['subscr_descr_yes'] = "Yes";
+$MESS ['subscr_descr_no'] = "No";
+$MESS ['subscr_descr_subscredt_page'] = "Subscription edit page";
+$MESS ['subscr_descr_subscredt_desc'] = "The page with forms to edit or add subscription address.";
+$MESS ['subscr_descr_subscredt_anon'] = "Allow anonymous subscription";
+$MESS ['subscr_descr_subscredt_show'] = "Show authorization links on anonymous mode";
+$MESS ['subscr_descr_show_hidden'] = "Show hidden subscription categories";
+$MESS ['subscr_descr_sort_order_asc'] = "Ascending";
+$MESS ['subscr_descr_sort_order_desc'] = "Descending";
+$MESS ['subscr_descr_act_date'] = "Activation date";
+$MESS ['subscr_descr_sort'] = "Sorting";
+$MESS ['subscr_descr_subscrnews'] = "List of news";
+$MESS ['subscr_descr_subscrnews_desc'] = "List of news of one or more information blocks for newsletter issue.";
+$MESS ['subscr_descr_subscrnews_all'] = "(All)";
+$MESS ['subscr_descr_subscrnews_site'] = "Site";
+$MESS ['subscr_descr_subscrnews_ibtype'] = "Type of information block";
+$MESS ['subscr_descr_subscrnews_ibcode'] = "Information block code";
+$MESS ['subscr_descr_subscrnews_sort'] = "Field for the section sorting";
+$MESS ['subscr_descr_subscrnews_sort_dir'] = "Direction for the section sorting";
+?>

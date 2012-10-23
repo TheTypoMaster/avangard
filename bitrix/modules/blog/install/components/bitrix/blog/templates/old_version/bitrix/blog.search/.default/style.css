@@ -1,0 +1,23 @@
+.blog-line {
+	height:1px; 
+	width:100%; 
+	overflow:hidden; 
+	background-color:#C7D2D5; 
+	margin-top:8px; 
+	margin-bottom:8px;
+}
+.blog-user {
+	display:block; 
+	background-repeat:no-repeat; 
+	align:absmiddle;
+	background-image: url(images/icon_user.gif); 
+	width:16px; 
+	height:16px; 
+	float:left;
+}
+.blogtext{
+
+}
+.blog-search {
+	font-size:100%;
+}

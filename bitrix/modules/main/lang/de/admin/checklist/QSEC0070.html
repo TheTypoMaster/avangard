@@ -1,0 +1,52 @@
+<p>Um eine erforderliche Informationssicherheit der Website zu gewährleisten, sollte man die Events und Aktivitäten regelmäßig überprüfen, die 
+im "Event-Protokoll" registriert werden. </p>
+
+<p>Im Event-Protokoll können (abhängig von den Einstellungen) Benachrichtigungen über folgende Events und/oder Aktivitäten enthalten sein:  Auf
+ den Web-Seiten wurden Viren festgestellt, der proaktive Filter "Web Application Firewall" stellte nicht berechtigte Zugriffsversuche auf die 
+ Website fest, Änderungen von Bereichen und Elementen der Informationsblöcke, Aktivitäten der Forumsmoderatoren, Anmeldungen, Registrierungen 
+ und eventuelle Änderungen von Nutzer-Accounts und Nutzergruppen sowie Änderungen der Zugriffsrechte auf Module und Dateien etc.  </p>
+
+<p>In erster Linie sollte eingestellt werden, wie lange die Events im "Event-Protokoll" aufbewahrt werden: Im Bereich "Einstellungen &gt; 
+Systemeinstellungen &gt; Moduleinstellungen &gt; Hauptmodul" auf der Registerkarte "Event-Protokoll" muss dafür der Parameter "Event aufbewahren 
+(Tage)" angegeben werden.  </p>
+
+<p>Der Wert des Parameters (sprich wie viele Tage) hängt davon ab, welcher Zeitraum im Rahmen des Sicherheitsaudits vorgeschrieben wird. 
+Gemeinsam mit dem Systemadministrator kann man beispielsweise wöchentlich alle Events grundsätzlich überprüfen und täglich speziell die 
+Events, welche mit eventuell festgestellten Viren oder Versuchen eines nicht berechtigten Zugriffs auf die Website verbunden sind. In diesem 
+Fall wird es empfohlen, Events zwischen 2 bis 4 Wochen aufzubewahren.</p>
+  
+<p>Außerdem müssen die Eventtypen definiert werden, welche im "Event-Protokoll" registriert werden sollen. </p>
+
+<p>Dafür wählen Sie die erforderlichen Eventtypen auf der Seite "Einstellungen &gt; Systemeinstellungen &gt; Moduleinstellungen &gt; Hauptmodul", 
+Registerkarte "Event-Protokoll", Bereich "Events dokumentieren" aus. Es wird empfohlen, alle Eventtypen auszuwählen. </p>
+
+<p>Bei Bedarf sollte der Web-Antivirus aktiviert werden (Einstellungen &gt; Proaktiver Schutz &gt; Web-Antivirus). Auf der Registerkarte "Parameter" 
+kann dann eine erforderliche Aktion ausgewählt sowie ein Benachrichtigungsintervall eingestellt werden, sobald  Viren entdeckt werden.</p>
+
+<p>Den "Proaktiven Filter" einschalten: Einstellungen &gt; Proaktiver Schutz &gt; Proaktiver Filter. Der Filter selbst wird dabei auf der Registerkarte 
+"Proaktiver Filter" und auf der Registerkarte "Reaktion" über die Option "Angriffsversuch im Bericht protokollieren" aktiviert. Bei Bedarf 
+kann zusätzlich noch die Option "IP-Adresse des Angreifers auf die Sperrliste setzen" aktiviert werden.  </p>
+
+<p> Bei Bedarf können die Eventtypen für das Event-Protokoll für jeden einzelnen Informationsblock bestimmt werden (Inhalt &gt; Infoblöcke &gt; 
+Informationsblocktypen &gt; konkreter Informationsblock, Registerkarte "Event-Protokoll"). Das wird vor allem bei solchen Informationsblöcken 
+empfohlen, in denen besonders wichtige Informationen (etwa der Infoblock mit Preiskatalogen) enthalten sind.   </p>
+
+<p>Nachdem die Events, welche im Event-Protokoll registriert werden sollen, definiert wurden, sollte eine regelmäßige Überprüfung durchgeführt 
+und bei Bedarf erforderliche Maßnahmen eingeleitet werden. </p>
+
+<ol>
+<li>In entsprechenden Moduleinstellungen überprüfen, dass alle wichtigen Systemereignisse sowie Sicherheitsvorfälle registriert werden:
+<ul>
+<li>Einstellungen &gt; Systemeinstellungen &gt; Moduleinstellungen &gt; Hauptmodul, Registerkarte "Event-Protokoll" </li>
+<li>Einstellungen &gt; Proaktiver Schutz &gt; Web-Antivirus, Registerkarte "Parameter"</li> 
+<li>Einstellungen &gt; Proaktiver Schutz &gt; Proaktiver Filter, Registerkarte "Reaktion"</li> 
+<li>Inhalt &gt; Infoblöcke &gt; Informationsblocktypen &gt; konkreter Informationsblock, Registerkarte "Event-Protokoll". </li>
+ </ul>
+</li>
+<li>Sicherstellen, dass das Überprüfungsverfahren für die im "Event-Protokoll" registrierten Events durch Fachleute (Systemadministratoren) 
+abgestimmt ist und konkrete Maßnahmen vorgesehen sind, falls diverse Vorfälle festgestellt werden.
+<p>Zum Beispiel: Wenn ein Angriff registriert wurde, setzt der Systemadministrator die IP-Adresse des Angreifers auf die Sperrliste; wenn 
+auf der Website Viren festgestellt wurden, sollte herausgefunden werden, wann dies passierte und welcher Computer daran "schuld" war 
+(logische Gegenmaßnahme wäre dabei, dass der mit Viren "angesteckte" Computer mittels eines Antivirus-Programms gesäubert wird) usw. </p>
+</li> 
+ </ol>

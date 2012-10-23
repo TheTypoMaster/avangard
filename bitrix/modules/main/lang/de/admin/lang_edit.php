@@ -1,0 +1,31 @@
+<?
+$MESS["ACTIVE"] = "Aktiv:";
+$MESS["ADD"] = "Neue Sprache";
+$MESS["MAIN_NEW_RECORD_TITLE"] = "Neue Sprache";
+$MESS["MAIN_COPY_RECORD"] = "Kopie hinzufügen";
+$MESS["NEW_LANG_TITLE"] = "Neue Sprache";
+$MESS["MAIN_ERROR_SAVING"] = "Beim Speichern ist ein Fehler aufgetreten";
+$MESS["MAIN_DELETE_RECORD_CONF"] = "Wollen Sie diese Sprache wirklich löschen?";
+$MESS["ERROR_DELETE"] = "Fehler beim Löschen der Sprachversion. Möglicherweise besteht Vebindung zu anderen Objekten.";
+$MESS["MAIN_COPY_RECORD_TITLE"] = "Sprache kopieren";
+$MESS["MAIN_NEW_RECORD"] = "Neue Sprache";
+$MESS["FORMAT_DATE"] = "Datumsformat:";
+$MESS["FORMAT_DATETIME"] = "Zeitformat:";
+$MESS["DEF"] = "Standard:";
+$MESS["MAIN_DELETE_RECORD_TITLE"] = "Aktuelle Sprache löschen";
+$MESS["MAIN_DELETE_RECORD"] = "Sprache löschen";
+$MESS["EDIT_LANG_TITLE"] = "Sprachversion \"#ID#\" bearbeiten";
+$MESS["CHARSET"] = "Codierung:";
+$MESS["RECORD_LIST"] = "Sprachversionen";
+$MESS["DIRECTION_LTR"] = "Von Links nach Rechts";
+$MESS["NAME"] = "Überschrift:";
+$MESS["MAIN_PARAM"] = "Parameter";
+$MESS["RESET"] = "Zurücksetzen";
+$MESS["DIRECTION_RTL"] = "Von Rechts nach Links";
+$MESS["SAVE"] = "Änderungen speichern";
+$MESS["DIR"] = "Seitenverzeichnis:";
+$MESS["SORT"] = "Sortierung:";
+$MESS["MAIN_PARAM_TITLE"] = "Systemsprache-Parameter";
+$MESS["DIRECTION"] = "Leserichtung:";
+$MESS["RECORD_LIST_TITLE"] = "Sprachen";
+?>

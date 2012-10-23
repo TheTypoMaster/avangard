@@ -1,0 +1,11 @@
+<?
+$MESS["CMDESKTOP_ADMIN_SETTINGS_ALL_DIALOG_TITLE"] = "Desktops verwalten";
+$MESS["CMDESKTOP_ADMIN_SETTINGS_ALL_DIALOG_DESKTOP"] = "Desktop ";
+$MESS["CMDESKTOP_ADMIN_SETTINGS_ALL_NAME"] = "Überschrift";
+$MESS["CMDESKTOP_ADMIN_SETTINGS_ALL_JS_NONAME"] = "--- kein Wert ---";
+$MESS["CMDESKTOP_ADMIN_SETTINGS_ALL_DRAG"] = "Desktop mit der Maus verschieben";
+$MESS["CMDESKTOP_ADMIN_SETTINGS_ALL_TOOLTIP_TEXT_EDIT"] = "Klicken Sie hier, um den Desktopnamen zu bearbeiten";
+$MESS["CMDESKTOP_ADMIN_SETTINGS_ALL_TOOLTIP_UP"] = "Desktop nach oben verschieben";
+$MESS["CMDESKTOP_ADMIN_SETTINGS_ALL_TOOLTIP_DOWN"] = "Desktop nach unten verschieben";
+$MESS["CMDESKTOP_ADMIN_SETTINGS_ALL_TOOLTIP_DELETE"] = "Desktop löschen";
+?>

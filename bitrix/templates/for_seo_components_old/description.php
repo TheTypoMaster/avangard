@@ -1,0 +1,1 @@
+<?$arTemplate = Array("NAME"=>"redesign_for_seo_old", "DESCRIPTION"=>"Дизайн без шапки-прокрутки (для сео-статей)");?>

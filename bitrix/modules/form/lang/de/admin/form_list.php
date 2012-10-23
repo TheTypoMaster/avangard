@@ -1,0 +1,37 @@
+<?
+$MESS ['FORM_ADD_FIELD'] = "Neues Zusatzfeld";
+$MESS ['FORM_ADD_QUESTION'] = "Neue Frage";
+$MESS ['FORM_CONFIRM_DELETE_RESULTS'] = "Wollen Sie alle Web-Formular Ergebnisse wirklich löschen?";
+$MESS ['FORM_CONFIRM_DELETE'] = "Wollen Sie das Formular und alle damit verbundenen Ergebnisse wirklich löschen?";
+$MESS ['FORM_COPY'] = "Kopieren";
+$MESS ['FORM_CREATE_TITLE'] = "Neues Formular erstellen";
+$MESS ['FORM_DELETE'] = "Löschen";
+$MESS ['FORM_DELETE_RESULTS_ALT'] = "Alle ausgefüllten Formularergebnisse löschen";
+$MESS ['FORM_DELETE_ALT'] = "Formulare und alle damit verbundenen Ergebnisse löschen";
+$MESS ['FORM_FL_DESCRIPTION'] = "Beschreibung";
+$MESS ['FORM_F_DESCRIPTION'] = "Beschreibung:";
+$MESS ['FORM_EDIT_ALT'] = "Formularparameter bearbeiten";
+$MESS ['FORM_DELETE_RESULTS'] = "Bereinigen";
+$MESS ['FORM_SAVE_ERROR'] = "Beim Schreiben in die Datenbank ist ein Fehler aufgetreten";
+$MESS ['FORM_FIELDS'] = "Felder";
+$MESS ['FORM_FL_ID'] = "Formular ID";
+$MESS ['FORM_PAGES'] = "Formulare";
+$MESS ['FORM_FL_SID'] = "ID";
+$MESS ['FORM_FIELDS_ALT'] = "Zusätzliche Formularfelder";
+$MESS ['FORM_PAGE_TITLE'] = "Formularliste";
+$MESS ['FORM_QUESTIONS_ALT'] = "Formularfragen";
+$MESS ['FORM_RESULTS_ALT'] = "Formularergebnisse";
+$MESS ['FORM_TIMESTAMP'] = "Geändert";
+$MESS ['FORM_PREVIEW'] = "Vorschau";
+$MESS ['FORM_QUESTIONS'] = "Fragen";
+$MESS ['FORM_RESULTS'] = "Ergebnisse";
+$MESS ['FORM_FL_SITE'] = "Seiten";
+$MESS ['FORM_SITE'] = "Seiten";
+$MESS ['FORM_F_SITE'] = "Seiten:";
+$MESS ['FORM_C_SORT'] = "Sort.";
+$MESS ['FORM_SID'] = "Mnemonischer Code";
+$MESS ['FORM_F_SID'] = "Mnemonischer Code:";
+$MESS ['FORM_NAME'] = "Überschrift";
+$MESS ['FORM_F_NAME'] = "Überschrift:";
+$MESS ['FORM_COPY_ALT'] = "Web-Formular kopieren";
+?>

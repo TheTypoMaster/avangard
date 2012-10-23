@@ -1,0 +1,15 @@
+<?
+$MESS ['F_RSS_TYPE'] = "RSS format";
+$MESS ['F_YANDEX'] = "Yandex format";
+$MESS ['F_LIST_TEMPLATE'] = "Topics List page";
+$MESS ['F_READ_TEMPLATE'] = "Topic Read page";
+$MESS ['F_PROFILE_VIEW_TEMPLATE'] = "Profile page";
+$MESS ['F_DEFAULT_PATH_TO_SMILE'] = "Path to Smiles folder (root relative)";
+$MESS ['F_MODE'] = "RSS type";
+$MESS ['F_FID_RANGE'] = "Allow RSS in forums";
+$MESS ['F_COUNT'] = "Number of elements to export";
+$MESS ['RSS_TITLE'] = "RSS title (leave empty to use default name)";
+$MESS ['RSS_DESCRIPTION'] = "RSS description (leave empty to use default description)";
+$MESS ['RSS_TEMPLATE_MESSAGE'] = "Message template (leave empty to use default template)";
+$MESS ['F_RSS_TEMPLATE'] = "RSS page";
+?>

@@ -1,0 +1,16 @@
+.on_map {
+color: #e20a17;
+font-size: 16px;
+margin: 2px;
+padding: 2px;
+}
+
+.header{
+font-size: 14px;
+margin: 2px;
+padding: 2px;
+}
+.header img{
+padding-top: 4px; 
+margin-right:5px;
+}

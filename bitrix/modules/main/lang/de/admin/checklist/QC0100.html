@@ -1,0 +1,23 @@
+<p>Entsprechend dem Architekturmuster "Model-View-Controller" sollten die Vorlagen der selbsterstellten Komponenten einer Website lediglich die 
+Logik der Designerstellung enthalten.</p>
+
+<p>Der Komponentenkern dient als Controller. Seine Aufgaben sind es, die eingehenden Parameter zu bearbeiten, die Sicherheit dieser Parameter zu
+ gewährleisten, sich an die Einheit "Model" zu wenden, Informationen zu bearbeiten und sie in fertiger Form an die Einheit "View" weiterzugeben. </p>
+
+<p>Die API der Module des Bitrix Framework dient als "Model". Ihre Aufgaben bestehen darin, Daten entsprechend dem Kontext des Anwendungsbereichs 
+zu speichern sowie nach Informationen entsprechend den angegebenen Kriterien zu suchen.</p>
+
+<p>Die Komponentenvorlage dient als "View" und hat die Aufgabe, Informationen für den Besucher anschaulich darzustellen (im Falle der Web-Anwendungen 
+ist das die Erstellung eines korrekten Designs).</p>
+
+<p>Es wird ausdrücklich empfohlen, sich im Rahmen der Komponentenvorlagen ausschließlich mit der Designerstellung zu beschäftigen. Dafür werden die 
+Informationen in Form von Daten oder Objekten vom "Controller" bekommen. An "Model" oder sonstige Ressourcen sollen keine Anfragen gesendet werden. 
+Der Vorlagencode soll nicht nur für einen Programmierer sondern auch für einen Designer verständlich sein. </p>
+
+<p>Enthält die Komponentenvorlage eine Logik, die für "Controller" oder "Model" typisch ist, führt das zu Wiederholungen und macht die Architektur 
+nur komplizierter. Dementsprechend wird die Wahrscheinlichkeit etwaiger Fehler und unnötiger Extrakosten für die weitere Entwicklung und Unterstützung
+ der Website nur höher.</p>
+
+
+<p>Die Vorlagen der eigenen Komponenten sollten eine einfache Logik enthalten, welche die Erstellung von Design aufgrund von vorher vorbereiteten
+ und erhaltenen Daten sicherstellt. Die Gewinnung und Bearbeitung dieser Daten erfolgen außerhalb der Komponentenvorlage. </p>

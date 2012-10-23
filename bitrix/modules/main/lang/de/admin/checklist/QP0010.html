@@ -1,0 +1,45 @@
+<p>Um eine effektive Arbeit der Website auf dem Bitrix Framework zu gewährleisten, sollte vorher die Server-Software entsprechend eingestellt werden.
+ Normalerweise sind die Standardeinstellungen, insbesondere die von Web-Server, Datenbank u.Ä. nicht für die Arbeit einer Website mit hoher Belastung
+ oder für solche Fälle, wenn gelichzeitig einige "schwere" Anwendungen laufen, geeignet. </p>
+
+<p>Um die Einstellungen der Server-Software mit denen eine optimale Leistung erreicht werden soll schneller vorzunehmen, empfiehlt es sich, eine der 
+folgenden zusätzlichen Optionen zu benutzen: </p>
+
+<ul>
+<li>Das Paket "Bitrix Web Environment" (für Windows und Linux: Ein Installationsassistent wird dabei die Server-Software automatisch einstellen); </li>
+<li>"Bitrix Virtual Appliance" (Virtuelle Maschine, welches auf eine maximale Leistung eingestellt ist); </li> 
+<li>Hosting-Anbieter hat die Server-Software eingestellt und an Bitrix Anforderungen so angepasst, dass dadurch eine maximale Leistung erreicht werden kann.  </li> 
+ </ul>
+ 
+<p>Ein hochqualifizierter Systemadministrator kann sich die oben erwähnten Produkte sehr genau anschauen und dann seine vorhandene Server-Software 
+manuell optimal einstellen. Dennoch ist es einfacher und schneller, ein vorher konfiguriertes und getestetes System zu benutzen. </p>
+
+<p>Entsprechende Einstellungen einer Server-Software sind sehr wichtig: Sind sie nicht optimal, kann eine auch sehr professionell auf dem Bitrix 
+Framework entwickelte Website langsam und nicht korrekt funktionieren.   </p> 
+ 
+
+<ol>
+<li>Man sollte sicherstellen, dass der Web-Server auf seine maximale Leistung eingestellt ist. </li>
+<li>Man sollte sicherstellen, dass der Proxy-Server (nginx o.Ä.), welcher den Cache durchführt, auf seine maximale Leistung für die Ausgabe statischer
+ Websiteinhalte eingestellt ist. Die Verfügbarkeit eines solchen Servers erhöht die Leistung der Website sowie ihre Stabilität bei hohen Belastungen wesentlich. </li> 
+<li>Man sollte sicherstellen, dass der Web-Server (zusammen mit dem Proxy-Server, der für Cache zuständig ist) auch bei einer maximalen Belastung 
+keinen Zusammenbruch der Server-Software verursacht (beim Web-Server Apache ist beispielsweise die maximale Anzahl von Verbindungsslots in Abhängigkeit
+ von der durchschnittlichen Größe der Datenübertragung und des Server-Arbeitsspeichers bestimmt), sondern die Anfragen in eine Warteschlange einordnet.
+Es wird empfohlen, die Web-Anwendungen auf zwei Ebenen zu konfigurieren: Im Frontend (nginx o.Ä.) und im Backend (Apache, FastCGI usw.). </li> 
+<li>Man sollte sicherstellen, dass die Datenbank optimal eingestellt ist, z.B.:  
+<ul>
+<li>Für MySQL werden InnoDB-Tabellen benutzt (besonders bei Websites mit hoher Belastung).  </li>
+<li>Die Größe von innodb buffer pool ist mit Rücksicht auf den Umfang der Websitedaten und die Arbeitsspeichergröße festgelegt, andere Puffer und 
+Datenbankparameter sind entsprechend den Empfehlungen von Bitrix eingestellt, Server-Laufwerke sind auf maximale Leistung eingestellt oder der Wert
+ "innodb_flush_log_at_trx_commit" ist so eingestellt, dass eine höhere Geschwindigkeit (aber gleichzeitig eine niedrigere Sicherheit) erreicht wird.  </li> 
+<li>Man sollte sicherstellen, dass es im Bereich "Einstellungen > Performance > DB-Server" keine Beanstandungen (rot markiert) gibt oder ihre Anzahl 
+zumindest minimal ist. </li> 
+<li>Man sollte sicherstellen, dass auch wenn alle verfügbaren Verbindungen mit der Datenbank benutzt werden, die verbleibende Größe des Arbeitsspeichers
+ auf dem Server immer noch ausreichend ist.  </li> 
+</ul>
+</li>
+
+ </ol>
+
+<p>Alle oben genannten Tests können unterlassen werden, wenn bei den Einstellungen Bitrix Web Environment oder Bitrix Virtual Appliance benutzt wurden, 
+oder aber der Hosting-Anbieter die Server-Software optimal für die Anforderungen des Bitrix Framework eingestellt hat. </p>

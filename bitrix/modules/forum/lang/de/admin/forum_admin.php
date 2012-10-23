@@ -1,0 +1,29 @@
+<?
+$MESS ['ACTIVE'] = "Aktiv";
+$MESS ['FFAN_ACTIVE'] = "Aktiv";
+$MESS ['FFAN_ALL'] = "Alle";
+$MESS ['MAIN_ADMIN_LIST_CLEAR_HTML'] = "Cache der Forenbeiträge bereinigen";
+$MESS ['FFAN_ADD_NEW_ALT'] = "Klicken Sie hier, um ein neues Forum hizuzufügen";
+$MESS ['FORUM_DELETE'] = "Forum löschen";
+$MESS ['FORUM_EDIT'] = "Bearbeiten";
+$MESS ['FA_DELETE_ERROR'] = "Beim Löschen des Forums ist ein Fehler aufgetreten. Möglicherweise gibt es Daten, die mit dem Forum in Verbindung stehen und das Löschen verhindern";
+$MESS ['FA_ERROR_UPDATE'] = "Beim Aktuallisieren des Forums ist ein Fehler aufgetreten, ID";
+$MESS ['FFAN_GROUP_ID'] = "Forengruppe";
+$MESS ['FORUMS'] = "Foren";
+$MESS ['NAV'] = "Foren";
+$MESS ['FORUM_GROUP_ID'] = "Gruppe";
+$MESS ['INDEXATION'] = "Indexierung";
+$MESS ['FA_DELETE_NO_PERMS'] = "Sie haben nicht genügend Rechte, um das Forum zu löschen";
+$MESS ['FA_NO_PERMS2UPDATE'] = "Sie haben nicht genügend Rechte zum Ändern des Forums mit der ID";
+$MESS ['NAME'] = "Name";
+$MESS ['FFAN_ADD_NEW'] = "Neues Forum";
+$MESS ['FFAN_NO'] = "Nein";
+$MESS ['MODERATION'] = "Vormoderieren";
+$MESS ['FFAN_SITE_ID'] = "Seite";
+$MESS ['LAND'] = "Seite";
+$MESS ['ORDER_BY'] = "Sort. nach";
+$MESS ['ORDER_DIRECTION'] = "Sort. nach (Richtung)";
+$MESS ['SORT'] = "Sort.";
+$MESS ['DELETE_CONFIRM'] = "Das Forum wird unwiderruflich gelöscht. Wollen Sie fortfahren?";
+$MESS ['FFAN_YES'] = "Ja";
+?>

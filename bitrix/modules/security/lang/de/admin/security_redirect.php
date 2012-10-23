@@ -1,0 +1,32 @@
+<?
+$MESS ['SEC_REDIRECT_TITLE'] = "Weiterleitungsschutz gegen Phishing";
+$MESS ['SEC_REDIRECT_MAIN_TAB'] = "Weiterleitungsschutz";
+$MESS ['SEC_REDIRECT_MAIN_TAB_TITLE'] = "Schutz gegen Phisching aktivieren.";
+$MESS ['SEC_REDIRECT_ON'] = "Der Weiterleitungsschutz gegen Phisching ist aktiviert";
+$MESS ['SEC_REDIRECT_OFF'] = "Der Weiterleitungsschutz gegen Phishing ist deaktiviert";
+$MESS ['SEC_REDIRECT_BUTTON_OFF'] = "Schutz gegen Phishing deaktivieren";
+$MESS ['SEC_REDIRECT_BUTTON_ON'] = "Schutz gegen Phishing aktivieren";
+$MESS ['SEC_REDIRECT_NOTE'] = "<p>Als Phishing (engl. Kunstwort aus \"Passwort\" und \"Fischen/Angeln\") bezeichnet man Versuche, über gefälschte  Internetadressen an die Daten eines Internetnutzers, bspw. seinen Loginnamen  und Passwort zu gelangen.</p><p>Mehr Informationen erhalten Sie bei <a href=\"http://de.wikipedia.org/wiki/Phishing\" target=\"_blank\">Wikipedia</a>.</p>";
+$MESS ['SEC_REDIRECT_PARAMETERS_TAB'] = "Parameter";
+$MESS ['SEC_REDIRECT_PARAMETERS_TAB_TITLE'] = "Parameter für den Schutz vor Weiterleitungen konfigurieren";
+$MESS ['SEC_REDIRECT_METHODS_HEADER'] = "Methoden";
+$MESS ['SEC_REDIRECT_METHODS'] = "Methode für den Schutz gegen Phishing";
+$MESS ['SEC_REDIRECT_REFERER_CHECK'] = "Auf das Vorhandensein des HTTP-Headers überprüfen.";
+$MESS ['SEC_REDIRECT_REFERER_SITE_CHECK'] = "Der \"Referrer\" HTTP-Header  muss den aktuellen Domänennamen der Webseite enthalten.";
+$MESS ['SEC_REDIRECT_HREF_SIGN'] = "Digitale Signatur zu den aufgeführten URLs hinzufügen.";
+$MESS ['SEC_REDIRECT_URLS'] = "Signierte URLs";
+$MESS ['SEC_REDIRECT_SYSTEM'] = "System";
+$MESS ['SEC_REDIRECT_USER'] = "Benutzerdefiniert";
+$MESS ['SEC_REDIRECT_URL'] = "URL:";
+$MESS ['SEC_REDIRECT_PARAMETER_NAME'] = "Parametername:";
+$MESS ['SEC_REDIRECT_ADD'] = "Hinzufügen";
+$MESS ['SEC_REDIRECT_ACTIONS_HEADER'] = "Aktionen";
+$MESS ['SEC_REDIRECT_ACTIONS'] = "Schutzaktionen gegen Phishing:";
+$MESS ['SEC_REDIRECT_ACTION_SHOW_MESSAGE'] = "Auf die andere Seite umleiten, dabei den Nutzer benachrichtigen und die Umleitung verzögern.";
+$MESS ['SEC_REDIRECT_MESSAGE'] = "Nachricht:";
+$MESS ['SEC_REDIRECT_TIMEOUT'] = "Verzögerung:";
+$MESS ['SEC_REDIRECT_TIMEOUT_SEC'] = "Sek.";
+$MESS ['SEC_REDIRECT_LOG'] = "Phishingsversuch im <a href=\"#HREF#\">Bericht</a> protokollieren";
+$MESS ['SEC_REDIRECT_ACTION_REDIRECT'] = "Auf die angegebe URL umleiten.";
+$MESS ['SEC_REDIRECT_ACTION_REDIRECT_URL'] = "URL:";
+?>

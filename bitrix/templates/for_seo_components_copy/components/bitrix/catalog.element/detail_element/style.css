@@ -1,0 +1,25 @@
+.catalog-price {
+	 color:red;
+}
+div.product {
+display:inline;
+float:left;
+margin:0 0 50px 50px;
+width:330px;
+overflow:hidden;
+}
+
+div.product div.img {
+float:left;
+font-size:11px;
+font-weight:bold;
+text-align:left;
+}
+
+div.product div.img img {
+background-color:white;
+height:120px;
+margin:0 5px 0 0;
+padding:5px;
+width:180px;
+}

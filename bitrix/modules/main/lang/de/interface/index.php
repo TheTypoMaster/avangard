@@ -1,0 +1,36 @@
+<?
+$MESS["admin_index_product_name_1c_bitrix_eduportal"] = "Bitrix Education Portal";
+$MESS["admin_index_product_name_1c_bitrix_gosportal"] = "Bitrix Government Portal";
+$MESS["admin_index_product_name_1c_bitrix_gossite"] = "Bitrix Government Site";
+$MESS["admin_index_product_name_1c_bitrix_portal"] = "Bitrix Intranet";
+$MESS["admin_index_product_name_1c_bitrix"] = "Bitrix Site Manager";
+$MESS["admin_index_product_name_bitrix_portal"] = "Bitrix Intranet";
+$MESS["admin_index_product_name_bitrix"] = "Bitrix Site Manager";
+$MESS["admin_index_perf_check"] = "Prüfen";
+$MESS["admin_index_sec_check"] = "Bitte überprüfen Sie die Parameter";
+$MESS["admin_index_title"] = "Administratives Panel";
+$MESS["admin_index_perf_current"] = "Aktuelle Benchmark:";
+$MESS["admin_index_sec_off"] = "Deaktiviert";
+$MESS["admin_index_sec_filter_turn_on"] = "Aktivieren";
+$MESS["admin_index_sec_on"] = "Aktiv";
+$MESS["admin_index_sec_module_install"] = "Installieren";
+$MESS["admin_index_perf_installed"] = "Installiert";
+$MESS["admin_index_menu"] = "Menü";
+$MESS["admin_index_sec_module_desc"] = "Das Modul schützt vor den meisten bekannten Web-Angriffen. Für den maximalen Schutz Ihres Projekts, wird empfohlen das Modul \"Proaktiver Schutz\" zu installieren.";
+$MESS["admin_index_perf_not_installed"] = "Nicht installiert";
+$MESS["admin_index_perf"] = "Performance Monitor";
+$MESS["admin_index_product"] = "Erstellt mit";
+$MESS["admin_index_sec_filter_off"] = "Proaktiver Filter (Web Application Firewall) deaktiviert.";
+$MESS["admin_index_sec_filter_on"] = "Proaktiver Filter (Web Application Firewall) aktiviert.";
+$MESS["admin_index_sec_filter_desc"] = "Der Proaktive Filter schützt vor den meisten bekannten Web-Angriffen. Er erkennt und blockiert böswillige Anfragen über ein Eindringlings-Erkennungssystem. Es wird empfohlen, den Filter zu aktivieren.";
+$MESS["admin_index_sec"] = "Proaktiver Schutz";
+$MESS["admin_index_sec_module"] = "Das Modul \"Proaktiver Schutz\" wurde nicht installiert.";
+$MESS["admin_index_perf_test"] = "Test";
+$MESS["admin_index_perf_module_inst_desc"] = "Das Modul testet und analysiert die Performance Ihres Systems. Es ist empfehlenswert, diesen Modul zu installieren, um volle Kontrolle über die Performance Ihres Projekts zu halten.";
+$MESS["admin_index_perf_no_result_desc"] = "Das Modul testet und analysiert die Performance Ihres Systems. Es ist empfehlenswert, diesen Modul zu installieren, um volle Kontrolle über die Performance Ihres Projekts zu halten.";
+$MESS["admin_index_perf_module_inst"] = "Das Modul \"Performance Monitor\" ist nicht installiert.";
+$MESS["admin_index_perf_no_result"] = "Der Performance-Test wurde nicht durchgeführt.";
+$MESS["admin_index_project"] = "Willkommen zum administrativen Bereich des Projekts";
+$MESS["admin_index_sec_level"] = "Sie können den aktuellen Sicherheitslevel auf dem <a href=\"security_panel.php?lang=#LANGUAGE_ID#\">Sicherheitspanel</a> des Moduls überprüfen.";
+$MESS["admin_index_perf_level"] = "Sie können die aktuelle Leistung in <a href=\"perfmon_panel.php?lang=#LANGUAGE_ID#\">Performance Panel</a> des Moduls testen.";
+?>

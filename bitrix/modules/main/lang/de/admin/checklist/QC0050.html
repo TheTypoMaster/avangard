@@ -1,0 +1,49 @@
+<p>Bei der Einführung des Komponenten-Caches muss man sich im Klaren sein, welche Ziele mit dieser Technologie verfolgt werden:</p>
+
+<ol>
+<li>Ist der Cache aktiviert, sollte die Komponente keine Anfragen an die Datenbank senden, denn sie bekommt alle Daten aus dem Cache.
+ Aufgrund von Fehlern bei der Entwicklung kann es aber passieren, dass die Komponente auch beim eingeschalteten Cache die Anfragen an die Datenbank weiter sendet. </li>
+<li>Bei der Erstellung des Caches sendet die Komponente  optimierte Anfragen an die Datenbank. Manchmal können jedoch eventuelle Entwicklungsfehler
+ dazu führen, dass die Komponente im Modus der Cache-Erstellung eine sehr große Anzahl von SQL-Anfragen (z.B. 1000) an die Datenbank sendet. </li> 
+</ol>
+
+<p>Es wird also empfohlen, die Anfragen an die Datenbank sehr genau zu analysieren. Man sollte versuchen, Filter- und Sortierungsoptionen sowie 
+die Auswahleigenschaften zu optimieren und so eine maximal hohe Geschwindigkeit der Anfrage zu erreichen (indem weniger Anfragen gesendet und 
+weniger Einträge in der Datenbank bearbeitet werden).  </p>
+
+<p>Die Analyse der SQL-Anfragen einer Komponente kann man am besten mit dem SQL-Befehl EXPLAIN durchführen. Dabei ist sehr wichtig, dass bei 
+SQL-Anfragen im Verfahren der Datenauswahl Indexe der Datenbank verwendet werden: Das gilt insbesondere für die Informationsblöcke 2.0, bei 
+welchen die beim Filtern benutzten Spalten von Tabellen der Eigenschaften der Informationsblockelemente indexiert werden können. </p>
+
+<p>Ähnlich sollte man die Anfragen cachen und optimieren, welche an die Datenbank über API von den Service- und Initialisierungsdateien aus 
+ausgeführt werden. Manchmal kommt es vor, dass es auf der Website eine Komponente gibt, die keine Anfragen an die Datenbank sendet, in den 
+Initialisierungsdateien der Website werden jedoch 500 SQL-Anfrage für jeden einzelnen Nutzeraufruf ausgeführt. Dadurch werden die Leistung 
+und Stabilität der Website wesentlich beeinträchtigt. </p>
+
+<p>Manchmal ist es also hilfreich, eine Tabelle mit folgenden Inhalten zu erstellen: </p>
+
+<ul>
+<li>Website-Seite </li>
+<li>Anzahl SQL-Anfragen der Seite mit dem ausgeschalteten Cache </li> 
+<li>Anzahl der SQL-Anfragen der Seite mit dem eingeschalteten Cache </li> 
+<li>Optimierung der SQL-Anfragen durchgeführt </li>
+ </ul>
+
+<p>Mithilfe von dieser Tabelle sollten nun alle Website-Seiten überprüft werden. Das Ziel ist dabei, dass in der Spalte 2 eine minimal 
+erforderliche Anzahl der SQL-Anfragen angegeben wird (z.B 150 Anfragen), in der Spalte 3 ein Wert, der möglichst nahe bei 0 liegt (im Idealfall 
+0, aber dieser Wert kann auch höher sein, wenn beispielsweise das Modul "Statistik" benutzt wird). In der Spalte 4 wird dann noch angegeben, 
+dass die Optimierung auch durchgeführt wurde.   </p>
+
+<p>Eine solche Tabelle kann zusätzlich für die Komponenten 2.0 erstellt werden: Darin werden die Eigenschaften jeder Komponenten nach der 
+Optimierung mit dem aus- bzw. eingeschalteten Cache beschrieben.  </p>
+
+<ol>
+<li>Die Erstellung einer solchen Tabelle wird ausdrücklich empfohlen. Bei Zeitmangel kann man die Daten auf allen Web-Seiten, die besonders 
+oft benutzt werden, ohne Tabelle (jedoch mit einem ähnlichen Verfahren) messen und dann bei Bedarf das System so optimieren, dass die 
+Datenbankbelastung minimal wird.</li>
+<li>Man sollte sicherstellen, dass in allen Service- und Initialisierungsdateien der Website (also nicht in den Komponenten) die Anfragen 
+an die Datenbank über API, Bitrix Framework auch mit demselben Verfahren optimiert wurden. Direkte Anfragen an die Datenbank, ohne dabei API 
+Bitrix zu benutzen, sind nicht zulässig, weil sie u.a. nicht kontrolliert werden können und für eine Analyse durch den integrierten Debugger 
+der SQL-Anfragen nicht verfügbar sind. </li> 
+ </ol>
+	  

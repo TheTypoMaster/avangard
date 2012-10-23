@@ -1,0 +1,29 @@
+<?
+$MESS ['subscr_descr_name'] = "Подписка, рассылки";
+$MESS ['subscr_descr_form'] = "Форма подписки";
+$MESS ['subscr_descr_form_desc'] = "Включаемая в дизайн сайта форма подписки на рассылки.";
+$MESS ['subscr_descr_form_page'] = "Страница редактирования подписки (доступен макрос #SITE_DIR#)";
+$MESS ['subscr_descr_subscr'] = "Страница рассылок";
+$MESS ['subscr_descr_subscr_desc'] = "Страница со списком рассылок и формами управления подпиской.";
+$MESS ['subscr_descr_subscr_page'] = "Страница редактирования подписки";
+$MESS ['subscr_descr_subscr_count'] = "Показывать количество подписчиков";
+$MESS ['subscr_descr_yes'] = "Да";
+$MESS ['subscr_descr_no'] = "Нет";
+$MESS ['subscr_descr_subscredt_page'] = "Страница редактирования подписки";
+$MESS ['subscr_descr_subscredt_desc'] = "Страница с формами для добавления или редактирования адреса подписки.";
+$MESS ['subscr_descr_subscredt_anon'] = "Разрешить анонимную подписку";
+$MESS ['subscr_descr_subscredt_show'] = "Показывать ссылки на авторизацию при анонимной подписке";
+$MESS ['subscr_descr_show_hidden'] = "Показать скрытые рубрики подписки";
+$MESS ['subscr_descr_sort_order_asc'] = "По возрастанию";
+$MESS ['subscr_descr_sort_order_desc'] = "По убыванию";
+$MESS ['subscr_descr_act_date'] = "Дата начала активности";
+$MESS ['subscr_descr_sort'] = "Сортировка";
+$MESS ['subscr_descr_subscrnews'] = "Список новостей";
+$MESS ['subscr_descr_subscrnews_desc'] = "Список новостей из одного или нескольких информационных блоков для формирования рассылки.";
+$MESS ['subscr_descr_subscrnews_all'] = "(Все)";
+$MESS ['subscr_descr_subscrnews_site'] = "Сайт";
+$MESS ['subscr_descr_subscrnews_ibtype'] = "Тип информационного блока";
+$MESS ['subscr_descr_subscrnews_ibcode'] = "Код информационного блока";
+$MESS ['subscr_descr_subscrnews_sort'] = "Поле для сортировки новостей";
+$MESS ['subscr_descr_subscrnews_sort_dir'] = "Направление сортировки новостей";
+?>

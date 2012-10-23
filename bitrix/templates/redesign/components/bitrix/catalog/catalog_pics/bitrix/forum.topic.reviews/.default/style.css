@@ -1,0 +1,129 @@
+.button-small {
+	background: #CEDEEC;
+	border: 1px solid #99BAD7;
+	color: #456A74; 
+	font-size: 90%; 
+	font-weight: normal;
+	padding: 2px 5px 2px 5px;
+	margin: 4px 4px 4px 0px;
+	display:block;
+	white-space:nowrap;
+	text-decoration:none;
+}
+
+table.forum-reviews-messages {
+	font-size:100%;
+	width:100%;
+	border-collapse:collapse;
+	border: 0px solid transparent;
+}
+	
+table.forum-reviews-messages th {
+	background-color:#F1F5FA;
+	border: 1px solid #99BAD7;
+	font-weight: normal;
+	white-space:nowrap;
+	padding: 0px 0px 0px 4px;
+	margin:0px;
+}
+table.forum-reviews-messages td
+{
+	padding:4px;
+	border: 1px solid #99BAD7;
+}
+
+
+table.forum-reviews-messages td.clear {
+	border: 0px solid transparent;
+	background: transparent;
+	padding: 0px;
+	margin: 0px;
+}
+
+table.forum-reviews-form {
+	font-size:100%;
+	width:100%;
+	border-collapse:collapse;
+}
+table.forum-reviews-form th {
+	background-color:#CEDEEC;
+	border: 1px solid #99BAD7;
+	font-weight: normal;
+	padding:4px;
+	white-space:nowrap;
+}
+
+table.forum-reviews-form td {
+	background-color:#F1F5FA;
+	border: 1px solid #99BAD7;
+	padding: 4px;
+	vertical-align:top;
+}
+table.forum-reviews-form textarea {
+	width:100%;
+}
+
+table.forum-reviews-clear, 
+table.forum-reviews-clear td{
+	border-collapse:collapse;
+	background: transparent;
+	border: 0px solid transparent;
+	padding: 0px;
+	margin: 0px;
+}
+
+table.forum-smile {
+	border: 1px solid #99BAD7;
+	font-size:100%;
+	margin:0px;
+	border-collapse:collapse;
+	margin:0px;
+}
+
+table.forum-smile td {
+	border: 1px solid #99BAD7;
+	padding:5px;
+	margin:0px;
+	}
+	
+table.forum-smile th {
+	border: 1px solid #99BAD7;
+	font-weight: bold;
+	padding:4px;
+	white-space:nowrap;
+	}
+	
+table.forum-smile img {
+ 	cursor:pointer;
+ 	cursor:hand;
+ 	}
+ 	
+table.forum-quote, table.forum-code {
+	font-size:100%;
+	background: transparent; 
+	width:90%;
+	margin:20px;
+	}
+	
+table.forum-quote th, table.forum-code th {
+	font-weight: bold;
+	text-align: left;
+	background: transparent; 
+	border: 0px solid transparent;
+	}
+	
+table.forum-quote td, table.forum-code td {
+	border : 1px solid black;
+	padding: 2px; 
+	background: transparent; 
+	text-indent: 2pt;
+	}
+	
+table.forum-code {
+	color: #333333; 
+}
+
+form {
+	padding: 0px;
+	margin: 0px;
+}

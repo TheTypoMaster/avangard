@@ -1,0 +1,37 @@
+<?
+$MESS ['BLOG_DESCR_SECTION'] = "Блоги";
+$MESS ['BLOG_DESCR_SEP_NAME'] = "Главная страница блогов";
+$MESS ['BLOG_DESCR_SEP_DESCR'] = "Компоненты блогов для главной страницы";
+$MESS ['BLOG_DESCR_SEARCH_NAME'] = "Форма поиска";
+$MESS ['BLOG_DESCR_SEARCH_DESCR'] = "Форма поиска и результаты поиска";
+$MESS ['BLOG_DESCR_SEARCH_PAGE'] = "Страница поиска";
+$MESS ['BLOG_DESCR_SEARCH_RESULT'] = "Количество результатов на странице";
+$MESS ['BLOG_DESCR_MES_NAME'] = "Последние сообщения";
+$MESS ['BLOG_DESCR_MES_DESCR'] = "Последние сообщения из всех блогов сайта с группировкой по дате";
+$MESS ['BLOG_DESCR_MES_COUNT'] = "Количество сообщений";
+$MESS ['BLOG_DESCR_SORT_1'] = "Первое поле для сортировки";
+$MESS ['BLOG_DESCR_SORT_2'] = "Второе поле для сортировки";
+$MESS ['BLOG_DESCR_SORT_DATE_PUBLISH'] = "Дата публикации";
+$MESS ['BLOG_DESCR_SORT_MES_TITLE'] = "Заголовок сообщения";
+$MESS ['BLOG_DESCR_SORT_BLOG_ID'] = "ID блога";
+$MESS ['BLOG_DESCR_SORT_MES_CREATE'] = "Дата создания сообщения";
+$MESS ['BLOG_DESCR_SORT_ORDER'] = "Направление сортировки";
+$MESS ['BLOG_DESCR_SORT_ASC'] = "По возрастанию";
+$MESS ['BLOG_DESCR_SORT_DESC'] = "По убыванию";
+$MESS ['BLOG_DESCR_CACHE_TIME'] = "Время кеширования (0 - не кешировать)";
+$MESS ['BLOG_DESCR_NB_NAME'] = "Новые блоги";
+$MESS ['BLOG_DESCR_NB_DESCR'] = "Вывод последних добавленных на сайте блогов";
+$MESS ['BLOG_DESCR_NB_COUNT'] = "Количество блогов";
+$MESS ['BLOG_DESCR_NB_S_DESCR'] = "Показывать описание блога";
+$MESS ['BLOG_DESCR_Y'] = "Да";
+$MESS ['BLOG_DESCR_N'] = "Нет";
+$MESS ['BLOG_DESCR_DATE_CREATE'] = "Дата создания";
+$MESS ['BLOG_DESCR_BLOG_NAME'] = "Название блога";
+$MESS ['BLOG_DESCR_BLOG_ID'] = "ID блога";
+$MESS ['BLOG_DESCR_LAST_MES'] = "Дата последнего сообщения";
+$MESS ['BLOG_DESCR_GR_NAME'] = "Группы блогов";
+$MESS ['BLOG_DESCR_GR_DESCR'] = "Список непустых групп блогов";
+$MESS ['BLOG_DESCR_GR_COUNT'] = "Количество групп";
+$MESS ['BLOG_DESCR_GR_COL_COUNT'] = "Количество столбцов";
+$MESS ['BLOG_DESCR_GR_SORT_NAME'] = "Название группы";
+?>

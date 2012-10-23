@@ -1,0 +1,32 @@
+<?
+$MESS["GD_IBEL_IBLOCK_TYPE"] = "Informationsblocktyp";
+$MESS["GD_IBEL_IBLOCK_ID"] = "Informationsblock";
+$MESS["GD_IBEL_SORT_ORDER_ASC"] = "Aufsteigend";
+$MESS["GD_IBEL_SORT_ORDER_DESC"] = "Absteigend";
+$MESS["GD_IBEL_SORT_BY_ID"] = "ID";
+$MESS["GD_IBEL_SORT_BY_NAME"] = "Überschrift";
+$MESS["GD_IBEL_SORT_BY_DATE_ACTIVE_FROM"] = "Aktiv von (Datum)";
+$MESS["GD_IBEL_SORT_BY_DATE_CREATE"] = "Erstellt";
+$MESS["GD_IBEL_SORT_BY_TIMESTAMP_X"] = "Geändert";
+$MESS["GD_IBEL_SELECT_ID"] = "ID";
+$MESS["GD_IBEL_SELECT_NAME"] = "Überschrift";
+$MESS["GD_IBEL_SELECT_DATE_ACTIVE_FROM"] = "Aktiv von (Datum)";
+$MESS["GD_IBEL_SELECT_DATE_CREATE"] = "Erstellt";
+$MESS["GD_IBEL_SELECT_TIMESTAMP_X"] = "Geändert";
+$MESS["GD_IBEL_SELECT_PREVIEW_PICTURE"] = "Vorschaubild";
+$MESS["GD_IBEL_SELECT_PREVIEW_TEXT"] = "Vorschautext";
+$MESS["GD_IBEL_SELECT_DETAIL_PICTURE"] = "Detailbild";
+$MESS["GD_IBEL_SELECT_DETAIL_TEXT"] = "Detaillierte Beschreibung";
+$MESS["GD_IBEL_EMPTY"] = "-- auswählen --";
+$MESS["GD_IBEL_DONOTUSE"] = "-- nicht benutzen --";
+$MESS["GD_IBEL_ITEMS_COUNT"] = "Anzahl der Elemente";
+$MESS["GD_IBEL_THUMBNAIL_SIZE"] = "Bildgröße";
+$MESS["GD_IBEL_SORT_BY"] = "Sortieren nach";
+$MESS["GD_IBEL_SORT_ORDER"] = "Sortierungsreihenfolge";
+$MESS["GD_IBEL_ADDITIONAL_FIELDS"] = "Felder und Eigenschaften für zusätzliche Ansicht";
+$MESS["GD_IBEL_TITLE_FIELD"] = "Als Überschrift benutzen";
+$MESS["GD_IBEL_DATE_FIELD"] = "Als Datum benutzen";
+$MESS["GD_IBEL_PICTURE_FIELD"] = "Als Bild benutzen";
+$MESS["GD_IBEL_DESCRIPTION_FIELD"] = "Als Beschreibung benutzen";
+$MESS["GD_IBEL_DESCRIPTION_CUT"] = "Abgekürzte Beschreibung, Zeichen maximal";
+?>

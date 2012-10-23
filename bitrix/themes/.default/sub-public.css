@@ -1,0 +1,117 @@
+/* Context menu sublist */
+div.bx-core-admin-dialog-content table.edit-table div.subcontextmenu {margin:16px 0px 16px 0px;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu {width:100%;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu td {background-color:#FDFDFD !important; font-size:70%; background-image: none; }
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu tr.top td {border-top:1px solid #D9D9D9 !important;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu td.left {background-image:url(images/toolbar/l.gif); background-repeat:no-repeat; background-position:left top;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu td.right {background-image:url(images/toolbar/r.gif); background-repeat:no-repeat; background-position:left top;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu tr.top td.left {border:0 !important; background-image:url(images/toolbar/lt.gif) !important; height:2px; width:2px;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu tr.top td.right {border:0 !important; background-image:url(images/toolbar/rt.gif) !important; height:2px; width:3px;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu tr.bottom td {background-color:#EAEAEA !important;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu tr.bottom td.left {border:0px; background-image:url(images/toolbar/lb.gif); height:1px; width:2px;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu tr.bottom td.right {border:0px; background-image:url(images/toolbar/rb.gif); height:1px; width:3px;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu tr.bottom-all td {background-color:#F2F2F2 !important; border-top:1px solid #B5B5B5 !important; background-color: transparent; }
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu tr.bottom-all td.left {border:0 !important; background-image:url(images/toolbar/bl.gif) !important; height:3px; width:2px;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu tr.bottom-all td.right {border:0 !important; background-image:url(images/toolbar/br.gif) !important; height:3px; width:3px;}
+/*table.subcontextmenu td.subcontent {height:24px; background-image:url(images/toolbar/bg.png); background-repeat:repeat-x; background-position:left center;} */
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu td.subcontent {height:24px; }
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu td.subcontent table td {padding:0 !important; background-color:transparent;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu div {box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu div.section-separator {width:3px; height:13px; border-left:1px solid #B1B1B1; border-right:1px solid #B3B3B3; margin:0px 0px 0px 6px;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu div.separator {width:1px; height:13px; border-left:1px solid #B1B1B1; margin:0px 0px 0px 6px;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu a.context-button {display:block; box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; height:20px; padding:2px; padding-top:3px; border:0px; margin:1px 1px 1px 5px; white-space:nowrap;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu a.context-button:hover {height:22px; margin:0px 0px 0px 4px; border:1px solid #AEB6C2; background-color:#DBE3F2;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu a.icon {padding-left:21px; background-repeat:no-repeat; background-position:left top;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu a.pressed {height:22px; margin:0px 0px 0px 4px; border:1px solid #A6A6A6; background-color:white;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu a, table.subcontextmenu a:visited, table.subcontextmenu a:active {color:#5D5D5D; text-decoration:none;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu a:hover {color:black;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu img.arrow {border:0px; margin:0px 0px 2px 4px; width:5px; height:3px;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu select.form-select, table.subcontextmenu input.form-text {margin-top:2px; font-size:11px; font-family:Verdana,Arial,Helvetica,sans-serif;}
+div.bx-core-admin-dialog-content table.edit-table table.subcontextmenu input.form-button {font-size:11px; height:21px; font-family:Verdana,Arial,Helvetica,sans-serif;}
+
+/* Context common icons sublist */
+table.subcontextmenu #btn_list {background-image:url(images/buttons/list.gif);}
+table.subcontextmenu #btn_sub_new {background-image:url(images/buttons/new.gif);}
+table.subcontextmenu #btn_sub_delete {background-image:url(images/buttons/delete.gif);}
+table.subcontextmenu #btn_sub_copy {background-image:url(images/buttons/copy.gif);}
+table.subcontextmenu #btn_sub_excel {background-image:url(images/buttons/excel.gif);}
+table.subcontextmenu #btn_sub_settings {background-image:url(images/buttons/settings.gif);}
+table.subcontextmenu #btn_sub_refresh {background-image:url(images/buttons/refresh.gif);}
+
+/* List of items sublist */
+div.bx-core-admin-dialog-content table.edit-table table.sublist {width:100%; cursor:default;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist td {padding: 4px !important; font-size:70%; border-bottom:1px solid #D5D5D5 !important; vertical-align:top; background-image: none; }
+div.bx-core-admin-dialog-content table.edit-table table.sublist td.subleft {border-left:1px solid #BDC6E0 !important; padding: 4px !important; }
+div.bx-core-admin-dialog-content table.edit-table table.sublist td.subright {border-right:1px solid #BDC6E0 !important; padding: 4px !important; }
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.top td {}
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.bottom td {border-bottom:1px solid #BDC6E0 !important;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.bottom table td {border:0 !important; }
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.subeven td {background-color:#FAFAFA; border-bottom:1px solid #D5D5D5; padding: 4px;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.subodd td {background-color:white; border-bottom:1px solid #D5D5D5; padding: 4px;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.subodd td table tr td, div.bx-core-admin-dialog-content table.edit-table table.sublist tr.subeven td table tr td { padding: 0; border: 0 none transparent; }
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr td.subsorted, div.bx-core-admin-dialog-content table.edit-table table.sublist tr.subeven td.subsorted, div.bx-core-admin-dialog-content table.edit-table table.sublist tr.subodd td.subsorted {background-color:#F5F7FA;}
+div.bx-core-admin-dialog-content table.edit-table input.chechid, div.bx-core-admin-dialog-content table.edit-table input, div.bx-core-dialog-content table.edit-table input.chechid, div.bx-core-dialog-content table.edit-table input { padding: 0 !important; margin: 3px 3px 3px 4px !important; }
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.head td { padding: 0 4px 0 4px; border:1px solid #BDC6E0 !important; border-top:none !important; border-left:none !important; background-color:#E6E9F4; background-image:url(images/listhead.gif); background-repeat:repeat-x; background-position:top; cursor:default;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.head td.subsorted {background-color:#F9FAFD; background-image:none;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.head td.subleft {border-left:1px solid #BDC6E0 !important; padding-bottom: 4px !important; }
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.head td.subright {}
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.head td table td { border: none !important; }
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.gutter td {height:5px; background-color:#F1F3FA; border:1px solid #BDC6E0 !important; border-bottom:none !important; border-left:none  !important; padding:0 !important;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.gutter td.subsorted {background-color:#F9FAFD;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.gutter td.subover {background-image:url(images/gutter_bg.gif); background-repeat:repeat-x;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.gutter td.subleft {border-left:1px solid #BDC6E0 !important;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.selected td, div.bx-core-admin-dialog-content table.edit-table table.sublist tr.selected td.subsorted {background-color:#eaf8df; }
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.subover td, div.bx-core-admin-dialog-content table.edit-table table.sublist tr.subover td.subsorted {background-color:#fefdea; }
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.footer td {background-color:#EAEDF7 !importnat; border-right:1px solid #BDC6E0 !important;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist td table td {border:0 !important; padding:0 !important;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist div {box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; background-repeat:no-repeat;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist a.context-button {display:block; box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; background-repeat:no-repeat; padding:3px; padding-top:2px; border:0px; margin:1px; white-space:nowrap;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist a.context-button:hover {height:20px; margin:0px; border:1px solid #AEB6C2; background-color:#DBE3F2;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist a.icon {height:18px; padding-left:20px; background-repeat:no-repeat; background-position:1px 1px;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist a.pressed {height:20px; margin:0px; border:1px solid #A6A6A6; background-color:white;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist img.arrow {border:0px; margin:6px 0px 2px 0px; width:5px; height:3px;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist a.action {background-image:url(images/action.gif);}
+div.bx-core-admin-dialog-content table.edit-table table.sublist tr.head div.action {background-image:url(images/action_head.gif); width:100%; height:15px; background-repeat:no-repeat; background-position:center 3px;}
+
+/* Footer of subList of items */
+div.bx-core-admin-dialog-content table.edit-table table.sublistfooter {color:#5556AB; width:100%;}
+div.bx-core-admin-dialog-content table.edit-table table.sublistfooter td { background-image: none; padding: 4px !important; }
+div.bx-core-admin-dialog-content table.edit-table table.sublistfooter td.sublf {font-size:70%; padding:4px 5px 4px 5px !important; border:1px solid #BDC6E0 !important; border-top:none !important; border-left:none !important; background-color:#EAEDF7; white-space:nowrap;}
+div.bx-core-admin-dialog-content table.edit-table table.sublistfooter td.left {border-left:1px solid #BDC6E0 !important;}
+div.bx-core-admin-dialog-content table.edit-table table.sublistfooter td.right {width:100%;}
+div.bx-core-admin-dialog-content table.edit-table table.sublistfooter span {color:black;}
+
+/* Sorting sublist */
+div.bx-core-admin-dialog-content table.edit-table table.sublist table.subsorting {width:100%;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist table.subsorting td {width:100%; padding: 0 !important; border:0 !important; cursor:pointer; background-image:none; background-color:transparent; vertical-align: top;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist table.subsorting td.sign {padding: 0;width:7px; background-image:url(images/sort_no.gif); background-repeat:no-repeat; background-position:right 5px;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist table.subsorting td.sign div.empty {width:10px;}
+div.bx-core-admin-dialog-content table.edit-table table.sublist table.subsorting td.up {background-image:url(images/sort_up.gif);}
+div.bx-core-admin-dialog-content table.edit-table table.sublist table.subsorting td.down {background-image:url(images/sort_down.gif);}
+
+/* Multiple Actions */
+div.bx-core-admin-dialog-content table.edit-table div.submultiaction {margin:8px 0px 16px 0px;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction {width:100%; height:36px; background-color:#E6E9F4; background-image:url(images/actions/actions_bg.gif); background-repeat:repeat-x; }
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction td {padding:0 !important; font-size:70%; color:black; background-image: none; }
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction tr.top td {border-top:1px solid #BDC6E0 !important;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction td.left {border-left:1px solid #BDC6E0 !important;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction td.right {border-right:1px solid #BDC6E0 !important;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction tr.top td.left {border:0 !important; background-image:url(images/actions/lt.gif) !important; height:2px; width:2px;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction tr.top td.right {border:0 !important; background-image:url(images/actions/rt.gif) !important; height:2px; width:2px;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction tr.bottom td {border-bottom:1px solid #BDC6E0 !important;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction tr.bottom td.left {border:0 !important; background-image:url(images/actions/lb.gif) !important; height:2px; width:2px;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction tr.bottom td.right {border:0 !important; background-image:url(images/actions/rb.gif) !important; height:2px; width:2px;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction td.content {padding:4px !important;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction div {box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; background-repeat:no-repeat;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction div.separator {width:1px; height:20px; border-left:1px solid #BEC7E0; margin:0px 8px 0px 8px; overflow:hidden;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction a.context-button {display:block; box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box; background-repeat:no-repeat; padding:0px; border:0px; margin:1px 2px 1px 2px; white-space:nowrap;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction a.context-button:hover {height:22px; margin:0px 1px 0px 1px; border:1px solid #AEB6C2; background-color:#DBE3F2;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction a.icon {height:20px; padding-left:20px; background-repeat:no-repeat; background-position:0px 0px;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction a.pressed {height:22px; margin:0px 1px 0px 1px; border:1px solid #A6A6A6; background-color:white;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction a, div.bx-core-admin-dialog-content table.edit-table table.submultiaction a:visited, div.bx-core-admin-dialog-content table.edit-table table.submultiaction a:active {color:#5556AB; text-decoration:none;}
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction a:hover {color:black;}
+
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction a.action-edit-button {background-image:url(images/actions/edit_button.gif); }
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction a.action-delete-button {background-image:url(images/actions/delete_button.gif); }
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction a.action-edit-button-dis {background-image:url(images/actions/edit_button_dis.gif); }
+div.bx-core-admin-dialog-content table.edit-table table.submultiaction a.action-delete-button-dis {background-image:url(images/actions/delete_button_dis.gif); }

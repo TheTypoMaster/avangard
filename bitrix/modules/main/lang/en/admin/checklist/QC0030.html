@@ -1,0 +1,43 @@
+<p>The custom components in your web project should have clear and unambiguous
+parameters that can be configured by administrators without the developer's
+help.</p>
+
+<p>Assume among other 30 components you have created for your website there is
+one to show a list of registered members: "myproject:members.list". What
+parameters would this component have? This depends, of course, on the nature of
+the website and usage scenarios. The most common settings an administrator would
+expect from a component of this intent are:</p>
+
+<ul>
+<li>Members per page (to set the number of members currently visible on a
+  webpage);</li>
+<li>Short / long name (to set the person name format; two radio buttons or a
+  drop-down list);</li> 
+<li>Maximum description length (to set the maximum number of characters visible);</li> 
+<li>Show e-mail address (checkbox);</li>
+<li>Sort list by (to set the sort column);</li> 
+<li>some other component specific parameters.</li>
+ </ul>
+
+<p>However, it is most likely that an administrator (expecting him or her being
+a programmer is a common mistake) will get confused seeing parameters like:</p>
+
+<ul>
+<li>Caching strategy;</li>
+<li>JSON request format;</li> 
+<li>Authorized user groups (meaning to select the user groups that are allowed
+  to view the component output).</li> 
+ </ul>
+
+<p>If you think such parameters are still required for some reason, isolate them
+into a group (by the name of "Advanced settings" or something like
+that) and describe in the website specifications.</p>
+
+<ul>
+  <li>Review the settings sheet of each of the custom components in your
+    website's public section. Make sure each of the parameters and options has a
+    clear title and is well documented. The parameter names should give an
+    administrator a quick understanding of the parameter meaning and possible
+    values. It is wise to check each of the parameters to ensure they behave as
+    expected.</li>
+</ul>

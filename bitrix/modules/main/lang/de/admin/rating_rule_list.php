@@ -1,0 +1,33 @@
+<?
+$MESS["MAIN_RATING_RULE_LIST"] = "Bearbeitungsregeln";
+$MESS["RATING_RULE_NAME"] = "Name";
+$MESS["RATING_RULE_CREATED"] = "Erstellt am";
+$MESS["RATING_RULE_LAST_MODIFIED"] = "Letztes Mal geändert am:";
+$MESS["RATING_RULE_LAST_APPLIED"] = "Letztes Mal angewendet am:";
+$MESS["RATING_RULE_ACTIVE"] = "Aktiv";
+$MESS["RATING_RULE_STATUS"] = "Status";
+$MESS["RATING_RULE_ENTITY_TYPE_ID"] = "Gebunden an";
+$MESS["RATING_RULE_LIST_NAV"] = "Bearbeitungsregeln";
+$MESS["RATING_RULE_ACTIVE_YES"] = "Ja";
+$MESS["RATING_RULE_ACTIVE_NO"] = "Nein";
+$MESS["RATING_RULE_STATUS_DONE"] = "Angewendet";
+$MESS["RATING_RULE_STATUS_WORKING"] = "Wird angewendet";
+$MESS["RATING_RULE_STATUS_WAITING"] = "Auf Anwendung wird gewartet";
+$MESS["RATING_RULE_LIST_EDIT"] = "Die Parameter bearbeiten";
+$MESS["RATING_RULE_LIST_REAPPLY"] = "Die Regel anwenden";
+$MESS["RATING_RULE_LIST_DEL"] = "Löschen";
+$MESS["RATING_RULE_LIST_DEL_CONF"] = "Sind Sie sicher, dass Sie diese Regel löschen wollen?";
+$MESS["RATING_RULE_LIST_ADD"] = "Eine neue Regel";
+$MESS["RATING_RULE_LIST_ADD_TITLE"] = "Eine neue Bearbeitungsregel erstellen";
+$MESS["RATING_RULE_LIST_FLT_NAME"] = "Name";
+$MESS["RATING_RULE_LIST_FLT_ACTIVE"] = "Aktiv";
+$MESS["RATING_RULE_LIST_FLT_ID"] = "ID";
+$MESS["RATING_RULE_LIST_FLT_ENTITY_TYPE_ID"] = "Einheit";
+$MESS["RATING_RULE_LIST_FLT_find"] = "Suchen:";
+$MESS["RATING_RULE_LIST_FLT_ALL"] = "(alle)";
+$MESS["RATING_RULE_LIST_FLT_ACTIVE_Y"] = "Aktiv";
+$MESS["RATING_RULE_LIST_FLT_ACTIVE_N"] = "Nicht aktiv";
+$MESS["RATING_RULE_LIST_ERR_EDIT"] = "Ein Fehler bei der Regelbearbeitung.";
+$MESS["RATING_RULE_LIST_ERR_DEL"] = "Ein Fehler beim Löschen der Regel.";
+$MESS["RATING_RULE_LIST_ERR_APP"] = "Ein Fehlen beim Anwenden der Regel.";
+?>

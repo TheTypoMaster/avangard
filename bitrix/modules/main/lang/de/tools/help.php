@@ -1,0 +1,34 @@
+<?
+$MESS["HELP_ACCESS_DENIED"] = "Zugriff verweigert";
+$MESS["HELP_CONFIRM_DELETE"] = "Wollen Sie die Datei und/oder das Verzeichnis wirklich löschen?";
+$MESS["HELP_BACK"] = "Zurück";
+$MESS["HELP_CLOSE"] = "Schließen";
+$MESS["HELP_COLLAPSE_ALL"] = "Alle schließen (verbergen)";
+$MESS["HELP_CREATE"] = "Erstellen";
+$MESS["HELP_IS_FOLDER"] = "Ordner erstellen:";
+$MESS["HELP_CURRENT_FOLDER"] = "Aktueller Ordner:";
+$MESS["HELP_DELETE"] = "Löschen";
+$MESS["HELP_EDIT"] = "Bearbeiten";
+$MESS["HELP_CREATE_FOLDER_ERROR"] = "Fehler beim Erstellen des Ordners";
+$MESS["HELP_DELETE_ERROR"] = "Beim Löschen der Datei ist ein Fehler aufgetreten";
+$MESS["HELP_ERROR_DELETE_FOLDER"] = "Fehler beim Löschen des Ordners #FOLDER#";
+$MESS["HELP_FOLDER_NOT_EMPTY"] = "Fehler beim Löschen des Ordners #FOLDER#, der Ordner enthält Daten";
+$MESS["HELP_FILE_SAVE_ERROR"] = "Fehler beim Speichern der Datei";
+$MESS["HELP_EXPAND_ALL"] = "Alle aufklappen";
+$MESS["HELP_FILENAME"] = "Dateiname:";
+$MESS["HELP_FILE_EXISTS"] = "Datei oder Ordner mit diesem Namen existiert bereits";
+$MESS["HELP_HEADER"] = "Überschrift:";
+$MESS["HELP_TITLE"] = "Hilfe";
+$MESS["HELP_FILE_NOT_FOUND"] = "Hilfedatei nicht gefunden";
+$MESS["HELP_HIDE"] = "Verbergen";
+$MESS["HELP_KERNEL"] = "Hauptmodul";
+$MESS["HELP_MOVE_DOWN"] = "Nach unten verschieben";
+$MESS["HELP_MOVE_UP"] = "Nach oben verschieben";
+$MESS["HELP_FORGOT_FILENAME"] = "Geben Sie den Dateinamen an";
+$MESS["HELP_RESET"] = "Zurücksetzen";
+$MESS["HELP_SEARCH"] = "Suchen";
+$MESS["HELP_SORT"] = "Sortierung:";
+$MESS["HELP_TREE"] = "Mit Themenliste synchronisieren";
+$MESS["HELP_FILE_NOT_EXIST"] = "Die Datei #FILE# existiert nicht";
+$MESS["HELP_FOLDER_NOT_EXIST"] = "Das Verzeichnis #FOLDER# existiert nicht.";
+?>

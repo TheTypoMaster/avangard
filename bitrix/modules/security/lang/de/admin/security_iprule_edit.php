@@ -1,0 +1,29 @@
+<?
+$MESS ['SEC_IP_EDIT_ACTIVE'] = "Aktiv";
+$MESS ['SEC_IP_EDIT_ACTIVE_FROM'] = "Aktiv von";
+$MESS ['SEC_IP_EDIT_ACTIVE_TO'] = "Aktiv bis";
+$MESS ['SEC_IP_EDIT_MENU_ADD'] = "Hinzufügen";
+$MESS ['SEC_IP_EDIT_ROW_ADD'] = "Hinzufügen";
+$MESS ['SEC_IP_EDIT_MENU_ADD_TITLE'] = "Neue Regel";
+$MESS ['SEC_IP_EDIT_MENU_DELETE_CONF'] = "Wollen Sie diese Regel wirklich löschen?";
+$MESS ['SEC_IP_EDIT_INCL_MASKS'] = "Der Zugriff zu den Pfadvorlagen wird blockiert";
+$MESS ['SEC_IP_EDIT_INCL_IPS'] = "IP-Adressen und IP-Bereiche, die blockiert werden";
+$MESS ['SEC_IP_EDIT_MENU_LIST_TITLE'] = "Regeln für die Sperrung";
+$MESS ['SEC_IP_EDIT_MENU_DELETE'] = "Löschen";
+$MESS ['SEC_IP_EDIT_MENU_DELETE_TITLE'] = "Regel löschen";
+$MESS ['SEC_IP_EDIT_TAB_TITLE'] = "Regel für die Sperrung der IP-Adresse bearbeiten";
+$MESS ['SEC_IP_EDIT_EDIT_TITLE'] = "Regel bearbeiten";
+$MESS ['SEC_IP_EDIT_SAVE_ERROR'] = "Beim Speichern der Regel ist ein Fehler aufgetreten";
+$MESS ['SEC_IP_EDIT_INCL_MASKS_SAMPLE'] = "Z.B.  /* oder /bitrix/admin/*";
+$MESS ['SEC_IP_EDIT_INCL_IPS_SAMPLE'] = "Z.B.: 192.168.0.7 oder 192.168.0.1-192.168.0.100";
+$MESS ['SEC_IP_EDIT_EXCL_IPS'] = "Erlaubte IP´s";
+$MESS ['SEC_IP_EDIT_EXCL_MASKS'] = "Erlaubte Pfade (Vorlagen)";
+$MESS ['SEC_IP_EDIT_ADMIN_SECTION'] = "Für die Seiten im administrativen Bereich";
+$MESS ['SEC_IP_EDIT_SITE_ID'] = "Für die Seiten im öffentlichen Bereich";
+$MESS ['SEC_IP_EDIT_ID'] = "ID";
+$MESS ['SEC_IP_EDIT_ADD_TITLE'] = "Neue Regel";
+$MESS ['SEC_IP_EDIT_TAB'] = "Regel";
+$MESS ['SEC_IP_EDIT_MENU_LIST'] = "Liste";
+$MESS ['SEC_IP_EDIT_SORT'] = "Sortierung";
+$MESS ['SEC_IP_EDIT_NAME'] = "Überschrift";
+?>

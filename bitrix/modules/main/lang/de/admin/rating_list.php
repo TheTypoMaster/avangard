@@ -1,0 +1,32 @@
+<?
+$MESS["RATING_NAME"] = "Name";
+$MESS["RATING_CREATED"] = "Erstellt";
+$MESS["RATING_LAST_MODIFIED"] = "Bearbeitet";
+$MESS["RATING_LAST_CALCULATED"] = "Errechnet";
+$MESS["RATING_ACTIVE"] = "Ist aktiv";
+$MESS["RATING_STATUS"] = "Status";
+$MESS["RATING_ENTITY_ID"] = "Gehört";
+$MESS["RATING_LIST_NAV"] = "Rankings";
+$MESS["RATING_ACTIVE_YES"] = "Ja";
+$MESS["RATING_ACTIVE_NO"] = "Nein";
+$MESS["RATING_STATUS_DONE"] = "Errechnet";
+$MESS["RATING_STATUS_WORKING"] = "Wird aktualisiert";
+$MESS["RATING_STATUS_WAITING"] = "Eine Aktualisierung steht an";
+$MESS["RATING_LIST_EDIT"] = "Die Parameter des Ranking ändern";
+$MESS["RATING_LIST_RECALCULATE"] = "Ein Ranking neu errechnen";
+$MESS["RATING_LIST_DEL"] = "Ranking löschen";
+$MESS["RATING_LIST_DEL_CONF"] = "Soll dieses Ranking gelöscht werden?";
+$MESS["RATING_LIST_ADD"] = "Ein neues Ranking";
+$MESS["RATING_LIST_ADD_TITLE"] = "Ein Ranking hinzufügen";
+$MESS["RATING_LIST_FLT_NAME"] = "Name";
+$MESS["RATING_LIST_FLT_ACTIVE"] = "Sind aktiv";
+$MESS["RATING_LIST_FLT_ID"] = "ID";
+$MESS["RATING_LIST_FLT_ENTITY_ID"] = "Zugehörigkeit";
+$MESS["RATING_LIST_FLT_find"] = "Finden:";
+$MESS["RATING_LIST_FLT_ALL"] = "(alle)";
+$MESS["RATING_LIST_FLT_INACTIVE"] = "Sind nicht aktiv";
+$MESS["RATING_LIST_ERR_EDIT"] = "Ein Fehler bei der Ranking Bearbeitung.";
+$MESS["RATING_LIST_ERR_DEL"] = "Fehler beim Löschen des Ranking.";
+$MESS["RATING_LIST_ERR_CAL"] = "Fehler bei der Neuerrechnung des Ranking.";
+$MESS["MAIN_RATING_LIST"] = "Rankings";
+?>

@@ -1,0 +1,23 @@
+<p>Vor der Einstellung des Web-Clusters sollte die entsprechende Bitrix Dokumentation sorgfältig gelesen werden. Die Einstellung kann dann so 
+vorgenommen werden, dass die Leistungsfähigkeit und die Fehlertoleranz der Website wesentlich erhöht werden.</p>
+
+<p>Man sollte lieber nicht alle Möglichkeiten des Web-Clusters (Web-Cluster Optionen) sofort einsetzen. Da Web-Cluster ein ziemlich kompliziertes
+ System ist, sollten die Einstellungen dieses diesem Systems allmählich und schrittweise erfolgen: 
+ <a href="http://www.bitrix.de/download/files/manuals/en/webcluster_guide_en.pdf">Bitrix Web Cluster</a>.
+</p>
+
+<ol>
+<li>Im memcached den Daten-Cache einstellen, dabei eine optimale Cache-Größe auswählen (beispielsweise 128 Mb auf jedem gestarteten memcached Server).</li> 
+<li>Einen zweiten Anwendungsserver einstellen, Content-Synchronisierung mithilfe von csync (oder mithilfe einer anderen Technologie) einstellen.</li> 
+<li>An den zweiten sowie an alle anderen Anwendungsserver ein Überwachungssystem anbinden.</li>
+<li>Lastverteilung und SSL-Terminierung (falls erforderlich) einstellen, Sitzungen zwischen Anwendungsservern verteilen: a. Allgemeine 
+Sitzungen, welche in den Datenbanken gespeichert werden, und b. Nutzersitzungen, welche abhängig von IP-Adressen verteilt und separat gespeichert werden. </li> 
+<li>SQL-Replikation einstellen. Bei Bedarf vertikale Fragmentierung (Sharding) benutzen. </li>
+</ol>
+
+<ul>
+<li>Stellen Sie sicher, dass mit der ausgewählten Konfiguration der Web-Cluster-Architektur die gesetzten Ziele (also Verfügbarkeit und/oder 
+Leistungsfähigkeit) erreicht werden. Überprüfen Sie dabei folgende wichtige Schwerpunkte: Eine richtige Anzahl von Anwendungsservern, Arbeitsmodus 
+der Lastverteilung, Arbeitsmodus der Replikation und die Anzahl der Datenbankserver etc. Zusätzlich können Spezifikationen im Miniformat erstellt werden, 
+in denen die Architektur des Web-Clusters mit Rücksicht auf Anforderungen einer konkreten Website beschrieben wird. </li> 
+ </ul>

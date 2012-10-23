@@ -1,0 +1,26 @@
+<?
+$MESS["PERFMON_HIT_TITLE"] = "Performance Monitor: Hits";
+$MESS["PERFMON_HIT_PAGE"] = "Hits";
+$MESS["PERFMON_HIT_FIND"] = "Suchen";
+$MESS["PERFMON_HIT_ID"] = "ID";
+$MESS["PERFMON_HIT_DATE_HIT"] = "Hit-Datum";
+$MESS["PERFMON_HIT_SERVER_NAME"] = "Servername";
+$MESS["PERFMON_HIT_SERVER_PORT"] = "Schnittstelle";
+$MESS["PERFMON_HIT_SCRIPT_NAME"] = "Script";
+$MESS["PERFMON_HIT_REQUEST_URI2"] = "Hit";
+$MESS["PERFMON_HIT_INCLUDED_FILES"] = "Dateien";
+$MESS["PERFMON_HIT_MEMORY_PEAK_USAGE"] = "Speicher";
+$MESS["PERFMON_HIT_CACHE_SIZE"] = "Cache";
+$MESS["PERFMON_HIT_QUERIES"] = "Abfragen";
+$MESS["PERFMON_HIT_QUERIES_TIME"] = "Abfragezeit";
+$MESS["PERFMON_HIT_PAGE_TIME"] = "Seitenzeit";
+$MESS["PERFMON_HIT_IS_ADMIN"] = "Administratives Panel";
+$MESS["PERFMON_HIT_REQUEST_METHOD"] = "HTML-Methode";
+$MESS["PERFMON_HIT_COMPONENTS"] = "Komponenten";
+$MESS["PERFMON_HIT_COMPONENTS_TIME"] = "Komponentenzeit";
+$MESS["PERFMON_HIT_PROLOG_TIME"] = "Prolog-Zeit";
+$MESS["PERFMON_HIT_AGENTS_TIME"] = "Agentzeit";
+$MESS["PERFMON_HIT_WORK_AREA_TIME"] = "Arbeitsbereichszeit";
+$MESS["PERFMON_HIT_EPILOG_TIME"] = "Epilog-Zeit";
+$MESS["PERFMON_HIT_EVENTS_TIME"] = "Zeit der Mailereignisse";
+?>

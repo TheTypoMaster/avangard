@@ -1,0 +1,5 @@
+.webform-field-upload-list a.delete-file { vertical-align:top; display: inline-block; width:15px; height: 16px; background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat 0 -280px; margin: 0 0 0 6px; outline: none;}
+.webform-field-upload-list a.delete-file:hover { background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat -17px -280px; }
+.webform-field-upload-list i { vertical-align:top; display: none; width:15px; height: 15px; background: url(/bitrix/js/main/core/images/popup/upload-waiting.gif) no-repeat 0 2px; margin: 0 0 0 8px; }
+
+.hidden-caption {display: none;}

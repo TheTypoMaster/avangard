@@ -1,0 +1,178 @@
+.dragme{
+      position:relative;  
+      cursor: move;
+      background: url('/images/slider.gif') no-repeat;
+      z-index: 54;
+      width: 116px; 
+      height: 18px;
+      left: 27px;
+      top: 14px;
+      font-size: 11px;
+      vertical-align: middle;
+      color: #000000;
+      padding-top: 2px;
+}
+
+       .slider_my {
+            width: 938px;
+            height: 46px;
+            position: relative;
+            bottom:46px;
+            background: url('/images/slider_fon.gif') center center #e1e1e1 no-repeat;
+            vertical-align: middle;
+            text-align: center;
+            z-index: 51;
+          	
+}
+      .slider_fon_45 { 
+     background: url('/images/ekka.png') no-repeat left top;
+     height: 100%;        }
+ .slider_fon_44 { 
+     background: url('/images/i&r.png') no-repeat left top;
+     height: 100%;
+     padding-left: 30px;
+        }
+ .slider_fon_42 { 
+     background: url('/images/leroi.png') no-repeat left top;
+    height: 100%; 
+     padding-left: 30px;
+        }
+ .slider_fon_43 { 
+     background: url('/images/mix.png') no-repeat left top;
+     height: 100%;
+     padding-left: 30px;
+        }
+.td_over {
+
+border-top: solid 3px #dc1a1b;
+
+}
+.td_out {
+
+
+}
+
+.td_inner{
+padding: 2px;
+}
+
+
+	 .sub_images { 
+        position: relative;
+	bottom: 180px; right: 0px;
+        padding-right: 30px;
+        text-align: right;
+        z-index: 300;
+        height: 32px;
+		margin: 2px;
+        }
+	 .sub_images img{ 
+        display: inline;
+        }
+	
+ .sub_name { 
+
+        position: relative;
+	    bottom: 38px; 
+        text-align: center;
+		vertical-align: bottom;
+        z-index: 20;
+	         }
+			.sub_name_on { 
+        position: relative;
+	    bottom: 38px; 
+        text-align: center;
+		vertical-align: bottom;
+        z-index: 20;
+        background: url('/images/selected.gif') top center no-repeat;
+          }
+
+			
+  .sub_name a{
+ color: #000000; font-size: 14px;
+}
+  .sub_name a:hover,  .sub_name_on a:hover, .sub_name_on a{
+ color: #dc1a1b; font-size: 14px;
+text-decoration: none;
+}
+		
+     #container {
+            background-color: #fff;
+            width: 938px;
+            margin: 15px auto;
+            margin-top:8px;
+            padding: 0px;
+            padding-top:0px;
+            padding-bottom:10px;
+            position: relative; 
+            left:-10px; 
+         }
+        
+        /* slider specific CSS */
+        .sliderGallery{
+            overflow: hidden;
+            position: relative;
+            padding: 10px;
+            height: 348px;
+            width: 938px;
+           
+        }
+        
+    
+        .slider {
+            width: 948px;
+            height: 24px;
+            margin-top: 172px;
+            margin-left: 0px;
+            padding: 0px;
+        
+            position: absolute;
+                top: 230px;
+            background: url('/images/handle.gif') no-repeat;
+            z-index: 400;
+        }
+        
+        .handle {
+           
+            position: absolute;
+            top: 230px;
+            cursor: move;
+            height: 17px;
+            width: 159px;
+            top: 3px;
+            background: url('/images/slider_lr.gif') no-repeat;
+            z-index: 450;
+        }
+   
+
+
+#scroll_div_id_one {
+ overflow: auto;
+ height: 264px;
+ width: 938px;
+}
+
+.polotno_table {
+background: url('/images/fon.gif') #d4d5d5 repeat-x 50% 2px ;
+vertical-align: bottom; 
+height: 248px;
+}
+.img_divan_scroll {
+position: relative; 
+bottom: -18px; 
+margin-left: 8px; 
+margin-right: 8px;
+}
+
+#scroll_colllections {
+position: relative; 
+bottom: 8px; 
+z-index: 53;
+
+}
+
+#scroll_colllections td
+{
+text-align: center; 
+color: #dddddd;
+}

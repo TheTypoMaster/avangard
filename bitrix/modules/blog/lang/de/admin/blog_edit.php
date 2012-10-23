@@ -1,0 +1,34 @@
+<?
+$MESS ['BLBE_TAB_BLOG_PERMS'] = "Zugriffsrechte";
+$MESS ['BLBE_ACTIVE'] = "Aktiv";
+$MESS ['BLBE_SEARCH_INDEX_HINT'] = "Beim Einschalten der Blogindexierung, vergessen Sie bitte nicht, das Modul neu zu indexieren.";
+$MESS ['BLBE_P_ALL'] = "Alle Gäste";
+$MESS ['BLBE_ALLOW_HTML'] = "Visuellen Editor und HTML erlauben";
+$MESS ['BLBE_ENABLE_IMG_VERIF'] = "Der Schutz gegen Bots (CAPTCHA) ist eingeschaltet";
+$MESS ['BLBE_DELETE_BLOG_CONFIRM'] = "Wollen Sie diesen Blog wirklich löschen?";
+$MESS ['BLBE_P_AUTH'] = "Autorisierte Besucher";
+$MESS ['BLBE_GROUP'] = "Bloggruppe";
+$MESS ['BLBE_2FLIST'] = "Blogs";
+$MESS ['BLBE_OWNER_ID'] = "Blogbesitzer";
+$MESS ['BLBE_SOCNET_GROUP_ID'] = "Gruppe-Blogbesitzer";
+$MESS ['BLBE_TAB_BLOG'] = "Blog-Parameter";
+$MESS ['BLBE_TAB_BLOG_DESCR'] = "Blog-Parameter";
+$MESS ['BLBE_UPDATING'] = "Blogparameter bearbeiten";
+$MESS ['BLBE_P_COMMENT'] = "Kommentare elaubt";
+$MESS ['BLBE_ENABLE_COMMENTS'] = "Kommentare im Blog erlauben";
+$MESS ['BLBE_DELETE_BLOG'] = "Blog löschen";
+$MESS ['BLBE_DESCRIPTION'] = "Beschreibung";
+$MESS ['BLBE_TAB_BLOG_PERMS_DESCR'] = "Zugriffsreche auf Blogs konfigurieren";
+$MESS ['BLBE_SAVE_ERROR'] = "Beim Speichern der Blogparameter ist ein Fehler aufgetreten";
+$MESS ['BLBE_ENABLE_RSS'] = "Export in RSS .92, RSS 2.0 und Atom .03 ist eingeschaltet";
+$MESS ['BLBE_SEARCH_INDEX'] = "Blog mit dem Modul \"Suche\" indexieren";
+$MESS ['BLBE_NAME'] = "Überschrift";
+$MESS ['BLBE_URL'] = "Bezeichnung mit lateinischen Buchstaben";
+$MESS ['BLBE_NEW_BLOG'] = "Neuer Blog";
+$MESS ['BLBE_ADDING'] = "Neues Blog";
+$MESS ['BLBE_URL_HINT'] = "Es sind lateinische Buchstaben, Ziffern, Bindestriche und Unterstriche erlaubt";
+$MESS ['BLBE_P_POST'] = "Rechte für Nachrichten";
+$MESS ['BLBE_REAL_URL'] = "Relativer Pfad zum Forumverzeichnis";
+$MESS ['BLBE_EMAIL_NOTIFY'] = "Mitteilung per E-Mail senden";
+$MESS ['BLBE_USE_SOCNET'] = "Dieser Blog ist ein Teil des sozialen Netzwerkes";
+?>

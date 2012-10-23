@@ -1,0 +1,29 @@
+<?
+$MESS ['IBLOCK_ADD_DETAIL_PICTURE'] = "- Detailbild -";
+$MESS ['IBLOCK_ADD_DETAIL_TEXT'] = "- Detailtext -";
+$MESS ['IBLOCK_ADD_IBLOCK_SECTION'] = "- Informationsblock-Kategorie -";
+$MESS ['IBLOCK_ADD_NAME'] = "- Name -";
+$MESS ['IBLOCK_ADD_PREVIEW_PICTURE'] = "- Vorschaubild -";
+$MESS ['IBLOCK_ADD_PREVIEW_TEXT'] = "- Vorschautext -";
+$MESS ['IBLOCK_ADD_TAGS'] = "- Tags -";
+$MESS ['IBLOCK_ACCESS'] = "Zugriffs-Parameter";
+$MESS ['IBLOCK_ALLOW_DELETE'] = "Löschen erlauben";
+$MESS ['IBLOCK_ALLOW_EDIT'] = "Bearbeiten erlauben";
+$MESS ['IBLOCK_STATUS_ANY'] = "beliebige Elemente";
+$MESS ['IBLOCK_ELEMENT_ASSOC_PROPERTY'] = "nach den Informationsblock-Eigenschaften -->";
+$MESS ['IBLOCK_PROPERTY_ID'] = "nach den Informationsblock-Eigenschaften -->";
+$MESS ['IBLOCK_PARAMS'] = "Komponenten-Parameter";
+$MESS ['IBLOCK_CREATED_BY'] = "erstellt von";
+$MESS ['IBLOCK_SEF_EDIT'] = "Bearbeiten";
+$MESS ['IBLOCK_S_ACTIVE'] = "Bearbeiten möglich";
+$MESS ['CP_BIEAL_IBLOCK_STATUS'] = "Bearbeiten für den Status möglich";
+$MESS ['IBLOCK_ADD_EDIT_URL'] = "Seite zum Bearbeiten des Elements";
+$MESS ['IBLOCK_NAV_ON_PAGE'] = "Elemente pro Seite.";
+$MESS ['IBLOCK_IBLOCK'] = "Informationsblock";
+$MESS ['IBLOCK_TYPE'] = "Informationsblocktyp";
+$MESS ['IBLOCK_MAX_USER_ENTRIES'] = "Anzahl der Elemente für einen User begrenzen";
+$MESS ['IBLOCK_ELEMENT_ASSOC'] = "Verknüpfung zum User";
+$MESS ['IBLOCK_ALLOW_N'] = "niemandem";
+$MESS ['IBLOCK_STATUS_INCATIVE'] = "inaktive Elemente";
+$MESS ['IBLOCK_GROUPS'] = "Usergruppen, die Rechte zum Hinzufügen/Bearbeiten haben";
+?>

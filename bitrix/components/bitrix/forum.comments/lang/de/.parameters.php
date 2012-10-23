@@ -1,0 +1,36 @@
+<?
+$MESS["F_MESSAGES_PER_PAGE"] = "Nachrichten pro Seite ";
+$MESS["F_PATH_TO_SMILE"] = "Pfad zum Ordner mit Smileys relativ zum Root-Verzeichnis";
+$MESS["F_FORUM_ID"] = "ID des Diskussionsforums";
+$MESS["F_USE_CAPTCHA"] = "CAPTCHA benutzen";
+$MESS["F_READ_TEMPLATE"] = "Seite der Ansicht eines Forumsthemas";
+$MESS["F_PROFILE_VIEW_TEMPLATE"] = "Seite des Nutzerprofils";
+$MESS["F_PREORDER"] = "Beiträge in aufsteigender Reihenfolge anzeigen";
+$MESS["F_DATE_TIME_FORMAT"] = "Datums- und Uhrzeitformat";
+$MESS["F_DISPLAY_PANEL"] = "Schaltflächen für diese Komponente im Control Panel anzeigen";
+$MESS["F_PAGE_NAVIGATION_TEMPLATE"] = "Name der Vorlage für die Breadcrumb-Navigation";
+$MESS["F_POST_FIRST_MESSAGE"] = "Ein Textelement als  ersten Beitrag benutzen";
+$MESS["F_POST_FIRST_MESSAGE_TEMPLATE"] = "Text für den ersten Beitrag des Themas";
+$MESS["F_EDITOR_CODE_DEFAULT"] = "Standardmäßiger Textbearbeitungsmodus";
+$MESS["F_SHOW_RATING"] = "Ranking anzeigen";
+$MESS["F_SHOW_AVATAR"] = "Nutzer-Avatare anzeigen";
+$MESS["F_SHOW_MINIMIZED"] = "Formular für Antworten minimieren";
+$MESS["F_UNIQUE_ID"] = "ID der Komponente für Kommentare ";
+$MESS["F_EDITOR_SETTINGS"] = "Editoreinstellungen";
+$MESS["F_SUBSCRIBE_AUTHOR_ELEMENT"] = "Autor des Elements erhält alle neuen Kommentare zum Element";
+$MESS["ALLOW_SMILES_TITLE"] = "Smileys erlauben";
+$MESS["ALLOW_HTML_TITLE"] = "HTML erlauben";
+$MESS["ALLOW_NL2BR_TITLE"] = "Neue Zeilen durch <br> ersetzen";
+$MESS["ALLOW_ANCHOR_TITLE"] = "Links erlauben";
+$MESS["ALLOW_BIU_TITLE"] = "Tags B, U, I und S erlauben";
+$MESS["ALLOW_IMG_TITLE"] = "Bilder erlauben";
+$MESS["ALLOW_VIDEO_TITLE"] = "Videos erlauben";
+$MESS["ALLOW_LIST_TITLE"] = "Listen erlauben";
+$MESS["ALLOW_TABLE_TITLE"] = "Tabellen erlauben";
+$MESS["ALLOW_QUOTE_TITLE"] = "Zitate erlauben";
+$MESS["ALLOW_CODE_TITLE"] = "Code erlauben";
+$MESS["ALLOW_FONT_TITLE"] = "Schriftarten erlauben";
+$MESS["F_RSS"] = "RSS-Einstellungen";
+$MESS["F_SHOW_SUBSCRIBE"] = "Link \"Abonnement\" anzeigen";
+$MESS["F_SHOW_MODERATION"] = "Moderationslinks anzeigen";
+?>

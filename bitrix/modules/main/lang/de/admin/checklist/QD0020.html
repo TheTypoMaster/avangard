@@ -1,0 +1,38 @@
+<p>Die Erstellung einer  Website beginnt in der Regel erst nach Abstimmung des Designs. Das Design wird dann in die Vorlagen des Bitrix Frameworks (sowie 
+in die Komponentenvorlagen) integriert. </p>
+
+<p>Die Einstellungen der Websitevorlagen überprüfen: "Einstellungen &gt; Systemeinstellungen &gt; Seiten &gt; Seitenvorlagen". Für eine erfolgreiche Überprüfung sind 
+´Grundkenntnisse der Sprachen HTML und PHP erforderlich. </p>
+
+<ol>
+<li>Eine Vorlage muss einen verständlichen Namen haben, mit dem sie sich von den anderen Websitevorlagen unterscheidet. Der Name "Vorlage1" wäre in dieser Hinsicht
+ ein eher schlechtes Beispiel. </li>
+
+<li>Zu Beginn der Vorlage muss im Element "&lt;!DOCTYPE&gt;" die <a href="http://en.wikipedia.org/wiki/Document_Type_Declaration" target="_blank">HTML-Version</a> 
+angegeben werden, die den T3-Standards entspricht. Dieses Element ist sehr wichtig, denn es beeinflusst die visuelle Darstellung der Website und deren Arbeitsweise 
+im Browser.</li> 
+
+<li>Im Element &quot;&lt;HTML&gt;&quot; muss die Vorlagensprache angegeben werden. Die Sprache wird dabei aus den Websiteeinstellungen genommen. Ein Beispiel: 
+lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; xml:lang=&quot;&lt;?=LANGUAGE_ID?&gt;&quot; lang=&quot;&lt;?=LANGUAGE_ID?&gt;&quot;&gt;</li> 
+
+<li>Wenn die Angabe der Seitenüberschriften automatisch erfolgt, können die Namen der Web-Seiten und die Browser-Überschriften einfach über die Benutzeroberfläche geändert werden.
+&lt;title&gt;&lt;?$APPLICATION-&gt;ShowTitle()?&gt;&lt;/title&gt;?></li>
+
+
+<li>Meta-Tags der Web-Seite (keywords, description, content-type, robots), sowie Stile und Skripte sollten ebenfalls automatisch angezeigt werden:  
+&lt;?$APPLICATION-&gt;ShowHead();?&gt;</li>  
+
+<li>Das Website-Icon sollte festgelegt werden:
+&lt;link rel=&quot;shortcut icon&quot; type=&quot;image/x-icon&quot; href=&quot;&lt;?=SITE_TEMPLATE_PATH?&gt;/favicon.ico&quot; /&gt;</li>
+
+<li>Das administrative Menü, über welches die Website-Steuerung erfolgt,  sollte automatisch angezeigt werden: 
+&lt;body&gt;&lt;div id=&quot;panel&quot;&gt;&lt;?$APPLICATION-&gt;ShowPanel();?&gt;&lt;/div&gt;</li>
+
+<li>Die Telefonnummer, die Copyright-Jahresangabe im Footer der Website sowie andere eingebettete Bereiche können über das Pop-up oder aber über den administrativen Bereich bearbeitet werden. Dazu sind keine Programmierkenntnisse erforderlich.</li> 
+
+<li>In der Website-Vorlage sind Werbebereiche (Werbebanner) definiert: Diese können im Bereich Ansicht (beim eingeschalteten Bearbeitungsmodus) oder im Bereich Administration (Services > Werbung > Banner) bearbeitet werden. </li>
+
+<li>Alle "komplizierten" Web-Design-Elemente müssen sich im Header bzw. Footer der Website befinden. Im Arbeitsbereich (WORK_AREA) sollten sich lediglich die "einfacheren" Gestaltungselemente befinden. So wird das Risiko vermieden, dass der Content-Manager die Gestaltung der Website durch seine Arbeit im visuellen Editor aus Versehen "beschädigt". Diese Vorsichtsmaßnahme ist besonders wichtig für die Startseite. </li>
+
+<li>Die Website- und Vorlagenstile (welche auf den gleichnamigen Registerkarten angezeigt werden) müssen ordentlich eingerichtet  und ausführlich dokumentiert werden. </li> 
+ </ol>

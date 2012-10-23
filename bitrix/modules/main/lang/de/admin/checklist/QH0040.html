@@ -1,0 +1,9 @@
+<p>Wird eine Konfiguration auf mehreren Ebenen der Web-Anwendung vorgenommen (Frontend - Backend, Lastverteilung etc.), sollte eine korrekte
+ Übermittlung der IP-Adresse des Clients an die Website eingestellt werden. Im Lastverteilungsprogramm oder auf dem Proxy-Server, welcher 
+ Cache-Prozesse durchführt, werden dafür oft HTTP-Überschriften verwendet. Die Daten aus diesen Überschriften werden dann auf einen Web-Server
+ (mod_rpaf u.Ä.) oder in eine Web-Anwendung extrahiert.</p> 
+
+
+<p>Im Bereich "Einstellungen &gt; Tools &gt; PHP-Einstellungen" sollte der Parameterwert _SERVER["REMOTE_ADDR"] überprüft werden. Dieser Wert sollte 
+mit Ihrer IP-Adresse übereinstimmen. Der Wert für die IP-Adresse des Clients, welche auf der Website bestimmt wird, kann außerdem auch im Bereich 
+"Einstellungen &gt; Proaktiver Schutz &gt; Schutz des administrativen Bereichs" erhalten werden. </p>

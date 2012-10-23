@@ -1,0 +1,70 @@
+<?
+$MESS ['FPF_UNREG_USER_INFO'] = "Unregistered User Info";
+$MESS ['FPF_TYPE_NAME'] = "Enter your Name:";
+$MESS ['FPF_TYPE_EMAIL'] = "Enter your E-Mail address:";
+$MESS ['FPF_TOPIC_PARAMS'] = "Topic Settings";
+$MESS ['FPF_TOPIC_NAME'] = "Topic Title:";
+$MESS ['FPF_TOPIC_DESCR'] = "Topic Description:";
+$MESS ['FPF_TOPIC_ICON'] = "Icon:";
+$MESS ['FPF_TOPIC_TAGS'] = "Tags:";
+$MESS ['FPF_MESSAGE_TEXT'] = "Enter your Post";
+$MESS ['FPF_SMILES'] = "Clickable Smilies";
+$MESS ['FPF_FONT'] = "Font";
+$MESS ['FPF_FONT_TITLE'] = "Font";
+$MESS ['FPF_COLOR_TITLE'] = "Color";
+$MESS ['FPF_CLOSE_OPENED_TAGS'] = "Close all opened tags";
+$MESS ['FPF_CLOSE_ALL_TAGS'] = "Close all tags";
+$MESS ['FPF_WANT_ALLOW_SMILES'] = "Do you want to <B>use</B> smileys in this message?";
+$MESS ['FPF_WANT_SUBSCRIBE_TOPIC'] = "Subscribe to New Posts in This Topic";
+$MESS ['FPF_WANT_SUBSCRIBE_FORUM'] = "Subscribe to New Posts in This Forum";
+$MESS ['FPF_LOAD_IMAGE'] = "Load image for this message";
+$MESS ['FPF_LOAD_FILE'] = "Load attachment for this message";
+$MESS ['FPF_VIEW'] = "View";
+$MESS ['FPF_CAPTCHA_TITLE'] = "Please type the word you see in the image";
+$MESS ['FPF_CAPTCHA_PROMT'] = "Enter Text from Image";
+$MESS ['FPF_IN_FORUM'] = "in forum";
+$MESS ['FPF_IN_TOPIC'] = "in topic";
+$MESS ['FPF_BOLD'] = "Bold (alt+b)";
+$MESS ['FPF_STRIKE'] = "Strike (alt+s)";
+$MESS ['FPF_ITAL'] = "Italic (alt+i)";
+$MESS ['FPF_UNDER'] = "Underlined (alt+u)";
+
+$MESS ['FPF_HYPERLINK_TITLE'] = "Hyperlink (alt+h)";
+$MESS ['FPF_IMAGE_TITLE'] = "Image attachment (alt+g)";
+
+$MESS ['FPF_VIDEO_TITLE'] = "Insert video (alt+v)";
+$MESS ['FORUM_VIDEO'] = "Video clip";
+$MESS ['FORUM_PATH'] = "Path (http://)";
+$MESS ['FORUM_WIDTH'] = "Width";
+$MESS ['FORUM_HEIGHT'] = "Height";
+$MESS ['FORUM_BUTTON_CANCEL'] = "Cancel";
+$MESS ['FORUM_BUTTON_OK'] = "Insert";
+$MESS ['FORUM_ERROR_NO_PATH_TO_VIDEO'] = "The path to a video clip is not specified.";
+$MESS ['FPF_QUOTE_TITLE'] = "Quote (alt+q)";
+$MESS ['FPF_CODE_TITLE'] = "Code (alt+p)";
+$MESS ['FPF_LIST_TITLE'] = "Create list (alt+l)";
+$MESS ['FPF_TRANSLIT_TITLE'] = "Translit (alt+t)";
+$MESS ['FPF_CREATE_IN_FORUM'] = "Create new topic in";
+$MESS ['FPF_REPLY_FORM'] = "Reply form";
+$MESS ['FPF_EDIT_FORM'] = "Modify message";
+$MESS ['FPF_TOPIC_TAGS_DESCRIPTION'] = "Specify tags which fully describe the topic subject.";
+$MESS ['FPF_TOPIC_ICON_DESCRIPTION'] = "Select an icon which will be shown beside the topic title.";
+$MESS ['FPF_EDIT_REASON'] = "Modification reason:";
+$MESS ['FPF_EDIT_ADD_REASON'] = "Include information about modification";
+$MESS ['JQOUTE_AUTHOR_WRITES'] = "wrote";
+$MESS ['JERROR_NO_TOPIC_NAME'] = "Please provide message title. ";
+$MESS ['JERROR_NO_MESSAGE'] = "Please provide your message. ";
+
+$MESS ['JERROR_MAX_LEN'] = "Maximum message length is #MAX_LENGTH# symbols. Total symbols: #LENGTH#.";
+
+$MESS ['FORUM_TEXT_ENTER_URL'] = "Enter the full address (URL)";
+$MESS ['FORUM_TEXT_ENTER_URL_NAME'] = "Enter the text to be shown as a hyperlink";
+$MESS ['FORUM_TEXT_ENTER_IMAGE'] = "Enter the full image path (URL)";
+$MESS ['FORUM_LIST_PROMPT'] = "Enter the list item. Click 'Cancel' or leave the space symbol for completing the list";
+$MESS ['FORUM_ERROR_NO_URL'] = "You should specify the site address (URL)";
+$MESS ['FORUM_ERROR_NO_TITLE'] = "You have to specify the title";
+$MESS ['F_KB'] = " KB";
+$MESS ['F_MB'] = " MB";
+$MESS ['F_B'] = " byte";
+$MESS ['F_FILE_SIZE'] = "file size should not exceed #SIZE#";
+?>

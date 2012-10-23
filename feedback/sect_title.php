@@ -1,0 +1,1 @@
+<H1><?$APPLICATION->ShowTitle(false)?></H1>

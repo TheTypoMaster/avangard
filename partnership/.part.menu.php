@@ -1,0 +1,39 @@
+<?
+$aMenuLinks = Array(
+	Array(
+		"Интернет-магазинам", 
+		"//partnership/shop_info/internet_magazinam.php", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Дилерам", 
+		"/partnership/dealer/", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Дизайнерам", 
+		"/partnership/designers/", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Наши партнеры", 
+		"/partnership/partners/", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
+		"Помощь дилеру", 
+		"/partnership/dealer/help.php", 
+		Array(), 
+		Array(), 
+		"" 
+	)
+);
+?>

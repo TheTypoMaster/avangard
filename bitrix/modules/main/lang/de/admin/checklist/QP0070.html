@@ -1,0 +1,63 @@
+<p>Auch wenn eine Website gut durchdacht und sorgfältig entwickelt wurde, und bei der Entwicklung folgende kritische Aspekte berücksichtigt wurden: </p>
+
+<ul>
+<li>Beim eingeschalteten Auto-Cache führen Komponenten keine Anfragen an die Datenbank aus; </li>
+<li>Nicht benötigte Daten werden nicht im Komponenten-Cache gespeichert und die Cache-Größe übersteigt 1 Mb nicht; </li> 
+<li>In den Komponenten werden keine intensiven Kalkulationen ausgeführt und für sie werden keine großen Arbeitsspeicher genutzt 
+(solche Vorgänge sollten nicht während der Vorbereitung der Seite zur Übermittlung an den Besucherbrowser durchgeführt werden
+Stattdessen sollten sie als cron-Aufgaben definiert werden, welche im Hintergrund oder mit der Technologie der asynchronen Warteschlangen ausgeführt werden); </li> 
+ </ul>
+
+<p>kann es passieren, dass auf der Website manche Seiten oder Komponenten nur langsam funktionieren, sei es, weil ein Programmierer Fehler 
+gemacht hat, oder weil während der Seitenerstellung interne Systemfehler aufgetreten waren, oder weil es beim Zusammenwirken verschiedener 
+Betriebssystemelemente zu einem Konflikt gekommen war.  </p>
+
+<p>Es wird ausdrücklich empfohlen, einen Lasttest durchzuführen, um so die Website vor Systemunstabilitäten bei erhöhter Belastung zu schützen
+ und die maximale Leistung des Systems zu gewährleisten. </p>
+
+<p>Damit die Testergebnisse den realen Bedingungen der Websitenutzung (zumindest in etwa) entsprechen, sollten Daten in einem zu erwartenden 
+Umfang auf die Website hochgeladen werden. Sollte das System beispielsweise 2 Mio. Accounts haben, 100.000 Produkte in 10.000 Bereichen und 
+dazu noch ein Forum mit dem Traffic von 500.000 Hits pro Tag, in welchem auch 1 Mio. Beiträge gespeichert werden, dann sollten auch Daten in 
+entsprechendem Umfang hochgeladen werden. Auch die Server-Software und -Hardware, welche beim Lasttest benutzt werden, sollten an die des realen 
+Servers bestmöglich angepasst werden.   </p>
+
+<p>Szenarien eines Lasttests können variieren: Von gemeinsamen Aktionen, welche durch Unternehmensmitarbeiter organisiert ausgeführt werden 
+(alle Mitarbeiter werden aufgefordert, zu einem bestimmten Zeitpunkt verschiedene Aktionen auf der Website auszuführen) bis hin zu komplexen 
+Testszenarien, wenn mithilfe von speziellen Programmen (z.B. JMeter, WAPT usw.) ganze Abfolgen von Aktionen simuliert werden. </p>
+
+
+<ol>
+	<li>Sicherstellen, dass Testdaten auf der Website vorhanden sind, und zwar in dem Umfang, welcher in etwa dem realen Datenumfang entspricht. 
+Sicherstellen, dass der Lasttest auf einem Server erfolgt, dessen Hardware und Software denen des realen Servers entsprechen. </li>
+	<li>Im administrativen Bereich unter "Einstellungen &gt; Performance &gt; Performance Panel" auf "Performance testen" klicken (im Feld daneben 
+sollte die Testzeit von mindestens 10 Minuten Angegeben werden). 
+		<ol>
+			<li>Auf der Website wird Belastung erzeugt: Entweder sind das die Unternehmensmitarbeiter, welche auf der Website im Vorfeld abgestimmte
+ Aktionen ausführen, oder die Testbelastung wird durch spezielle Programme wie JMeter, WAPT etc. erzeugt. Die Intensität der Belastung 
+ sollte der in Wirklichkeit zu erwartenden in etwa entsprechen. </li>
+			<li>Beim Lasttest sollte man versuchen, mehrere Aktionen in ihrer logischen Reihenfolge auszuführen und dabei folgende Aspekte zu bewerten (zumindest visuell):
+				<ul>
+					<li>Web-Seiten öffnen sich schnell </li>
+					<li>Bilder auf den Web-Seiten werden visuell schnell geladen </li> 
+					Beim Lasttest sollte man also versuchen, die Website aus der Sicht des Kunden zu beurteilen. 
+				</ul>
+			</li>  
+		</ol>
+
+	</li> 
+	<li>Nachdem der Lasttest beendet wurde, sollten die Ergebnisse auf der Registerkarte "Entwicklung" unter Einstellungen &gt; Performance &gt; 
+Performance Panel ausgewertet werden
+		<ul>
+			<li>Liste "Die 20 schwersten Seiten" überprüfen  </li>
+			<li>Ergebnisse in der Spalte "Durchschnittliche Zeit (Sek.)" zeigen, wie viel Zeit zum Aufbau der Seite auf dem Server benötigt wurde. 
+Diese Zeit sollte 0,5 Sek. nicht übersteigen. Werden die Ergebnisse von 1 Sek. oder höher angezeigt, zeugt das davon, dass die Seiten-
+ oder PHP-Einstellungen oder aber die Hardware-Konfiguration nicht optimal sind. In diesem Fall sollten die Einstellungen geändert bzw. 
+ etwaige Fehler korrigiert werden.  </li> 
+			<li>In der Spalte "Entwicklungsfehler" sollten keine Fehler angezeigt werden. Werden dennoch Fehler festgestellt, sollten sie unbedingt korrigiert werden. </li> 
+		</ul>
+
+	</li>
+</ol>
+
+<p>Ein erfolgreich durchgeführter Lasttest bedeutet, dass die "schwersten" Seiten der Website optimiert werden, was die Systemstabilität
+ wesentlich verbessert und die Hardware-Belastung reduziert.  </p>

@@ -1,0 +1,31 @@
+<?
+$MESS["MAIN_NEW_RECORD_TITLE"] = "Neuer E-Mail Eventtyp";
+$MESS["NEW_TITLE"] = "Neues Event";
+$MESS["MAIN_NEW_TEMPLATE_TITLE"] = "Neue Vorlage für diesen Eventtyp hinzufügen";
+$MESS["MAIN_NEW_TEMPLATE"] = "Neue Vorlage";
+$MESS["MAIN_NEW_RECORD"] = "Neuer Typ";
+$MESS["ADD"] = "Neue E-Mail Vorlage";
+$MESS["MAIN_DELETE_RECORD_CONF"] = "Wollen Sie den aktuellen Typ inklusive Vorlagen wirklich löschen?";
+$MESS["MAIN_DELETE_RECORD"] = "Typ löschen";
+$MESS["MAIN_DELETE_RECORD_TITLE"] = "Typ inkl. Vorlage löschen";
+$MESS["EVENT_DESCR_LANG"] = "Beschreibung";
+$MESS["EDIT_TITLE"] = "Event #TYPE# bearbeiten";
+$MESS["EVENT_NAME"] = "E-Mail-Eventtyp";
+$MESS["EVENT_NAME_DESCR"] = "E-Mail-Eventtyp";
+$MESS["TEMPLATES_DESCR"] = "E-Mail-Vorlagen";
+$MESS["EVENT_NAME_TITLE"] = "Eventtyp";
+$MESS["RECORD_LIST_TITLE"] = "E-Mail-Events";
+$MESS["TEMPLATE_LIST_TITLE"] = "Vorlagen";
+$MESS["LANG_PARAMS"] = "Sprachabhängige Parameter";
+$MESS["LANGUAGE_PARAMS"] = "Sprachabhängige Parameter";
+$MESS["EVENT_NAME_LANG"] = "Überschrift";
+$MESS["ERROR_LANG_EMPTY"] = "Der Sprachparameter wurde nicht angegeben";
+$MESS["RESET"] = "Zurücksetzen";
+$MESS["SAVE"] = "Änderungen speichern";
+$MESS["MAIN_ERROR_SAVING"] = "Beim Speichern ist ein Fehler aufgetreten";
+$MESS["EVENT_SORT_LANG"] = "Sortierung";
+$MESS["TEMPLATES_TITLE"] = "Vorlagen";
+$MESS["TEMPLATE_LIST"] = "Vorlagen";
+$MESS["RECORD_LIST"] = "Typen";
+$MESS["LANG_FIELDS"] = "Sie müssen mindestens ein Sprachfeld füllen";
+?>

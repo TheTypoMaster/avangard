@@ -1,0 +1,29 @@
+<?
+$MESS ['FILEMAN_ACCESS'] = "Zugriff";
+$MESS ['FILEMAN_FOLDER_ACCESS_LEVEL'] = "Zugriffslevel";
+$MESS ['FILEMAN_FOLDER_ACCESS'] = "Zugriffsrechte";
+$MESS ['FILEMAN_FOLDER_ACCESS_FOR_INHERIT'] = "Alle Gruppen mit dem Zugriffslevel &quot;Vererben&quot;";
+$MESS ['FILEMAN_FOLDER_APPLY'] = "Übernehmen";
+$MESS ['FILEMAN_FOLDER_PROPSCODE'] = "Code";
+$MESS ['FILEMAN_FOLDER_CURVAL'] = "Aktueller Wert:";
+$MESS ['FILEMAN_FOLDER_PROPSDEL'] = "Löschen";
+$MESS ['FM_FOLDER_ACCESS_DENIED'] = "Verweigert";
+$MESS ['FILEMAN_OPTION_PROPS_DESCR'] = "Beschreibung";
+$MESS ['FILEMAN_FOLDER_BACK'] = "Verzeichnis";
+$MESS ['FILEMAN_FOLDER_TITLE'] = "Ordnereigenschaften";
+$MESS ['FILEMAN_FOLDER_FILEPROPS'] = "Ordnereigenschaften";
+$MESS ['FILEMAN_TAB'] = "Ordnereigenschaften";
+$MESS ['FILEMAN_TAB_ALT'] = "Ordnereigenschaften";
+$MESS ['FM_FOLDER_ACCESS_FULL'] = "Voller Zugriff";
+$MESS ['FILEMAN_FOLDER_ACCESS_GROUP'] = "Gruppe";
+$MESS ['FILEMAN_FOLDER_ACCESS_INHERIT'] = "Vererben";
+$MESS ['FILEMAN_OPTION_PROPS_KEYW'] = "Schlüsselwörter";
+$MESS ['FILEMAN_FOLDER_PROPSMORE'] = "Mehr...";
+$MESS ['FM_FOLDER_ACCESS_READ'] = "Lesen";
+$MESS ['FILEMAN_FOLDER_RESET'] = "Zurücksetzen";
+$MESS ['FILEMAN_FOLDER_SAVE'] = "Speichern";
+$MESS ['FILEMAN_FOLDER_SECTION_NAME'] = "Bezeichnung:";
+$MESS ['FILEMAN_FOLDER_PROPSVAL'] = "Wert";
+$MESS ['FM_FOLDER_ACCESS_WORKFLOW'] = "Workflow";
+$MESS ['FM_FOLDER_ACCESS_WRITE'] = "Schreiben";
+?>

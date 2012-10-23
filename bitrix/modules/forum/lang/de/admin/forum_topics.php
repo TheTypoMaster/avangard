@@ -1,0 +1,30 @@
+<?
+$MESS ['FM_WRONG_DATE_CREATE_FROM'] = "Geben Sie das Erstelldatum \"Von\" korrekt ein";
+$MESS ['FM_WRONG_FORUM_ID'] = "Der Forum-Empfänger wurde nicht angegeben";
+$MESS ['FM_WRONG_UPDATE'] = "Änderungen wurden nicht gespeichert";
+$MESS ['FM_TOPICS'] = "Beiträge";
+$MESS ['FORUM_TOPICS'] = "Themen verwalten";
+$MESS ['FM_ACT_DELETE'] = "Löschen";
+$MESS ['FM_ACT_MOVE'] = "Verschieben";
+$MESS ['FM_TITLE_NAME'] = "Überschrift";
+$MESS ['FM_TITLE_DESCRIPTION'] = "Beschreibung";
+$MESS ['FM_TITLE_STATE'] = "Bundesland";
+$MESS ['FM_TITLE_APPROVED'] = "Moderation";
+$MESS ['FM_TITLE_SORT'] = "Sortierung";
+$MESS ['FM_TITLE_AUTHOR'] = "Autor";
+$MESS ['FM_TITLE_MESSAGES'] = "Nachrichten";
+$MESS ['FM_TITLE_VIEWS'] = "Angezeigt";
+$MESS ['FM_TITLE_FORUM'] = "Forum";
+$MESS ['FM_TITLE_LAST_MESSAGE'] = "Letzte Nachricht";
+$MESS ['FM_TITLE_DATE_CREATE'] = "Erstellt";
+$MESS ['FM_TITLE_DATE_LAST_POST'] = "letzter Beitrag";
+$MESS ['FM_TITLE_USER_START_ID'] = "Autor-ID";
+$MESS ['F_OPEN'] = "Offen";
+$MESS ['F_CLOSE'] = "Geschlossen";
+$MESS ['F_SHOW'] = "Bestätigt";
+$MESS ['F_HIDE'] = "Nicht bestätigt";
+$MESS ['F_PINN'] = "Wichtig";
+$MESS ['F_UNPINN'] = "Das Thema wurde gelöst.";
+$MESS ['F_LINK'] = "Link";
+$MESS ['F_ALL'] = "Alle";
+?>

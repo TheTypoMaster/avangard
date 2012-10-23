@@ -1,0 +1,19 @@
+<p>Bei der Entwicklung einer Website mit dem Bitrix Framework sollte der Framework-Systemkern nicht geändert werden. Da sonst immer die Gefahr entsteht, 
+dass das Framework nicht ordnungsgemäß aktualisiert werden kann, was wiederrum die Arbeitsfähigkeit der gesamten Website beinträchtigen kann. </p>
+
+<p>Manchmal versucht man, den Systemkern zu ändern, ohne zu wissen, dass es integrierte Technologien ( 
+ <a href="http://www.bitrixsoft.com/help/source/main/help/en/developer/general/technology/events.php.html">Event-Handler</a>) gibt, die es ermöglichen, eine fehlende 
+Funktionalität hinzuzufügen, ohne dabei den Systemkern ändern zu müssen. </p>
+
+<p>Kann eine vorhandene Funktionalität nicht über Event- Handler geändert werden (oder eine neue Funktionalität nicht hinzugefügt werden), kann 
+man ein eigenes <a href="http://www.bitrixsoft.com/help/source/main/help/en/developer/general/modules/index.php.html">Modul erstellen</a>, mit 
+dem man eine beliebige für die Website erforderliche Funktionalität hinzufügen kann, ohne dabei den Systemkern des Bitrix Frameworks ändern zu müssen. </p>
+
+<ol>
+<li>Anhand von Daten und Informationen, welche durch Entwicklungstools (Concurrent Versions System (CVS) für die Dateiversionen und Datenbank
+ sowie die interne Datei-Integritätsprüfung) ausgegeben werden, oder mithilfe von einem automatisch erfolgenden Test muss sichergestellt werden, 
+ dass der Systemkern des Bitrix Frameworks nicht geändert wurde.</li>
+
+<li>Nachdem die Integration abgeschlossen wurde, empfehlen wir außerdem, das Framework über das SiteUpdate System zu aktualisieren, so dass alle 
+Module in den aktuellsten Versionen verfügbar sind, und dann die Arbeitsfähigkeit der Website zu testen. </li> 
+ </ol>

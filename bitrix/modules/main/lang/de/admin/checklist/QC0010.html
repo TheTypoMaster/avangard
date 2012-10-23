@@ -1,0 +1,38 @@
+<p>Für eine gewöhnliche Website ist es normalerweise ausreichend, die Vorlagen der vorhandenen Standardkomponenten zu ändern und einige 
+Websitetemplates zu erstellen. Dadurch werden die Ziele, welche mit einer solchen Website verfolgt werden, meist auch erreicht. Dennoch 
+ist es manchmal erforderlich, den Anforderungen der Website entsprechend, ganz spezifische  Aufgaben zu erledigen, was die Entwicklung 
+eigener 2.0 Komponenten und deren Platzierung auf der Website verlangt. </p>
+
+<p>Bei der Entwicklung eigener 2.0 Komponenten wird üblicherweise folgende Vorgehensweise empfohlen:</p>
+<ul>
+<li>In der Spezifikation der Website werden eventuelle selbst zu erstellende 2.0 Komponenten definiert und auch beschrieben. </li>
+<li>Für die selbst zu erstellenden 2.0 Komponenten wird ein Namensraum bestimmt, in welchem auch der Websitename benutzt werden kann. 
+Die Systemkomponenten des Bitrix Framework werden beispielsweise im Namensraum "bitrix:" platziert. </li> 
+<li>Es wird festgelegt, welche Standardkomponente als Grundlage für eine selbst zu erstellende Komponente dienen kann. Im Code der Standardkomponenten 
+gibt es zahlreiche Beispiele, wie API und verschiedene Programmiertechniken korrekt verwendet werden. Deshalb wird empfohlen, Standardkomponenten als 
+Grundlage zu benutzen.</li> 
+<li>Für jede Komponente 2.0 wird eine Oberfläche entwickelt. Darüber hinaus wird definiert, welche Komponentenparameter durch den Websiteadministrator 
+bearbeitet werden können. Bei der Komponente, die beispielsweise den Wetterbericht darstellt, kann man in den Administratoreinstellungen die Eigenschaften
+ "Adresse des Web-Services" oder "Time-Out bei der Verbindung mit dem Web-Service" anzeigen. </li>
+<li>Es wird festgelegt, in welchem Bereich des Komponenten-Baums im visuellen Editor diese Komponente platziert werden soll.</li> 
+<li>Ein Komponentencode wird erstellt. Besonders wird auf die Einstellung des Komponentencaches und zwar des Autocache-Modus geachtet: Die Komponente 
+soll keine Anfragen an die Datenbank im Cache-Modus senden; sollte der Cache veraltet werden, dann wird nur eine minimale Anzahl von Datenbankanfragen 
+durch die Komponente ausgeführt; die Komponente soll nur erforderliche Daten im Cache speichern und dabei einen möglichst minimalen Arbeitsspeicher 
+benutzen (d.h. die Komponente soll bspw. nicht die sehr großen Dateien sortieren usw.).  </li>
+ </ul>
+
+<p>Die selbsterstellten 2.0 Komponenten können als Grundlage für neue Komponenten auf derselben Website oder - dank dem Modulaufbau - auf einer 
+anderen Website benutzt werden. So entsteht allmählich eine Bibliothek mit selbsterstellten 2.0Komponenten. Manchmal ist es sinnvoll, Komponenten 
+der eigenen Website in dem einen Namensraum aufzubewahren, und die in verschiedenen (dritten) Web-Projekten benutzten 2.0 Komponenten in einem anderen,
+ etwa im Namensraum "library:".  </p>
+
+
+<ol>
+<li>Im Ordner "/bitrix/components/" des Web-Servers sollten Ordner mit der Bezeichnung des Namensraums für die Websitekomponenten enthalten sein, z.B. 
+"myproject" und "mylibrary". Manchmal erstellen die Entwickler ihre eigenen Namensräume, etwa "test123", welche auf der Website auch nach dem Website-Launch
+ erhalten bleiben.</li>
+<li>Im visuellen Editor im Baum der 2.0 Komponenten werden die selbsterstellten Websitekomponenten in einem separaten Unterbereich platziert. </li> 
+<li>Die selbsterstellten 2.0 Komponenten haben entsprechende Einstellungen, welche im Ansichtsbereich der Website verfügbar sind. Dabei sollte darauf 
+geachtet werden, dass alle Einstellungen sorgfältig getestet wurden und ausführlich beschrieben sind. Es sollte keine Einstellungen geben, die überflüssig 
+oder technisch unklar definiert sind  (wie etwa "Tiefe der Verschachtelung der Hashtabellen der Registerobjekte"). </li> 
+ </ol>

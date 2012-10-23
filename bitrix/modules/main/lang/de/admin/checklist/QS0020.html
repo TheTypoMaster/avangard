@@ -1,0 +1,33 @@
+<p>Im Rahmen des Bitrix Framework werden zahlreiche Standardkomponenten wie bspw. "Newsliste", "Menü", "Sitemap" usw. zur Verfügung gestellt. 
+Die Sicherheit und Leistungsfähigkeit dieser Komponenten wurden in vielen Tests erfolgreich geprüft. Der Einsatz von Standardkomponenten ermöglicht es, 
+die Website wesentlich schneller einzurichten, da die Anpassung dieser Komponenten an eine konkrete Spezifikation normalerweise in einer Designänderung 
+besteht. Darüber hinaus werden die Standardkomponenten (genauer der Kern einer jeden Komponente) via System SiteUpdate aktualisiert: Dadurch werden neue 
+Funktionalitäten, Fehlerkorrekturen und diverse Verbesserungen verfügbar. </p>
+
+<p>Manchmal ist eine jedoch kompliziertere Anpassung erforderlich, wenn eigene Komponenten erstellt werden sollen. Diese Komponenten müssen dann unbedingt
+ folgenden Anforderungen entsprechen: Möglichkeit, diese Komponenten im Ansichtsbereich der Website einzustellen, Sicherheit, hohe Leistungsfähigkeit und 
+ Cache. Bei der Erstellung eigener Komponenten sollten die Standardkomponenten von Bitrix als Beispiel dienen.</p>
+
+<p>Eine Website kann man sich als eine bestimmte Anzahl von einzelnen Web-Seiten vorstellen, auf denen verschiedene Komponenten platziert sind, 
+größtenteils Standardkomponenten, aber auch selbsterstellte. </p>
+
+<ol>
+<li>Es wird empfohlen, eine komplette Liste mit allen Komponenten zu erstellen, welche im Web-Projekt verwendet werden. Diese Liste könnte  in zwei 
+Teile aufgeteilt werden: Standardkomponenten (mit einem eventuell geänderten Design) und projektspezifische Komponenten (diese können speziell für 
+das Projekt erstellt oder aber als fertige Komponenten benutzt werden).</li>
+<li>Die Standardkomponenten haben das Präfix  "bitrix:". Überprüfen Sie die Einstellungen der Standardkomponenten im Ansichtsbereich der Website. 
+Stellen Sie sicher, dass diese Einstellungen korrekt funktionieren (wurde das Erscheinungsbild der Standardkomponenten nicht korrekt geändert, kann
+ dies dazu führen, dass die Logik der Komponenteneinstellungen gestört wird). Wenn beispielsweise die Standardkomponente "bitrix:news" für eine Liste (etwa "Ersatzteile") verwendet wird, sollte diese Komponente und ihre
+ Einstellungen an die spezifischen Aufgaben angepasst werden. In diesem Fall wäre die Einstellung "Anzahl der News auf der Seite" überflüssig. 
+ Solche Einstellungen, die nicht benutzt werden, sollten ausgeblendet werden. 
+</li> 
+<li>In den Einstellungen einer Standardkomponente muss man ganz speziell den Cache-Modus beachten (Bereich "Cache-Einstellungen"). Es wird empfohlen, 
+die Option "Auto verwaltet" mit einem Langzeit-Cache zu aktivieren. Man sollte sich im Klaren darüber sein, dass wenn der Komponenten-Cache deaktiviert 
+ist, die Komponente Anfragen an die Datenbank senden wird, was die Leistungsfähigkeit der Website und ihre Stabilität bei hohen Belastungen beeinträchtigen kann.
+<p><img height="87" border="0" width="402" src="/bitrix/images/main/checklist/de/QS0020.png" /></p>
+</li> 
+<li>Nachdem das Bitrix Framework aktualisiert wurde, wird empfohlen, die Arbeitsweise der Bitrix Standardkomponenten (vor allem die 
+Standardkomponenten mit verändertem Erscheinungsbild) zu testen. Wurden die Integrationsregeln eingehalten (d.h. die Änderungen am Erscheinungsbild 
+der Komponenten wurden gemäß den Empfehlungen von Bitrix vorgenommen), sollte die Arbeitsweise der Standardkomponenten unbeeinträchtigt bleiben, 
+da die Arbeitslogik des Kerns der Standardkomponenten  vollkommen eingehalten wurde. </li>
+ </ol>

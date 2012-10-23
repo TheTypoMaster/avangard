@@ -1,0 +1,30 @@
+<?
+$MESS["IBLOCK_SORT_SHOWS"] = "Durchschnittlich angezeigt";
+$MESS["IBLOCK_SORT_SORT"] = "Sortierindex";
+$MESS["IBLOCK_SORT_TIMESTAMP"] = "Geändert";
+$MESS["IBLOCK_SORT_NAME"] = "Überschrift";
+$MESS["IBLOCK_SORT_ID"] = "ID";
+$MESS["IBLOCK_SORT_DEPTH_LEVEL"] = "Ordner-Verschachtelungsebene";
+$MESS["IBLOCK_SORT_ACTIVE_FROM"] = "aktiv von";
+$MESS["IBLOCK_SORT_ACTIVE_TO"] = "aktiv bis";
+$MESS["IBLOCK_SORT_ASC"] = "aufsteigend";
+$MESS["IBLOCK_SORT_DESC"] = "absteigend";
+$MESS["IBLOCK_TYPE"] = "Informationsblocktyp";
+$MESS["IBLOCK_IBLOCK"] = "Informationsblock";
+$MESS["IBLOCK_SECTION_SORT_FIELD"] = "Bereiche sortieren nach";
+$MESS["IBLOCK_SECTION_SORT_ORDER"] = "Sortierordnung der Bereiche";
+$MESS["IBLOCK_SECTION_COUNT"] = "Maximale Anzahl der angezeigten Bereiche";
+$MESS["IBLOCK_SECTION_URL"] = "URL - Bereichs-Inhalte";
+$MESS["IBLOCK_ELEMENT_COUNT"] = "Maximale Anzahl Fotos, die in jedem Bereich angezeigt werden";
+$MESS["IBLOCK_LINE_ELEMENT_COUNT"] = "Anzahl der Fotos in einer Tabellenzeile";
+$MESS["IBLOCK_ELEMENT_SORT_FIELD"] = "Fotos sortieren nach";
+$MESS["IBLOCK_ELEMENT_SORT_ORDER"] = "Sortierordnung der Fotos im Bereich";
+$MESS["IBLOCK_FILTER_NAME"] = "Name des ausgehenden Arrays für die Filterung";
+$MESS["IBLOCK_CACHE_FILTER"] = "Cachen wenn der Filter aktiv ist";
+$MESS["IBLOCK_DETAIL_URL"] = "URL - Bereichs-Elemente";
+$MESS["IBLOCK_FIELD"] = "Felder";
+$MESS["IBLOCK_PROPERTY"] = "Eigenschaften";
+$MESS["CP_BPST_CACHE_GROUPS"] = "Zugriffsrechte berücksichtigen";
+$MESS["CP_BPST_SECTION_FIELDS"] = "Bereichsfelder";
+$MESS["CP_BPST_SECTION_USER_FIELDS"] = "Bereichseigenschaften";
+?>

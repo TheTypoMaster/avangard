@@ -1,0 +1,20 @@
+DROP TABLE b_posting_file CASCADE CONSTRAINTS
+/
+DROP TABLE b_posting_group CASCADE CONSTRAINTS
+/
+DROP TABLE b_posting_rubric CASCADE CONSTRAINTS
+/
+DROP TABLE b_posting CASCADE CONSTRAINTS
+/
+DROP SEQUENCE sq_b_posting
+/
+DROP TABLE b_subscription_rubric CASCADE CONSTRAINTS
+/
+DROP TABLE b_subscription CASCADE CONSTRAINTS
+/
+DROP SEQUENCE sq_b_subscription
+/
+DROP TABLE b_list_rubric CASCADE CONSTRAINTS
+/
+DROP SEQUENCE sq_b_list_rubric
+/

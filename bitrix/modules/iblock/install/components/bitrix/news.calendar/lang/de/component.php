@@ -1,0 +1,29 @@
+<?
+$MESS ['IBL_NEWS_CAL_M_4'] = "April";
+$MESS ['IBL_NEWS_CAL_M_8'] = "August";
+$MESS ['IBL_NEWS_CAL_M_12'] = "Dezember";
+$MESS ['IBL_NEWS_CAL_M_2'] = "Februar";
+$MESS ['IBL_NEWS_CAL_S_5'] = "Fr";
+$MESS ['IBL_NEWS_CAL_D_5'] = "Freitag";
+$MESS ['IBLOCK_MODULE_NOT_INSTALLED'] = "Das Modul \"Informationsblöcke\" wurde nicht installiert";
+$MESS ['IBL_NEWS_CAL_M_1'] = "Januar";
+$MESS ['IBL_NEWS_CAL_M_7'] = "Juli";
+$MESS ['IBL_NEWS_CAL_M_6'] = "Juni";
+$MESS ['IBL_NEWS_CAL_M_3'] = "März";
+$MESS ['IBL_NEWS_CAL_M_5'] = "Mai";
+$MESS ['IBL_NEWS_CAL_S_1'] = "Mo";
+$MESS ['IBL_NEWS_CAL_D_1'] = "Montag";
+$MESS ['IBL_NEWS_CAL_M_11'] = "November";
+$MESS ['IBL_NEWS_CAL_M_10'] = "Oktober";
+$MESS ['IBL_NEWS_CAL_S_6'] = "Sa";
+$MESS ['IBL_NEWS_CAL_D_6'] = "Samstag";
+$MESS ['IBL_NEWS_CAL_M_9'] = "September";
+$MESS ['IBL_NEWS_CAL_S_0'] = "So";
+$MESS ['IBL_NEWS_CAL_D_0'] = "Sonntag";
+$MESS ['IBL_NEWS_CAL_S_4'] = "Do";
+$MESS ['IBL_NEWS_CAL_D_4'] = "Donnerstag";
+$MESS ['IBL_NEWS_CAL_S_2'] = "Di";
+$MESS ['IBL_NEWS_CAL_D_2'] = "Dienstag";
+$MESS ['IBL_NEWS_CAL_S_3'] = "Mi";
+$MESS ['IBL_NEWS_CAL_D_3'] = "Mittwoch";
+?>

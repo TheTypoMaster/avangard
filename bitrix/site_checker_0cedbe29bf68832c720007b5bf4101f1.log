@@ -1,0 +1,136 @@
+2011-Dec-13 17:24:54 Наличие необходимых модулей php (check_php_modules): Ok
+Успешно
+2011-Dec-13 17:24:54 Обязательные параметры PHP (check_php_settings): Ok
+Успешно
+2011-Dec-13 17:24:54 Значения переменных сервера (check_server_vars): Ok
+Успешно
+2011-Dec-13 17:24:54 Параметры настройки UTF (mbstring и константа BX_UTF) (check_mbstring): Ok
+Успешно. Сайт работает в однобайтовой кодировке
+2011-Dec-13 17:24:54 Настройки сайтов (check_sites): Ok
+Успешно
+2011-Dec-13 17:24:54 Работа с сокетами (check_socket): Ok
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:54 Лишний вывод в файлах конфигурации (check_dbconn): Ok
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:54 Загрузка файла (check_upload): Ok
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:55 Загрузка файла больше 4Мб (check_upload_big): Ok
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:55 Передача POST запроса с большим числом параметров (check_post): Ok
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:55 Отправка почты (check_mail): Ok
+Успешно
+2011-Dec-13 17:24:55 Отправка почтового сообщения больше 64Кб (check_mail_big): Ok
+Успешно
+2011-Dec-13 17:24:55 Проверка на наличие неотправленных сообщений (check_mail_b_event): Ok
+Успешно
+2011-Dec-13 17:24:55 Внутреннее перенаправление (функция LocalRedirect) (check_localredirect): Ok
+50% done
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:55 Внутреннее перенаправление (функция LocalRedirect) (check_localredirect): Ok
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:56 Фактическое ограничение памяти (check_memory_limit): Ok
+14% done
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:56 Фактическое ограничение памяти (check_memory_limit): Ok
+28% done
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:56 Фактическое ограничение памяти (check_memory_limit): Ok
+42% done
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:56 Фактическое ограничение памяти (check_memory_limit): Ok
+57% done
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:56 Фактическое ограничение памяти (check_memory_limit): Ok
+71% done
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:57 Фактическое ограничение памяти (check_memory_limit): Ok
+85% done
+Connection to avangard.biz:80
+== Request ==
+GET /bitrix/admin/site_checker.php?memory_test=Y&unique_id=1aaff754cb3e9d6c9637530ed397a46e&max=511 HTTP/1.1
+Host: avangard.biz
+
+
+== Response ==
+HTTP/1.1 200 OK
+Server: nginx/1.0.6
+Date: Tue, 13 Dec 2011 13:24:57 GMT
+Content-Type: text/html; charset=windows-1251
+Transfer-Encoding: chunked
+Connection: keep-alive
+X-Powered-By: PHP/5.2.12
+
+== Body ==
+
+Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 1048577 bytes) in /home/a/avangard/public_html/bitrix/modules/main/admin/site_checker.php on line 86
+
+==========
+Успешно
+2011-Dec-13 17:24:58 Фактическое ограничение памяти (check_memory_limit): Ok
+Connection to avangard.biz:80
+Не менее 384 М
+2011-Dec-13 17:24:58 Сохранение сессии (check_session): Ok
+50% done
+Успешно
+2011-Dec-13 17:24:58 Сохранение сессии (check_session): Ok
+Успешно
+2011-Dec-13 17:24:58 Сохранение сессии без UserAgent (check_session_ua): Ok
+50% done
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:59 Сохранение сессии без UserAgent (check_session_ua): Ok
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:24:59 Работа с файлами кеша (check_cache): Ok
+Успешно
+2011-Dec-13 17:24:59 Доступ к серверу обновлений (check_update): Ok
+Успешно
+2011-Dec-13 17:25:00 HTTP авторизация (check_http_auth): Ok
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:25:00 Создание и запуск файла (check_exec): Ok
+Connection to avangard.biz:80
+Успешно
+2011-Dec-13 17:25:00 Модуль suhosin отключен (check_suhosin): Ok
+Успешно
+2011-Dec-13 17:25:00 Модуль Apache mod_security отключен (check_security): Ok
+Успешно
+2011-Dec-13 17:25:00 Константа BX_CRONTAB (не должна быть определена) (check_bx_crontab): Ok
+Успешно
+2011-Dec-13 17:25:00 Разделитель дробной части (check_divider): Ok
+Успешно
+2011-Dec-13 17:25:00 Значение параметра precision (не менее 10) (check_precision): Ok
+Успешно
+2011-Dec-13 17:25:01 Передача объектов по ссылке (check_clone): Ok
+Успешно
+2011-Dec-13 17:25:01 Функция getimagesize для swf (check_getimagesize): Ok
+Успешно
+2011-Dec-13 17:25:01 Версия MySQL сервера (check_mysql_bug_version): Ok
+Успешно
+2011-Dec-13 17:25:01 Время на БД и веб сервере (check_mysql_time): Ok
+Успешно
+2011-Dec-13 17:25:01 Режим работы MySQL (check_mysql_mode): Ok
+Успешно
+2011-Dec-13 17:25:01 Значение auto_increment в MySQL (check_mysql_increment): Ok
+Успешно
+2011-Dec-13 17:25:01 Кодировка соединения (check_mysql_connection_charset): Ok
+CHARSET=cp1251, COLLATION=cp1251_general_ci
+Успешно
+2011-Dec-13 17:25:02 Кодировка базы данных (check_mysql_db_charset): Ok
+CHARSET=cp1251, COLLATION=cp1251_general_ci
+Успешно
+2011-Dec-13 17:25:04 Кодировки таблиц в БД (check_mysql_table_charset): Ok
+Успешно

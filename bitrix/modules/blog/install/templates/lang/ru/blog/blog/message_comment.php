@@ -1,0 +1,29 @@
+<?
+$MESS ['B_B_MS_FROM'] = "от";
+$MESS ['B_B_MS_COMENT_DEL'] = "Удалить комментарий";
+$MESS ['B_B_MS_REPLY'] = "Ответить";
+$MESS ['B_B_MS_PARENT'] = "Родитель";
+$MESS ['B_B_MS_LINK'] = "Ссылка";
+$MESS ['B_B_MS_AUTHOR'] = "Автор:";
+$MESS ['B_B_MS_NAME'] = "Имя:";
+$MESS ['B_B_MS_SUBJECT'] = "Тема:";
+$MESS ['B_B_MS_M_BODY'] = "Сообщение:";
+$MESS ['B_B_MS_CAPTCHA_SYM'] = "Символы на картинке:";
+$MESS ['B_B_MS_SEND'] = "Отправить";
+$MESS ['B_B_MS_ADD_COMMENT'] = "Добавить комментарий";
+$MESS ['B_B_MS_NO_MODULE'] = "Модуль блогов не установлен";
+$MESS ['BLOG_P_INSERT_IMAGE_LINK'] = "Вставить ссылку на изображение";
+$MESS ['FPF_BOLD'] = "Жирный текст";
+$MESS ['FPF_ITALIC'] = "Наклонный текст";
+$MESS ['FPF_UNDER'] = "Подчеркнутый текст";
+$MESS ['FPF_FONT'] = "Шрифт";
+$MESS ['FPF_CLOSE_OPENED_TAGS'] = "Закрыть все открытые тэги";
+$MESS ['FPF_CLOSE_ALL_TAGS'] = "Закрыть все теги";
+$MESS ['FPF_HYPERLINK'] = "Ввод гиперссылки";
+$MESS ['FPF_IMAGE'] = "Цвет";
+$MESS ['FPF_CODE'] = "Оформление текста в виде кода";
+$MESS ['FPF_CUT'] = "Оформление текста предпросмотра";
+$MESS ['FPF_LIST'] = "Оформление текста в виде списка";
+$MESS ['FPF_OPENED_TAGS'] = "Открытые тэги:&nbsp;";
+$MESS ['FPF_QUOTE'] = "Оформление текста в виде цитаты";
+?>

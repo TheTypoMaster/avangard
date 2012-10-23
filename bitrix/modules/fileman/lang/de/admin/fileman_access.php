@@ -1,0 +1,30 @@
+<?
+$MESS ['FILEMAN_ACCESS_LEVEL_NOTCH'] = "(nicht ändern)";
+$MESS ['FILEMAN_ACCESS_LEVEL'] = "Zugriffslevel";
+$MESS ['FILEMAN_TAB_ALT'] = "Vergabe der Zugriffsrechte";
+$MESS ['FILEMAN_TAB'] = "Zugriffsrechte";
+$MESS ['FILEMAN_ACCESS_TITLE'] = "Zugriffsrechte";
+$MESS ['FILEMAN_ACCESS_DIFFERENT'] = "Zugriffseinstellungen dieser Gruppe haben unterschiedliche Zugriffslevels. Nach dem Speichern werden alle Ordner gleiche Zugriffslevels für diese Gruppe besitzen.";
+$MESS ['FILEMAN_ACCESS_GROUP_INHERIT'] = "Alle Gruppen mit dem Zugriffslevel &quot;Vererben&quot;";
+$MESS ['FILEMAN_ACCESS_APPLY'] = "Anwenden";
+$MESS ['FILEMAN_ACCESS_CHANGE_TO'] = "Zugriffsrechte bearbeiten für";
+$MESS ['FILEMAN_ACCESS_LEVEL_CUR'] = "Aktueller Zugriffslevel";
+$MESS ['FM_FOLDER_ACCESS_DENIED'] = "Verweigert";
+$MESS ['FILEMAN_ACCESS_FILE'] = "Datei";
+$MESS ['FILEMAN_FILE_OR_FOLDER'] = "Datei/Ordner";
+$MESS ['FILEMAN_ACCESS_FOLDERS_FILES'] = "Dateien/Ordner:";
+$MESS ['FILEMAN_CMENU_CAT'] = "Verzeichnis";
+$MESS ['FILEMAN_ACCESS_FOR_GROUP'] = "Für die Usergruppe";
+$MESS ['FM_FOLDER_ACCESS_FULL'] = "Voller Zugriff";
+$MESS ['FILEMAN_ACCESS_GROUP'] = "Gruppe";
+$MESS ['FILEMAN_FOLDER_ACCESS_INHERIT'] = "Vererben";
+$MESS ['FILEMAN_ACCESS_TO_DENIED'] = "Sie haben nicht genügend Rechte zum Bearbeiten der Zugriffseinstellungen für";
+$MESS ['FM_FOLDER_ACCESS_READ'] = "Lesen";
+$MESS ['FILEMAN_ACCESS_RESET'] = "Zurücksetzen";
+$MESS ['FILEMAN_ACCESS_SAVE'] = "Speichern";
+$MESS ['FILEMAN_ACCESS_DIFF_GROUP'] = "Einige Dateien oder Ordner haben unterschiedliche Zugriffslevels: ";
+$MESS ['FILEMAN_ACCESS_DIFF_LEVEL'] = "Einige Dateien oder Ordner haben unterschiedliche Zugriffslevels: ";
+$MESS ['FM_FOLDER_ACCESS_WORKFLOW'] = "Workflow";
+$MESS ['FM_FOLDER_ACCESS_WRITE'] = "Schreiben";
+$MESS ['FILEMAN_ACCESS_FOR_GROUP2'] = "besitzt Schreibrechte. Jeder registrierter User kann diese Dateien/Ordner ändern! Wollen Sie diese Änderung wirklich speichern?";
+?>

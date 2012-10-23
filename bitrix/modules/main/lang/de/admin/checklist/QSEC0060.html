@@ -1,0 +1,9 @@
+<p> Benachrichtigungen über technische Fehler mit internen Informationen zur Systemkonfiguration  dürfen den Website-Besuchern nicht öffentlich angezeigt werden.</p>
+
+<ol>
+<li>In der Datei der Verbindung mit der Datenbank "/bitrix/php_interface/dbconn.php" den Wert der Variablen überprüfen: "$DBDebug = false". 
+Dadurch wird den Besuchern die Ansicht ausführlicher Benachrichtigungen über die SQL-Fehler verweigert.</li>
+<li>Im Bereich "Einstellungen &gt; Systemeinstellungen &gt; Moduleinstellungen &gt; Hauptmodul" auf der Registerkarte "Einstellungen" in der Liste 
+"Fehlerberichtsmodus" sollte der Wert "Nicht anzeigen" gesetzt werden. Alternativ kann man in den PHP-Einstellungen ("Einstellungen &gt; Tools &gt; PHP-Einstellungen") 
+den Parameter "display_errors" auf "off" setzen. </li> 
+</ol>

@@ -1,0 +1,30 @@
+2010-05-12 11:54:27 -  - exec CUpdateClientPartner::GetUpdatesList
+2010-05-12 11:54:27 -  - exec CUpdateClientPartner::__CollectRequestData
+2010-05-12 11:54:27 -  - utf=N&lang=ru&stable=Y&CANGZIP=Y&SUPD_DBS=MYSQL&XE=N&CLIENT_SITE=www.avangard.biz&LICENSE_KEY=X&SUPD_STS=1&SUPD_URS=4&TYPENC=F&CLIENT_PHPVER=5.2.12&dbv=5.0.77&instm=main%2C9.0.1%3Biblock%2C9.0.1%3Bseo%2C8.6.0%3Bforum%2C9.0.0%3Bphotogallery%2C8.6.3%3Bsecurity%2C9.0.1%3Bvote%2C8.5.2%3Bblog%2C8.5.3%3Bsubscribe%2C8.6.2%3Bcompression%2C8.5.0%3Bform%2C8.5.3%3Bfileman%2C9.0.0%3Bperfmon%2C9.0.0%3Bsearch%2C9.0.1
+2010-05-12 11:54:27 -  - exec CUpdateClientPartner::GetHTTPPage
+2010-05-12 11:54:33 -  - TIME GetUpdatesList(request) 5.476 sec
+2010-05-12 11:54:33 -  - exec CUpdateClientPartner::ParseServerData
+2010-05-12 11:54:33 -  - exec CUpdateClientPartner::GetUpdatesList
+2010-05-12 11:54:33 -  - exec CUpdateClientPartner::__CollectRequestData
+2010-05-12 11:54:33 -  - utf=N&lang=ru&stable=Y&CANGZIP=Y&SUPD_DBS=MYSQL&XE=N&CLIENT_SITE=www.avangard.biz&LICENSE_KEY=X&SUPD_STS=1&SUPD_URS=4&TYPENC=F&CLIENT_PHPVER=5.2.12&dbv=5.0.77&instm=main%2C9.0.1%3Biblock%2C9.0.1%3Bseo%2C8.6.0%3Bforum%2C9.0.0%3Bphotogallery%2C8.6.3%3Bsecurity%2C9.0.1%3Bvote%2C8.5.2%3Bblog%2C8.5.3%3Bsubscribe%2C8.6.2%3Bcompression%2C8.5.0%3Bform%2C8.5.3%3Bfileman%2C9.0.0%3Bperfmon%2C9.0.0%3Bsearch%2C9.0.1
+2010-05-12 11:54:33 -  - exec CUpdateClientPartner::GetHTTPPage
+2010-05-12 11:54:43 -  - TIME GetUpdatesList(request) 9.821 sec
+2010-05-12 11:54:43 -  - exec CUpdateClientPartner::ParseServerData
+2010-05-12 11:55:55 -  - exec CUpdateClientPartner::GetUpdatesList
+2010-05-12 11:55:55 -  - exec CUpdateClientPartner::__CollectRequestData
+2010-05-12 11:55:55 -  - utf=N&lang=ru&stable=Y&CANGZIP=Y&SUPD_DBS=MYSQL&XE=N&CLIENT_SITE=www.avangard.biz&LICENSE_KEY=X&SUPD_STS=1&SUPD_URS=4&TYPENC=F&CLIENT_PHPVER=5.2.12&dbv=5.0.77&instm=main%2C9.0.1%3Biblock%2C9.0.1%3Bseo%2C8.6.0%3Bforum%2C9.0.0%3Bphotogallery%2C8.6.3%3Bsecurity%2C9.0.1%3Bvote%2C8.5.2%3Bblog%2C8.5.3%3Bsubscribe%2C8.6.2%3Bcompression%2C8.5.0%3Bform%2C8.5.3%3Bfileman%2C9.0.0%3Bperfmon%2C9.0.0%3Bsearch%2C9.0.1
+2010-05-12 11:55:55 -  - exec CUpdateClientPartner::GetHTTPPage
+2010-05-12 11:55:57 -  - TIME GetUpdatesList(request) 2.101 sec
+2010-05-12 11:55:57 -  - exec CUpdateClientPartner::ParseServerData
+2010-09-22 16:37:53 -  - exec CUpdateClientPartner::SearchModulesEx
+2010-09-22 16:37:53 -  - exec CUpdateClientPartner::__CollectRequestData
+2010-09-22 16:37:53 -  - utf=N&lang=ru&stable=Y&CANGZIP=Y&SUPD_DBS=MYSQL&XE=N&CLIENT_SITE=www.avangard.biz&LICENSE_KEY=X&SUPD_STS=1&SUPD_URS=4&TYPENC=F&CLIENT_PHPVER=5.2.12&dbv=5.0.77&instm=main%2C9.1.2%2CN%3Biblock%2C9.1.0%2CN%3Bseo%2C9.0.0%2CN%3Bforum%2C9.0.3%2CN%3Bphotogallery%2C9.0.5%2CN%3Bsecurity%2C9.1.0%2CN%3Bvote%2C9.0.0%2CN%3Bblog%2C9.0.6%2CN%3Bsubscribe%2C9.1.0%2CN%3Bcompression%2C9.0.0%2CN%3Bform%2C9.1.0%2CN%3Bfileman%2C9.1.0%2CN%3Bperfmon%2C9.1.0%2CN%3Bsearch%2C9.1.0%2CN&search_module_id=&search_module=&search_category=&search_type=&search_order=ASC&search_order_by=NAME&search_page=1
+2010-09-22 16:37:53 -  - exec CUpdateClientPartner::GetHTTPPage
+2010-09-22 16:37:54 -  - TIME SearchModulesEx(request) 0.847 sec
+2010-09-22 16:37:54 -  - exec CUpdateClientPartner::ParseServerData
+2010-09-22 16:40:30 -  - exec CUpdateClientPartner::SearchModulesEx
+2010-09-22 16:40:30 -  - exec CUpdateClientPartner::__CollectRequestData
+2010-09-22 16:40:30 -  - utf=N&lang=ru&stable=Y&CANGZIP=Y&SUPD_DBS=MYSQL&XE=N&CLIENT_SITE=www.avangard.biz&LICENSE_KEY=X&SUPD_STS=1&SUPD_URS=4&TYPENC=F&CLIENT_PHPVER=5.2.12&dbv=5.0.77&instm=main%2C9.1.2%2CN%3Biblock%2C9.1.0%2CN%3Bseo%2C9.0.0%2CN%3Bforum%2C9.0.3%2CN%3Bphotogallery%2C9.0.5%2CN%3Bsecurity%2C9.1.0%2CN%3Bvote%2C9.0.0%2CN%3Bblog%2C9.0.6%2CN%3Bsubscribe%2C9.1.0%2CN%3Bcompression%2C9.0.0%2CN%3Bform%2C9.1.0%2CN%3Bfileman%2C9.1.0%2CN%3Bperfmon%2C9.1.0%2CN%3Bsearch%2C9.1.0%2CN&search_module_id=&search_module=&search_category=&search_type=&search_order=ASC&search_order_by=NAME&search_page=1
+2010-09-22 16:40:30 -  - exec CUpdateClientPartner::GetHTTPPage
+2010-09-22 16:40:30 -  - TIME SearchModulesEx(request) 0.581 sec
+2010-09-22 16:40:30 -  - exec CUpdateClientPartner::ParseServerData

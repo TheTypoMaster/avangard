@@ -1,0 +1,41 @@
+<p>Eine auf dem Bitrix Framework erstellte Website speichert die Informationen:</p>
+<ul>
+<li>im Dateisystem </li>
+<li>in der Datenbank </li> 
+</ul>
+
+<p>Eine Sicherungskopie aller Informationen der Website kann manuell im administrativen Bereich gemacht werden: "Einstellungen &gt; Tools &gt; Backup". </p>
+
+<p>Damit die Daten und Informationen sicher sind und nicht verloren gehen, weil Software versagt oder Hardware ausfällt, wird es ausdrücklich empfohlen, 
+automatische Datensicherung von Dateien sowie Daten aus der Datenbank der Website mindestens alle 24 Stunden vorzunehmen. Um ein hohes Sicherheitsniveau Ihrer 
+Website zu gewährleisten und die Website gleichzeitig immer verfügbar zu machen, empfehlen wir Ihnen, die 
+<a href="http://www.bitrix.de/products/cms/features/web_cluster.php" target="_blank">Web-Cluster-Technologie</a> zu benutzen. 
+</p>
+
+<ol>
+<li>Sie müssen sicherstellen, dass die Datensicherung der Websitedateien und Informationen aus der Datenbank regelmäßig gemacht wird. 
+<p>Wenn die Datensicherung beispielsweise manuell gemacht wird, sollten im Bereich "Einstellungen &gt; Tools &gt; Backup" Sicherungskopien der Website für einen 
+bestimmten Zeitraum (sprich für eine Woche) liegen. Die jüngste Sicherungskopie sollte dabei innerhalb der letzten 24 Stunden gemacht sein. </p>
+
+<p>Soll die Datensicherung automatisch durch Systemtools oder durch den Hostinganbieter erfolgen, müssen Sie sicherstellen, dass die Sicherungskopien 
+tatsächlich vorhanden sind. Außerdem wird empfohlen, den Prozess der Datensicherung stetig zu kontrollieren, damit es nicht zu einer Situation kommt, 
+in welcher die Datensicherung plötzlich "versagt" oder nicht mehr ausgeführt wird, weil die Bitrix-Qualitätssicherungschecklisten vom Hostinganbieter 
+als abgearbeitet an Sie zurückgegeben wurden und die Datensicherung seitens des Anbieters aus Versehen vergessen wurde. </p></li>
+<li>Sie müssen sicherstellen, dass Sie die in der Sicherungskopie gespeicherten Daten:
+<ul>
+<li>zählen und</li>
+<li>aus diesen Daten Ihre Website wiederherstellen können.  </li> 
+ </ul>
+<p>Die Datensicherung kann zwar korrekt konfiguriert sein, dennoch können Situationen auftreten, wobei nicht alle Websitedaten gespeichert wurden oder
+ bei der Datensicherung einige Daten verzerrt wurden. Um das Risiko einer solcher Situation zu minimieren, wird empfohlen, regelmäßige Tests zur Datensicherung 
+ durchzuführen: Bei solchen Tests könnte die Website aus einer Sicherungskopie auf einem extra Server wiederhergestellt und die Arbeitsfähigkeit der Website 
+ geprüft werden. </p></li> 
+<li>Man muss sich darüber im Klaren sein, dass bei der Datensicherung, welche alle 24 Stunden durchgeführt wird, immer noch die Daten verloren gehen können, 
+die innerhalb der letzten 24 Stunden auf der Website veröffentlicht wurden. Bei besonders wichtigen Daten und Informationen wie Bestellungen im Online-Shop oder 
+finanziellen Transaktionen wird es empfohlen, Replikation (falls die Datenbank MySQL eingesetzt wird) einzustellen.
+<p>Wenn keine einzige Datei (hochgeladene Dokumente oder Bilder, erstellte Web-Seiten usw.), die innerhalb letzter 24 Stunden auf der Website veröffentlicht 
+wurde, verloren gehen darf, muss man entweder die Taktung der Datensicherung erhöhen oder, falls die Daten zu groß sind, eine der unten erwähnten Technologien 
+verwendet werden: LVM, einige Dateisysteme - siehe unter http://en.wikipedia.org/wiki/Comparison_of_file_systems, spezielle Speicher, Cloud-Hosting bei 
+aws.amazon.com etc. </p>
+</li> 
+ </ol>

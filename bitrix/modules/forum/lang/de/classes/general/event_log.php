@@ -1,0 +1,35 @@
+<?
+$MESS["FORUM_MESSAGE_APPROVE"] = "Beitrag anzeigen";
+$MESS["FORUM_TOPIC_APPROVE"] = "Thema anzeigen";
+$MESS["FORUM_TOPIC_CLOSE"] = "Thema schließen";
+$MESS["FORUM_FORUM_DELETE"] = "Forum löschen";
+$MESS["FORUM_MESSAGE_DELETE"] = "Beitrag löschen";
+$MESS["FORUM_TOPIC_DELETE"] = "Thema löschen";
+$MESS["FORUM_FORUM_EDIT"] = "Forum bearbeiten";
+$MESS["FORUM_MESSAGE_EDIT"] = "Beitrag bearbeiten";
+$MESS["FORUM_TOPIC_EDIT"] = "Thema bearbeiten";
+$MESS["FORUM_MESSAGE_UNAPPROVE"] = "Beitrag verbergen";
+$MESS["FORUM_TOPIC_UNAPPROVE"] = "Thema verbergen";
+$MESS["FORUM_MESSAGE_MOVE"] = "Nachricht verschieben";
+$MESS["FORUM_TOPIC_MOVE"] = "Thema verschieben";
+$MESS["FORUM_TOPIC_OPEN"] = "Thema öffnen";
+$MESS["FORUM_TOPIC_STICK"] = "Thema fixieren";
+$MESS["FORUM_TOPIC_UNSTICK"] = "Themen lösen";
+$MESS["FORUM_MESSAGE_SPAM"] = "Der Beitrag wurde als Spam gelöscht";
+$MESS["FORUM_TOPIC_SPAM"] = "Das Thema wurde als Spam gelöscht";
+$MESS["LOG_FORUM"] = "Forum";
+$MESS["LOG_FORUM_MESSAGE_APPROVE"] = "Im Thema #NAME# wurde ein Beitrag angezeigt";
+$MESS["LOG_FORUM_MESSAGE_UNAPPROVE"] = "Im Thema #NAME# wurde ein Beitrag ausgeblendet";
+$MESS["LOG_FORUM_MESSAGE_MOVE"] = "Ein Beitrag wurde zum Thema #NAME# verschoben";
+$MESS["LOG_FORUM_MESSAGE_EDIT"] = "Ein Beitrag wurde im Thema #NAME# geändert";
+$MESS["LOG_FORUM_MESSAGE_DELETE"] = "Ein Beitrag wurde im Thema #NAME# gelöscht";
+$MESS["LOG_FORUM_TOPIC_APPROVE"] = "Das Thema #NAME# wurde angezeigt";
+$MESS["LOG_FORUM_TOPIC_UNAPPROVE"] = "Das Thema #NAME# wurde ausgeblendet";
+$MESS["LOG_FORUM_TOPIC_STICK"] = "Das Thema #NAME# wurde fixiert";
+$MESS["LOG_FORUM_TOPIC_UNSTICK"] = "Das Thema #NAME# wurde gelöst";
+$MESS["LOG_FORUM_TOPIC_OPEN"] = "Das Thema #NAME# wurde geöffnet";
+$MESS["LOG_FORUM_TOPIC_CLOSE"] = "Das Thema #NAME# wurde geschlossen";
+$MESS["LOG_FORUM_TOPIC_DELETE"] = "Das Thema #NAME# wurde gelöscht";
+$MESS["LOG_FORUM_TOPIC_MOVE"] = "Das Thema #NAME# wurde ins Forum \"#FORUM#\" verschoben";
+$MESS["LOG_FORUM_TOPIC_EDIT"] = "Das Thema #NAME# wurde geändert";
+?>

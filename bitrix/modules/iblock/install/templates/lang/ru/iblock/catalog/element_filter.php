@@ -1,0 +1,18 @@
+<?
+$MESS ['IBLOCK_FILTER_TITLE'] = "Фильтр";
+$MESS ['IBLOCK_ALL'] = "(все)";
+$MESS ['IBLOCK_SET_FILTER'] = "Фильтр";
+$MESS ['IBLOCK_DEL_FILTER'] = "Сбросить";
+$MESS ['IBLOCK_TILL'] = "по";
+$MESS ['IBLOCK_FILTER_FIELD_ID'] = "ID";
+$MESS ['IBLOCK_FILTER_FIELD_NAME'] = "Название";
+$MESS ['IBLOCK_FILTER_FIELD_PREVIEW_TEXT'] = "Краткое описание";
+$MESS ['IBLOCK_FILTER_FIELD_DETAIL_TEXT'] = "Описание";
+$MESS ['IBLOCK_FILTER_FIELD_SEARCHABLE_CONTENT'] = "Название, описание";
+$MESS ['IBLOCK_FILTER_FIELD_SECTION_ID'] = "Раздел";
+$MESS ['IBLOCK_TOP_LEVEL'] = "Верхний уровень";
+$MESS ['IBLOCK_INCLUDE_SUBSECTIONS'] = "включая подразделы";
+$MESS ['IBLOCK_FILTER_FIELD_ACTIVE_DATE'] = "Дата";
+$MESS ['IBLOCK_FILTER_FIELD_DATE_ACTIVE_FROM'] = "Дата";
+$MESS ['IBLOCK_FILTER_FIELD_DATE_ACTIVE_TO'] = "Дата";
+?>

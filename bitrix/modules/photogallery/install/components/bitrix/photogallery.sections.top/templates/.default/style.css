@@ -1,0 +1,57 @@
+/* Album */
+.photo-album{
+	padding: 0px; 
+	margin: 0px 0px 10px 0px;
+	border: 1px solid #CACACA; 
+	float: left; 
+	background-color: #f6f6f6; 
+	width: 100%; 
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;}
+
+.photo-album-img {padding:5px; margin: 0px 14px 0px 5px;float:left;}
+.photo-album-img div, .photo-album-img img {padding:0px;margin:0px;}
+.photo-album-img img{border:1px solid #BBBBBB;cursor:hand; cursor:pointer;}
+.photo-album-img div.inner {}
+.photo-album-img div.tool {
+	width:10px; 
+	background-image:url('images/tool.gif');
+	background-repeat:repeat-y;
+	background-position:left top;
+	float:left;
+	position:relative;
+	left:-16px;}
+.photo-album-img div.outer {padding:7px 9px 7px 11px; border:1px solid #B2B2B2; background-color:#FFFFFF;}
+
+.photo-album-info {float:left;}
+.photo-album-info div.name {font-weight:bold; margin:15px 0px 3px 0px;}
+.photo-album-info div.date {}
+.photo-album-info div.edit {font-size:90%; color:#DDDDDD; cursor:hand; cursor:pointer;}
+/* /Album */
+
+/* Shadow */
+table.shadow tr {height:2px !important;}
+table.shadow div.empty {height:2px !important; overflow:hidden;}
+table.shadow, table.shadow td {border:none}
+table.shadow .t-r, table.shadow .m-r, table.shadow .b-r {width:2px; background-image: url('images/shadow-m-r.gif');background-repeat:repeat-y;background-position: right;}
+table.shadow .b-l, table.shadow .b-c{height:2px; background-image: url('images/shadow-b-c.gif');background-repeat:repeat-x;background-position: left bottom;}
+table.shadow .t-r {text-align:right; vertical-align:top;}
+table.shadow .t-r div.empty {width:2px;height:2px;background-image: url('images/shadow-t-r.gif');background-repeat:no-repeat;background-position: right top;}
+table.shadow .b-r {text-align:right; vertical-align:bottom;}
+table.shadow .b-r div.empty {width:2px;height:2px;background-image:url('images/shadow-b-r.gif');background-repeat:no-repeat;background-position: right top;}
+table.shadow .b-l {text-align:left; vertical-align:bottom;}
+table.shadow .b-l div.empty {width:2px;height:2px;background-image: url('images/shadow-b-l.gif');background-repeat:no-repeat;background-position: right top;}
+/* /Shadow */
+
+
+/* Style */ 
+div.photo-controls a {
+	margin:5px;}
+div.photo-controls {
+	margin:7px 0px; 
+	clear:both; 
+	width:100%;}
+div.empty-clear{
+	clear:both;
+	width:100%;}
+/* /Style */ 

@@ -1,0 +1,69 @@
+.top_menu {
+	width: 960px;
+	margin: 0px auto;
+	background: #ffffff;
+	padding: 0px 20px 7px 20px;
+	height: 30px;
+}
+.top_menu .menuitem {
+	padding-right: 2px;
+	height: 24px;
+	text-align: center;
+	position: relative;
+	z-index: 60;
+}
+.top_menu .menuitem:last-child {
+	 padding-right: 0px;
+}
+.top_menu .menuitem > a {
+	font: normal 15px "Arial", "Sans-serif";
+	line-height: 24px;
+	color: #000000;
+	text-decoration: none;
+	display: block;
+	background: url(images/tm_2_bg_1.gif) repeat-x left center;
+	width: 100%;
+}
+.top_menu .menuitem_discont > a {
+	background: url(images/menuitem_diskont_bg.png) repeat-x left center;
+	color: white;
+	font-weight: bold;
+}
+.top_menu .menuitem:hover > a {
+	background: url(images/tm_2_bg_2.gif) repeat-x left center;
+}
+.top_menu .menuitem .submenu_block {
+	position: absolute;
+	padding: 0px;
+	margin: 0px;
+	border: 1px solid #c0c0c0;
+	border-bottom: 0px;
+	z-index: 60;
+	min-width: 250px;
+	display: none;
+	-webkit-box-shadow: 1px 2px 5px #767676;
+	-moz-box-shadow: 1px 2px 5px #767676;
+	box-shadow: 1px 2px 5px #767676;
+}
+.top_menu .menuitem:hover .submenu_block {
+	display: block;
+}
+.top_menu .menuitem .submenu_block .submenuitem{
+	display: block;
+	border-bottom: 1px solid #c0c0c0;
+	background: #fafafa;
+	padding: 6px 12px 6px 19px;
+	font-family: Arial;
+	font-weight: bold;
+	color: #252525;
+	font-size: 12px;
+	text-align: left;
+}
+.top_menu .menuitem .submenu_block .submenuitem a{
+	color: #252525;
+	text-decoration: none;
+	white-space: nowrap;
+}
+.top_menu .menuitem .submenu_block .submenuitem:hover a{
+	color: #e60803;
+}

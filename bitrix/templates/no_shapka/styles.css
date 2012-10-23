@@ -1,0 +1,386 @@
+.catmenu {
+        font-family: Geneva, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        line-height: 18px;
+        text-transform: uppercase;
+        color: #000000;
+        font-weight: bold;
+        text-align: center;
+
+}
+.catmenu a {
+        font-family: Geneva, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        line-height: 18px;
+        text-transform: uppercase;
+        color: #000000;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+
+
+}
+
+.hit, .hit a {
+        font-family: Geneva, Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        font-weight: bold;
+        color: #CC0000;
+        padding-bottom: 3px;
+        text-decoration: none;
+}
+
+a {
+        font-family: Geneva, Arial, Helvetica, sans-serif;
+        color: #000000;
+}
+
+br {
+        line-height: 10px;
+}
+.news, .news a {
+        font-family: Geneva, Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        font-weight: bold;
+        color: #e20a16;
+        text-transform: uppercase;
+        text-decoration: none;
+}
+
+
+.newsblock {
+        line-height: 1.5;
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 10px;
+        color: #000000;
+        width: 175px;
+        padding-top: 10px;
+
+
+}
+
+.marktab {
+        line-height: 3px;
+        background-color: e0e0e0;
+        border: 0px;
+        margin: 0px;
+        padding: 0px;
+
+}
+
+.marktab2 {
+        line-height: 5px;
+        background-color: cacaca;
+        border: 0px;
+        margin: 0px;
+        padding: 0px;
+
+}
+
+
+.bottext, .bottext a {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        color: #8a8679;
+        padding-right: 5px;
+        padding-left: 5px;
+
+}
+.copy {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        color: #8a8679;
+        text-align: right;
+        font-size: 11px;
+
+
+}
+.more, .more a {
+        font-size: 12px;
+        font-weight: bold;
+        color: #e20a17;
+        text-align: right;
+}
+.new_main
+{
+ margin: 0px;
+}
+.new_main a
+{
+ background: url(/bitrix/templates/avangard/images/bullet.gif) left center no-repeat;
+ padding-left: 7px;
+ margin-top:0px;
+}
+.new , .new a{
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 10px;
+        color: 4e4e4e;
+}
+
+.new li {
+        background-image: url(/bitrix/templates/avangard/images/bullet.gif);
+        background-repeat: no-repeat;
+        background-position: left center;
+        list-style: none;
+        padding-left: 10px;
+
+}
+* html .new
+{
+ padding: 0px;
+ margin: 0px;
+ height:10px;
+ text-align:left;
+}
+* html .new li
+{
+ padding: 0px 0px 0px 7px !important;
+ margin: 0px;
+ width:109px;
+ text-align:left;
+}
+* html .new li a
+{
+ margin: 0px;
+}
+.newhit, .newhit a {
+        background-image: url(/bitrix/templates/avangard/images/bullet.gif);
+        background-repeat: no-repeat;
+        background-position: left center;
+        list-style-type: none;
+        padding-left: 6px;
+        font-size: 10px;
+
+
+}
+
+
+.brspace {
+        line-height: 10px;
+}
+.morenews {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        color: #e20a16;
+        padding-right: 5px;
+        padding-left: 5px;
+        padding-bottom: 3px;
+
+
+}
+.continue, .continue a {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 10px;
+        font-weight: bold;
+        color: 4c4c4c;
+        background-image: url(/bitrix/templates/avangard/images/bullet2.gif);
+        background-repeat: no-repeat;
+        background-position: left middle;
+        padding-left: 20px;
+        text-decoration: none;
+        padding-bottom: 5px;
+        line-height: 15px;
+
+
+}
+img {
+     border: 0px;
+}
+.hline {
+        color: e0e0e0;
+        border: 0px solid;
+        background-color: e0e0e0;
+        height: 3px;
+}
+.hline2 {
+        color: cacaca;
+        border: 0px solid;
+        background-color: cacaca;
+        height: 12px;
+        background-position: top;
+        margin: 0px;
+        padding: 0px;
+}
+.itemtitle {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: e20a16;
+}
+.itemtitle li, {
+
+        background-image: url(/bitrix/templates/avangard/images/bullet_red.gif);
+        background-repeat: no-repeat;
+        background-position: left center;
+        padding-left: 10px;
+        list-style-type: none;
+}
+
+.novhit li a {
+        list-style-type: none;
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: e20a16;
+        background-image: url(/bitrix/templates/avangard/images/bullet_red.gif);
+        background-repeat: no-repeat;
+        background-position: left center;
+        padding-left: 10px;
+        list-style-type: none;
+}
+
+
+ .content ,  .content  a {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        color: #8a8679;
+
+
+}
+.content img{
+        border: 1px solid #666666;
+}
+.content img.noborder{
+        border: 0px solid #666666;
+}
+
+a.head {
+        font-family: Geneva, Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        font-weight: bold;
+        color: #e20a16;
+        text-transform: uppercase;
+        text-align: left;
+        text-decoration: none;
+        vertical-align: bottom;
+        margin: 0px;
+        padding: 0px 0px 0px 2px;
+}
+.hit-title, .hit-title a {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        color: e20a16;
+        text-decoration: underline;
+}
+
+.hit-continue, .hit-continue a {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        font-weight: bold;
+        color: e20a16;
+
+        text-decoration: none;
+}
+.hit-title-month {
+        font-family: Geneva, Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        font-weight: bold;
+        color: #e20a16;
+
+}
+
+.hit-title-hit {
+        font-family: Geneva, Arial, Helvetica, sans-serif;
+        font-size: 20px;
+        font-weight: bold;
+        color: #e20a16;
+
+
+}
+
+
+.hit-text{
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        color: #8a8679;
+        padding-right: 5px;
+        padding-left: 5px;
+        height: 145px;
+        overflow: hidden;
+        display: block;
+}
+
+.hit-text a{
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 11px;
+        color: #8a8679;
+}
+
+
+table.s
+{
+       margin-top: 20px;
+}
+
+table.s td
+{
+        font-size: 11px;
+        color: #333;
+}
+.f_type, f_type a
+{
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 10px;
+        color: #000000;
+        text-transform: lowercase;
+        text-decoration: none;
+        font-weight: bold;
+}
+.f_type a
+{
+        color: #e20a16;
+        text-decoration: none;
+
+}
+.f_type a:hover
+{
+        color: #e20a16;
+        text-decoration: underline;
+}
+.f_type li a{
+        font-size: 11px;
+        text-transform: none;
+}
+
+.hmail {
+        display: none        ;
+}
+
+.hidden {display: none;}
+
+.mailtab, .mailtab a {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #8a8679;
+    text-decoration:none;
+
+
+}
+.preview {
+        border: 1px solid #666666;
+}
+.cityname {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: none;
+        color: e20a16;
+        margin-top:10px;
+}
+.cityname a {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: none;
+        color: e20a16;
+        text-decoration:underline;
+
+}
+div.wtb ul
+{
+	margin:10px 0px 0px 10px;
+	padding:0px;
+}

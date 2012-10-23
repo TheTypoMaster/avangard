@@ -1,0 +1,37 @@
+<?
+$MESS ['BLOG_DESCR_SECTION'] = "Blogs";
+$MESS ['BLOG_DESCR_SEP_NAME'] = "Blog index page";
+$MESS ['BLOG_DESCR_SEP_DESCR'] = "Components of Blog module for blog index page";
+$MESS ['BLOG_DESCR_SEARCH_NAME'] = "Search form";
+$MESS ['BLOG_DESCR_SEARCH_DESCR'] = "Search form and search results";
+$MESS ['BLOG_DESCR_SEARCH_PAGE'] = "Search page";
+$MESS ['BLOG_DESCR_SEARCH_RESULT'] = "Results per page";
+$MESS ['BLOG_DESCR_MES_NAME'] = "Last posts";
+$MESS ['BLOG_DESCR_MES_DESCR'] = "Last posts from all blogs of the site grouped by date";
+$MESS ['BLOG_DESCR_MES_COUNT'] = "Number of posts to show";
+$MESS ['BLOG_DESCR_SORT_1'] = "Field for first sorting pass";
+$MESS ['BLOG_DESCR_SORT_2'] = "Field for second sorting pass";
+$MESS ['BLOG_DESCR_SORT_DATE_PUBLISH'] = "Publish date";
+$MESS ['BLOG_DESCR_SORT_MES_TITLE'] = "Post title";
+$MESS ['BLOG_DESCR_SORT_BLOG_ID'] = "Blog ID";
+$MESS ['BLOG_DESCR_SORT_MES_CREATE'] = "Create date of post";
+$MESS ['BLOG_DESCR_SORT_ORDER'] = "Direction for the first sorting pass";
+$MESS ['BLOG_DESCR_SORT_ASC'] = "Ascending";
+$MESS ['BLOG_DESCR_SORT_DESC'] = "Descending";
+$MESS ['BLOG_DESCR_CACHE_TIME'] = "Time to keep the cached result (0 - do not cache)";
+$MESS ['BLOG_DESCR_NB_NAME'] = "New blogs";
+$MESS ['BLOG_DESCR_NB_DESCR'] = "Last added blogs on the site";
+$MESS ['BLOG_DESCR_NB_COUNT'] = "Number of blogs to show";
+$MESS ['BLOG_DESCR_NB_S_DESCR'] = "Show blog description";
+$MESS ['BLOG_DESCR_Y'] = "Yes";
+$MESS ['BLOG_DESCR_N'] = "No";
+$MESS ['BLOG_DESCR_DATE_CREATE'] = "Create date";
+$MESS ['BLOG_DESCR_BLOG_NAME'] = "Blog name";
+$MESS ['BLOG_DESCR_BLOG_ID'] = "Blog ID";
+$MESS ['BLOG_DESCR_LAST_MES'] = "Date of last post";
+$MESS ['BLOG_DESCR_GR_NAME'] = "Blog groups";
+$MESS ['BLOG_DESCR_GR_DESCR'] = "List of non-empty blog groups";
+$MESS ['BLOG_DESCR_GR_COUNT'] = "Number of groups to show";
+$MESS ['BLOG_DESCR_GR_COL_COUNT'] = "Number of columns";
+$MESS ['BLOG_DESCR_GR_SORT_NAME'] = "Group name";
+?>

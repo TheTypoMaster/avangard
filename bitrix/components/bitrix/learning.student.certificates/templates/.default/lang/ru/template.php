@@ -1,0 +1,9 @@
+<?
+$MESS ['LEARNING_MYCOURSES_CODE'] = "№ курса";
+$MESS ['LEARNING_MYCOURSES_COURSE'] = "Название курса";
+$MESS ['LEARNING_MYCOURSES_SCORE'] = "Баллов";
+$MESS ['LEARNING_MYCOURSES_RESULT'] = "Завершен?";
+$MESS ['LEARNING_MYCOURSES_YES'] = "Да";
+$MESS ['LEARNING_MYCOURSES_NO'] = "Нет";
+$MESS ['LEARNING_MYCOURSES_NO_DATA'] = "Нет данных";
+?>

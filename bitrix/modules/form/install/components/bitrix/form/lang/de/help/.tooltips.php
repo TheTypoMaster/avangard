@@ -1,0 +1,34 @@
+<?
+$MESS["SEF_MODE_TIP"] = "Wenn dieser Flag aktiv ist, wird die Unterstützung für die Suchmaschinen freundliche URLs aktiviert.";
+$MESS["WEB_FORM_ID_TIP"] = "In der Dropdown-Liste sind alle Web-Formulare von der Seite <i>Formularliste</i> angezeigt. Sie können den Punkt <i>andere</i> wählen, wenn Sie eine externe Formular ID, die via _REQUEST übergeben wird, benutzen.";
+$MESS["RESULT_ID_TIP"] = "Als Standard enthält das Feld <i>={\$_REQUEST[\"RESULT_ID\"]}</i>. In dieses Feld kann auch der PHP-Code, der die RESULT_ID zurückgibt, eingegeben werden";
+$MESS["START_PAGE_TIP"] = "Wenn Sie <i>Ergebnisse</i> wählen, wird die Hauptseite Ergebnisse für das aktuelle Web-Formular anuzeigen.<br />Wenn Sie die <i>Ergebnis hinzufügen</i> wählen, werden User die ausgewählten Web-Formulare sehen.";
+$MESS["SHOW_LIST_PAGE_TIP"] = "Wenn Sie die <i>Ergebnis hinzufügen</i> als Hauptseite wählen, wird beim Aktivieren dieser Option die Formular-Ergebnisseite geöffnet, wenn ein Besucher ein Formular ausfüllt und es speichert.";
+$MESS["SHOW_EDIT_PAGE_TIP"] = "Wenn diese Option aktiv ist, wird auf der Seite mit der Ergebnisliste der Link <i>Ändern</i> zur Ergebnisbearbeitung angezeigt.";
+$MESS["SHOW_VIEW_PAGE_TIP"] = "Wenn diese Option aktiv ist, wird auf der Seite mit der Ergebnisliste ein Link zur Ergebnisansicht angezeigt.";
+$MESS["SUCCESS_URL_TIP"] = "Hier wird der Pfad zur Seite eingetragen, wo Mitteilungen über die erfolgreichen Formularübertragungen angezeigt werden. Es wird beim Absenden des Formulars für einen User, der keine Rechte für die Ergebnisbearbeitung hat, angezeigt. Sie können das Feld leer lassen. Dann wird eine Standardnachricht angezeigt.";
+$MESS["SHOW_ANSWER_VALUE_TIP"] = "Beim Aktivieren dieser Option wird der Parameterwert ANSWER_VALUE der Web-Formularfrage angezeigt.";
+$MESS["SHOW_ADDITIONAL_TIP"] = "Wenn diese Option aktiv ist, werden zusätzliche Formularfelder angezeigt.";
+$MESS["SHOW_STATUS_TIP"] = "Wenn diese Option aktiv ist, wird auf der Seite mit der Ergebnisliste der aktuelle Ergebnisstatus angezeigt.";
+$MESS["EDIT_ADDITIONAL_TIP"] = "Wenn dieser Flag aktiv ist, werden zusätzliche Felder zur Bearbeitung angezeigt.";
+$MESS["EDIT_STATUS_TIP"] = "Wenn die Opiton <i>aktuellen Ergebnisstatus anzeigen</i> aktiv ist, besteht die Möglichkeit, das Formular zur Statusänderung anzuzeigen (wenn das Flag markiert ist) oder nur Information über den aktuellen Ergebnisstatus anzugeigen (wenn das Flag nicht markiert ist).";
+$MESS["NOT_SHOW_FILTER_TIP"] = "Wählen Sie diese Option um die Felder des Formulars zu verbergen, die nicht im Filter auf der Ergebnisseite angezeigt werden sollen.";
+$MESS["NOT_SHOW_TABLE_TIP"] = "Wählen Sie diese Option um die Felder des Formulars zu verbergen, die nicht im Filter auf der Ergebnisseite angezeigt werden sollen.";
+$MESS["CHAIN_ITEM_TEXT_TIP"] = "Hier können Sie die Bezeichnung für den Punkt der Navigationskette eingeben, z.B. \"neues Formular\".";
+$MESS["CHAIN_ITEM_LINK_TIP"] = "Dieses Feld erlaubt das Hinzufügen eines Links für einen zusätzlichen Punkt in der Navigationskette, z.B. /myfolder/";
+$MESS["CACHE_TYPE_TIP"] = "<i>Automatisch</i>: Der Cache ist gültig gemäß Definition in den Cache-Einstellungen;<br /><i>Cache</i>: immer cachen für den Zeitraum, der im nächsten Feld definiert wird;<br /><i>Nicht cachen</i>: es wird kein Caching ausgeführt.";
+$MESS["CACHE_TIME_TIP"] = "Feld für die Eingabe der Cache-Laufzeit in Sekunden.";
+$MESS["VARIABLE_ALIASES_action_TIP"] = "Geben Sie die Variable an, in der der Aktionsbezeichnung übergeben wird. Aktion \"bearbeiten\" leitet zum Bearbeiten der Ergebnisse weiter, \"Liste\" öffnet eine Seite mit Ergebnissen.";
+$MESS["SEF_FOLDER_TIP"] = "Pfad zum Ordner,  mit den die Komponente arbeitet. Der Pfad kann physisch existieren.";
+$MESS["SEF_URL_TEMPLATES_list_TIP"] = "Wenn Sie die <i>Ergebnisliste</i> als Hauptseite wählen, können Sie dieses Feld leer lassen. Ansonsten geben Sie hier den Verzeichnisnamen ein, der an Suchmaschinen freundlichen URLs angehängt wird, wenn ein User zur Ergebnisseite wechselt, z.B. list/.";
+$MESS["SEF_URL_TEMPLATES_new_TIP"] = "Wenn Sie die Seite <i>Ergebnis hinzufügen</i> als Hauptseite wählen, können Sie dieses Feld leer lassen. Ansonsten geben Sie hier einen zutreffenden Verzeichnisnamen ein, z.B. new/.";
+$MESS["SEF_URL_TEMPLATES_edit_TIP"] = "Die Ergebnis ID des ausgefüllten Web-Formulars muss zum Bearbeiten des Ergebnisses mit übergeben werden, z.B. view/#RESULT_ID#/.";
+$MESS["SEF_URL_TEMPLATES_view_TIP"] = "Die Ergebnis ID des ausgefüllten Web-Formulars muss zur Seite mit den Ergebnissen mit übergeben werden, z.B. view/#RESULT_ID#/.";
+$MESS["IGNORE_CUSTOM_TEMPLATE_TIP"] = "Eigene Vorlage ignorieren";
+$MESS["AJAX_MODE_TIP"] = "AJAX-Modus aktivieren";
+$MESS["USE_EXTENDED_ERRORS_TIP"] = "Erweiterete Fehlermeldungen benutzen";
+$MESS["AJAX_OPTION_SHADOW_TIP"] = "Schattierung aktivieren";
+$MESS["AJAX_OPTION_JUMP_TIP"] = "Scrollen zum Anfang der Komponente aktivieren";
+$MESS["AJAX_OPTION_STYLE_TIP"] = "Das Laden der Stile aktivieren";
+$MESS["AJAX_OPTION_HISTORY_TIP"] = "Browsernavigation imitieren (experimentelle Funktion)";
+?>

@@ -1,0 +1,31 @@
+<?
+$MESS["RDB_CONNECT_ERROR"] = "Es ist ein Fehler beim Verbinden zur Datenbank aufgetreten";
+$MESS["RDB_TABLE_NAME"] = "Tabellenname";
+$MESS["RDB_ROWS_COUNT"] = "Anzahl der Zeilen";
+$MESS["RDB_TABLE_SIZE"] = "Tabellengröße (bytes)";
+$MESS["RDB_CHECK_RESULT"] = "Ergebnis";
+$MESS["RDB_REPAIR_RESULT"] = "Ergebnis der Reparatur";
+$MESS["RDB_EXEC_TIME"] = "Ausführungszeit: ";
+$MESS["RDB_SEC"] = "Sek.";
+$MESS["RDB_DATABASE_ERROR"] = "Überprüfen / Reparieren von Datenbanktabellen kann nur auf MySQl Datenbanken durchgeführt werden";
+$MESS["RDB_CHECK_TABLES"] = "Tabellen überprüfen/reparieren";
+$MESS["RDB_REPAIR_DATABASE"] = "Tabellen überprüfen/reparieren";
+$MESS["RDB_TIP_1"] = "Dieses Formular hilft Ihnen, die Datenbanktabellen zu überprüfen und wiederherzustellen. Das Wiederherstellen der Datenbanktabellen kann nur für MyISAM-Tabellen (MYSQL) durchgeführt werden.";
+$MESS["RDB_TIP_2"] = "Achtung!";
+$MESS["RDB_TIP_3"] = "Sie dürfen diese Seite nie gleichzeitig in mehreren Browserfenstern öffnen, weil dadurch die Daten in der Datenbank beschädigt werden können. Für große Datenbanken kann der Vorgang lange dauern!";
+$MESS["RDB_OPTIMIZE_TIP"] = "Hier können Sie Datenbanktabellen analysieren und optimieren. Dadurch wird die Datenbank- Performance erhöht.";
+$MESS["RDB_OPTIMIZE_WARNING_TITLE"] = "Achtung!";
+$MESS["RDB_OPTIMIZE_WARNING_DETAILS"] = "Öffnen Sie diese Seite niemals in mehrmals gleichzeitig; dadurch kann Ihre Datenbank beschädigt werden. Diese Operation kann sehr lange dauern. Es ist empfehlenswert, diese Operation während der minimalen Serverbelastung durchzuführen.";
+$MESS["RDB_OPTIMIZE_INIT"] = "Initialisierung";
+$MESS["RDB_OPTIMIZE_ERROR"] = "Fehler!";
+$MESS["RDB_OPTIMIZE_TABLE_NOT_FOUND"] = "Unbekannte Tabelle.";
+$MESS["RDB_OPTIMIZE_DONE"] = "Fertig";
+$MESS["RDB_OPTIMIZE_ALL_DONE"] = "Tabellenanalyse und Optimierung wurde fertiggestellt.";
+$MESS["RDB_OPTIMIZE_PROGRESS"] = "#done# von #todo#";
+$MESS["RDB_OPTIMIZE_CHECK_FIRST"] = "Beschädigte Tabelle (#table_name#) gefunden. Bitte führen Sie den Prüfungs- und Reparaturvorgang durch, bevor Sie fortführen.";
+$MESS["RDB_OPTIMIZE_OPTIMIZE"] = "Optimisierung";
+$MESS["RDB_OPTIMIZE_ANALYZE"] = "Analyse";
+$MESS["RDB_OPTIMIZE_BTN_START"] = "Optimieren";
+$MESS["RDB_OPTIMIZE_BTN_PAUSE"] = "Pause";
+$MESS["RDB_OPTIMIZE_BTN_CONTINUE"] = "Weiter";
+?>

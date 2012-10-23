@@ -1,0 +1,1 @@
+<?$arTemplate = Array("NAME"=>"Шаблон статей", "DESCRIPTION"=>"");?>

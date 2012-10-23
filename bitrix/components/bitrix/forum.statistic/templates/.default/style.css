@@ -1,0 +1,16 @@
+/* Statistics Box*/
+div.forum-statistics { margin-top:1em; zoom: 1; }
+div.forum-statistics-allusers { clear:both; float:left; white-space:nowrap; }
+div.forum-statistics-users { clear:both; float:left; white-space:nowrap; }
+div.forum-statistics-forums { text-align:right; white-space:nowrap; }
+div.forum-statistics-topics { text-align:right; white-space:nowrap; }
+div.forum-statistics-replies { text-align:right; white-space:nowrap; }
+div.forum-statistics-users span, div.forum-statistics-allusers span, div.forum-statistics-topics span, div.forum-statistics-forums span, div.forum-statistics-replies span { font-weight: bold; }
+
+/* Users online*/ 
+div.forum-users-online { margin-top:1em; }
+span.forum-users-online span { font-weight: bold; }
+
+/* Birthdays Box*/ 
+div.forum-users-birthday { margin-top:1em; }
+span.forum-users-birthday span { font-weight: bold; }

@@ -1,0 +1,146 @@
+.dragme{
+      position:relative;  
+      cursor: move;
+      background: url('/images/slider.gif') no-repeat;
+      z-index: 54;
+      width: 116px; 
+      height: 18px;
+      left: -382px;
+      top: 15px;
+      font-size: 11px;
+      vertical-align: middle;
+      color: #000000;
+      padding-top: 2px;
+}
+
+       .slider_my {
+            width: 958px;
+            height: 46px;
+            position: relative;
+            bottom:46px;
+            background: url('/images/slider_fon.gif') center center #e1e1e1 no-repeat;
+            vertical-align: middle;
+            text-align: center;
+            z-index: 51;
+          	
+}
+      .slider_fon_45 { 
+ vertical-align: bottom; 
+background: url('/images/ekka.jpg') no-repeat left top;
+filter:expression(fixPNG(this));
+height: 100%;   
+
+     }
+ .slider_fon_44 { 
+ vertical-align: bottom; 
+
+     background: url('/images/i&r.jpg') no-repeat left top;
+  filter:expression(fixPNG(this));
+     height: 100%;
+     padding-left: 30px;
+        }
+ .slider_fon_42 { 
+     vertical-align: bottom; 
+background: url('/images/leroi.jpg') no-repeat left top;
+filter:expression(fixPNG(this));
+    height: 100%; 
+     padding-left: 30px;
+        }
+ .slider_fon_43 { 
+    vertical-align: bottom; 
+ background: url('/images/mix.jpg') no-repeat left top;
+filter:expression(fixPNG(this));
+     height: 100%;
+     padding-left: 30px;
+        }
+
+.td_inner{
+padding: 4px;
+padding-bottom: 8px;
+}
+
+
+	 .sub_images { 
+        position: relative;
+	top: 8px; right: 0px;
+        padding-right: 30px;
+        text-align: right;
+        z-index: 300;
+        height: 32px;
+		margin: 2px;
+        }
+	 .sub_images img{ 
+        display: inline;
+        }
+	
+     .sub_name { 
+             position: relative;
+	     top: 150px; 
+             text-align: center;
+	     vertical-align: bottom;
+             z-index: 20;
+	         }
+	.sub_name_on { 
+        position: relative;
+         top: 150px;  
+        text-align: center;
+        vertical-align: bottom;
+        z-index: 20;
+        background: url('/images/selected.gif') top center no-repeat;
+          }
+
+			
+  .sub_name a{
+ color: #000000; font-size: 14px;
+}
+  .sub_name a:hover,  .sub_name_on a:hover, .sub_name_on a{
+ color: #dc1a1b; font-size: 14px;
+text-decoration: none;
+}
+
+ 
+
+#scroll_div_id_one {
+ overflow-x: auto;
+ overflow-y: hidden;
+ height: 264px;
+ width: 958px;
+}
+
+.polotno_table {
+background: url('/images/fon.gif') #d4d5d5 repeat-x 50% 2px ;
+vertical-align: bottom; 
+height: 248px;
+width: 958px;
+
+}
+
+.td_for_slider_img {
+padding: 2px;
+}
+
+.inslider_image {
+
+position: relative;
+bottom: 26px; 
+margin-left: 4px; 
+margin-right: 4px;
+
+}
+
+
+#scroll_colllections {
+position: relative; 
+bottom: 6px; 
+z-index: 53;
+}
+
+.forie_otstup {
+width: 124px;
+}
+#scroll_colllections td
+{
+text-align: center; 
+color: #dddddd;
+font-size: 12px;
+}

@@ -1,0 +1,26 @@
+<p>Auf mehreren Websites wird die Breadcrumb-Navigation verwendet: Sie zeigt an, wo sich der Besucher aktuell in der Hierarchie der Websiteinhalte befindet. </p>
+ 
+<p>Üblicherweise werden die Websiteinhalte in der Dateistruktur des Servers gespeichert, deren Ordner und Dateien den Elementen 
+der Breadcrumb-Navigation entsprechen (zusätzlich werden im Dateisystem noch Metainformationen zu den Namen der Seiten und Bereiche 
+in der Originalsprache der Website gespeichert). Das bedeutet, die Erstellung einer Web-Seite in einem bestimmten Ordner des
+ Web-Servers legt die Platzierung dieser Seite in der Breadcrumb-Navigation automatisch fest. </p>
+
+<p>Bei Bedarf können zum Baum der Websiteinhalte, welcher der Struktur der Dateien und Ordner des Web-Servers entspricht, 
+noch weitere virtuelle dynamische Bäume hinzugefügt werden - beispielsweise ein Katalogbaum des entsprechenden Informationsblocks.
+ In diesem Fall, wenn also ein Katalogelement angezeigt wird, wird in der Breadcrumb-Navigation der logische Pfad zum Element angegeben.
+ Dieser Pfad besteht dabei aus einem realen Teil (sprich Dateisystem) und einem virtuellen Teil (Hierarchie des Informationsblocks).   </p>
+
+<p>Man muss verstehen, wie die Breadcrumb-Navigation funktioniert und die Besonderheiten dieser Navigation bei der Entwicklung eines Web-Systems berücksichtigen.
+Zur Erstellung der Breadcrumb-Navigation wird es empfohlen, die Standardkomponente "bitrix:breadcrumb" zu benutzen. </p>
+ 
+
+<ol>
+<li>Es werden Bereiche und Web-Seiten auf verschiedenen Hierarchieebenen der Website-Inhalte erstellt. Dabei sollte die 
+Breadcrumb-Navigation den korrekten Pfad zu den jeweiligen Seiten/Bereichen automatisch erstellen können. </li>
+<li>Es werden Bereiche und Elemente in einem Informationsblock erstellt, dessen Struktur in der logischen Struktur der 
+Website-Inhalte dargestellt wird (z.B. Infoblock Katalog). Die Breadcrumb-Navigation sollte den korrekten Pfad zum Informationsblockelement erstellen können.  </li> 
+<li>Man sollte sicherstellen, dass die Namen einzelner Pfadteile in der Breadcrumb-Navigation ohne Hilfe eines Programmierers bearbeitet werden können.  </li> 
+<li>Man sollte sicherstellen, dass die "Klick-Logik" aller Pfadteile in der Breadcrumb-Navigation eingehalten ist. Das heißt,
+ beim Klicken auf einen beliebigen Teil der Navigation sollte sich eine entsprechende, korrekt gestaltete Web-Seite öffnen. 
+ Existiert die entsprechende Seite noch nicht, kann man vorläufig die Möglichkeit deaktivieren, eben auf diesen Teil der Navigation zu klicken. </li> 
+ </ol>

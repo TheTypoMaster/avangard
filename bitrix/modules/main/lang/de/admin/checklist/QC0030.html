@@ -1,0 +1,29 @@
+<p>Man sollte wissen, wie die Einstellungen an selbsterstellten 2.0 Komponenten vorgenommen werden müssen, ohne dass dazu Programmierer konsultiert 
+werden müssen. Die Parameter jeder einzelnen Komponente hängen davon ab, wozu diese Komponente auf der Website dient. Wenn beispielsweise eine 
+Komponente 2.0 mit dem Namen "Liste der registrierter Mitglieder" im Namensraum "myproject:members.list" erstellt wurde, können folgende Parameter 
+(Einstellungen) erforderlich sein: </p>
+
+<ul>
+<li>Anzahl Mitglieder pro Seite</li>
+<li>Format der Namensangaben: Vollständig/abgekürzt</li> 
+<li>Anzahl Wörter in der Beschreibung </li> 
+<li>Kodierte E-Mail anzeigen</li>
+<li>Spalte für Sortierung der Liste</li> 
+<li>und andere</li>
+ </ul>
+
+<p>Solche Parameter können für die Arbeit eines Administrators erforderlich sein, so dass er sie im Laufe der Websitenutzung auch ändern kann.
+Manche Parameterbezeichnungen können aber sogar dem Administrator schleierhaft bleiben und nur Programmierer werden verstehen, was damit gemeint ist. 
+Zum Beispiel: Format der JSON-Anfrage.</p>
+
+<p>Solche Parameterbezeichnungen sollten grundsätzlich vermieden werden. Sind solche Sonderbezeichnungen bzw. -parameter jedoch unbedingt 
+erforderlich, kann man sie in einem gesonderten Bereich innerhalb der Komponenteneinstellungen platzieren. </p>
+
+<p>Wenn eine universale Komponente benutzt wird, welche auf mehreren verschiedenen Websites eingesetzt werden kann, ist es sinnvoll, alle 
+Einstellungen dieser Komponente ausführlich zu beschreiben und sie sowohl für Programmierer als auch für Administratoren verfügbar zu machen. 
+Und umgekehrt: Wird eine sehr spezifische Komponente erstellt, können die Einstellungen dieser Komponente bspw. nur für Entwickler verfügbar gemacht werden. </p> 
+
+<p>Auch im Ansichtsbereich der Website sollte überprüft werden, ob die Parameter der selbsterstellten Komponenten 2.0 ausführlich beschrieben 
+sind und verständliche Bezeichnungen haben. Für einen Administrator muss es ersichtlich sein, ob die Parameter einer konkreten Komponente geändert 
+werden können, welche Daten und Formate dabei benutzt werden können oder ob diese Komponente nur für Entwickler gedacht ist. Jeder Parameter, der
+ für den Administrator verfügbar ist, soll auf sein korrektes Funktionieren hin geprüft werden.</p>

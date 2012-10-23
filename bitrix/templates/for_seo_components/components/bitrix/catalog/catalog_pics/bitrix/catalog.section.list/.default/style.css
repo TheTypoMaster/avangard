@@ -1,0 +1,27 @@
+.catalog-section-list, .catalog-section-list a {
+
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #8a8679;
+	padding-right: 5px;
+	padding-left: 5px;
+	text-decoration: none;
+
+}
+.catalog-section-list a:hover {
+
+	color: #000000;
+
+}
+
+
+
+.catalog-section-list li {
+
+	background-image: url(/bitrix/templates/avangard/images/bullet.gif);
+	background-repeat: no-repeat;
+	background-position: left center;
+	list-style-type: none;
+	padding-left: 10px;
+
+}
