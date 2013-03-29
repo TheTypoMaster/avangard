@@ -70,7 +70,7 @@ if ($VOTE_RIGHT>="R")
 	?>
 	<?
 	$tabControl->Begin();
-	?><form method="post" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialchars($mid)?>&lang=<?=LANGUAGE_ID?>">
+	?><form method="post" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&lang=<?=LANGUAGE_ID?>">
 	<?=bitrix_sessid_post()?>
 	<?$tabControl->BeginNextTab();?>
 		<?
@@ -82,16 +82,16 @@ if ($VOTE_RIGHT>="R")
 		?>
 		<tr>
 			<td valign="top" width="50%"><?if($type[0]=="checkbox")
-								echo "<label for=\"".htmlspecialchars($Option[0])."\">".$Option[1]."</label>";
+								echo "<label for=\"".htmlspecialcharsbx($Option[0])."\">".$Option[1]."</label>";
 							else
 								echo $Option[1];?></td>
 			<td valign="top" width="50%"><?
 			if($type[0]=="checkbox"):
-				?><input type="checkbox" name="<?echo htmlspecialchars($Option[0])?>" id="<?echo htmlspecialchars($Option[0])?>" value="Y"<?if($val=="Y")echo" checked";?>><?
+				?><input type="checkbox" name="<?echo htmlspecialcharsbx($Option[0])?>" id="<?echo htmlspecialcharsbx($Option[0])?>" value="Y"<?if($val=="Y")echo" checked";?>><?
 			elseif($type[0]=="text"):
-				?><input type="text" size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlspecialchars($val)?>" name="<?echo htmlspecialchars($Option[0])?>"><?
+				?><input type="text" size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlspecialcharsbx($val)?>" name="<?echo htmlspecialcharsbx($Option[0])?>"><?
 			elseif($type[0]=="textarea"):
-				?><textarea rows="<?echo $type[1]?>" cols="<?echo $type[2]?>" name="<?echo htmlspecialchars($Option[0])?>"><?echo htmlspecialchars($val)?></textarea><?
+				?><textarea rows="<?echo $type[1]?>" cols="<?echo $type[2]?>" name="<?echo htmlspecialcharsbx($Option[0])?>"><?echo htmlspecialcharsbx($val)?></textarea><?
 			endif;
 			?></td>
 		</tr>

@@ -30,8 +30,8 @@ class CIBlockPropertySequence
 		$to = isset($_REQUEST[$to_name])? $_REQUEST[$to_name]: "";
 
 		return '
-			<input name="'.htmlspecialchars($from_name).'" value="'.htmlspecialchars($from).'" size="8" type="text"> ...
-			<input name="'.htmlspecialchars($to_name).'" value="'.htmlspecialchars($to).'" size="8" type="text">
+			<input name="'.htmlspecialcharsbx($from_name).'" value="'.htmlspecialcharsbx($from).'" size="8" type="text"> ...
+			<input name="'.htmlspecialcharsbx($to_name).'" value="'.htmlspecialcharsbx($to).'" size="8" type="text">
 		';
 	}
 

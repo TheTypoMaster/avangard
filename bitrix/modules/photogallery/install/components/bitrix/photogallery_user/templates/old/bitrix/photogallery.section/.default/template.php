@@ -41,7 +41,7 @@ endif;
 						if (!empty($arResult["SECTION"]["DETAIL_PICTURE"]["SRC"])):
 							?>background-image:url('<?=$arResult["SECTION"]["DETAIL_PICTURE"]["SRC"]?>');<?
 						endif;
-							?>" title="<?=htmlspecialchars($arResult["SECTION"]["~NAME"])?>"></div>
+							?>" title="<?=htmlspecialcharsbx($arResult["SECTION"]["~NAME"])?>"></div>
 						</div>
 					</div>
 				</td><td class="t-r"><div class="empty"></div></td></tr>
@@ -70,53 +70,53 @@ endif;
 				<form name="photogallery" method="post" action="<?=POST_FORM_ACTION_URI?>" style="display:none; position:absolute;" <?
 					?>id="password_form_<?=$arResult["SECTION"]["ID"]?>" class="photo-form">
 					<?=bitrix_sessid_post()?>
-					<input type="password" name="password_<?=$arResult["SECTION"]["ID"]?>" id="password_<?=$arResult["SECTION"]["ID"]?>" value="" /> 
+					<input type="password" name="password_<?=$arResult["SECTION"]["ID"]?>" id="password_<?=$arResult["SECTION"]["ID"]?>" value="" />
 					<input type="submit" name="supply_password" value="<?=GetMessage("P_SUPPLY_PASSWORD")?>">
 				</form><?
 				?><a href="#" onclick="var tt=this.previousSibling; tt.style.display=''; tt.elements[1].focus(); return false;"><?=GetMessage("P_PASSWORD")?></a>
 			</div>
 <?
 	endif;
-		
+
 ?>
 			<div class="description" id="photo_album_description_<?=$arResult["SECTION"]["ID"]?>"><?=$arResult["SECTION"]["DESCRIPTION"]?></div>
 			<div class="date" id="photo_album_date_<?=$arResult["SECTION"]["ID"]?>">
 				<?$APPLICATION->IncludeComponent(
-					"bitrix:system.field.view", 
-					$arResult["SECTION"]["~DATE"]["USER_TYPE"]["USER_TYPE_ID"], 
+					"bitrix:system.field.view",
+					$arResult["SECTION"]["~DATE"]["USER_TYPE"]["USER_TYPE_ID"],
 					array("arUserField" => $arResult["SECTION"]["DATE"]), null, array("HIDE_ICONS"=>"Y"));?>
 			</div>
 			<div class="photos"><?=GetMessage("P_PHOTOS_CNT")?>: <?=$arResult["SECTION"]["ELEMENTS_CNT"]?></div>
 <?
-		
+
 		if ($arParams["PERMISSION"] >= "U" && intVal($arResult["SECTIONS_CNT"]) > 0):
 ?>
 			<div class="photo-album-cnt-album"><?=GetMessage("P_ALBUMS_CNT")?>: <?=$arResult["SECTIONS_CNT"]?></div>
 <?
 		endif;
-	
+
 ?>
 			<div class="photo-controls photo-album-controls">
 <?
-		
+
 		if (!empty($arResult["SECTION"]["EDIT_LINK"])):
 			?><noindex><a rel="nofollow" href="<?=$arResult["SECTION"]["EDIT_LINK"]?>" class="photo-action album-edit" <?
 				?> onclick="EditAlbum('<?=CUtil::JSEscape($arResult["SECTION"]["EDIT_LINK"])?>'); return false;"><?
 				?><?=GetMessage("P_SECTION_EDIT")?></a></noindex><?
 		endif;
-	
+
 		if (!empty($arResult["SECTION"]["EDIT_ICON_LINK"])):
 			?><noindex><a rel="nofollow" href="<?=$arResult["SECTION"]["EDIT_ICON_LINK"]?>" class="photo-action album-edit-icon" <?
 				?>onclick="EditAlbum('<?=CUtil::JSEscape($arResult["SECTION"]["EDIT_ICON_LINK"])?>'); return false;"><?
 				?><?=GetMessage("P_EDIT_ICON")?></a></noindex><?
 		endif;
-		
+
 		if (!empty($arResult["SECTION"]["DROP_LINK"])):
 			?><noindex><a rel="nofollow" href="<?=$arResult["SECTION"]["DROP_LINK"]?>" class="photo-action album-delete" <?
 				?>onclick="return confirm('<?=GetMessage('P_SECTION_DELETE_ASK')?>');"><?
 				?><?=GetMessage("P_SECTION_DELETE")?></a></noindex><?
 		endif;
-		
+
 		if ($arResult["SECTION"]["ELEMENTS_CNT"] > 0):
 			?><noindex><a rel="nofollow" href="<?=$arResult["SECTION"]["SLIDE_SHOW_LINK"]?>" <?
 				?>class="photo-view slide-show"><?=GetMessage("P_SLIDE_SHOW")?></a></noindex><?

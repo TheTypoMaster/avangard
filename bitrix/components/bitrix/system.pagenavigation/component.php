@@ -24,7 +24,7 @@ if (is_object($arParams["NAV_RESULT"]) &&  is_subclass_of($arParams["NAV_RESULT"
 	$arResult["nPageWindow"] = $nPageWindow = $dbresult->nPageWindow;
 	$arResult["bSavePage"] = (CPageOption::GetOptionString("main", "nav_page_in_session", "Y")=="Y");
 	$arResult["sUrlPath"] = GetPagePath(false, false);
-	$arResult["NavQueryString"]= htmlspecialchars(DeleteParam(array(
+	$arResult["NavQueryString"]= htmlspecialcharsbx(DeleteParam(array(
 		"PAGEN_".$dbresult->NavNum, 
 		"SIZEN_".$dbresult->NavNum, 
 		"SHOWALL_".$dbresult->NavNum, 

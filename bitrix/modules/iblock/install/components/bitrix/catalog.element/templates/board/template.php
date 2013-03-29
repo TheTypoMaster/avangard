@@ -157,6 +157,13 @@
 			<?endif;?>
 		<?elseif((count($arResult["PRICES"]) > 0) || is_array($arResult["PRICE_MATRIX"])):?>
 			<?=GetMessage("CATALOG_NOT_AVAILABLE")?>
+			<?$APPLICATION->IncludeComponent("bitrix:sale.notice.product", ".default", array(
+				"NOTIFY_ID" => $arResult['ID'],
+				"NOTIFY_URL" => htmlspecialcharsback($arResult["SUBSCRIBE_URL"]),
+				"NOTIFY_USE_CAPTHA" => "N"
+				),
+				$component
+			);?>
 		<?endif?>
 		<br />
 	<?if($arResult["PREVIEW_TEXT"]):?>

@@ -528,7 +528,7 @@ a.a_link:hover{
 }
 
 .catalog_td { 
-	padding-bottom: 8px;
+	padding-bottom: 50px;
 }
 
 div.scrolling_div{
@@ -837,8 +837,8 @@ div.also {padding:10px 0 10px 0; font-weight:bold;}
 div.product {
 	display:inline;
 	float:left;
-	margin:0 0 50px 50px;
-	width:260px;
+	margin:0 5px 50px 10px;
+	width:340px;
 }
 
 div.product div.img {
@@ -850,10 +850,10 @@ div.product div.img {
 
 div.product div.img img {
 	background-color:white;
-	height:120px;
+	height:200px; /* 120px */
 	margin:0 5px 0 0;
 	padding:5px;
-	width:180px;
+	width:300px; /* 180px */
 }
 
 div.recomm{
@@ -1152,4 +1152,12 @@ ul#nav li .bigwindow a {
 #menushka ul#nav li.contact .bigwindow {
 	margin-left:-400px;
 	*margin-left:-500px
+}
+.ban_dostavka {
+	float: right;
+	color: white;
+	background: url(img/dostavka1.gif) top right no-repeat;
+	width: 381px;
+	margin: 0 0 0 14px;
+	height: 34px;
 }

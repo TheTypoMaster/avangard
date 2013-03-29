@@ -161,7 +161,7 @@ class CPosting extends CPostingGeneral
 			$strSql = $strSql." HAVING ".$strSqlSearch_h;
 		}
 		$strSql.=$strSqlOrder;
-//		echo htmlspecialchars($strSql);
+//		echo htmlspecialcharsbx($strSql);
 		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		$res->is_filtered = (IsFiltered($strSqlSearch));
 		return $res;

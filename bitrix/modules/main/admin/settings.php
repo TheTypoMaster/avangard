@@ -56,12 +56,13 @@ require_once ($DOCUMENT_ROOT.BX_ROOT."/modules/main/include/prolog_admin_after.p
 ?>
 
 <form action="">
-<select name="mid" onchange="window.location='<?echo $APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID.($_REQUEST["mid_menu"]<>""? "&amp;mid_menu=1":"")."&amp;mid="?>'+this[this.selectedIndex].value;">
+<select name="mid" onchange="window.location='settings.php?lang=<?=LANGUAGE_ID.($_REQUEST["mid_menu"]<>""? "&amp;mid_menu=1":"")?>&amp;mid='+this[this.selectedIndex].value;">
 <?foreach($arModules as $k=>$m):?>
-	<option value="<?echo htmlspecialchars($k)?>"<?if($mid == $k) echo " selected"?>><?echo htmlspecialchars($m["NAME"])?></option>
+	<option value="<?echo htmlspecialcharsbx($k)?>"<?if($mid == $k) echo " selected"?>><?echo htmlspecialcharsbx($m["NAME"])?></option>
 <?endforeach;?>
 </select>
 </form>
+<br />
 
 <?
 function __AdmSettingsSaveOptions($module_id, $arOptions)
@@ -84,7 +85,7 @@ function __AdmSettingsSaveOption($module_id, $arOption)
 
 	if(isset($arControllerOption[$arOption[0]]))
 		return false;
-	
+
 	$name = $arOption[0];
 	$val = $_REQUEST[$name];
 
@@ -93,7 +94,7 @@ function __AdmSettingsSaveOption($module_id, $arOption)
 	{
 		if($arOption[3][0] == 'checkbox')
 			$val = 'N';
-		else 
+		else
 			return false;
 	}
 
@@ -111,13 +112,13 @@ function __AdmSettingsDrawRow($module_id, $Option)
 	if(!is_array($Option)):
 	?>
 		<tr class="heading">
-			<td valign="top" colspan="2" align="center"><b><?=$Option?></b></td>
+			<td colspan="2"><?=$Option?></td>
 		</tr>
 	<?
 	elseif(isset($Option["note"])):
 	?>
 		<tr>
-			<td valign="top" colspan="2" align="center">
+			<td colspan="2" align="center">
 				<?echo BeginNote('align="center"');?>
 				<?=$Option["note"]?>
 				<?echo EndNote();?>
@@ -131,9 +132,9 @@ function __AdmSettingsDrawRow($module_id, $Option)
 		$sup_text = array_key_exists(5, $Option) ? $Option[5] : '';
 	?>
 		<tr>
-			<td valign="top" width="50%" class="field-name"><?
+			<td<?if($type[0]=="multiselectbox" || $type[0]=="textarea" || $type[0]=="statictext" || $type[0]=="statichtml") echo ' class="adm-detail-valign-top"'?> width="50%"><?
 				if($type[0]=="checkbox")
-					echo "<label for='".htmlspecialchars($Option[0])."'>".$Option[1]."</label>";
+					echo "<label for='".htmlspecialcharsbx($Option[0])."'>".$Option[1]."</label>";
 				else
 					echo $Option[1];
 				if (strlen($sup_text) > 0)
@@ -141,19 +142,19 @@ function __AdmSettingsDrawRow($module_id, $Option)
 					?><span class="required"><sup><?=$sup_text?></sup></span><?
 				}
 					?></td>
-			<td valign="middle" width="50%"><?
+			<td width="50%"><?
 			if($type[0]=="checkbox"):
-				?><input type="checkbox" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> id="<?echo htmlspecialchars($Option[0])?>" name="<?echo htmlspecialchars($Option[0])?>" value="Y"<?if($val=="Y")echo" checked";?><?=$disabled?><?if($type[2]<>'') echo " ".$type[2]?>><?
+				?><input type="checkbox" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> id="<?echo htmlspecialcharsbx($Option[0])?>" name="<?echo htmlspecialcharsbx($Option[0])?>" value="Y"<?if($val=="Y")echo" checked";?><?=$disabled?><?if($type[2]<>'') echo " ".$type[2]?>><?
 			elseif($type[0]=="text" || $type[0]=="password"):
-				?><input type="<?echo $type[0]?>"<?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlspecialchars($val)?>" name="<?echo htmlspecialchars($Option[0])?>"<?=$disabled?><?=($type[0]=="password"? ' autocomplete="off"':'')?>><?
+				?><input type="<?echo $type[0]?>"<?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlspecialcharsbx($val)?>" name="<?echo htmlspecialcharsbx($Option[0])?>"<?=$disabled?><?=($type[0]=="password"? ' autocomplete="off"':'')?>><?
 			elseif($type[0]=="selectbox"):
 				$arr = $type[1];
 				if(!is_array($arr))
 					$arr = array();
 				$arr_keys = array_keys($arr);
-				?><select name="<?echo htmlspecialchars($Option[0])?>" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> <?=$disabled?>><?
+				?><select name="<?echo htmlspecialcharsbx($Option[0])?>" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> <?=$disabled?>><?
 					for($j=0; $j<count($arr_keys); $j++):
-						?><option value="<?echo $arr_keys[$j]?>"<?if($val==$arr_keys[$j])echo" selected"?>><?echo htmlspecialchars($arr[$arr_keys[$j]])?></option><?
+						?><option value="<?echo $arr_keys[$j]?>"<?if($val==$arr_keys[$j])echo" selected"?>><?echo htmlspecialcharsbx($arr[$arr_keys[$j]])?></option><?
 					endfor;
 					?></select><?
 			elseif($type[0]=="multiselectbox"):
@@ -162,24 +163,23 @@ function __AdmSettingsDrawRow($module_id, $Option)
 					$arr = array();
 				$arr_keys = array_keys($arr);
 				$arr_val = explode(",",$val);
-				?><select size="5" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> multiple name="<?echo htmlspecialchars($Option[0])?>[]"<?=$disabled?>><?
+				?><select size="5" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> multiple name="<?echo htmlspecialcharsbx($Option[0])?>[]"<?=$disabled?>><?
 					for($j=0; $j<count($arr_keys); $j++):
-						?><option value="<?echo $arr_keys[$j]?>"<?if(in_array($arr_keys[$j],$arr_val)) echo " selected"?>><?echo htmlspecialchars($arr[$arr_keys[$j]])?></option><?
+						?><option value="<?echo $arr_keys[$j]?>"<?if(in_array($arr_keys[$j],$arr_val)) echo " selected"?>><?echo htmlspecialcharsbx($arr[$arr_keys[$j]])?></option><?
 					endfor;
 				?></select><?
 			elseif($type[0]=="textarea"):
-				?><textarea <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> rows="<?echo $type[1]?>" cols="<?echo $type[2]?>" name="<?echo htmlspecialchars($Option[0])?>"<?=$disabled?>><?echo htmlspecialchars($val)?></textarea><?
-            elseif($type[0]=="statictext"):
-                echo htmlspecialchars($val);
-            elseif($type[0]=="statichtml"):
-                echo $val;											
+				?><textarea <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> rows="<?echo $type[1]?>" cols="<?echo $type[2]?>" name="<?echo htmlspecialcharsbx($Option[0])?>"<?=$disabled?>><?echo htmlspecialcharsbx($val)?></textarea><?
+			elseif($type[0]=="statictext"):
+				echo htmlspecialcharsbx($val);
+			elseif($type[0]=="statichtml"):
+				echo $val;
 			endif;
 			?></td>
 		</tr>
 	<?
 	endif;
 }
-
 
 function __AdmSettingsDrawList($module_id, $arParams)
 {
@@ -188,9 +188,6 @@ function __AdmSettingsDrawList($module_id, $arParams)
 		__AdmSettingsDrawRow($module_id, $Option);
 	}
 }
-
-
-
 
 //include($arModules[$mid]["PAGE"]);
 echo $strModuleSettingsTabs;

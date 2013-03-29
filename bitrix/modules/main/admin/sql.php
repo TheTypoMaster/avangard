@@ -19,6 +19,7 @@ $isAdmin = $USER->CanDoOperation('edit_php');
 IncludeModuleLangFile(__FILE__);
 
 $sTableID = "tbl_sql";
+$message = null;
 
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 $lAdmin = new CAdminList($sTableID);
@@ -38,8 +39,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $query<>"" && $isAdmin && check_bitri
 		$exec_time = round(getmicrotime()-$first, 5);
 		$rsData = new CAdminResult($dbr, $sTableID);
 
-		$strSucc = GetMessage("SQL_SUCCESS_EXECUTE");
-		$strMess = GetMessage("SQL_EXEC_TIME")."<b>".$exec_time."</b> ".GetMessage("SQL_SEC");
+		$message = new CAdminMessage(array(
+			"MESSAGE" => GetMessage("SQL_SUCCESS_EXECUTE"),
+			"DETAILS" => GetMessage("SQL_EXEC_TIME")."<b>".$exec_time."</b> ".GetMessage("SQL_SEC"),
+			"TYPE" => "OK",
+			"HTML" => true,
+		));
 
 		$rsData = new CAdminResult($rsData, $sTableID);
 		$rsData->bPostNavigation = true;
@@ -53,7 +58,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $query<>"" && $isAdmin && check_bitri
 		while ($i<$intNumFields)
 		{
 			$header[] =
-				array("id"=>$rsData->FieldName($i), "content"=>$rsData->FieldName($i),	"sort"=>$rsData->FieldName($i), "default"=>true, "align"=>"left");
+				array("id"=>$rsData->FieldName($i), "content"=>$rsData->FieldName($i),	"sort"=>$rsData->FieldName($i), "default"=>true, "align"=>"left", "valign" => "top");
 			$arFieldName[] = $rsData->FieldName($i);
 			$i++;
 		}
@@ -82,18 +87,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $query<>"" && $isAdmin && check_bitri
 		}
 	}
 }
-$lAdmin->BeginPrologContent();
-	if(strlen($strMess)>0 && strlen($strSucc)>0)
-	{
-		$mes = Array("MESSAGE"=>$strSucc, "DETAILS"=>$strMess, "TYPE"=>"OK", "HTML"=>true);
-		$m = new CAdminMessage($mes);
-		echo $m -> Show();
-	}
-$lAdmin->EndPrologContent();
+
+if($message != null)
+{
+	$lAdmin->BeginPrologContent();
+	echo $message->Show();
+	$lAdmin->EndPrologContent();
+}
 
 $lAdmin->BeginEpilogContent();
 ?>
-	<input type="hidden" name="query" id="query" value="<?=htmlspecialchars($query)?>">
+	<input type="hidden" name="query" id="query" value="<?=htmlspecialcharsbx($query)?>">
 <?
 $lAdmin->EndEpilogContent();
 
@@ -130,11 +134,10 @@ $editTab->BeginNextTab();
 <tr valign="top">
 	<td width="100%" colspan="2">
 	<input type="hidden" name="lang" value="<?=LANG?>">
-	<textarea cols="60" name="sql" id="sql" rows="15" wrap="OFF" style="width:100%;"><? echo htmlspecialchars($query); ?></textarea><br />	</td>
+	<textarea cols="60" name="sql" id="sql" rows="15" wrap="OFF" style="width:100%;"><? echo htmlspecialcharsbx($query); ?></textarea><br />	</td>
 </tr>
-<?$editTab->Buttons();
-?>
-<input <?if (!$isAdmin) echo "disabled"?> type="button" accesskey="x" name="execute" value="<?echo GetMessage("SQL_EXECUTE")?>" onclick="return __FSQLSubmit();">
+<?$editTab->Buttons();?>
+<input <?if (!$isAdmin) echo "disabled"?> type="button" accesskey="x" name="execute" value="<?echo GetMessage("SQL_EXECUTE")?>" onclick="return __FSQLSubmit();" class="adm-btn-save">
 <input type="reset" value="<?echo GetMessage("SQL_RESET")?>">
 <?
 $editTab->End();
@@ -142,6 +145,9 @@ $editTab->End();
 </form>
 
 <?
+if(COption::GetOptionString('fileman', "use_code_editor", "Y") == "Y" && CModule::IncludeModule('fileman'))
+	CCodeEditor::Show(array('textareaId' => 'sql', 'height' => 350, 'forceSyntax' => 'sql'));
+
 $lAdmin->DisplayList();
 
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");?>

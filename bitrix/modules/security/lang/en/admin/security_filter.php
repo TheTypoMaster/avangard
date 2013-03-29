@@ -23,7 +23,7 @@ $MESS ['SEC_FILTER_STOP'] = "Add Attacker's IP Address to Stop List";
 $MESS ['SEC_FILTER_DURATION'] = "Add to stop list for (min.)";
 $MESS ['SEC_FILTER_ACTION_NOTE_1'] = "Incoming data will be modified. For example: &quot;select&quot; will be replaced with &quot;sel&nbsp;ect&quot;, &quot;&lt;script&gt;&quot; - with &quot;&lt;sc&nbsp;ript&gt;&quot;.";
 $MESS ['SEC_FILTER_ACTION_NOTE_2'] = "Not filtering potential attacks enables any malicious person to make your site unavailable.";
-$MESS ['SEC_FILTER_LOG'] = "Add Intrusion Attempt to <a href=\"#HREF#\">Log</a>";
+$MESS ['SEC_FILTER_LOG'] = "Add Intrusion Attempt to Log";
 $MESS ['SEC_FILTER_EXCEPTIONS_TAB'] = "Exceptions";
 $MESS ['SEC_FILTER_EXCEPTIONS_TAB_TITLE'] = "Specify masks for URL's that will not be rejected";
 $MESS ['SEC_FILTER_SITE'] = "for site:";

@@ -1,5 +1,5 @@
-INSERT  INTO b_forum_dictionary ( ID,TITLE,`TYPE`) VALUES (5, '[de]Zensurfilter', 'W') ;
-INSERT  INTO b_forum_dictionary ( ID,TITLE,`TYPE`) VALUES (6, '[de]Transliteration', 'T') ;
+INSERT  INTO b_forum_dictionary ( ID,TITLE,`TYPE`) VALUES (5, '[de] Zensurfilter', 'W') ;
+INSERT  INTO b_forum_dictionary ( ID,TITLE,`TYPE`) VALUES (6, '[de] Transliteration', 'T') ;
 
 INSERT INTO b_forum_filter (DICTIONARY_ID,WORDS,PATTERN,REPLACEMENT,DESCRIPTION,USE_IT,PATTERN_CREATE) VALUES ('5', '*arsch*', '', '', '', 'Y', 'TRNSL');
 INSERT INTO b_forum_filter (DICTIONARY_ID,WORDS,PATTERN,REPLACEMENT,DESCRIPTION,USE_IT,PATTERN_CREATE) VALUES ('5', '*fick*', '', '', '', 'Y', 'TRNSL');

@@ -15,35 +15,34 @@ function BXToolbarSet(pColumn, pMainObj, bVertical)
 	if(bVertical)
 	{
 		pColumn.style.verticalAlign = "top";
-		pColumn.innerHTML = '<img src="' + one_gif_src + '" width="1" height="0">';
-		this.pWnd = pColumn.appendChild(this.pMainObj.pDocument.createElement("TABLE"));
-		this.pWnd.unselectable = "on";
-		this.pWnd.cellSpacing = 0;
-		this.pWnd.cellPadding = 0;
-		this.pWnd.border = 0;
+		//pColumn.innerHTML = '<img src="' + one_gif_src + '" width="1" height="0">';
+		this.pWnd = pColumn.appendChild(BX.create("TABLE", {props: {unselectable: "on",cellSpacing: 0,cellPadding: 0,border: 0}}));
 		this.pWnd.insertRow(0);
 		this.pParent = pColumn;
 	}
+}
 
-	// Check if coordinate hit in toolbarset area (+/- some inaccuracy)
-	// Return array:
-	//		"row" - row in toolbarset;
-	//		"col" - column in toolbarset;
-	//		"addrow"  - between two rows
-	// or false - if it's too far
-	BXToolbarSet.prototype.HitTest = function (px, py, ind)
+// Check if coordinate hit in toolbarset area (+/- some inaccuracy)
+// Return array:
+//		"row" - row in toolbarset;
+//		"col" - column in toolbarset;
+//		"addrow"  - between two rows
+// or false - if it's too far
+BXToolbarSet.prototype =
+{
+	HitTest: function (px, py, ind)
 	{
 		var delta = 3, result, position, allNodes;
 
 		if (!(position = CACHE_DISPATCHER['BXToolbarSet_pos_'+ind]))
 			position = CACHE_DISPATCHER['BXToolbarSet_pos_'+ind] = BX.pos((this.bVertical ? this.pParent : this.pWnd));
 
-		if(	position["left"] - delta < px &&
+		if(position["left"] - delta < px &&
 			px < position["right"] + delta &&
 			position["top"] - delta < py &&
 			py < position ["bottom"] + delta)
 		{
-			var result = {row: 0, col: 0, addrow: false};
+			result = {row: 0, col: 0, addrow: false};
 
 			// find all toolbars in toolbarset
 			if(this.bVertical)
@@ -128,27 +127,15 @@ function BXToolbarSet(pColumn, pMainObj, bVertical)
 			}
 		}
 		return false;
-	};
+	},
 
-	BXToolbarSet.prototype.returnToolbarsPositions = function ()
+	returnToolbarsPositions: function ()
 	{
 		return this.arToolbarPositions;
-	};
-
-	BXToolbarSet.prototype.__AddRow = function (id)
-	{
-		var t = this.pMainObj.pDocument.createElement("TABLE");
-		t.id = id;
-		t.cellSpacing = 0;
-		t.cellPadding = 0;
-		t.border = 0;
-		t.unselectable = "on";
-		var r = t.insertRow(0);
-		return t;
-	};
+	},
 
 	// Add toolbar to toolbarset
-	BXToolbarSet.prototype.AddToolbar = function (pToolbar, row, col, bAddRow)
+	AddToolbar: function (pToolbar, row, col, bAddRow)
 	{
 		CACHE_DISPATCHER['pEditorFrame'] = null;
 
@@ -202,16 +189,9 @@ function BXToolbarSet(pColumn, pMainObj, bVertical)
 				row = allNodes.length;
 			if(row >= allNodes.length || bAddRow)
 			{
-				var t = this.pMainObj.pDocument.createElement("TABLE");
-				t.cellSpacing = 0;
-				t.cellPadding = 0;
-				t.unselectable = "on";
-				var r = t.insertRow(0);
-
-				if(row >= allNodes.length)
-					pRowTable = this.pWnd.appendChild(t);
-				else
-					pRowTable = this.pWnd.insertBefore(t, allNodes[row]);
+				var t = BX.create("TABLE", {props: {className: "bxed-toolbar-inner",cellSpacing: 0, cellPadding: 0, unselectable: "on"}});
+				t.insertRow(0);
+				pRowTable = (row >= allNodes.length) ? (this.pWnd.appendChild(t)) : (this.pWnd.insertBefore(t, allNodes[row]));
 			}
 			else
 			{
@@ -220,12 +200,10 @@ function BXToolbarSet(pColumn, pMainObj, bVertical)
 					return this.AddToolbar(pToolbar, row+1, col, bAddRow);
 			}
 
-			if(col>pRowTable.rows[0].cells.length)
+			if(col > pRowTable.rows[0].cells.length)
 				col = pRowTable.rows[0].cells.length;
 
-
 			pColTable = pRowTable.rows[0].insertCell(col);
-
 			rowIcons = pToolbar.pIconsTable.rows[0];
 			rowIcons.cells[0].style.display = GetDisplStr(1);
 			rowIcons.cells[rowIcons.cells.length-1].style.display = GetDisplStr(1);
@@ -251,23 +229,25 @@ function BXToolbarSet(pColumn, pMainObj, bVertical)
 		pToolbar.pToolbarSet = this;
 		pToolbar.parentCell = pColTable;
 
+		pColTable.style.width = '10px'; // Hack
+
 		this.__ReCalc();
 		pColTable = null;
-	};
+	},
 
 	//Dell toolbar from toolbarset
-	BXToolbarSet.prototype.DelToolbar = function (pToolbar)
+	DelToolbar: function (pToolbar)
 	{
 		CACHE_DISPATCHER['pEditorFrame'] = null;
 
 		pToolbar.parentCell.removeChild(pToolbar.pWnd);
 		pToolbar.pToolbarSet = null;
 		this.__ReCalc();
-	};
+	},
 
-	BXToolbarSet.prototype.__ReCalc = function ()
+	__ReCalc: function ()
 	{
-		var allNodes, i, j, pToolbar, cols;
+		var allNodes, i, j, pToolbar, cols, pDomToolbar;
 		if(this.bVertical)
 		{
 			cols = this.pWnd.rows[0].cells;
@@ -297,30 +277,44 @@ function BXToolbarSet(pColumn, pMainObj, bVertical)
 		else
 		{
 			allNodes = this.pWnd.childNodes;
+
+
 			for(i = allNodes.length-1; i>=0; i--) // horizontal rows
 			{
 				var tbl = allNodes[i];
 				for(j = tbl.rows[0].cells.length - 1; j >= 0; j--)
+				{
 					if(tbl.rows[0].cells[j].childNodes.length <= 0)
 						tbl.rows[0].deleteCell(j);
+				}
 				//dell whole table if there are no rows....
 				if(tbl.rows[0].cells.length <= 0)
 					this.pWnd.removeChild(tbl);
+				else
+					tbl.rows[0].insertCell(-1);
 			}
+
 			for(i = 0; i < allNodes.length; i++)
+			{
 				for(j = 0; j < allNodes[i].rows[0].cells.length; j++)
 				{
-					pToolbar = allNodes[i].rows[0].cells[j].childNodes[0].pObj;
+					pDomToolbar = allNodes[i].rows[0].cells[j].childNodes[0];
+					if (!pDomToolbar || !pDomToolbar.pObj)
+						continue;
+
+					pToolbar = pDomToolbar.pObj;
 					pToolbar.row = i;
 					pToolbar.col = j;
 					this.arToolbarPositions[pToolbar.name] = [pToolbar.row,pToolbar.col];
 				}
+			}
 		}
 		pToolbar = null;
 		tbl = null;
 		allNodes = null;
-	};
-}
+	}
+};
+
 
 //###################################################
 //#   class BXToolbar - toolbar
@@ -338,6 +332,7 @@ function BXToolbar(pMainObj, title, name, dx, dy)
 	this.bVertical = false;
 	this.title = title;
 	this.actTInd = 0;
+	this.buttons = [];
 
 	var obj = this;
 
@@ -608,8 +603,9 @@ SetPosition: function (x,y)
 {
 	if (this.bDocked)
 		this.UnDock();
-	this.pWnd.style.top = y + "px";
-	this.pWnd.style.left = x + "px";
+
+	this.pWnd.style.top = (y || 0) + "px";
+	this.pWnd.style.left = (x || 0) + "px";
 },
 
 // Mouse moving:
@@ -621,6 +617,7 @@ MouseMove: function(e)
 	{
 		// check: if hit the toolbarset
 		var
+			left, top,
 			bDocked = false, actToolbarSet = false, arPos,
 			arToolbarSet = this.pMainObj.GetToolbarSet(),
 			i, tl = arToolbarSet.length;
@@ -636,11 +633,20 @@ MouseMove: function(e)
 			}
 		}
 
+		left = e.realX - this.pMainObj.iLeftDragOffset;
+		top = e.realY - this.pMainObj.iTopDragOffset;
+		if (isNaN(left) || left < 0)
+			left = 0;
+		if (isNaN(top) || top < 0)
+			top = 0;
+		left += 'px';
+		top += 'px';
+
 		if(this.bDocked && !bDocked) // toolbar go out from toolbarset
 		{
 			this.UnDock();
-			this.pWnd.style.left = e.realX - this.pMainObj.iLeftDragOffset;
-			this.pWnd.style.top = e.realY - this.pMainObj.iTopDragOffset;
+			this.pWnd.style.left = left;
+			this.pWnd.style.top = top;
 		}
 		else if(!this.bDocked && bDocked && actToolbarSet) // toolbar in toolbarset
 		{
@@ -650,8 +656,8 @@ MouseMove: function(e)
 		}
 		else if(!this.bDocked && !bDocked)
 		{
-			this.pWnd.style.left = e.realX - this.pMainObj.iLeftDragOffset;
-			this.pWnd.style.top = e.realY - this.pMainObj.iTopDragOffset;
+			this.pWnd.style.left = left;
+			this.pWnd.style.top = top;
 		}
 		else if(arPos["addrow"] || this.row != arPos['row'] || this.col != arPos['col'])
 		{
@@ -659,6 +665,7 @@ MouseMove: function(e)
 				this.pToolbarSet.DelToolbar(this);
 			actToolbarSet.AddToolbar(this, arPos['row'], arPos['col'], arPos['addrow']);
 		}
+
 		this.bDocked = bDocked;
 	}
 }

@@ -7,9 +7,9 @@ class CAllRatingsComponentsForum
 	function OnGetRatingConfigs()
 	{
 		$arConfigs = array(
-		'MODULE_ID' => 'FORUM',
-		'MODULE_NAME' => GetMessage('FORUM_RATING_NAME'),
-	    );
+			'MODULE_ID' => 'FORUM',
+			'MODULE_NAME' => GetMessage('FORUM_RATING_NAME')
+		);
 		$arConfigs["COMPONENT"]["USER"]["VOTE"][] = array(
 			"ID"	=> 'TOPIC',
 			"REFRESH_TIME"	=> '3600',
@@ -17,7 +17,7 @@ class CAllRatingsComponentsForum
 			"CALC_METHOD"	=> 'CalcUserVoteForumTopic',
 			"NAME"	=> GetMessage('FORUM_RATING_USER_VOTE_TOPIC_NAME'),
 			"DESC"  => GetMessage('FORUM_RATING_USER_VOTE_TOPIC_DESC'),
-		    "FIELDS" => array(
+			"FIELDS" => array(
 				array(
 					"ID" => 'COEFFICIENT',
 					"DEFAULT" => '0.5',
@@ -30,13 +30,13 @@ class CAllRatingsComponentsForum
 			)
 		);
 		$arConfigs["COMPONENT"]["USER"]["VOTE"][] = array(
-		    "ID"	=> 'POST',
+			"ID"	=> 'POST',
 			"REFRESH_TIME"	=> '3600',
 			"CLASS"	=> 'CRatingsComponentsForum',
 			"CALC_METHOD"	=> 'CalcUserVoteForumPost',
 			"NAME" => GetMessage('FORUM_RATING_USER_VOTE_POST_NAME'),
 			"DESC" => GetMessage('FORUM_RATING_USER_VOTE_POST_DESC'),
-		    "FIELDS" => array(
+			"FIELDS" => array(
 				array(
 					"ID" => 'COEFFICIENT',
 					"DEFAULT" => '0.1',
@@ -49,7 +49,7 @@ class CAllRatingsComponentsForum
 			)
 		);
 		$arConfigs["COMPONENT"]["USER"]["RATING"][] = array(
-		    "ID"	=> 'ACTIVITY',
+			"ID"	=> 'ACTIVITY',
 			"REFRESH_TIME"	=> '7200',
 			"CLASS"	=> 'CRatingsComponentsForum',
 			"CALC_METHOD"	=> 'CalcUserRatingForumActivity',
@@ -58,7 +58,7 @@ class CAllRatingsComponentsForum
 			"DESC" => GetMessage('FORUM_RATING_USER_RATING_ACTIVITY_DESC'),
 			"FORMULA" => 'T<sub>1</sub> * K<sub>T1</sub> + T<sub>7</sub> * K<sub>T7</sub> + T<sub>30</sub> * K<sub>T30</sub>+ T<sub>all</sub> * K<sub>Tall</sub> + P<sub>1</sub> * K<sub>P1</sub> + P<sub>7</sub> * K<sub>P7</sub> + P<sub>30</sub> * K<sub>P30</sub> + P<sub>all</sub> * K<sub>Pall</sub>',
 			"FORMULA_DESC" => GetMessage('FORUM_RATING_USER_RATING_ACTIVITY_FORMULA_DESC'),
-		    "FIELDS" => array(
+			"FIELDS" => array(
 				array(
 					"ID" => 'TODAY_TOPIC_COEF',
 					"NAME" => GetMessage('FORUM_RATING_USER_RATING_ACTIVITY_FIELDS_TODAY_TOPIC_COEF'),
@@ -196,7 +196,7 @@ class CAllRatingsComponentsForum
 				foreach ($TYPE_VALUE as $RAT_TYPE => $RAT_VALUE)
 					foreach ($RAT_VALUE as $VALUE_CONFIG)
 						foreach ($VALUE_CONFIG['FIELDS'] as $VALUE_FIELDS)
-						   $arConfigs[$OBJ_TYPE][$RAT_TYPE][$VALUE_CONFIG['ID']][$VALUE_FIELDS['ID']]['DEFAULT'] = $VALUE_FIELDS['DEFAULT'];
+							$arConfigs[$OBJ_TYPE][$RAT_TYPE][$VALUE_CONFIG['ID']][$VALUE_FIELDS['ID']]['DEFAULT'] = $VALUE_FIELDS['DEFAULT'];
 		}
 		else
 		{

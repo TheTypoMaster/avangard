@@ -1,6 +1,20 @@
 <?
 class CAllCloudStorageBucket
 {
+	function SetFileCounter($file_size, $file_count)
+	{
+		global $DB, $CACHE_MANAGER;
+		$res = $DB->Query($s="
+			UPDATE b_clouds_file_bucket
+			SET FILE_COUNT = ".intval($file_count)."
+			,FILE_SIZE = ".roundDB($file_size)."
+			WHERE ID = ".$this->_ID."
+		");
+		if(CACHED_b_clouds_file_bucket !== false)
+			$CACHE_MANAGER->CleanDir("b_clouds_file_bucket");
+		return $res;
+	}
+
 	function IncFileCounter($file_size = 0)
 	{
 		global $DB;

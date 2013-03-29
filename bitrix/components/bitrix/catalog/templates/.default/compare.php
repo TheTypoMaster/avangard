@@ -13,7 +13,7 @@
 		"PROPERTY_CODE" => $arParams["COMPARE_PROPERTY_CODE"],
 		"NAME" => $arParams["COMPARE_NAME"],
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
- 		"CACHE_TIME" => $arParams["CACHE_TIME"],
+		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"PRICE_CODE" => $arParams["PRICE_CODE"],
 		"USE_PRICE_COUNT" => $arParams["USE_PRICE_COUNT"],
 		"SHOW_PRICE_COUNT" => $arParams["SHOW_PRICE_COUNT"],
@@ -28,6 +28,8 @@
 		"OFFERS_FIELD_CODE" => $arParams["COMPARE_OFFERS_FIELD_CODE"],
 		"OFFERS_PROPERTY_CODE" => $arParams["COMPARE_OFFERS_PROPERTY_CODE"],
 		"OFFERS_CART_PROPERTIES" => $arParams["OFFERS_CART_PROPERTIES"],
+		'CONVERT_CURRENCY' => $arParams['CONVERT_CURRENCY'],
+		'CURRENCY_ID' => $arParams['CURRENCY_ID'],
 	),
 	$component
 );?>

@@ -12,7 +12,7 @@ if(!isset($arParams["CACHE_TIME"]))
 	$arParams["CACHE_TIME"] = 3600;
 
 // activation rating
-CRatingsComponentsMain::GetShowRating(&$arParams);
+CRatingsComponentsMain::GetShowRating($arParams);
 
 $arParams["SHOW_WHEN"] = $arParams["SHOW_WHEN"]=="Y";
 $arParams["SHOW_WHERE"] = $arParams["SHOW_WHERE"]!="N";
@@ -178,11 +178,11 @@ else
 }
 
 $arResult["DROPDOWN"] = htmlspecialcharsex($arrDropdown);
-$arResult["REQUEST"]["HOW"] = htmlspecialchars($how);
+$arResult["REQUEST"]["HOW"] = htmlspecialcharsbx($how);
 $arResult["REQUEST"]["~FROM"] = $from;
-$arResult["REQUEST"]["FROM"] = htmlspecialchars($from);
+$arResult["REQUEST"]["FROM"] = htmlspecialcharsbx($from);
 $arResult["REQUEST"]["~TO"] = $to;
-$arResult["REQUEST"]["TO"] = htmlspecialchars($to);
+$arResult["REQUEST"]["TO"] = htmlspecialcharsbx($to);
 
 if($q!==false)
 {
@@ -237,7 +237,7 @@ else
 	$arResult["REQUEST"]["~TAGS"] = false;
 	$arResult["REQUEST"]["TAGS"] = false;
 }
-$arResult["REQUEST"]["WHERE"] = htmlspecialchars($where);
+$arResult["REQUEST"]["WHERE"] = htmlspecialcharsbx($where);
 
 $arResult["URL"] = $APPLICATION->GetCurPage()
 	."?q=".urlencode($q)
@@ -259,6 +259,7 @@ if(isset($arResult["REQUEST"]["~ORIGINAL_QUERY"]))
 	;
 }
 
+$arReturn = false;
 if($this->InitComponentTemplate($templatePage))
 {
 	$template = &$this->GetTemplate();
@@ -320,10 +321,12 @@ if($this->InitComponentTemplate($templatePage))
 				}
 			}
 
+			$arReturn = array();
 			while($ar)
 			{
+				$arReturn[$ar["ID"]] = $ar["ITEM_ID"];
 				$ar["CHAIN_PATH"] = $APPLICATION->GetNavChain($ar["URL"], 0, $folderPath."/chain_template.php", true, false);
-				$ar["URL"] = htmlspecialchars($ar["URL"]);
+				$ar["URL"] = htmlspecialcharsbx($ar["URL"]);
 				$ar["TAGS"] = array();
 				if (!empty($ar["~TAGS_FORMATED"]))
 				{
@@ -373,6 +376,7 @@ if($this->InitComponentTemplate($templatePage))
 }
 else
 {
-    $this->__ShowError(str_replace("#PAGE#", $templatePage, str_replace("#NAME#", $this->__templateName, "Can not find '#NAME#' template with page '#PAGE#'")));
+	$this->__ShowError(str_replace("#PAGE#", $templatePage, str_replace("#NAME#", $this->__templateName, "Can not find '#NAME#' template with page '#PAGE#'")));
 }
+return $arReturn;
 ?>

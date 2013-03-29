@@ -59,12 +59,12 @@ class CForumHTMLPresrnation
 	
 	$JSFile = "";
 	$prefix = preg_replace("/[^a-z0-9]/is", "_", $prefix);
-    ob_start();
+	ob_start();
 	$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/interface_js.php");
-    include_once($path);
-    $JSFile = ob_get_contents();
-    ob_end_clean();
-	
+	include_once($path);
+	$JSFile = ob_get_contents();
+	ob_end_clean();
+
 	if (!empty($res_other))
 	{
 		$outPut["body"] .= '

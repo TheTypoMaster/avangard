@@ -9,6 +9,7 @@ $MESS ['SORT'] = "Сортировка:";
 $MESS ['DIR'] = "Папка сайта:";
 $MESS ['FORMAT_DATE'] = "Формат даты:<br><small>(например: DD.MM.YYYY)</small>";
 $MESS ['FORMAT_DATETIME'] = "Формат даты и времени:<br><small>(например: DD.MM.YYYY HH:MI:SS)</small>";
+$MESS ['FORMAT_NAME'] = "Формат имени:";
 $MESS ['CHARSET'] = "Кодировка:";
 $MESS ['SAVE'] = "Сохранить изменения";
 $MESS ['ADD'] = "Добавить новый язык";
@@ -28,4 +29,6 @@ $MESS ['ERROR_DELETE'] = "Ошибка при удалении языка. Возможно он связан с другим
 $MESS ['DIRECTION'] = "Направление текста:";
 $MESS ['DIRECTION_LTR'] = "Слева направо";
 $MESS ['DIRECTION_RTL'] = "Справа налево";
+$MESS["LANG_EDIT_WEEK_START"] = "Первый день недели:";
+$MESS['LANG_EDIT_WEEK_START_DEFAULT'] = "1";
 ?>

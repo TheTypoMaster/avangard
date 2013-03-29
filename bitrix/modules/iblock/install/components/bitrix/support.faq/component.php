@@ -67,9 +67,9 @@ else
 	$arResult = array(
 			"FOLDER" => "",
 			"URL_TEMPLATES" => Array(
-				"news" => htmlspecialchars($APPLICATION->GetCurPage()),
-				"section" => htmlspecialchars($APPLICATION->GetCurPage()."?".$arVariableAliases["SECTION_ID"]."=#SECTION_ID#"),
-				"detail" => htmlspecialchars($APPLICATION->GetCurPage()."?".$arVariableAliases["ELEMENT_ID"]."=#ELEMENT_ID#"),
+				"news" => htmlspecialcharsbx($APPLICATION->GetCurPage()),
+				"section" => htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arVariableAliases["SECTION_ID"]."=#SECTION_ID#"),
+				"detail" => htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arVariableAliases["ELEMENT_ID"]."=#ELEMENT_ID#"),
 			),
 			"VARIABLES" => $arVariables,
 			"ALIASES" => $arVariableAliases

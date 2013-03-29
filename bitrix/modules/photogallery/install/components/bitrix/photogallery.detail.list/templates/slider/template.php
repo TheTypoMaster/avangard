@@ -32,14 +32,14 @@ $active_element = 0;
 if ($arParams["SELECT_SURROUNDING"] === "Y")
 {
 	$tmp = reset($arResult["ELEMENTS_LIST_JS"]);
-	$number_element = $arResult["ELEMENTS_LIST"][$tmp["id"]]["RANK"]; 
-	$count_elements = $arResult["ELEMENTS_CNT"]; 
+	$number_element = $arResult["ELEMENTS_LIST"][$tmp["id"]]["RANK"];
+	$count_elements = $arResult["ELEMENTS_CNT"];
 }
 
 if ($arResult["NAV_RESULT"]->bNavStart)
 {
 	if ($arParams["PAGE_ELEMENTS"] < $arParams["SLIDER_COUNT_CELL"])
-		$arParams["SLIDER_COUNT_CELL"] = $arParams["PAGE_ELEMENTS"]; 
+		$arParams["SLIDER_COUNT_CELL"] = $arParams["PAGE_ELEMENTS"];
 
 	$count_elements = $arResult["NAV_RESULT"]->NavRecordCount;
 	$number_element = ($arResult["NAV_RESULT"]->NavPageNomer - 1) * $arResult["NAV_RESULT"]->NavPageSize + 1;
@@ -50,17 +50,17 @@ if ($arResult["NAV_RESULT"]->bNavStart)
 		{
 			$number_element += $arResult["NAV_RESULT"]->NavRecordCount % $arResult["NAV_RESULT"]->NavPageSize + $arResult["NAV_RESULT"]->NavPageSize;
 			$number_element += ($arResult["NAV_RESULT"]->NavPageSize * ($arResult["NAV_RESULT"]->NavPageCount - $arResult["NAV_RESULT"]->NavPageNomer - 1)) ;
-			
+
 		}
 	}
-	
+
 	if ($_REQUEST["package_id"] == $package_id && !empty($_REQUEST["current"]))
 	{
 		$res = array(
-			"elements" => array_values($arResult["ELEMENTS_LIST_JS"]), 
-			"start_number" => $number_element, 
+			"elements" => array_values($arResult["ELEMENTS_LIST_JS"]),
+			"start_number" => $number_element,
 			"status" => "inprogress");
-		
+
 		if ($arResult["NAV_RESULT"]->bDescPageNumbering)
 		{
 			if ($arResult["NAV_RESULT"]->NavPageNomer == 1)
@@ -75,17 +75,17 @@ if ($arResult["NAV_RESULT"]->bNavStart)
 			elseif ($arResult["NAV_RESULT"]->NavPageNomer == 1)
 				$res["status"] = "start";
 		}
-		$res["from_slider"] = "Y"; 
+		$res["from_slider"] = "Y";
 		$APPLICATION->RestartBuffer();
 		?><?=CUtil::PhpToJSObject($res)?><?
 		die();
 	}
 }
 /************** Default images setlist *****************************/
-$arResult["ELEMENTS_CURR"] = array(); 
-$keys = array_keys($arResult["ELEMENTS_LIST_JS"]); 
+$arResult["ELEMENTS_CURR"] = array();
+$keys = array_keys($arResult["ELEMENTS_LIST_JS"]);
 $first = (in_array($arParams["ELEMENT_ID"], $keys) ? array_search($arParams["ELEMENT_ID"], $keys) : 0);
-$last = $first + $arParams["SLIDER_COUNT_CELL"] - 1; 
+$last = $first + $arParams["SLIDER_COUNT_CELL"] - 1;
 
 if (($arParams["SHOW_PAGE_NAVIGATION"] == "top" || $arParams["SHOW_PAGE_NAVIGATION"] == "both") && !empty($arResult["NAV_STRING"])):
 ?><div class="photo-navigation photo-navigation-top">
@@ -108,7 +108,7 @@ if ($arParams["SHOW_DESCRIPTION"] != "N" && false)
 
 $i_cnt = 1; $i_reserve = 20;
 $i_leftward = 0; $b_founded_active = false;
-ob_start(); 
+ob_start();
 foreach ($arResult["ELEMENTS_LIST_JS"] as $key => $res):
 ?>
 			<div class="photo-slider-item <?=($res["id"] == $arParams["ELEMENT_ID"] ? " photo-slider-item-active" : "")?>" id="item_<?=$res["id"]?>">
@@ -121,7 +121,7 @@ foreach ($arResult["ELEMENTS_LIST_JS"] as $key => $res):
 									?>src="<?=$res["src"]?>" title="<?=$res["title"]?>" />
 							</div>
 						<?else:?>
-							<a href="<?=htmlspecialchars($res["url"])?>">
+							<a href="<?=htmlspecialcharsbx($res["url"])?>">
 								<img border="0" width="<?=$res["width"]?>" height="<?=$res["height"]?>" alt="<?=$res["alt"]?>" <?
 									?>src="<?=$res["src"]?>" title="<?=$res["title"]?>" />
 							</a>
@@ -132,13 +132,13 @@ foreach ($arResult["ELEMENTS_LIST_JS"] as $key => $res):
 			</div>
 <?
 	$i_cnt++;
-	$b_founded_active = ($b_founded_active || $res["id"] == $arParams["ELEMENT_ID"]); 
+	$b_founded_active = ($b_founded_active || $res["id"] == $arParams["ELEMENT_ID"]);
 	if (!$b_founded_active)
 		$i_leftward += ($res["width"] + $i_reserve);
 endforeach;
 if (!$b_founded_active)
-	$i_leftward = 0; 
-$str = ob_get_clean(); 
+	$i_leftward = 0;
+$str = ob_get_clean();
 ?>
 <div class="photo-slider">
 	<div class="photo-slider-inner">
@@ -166,21 +166,21 @@ function __photo_init_slider<?=$package_id?>()
 	if (window['BPCStretchSlider'] && window['BX'])
 	{
 		var __slider = new BPCStretchSlider(
-			<?=CUtil::PhpToJSObject(array_values($arResult["ELEMENTS_LIST_JS"]))?>, 
-			<?=intVal($number_element)?>, 
-			<?=intVal($count_elements)?>, 
+			<?=CUtil::PhpToJSObject(array_values($arResult["ELEMENTS_LIST_JS"]))?>,
+			<?=intVal($number_element)?>,
+			<?=intVal($count_elements)?>,
 			<?=$arParams["ELEMENT_ID"]?>);
-		__slider.pack_id = '<?= $package_id?>'; 
-		__slider.CreateSlider(); 
+		__slider.pack_id = '<?= $package_id?>';
+		__slider.CreateSlider();
 		return true;
 	}
-	setTimeout("__photo_init_slider<?=$package_id?>();", 70); 
+	setTimeout("__photo_init_slider<?=$package_id?>();", 70);
 }
 
 // TODO: BX.ready
-if (window.attachEvent) 
+if (window.attachEvent)
 	window.attachEvent("onload", __photo_init_slider<?=$package_id?>);
-else if (window.addEventListener) 
+else if (window.addEventListener)
 	window.addEventListener("load", __photo_init_slider<?=$package_id?>, false);
 else
 	setTimeout(__photo_init_slider<?=$package_id?>, 100);

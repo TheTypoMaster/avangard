@@ -1,4 +1,4 @@
-  <?
+<?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
@@ -26,7 +26,7 @@ $arParams["SECTION_CODE"] = trim($arParams["SECTION_CODE"]);
 
 $arParams["ELEMENT_SORT_FIELD"] = trim($arParams["ELEMENT_SORT_FIELD"]);
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER"]))
-	 $arParams["ELEMENT_SORT_ORDER"]="asc";
+	$arParams["ELEMENT_SORT_ORDER"]="asc";
 
 if(strlen($arParams["FILTER_NAME"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
 {
@@ -217,8 +217,10 @@ if($this->StartResultCache(false, array($arrFilter, ($arParams["CACHE_GROUPS"]==
 			foreach($arParams["PROPERTY_CODE"] as $pid)
 			{
 				$prop = &$arItem["PROPERTIES"][$pid];
-				if((is_array($prop["VALUE"]) && count($prop["VALUE"])>0) ||
-				   (!is_array($prop["VALUE"]) && strlen($prop["VALUE"])>0))
+				if(
+					(is_array($prop["VALUE"]) && count($prop["VALUE"])>0)
+					|| (!is_array($prop["VALUE"]) && strlen($prop["VALUE"])>0)
+				)
 				{
 					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop, "photo_out");
 				}

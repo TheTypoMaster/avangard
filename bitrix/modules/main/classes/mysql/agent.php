@@ -2,7 +2,7 @@
 /*
 ##############################################
 # Bitrix Site Manager                        #
-# Copyright (c) 2002-2007 Bitrix             #
+# Copyright (c) 2002-2012 Bitrix             #
 # http://www.bitrixsoft.com                  #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
@@ -13,20 +13,13 @@ class CAgent extends CAllAgent
 {
 	function CheckAgents()
 	{
-		global $DB, $DOCUMENT_ROOT, $CACHE_MANAGER;
+		global $CACHE_MANAGER;
 
 		//For a while agents will execute only on primary cluster group
 		if((defined("NO_AGENT_CHECK") && NO_AGENT_CHECK===true) || (defined("BX_CLUSTER_GROUP") && BX_CLUSTER_GROUP !== 1))
 			return;
 
-		$uniq = COption::GetOptionString("main", "server_uniq_id", "");
-		if(strlen($uniq)<=0)
-		{
-			$uniq = md5(uniqid(rand(), true));
-			COption::SetOptionString("main", "server_uniq_id", $uniq);
-		}
-
-		$agents_use_crontab	= COption::GetOptionString("main", "agents_use_crontab", "N");
+		$agents_use_crontab = COption::GetOptionString("main", "agents_use_crontab", "N");
 		$str_crontab = "";
 		if($agents_use_crontab=="Y" || (defined("BX_CRONTAB_SUPPORT") && BX_CRONTAB_SUPPORT===true))
 		{
@@ -36,11 +29,40 @@ class CAgent extends CAllAgent
 				$str_crontab = " AND IS_PERIOD='Y' ";
 		}
 
+		$saved_time = 0;
 		if(CACHED_b_agent !== false && $CACHE_MANAGER->Read(CACHED_b_agent, $cache_id = "agents".$str_crontab, "agents"))
 		{
 			$saved_time = $CACHE_MANAGER->Get($cache_id);
 			if(time() < $saved_time)
 				return "";
+		}
+
+		return CAgent::ExecuteAgents($str_crontab);
+	}
+
+	function ExecuteAgents($str_crontab)
+	{
+		global $DB, $DOCUMENT_ROOT, $CACHE_MANAGER;
+
+		if(defined("BX_FORK_AGENTS_AND_EVENTS_FUNCTION"))
+		{
+			if(CMain::ForkActions(array("CAgent", "ExecuteAgents"), array($str_crontab)))
+				return "";
+		}
+
+		$saved_time = 0;
+		if(CACHED_b_agent !== false && $CACHE_MANAGER->Read(CACHED_b_agent, $cache_id = "agents".$str_crontab, "agents"))
+		{
+			$saved_time = $CACHE_MANAGER->Get($cache_id);
+			if(time() < $saved_time)
+				return "";
+		}
+
+		$uniq = COption::GetOptionString("main", "server_uniq_id", "");
+		if(strlen($uniq)<=0)
+		{
+			$uniq = md5(uniqid(rand(), true));
+			COption::SetOptionString("main", "server_uniq_id", $uniq);
 		}
 
 		$strSql = "
@@ -75,13 +97,14 @@ class CAgent extends CAllAgent
 				else
 					$date_diff = $ar["DATE_DIFF"];
 
-				if(isset($saved_time))
+				if($saved_time > 0)
 				{
 					$CACHE_MANAGER->Clean($cache_id, "agents");
 					$CACHE_MANAGER->Read(CACHED_b_agent, $cache_id, "agents");
 				}
 				$CACHE_MANAGER->Set($cache_id, intval(time()+$date_diff));
 			}
+
 			return "";
 		}
 
@@ -134,7 +157,6 @@ class CAgent extends CAllAgent
 			$eval_result = "";
 			eval("\$eval_result=".$arAgent["NAME"]);
 			unset($USER);
-
 			CTimeZone::Enable();
 
 			if(strlen($eval_result)<=0)

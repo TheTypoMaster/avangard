@@ -59,9 +59,17 @@ function __struct_get_file_info($abs_path, $file)
 	}
 	if($GLOBALS['arOptions']['show_file_info'] == true)
 	{
-		$f = $io->GetFile($abs_path."/".$file);
-		$arFile["time"] = $f->GetModificationTime();
-		$arFile["size"] = $f->GetFileSize();
+		if ($io->DirectoryExists($abs_path."/".$file))
+		{
+			$f = $io->GetDirectory($abs_path."/".$file);
+			$arFile["time"] = $f->GetModificationTime();
+		}
+		else
+		{
+			$f = $io->GetFile($abs_path."/".$file);
+			$arFile["time"] = $f->GetModificationTime();
+			$arFile["size"] = $f->GetFileSize();
+		}
 	}
 	return $arFile;
 }
@@ -248,13 +256,13 @@ if($_GET['ajax'] == 'Y')
 
 	if($_GET['load_path'] <> '')
 	{
-		echo __struct_get_files($DOC_ROOT, $_GET['load_path'], "", ($_GET['dirsonly']=='Y'));
+		echo __struct_get_files($DOC_ROOT, _normalizePath($_GET['load_path']), "", ($_GET['dirsonly']=='Y'));
 	}
 	elseif($_GET['reload'] == 'Y')
 	{
 		//display first level tree
 		$arRoot = __struct_get_file_info($DOC_ROOT, "/");
-		echo __struct_show_files(array($arRoot), $DOC_ROOT, "", $_GET["path"], ($_GET['dirsonly']=='Y'));
+		echo __struct_show_files(array($arRoot), $DOC_ROOT, "", _normalizePath($_GET["path"]), ($_GET['dirsonly']=='Y'));
 	}
 
 	if($strWarning <> "")
@@ -799,7 +807,7 @@ $obJSPopup->StartContent();
 <?
 //display first level tree
 $arRoot = __struct_get_file_info($DOC_ROOT, "/");
-echo __struct_show_files(array($arRoot), $DOC_ROOT, "", $_GET["path"]);
+echo __struct_show_files(array($arRoot), $DOC_ROOT, "", _normalizePath($_GET["path"]));
 ?>
 </div>
 <?

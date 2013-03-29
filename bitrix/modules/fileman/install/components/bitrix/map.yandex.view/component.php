@@ -1,9 +1,7 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
-$arParams['KEY'] = trim($arParams['KEY']);
-
-$arParams['MAP_ID'] = 
+$arParams['MAP_ID'] =
 	(strlen($arParams["MAP_ID"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["MAP_ID"])) ? 
 	'MAP_'.RandString() : $arParams['MAP_ID']; 
 
@@ -27,9 +25,4 @@ if (($strPositionInfo = $arParams['~MAP_DATA']) && CheckSerializedData($strPosit
 }
 
 $this->IncludeComponentTemplate();
-// else
-// {
-	// ShowError(GetMessage('MYMV_NO_POSITION'));
-	// return;
-// }
 ?>

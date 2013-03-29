@@ -14,4 +14,5 @@ $MESS["FM_ST_SET_SIZES"] = "Initial Web-it Note Size (width x height, pix.)";
 $MESS["FM_ST_CLEAR_ALL"] = "Remove All Stickers";
 $MESS["FM_ST_CLEAR_ALL_CONFIRM"] = "Are you sure you want to delete all the web-it notes?";
 $MESS["FM_ST_ACCESS_NOTE"] = "To make the Web-It Notes feature available to the users, make sure the users are in the user group having the #LINK_BEGIN#Site Explorer module access permission#LINK_END# and the read access permission for the folder /bitrix/admin/.";
+$MESS["FM_ST_USE_HOTKEYS"] = "Use hotkeys to add web-it notes";
 ?>

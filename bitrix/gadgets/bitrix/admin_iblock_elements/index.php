@@ -236,7 +236,7 @@ if (
 
 					if (strlen($strDescription) > 0)
 					{
-						?><?=substr(htmlspecialchars($strDescription), 0, $arGadgetParams["DESCRIPTION_CUT"])?><br><?
+						?><?=substr(htmlspecialcharsbx($strDescription), 0, $arGadgetParams["DESCRIPTION_CUT"])?><br><?
 					}
 				}
 

@@ -6,10 +6,10 @@ $MESS ['SEC_OTP_INIT'] = "Initialization";
 $MESS ['SEC_OTP_PASS1'] = "The first device password (click and write down)";
 $MESS ['SEC_OTP_PASS2'] = "The second device password (click again and write down)";
 $MESS ['SEC_OTP_NOTE'] = "<h3 style=\"clear:both\"><br>One-Time Password</h3>
-<img src=\"/bitrix/images/security/etoken_pass.png\" align=\"left\">
+<img src=\"/bitrix/images/security/etoken_pass.png\" align=\"left\" style=\"margin-right:10px;\">
 The <a href=\"http://en.wikipedia.org/wiki/One-time_password\">one-time password</a> (<b>OTP</b>) concept empowers the standard authorization scheme and significantly reinforces the web project security. The one-time password system requires a physical hardware token (device) (e.g., <a href=\"http://www.safenet-inc.com/products/data-protection/two-factor-authentication/etoken-pass/\">SafeNet eToken PASS</a>) or special OTP software. The site administrator is strongly recommended to use OTP to ensure the best security.
 <h3 style=\"clear:both\"><br>Usage</h3>
-<img src=\"/bitrix/images/security/en_pass_form.jpg\" align=\"left\">
+<img src=\"/bitrix/images/security/en_pass_form.png\" align=\"left\" style=\"margin-right:10px;\">
 If the OTP system is enabled, a user can authorize with a login and a compound password that consists of a standard password and a one-time device password (6 digits). The one-time password (see <font style=\"color:red\">2</font> on the figure) is entered in the \"Password\" field together with the standard password (see <font style=\"color:red\">1</font> on the figure) without space, in the authorization form.<br>
 The OTP authentication takes effect after the secret key and <b>consecutively generated one-time passwords</b> obtained from the device are entered.
 <h3 style=\"clear:both\"><br>Initialization</h3>

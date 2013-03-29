@@ -8,6 +8,6 @@ $MESS ['SORT_BY2_TIP'] = "Specifies the fields by which the blog groups will be 
 $MESS ['SORT_ORDER2_TIP'] = "Specifies the sorting order for the first sorting pass.";
 $MESS ['DETAIL_URL_TIP'] = "The URL of a page containing the information block element contents. The URL should include a parameter to pass the element ID, for example: <b>news_detail.php?ID=#ELEMENT_ID#</b>";
 $MESS ['ACTIVE_DATE_FORMAT_TIP'] = "Select here the required date format. If you select <i><b>other</b></i>, you can create your own format using the <i><b>date</b></i> PHP function.";
-$MESS ['CACHE_TYPE_TIP'] = "<i>Auto</i>: the cache is valid during the time predefined in the cache settings;<br /><i>Cache</i>: always cache for the period specified in the next field;<br /><i>Do not cahce</i>: no caching is performed.";
+$MESS ['CACHE_TYPE_TIP'] = "<i>Auto</i>: the cache is valid during the time predefined in the cache settings;<br /><i>Cache</i>: always cache for the period specified in the next field;<br /><i>Do not cache</i>: no caching is performed.";
 $MESS ['CACHE_TIME_TIP'] = "Specifies the cache time, in seconds.";
 ?>

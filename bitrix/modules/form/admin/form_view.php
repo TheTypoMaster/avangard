@@ -39,7 +39,7 @@ if (is_array($arrShowTemplate) && count($arrShowTemplate["reference"])>0)
 
 $WEB_FORM_ID = intval($WEB_FORM_ID);
 $arForm = CForm::GetByID_admin($WEB_FORM_ID);
-if (false === $arForm) 
+if (false === $arForm)
 {
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	echo "<a href='form_list.php?lang=".LANGUAGE_ID."'>".GetMessage("FORM_FORM_LIST")."</a>";
@@ -86,7 +86,7 @@ $context->Show();
 
 echo BeginNote('width="100%"');
 ?>
-<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialchars($arForm["SID"])?>)&nbsp;<?=htmlspecialchars($arForm["NAME"])?>
+<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialcharsbx($arForm["SID"])?>)&nbsp;<?=htmlspecialcharsbx($arForm["NAME"])?>
 <?
 echo EndNote();
 
@@ -100,7 +100,7 @@ echo ShowNote($strNote);
 <input type="hidden" name="WEB_FORM_ID" value="<?=intval($WEB_FORM_ID)?>">
 <input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
 <?=GetMessage("FORM_SHOW_TEMPLATE")?><?
-echo SelectBoxFromArray("SHOW_TEMPLATE", $arrShowTemplate, htmlspecialchars($SHOW_TEMPLATE), "","",true);
+echo SelectBoxFromArray("SHOW_TEMPLATE", $arrShowTemplate, htmlspecialcharsbx($SHOW_TEMPLATE), "","",true);
 ?>&nbsp;<input <?if ($F_RIGHT<30) echo "disabled"?> type="submit" name="save" value="<?=GetMessage("FORM_SAVE")?>">
 </form>
 <?endif;?>

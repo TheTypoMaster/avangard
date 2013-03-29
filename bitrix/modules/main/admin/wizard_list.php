@@ -130,7 +130,7 @@ $arContext = array(
 		"TEXT"	=> GetMessage("MAIN_WIZARD_ADMIN_LOAD"),
 		"LINK"	=> "wizard_load.php?lang=".LANGUAGE_ID,
 		"TITLE"	=> GetMessage("MAIN_WIZARD_ADMIN_LOAD_TITLE"),
-		"ICON"	=> ""
+		"ICON"	=> "btn_new"
 	),
 );
 $lAdmin->AddAdminContextMenu($arContext);

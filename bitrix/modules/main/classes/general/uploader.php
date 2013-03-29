@@ -26,6 +26,9 @@ class CImageUploader
 		if (!isset($Params['uploadViewMode']) || !in_array($Params['uploadViewMode'], array('Thumbnails', 'Tiles', 'Details', ' List')))
 			$Params['uploadViewMode'] = 'Thumbnails';
 
+		if (!isset($Params['thumbnailJpegQuality']) || $Params['thumbnailJpegQuality'] > 100 || $Params['thumbnailJpegQuality'] <= 0)
+			$Params['thumbnailJpegQuality'] = 90;
+
 		$Params['showAddFileButton'] = $Params['showAddFileButton'] === true;
 		$Params['showAddFolderButton'] = $Params['showAddFolderButton'] === true;
 
@@ -147,13 +150,13 @@ class CImageUploader
 			bxp.metadata.additionalFormName = '<?= CUtil::JSEscape($Params['appendFormName'])?>';
 		<?endif;?>
 
-		<?for ($i = 0; $i < count($Params['converters']); $i++):?>
-			<?$bSource = (!$Params['converters'][$i]['width'] || !$Params['converters'][$i]['height']);?>
+		<?foreach ($Params['converters'] as $converter):?>
+			<?$bSource = (!$converter['width'] || !$converter['height']);?>
 			bxp.converters.push({
 					mode: '*.*=Thumbnail',
 					thumbnailApplyCrop: true,
 					thumbnailKeepColorSpace: true,
-					thumbnailJpegQuality: 100,
+					thumbnailJpegQuality: <?= $Params['thumbnailJpegQuality']?>,
 					thumbnailResizeQuality: "High", // High | Medium | Low,
 					thumbnailCopyIptc: true,
 					thumbnailCopyExif: true,
@@ -161,12 +164,12 @@ class CImageUploader
 					thumbnailFitMode: "ActualSize", // Fit | OrientationalFit | Width | Height | ActualSize
 				<?else:?>
 					thumbnailFitMode: "Fit", // Fit | OrientationalFit | Width | Height | ActualSize
-					thumbnailHeight: <?= intval($Params['converters'][$i]['height'])?>,
-					thumbnailWidth: <?= intval($Params['converters'][$i]['width'])?>,
+					thumbnailHeight: <?= intval($converter['height'])?>,
+					thumbnailWidth: <?= intval($converter['width'])?>,
 				<?endif;?>
 					thumbnailCompressOversizedOnly: true
 			});
-		<?endfor;?>
+		<?endforeach;?>
 
 		<?if ($Params['layout'] == 'ThreePanes'):?>
 			bxp.folderPane = {
@@ -232,6 +235,8 @@ class CImageUploader
 				size: '<?= CUtil::JSEscape($Params['watermarkConfig']['size'])?>',
 				opacity: '<?= CUtil::JSEscape($Params['watermarkConfig']['opacity'])?>',
 				file: '<?= CUtil::JSEscape($Params['watermarkConfig']['file'])?>',
+				fileWidth: '<?= intVal($Params['watermarkConfig']['fileWidth'])?>',
+				fileHeight: '<?= intVal($Params['watermarkConfig']['fileHeight'])?>',
 
 				values: {
 					use: '<?= CUtil::JSEscape($Params['watermarkConfig']['values']['use'])?>',
@@ -272,7 +277,7 @@ class CImageUploader
 		<?endif;?>
 		BX.ready(function(){BX('bxiu_<?= CUtil::JSEscape($id)?>').innerHTML = BXIU_<?= CUtil::JSEscape($id)?>.getHtml();})
 		</script>
-		<div id="bxiu_<?= htmlspecialchars($id)?>" class="bx-image-uploader"></div>
+		<div id="bxiu_<?= htmlspecialcharsbx($id)?>" class="bx-image-uploader"></div>
 		<?
 	}
 
@@ -321,7 +326,7 @@ class CImageUploader
 		if ($path)
 		{
 			if (!CheckDirPath($path))
-				echo "<b>Warning! Check file permissions for uploading dir: ".htmlspecialchars($path)."</b><br>";
+				echo "<b>Warning! Check file permissions for uploading dir: ".htmlspecialcharsbx($path)."</b><br>";
 		}
 	}
 
@@ -335,8 +340,7 @@ class CImageUploader
 		self::SetTmpPath($_REQUEST["PackageGuid"], $Params["pathToTmp"]);
 
 		$uh = new UploadHandler();
-		//$uh->setUploadCacheDirectory($Params['pathToTmp']);
-		//$uh->setAllFilesUploadedCallback('CImageUploader::SaveAllUploadedFiles');
+		$uh->setUploadCacheDirectory($Params['pathToTmp']);
 		$uh->setAllFilesUploadedCallback(array("CImageUploader", "SaveAllUploadedFiles"));
 		$uh->processRequest();
 	}
@@ -355,7 +359,7 @@ class CImageUploader
 					return;
 			}
 			foreach ($uploadedFiles as $uploadedFile)
-		    {
+			{
 				try
 				{
 					$convertedFiles = $uploadedFile->getConvertedFiles();
@@ -395,8 +399,8 @@ class CImageUploader
 				{
 					CImageUploader::SaveError(array(array("id" => "BXUPL_APPLET_SAVE_1", "text" => $e->getMessage)));
 				}
-		    }
-		    if (isset(self::$uploadCallbackParams['onAfterUpload']))
+			}
+			if (isset(self::$uploadCallbackParams['onAfterUpload']))
 				call_user_func(self::$uploadCallbackParams['onAfterUpload'], self::$uploadCallbackParams);
 		}
 		catch (Exception $e)
@@ -622,15 +626,15 @@ class CImageUploader
 				$ret *= 1024;
 			case 'G':
 				$ret *= 1024;
-		    case 'M':
+			case 'M':
 				$ret *= 1024;
 			case 'K':
 				$ret *= 1024;
 			break;
 		}
-	     return $ret;
+		return $ret;
 	}
-	
+
 	public static function StrangeUrlEncode($url)
 	{
 		if (!defined('BX_UTF'))
@@ -660,6 +664,9 @@ class CFlashUploader extends CImageUploader
 
 		if (!isset($Params['chunkSize']) || $Params['chunkSize'] <= 0)
 			$Params['chunkSize'] = self::GetChunkSize();
+
+		if (!isset($Params['thumbnailJpegQuality']) || $Params['thumbnailJpegQuality'] > 100 || $Params['thumbnailJpegQuality'] <= 0)
+			$Params['thumbnailJpegQuality'] = 90;
 
 		// Check and create tmp dir
 		self::CheckDirPath($Params["pathToTmp"]);
@@ -726,27 +733,27 @@ class CFlashUploader extends CImageUploader
 			bxp.restrictions.maxImageHeight = '<?= CUtil::JSEscape($Params['maxImageHeight'])?>';
 		<?endif;?>
 
-		<?for ($i = 0; $i < count($Params['converters']); $i++):?>
-			<?$bSource = (!$Params['converters'][$i]['width'] || !$Params['converters'][$i]['height']);?>
+		<?foreach ($Params['converters'] as $converter):?>
+			<?$bSource = (!$converter['width'] || !$converter['height']);?>
 			bxp.converters.push({
 				<?if ($bSource):?>
 					mode: '*.*=Thumbnail',
 					thumbnailFitMode: "ActualSize", // Fit | OrientationalFit | Width | Height | ActualSize
 					thumbnailCopyIptc: true,
 					thumbnailCopyExif: true,
-					thumbnailJpegQuality: 100
+					thumbnailJpegQuality: <?= $Params['thumbnailJpegQuality']?>,
 				<?else:?>
 					mode: '*.*=Thumbnail',
 					thumbnailFitMode: "Fit", // Fit | OrientationalFit | Width | Height | ActualSize
 					thumbnailCopyIptc: true,
 					thumbnailCopyExif: true,
 
-					thumbnailHeight: <?= intval($Params['converters'][$i]['height'])?>,
-					thumbnailWidth: <?= intval($Params['converters'][$i]['width'])?>,
-					thumbnailJpegQuality: 100
+					thumbnailHeight: <?= intval($converter['height'])?>,
+					thumbnailWidth: <?= intval($converter['width'])?>,
+					thumbnailJpegQuality: <?= $Params['thumbnailJpegQuality']?>
 				<?endif;?>
 			});
-		<?endfor;?>
+		<?endforeach;?>
 
 		BXFIU_<?= CUtil::JSEscape($id)?>.set(bxp);
 		// Apply localization
@@ -758,7 +765,7 @@ class CFlashUploader extends CImageUploader
 		BX.ready(function(){BX('bxiu_<?= CUtil::JSEscape($id)?>').innerHTML = BXFIU_<?= CUtil::JSEscape($id)?>.getHtml();});
 
 		</script>
-		<div id="bxiu_<?= htmlspecialchars($id)?>" class="bx-image-uploader"></div>
+		<div id="bxiu_<?= htmlspecialcharsbx($id)?>" class="bx-image-uploader"></div>
 		<?
 	}
 
@@ -777,6 +784,7 @@ class CFlashUploader extends CImageUploader
 		self::SetTmpPath($_REQUEST["PackageGuid"], $Params["pathToTmp"]);
 
 		$uh = new UploadHandler();
+		$uh->setUploadCacheDirectory($Params['pathToTmp']);
 		$uh->setAllFilesUploadedCallback(array("CFlashUploader", "SaveAllUploadedFiles"));
 		$uh->processRequest();
 
@@ -859,7 +867,7 @@ class CFlashUploader extends CImageUploader
 				{
 					CImageUploader::SaveError(array(array("id" => "BXUPL_FLASH_SAVE_1", "text" => $e->getMessage)));
 				}
-		    }
+			}
 			if (isset(self::$uploadCallbackParams['onAfterUpload']))
 				call_user_func(self::$uploadCallbackParams['onAfterUpload'], self::$uploadCallbackParams);
 		}
@@ -877,7 +885,7 @@ class CFlashUploader extends CImageUploader
 			$arLoc = array(
 				'addFilesProgressDialog' => array(
 					'text' => GetMessage("BXFIU_text")
-			    ),
+				),
 				'commonDialog' => array(
 					'cancelButtonText' => GetMessage("BXFIU_cancelButtonText"),
 					'okButtonText' => GetMessage("BXFIU_okButtonText")

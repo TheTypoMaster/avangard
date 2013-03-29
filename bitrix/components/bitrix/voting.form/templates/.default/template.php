@@ -51,7 +51,7 @@ endif;
 <?
 		endif;
 ?>
-    <div class="vote-item-title vote-item-question"><?=$arQuestion["QUESTION"]?><?if($arQuestion["REQUIRED"]=="Y"){echo "<span class='starrequired'>*</span>";}?></div>
+	<div class="vote-item-title vote-item-question"><?=$arQuestion["QUESTION"]?><?if($arQuestion["REQUIRED"]=="Y"){echo "<span class='starrequired'>*</span>";}?></div>
 			<div class="vote-clear-float"></div>
 		</div>
 		
@@ -67,24 +67,24 @@ endif;
 <?
 			switch ($arAnswer["FIELD_TYPE"]):
 					case 0://radio
-                        $value=(isset($_REQUEST['vote_radio_'.$arAnswer["QUESTION_ID"]]) && 
-                            $_REQUEST['vote_radio_'.$arAnswer["QUESTION_ID"]] == $arAnswer["ID"]) ? 'checked="checked"' : '';
+						$value=(isset($_REQUEST['vote_radio_'.$arAnswer["QUESTION_ID"]]) && 
+							$_REQUEST['vote_radio_'.$arAnswer["QUESTION_ID"]] == $arAnswer["ID"]) ? 'checked="checked"' : '';
 					break;
 					case 1://checkbox
-                        $value=(isset($_REQUEST['vote_checkbox_'.$arAnswer["QUESTION_ID"]]) && 
-                            array_search($arAnswer["ID"],$_REQUEST['vote_checkbox_'.$arAnswer["QUESTION_ID"]])!==false) ? 'checked="checked"' : '';
+						$value=(isset($_REQUEST['vote_checkbox_'.$arAnswer["QUESTION_ID"]]) && 
+							array_search($arAnswer["ID"],$_REQUEST['vote_checkbox_'.$arAnswer["QUESTION_ID"]])!==false) ? 'checked="checked"' : '';
 					break;
 					case 2://select
-                        $value=(isset($_REQUEST['vote_dropdown_'.$arAnswer["QUESTION_ID"]])) ? $_REQUEST['vote_dropdown_'.$arAnswer["QUESTION_ID"]] : false;
+						$value=(isset($_REQUEST['vote_dropdown_'.$arAnswer["QUESTION_ID"]])) ? $_REQUEST['vote_dropdown_'.$arAnswer["QUESTION_ID"]] : false;
 					break;
 					case 3://multiselect
-                        $value=(isset($_REQUEST['vote_multiselect_'.$arAnswer["QUESTION_ID"]])) ? $_REQUEST['vote_multiselect_'.$arAnswer["QUESTION_ID"]] : array();
+						$value=(isset($_REQUEST['vote_multiselect_'.$arAnswer["QUESTION_ID"]])) ? $_REQUEST['vote_multiselect_'.$arAnswer["QUESTION_ID"]] : array();
 					break;
 					case 4://text field
-                        $value = isset($_REQUEST['vote_field_'.$arAnswer["ID"]]) ? htmlspecialchars($_REQUEST['vote_field_'.$arAnswer["ID"]]) : '';
+						$value = isset($_REQUEST['vote_field_'.$arAnswer["ID"]]) ? htmlspecialcharsbx($_REQUEST['vote_field_'.$arAnswer["ID"]]) : '';
 					break;
 					case 5://memo
-                        $value = isset($_REQUEST['vote_memo_'.$arAnswer["ID"]]) ?  htmlspecialchars($_REQUEST['vote_memo_'.$arAnswer["ID"]]) : '';
+						$value = isset($_REQUEST['vote_memo_'.$arAnswer["ID"]]) ?  htmlspecialcharsbx($_REQUEST['vote_memo_'.$arAnswer["ID"]]) : '';
 					break;
 				endswitch;
 ?>
@@ -93,7 +93,7 @@ endif;
 					case 0://radio
 ?>
 						<span class="vote-answer-item vote-answer-item-radio">
-                        <input type="radio" <?=$value?> name="vote_radio_<?=$arAnswer["QUESTION_ID"]?>" <?
+						<input type="radio" <?=$value?> name="vote_radio_<?=$arAnswer["QUESTION_ID"]?>" <?
 								?>id="vote_radio_<?=$arAnswer["QUESTION_ID"]?>_<?=$arAnswer["ID"]?>" <?
 								?>value="<?=$arAnswer["ID"]?>" <?=$arAnswer["~FIELD_PARAM"]?> />
 							<label for="vote_radio_<?=$arAnswer["QUESTION_ID"]?>_<?=$arAnswer["ID"]?>"><?=$arAnswer["MESSAGE"]?></label>
@@ -102,7 +102,7 @@ endif;
 					break;
 					case 1://checkbox?>
 						<span class="vote-answer-item vote-answer-item-checkbox">
-                            <input <?=$value?> type="checkbox" name="vote_checkbox_<?=$arAnswer["QUESTION_ID"]?>[]" value="<?=$arAnswer["ID"]?>" <?
+							<input <?=$value?> type="checkbox" name="vote_checkbox_<?=$arAnswer["QUESTION_ID"]?>[]" value="<?=$arAnswer["ID"]?>" <?
 								?> id="vote_checkbox_<?=$arAnswer["QUESTION_ID"]?>_<?=$arAnswer["ID"]?>" <?=$arAnswer["~FIELD_PARAM"]?> />
 							<label for="vote_checkbox_<?=$arAnswer["QUESTION_ID"]?>_<?=$arAnswer["ID"]?>"><?=$arAnswer["MESSAGE"]?></label>
 						</span>
@@ -112,7 +112,7 @@ endif;
 						<span class="vote-answer-item vote-answer-item-dropdown">
 							<select name="vote_dropdown_<?=$arAnswer["QUESTION_ID"]?>" <?=$arAnswer["~FIELD_PARAM"]?>>
 							<?foreach ($arAnswer["DROPDOWN"] as $arDropDown):?>
-                                <option value="<?=$arDropDown["ID"]?>" <?=($arDropDown["ID"] === $value)?'selected="selected"':''?>><?=$arDropDown["MESSAGE"]?></option>
+								<option value="<?=$arDropDown["ID"]?>" <?=($arDropDown["ID"] === $value)?'selected="selected"':''?>><?=$arDropDown["MESSAGE"]?></option>
 							<?endforeach?>
 							</select>
 						</span>
@@ -132,7 +132,7 @@ endif;
 						<span class="vote-answer-item vote-answer-item-textfield">
 							<label for="vote_field_<?=$arAnswer["ID"]?>"><?=$arAnswer["MESSAGE"]?></label>
 							<input type="text" name="vote_field_<?=$arAnswer["ID"]?>" id="vote_field_<?=$arAnswer["ID"]?>" <?
-                                ?>value="<?=$value?>" size="<?=$arAnswer["FIELD_WIDTH"]?>" <?=$arAnswer["~FIELD_PARAM"]?> /></span>
+								?>value="<?=$value?>" size="<?=$arAnswer["FIELD_WIDTH"]?>" <?=$arAnswer["~FIELD_PARAM"]?> /></span>
 					<?break?>
 
 					<?case 5://memo?>
@@ -140,7 +140,7 @@ endif;
 							<label for="vote_memo_<?=$arAnswer["ID"]?>"><?=$arAnswer["MESSAGE"]?></label><br />
 							<textarea name="vote_memo_<?=$arAnswer["ID"]?>" id="vote_memo_<?=$arAnswer["ID"]?>" <?
 								?><?=$arAnswer["~FIELD_PARAM"]?> cols="<?=$arAnswer["FIELD_WIDTH"]?>" <?
-                            ?>rows="<?=$arAnswer["FIELD_HEIGHT"]?>"><?=$value?></textarea>
+							?>rows="<?=$arAnswer["FIELD_HEIGHT"]?>"><?=$value?></textarea>
 						</span>
 					<?break;
 				endswitch;
@@ -158,24 +158,28 @@ endif;
 
 <? if (isset($arResult["CAPTCHA_CODE"])):  ?>
 <div class="vote-item-header">
-    <div class="vote-item-title vote-item-question"><?=GetMessage("F_CAPTCHA_TITLE")?></div>
-    <div class="vote-clear-float"></div>
+	<div class="vote-item-title vote-item-question"><?=GetMessage("F_CAPTCHA_TITLE")?></div>
+	<div class="vote-clear-float"></div>
 </div>
 <div class="vote-form-captcha">
-    <input type="hidden" name="captcha_code" value="<?=$arResult["CAPTCHA_CODE"]?>"/>
-    <div class="vote-reply-field-captcha-image">
-        <img src="/bitrix/tools/captcha.php?captcha_code=<?=$arResult["CAPTCHA_CODE"]?>" alt="<?=GetMessage("F_CAPTCHA_TITLE")?>" />
-    </div>
-    <div class="vote-reply-field-captcha-label">
-        <label for="captcha_word"><?=GetMessage("F_CAPTCHA_PROMT")?><span class='starrequired'>*</span></label><br />
-        <input type="text" size="20" name="captcha_word" />
-    </div>
+	<input type="hidden" name="captcha_code" value="<?=$arResult["CAPTCHA_CODE"]?>"/>
+	<div class="vote-reply-field-captcha-image">
+		<img src="/bitrix/tools/captcha.php?captcha_code=<?=$arResult["CAPTCHA_CODE"]?>" alt="<?=GetMessage("F_CAPTCHA_TITLE")?>" />
+	</div>
+	<div class="vote-reply-field-captcha-label">
+		<label for="captcha_word"><?=GetMessage("F_CAPTCHA_PROMT")?><span class='starrequired'>*</span></label><br />
+		<input type="text" size="20" name="captcha_word" />
+	</div>
 </div>
 <? endif // CAPTCHA_CODE ?>
 
 <div class="vote-form-box-buttons vote-vote-footer">
 	<span class="vote-form-box-button vote-form-box-button-first"><input type="submit" name="vote" value="<?=GetMessage("VOTE_SUBMIT_BUTTON")?>" /></span>
-	<span class="vote-form-box-button vote-form-box-button-last"><input type="reset" value="<?=GetMessage("VOTE_RESET")?>" /></span>
+<?/*?>	<span class="vote-form-box-button vote-form-box-button-last"><input type="reset" value="<?=GetMessage("VOTE_RESET")?>" /></span><?*/?>
+	<span class="vote-form-box-button vote-form-box-button-last">
+		<a name="show_result" <?
+			?>href="<?=$arResult["URL"]["RESULT"]?>"><?=GetMessage("VOTE_RESULTS")?></a>
+	</span>
 </div>
 </form>
 </div>

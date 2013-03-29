@@ -60,7 +60,7 @@ $arResult["SERVER_NAME"] = (defined("SITE_SERVER_NAME") && strLen(SITE_SERVER_NA
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["COUNT"] = intVal(intVal($arParams["COUNT"]) > 0 ? $arParams["COUNT"] : ($arParams["MODE_DATA"] == "forum" ?
@@ -68,6 +68,8 @@ $arResult["SERVER_NAME"] = (defined("SITE_SERVER_NAME") && strLen(SITE_SERVER_NA
 	$arParams["COUNT"] = ($arParams["COUNT"] > 0 ? $arParams["COUNT"] : 10);
 	$arParams["MAX_FILE_SIZE"] = (intVal($arParams["MAX_FILE_SIZE"]) <= 0 ? 10*1024*1024 : intVal($arParams["MAX_FILE_SIZE"])*1024*1024);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
+
 	$arParams["DESIGN_MODE"] = ($GLOBALS["APPLICATION"]->GetShowIncludeAreas() && is_object($GLOBALS["USER"]) && $GLOBALS["USER"]->IsAdmin() ? "Y" : "N");
 	$arParams["TEMPLATES_TITLE_FORUMS"] = ($arParams["TEMPLATES_TITLE_FORUMS"] ? $arParams["TEMPLATES_TITLE_FORUMS"] : GetMessage("F_TEMPLATES_TITLE_FORUMS"));
 	$arParams["TEMPLATES_TITLE_FORUM"] = ($arParams["TEMPLATES_TITLE_FORUM"] ? $arParams["TEMPLATES_TITLE_FORUM"] : GetMessage("F_TEMPLATES_TITLE_FORUM"));
@@ -91,33 +93,25 @@ if (empty($arParams["TYPE_RANGE"])):
 else:
 	$arFilter = (!empty($arParams["FID_RANGE"]) ? array("@ID" => $arParams["FID_RANGE"]) : array());
 	$arFilter["LID"] = SITE_ID;
-    if (!$GLOBALS['USER']->IsAdmin())
-        $arFilter["PERMS"] = array($USER->GetGroups(), 'A');
+	if (!$GLOBALS['USER']->IsAdmin())
+		$arFilter["PERMS"] = array($USER->GetGroups(), 'A');
 	$arFilter["ACTIVE"] = "Y";
-	$db_res = CForumNew::GetListEx(array("FORUM_GROUP_SORT"=>"ASC", "FORUM_GROUP_ID"=>"ASC", "SORT"=>"ASC", "NAME"=>"ASC"), $arFilter);
+	$db_res = CForumNew::GetListEx(
+		array("FORUM_GROUP_SORT"=>"ASC", "FORUM_GROUP_ID"=>"ASC", "SORT"=>"ASC", "NAME"=>"ASC"),
+		$arFilter,
+		false, 0,
+		array("sNameTemplate" => $arParams["NAME_TEMPLATE"])
+	);
 	if ($db_res && ($res = $db_res->Fetch()))
 	{
 		do
 		{
 			foreach ($res as $key => $val):
 				$res["~".$key] = $val;
-				$res[$key] = htmlspecialchars($val);
+				$res[$key] = htmlspecialcharsbx($val);
 			endforeach;
-			$res["ALLOW"] = array(
-				"HTML" => $res["ALLOW_HTML"],
-				"ANCHOR" => $res["ALLOW_ANCHOR"],
-				"BIU" => $res["ALLOW_BIU"],
-				"IMG" => $res["ALLOW_IMG"],
-				"VIDEO" => $res["ALLOW_VIDEO"],
-				"LIST" => $res["ALLOW_LIST"],
-				"QUOTE" => $res["ALLOW_QUOTE"],
-				"CODE" => $res["ALLOW_CODE"],
-				"FONT" => $res["ALLOW_FONT"],
-				"SMILES" => $res["ALLOW_SMILES"],
-				"UPLOAD" => $res["ALLOW_UPLOAD"],
-				"NL2BR" => $res["ALLOW_NL2BR"],
-				"TABLE" => $res["ALLOW_TABLE"],
-			);
+
+			$res["ALLOW"] = forumTextParser::GetFeatures($res);
 			$res["~FORUM_DESCRIPTION"] = $res["~DESCRIPTION"];
 			$res["FORUM_DESCRIPTION"] = $res["DESCRIPTION"];
 			$res["~FORUM_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_LIST"], array("FID" => $res["ID"]));
@@ -148,7 +142,7 @@ else:
 		endif;
 		foreach ($res as $key => $val):
 			$res["~".$key] = $val;
-			$res[$key] = htmlspecialchars($val);
+			$res[$key] = htmlspecialcharsbx($val);
 		endforeach;
 		$arResult["TOPIC"] = $res;
 	endif;
@@ -169,7 +163,7 @@ elseif ($arParams["MODE_DATA"] == "topic" && $arParams["TID"] > 0 && empty($arRe
 	return false;
 endif;
 /********************************************************************
-				Data ¹ 1
+				Data 1
 ********************************************************************/
 if ($arParams["MODE"] == "link"):
 	$arResult["rss_link"] = array();
@@ -186,7 +180,7 @@ if ($arParams["MODE"] == "link"):
 	return false;
 endif;
 /********************************************************************
-				/Data ¹ 1
+				/Data 1
 ********************************************************************/
 
 /********************************************************************
@@ -197,7 +191,7 @@ $arItems = array();
 $arParams["FID"] = (!empty($arResult["FORUMS"][$arParams["FID"]]) ? $arParams["FID"] : 0);
 $arResult["LANGUAGE_ID"] = LANGUAGE_ID;
 $arResult["CHARSET"] = (defined("SITE_CHARSET") && strLen(SITE_CHARSET) > 0) ? SITE_CHARSET : "windows-1251";
-$arResult["NOW"] = ($arParams["TYPE"] != "ATOM") ? date("r") : date("Y-m-d\TH:i:s").substr(date("O"), 0, 3).":".substr(date("O"), -2, 2);
+$arResult["NOW"] = ($arParams["TYPE"] != "ATOM") ? date("r") : date("Y-m-d H:i:s").substr(date("O"), 0, 3).":".substr(date("O"), -2, 2);
 $arResult["TEMPLATE_ELEMENTS"] = array("AUTHOR_NAME", "AUTHOR_LINK", "SIGNATURE", "DATE_REG", "AVATAR", "POST_MESSAGE", "POST_LINK",
 	"POST_DATE", "ATTACH_IMG", "TITLE", "TOPIC_LINK",
 	"TOPIC_DATE", "TOPIC_DESCRIPTION", "NAME", "FORUM_LINK", "FORUM_DESCRIPTION");
@@ -236,16 +230,17 @@ $arResult["DESCRIPTION"] = htmlspecialcharsEx($arResult["~DESCRIPTION"]);
 
 $arResult["URL"] = array(
 	"~ALTERNATE" => "http://".$arResult["SERVER_NAME"],
-	"ALTERNATE" => htmlspecialchars("http://".$arResult["SERVER_NAME"]),
+	"ALTERNATE" => htmlspecialcharsbx("http://".$arResult["SERVER_NAME"]),
 	"~REAL" => "http://".$arResult["SERVER_NAME"].$APPLICATION->GetCurPageParam(),
-	"REAL" => htmlspecialchars("http://".$arResult["SERVER_NAME"].$APPLICATION->GetCurPageParam()));
+	"REAL" => htmlspecialcharsbx("http://".$arResult["SERVER_NAME"].$APPLICATION->GetCurPageParam()));
 
-$arResult["MESSAGE_LIST"] = array();
+$arResult["MESSAGE_LIST"] = $arResult["FILES"] = array();
 /********************************************************************
 				/Default values
 ********************************************************************/
+
 /********************************************************************
-				Data ¹ 2
+				Data 2
 ********************************************************************/
 $cache_id_array = array("MODE" => $arParams["MODE_DATA"], "IID" => $arParams["IID"], "TYPE" => $arParams["TYPE"], "COUNT" => $arParams["COUNT"],
 	"FID_RANGE" => $arParams["FID_RANGE"], "USER_GROUP" => $GLOBALS["USER"]->GetUserGroupArray(), "LANGUAGE" => $arResult["LANGUAGE_ID"],
@@ -281,7 +276,11 @@ if($this->StartResultCache($arParams["CACHE_TIME"], array($cache_id_array, $arPa
 	}
 
 	CTimeZone::Disable();
-	$db_res = CForumMessage::GetListEx(array("ID" => "DESC"), $arFilter, 0, $arParams["COUNT"]);
+	$db_res = CForumMessage::GetListEx(
+		array("ID" => "DESC"),
+		$arFilter, 0,
+		$arParams["COUNT"],
+		array("sNameTemplate" => $arParams["NAME_TEMPLATE"]));
 	CTimeZone::Enable();
 
 	if ($db_res && ($res = $db_res->Fetch()))
@@ -291,7 +290,7 @@ if($this->StartResultCache($arParams["CACHE_TIME"], array($cache_id_array, $arPa
 			foreach ($res as $key => $val)
 			{
 				$res["~".$key] = $val;
-				$res[$key] = htmlspecialchars($val);
+				$res[$key] = htmlspecialcharsbx($val);
 			}
 			/************** Message info ***************************************/
 			// data
@@ -305,13 +304,12 @@ if($this->StartResultCache($arParams["CACHE_TIME"], array($cache_id_array, $arPa
 			$res["POST_DATE"] = $date;
 			$res["POST_DATE_FORMATED"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["~POST_DATE"], CSite::GetDateFormat())+CTimeZone::GetOffset());
 			// text
-			$arAllow = $arResult["FORUMS"][$res["FORUM_ID"]]["ALLOW"];
-			$arAllow["SMILES"] = ($res["USE_SMILES"] == "Y" ? $arResult["FORUM"]["ALLOW_SMILES"] : "N");
-			$res["POST_MESSAGE"] = (COption::GetOptionString("forum", "FILTER", "Y")=="Y" ? $res["~POST_MESSAGE_FILTER"] : $res["~POST_MESSAGE"]);
-			$res["POST_MESSAGE"] = $parser->convert_to_rss($res["POST_MESSAGE"], array(), $arAllow);
+			$res["ALLOW"] = $arAllow = array_merge(
+				$arResult["FORUMS"][$res["FORUM_ID"]]["ALLOW"],
+				array("SMILES" => ($res["USE_SMILES"] == "Y" ? $arResult["FORUM"]["ALLOW_SMILES"] : "N")));
+			$res["~POST_MESSAGE"] = (COption::GetOptionString("forum", "FILTER", "Y")=="Y" ? $res["~POST_MESSAGE_FILTER"] : $res["~POST_MESSAGE"]);
 			// attach
-			$res["ATTACH_IMG"] = ""; $res["FILES"] = array();
-			$res["~ATTACH_FILE"] = array(); $res["ATTACH_FILE"] = array();
+			$res["ATTACH_IMG"] = ""; $res["FILES"] = $res["~ATTACH_FILE"] = $res["ATTACH_FILE"] = array();
 			/************** Message info/***************************************/
 			/************** Author info ****************************************/
 			// Avatar
@@ -423,33 +421,56 @@ if($this->StartResultCache($arParams["CACHE_TIME"], array($cache_id_array, $arPa
 if (!empty($arResult["MESSAGE_LIST"]))
 {
 	$arFilter = array("@FILE_MESSAGE_ID" => array_keys($arResult["MESSAGE_LIST"]));
-	$src = "http://".str_replace("//", "/", $arResult["SERVER_NAME"]."/".BX_ROOT."/components/bitrix/forum.interface/show_file.php?fid=#FILE_ID#");
 	$db_files = CForumFiles::GetList(array("MESSAGE_ID" => "ASC"), $arFilter);
 	if ($db_files && $res = $db_files->Fetch())
 	{
 		do
 		{
-			if (!in_array($arResult["FORUMS"][$res["FORUM_ID"]]["ALLOW_UPLOAD"], array("Y", "F", "A")))
-				continue;
+			$arResult["FILES"][$res["FILE_ID"]] = $res;
 			$res["SRC"] = str_replace("#FILE_ID#", $res["FILE_ID"], $src);
-			if ($res["FILE_SIZE"] <= $arParams["MAX_FILE_SIZE"] && strToLower(subStr($res["CONTENT_TYPE"], 0, 6)) == "image/")
-				$res["HTML"] = '<img src="'.$res["SRC"]."\" width='".$res["WIDTH"]."' height='".$res["HEIGHT"]." alt='' />";
-			else
-				$res["HTML"] = ' [ <a href="'.$res["SRC"].'">'.GetMessage("FILE_DOWNLOAD").'</a> ] ';
-
-			if ($arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["MESSAGES"][$res["MESSAGE_ID"]]["~ATTACH_IMG"] == $res["FILE_ID"])
-			{
-			// attach for custom
-				$arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["MESSAGES"][$res["MESSAGE_ID"]]["ATTACH_IMG"] = $res["HTML"];
-				$res["ID"] = $res["FILE_ID"];
-				$arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["MESSAGES"][$res["MESSAGE_ID"]]["~ATTACH_IMG"] = $res;
-			}
 			$arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["MESSAGES"][$res["MESSAGE_ID"]]["FILES"][$res["FILE_ID"]] = $res;
 		}while ($res = $db_files->Fetch());
 	}
+	$parser->arFiles = $arResult["FILES"];
+	foreach ($arResult["MESSAGE_LIST"] as $iID => $res)
+	{
+		$arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["MESSAGES"][$res["ID"]]["POST_MESSAGE"] = $parser->convert_to_rss($res["~POST_MESSAGE"], array(), $res["ALLOW"]);
+		$arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["MESSAGES"][$res["ID"]]["FILES_PARSED"] = $parser->arFilesIDParsed;
+
+		$arFiles = $arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["MESSAGES"][$res["ID"]]["FILES"];
+		foreach ($arFiles as $key => $val)
+		{
+			if (in_array($key, $arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["MESSAGES"][$res["ID"]]["FILES_PARSED"])):
+				unset ($arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["MESSAGES"][$res["ID"]]["FILES"][$val["FILE_ID"]]);
+				continue;
+			endif;
+			$val["HTML"] = $GLOBALS["APPLICATION"]->IncludeComponent(
+				"bitrix:forum.interface",
+				"show_file",
+				Array(
+					"FILE" => $val,
+					"SHOW_MODE" => "RSS",
+					"WIDTH" => $parser->image_params["width"],
+					"HEIGHT" => $parser->image_params["height"],
+					"CONVERT" => "N",
+					"FAMILY" => "FORUM",
+					"SINGLE" => "Y",
+					"RETURN" => "Y"),
+				null,
+				array("HIDE_ICONS" => "Y"));
+			$arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["MESSAGES"][$res["ID"]]["FILES"][$val["FILE_ID"]]["HTML"] = $val["HTML"];
+			if ($arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["MESSAGES"][$res["ID"]]["~ATTACH_IMG"] == $val["FILE_ID"]) // attach for custom
+			{
+				$arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["MESSAGES"][$res["ID"]]["ATTACH_IMG"] = $val["HTML"];
+				$arItems[$res["FORUM_ID"]]["TOPICS"][$res["TOPIC_ID"]]["MESSAGES"][$res["ID"]]["~ATTACH_IMG"] = array_merge($val, array("ID" => $val["FILE_ID"]));
+			}
+		}
+	}
 }
+
 /************** Message List/***************************************/
 $arResult["DATA"] = $arItems;
+
 $arParams["TYPE"] = strToLower($arParams["TYPE"]);
 if ($arParams["DESIGN_MODE"] != "Y")
 {
@@ -459,8 +480,7 @@ else
 {
 	ob_start();
 	$this->IncludeComponentTemplate();
-	$contents = ob_get_contents();
-	ob_end_clean();
+	$contents = ob_get_clean();
 	echo "<pre>",htmlspecialcharsEx($contents),"</pre>";
 }
 }
@@ -470,7 +490,6 @@ if ($arParams["DESIGN_MODE"] != "Y")
 	return 0;
 }
 /********************************************************************
-				/Data ¹ 2
+				/Data 2
 ********************************************************************/
-
 ?>

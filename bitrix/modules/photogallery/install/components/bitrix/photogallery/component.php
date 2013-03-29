@@ -10,7 +10,7 @@ $arDefaultUrlTemplates404 = array(
 	"section_edit" => "#SECTION_ID#/action/#ACTION#/",
 	"section_edit_icon" => "#SECTION_ID#/icon/action/#ACTION#/",
 	"index" => "",
-	"search" => "search/", 
+	"search" => "search/",
 	"detail" => "#SECTION_ID#/#ELEMENT_ID#/",
 	"detail_edit" => "#SECTION_ID#/#ELEMENT_ID#/action/#ACTION#/",
 	"detail_list" => "#SECTION_ID#/#ELEMENT_ID#/list/",
@@ -23,7 +23,7 @@ $arDefaultUrlTemplatesN404 = array(
 	"detail_edit" => "PAGE_NAME=detail_edit&SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#&ACTION=#ACTION#",
 	"detail_list" => "PAGE_NAME=detail_list&SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#",
 	"detail_slide_show" => "PAGE_NAME=detail_slide_show&SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#",
-	"search" => "PAGE_NAME=search", 
+	"search" => "PAGE_NAME=search",
 	"section" => "PAGE_NAME=section&SECTION_ID=#SECTION_ID#",
 	"section_edit" => "PAGE_NAME=section_edit&SECTION_ID=#SECTION_ID#&ACTION=#ACTION#",
 	"section_edit_icon" => "PAGE_NAME=section_edit_icon&SECTION_ID=#SECTION_ID#&ACTION=#ACTION#",
@@ -53,7 +53,7 @@ $arComponentVariables = Array(
 $arDefaultVariableAliases = Array(
 	"SECTION_ID" => "SECTION_ID",
 	"ELEMENT_ID" => "ELEMENT_ID",
-	"ACTION" => "ACTION", 
+	"ACTION" => "ACTION",
 	"PAGE_NAME" => "PAGE_NAME"
 );
 
@@ -61,20 +61,20 @@ if($arParams["SEF_MODE"] == "Y")
 {
 	$arUrlTemplates = CComponentEngine::MakeComponentUrlTemplates($arDefaultUrlTemplates404, $arParams["SEF_URL_TEMPLATES"]);
 	$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases404, $arParams["VARIABLE_ALIASES"]);
-	
+
 	$requestURL = $APPLICATION->GetCurPage(true);
 	if (strpos($requestURL, "#photo") !== false)
 		$requestURL = rtrim(substr($requestURL, 0, strpos($requestURL, "#")), "/")."/index.php";
-	else 
+	else
 		$requestURL = false;
-	
+
 	$componentPage = CComponentEngine::ParseComponentPath(
 		$arParams["SEF_FOLDER"],
 		$arUrlTemplates,
-		$arVariables, 
+		$arVariables,
 		$requestURL
 	);
-	
+
 	if(!$componentPage)
 		$componentPage = "index";
 	elseif ($arVariables["ACTION"] == "upload")
@@ -128,11 +128,11 @@ else
 		$arParamsKill = array_merge($arComponentVariables, $arParams["VARIABLE_ALIASES"], array("return_array", "current", "direction", "AJAX_CALL"));
 		$arResult["URL_TEMPLATES"][$url] = $GLOBALS["APPLICATION"]->GetCurPageParam($value, $arParamsKill);
 	}
-	
+
 	$componentPage = "";
 	if (!empty($arVariables["PAGE_NAME"]))
 		$componentPage = $arVariables["PAGE_NAME"];
-	else 
+	else
 		$componentPage = "index";
 }
 if (!in_array($componentPage, array_keys($arDefaultUrlTemplates404)))
@@ -158,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && (intVal($arVariables["ELEMENT_ID"]) 
 	CModule::IncludeModule("iblock");
 	if (intVal($arVariables["ELEMENT_ID"]) > 0)
 		$rsElement = CIBlockElement::GetList(array(), array("ID" => intVal($arVariables["ELEMENT_ID"])));
-	else 
+	else
 		$rsElement = CIBlockElement::GetList(array(), array("CODE" => intVal($arVariables["ELEMENT_CODE"])));
 
 	if($arElement = $rsElement->Fetch())
@@ -172,7 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && (intVal($arVariables["ELEMENT_ID"]) 
 // TEMPLATE TABLE
 $arParams["CELL_COUNT"] = intVal($arParams["CELL_COUNT"]);
 
-$arResult["URL_TEMPLATES"]["sections_top"] = $arResult["URL_TEMPLATES"]["index"]; 
+$arResult["URL_TEMPLATES"]["sections_top"] = $arResult["URL_TEMPLATES"]["index"];
 $arResult = array(
 		"~URL_TEMPLATES" =>  $arUrlTemplates,
 		"URL_TEMPLATES" => $arResult["URL_TEMPLATES"],
@@ -234,7 +234,7 @@ $arParams["ELEMENTS_USE_DESC_PAGE"] = ($arParams["ELEMENTS_USE_DESC_PAGE"] == "N
 //$arParams["GALLERIES_URL"]
 //$arParams["GALLERY_URL"]
 //$arParams["INDEX_URL"]
-$arParams["SECTIONS_TOP_URL"] = $arParams["INDEX_URL"]; 
+$arParams["SECTIONS_TOP_URL"] = $arParams["INDEX_URL"];
 //$arParams["GALLERY_EDIT_URL"]
 //$arParams["SECTION_URL"]
 //$arParams["INDEX_URL"]
@@ -267,12 +267,12 @@ $arParams["SHOWN_ITEMS_COUNT"] = intVal($arParams["SHOWN_ITEMS_COUNT"]) > 0 ? in
 //$arParams["SHOW_TAGS"]
 
 // Comments
-$arParams["USE_COMMENTS"] = ($arParams["USE_COMMENTS"] == "Y" ? "Y" : "N"); 
+$arParams["USE_COMMENTS"] = ($arParams["USE_COMMENTS"] == "Y" ? "Y" : "N");
 
-$arParams["COMMENTS_TYPE"] = ($arParams["COMMENTS_TYPE"] == "forum" || $arParams["COMMENTS_TYPE"] == "blog" ? 
+$arParams["COMMENTS_TYPE"] = ($arParams["COMMENTS_TYPE"] == "forum" || $arParams["COMMENTS_TYPE"] == "blog" ?
 	$arParams["COMMENTS_TYPE"] : "none");
 if ($arParams["USE_COMMENTS"] == "Y" && (
-	($arParams["COMMENTS_TYPE"] == "forum" && (!IsModuleInstalled("forum") || !$arParams["FORUM_ID"])) || 
+	($arParams["COMMENTS_TYPE"] == "forum" && (!IsModuleInstalled("forum") || !$arParams["FORUM_ID"])) ||
 	($arParams["COMMENTS_TYPE"] == "blog" && (!IsModuleInstalled("blog") || !$arParams["BLOG_URL"]))
 ))
 {
@@ -298,7 +298,7 @@ if ($arParams["USE_COMMENTS"] == "Y" && (
 
 
 // Gallery
-//$arParams["GET_GALLERY_INFO"] - need info about gallery - use only in photogallery.detail.list
+//$arParams["GET_GALLERY_INFO"] - need info about gallery - used only in photogallery.detail.list
 /****************** STANDART ***************************************/
 //$arParams["CACHE_TYPE"]
 //$arParams["CACHE_TIME"]
@@ -308,7 +308,7 @@ $arParams["SHOW_TAGS"] = ($arParams["SHOW_TAGS"] == "Y" ? "Y" : "N");
 $arParams["USE_PERMISSIONS"] = ($arParams["USE_PERMISSIONS"] == "Y" ? "Y" : "N");
 $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 $arParams["WATERMARK"] = ($arParams["WATERMARK"] == "N" ? "N" : "Y");
-// 
+//
 /****************** COMPONENTS *************************************/
 // Upload
 //$arParams["UPLOAD_MAX_FILE"]
@@ -375,19 +375,17 @@ if ($arParams["USE_RATING"] == "Y")
 	$arParams["MAX_VOTE"] = (isset($arParams["MAX_VOTE"]) ? $arParams["MAX_VOTE"] : 5);
 	$arParams["DISPLAY_AS_RATING"] = trim($arParams["DISPLAY_AS_RATING"]);
 }
-else 
+else
 {
 	$arParams["SHOW_RATING"] = "N";
 }
 
 $arResult["PAGE_NAME"] = $componentPage;
 
-$oPhoto = new CPGalleryInterface( 
-	array("IBlockID" => $arParams["IBLOCK_ID"]), 
+$oPhoto = new CPGalleryInterface(
+	array("IBlockID" => $arParams["IBLOCK_ID"]),
 	array(
-		"cache_time" => $arParams["CACHE_TIME"], 
-		"cache_path" => str_replace(array(":", "//"), "/", "/".SITE_ID."/photogallery/".$arParams["IBLOCK_ID"]."/"), 
-		"show_error" => "Y", 
+		"cache_time" => $arParams["CACHE_TIME"],
 		"set_404" => $arParams["SET_STATUS_404"]
 		)
 	);

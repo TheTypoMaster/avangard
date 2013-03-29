@@ -1,6 +1,32 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+$defCity = "c213"; //Moscow
+
+$ob = new CHTTP();
+$ob->http_timeout = 10;
+$ob->Query(
+	"GET",
+	"export.yandex.ru",
+	80,
+	"/bar/reginfo.xml?".$url,
+	false,
+	"",
+	"N"
+);
+if($ob->result)
+{
+	$res = str_replace("\xE2\x88\x92", "-", $ob->result);
+	$xml = new CDataXML();
+	$xml->LoadString($GLOBALS["APPLICATION"]->ConvertCharset($res, 'UTF-8', SITE_CHARSET));
+	$node = $xml->SelectNodes('/info/region');
+	if(is_object($node))
+	{
+		$id = $node->getAttribute("id");
+		if($id > 0)
+			$defCity = "c".$id;
+	}
+}
 
 include(dirname(__FILE__).'/city.php');
 
@@ -25,7 +51,7 @@ $arParameters = Array(
 				"NAME" => "Город",
 				"TYPE" => "LIST",
 				"MULTIPLE" => "N",
-				"DEFAULT" => "c213",
+				"DEFAULT" => $defCity,
 				"VALUES"=>$arCity,
 			),
 		),

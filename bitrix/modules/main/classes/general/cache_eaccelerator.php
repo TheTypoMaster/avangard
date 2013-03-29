@@ -1,5 +1,5 @@
 <?
-class CPHPCacheEAccelerator
+class CPHPCacheEAccelerator implements ICacheBackend
 {
 	var $sid = "";
 	//cache stats

@@ -20,7 +20,6 @@ foreach($arParams["PARAM_GROUP_ID"] as $k=>$v)
 	if(IntVal($v) <= 0)
 		unset($arParams["PARAM_GROUP_ID"][$k]);
 
-
 if (strtolower($arParams["TYPE"]) == "rss1")
 	$arResult["TYPE"] = "RSS .92";
 if (strtolower($arParams["TYPE"]) == "rss2")
@@ -37,11 +36,11 @@ if(strLen($arParams["USER_VAR"])<=0)
 
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
 if(strlen($arParams["PATH_TO_POST"])<=0)
-	$arParams["PATH_TO_POST"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
+	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if(strlen($arParams["PATH_TO_USER"])<=0)
-	$arParams["PATH_TO_USER"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 $arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
 $arParams["IMAGE_MAX_WIDTH"] = IntVal($arParams["IMAGE_MAX_WIDTH"]);
 $arParams["IMAGE_MAX_HEIGHT"] = IntVal($arParams["IMAGE_MAX_HEIGHT"]);

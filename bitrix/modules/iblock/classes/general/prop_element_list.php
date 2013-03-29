@@ -190,6 +190,41 @@ class CIBlockPropertyElementList
 		return  $html;
 	}
 
+	public function GetPublicViewHTML($arProperty, $arValue, $strHTMLControlName)
+	{
+		static $cache = array();
+
+		$strResult = '';
+		$arValue['VALUE'] = intval($arValue['VALUE']);
+		if (0 < $arValue['VALUE'])
+		{
+			if (!array_key_exists($arValue['VALUE'],$cache))
+			{
+				$arFilter = array();
+				$intIBlockID = intval($arProperty['LINK_IBLOCK_ID']);
+				if (0 < $intIBlockID) $arFilter['IBLOCK_ID'] = $intIBlockID;
+				$arFilter['ID'] = $arValue['VALUE'];
+				$arFilter["ACTIVE"] = "Y";
+				$arFilter["ACTIVE_DATE"] = "Y";
+				$arFilter["CHECK_PERMISSIONS"] = "Y";
+				$rsElements = CIBlockElement::GetList(array(), $arFilter, false, false, array("ID","IBLOCK_ID","NAME","DETAIL_PAGE_URL"));
+				$cache[$arValue['VALUE']] = $rsElements->GetNext(true,false);
+			}
+			if (is_array($cache[$arValue['VALUE']]))
+			{
+				if (isset($strHTMLControlName['MODE']) && 'CSV_EXPORT' == $strHTMLControlName['MODE'])
+				{
+					$strResult = $cache[$arValue['VALUE']]['ID'];
+				}
+				else
+				{
+					$strResult = '<a href="'.$cache[$arValue['VALUE']]["DETAIL_PAGE_URL"].'">'.$cache[$arValue['VALUE']]["NAME"].'</a>';;
+				}
+			}
+		}
+		return $strResult;
+	}
+
 	function GetOptionsHtml($arProperty, $values, &$bWasSelect)
 	{
 		$options = "";

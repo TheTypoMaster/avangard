@@ -41,7 +41,7 @@ if($arResult["ID"] == 0 && empty($_REQUEST["action"]) || CSubscription::IsAuthor
 }
 else
 {
-	 //subscription authorization form
+	//subscription authorization form
 	include("authorization_full.php");
 }
 ?>

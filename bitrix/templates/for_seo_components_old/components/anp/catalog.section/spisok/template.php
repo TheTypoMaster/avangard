@@ -47,19 +47,24 @@ if($arElement["DISPLAY_PROPERTIES"]["SALON_CITY"]["DISPLAY_VALUE"] =='Королев') 
 			<?if($arElement["DISPLAY_PROPERTIES"]["SALON_ACTION_TEXT"]["DISPLAY_VALUE"]) echo '<center><img width="24" height="24" border="0" src="/images/akciya.gif" alt="'.$arElement["DISPLAY_PROPERTIES"]["SALON_ACTION_TEXT"]["DISPLAY_VALUE"].'"></center>';?>
 			<?
 			switch ($arElement["ID"]) {
-			case 325:
+			case 326:
 			case 327:
+			case 329:
+                        case 4311:
+			echo '<center><img width="30" src="/wharetobuy/maps/small_15.png" alt="Акция -15%"></center>';
+			}
+			switch ($arElement["ID"]) {
+			case 325:
 			case 356:
 			case 333:
                         case 338:
                         case 503:
-                        case 4909:
                         case 2322:
-			case 4311:
+                        case 5312:
 			echo '<center><img width="32" src="/wharetobuy/maps/BF.png" alt="Коллекция BEFRESH"></center>';
 			}
 			?>
-			<?if($arElement["DISPLAY_PROPERTIES"]["SALON_ACTION_TEXT_2"]["DISPLAY_VALUE"]) echo '<center><img width="47" height="20" border="0" src="/images/vernem.gif" alt="'.$arElement["DISPLAY_PROPERTIES"]["SALON_ACTION_TEXT_2"]["DISPLAY_VALUE"].'"></center>';?>
+			<?if($arElement["DISPLAY_PROPERTIES"]["SALON_ACTION_TEXT_2"]["DISPLAY_VALUE"]) echo '<center><img width="47" height="20" border="0" src="/images/podarki.gif" alt="'.$arElement["DISPLAY_PROPERTIES"]["SALON_ACTION_TEXT_2"]["DISPLAY_VALUE"].'"></center>';?>
 		</td>
 		<td>
 			<a href="/redesign/where_buy/detail.php?id=<?=$arElement["ID"]?>" onClick="showInfo(<?=$arElement["ID"]?>); return false;"    target="_new"><?=$arElement["NAME"]?></a>
@@ -71,6 +76,7 @@ case 1472:
 case 1682:
 case 499:
 case 3485:
+case 5242:
     echo '<br />', $arElement["DISPLAY_PROPERTIES"]["SALON_PHONE"]["DISPLAY_VALUE"];
 }
 ?>
@@ -94,3 +100,5 @@ if($ob>0){?><a style="text-decoration: none; font-size: 14px; " href="/mebel_sal
         <?if($bgcol == "#ffffff") $bgcol = "#ededed"; else $bgcol = "#ffffff";?>
 	<?endforeach;?>
 </table>
+
+<?=$arResult["DESCRIPTION"]?>

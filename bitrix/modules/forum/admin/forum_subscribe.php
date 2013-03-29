@@ -27,13 +27,13 @@
 	$lAdmin->InitFilter(array("FilterType", "Filter", "FORUM_ID", "DATE_FROM", "DATE_TO", "SUBSCR_TYPE"));
 /*******************************************************************/
 	$arFilter = array("SUBSC"=>true);
-	$arMsg = array();	
+	$arMsg = array();
 	$err = false;
-	
+
 	$date1_stm = "";
 	$date2_stm = "";
-	
-	$DATE_FROM = trim($DATE_FROM); 
+
+	$DATE_FROM = trim($DATE_FROM);
 	$DATE_TO = trim($DATE_TO);
 	$DATE_FROM_DAYS_TO_BACK = intval($DATE_FROM_DAYS_TO_BACK);
 	if (strlen($DATE_FROM)>0 || strlen($DATE_TO)>0 || $DATE_FROM_DAYS_TO_BACK>0)
@@ -46,11 +46,11 @@
 			$date1_stm = time()-86400*$DATE_FROM_DAYS_TO_BACK;
 			$date1_stm = GetTime($date1_stm);
 		}
-		
-		if (!$date1_stm) 
+
+		if (!$date1_stm)
 			$arMsg[] = array("id"=>">=START_DATE", "text"=> GetMessage("FM_WRONG_DATE_FROM"));
-	
-		if (!$date2_stm && strlen($DATE_TO)>0) 
+
+		if (!$date2_stm && strlen($DATE_TO)>0)
 			$arMsg[] = array("id"=>"<=START_DATE", "text"=> GetMessage("FM_WRONG_DATE_TO"));
 		elseif ($date1_stm && $date2_stm && ($date2_stm <= $date1_stm))
 			$arMsg[] = array("id"=>"find_date_timestamp2", "text"=> GetMessage("FM_WRONG_PERIOD"));
@@ -59,16 +59,16 @@
 	$FilterType = strtolower(trim($FilterType));
 	if ((strLen($Filter) > 0) && in_array($FilterType, array("login", "email", "name")))
 		$arFilter[strToUpper($FilterType)] = $Filter;
-	
+
 	$FORUM_ID = intval($FORUM_ID);
 	if ($FORUM_ID>0)
 		$arFilter["SUBSC_FORUM_ID"] = $FORUM_ID;
-		
+
 	if (strlen($date1_stm)>0)
 		$arFilter[">=SUBSC_START_DATE"] = $DATE_FROM;
 	if (strlen($date2_stm)>0)
 		$arFilter["<=SUBSC_START_DATE"] = $DATE_TO;
-		
+
 	if (strLen($SUBSCR_TYPE) > 0)
 	{
 		switch ($SUBSCR_TYPE)
@@ -87,11 +87,11 @@
 				break;
 		}
 	}
-	
+
 	if (!empty($arMsg))
 	{
 		$err = new CAdminException($arMsg);
-		$lAdmin->AddFilterError($err->GetString()); 
+		$lAdmin->AddFilterError($err->GetString());
 	}
 /*******************************************************************/
 	if($arID = $lAdmin->GroupAction())
@@ -110,10 +110,10 @@
 				if(strlen($ID)<=0)
 					continue;
 				$ID = intval($ID);
-				
+
 				switch($_REQUEST['action'])
 				{
-					case "delete": 
+					case "delete":
 						if ($USER->IsAdmin())
 						{
 							CForumSubscribe::DeleteUSERSubscribe($ID);
@@ -128,7 +128,7 @@
 	$rsData = new CAdminResult($rsData, $sTableID);
 	$rsData->NavStart();
 	$lAdmin->NavText($rsData->GetNavPrint(GetMessage("FM_TITLE_PAGE")));
-	
+
 /*******************************************************************/
 	$lAdmin->AddHeaders(array(
 		array("id"=>"ID", "content"=>GetMessage("FM_HEAD_FORUM_USER_ID"), "sort"=>"ID", "default"=>false),
@@ -145,14 +145,14 @@ while ($arRes = $rsData->NavNext(true, "t_"))
 {
 	$row =& $lAdmin->AddRow($t_USER_ID, $arRes);
 	$row->AddViewField("USER_ID", "<a href='user_edit.php?lang=".LANGUAGE_ID."&ID=".$t_USER_ID."' title='".GetMessage("FM_MAIN_EDIT_TITLE")."'>".$t_USER_ID."</a>");
-	$row->AddViewField("EMAIL", TxtToHtml($arRes["EMAIL"])); 
-	$row->AddViewField("SUBSC_COUNT", $t_SUBSC_COUNT <=0 ? GetMessage("FM_NO") : $t_SUBSC_COUNT); 
- 	$arActions = Array();
+	$row->AddViewField("EMAIL", TxtToHtml($arRes["EMAIL"]));
+	$row->AddViewField("SUBSC_COUNT", $t_SUBSC_COUNT <=0 ? GetMessage("FM_NO") : $t_SUBSC_COUNT);
+	$arActions = Array();
 	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("FM_ACT_EDIT"), "ACTION"=>$lAdmin->ActionRedirect("forum_subscribe_edit.php?lang=".LANG."&USER_ID=".$t_USER_ID), "DEFAULT" => true);
 	$arActions[] = array("SEPARATOR" => true);
 	$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("FM_ACT_DELETE"), "ACTION"=>"if(confirm('".GetMessage("FM_ACT_DEL_CONFIRM")."')) ".$lAdmin->ActionDoGroup($t_USER_ID, "delete", "lang=".LANG),);
 	$row->AddActions($arActions);
-	
+
 }
 /*******************************************************************/
 	$lAdmin->AddFooter(
@@ -166,7 +166,7 @@ while ($arRes = $rsData->NavNext(true, "t_"))
 			"delete" => GetMessage("FM_ACT_DELETE")
 			)
 	);
-	
+
 		$lAdmin->AddAdminContextMenu();
 
 /*******************************************************************/
@@ -197,7 +197,7 @@ while ($arRes = $rsData->NavNext(true, "t_"))
 		</td>
 	</tr>
 	<tr valign="center">
-		<td><?=GetMessage("FM_FLT_START_DATE")." (".CLang::GetDateFormat("SHORT")."):"?></td>
+		<td><?=GetMessage("FM_FLT_START_DATE").":"?></td>
 		<td><?echo CalendarPeriod("DATE_FROM", $DATE_FROM, "DATE_TO", $DATE_TO, "form1","Y")?></td>
 	</tr>
 	<tr valign="center">
@@ -215,7 +215,7 @@ while ($arRes = $rsData->NavNext(true, "t_"))
 		</select>
 		</td>
 	</tr>
-	
+
 	<?
 	$oFilter->Buttons(array("table_id" => $sTableID,"url" => $APPLICATION->GetCurPage(),"form" => "find_form"));
 	$oFilter->End();

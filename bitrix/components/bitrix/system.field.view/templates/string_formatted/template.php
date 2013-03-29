@@ -3,9 +3,9 @@
 <?
 if ($arParams["arUserField"]["MULTIPLE"] == "Y")
 {
-	for($i = 0, $l = count($arParams['arUserField']["VALUE"]); $i < $l; $i++)
+	for($i = 0, $l = count($arResult["VALUE"]); $i < $l; $i++)
 	{
-		$val = $arParams["arUserField"]["VALUE"][$i];
+		$val = $arResult["VALUE"][$i];
 		$name = str_replace("[]", "[".$i."]", $arParams["arUserField"]["FIELD_NAME"]);
 		if ($val != "")
 		{
@@ -37,7 +37,7 @@ else
 			),
 			array(
 				"NAME" => $arParams["arUserField"]["FIELD_NAME"],
-				"VALUE" => $arParams["arUserField"]["VALUE"]
+				"VALUE" => $arResult["VALUE"][0]
 			)
 		)
 		),

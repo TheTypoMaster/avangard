@@ -8,7 +8,7 @@ foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	if (empty($arParams[strToUpper($URL)."_URL"]))
 		$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "sessid", "edit", "order"));
 	$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-	$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+	$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 }
 
 if ($arParams["SHOW_TAGS"] == "Y" && IsModuleInstalled("search"))
@@ -16,17 +16,17 @@ if ($arParams["SHOW_TAGS"] == "Y" && IsModuleInstalled("search"))
 ?>
 	<div class="tags-cloud">
 <?
-	$APPLICATION->IncludeComponent("bitrix:search.tags.cloud", ".default", 
+	$APPLICATION->IncludeComponent("bitrix:search.tags.cloud", ".default",
 		Array(
 			"SEARCH" => $arResult["REQUEST"]["~QUERY"],
 			"TAGS" => $arResult["REQUEST"]["~TAGS"],
-			
+
 			"PAGE_ELEMENTS" => $arParams["TAGS_PAGE_ELEMENTS"],
 			"PERIOD" => $arParams["TAGS_PERIOD"],
 			"TAGS_INHERIT" => $arParams["TAGS_INHERIT"],
-			
+
 			"URL_SEARCH" =>  CComponentEngine::MakePathFromTemplate($arParams["~SEARCH_URL"], array()),
-			
+
 			"FONT_MAX" => $arParams["FONT_MAX"],
 			"FONT_MIN" => $arParams["FONT_MIN"],
 			"COLOR_NEW" => $arParams["COLOR_NEW"],
@@ -35,9 +35,9 @@ if ($arParams["SHOW_TAGS"] == "Y" && IsModuleInstalled("search"))
 			"WIDTH" => "100%",
 			"CACHE_TIME" => $arParams["CACHE_TIME"],
 			"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-			"arrFILTER" => array("iblock_".$arParams["IBLOCK_TYPE"]), 
+			"arrFILTER" => array("iblock_".$arParams["IBLOCK_TYPE"]),
 			"arrFILTER_iblock_".$arParams["IBLOCK_TYPE"] => array($arParams["IBLOCK_ID"])
-		), 
+		),
 		$component
 	);
 ?>
@@ -51,11 +51,11 @@ if (is_array($arParams["SHOW_LINK_ON_MAIN_PAGE"]))
 	$detail_list["url"] = $detail_list["~url"];
 	if (strpos($detail_list["url"], "?") === false)
 		$detail_list["url"] .= "?";
-		
+
 	$arRes = array();
 
 	foreach ($arParams["SHOW_LINK_ON_MAIN_PAGE"] as $key):
-	
+
 		if ($key == "id"):
 			$arRes["id"] = array(
 				"title" => GetMessage("P_PHOTO_SORT_ID"),
@@ -78,7 +78,7 @@ if (is_array($arParams["SHOW_LINK_ON_MAIN_PAGE"]))
 				"url" => $detail_list["url"]."&amp;order=comments");
 		endif;
 	endforeach;
-	
+
 ?>
 	<div class="photo-controls photo-view only-on-main">
 <?
@@ -92,11 +92,14 @@ foreach ($arRes as $key => $val):
 		?>title="<?=$val["description"]?>"><span><?=$val["title"]?></span></a></noindex><?
 	$counter++;
 endforeach;
-?>
+
+	if ($arParams["PERMISSION"] >= "U"):?>
+		<div class="empty"></div>
+		<noindex><a rel="nofollow" href="<?= CComponentEngine::MakePathFromTemplate($arResult["URL_TEMPLATES"]["section_edit"], array("SECTION_ID" => "0", "ACTION" => "new"))?>"><span><?=GetMessage("P_ADD_ALBUM")?></span></a></noindex>
+	<?endif;?>
 	<div class="empty-clear"></div>
 </div>
 <?
-
 }
 
 ?><?$APPLICATION->IncludeComponent(
@@ -105,29 +108,29 @@ endforeach;
 	Array(
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
-		
+
 		"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"USE_PERMISSIONS" => $arParams["USE_PERMISSIONS"],
 		"GROUP_PERMISSIONS" => $arParams["GROUP_PERMISSIONS"],
 			"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_SECTION"],
-		
+
 		"PAGE_NAVIGATION_TEMPLATE" => $arParams["PAGE_NAVIGATION_TEMPLATE"],
 		"PAGE_ELEMENTS" => $arParams["SECTION_PAGE_ELEMENTS"],
 		"SORT_BY" => $arParams["SECTION_SORT_BY"],
 		"SORT_ORD" => $arParams["SECTION_SORT_ORD"],
-		
+
 		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
 		"SHOW_TAGS" => $arParams["SHOW_TAGS"],
-	
+
 		"SECTION_URL" => $arResult["URL_TEMPLATES"]["section"],
 		"SECTION_EDIT_URL" => $arResult["URL_TEMPLATES"]["section_edit"],
 		"SECTION_EDIT_ICON_URL" => $arResult["URL_TEMPLATES"]["section_edit_icon"],
 		"DETAIL_URL" => $arResult["URL_TEMPLATES"]["detail"],
 		"SEARCH_URL" => $arResult["URL_TEMPLATES"]["search"],
 		"UPLOAD_URL" => $arResult["URL_TEMPLATES"]["upload"],
-		"SET_STATUS_404" => "N", 
-		
+		"SET_STATUS_404" => "N",
+
 		"ALBUM_PHOTO_THUMBS_SIZE"	=>	$arParams["ALBUM_PHOTO_THUMBS_SIZE"],
 		"ALBUM_PHOTO_SIZE"	=>	$arParams["ALBUM_PHOTO_SIZE"],
 		"SET_TITLE"	=>	"N",

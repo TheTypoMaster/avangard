@@ -13,7 +13,7 @@ else
 
 ShowMessage($arAuthResult);
 ?>
-<form name="form_auth" method="post" target="_top" action="<?echo htmlspecialchars($page).(($s=DeleteParam(array("logout", "login"))) == ""? "?login=yes":"?$s&login=yes");?>">
+<form name="form_auth" method="post" target="_top" action="<?echo htmlspecialcharsbx($page).(($s=DeleteParam(array("logout", "login"))) == ""? "?login=yes":"?$s&login=yes");?>">
 
 	<input type="hidden" name="AUTH_FORM" value="Y">
 	<input type="hidden" name="TYPE" value="AUTH">
@@ -21,7 +21,7 @@ ShowMessage($arAuthResult);
 	<?foreach($GLOBALS["HTTP_POST_VARS"] as $vname=>$vvalue):
 	if($vname=="USER_LOGIN")continue;
 	?>
-	<input type="hidden" name="<?echo htmlspecialchars($vname)?>" value="<?echo htmlspecialchars($vvalue)?>">
+	<input type="hidden" name="<?echo htmlspecialcharsbx($vname)?>" value="<?echo htmlspecialcharsbx($vvalue)?>">
 	<?endforeach?>
 
 <p><font class="text"><?=GetMessage("AUTH_PLEASE_AUTH")?></font></p>
@@ -40,7 +40,7 @@ ShowMessage($arAuthResult);
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" class="tablebody"><font class="tablebodytext"><?=GetMessage("AUTH_LOGIN")?></font></td>
-					<td align="left"  class="tablebody"><input type="text" name="USER_LOGIN" maxlength="50" size="20" value="<?echo htmlspecialchars($last_login)?>" class="inputtext"></td>
+					<td align="left"  class="tablebody"><input type="text" name="USER_LOGIN" maxlength="50" size="20" value="<?echo htmlspecialcharsbx($last_login)?>" class="inputtext"></td>
 				</tr>
 				<tr> 
 					<td align="right" class="tablebody"><font class="tablebodytext"><?=GetMessage("AUTH_PASSWORD")?></font></td>

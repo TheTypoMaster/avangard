@@ -1,10 +1,10 @@
 <?
-##############################################
-# Bitrix Site Manager Forum                  #
-# Copyright (c) 2002-2009 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+#############################################
+# Bitrix Site Manager Forum					#
+# Copyright (c) 2002-2009 Bitrix			#
+# http://www.bitrixsoft.com					#
+# mailto:admin@bitrixsoft.com				#
+#############################################
 IncludeModuleLangFile(__FILE__); 
 
 class CAllVoteAnswer
@@ -33,8 +33,8 @@ class CAllVoteAnswer
 		
 		if (is_set($arFields, "MESSAGE") || $ACTION == "ADD"):
 			//$arFields["MESSAGE"] = trim($arFields["MESSAGE"]);
-            $arFields["MESSAGE"] = ($arFields["MESSAGE"] != ' ') ? trim($arFields["MESSAGE"]):' ';
-            if (strlen($arFields["MESSAGE"]) <= 0):
+			$arFields["MESSAGE"] = ($arFields["MESSAGE"] != ' ') ? trim($arFields["MESSAGE"]):' ';
+			if (strlen($arFields["MESSAGE"]) <= 0):
 				$aMsg[] = array(
 					"id" => "MESSAGE", 
 					"text" => GetMessage("VOTE_FORGOT_MESSAGE"));
@@ -72,7 +72,8 @@ class CAllVoteAnswer
 /***************** Event onBeforeVoteAnswerAdd *********************/
 		$events = GetModuleEvents("vote", "onBeforeVoteAnswerAdd");
 		while ($arEvent = $events->Fetch())
-			ExecuteModuleEventEx($arEvent, array(&$arFields));
+			if (ExecuteModuleEventEx($arEvent, array(&$arFields)) === false)
+				return false;
 /***************** /Event ******************************************/
 		if (empty($arFields))
 			return false;
@@ -82,12 +83,6 @@ class CAllVoteAnswer
 
 		$ID = $DB->Add("b_vote_answer", $arFields, $arBinds);
 
-/*****************  Cache ******************************************/
-        if (defined("BX_COMP_MANAGED_CACHE"))
-        {
-            $CACHE_MANAGER->ClearByTag("vote_form_question_".$arFields['QUESTION_ID']);
-        } 
-/***************** /Cache ******************************************/
 /***************** Event onAfterVoteAnswerAdd **********************/
 		$events = GetModuleEvents("vote", "onAfterVoteAnswerAdd");
 		while ($arEvent = $events->Fetch())
@@ -108,11 +103,12 @@ class CAllVoteAnswer
 /***************** Event onBeforeVoteQuestionUpdate ****************/
 		$events = GetModuleEvents("vote", "onBeforeVoteAnswerUpdate");
 		while ($arEvent = $events->Fetch())
-			ExecuteModuleEventEx($arEvent, array(&$arFields));
+			if (ExecuteModuleEventEx($arEvent, array(&$ID, &$arFields)) === false)
+				return false;
 /***************** /Event ******************************************/
 		if (empty($arFields))
 			return false;
-			
+
 		$arFields["~TIMESTAMP_X"] = $DB->GetNowFunction();
 		$strUpdate = $DB->PrepareUpdate("b_vote_answer", $arFields);
 		if (is_set($arFields, "MESSAGE"))
@@ -122,18 +118,7 @@ class CAllVoteAnswer
 			$strSql = "UPDATE b_vote_answer SET ".$strUpdate." WHERE ID=".$ID;
 /*			$DB->QueryBind($strSql, $arBinds);*/
 			$DB->Query($strSql, false, $err_mess);
-            endif;
-/*****************  Cache ******************************************/
-        if (defined("BX_COMP_MANAGED_CACHE")) 
-        {
-            $strSql = "SELECT QUESTION_ID FROM b_vote_answer WHERE ID=".$ID;
-            $res = $DB->Query($strSql, false, $err_mess.__LINE__);
-            if ($row = $res->Fetch())
-            {
-                $CACHE_MANAGER->ClearByTag("vote_form_question_".$row['QUESTION_ID']);
-            }
-        } 
-/***************** /Cache ******************************************/
+			endif;
 /***************** Event onAfterVoteAnswerUpdate *******************/
 		$events = GetModuleEvents("vote", "onAfterVoteAnswerUpdate");
 		while ($arEvent = $events->Fetch())
@@ -146,19 +131,12 @@ class CAllVoteAnswer
 	{
 		global $DB, $CACHE_MANAGER;
 		$err_mess = (CAllVoteAnswer::err_mess())."<br>Function: Delete<br>Line: ";
-		$bCanDelete = true;
-/***************** Event OnBeforeVoteAnswerDelete ******************/
-		$events = GetModuleEvents("vote", "OnBeforeVoteAnswerDelete");
-		while ($arEvent = $events->Fetch()):
-			if (ExecuteModuleEventEx($arEvent, array(&$ID, &$QUESTION_ID, &$VOTE_ID)) === false):
-				$bCanDelete = false;
-				break;
-			endif;
-		endwhile;
+/***************** Event onBeforeVoteAnswerDelete ******************/
+		$events = GetModuleEvents("vote", "onBeforeVoteAnswerDelete");
+		while ($arEvent = $events->Fetch()) {
+			if (ExecuteModuleEventEx($arEvent, array(&$ID, &$QUESTION_ID, &$VOTE_ID)) === false)
+				return false;}
 /***************** /Event ******************************************/
-		if (!$bCanDelete):
-			return false;
-		endif;
 
 		$ID = (intVal($ID) > 0 ? intVal($ID) : false);
 		$QUESTION_ID = (intVal($QUESTION_ID) > 0 ? intVal($QUESTION_ID) : false);
@@ -184,25 +162,12 @@ class CAllVoteAnswer
 		endif;
 		
 		$DB->Query($strSqlEventAnswer, false, $err_mess.__LINE__);
-        $DB->Query($strSqlAnswer, false, $err_mess.__LINE__);
-/*****************  Cache ******************************************/
-        if (defined("BX_COMP_MANAGED_CACHE"))
-        {
-            if ($QUESTION_ID != false)
-            {
-                $CACHE_MANAGER->ClearByTag("vote_form_question_".$QUESTION_ID);
-            } elseif ($VOTE_ID != false) {
-                $CACHE_MANAGER->ClearByTag("vote_form_vote_".$VOTE_ID);
-            } 
-        }
-/***************** /Cache ******************************************/
-/***************** Event OnAfterVoteAnswerDelete *******************/
-		$events = GetModuleEvents("vote", "OnAfterVoteAnswerDelete");
-		while ($arEvent = $events->Fetch()):
+		$DB->Query($strSqlAnswer, false, $err_mess.__LINE__);
+/***************** Event onAfterVoteAnswerDelete *******************/
+		$events = GetModuleEvents("vote", "onAfterVoteAnswerDelete");
+		while ($arEvent = $events->Fetch())
 			ExecuteModuleEventEx($arEvent, array($ID, $QUESTION_ID, $VOTE_ID));
-		endwhile;
 /***************** /Event ******************************************/
-
 		return true;
 	}
 
@@ -262,7 +227,7 @@ class CAllVoteAnswer
 		return $res;
 	}
 
-	function GetListEx($arOrder = array("ID" => "ASC"), $arFilter=array())
+	function GetListEx($arOrder = array("ID" => "ASC"), $arFilter=array(), $arAddParams = array())
 	{
 		$err_mess = (CAllVoteAnswer::err_mess())."<br>Function: GetListEx<br>Line: ";
 		global $DB;
@@ -271,11 +236,12 @@ class CAllVoteAnswer
 		$strSqlSearch = "";
 		$arSqlOrder = Array();
 		$strSqlOrder = "";
-		
+
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
+		$arAddParams = (is_array($arAddParams) ? $arAddParams : array());
 		foreach ($arFilter as $key => $val)
 		{
-			if(empty($val) || $val === "NOT_REF")
+			if ($val === "NOT_REF")
 				continue;
 			$key_res = VoteGetFilterOperation($key);
 			$strNegative = $key_res["NEGATIVE"];
@@ -286,19 +252,49 @@ class CAllVoteAnswer
 			{
 				case "ID":
 				case "QUESTION_ID":
-					if (strlen($val)<=0)
-						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(VA.".$key." IS NULL OR VA.".$key."<=0)";
-					else
-						$arSqlSearch[] = ($strNegative=="Y"?" VA.".$key." IS NULL OR NOT ":"")."(VA.".$key." ".$strOperation." ".intVal($val).")";
+					$str = ($strNegative=="Y"?"NOT":"")."(VA.".$key." IS NULL OR VA.".$key."<=0)";
+					if (!empty($val))
+					{
+						$str = ($strNegative=="Y"?" VA.".$key." IS NULL OR NOT ":"")."(VA.".$key." ".$strOperation." ".intVal($val).")";
+						if ($strOperation == "IN")
+						{
+							$val = array_unique((is_array($val) ? $val : explode(",", $val)), SORT_NUMERIC);
+							$str = ($strNegative=="Y"?" NOT ":"")."(VA.".$key." IN (".$DB->ForSql(implode(",", $val))."))";
+						}
+					}
+					$arSqlSearch[] = $str;
 					break;
 				case "VOTE_ID":
-					if (strlen($val)<=0)
-						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(VQ.".$key." IS NULL OR VQ.".$key."<=0)";
-					else
-						$arSqlSearch[] = ($strNegative=="Y"?" VQ.".$key." IS NULL OR NOT ":"")."(VQ.".$key." ".$strOperation." ".intVal($val).")";
+					$str = ($strNegative=="Y"?"NOT":"")."(VQ.".$key." IS NULL OR VQ.".$key."<=0)";
+					if (!empty($val))
+					{
+						$str = ($strNegative=="Y"?" VQ.".$key." IS NULL OR NOT ":"")."(VQ.".$key." ".$strOperation." ".intVal($val).")";
+						if ($strOperation == "IN")
+						{
+							$val = array_unique((is_array($val) ? $val : explode(",", $val)), SORT_NUMERIC);
+							$str = ($strNegative=="Y"?" NOT ":"")."(VQ.".$key." IN (".$DB->ForSql(implode(",", $val))."))";
+						}
+					}
+					$arSqlSearch[] = $str;
+					break;
+				case "CHANNEL_ID":
+					$str = ($strNegative=="Y"?"NOT":"")."(V.".$key." IS NULL OR V.".$key."<=0)";
+					if (!empty($val))
+					{
+						$str = ($strNegative=="Y"?" V.".$key." IS NULL OR NOT ":"")."(V.".$key." ".$strOperation." ".intVal($val).")";
+						if ($strOperation == "IN")
+						{
+							$val = array_unique((is_array($val) ? $val : explode(",", $val)), SORT_NUMERIC);
+							$str = ($strNegative=="Y"?" NOT ":"")."(V.".$key." IN (".$DB->ForSql(implode(",", $val))."))";
+						}
+					}
+					$arSqlSearch[] = $str;
 					break;
 				case "ACTIVE":
-					$arSqlSearch[] = ($val=="Y") ? "VA.ACTIVE='Y'" : "VA.ACTIVE='N'";
+					if (empty($val))
+						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(VA.".$key." IS NULL OR ".($DB->type == "MSSQL" ? "LEN" : "LENGTH")."(VA.".$key.")<=0)";
+					else
+						$arSqlSearch[] = ($strNegative=="Y"?" VA.".$key." IS NULL OR NOT ":"")."(VA.".$key." ".$strOperation." '".$DB->ForSql($val)."')";
 					break;
 			}
 		}
@@ -320,16 +316,15 @@ class CAllVoteAnswer
 		DelDuplicateSort($arSqlOrder); 
 		if (count($arSqlOrder) > 0)
 			$strSqlOrder = " ORDER BY ".implode(", ", $arSqlOrder);
-		
+
 		$strSql = "
-			SELECT VA.* 
-			FROM 
-				b_vote_answer VA, b_vote_question VQ
-			WHERE VQ.ID = VA.QUESTION_ID ".
-			$strSqlSearch."
-			".$strSqlOrder;
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		return $res;
+			SELECT V.CHANNEL_ID, VQ.VOTE_ID, VA.*
+			FROM b_vote_answer VA
+				INNER JOIN b_vote_question VQ ON (VA.QUESTION_ID = VQ.ID)
+				INNER JOIN b_vote V ON (VQ.VOTE_ID = V.ID)
+			WHERE 1=1  ".$strSqlSearch." ".$strSqlOrder;
+
+		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
 	function GetGroupAnswers($ANSWER_ID)

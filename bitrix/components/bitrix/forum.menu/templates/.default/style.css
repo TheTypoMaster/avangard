@@ -15,9 +15,9 @@ table.forum-menu td.forumtoolbar {
 	width:100%;}
 
 table.forum-menu td.submenu {
- 	cursor:pointer;
- 	cursor:hand;}
- 	
+	cursor:pointer;
+	cursor:hand;}
+
 table.forum-menu td {
 	color:#456A74;
 	font-size:11px;
@@ -84,8 +84,8 @@ table.forum-menu a.attention {}
 	background-image:url("images/icon_temp.gif");
 	background-repeat:no-repeat;
 	background-position:left;
- 	cursor:pointer;
- 	cursor:hand;
+	cursor:pointer;
+	cursor:hand;
 	width:16px;
 	height:16px;
 	margin:4px;}
@@ -95,8 +95,8 @@ span.icon-subscribe-all, span.icon-subscribe-topic, span.icon-subscribe-topic-th
 	background-position:left;
 	display:block-inline;
 	float:left;
- 	cursor:pointer;
- 	cursor:hand;
+	cursor:pointer;
+	cursor:hand;
 	width:16px;
 	height:16px;
 	margin:0px;

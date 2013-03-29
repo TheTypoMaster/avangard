@@ -45,8 +45,7 @@ $MESS ['F_PRIV_MAIL'] = "Informational message from #SITE_NAME#
 
 You have private message on the forum at #SERVER_NAME#.
 
-Topic:
-#SUBJECT#
+Topic: #SUBJECT#
 
 Sender: #FROM_NAME# 
 Message date: #MESSAGE_DATE#
@@ -72,8 +71,7 @@ $MESS ['F_PRIVATE_TEXT'] = "Informational message from #SITE_NAME#
 
 You have private message on the forum at #SERVER_NAME#.
 
-Topic:
-#SUBJECT#
+Topic: #SUBJECT#
 
 Sender: #FROM_NAME# (#FROM_EMAIL#)
 Message date: #MESSAGE_DATE#

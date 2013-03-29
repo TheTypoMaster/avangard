@@ -12,9 +12,9 @@ function BXColorPicker(oPar/*, pLEditor*/)
 
 	//this.pLEditor = pLEditor;
 	this.oPar = oPar;
-	
+
 	this.oneGifSrc = '/bitrix/images/1.gif';
-	
+
 	this.BeforeCreate();
 }
 
@@ -23,9 +23,9 @@ BXColorPicker.prototype.BeforeCreate = function()
 	var _this = this;
 	this.pWnd = BX.create("IMG", {
 		props: {
-			src: this.oneGifSrc, 
-			title: this.oPar.title, 
-			className: "bx-colpic-button bx-colpic-button-normal", 
+			src: this.oneGifSrc,
+			title: this.oPar.title,
+			className: "bx-colpic-button bx-colpic-button-normal",
 			id: "bx_btn_" + this.oPar.id.toLowerCase()
 		}
 	});
@@ -41,7 +41,8 @@ BXColorPicker.prototype.Create = function ()
 {
 	var _this = this;
 	window['bx_colpic_keypress_' + this.fid] = function(e){_this.OnKeyPress(e);};
-	
+	window['bx_colpic_click_' + this.fid] = function(e){_this.OnDocumentClick(e);};
+
 	this.pColCont = document.body.appendChild(BX.create("DIV", {props: {className: "bx-colpic-cont"}, style: {zIndex: this.zIndex}}));
 
 	var arColors = [
@@ -53,7 +54,7 @@ BXColorPicker.prototype.Create = function ()
 	'#9D0A0F', '#A1410D', '#A36209', '#ABA000', '#588528', '#197B30', '#007236', '#00736A', '#0076A4', '#004A80', '#003370', '#1D1363', '#450E61', '#62055F', '#9E005C', '#9D0039',
 	'#790000', '#7B3000', '#7C4900', '#827A00', '#3E6617', '#045F20', '#005824', '#005951', '#005B7E', '#003562', '#002056', '#0C004B', '#30004A', '#4B0048', '#7A0045', '#7A0026'
 	];
-	
+
 	var
 		row, cell, colorCell,
 		tbl = BX.create("TABLE", {props:{className: 'bx-colpic-tbl'}}),
@@ -127,12 +128,13 @@ BXColorPicker.prototype.Open = function ()
 
 	//this.pLEditor.oPrevRange = this.pLEditor.GetSelectionRange();
 	BX.bind(window, "keypress", window['bx_colpic_keypress_' + this.fid]);
+	BX.defer(function(){BX.bind(window, "click", window['bx_colpic_click_' + _this.fid]);})();
 	//pOverlay.onclick = function(){_this.Close()};
 
 	this.pColCont.style.display = 'block';
 	this.pColCont.style.top = pos.top + 'px';
 	this.pColCont.style.left = pos.left + 'px';
-	
+
 	this.bOpened = true;
 }
 
@@ -141,6 +143,7 @@ BXColorPicker.prototype.Close = function ()
 	this.pColCont.style.display = 'none';
 	//this.pLEditor.oTransOverlay.Hide();
 	BX.unbind(window, "keypress", window['bx_colpic_keypress_' + this.fid]);
+	BX.unbind(window, "click", window['bx_colpic_click_' + this.fid]);
 
 	this.bOpened = false;
 }
@@ -161,8 +164,19 @@ BXColorPicker.prototype.OnMouseOut = function (e, pEl)
 
 BXColorPicker.prototype.OnKeyPress = function(e)
 {
-	if(!e) e = window.event
+	if(!e)
+		e = window.event;
 	if(e.keyCode == 27)
+		this.Close();
+};
+
+BXColorPicker.prototype.OnDocumentClick = function (e)
+{
+	if(!e)
+		e = window.event;
+
+	var target = e.target || e.srcElement;
+	if (target && !BX.findParent(target, {className: 'bx-colpic-cont'}))
 		this.Close();
 };
 

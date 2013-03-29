@@ -30,7 +30,7 @@ else
 
 if($REQUEST_METHOD=="POST" && $_REQUEST['save'] == 'Y')
 {
- 	CUtil::JSPostUnescape();
+	CUtil::JSPostUnescape();
 
 	if (!is_array($ids)) 
 		$ids = array();
@@ -57,12 +57,11 @@ if($REQUEST_METHOD=="POST" && $_REQUEST['save'] == 'Y')
 
 	if($strWarning == '')
 	{
-
 		?>
 		<script bxrunfirst="true">
 		top.BX.WindowManager.Get().Close();
 		top.BX.showWait();
-		top.location.href = '<?=htmlspecialchars(CUtil::JSEscape($desktop_backurl))?>';
+		top.location.href = '<?=htmlspecialcharsbx(CUtil::JSEscape($desktop_backurl))?>';
 		</script>
 		<?
 		die();
@@ -125,8 +124,8 @@ for($i=1; $i<=count($arUserOptions); $i++):
 		</td>
 		</td>
 		<td>
-			<div onmouseout="rowMouseOut(this)" onmouseover="rowMouseOver(this)" class="edit-field view-area" id="view_area_text_<?=$i?>" style="width: 220px; padding: 2px; display: block; border: 1px solid white; cursor: text; -moz-box-sizing: border-box; background-position: right center; background-repeat: no-repeat;" onclick="editArea('text_<?=$i?>')" title="<?=GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_TOOLTIP_TEXT_EDIT')?>"><?=(strlen($arUserOption["NAME"])>0?htmlspecialchars($arUserOption["NAME"]):GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_DIALOG_DESKTOP').$i)?></div>
-			<div class="edit-area" id="edit_area_text_<?=$i?>" style="display: none;"><input type="text" style="width: 220px;" name="text_<?echo $i?>" value="<?=(strlen($arUserOption["NAME"])>0?htmlspecialchars($arUserOption["NAME"]):GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_DIALOG_DESKTOP').$i)?>" onblur="viewArea('text_<?=$i?>')" /></div>
+			<div onmouseout="rowMouseOut(this)" onmouseover="rowMouseOver(this)" class="edit-field view-area" id="view_area_text_<?=$i?>" style="width: 220px; padding: 2px; display: block; border: 1px solid white; cursor: text; -moz-box-sizing: border-box; background-position: right center; background-repeat: no-repeat;" onclick="editArea('text_<?=$i?>')" title="<?=GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_TOOLTIP_TEXT_EDIT')?>"><?=(strlen($arUserOption["NAME"])>0?htmlspecialcharsbx($arUserOption["NAME"]):GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_DIALOG_DESKTOP').$i)?></div>
+			<div class="edit-area" id="edit_area_text_<?=$i?>" style="display: none;"><input type="text" style="width: 220px;" name="text_<?echo $i?>" value="<?=(strlen($arUserOption["NAME"])>0?htmlspecialcharsbx($arUserOption["NAME"]):GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_DIALOG_DESKTOP').$i)?>" onblur="viewArea('text_<?=$i?>')" /></div>
 		</td>
 		<td><span onclick="dsMoveUp(<?=$i?>)" class="rowcontrol up" style="visibility: <?=($i == 1 ? 'hidden' : 'visible')?>" title="<?=GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_TOOLTIP_UP')?>"></span></td>
 		<td><span onclick="dsMoveDown(<?=$i?>)" class="rowcontrol down" style="visibility: <?=($i == count($arUserOption) ? 'hidden' : 'visible')?>" title="<?=GetMessage('CMDESKTOP_ADMIN_SETTINGS_ALL_TOOLTIP_DOWN')?>"></span></td>
@@ -135,7 +134,7 @@ for($i=1; $i<=count($arUserOptions); $i++):
 	</tbody></table></div></div><?
 endfor?></div>
 <input type="hidden" name="itemcnt" value="<?echo $itemcnt?>" />
-<input type="hidden" name="desktop_backurl" value="<?=htmlspecialchars(CUtil::JSEscape($desktop_backurl))?>">
+<input type="hidden" name="desktop_backurl" value="<?=htmlspecialcharsbx(CUtil::JSEscape($desktop_backurl))?>">
 <script type="text/javascript">
 var currentRow = null;
 

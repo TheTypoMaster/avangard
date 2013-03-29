@@ -134,10 +134,10 @@ $MESS["P_APPLET_LAYOUT"] = "Bulk uploader layout";
 $MESS["P_APPLET_LAYOUT_SIMPLE"] = "Simplified template";
 $MESS["P_APPLET_LAYOUT_EXTENDED"] = "Standard template";
 $MESS["P_DRAG_SORT"] = "Use drag'n'drop to sort photos";
-$MESS["P_UPLOAD_MAX_FILE_SIZE"] = "Maximum file size, MB (must not ecxeed #UPLOAD_MAX_FILESIZE# MB)";
+$MESS["P_UPLOAD_MAX_FILE_SIZE"] = "Maximum file size, MB (must not exceed #UPLOAD_MAX_FILESIZE# MB)";
 $MESS["TP_CBIV_RATING_MAIN"] = "Rating (Kernel module)";
 $MESS["RATING_MAIN_TYPE"] = "Rating buttons design";
 $MESS["RATING_MAIN_TYPE_CONFIG"] = "default";
 $MESS["RATING_MAIN_TYPE_STANDART"] = "Plus / Minus";
-$MESS["RATING_MAIN_TYPE_LIKE"] = "I like it";
+$MESS["RATING_MAIN_TYPE_LIKE"] = "Like";
 ?>

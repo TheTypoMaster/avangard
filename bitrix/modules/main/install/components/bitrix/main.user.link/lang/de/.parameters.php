@@ -68,4 +68,5 @@ $MESS["MAIN_UL_P_WORK_COUNTRY"] = "Land";
 $MESS["MAIN_UL_P_WORK_PROFILE"] = "Firmenprofil";
 $MESS["MAIN_UL_P_WORK_LOGO"] = "Firmenlogo";
 $MESS["MAIN_UL_P_WORK_NOTES"] = "Kommentar";
+$MESS["MAIN_UL_P_NAME_TEMPLATE_SITE"] = "Websiteformat";
 ?>

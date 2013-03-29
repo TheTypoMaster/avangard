@@ -105,14 +105,14 @@
 	$tabControl = new CAdminTabControl("tabControl", $aTabs);
 	$tabControl->Begin();
 	$tabControl->BeginNextTab();
-?>	<tr>
-		<td width="40%"><span class="required">*</span>&nbsp; <?=GetMessage("FLTR_HEAD_TITLE")?>:</td>
+?>	<tr class="adm-detail-required-field">
+		<td width="40%"><?=GetMessage("FLTR_HEAD_TITLE")?>:</td>
 		<td width="60%">
-			<input type="text" name="TITLE" size="40" maxlength="255" value="<?=htmlspecialchars($arFields["TITLE"])?>">
+			<input type="text" name="TITLE" size="40" maxlength="255" value="<?=htmlspecialcharsbx($arFields["TITLE"])?>">
 		</td>
 	</tr>
-	<tr>
-		<td width="40%"><span class="required">*</span>&nbsp; <?=GetMessage("FLTR_HEAD_TYPE")?>:</td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?=GetMessage("FLTR_HEAD_TYPE")?>:</td>
 		<td width="60%">
 			<select name="TYPE" <?=(!empty($arFields["ID"]) ? "disabled=\"disabled\"" : "")?>>
 				<option value="T" <?=($arFields["TYPE"]=="T"?" selected":"")?>><?=GetMessage("FLTR_HEAD_TYPE_T")?></option>
@@ -129,7 +129,4 @@
 	);?>
 <?$tabControl->End();?>
 </form><br>
-<?=BeginNote();?>
-<span class="required">*</span><font class="legendtext"> - <?=GetMessage("REQUIRED_FIELDS")?>
-<?=EndNote(); ?>		
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

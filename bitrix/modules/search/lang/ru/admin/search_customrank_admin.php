@@ -29,4 +29,5 @@ $MESS ['customrank_find_title'] = "Введите строку для поиска";
 $MESS ['customrank_stop'] = "Остановить";
 $MESS ['customrank_error_delete'] = "Ошибка удаления правила.";
 $MESS ['customrank_delete_confirm'] = "Вы уверены, что хотите удалить данное правило?";
+$MESS ['customrank_progress'] = "Обновление поискового индекса.";
 ?>

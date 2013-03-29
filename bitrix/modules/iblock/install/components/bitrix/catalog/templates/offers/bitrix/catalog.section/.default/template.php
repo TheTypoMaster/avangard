@@ -95,6 +95,13 @@
 				<input name="buy" type="button" value="<?= GetMessage("CATALOG_BUY") ?>" OnClick="window.location='<?echo CUtil::JSEscape($arElement["DETAIL_PAGE_URL"]."#buy")?>'" />
 			<?elseif((count($arResult["PRICES"]) > 0) || is_array($arElement["PRICE_MATRIX"])):?>
 				<?=GetMessage("CATALOG_NOT_AVAILABLE")?>
+				<?$APPLICATION->IncludeComponent("bitrix:sale.notice.product", ".default", array(
+							"NOTIFY_ID" => $arElement['ID'],
+							"NOTIFY_URL" => htmlspecialcharsback($arElement["SUBSCRIBE_URL"]),
+							"NOTIFY_USE_CAPTHA" => "N"
+							),
+							$component
+						);?>
 			<?endif?>
 			&nbsp;
 		</td>

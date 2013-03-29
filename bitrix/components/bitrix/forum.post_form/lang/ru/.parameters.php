@@ -8,7 +8,6 @@ $MESS ['F_DEFAULT_MID'] = "ID сообщения";
 $MESS ['F_DEFAULT_PAGE_NAME'] = "ID вызывающего компонента";
 $MESS ['F_LIST_TEMPLATE'] = "Страница списка тем";
 $MESS ['F_MESSAGE_TEMPLATE'] = "Страница чтения сообщения";
-$MESS ['F_SMILE_TABLE_COLS'] = "Количество смайлов в строке";
 $MESS ['F_HELP_TEMPLATE'] = "Страница помощи по форумам";
 $MESS ['F_RULES_TEMPLATE'] = "Страница правил форумов";
 $MESS ['F_SHOW_VOTE'] = "Показывать опросы";

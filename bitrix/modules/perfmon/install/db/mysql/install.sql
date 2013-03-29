@@ -62,6 +62,17 @@ CREATE TABLE b_perf_sql
 CREATE UNIQUE INDEX IX_B_PERF_SQL_0 ON b_perf_sql(HIT_ID, NN);
 CREATE INDEX IX_B_PERF_SQL_1 ON b_perf_sql(COMPONENT_ID);
 
+CREATE TABLE b_perf_sql_backtrace
+(
+	SQL_ID INT(18),
+	NN INT(18),
+	FILE_NAME varchar(500),
+	LINE_NO INT(18),
+	CLASS_NAME varchar(500),
+	FUNCTION_NAME varchar(500),
+	CONSTRAINT pk_b_perf_sql_backtrace PRIMARY KEY (SQL_ID, NN)
+);
+
 CREATE TABLE b_perf_error
 (
 	ID INT(18) NOT NULL auto_increment,
@@ -96,3 +107,66 @@ CREATE TABLE b_perf_cluster
 
 	PRIMARY KEY pk_b_perf_cluster(ID)
 );
+
+CREATE TABLE b_perf_index_suggest
+(
+	ID INT(11) NOT NULL auto_increment,
+	SQL_MD5 CHAR(32),
+	SQL_COUNT INT(11),
+	SQL_TIME FLOAT,
+	TABLE_NAME VARCHAR(50),
+	TABLE_ALIAS VARCHAR(50),
+	COLUMN_NAMES VARCHAR(250),
+	SQL_TEXT TEXT,
+	SQL_EXPLAIN LONGTEXT,
+	PRIMARY KEY pk_b_perf_index_suggest(ID)
+);
+CREATE INDEX ix_b_perf_index_suggest_0 ON b_perf_index_suggest(SQL_MD5);
+
+CREATE TABLE b_perf_index_suggest_sql
+(
+	SUGGEST_ID INT(11),
+	SQL_ID INT(11),
+	PRIMARY KEY pk_b_perf_index_suggest_sql(SUGGEST_ID, SQL_ID)
+);
+CREATE INDEX ix_b_perf_index_suggest_sql_0 ON b_perf_index_suggest_sql(SQL_ID, SUGGEST_ID);
+
+CREATE TABLE b_perf_index_ban
+(
+	ID INT(11) NOT NULL auto_increment,
+	BAN_TYPE CHAR(1),
+	TABLE_NAME VARCHAR(50),
+	COLUMN_NAMES VARCHAR(250),
+	PRIMARY KEY pk_b_perf_index_ban(ID)
+);
+
+CREATE TABLE b_perf_tab_stat
+(
+	TABLE_NAME VARCHAR(50),
+	TABLE_SIZE FLOAT,
+	TABLE_ROWS FLOAT,
+	PRIMARY KEY pk_b_perf_tab_stat(TABLE_NAME)
+);
+
+CREATE TABLE b_perf_tab_column_stat
+(
+	ID INT(11) NOT NULL auto_increment,
+	TABLE_NAME VARCHAR(50),
+	COLUMN_NAME VARCHAR(50),
+	TABLE_ROWS FLOAT,
+	COLUMN_ROWS FLOAT,
+	VALUE VARCHAR(100),
+	PRIMARY KEY pk_b_perf_tab_column_stat(ID),
+	KEY ix_b_perf_tab_column_stat(TABLE_NAME, COLUMN_NAME)
+);
+
+CREATE TABLE b_perf_index_complete
+(
+	ID INT(11) NOT NULL auto_increment,
+	BANNED CHAR(1),
+	TABLE_NAME VARCHAR(50),
+	COLUMN_NAMES VARCHAR(250),
+	INDEX_NAME VARCHAR(50),
+	PRIMARY KEY pk_b_perf_index_complete(ID)
+);
+CREATE INDEX ix_b_perf_index_complete_0 ON b_perf_index_complete(TABLE_NAME);

@@ -3,7 +3,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/prolog.php");
 
 $APPLICATION->SetAdditionalCSS('/bitrix/js/fileman/medialib/medialib_admin.css');
-?><script type="text/javascript" src="/bitrix/js/fileman/medialib/core_admin.js"></script><?
+$APPLICATION->AddHeadScript('/bitrix/js/fileman/medialib/core_admin.js');
 
 IncludeModuleLangFile(__FILE__);
 CModule::IncludeModule("fileman");
@@ -26,7 +26,7 @@ $arMLTypes = CMedialib::GetTypes();
 $curTypeInd = 0;
 $curType = false;
 
-if (isset($_REQUEST['type']) && intVal($_REQUEST['type']) > 0 && check_bitrix_sessid())
+if (isset($_REQUEST['type']) && intVal($_REQUEST['type']) > 0 ) // && check_bitrix_sessid() http://jabber.bx/view.php?id=28997 commit
 {
 	for ($i = 0, $l = count($arMLTypes); $i < $l; $i++)
 	{
@@ -95,7 +95,7 @@ if ($bCols && $exParams['arCountPerm']['new_item'] > 0)
 
 	$aContext[] = Array(
 		"TEXT" => GetMessage("FM_ML_MASS_UPLOAD"),
-		"ICON" => "btn_mass_upload",
+		//"ICON" => "btn_mass_upload",
 		"LINK" => "fileman_medialib_upload.php?lang=".LANGUAGE_ID."&type=".$curType['id']."&".bitrix_sessid_get(),
 		"TITLE" => GetMessage("FM_ML_MASS_UPLOAD_TITLE")
 	);
@@ -122,7 +122,7 @@ if (($bCols && $exParams['arCountPerm']['access'] > 0) || CMedialib::CanDoOperat
 {
 	$aContext[] = Array(
 		"TEXT" => GetMessage("FM_ML_ACCESS"),
-		"ICON" => "btn_access",
+		//"ICON" => "btn_access",
 		"LINK" => "fileman_medialib_access.php?lang=".LANGUAGE_ID."&".bitrix_sessid_get(),
 		"TITLE" => GetMessage("FM_ML_ACCESS_TITLE")
 	);
@@ -132,7 +132,7 @@ if ($USER->CanDoOperation('fileman_view_all_settings'))
 {
 	$aContext[] = Array(
 		"TEXT" => GetMessage("FM_ML_MANAGE_TYPES"),
-		"ICON" => "btn_type_config",
+		//"ICON" => "btn_type_config",
 		"LINK" => "/bitrix/admin/settings.php?mid=fileman&tabControl_active_tab=edit5&lang=".LANGUAGE_ID."&".bitrix_sessid_get(),
 		"TITLE" => GetMessage("FM_ML_MANAGE_TYPES_TITLE")
 	);
@@ -140,54 +140,51 @@ if ($USER->CanDoOperation('fileman_view_all_settings'))
 
 if (count($aContext) > 0)
 {
-	$menu = new CAdminContextMenu($aContext);
+	$menu = new CAdminContextMenuList($aContext);
 	$menu->Show();
 }
+
 ?>
 
 <script>
 <?CMedialib::AppendLangMessages();?>
 <?CMedialib::AppendLangMessagesEx();?>
 
-if (window.jsUtils)
-{
-	jsUtils.addEvent(window, 'load', function()
+BX.ready(function()
 	{
-		jsUtils.loadJSFile(
-		[
+		BX.loadScript([
 			"/bitrix/js/fileman/medialib/common.js?v=<?=@filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/js/fileman/medialib/common.js')?>",
 			"/bitrix/js/fileman/medialib/core_admin.js?v=<?=@filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/js/fileman/medialib/core_admin.js')?>"
 		],
-		function()
-		{
+		function(){setTimeout(function(){
 			window.oBXMLAdmin = new window.BXMedialibAdmin(
-				{
-					sessid: "<?=bitrix_sessid()?>",
-					thumbWidth : <?= COption::GetOptionInt('fileman', "ml_thumb_width", 140)?>,
-					thumbHeight : <?= COption::GetOptionInt('fileman', "ml_thumb_height", 105) ?>,
-					rootAccess: {
-						new_col: '<?= CMedialib::CanDoOperation('medialib_new_collection', 0)?>',
-						edit: '<?= CMedialib::CanDoOperation('medialib_edit_collection', 0)?>',
-						del: '<?= CMedialib::CanDoOperation('medialib_del_collection', 0)?>',
-						new_item: '<?= CMedialib::CanDoOperation('medialib_new_item', 0)?>',
-						edit_item: '<?= CMedialib::CanDoOperation('medialib_edit_item', 0)?>',
-						del_item: '<?= CMedialib::CanDoOperation('medialib_del_item', 0)?>',
-						access: '<?= CMedialib::CanDoOperation('medialib_access', 0)?>'
-					},
-					curColl: <?= isset($_REQUEST['cur_col']) ? intVal($_REQUEST['cur_col']) : 0?>,
-					bCanUpload: <?= $USER->CanDoOperation('fileman_upload_files') ? 'true' : 'false'?>,
-					bCanViewStructure: <?= $USER->CanDoOperation('fileman_view_file_structure') ? 'true' : 'false'?>,
-					strExt : "<?= CMedialib::GetMediaExtentions()?>",
-					lang : "<?= LANGUAGE_ID?>",
-					Types : <?= CUtil::PhpToJSObject($arMLTypes)?>,
-					curTypeInd : <?= $curTypeInd?>
-				});
+			{
+				sessid: "<?= bitrix_sessid()?>",
+				thumbWidth : <?= COption::GetOptionInt('fileman', "ml_thumb_width", 140)?>,
+				thumbHeight : <?= COption::GetOptionInt('fileman', "ml_thumb_height", 105) ?>,
+				rootAccess: {
+					new_col: '<?= CMedialib::CanDoOperation('medialib_new_collection', 0)?>',
+					edit: '<?= CMedialib::CanDoOperation('medialib_edit_collection', 0)?>',
+					del: '<?= CMedialib::CanDoOperation('medialib_del_collection', 0)?>',
+					new_item: '<?= CMedialib::CanDoOperation('medialib_new_item', 0)?>',
+					edit_item: '<?= CMedialib::CanDoOperation('medialib_edit_item', 0)?>',
+					del_item: '<?= CMedialib::CanDoOperation('medialib_del_item', 0)?>',
+					access: '<?= CMedialib::CanDoOperation('medialib_access', 0)?>'
+				},
+				curColl: <?= isset($_REQUEST['cur_col']) ? intVal($_REQUEST['cur_col']) : 0?>,
+				bCanUpload: <?= $USER->CanDoOperation('fileman_upload_files') ? 'true' : 'false'?>,
+				bCanViewStructure: <?= $USER->CanDoOperation('fileman_view_file_structure') ? 'true' : 'false'?>,
+				strExt : "<?= htmlspecialcharsEx(CMedialib::GetMediaExtentions())?>",
+				lang : "<?= LANGUAGE_ID?>",
+				Types : <?= CUtil::PhpToJSObject($arMLTypes)?>,
+				curTypeInd : <?= $curTypeInd?>
+			});
 
 			window.oBXMLAdmin.OnStart();
 			var
-				btn_new_collection = document.getElementById('btn_new_collection'),
-				btn_new_item = document.getElementById('btn_new_item'),
-				btn_mass_upload = document.getElementById('btn_mass_upload');
+				btn_new_collection = BX('btn_new_collection'),
+				btn_new_item = BX('btn_new_item'),
+				btn_mass_upload = BX('btn_mass_upload');
 
 			if (btn_new_collection)
 				btn_new_collection.onclick = function()
@@ -212,12 +209,10 @@ if (window.jsUtils)
 					window.location = "fileman_medialib_upload.php?lang=<?= LANGUAGE_ID ?>&type=<?= $curType['id'] ?>&<?= bitrix_sessid_get() ?>&col_id=" + col_id;
 					return false;
 				};
-		});
-	}, false);
-}
-else
-	alert('Error: jsUtils is undefined!');
-
+		}, 50);}
+		);
+	}
+);
 </script><?
 ?>
 
@@ -248,7 +243,7 @@ else
 
 <? if ($bCols): ?>
 <br />
-<table class="multiaction">
+<table class="multiaction" style = "display:<?= (CMedialib::CanDoOperation('medialib_del_item', 0)||CMedialib::CanDoOperation('medialib_del_collection', 0)) ? 'block' : 'none'?>">
 	<tr class="top">
 		<td class="left"><div class="empty"/></td><td><div class="empty"/></td><td class="right"><div class="empty"/></td>
 	</tr>

@@ -30,7 +30,7 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 
 		return array(
 			"DISPLAY" => $disp,
-			"LIST_HEIGHT" => ($height < 2? 5: $height),
+			"LIST_HEIGHT" => ($height < 1? 1: $height),
 			"IBLOCK_ID" => $iblock_id,
 			"DEFAULT_VALUE" => $element_id,
 			"ACTIVE_FILTER" => $active_filter,
@@ -50,7 +50,7 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 		if(CModule::IncludeModule('iblock'))
 		{
 			$result .= '
-			<tr valign="top">
+			<tr>
 				<td>'.GetMessage("USER_TYPE_IBEL_DISPLAY").':</td>
 				<td>
 					'.GetIBlockDropDownList($iblock_id, $arHtmlControl["NAME"].'[IBLOCK_TYPE_ID]', $arHtmlControl["NAME"].'[IBLOCK_ID]').'
@@ -61,10 +61,10 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 		else
 		{
 			$result .= '
-			<tr valign="top">
+			<tr>
 				<td>'.GetMessage("USER_TYPE_IBEL_DISPLAY").':</td>
 				<td>
-					<input type="text" size="6" name="'.$arHtmlControl["NAME"].'[IBLOCK_ID]" value="'.htmlspecialchars($value).'">
+					<input type="text" size="6" name="'.$arHtmlControl["NAME"].'[IBLOCK_ID]" value="'.htmlspecialcharsbx($value).'">
 				</td>
 			</tr>
 			';
@@ -86,7 +86,7 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 		if(($iblock_id > 0) && CModule::IncludeModule('iblock'))
 		{
 			$result .= '
-			<tr valign="top">
+			<tr>
 				<td>'.GetMessage("USER_TYPE_IBEL_DEFAULT_VALUE").':</td>
 				<td>
 					<select name="'.$arHtmlControl["NAME"].'[DEFAULT_VALUE]" size="5">
@@ -112,10 +112,10 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 		else
 		{
 			$result .= '
-			<tr valign="top">
+			<tr>
 				<td>'.GetMessage("USER_TYPE_IBEL_DEFAULT_VALUE").':</td>
 				<td>
-					<input type="text" size="8" name="'.$arHtmlControl["NAME"].'[DEFAULT_VALUE]" value="'.htmlspecialchars($value).'">
+					<input type="text" size="8" name="'.$arHtmlControl["NAME"].'[DEFAULT_VALUE]" value="'.htmlspecialcharsbx($value).'">
 				</td>
 			</tr>
 			';
@@ -128,8 +128,8 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 		else
 			$value = "LIST";
 		$result .= '
-		<tr valign="top">
-			<td>'.GetMessage("USER_TYPE_ENUM_DISPLAY").':</td>
+		<tr>
+			<td class="adm-detail-valign-top">'.GetMessage("USER_TYPE_ENUM_DISPLAY").':</td>
 			<td>
 				<label><input type="radio" name="'.$arHtmlControl["NAME"].'[DISPLAY]" value="LIST" '.("LIST"==$value? 'checked="checked"': '').'>'.GetMessage("USER_TYPE_IBEL_LIST").'</label><br>
 				<label><input type="radio" name="'.$arHtmlControl["NAME"].'[DISPLAY]" value="CHECKBOX" '.("CHECKBOX"==$value? 'checked="checked"': '').'>'.GetMessage("USER_TYPE_IBEL_CHECKBOX").'</label><br>
@@ -144,7 +144,7 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 		else
 			$value = 5;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_IBEL_LIST_HEIGHT").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[LIST_HEIGHT]" size="10" value="'.$value.'">
@@ -153,7 +153,7 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 		';
 
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_IBEL_ACTIVE_FILTER").':</td>
 			<td>
 				<input type="checkbox" name="'.$arHtmlControl["NAME"].'[ACTIVE_FILTER]" value="Y" '.($ACTIVE_FILTER=="Y"? 'checked="checked"': '').'>
@@ -205,46 +205,43 @@ class CUserTypeIBlockElement extends CUserTypeEnum
 		return $res;
 	}
 }
-//if(CModule::IncludeModule('iblock'))
-//{
-	class CIBlockElementEnum extends CDBResult
+
+class CIBlockElementEnum extends CDBResult
+{
+	function GetTreeList($IBLOCK_ID, $ACTIVE_FILTER="N")
 	{
-		function GetTreeList($IBLOCK_ID, $ACTIVE_FILTER="N")
+		$rs = false;
+		if(CModule::IncludeModule('iblock'))
 		{
-			$rs = false;
-			if(CModule::IncludeModule('iblock'))
+			$arFilter = Array("IBLOCK_ID"=>$IBLOCK_ID);
+			if($ACTIVE_FILTER === "Y")
+				$arFilter["ACTIVE"] = "Y";
+
+			$rs = CIBlockElement::GetList(
+				array("SORT" => "DESC", "NAME"=>"ASC"),
+				$arFilter,
+				false,
+				false,
+				array("ID", "NAME")
+			);
+			if($rs)
 			{
-				$arFilter = Array("IBLOCK_ID"=>$IBLOCK_ID);
-				if($ACTIVE_FILTER === "Y")
-					$arFilter["ACTIVE"] = "Y";
-
-				$rs = CIBlockElement::GetList(
-					array("SORT" => "DESC", "NAME"=>"ASC"),
-					$arFilter,
-					false,
-					false,
-					array("ID", "NAME")
-				);
-				if($rs)
-				{
-					$rs = new CIBlockElementEnum($rs);
-				}
+				$rs = new CIBlockElementEnum($rs);
 			}
-			return $rs;
 		}
-		function GetNext($bTextHtmlAuto=true, $use_tilda=true)
-		{
-			$r = parent::GetNext($bTextHtmlAuto, $use_tilda);
-			if($r)
-				$r["VALUE"] = $r["NAME"];
-
-			return $r;
-		}
-
-
+		return $rs;
 	}
-	AddEventHandler("main", "OnUserTypeBuildList", array("CUserTypeIBlockElement", "GetUserTypeDescription"));
-//}
+	function GetNext($bTextHtmlAuto=true, $use_tilda=true)
+	{
+		$r = parent::GetNext($bTextHtmlAuto, $use_tilda);
+		if($r)
+			$r["VALUE"] = $r["NAME"];
+
+		return $r;
+	}
+
+
+}
 
 function GetIBlockElementLinkById($ID)
 {

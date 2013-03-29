@@ -29,7 +29,8 @@
        $kolvo_elems = count($cat_array);
        $kol = 0;
 	  foreach($cat_array as $category) 
-	    { 
+	    {
+		if ($category[name]!='Additional' && $category[name]!='Кровати') { 
 	    $kol++;
        ?>
 	  <?if(($kol>1) && ($kol <= $kolvo_elems)):?>
@@ -73,7 +74,7 @@
 				<?
 	    if($i==3) { $i=0; echo "</tr>"; }
          }
-	     
+		}  
 	   } 
 	
    ?>

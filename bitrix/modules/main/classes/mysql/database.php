@@ -16,6 +16,13 @@ class CDatabase extends CAllDatabase
 	var $timeQuery;
 	var $obSlave;
 
+	public
+		$escL = '`',
+		$escR = '`';
+
+	public
+		$alias_length = 256;
+
 	function GetVersion()
 	{
 		if($this->version)
@@ -79,7 +86,7 @@ class CDatabase extends CAllDatabase
 		if (DBPersistent && !$this->bNodeConnection)
 			$this->db_Conn = @mysql_pconnect($this->DBHost, $this->DBLogin, $this->DBPassword);
 		else
-			$this->db_Conn = @mysql_connect($this->DBHost, $this->DBLogin, $this->DBPassword, $this->bNodeConnection);
+			$this->db_Conn = @mysql_connect($this->DBHost, $this->DBLogin, $this->DBPassword, true);
 
 		if(!$this->db_Conn)
 		{
@@ -120,10 +127,7 @@ class CDatabase extends CAllDatabase
 		$this->db_Error="";
 
 		if($this->DebugToFile || $DB->ShowSqlStat)
-		{
-			list($usec, $sec) = explode(" ", microtime());
-			$start_time = ((float)$usec + (float)$sec);
-		}
+			$start_time = microtime(true);
 
 		//We track queries for DML statements
 		//and when there is no one we can choose
@@ -174,9 +178,7 @@ class CDatabase extends CAllDatabase
 
 		if($this->DebugToFile || $DB->ShowSqlStat)
 		{
-			list($usec, $sec) = explode(" ",microtime());
-			$end_time = ((float)$usec + (float)$sec);
-			$exec_time = round($end_time-$start_time, 10);
+			$exec_time = round(microtime(true) - $start_time, 10);
 
 			if($DB->ShowSqlStat)
 			{
@@ -216,7 +218,7 @@ class CDatabase extends CAllDatabase
 				}
 
 				if($this->debug || (@session_start() && $_SESSION["SESS_AUTH"]["ADMIN"]))
-					echo $error_position."<br><font color=#ff0000>MySQL Query Error: ".htmlspecialchars($strSql)."</font>[".htmlspecialchars($this->db_Error)."]<br>";
+					echo $error_position."<br><font color=#ff0000>MySQL Query Error: ".htmlspecialcharsbx($strSql)."</font>[".htmlspecialcharsbx($this->db_Error)."]<br>";
 
 				$error_position = preg_replace("#<br[^>]*>#i","\n",$error_position);
 				SendError($error_position."\nMySQL Query Error:\n".$strSql." \n [".$this->db_Error."]\n---------------\n\n");
@@ -257,9 +259,49 @@ class CDatabase extends CAllDatabase
 
 	function DateFormatToDB($format, $field = false)
 	{
-		static $search  = array("YYYY", "MM", "DD", "HH", "MI", "SS");
-		static $replace = array("%Y", "%m", "%d", "%H", "%i", "%s");
-		$format = str_replace($search, $replace, $format);
+//		static $search  = array("YYYY", "MM", "DD", "HH", "MI", "SS");
+//		static $replace = array("%Y", "%m", "%d", "%H", "%i", "%s");
+
+		static $search  = array(
+			"YYYY",
+			"MMMM",
+			"MM",
+			"MI",
+			"DD",
+			"HH",
+			"GG",
+			"G",
+			"SS",
+			"TT",
+			"T"
+		);
+		static $replace = array(
+			"%Y",
+			"%M",
+			"%m",
+			"%i",
+			"%d",
+			"%H",
+			"%h",
+			"%l",
+			"%s",
+			"%p",
+			"%p"
+		);
+
+		foreach ($search as $k=>$v)
+		{
+			$format = str_replace($v, $replace[$k], $format);
+		}
+		if (strpos($format, '%H') === false)
+		{
+			$format = str_replace("H", "%h", $format);
+		}
+		if (strpos($format, '%M') === false)
+		{
+			$format = str_replace("M", "%b", $format);
+		}
+
 		if($field === false)
 		{
 			return $format;
@@ -309,6 +351,11 @@ class CDatabase extends CAllDatabase
 		}
 
 		return $sFieldExpr;
+	}
+
+	function DatetimeToDateFunction($strValue)
+	{
+		return 'DATE('.$strValue.')';
 	}
 
 	//  1 if date1 > date2
@@ -502,39 +549,41 @@ class CDatabase extends CAllDatabase
 
 	function Insert($table, $arFields, $error_position="", $DEBUG=false, $EXIST_ID="", $ignore_errors=false)
 	{
-		if(is_array($arFields))
+		if (!is_array($arFields))
+			return false;
+
+		$str1 = "";
+		$str2 = "";
+		foreach ($arFields as $field => $value)
 		{
-			$str1 = "";
-			$str2 = "";
-			foreach($arFields as $field => $value)
-			{
-				$str1 .= ($str1 <> ""? ", ":"")."`".$field."`";
-				if(strlen($value) <= 0)
-					$str2 .= ($str2 <> ""? ", ":"")."'".$value."'";
-				else
-					$str2 .= ($str2 <> ""? ", ":"").$value;
-			}
-			if (strlen($EXIST_ID)>0)
-			{
-				$strSql = "INSERT INTO ".$table."(ID,".$str1.") VALUES ('".$this->ForSql($EXIST_ID)."',".$str2.")";
-			}
+			$str1 .= ($str1 <> ""? ", ":"")."`".$field."`";
+			if (strlen($value) <= 0)
+				$str2 .= ($str2 <> ""? ", ":"")."''";
 			else
-			{
-				$strSql = "INSERT INTO ".$table."(".$str1.") VALUES (".$str2.")";
-			}
-			if ($DEBUG) echo "<br>".$strSql."<br>";
-			$this->Query($strSql, $ignore_errors, $error_position);
-			if (strlen($EXIST_ID)>0)
-			{
-				$ID = $EXIST_ID;
-			}
-			else
-			{
-				$ID = $this->LastID();
-			}
-			return $ID;
+				$str2 .= ($str2 <> ""? ", ":"").$value;
 		}
-		else return false;
+
+		if (strlen($EXIST_ID)>0)
+		{
+			$strSql = "INSERT INTO ".$table."(ID,".$str1.") VALUES ('".$this->ForSql($EXIST_ID)."',".$str2.")";
+		}
+		else
+		{
+			$strSql = "INSERT INTO ".$table."(".$str1.") VALUES (".$str2.")";
+		}
+
+		if ($DEBUG)
+			echo "<br>".htmlspecialcharsEx($strSql)."<br>";
+
+		$res = $this->Query($strSql, $ignore_errors, $error_position);
+
+		if ($res === false)
+			return false;
+
+		if (strlen($EXIST_ID) > 0)
+			return $EXIST_ID;
+		else
+			return $this->LastID();
 	}
 
 	function Update($table, $arFields, $WHERE="", $error_position="", $DEBUG=false, $ignore_errors=false, $additional_check=true)
@@ -542,25 +591,39 @@ class CDatabase extends CAllDatabase
 		$rows = 0;
 		if(is_array($arFields))
 		{
-			$str = "";
+			$ar = array();
 			foreach($arFields as $field => $value)
 			{
 				if (strlen($value)<=0)
-					$str .= "`".$field."` = '', ";
+					$ar[] = "`".$field."` = ''";
 				else
-					$str .= "`".$field."` = ".$value.", ";
+					$ar[] = "`".$field."` = ".$value."";
 			}
-			$str = TrimEx($str,",");
-			$strSql = "UPDATE ".$table." SET ".$str." ".$WHERE;
-			if ($DEBUG) echo "<br>".$strSql."<br>";
-			$w = $this->Query($strSql, $ignore_errors, $error_position);
-			$rows = $w->AffectedRowsCount();
-			if ($DEBUG) echo "affected_rows = ".$rows."<br>";
-			if (intval($rows)<=0 && $additional_check)
+
+			if (!empty($ar))
 			{
-				$w = $this->Query("SELECT 'x' FROM ".$table." ".$WHERE, $ignore_errors, $error_position);
-				if ($w->Fetch()) $rows = $w->SelectedRowsCount();
-				if ($DEBUG) echo "num_rows = ".$rows."<br>";
+				$strSql = "UPDATE ".$table." SET ".implode(", ", $ar)." ".$WHERE;
+				if ($DEBUG)
+					echo "<br>".htmlspecialcharsEx($strSql)."<br>";
+				$w = $this->Query($strSql, $ignore_errors, $error_position);
+				if (is_object($w))
+				{
+					$rows = $w->AffectedRowsCount();
+					if ($DEBUG)
+						echo "affected_rows = ".$rows."<br>";
+
+					if ($rows <= 0 && $additional_check)
+					{
+						$w = $this->Query("SELECT 'x' FROM ".$table." ".$WHERE, $ignore_errors, $error_position);
+						if (is_object($w))
+						{
+							if ($w->Fetch())
+								$rows = $w->SelectedRowsCount();
+							if ($DEBUG)
+								echo "num_rows = ".$rows."<br>";
+						}
+					}
+				}
 			}
 		}
 		return $rows;
@@ -682,10 +745,10 @@ class CDatabase extends CAllDatabase
 					{
 						$$varnameTo = array();
 						foreach($$varnameFrom as $k=>$v)
-							$$varnameTo[$k] = htmlspecialchars($v);
+							$$varnameTo[$k] = htmlspecialcharsbx($v);
 					}
 					else
-						$$varnameTo = htmlspecialchars($$varnameFrom);
+						$$varnameTo = htmlspecialcharsbx($$varnameFrom);
 				}
 			}
 		}
@@ -771,12 +834,17 @@ class CDatabase extends CAllDatabase
 
 	function IndexExists($tableName, $arColumns)
 	{
+		return $this->GetIndexName($tableName, $arColumns) !== "";
+	}
+
+	function GetIndexName($tableName, $arColumns, $bStrict = false)
+	{
 		if(!is_array($arColumns) || count($arColumns) <= 0)
-			return false;
+			return "";
 
 		$rs = $this->Query("SHOW INDEX FROM `".$this->ForSql($tableName)."`", true, '', array("fixed_connection"=>true));
 		if(!$rs)
-			return false;
+			return "";
 
 		$arIndexes = array();
 		while($ar = $rs->Fetch())
@@ -787,12 +855,19 @@ class CDatabase extends CAllDatabase
 		{
 			ksort($arKeyColumns);
 			$strKeyColumns = implode(",", $arKeyColumns);
-			if(substr($strKeyColumns, 0, strlen($strColumns)) === $strColumns)
-				return true;
+			if($bStrict)
+			{
+				if($strKeyColumns === $strColumns)
+					return $Key_name;
+			}
+			else
+			{
+				if(substr($strKeyColumns, 0, strlen($strColumns)) === $strColumns)
+					return $Key_name;
+			}
 		}
 
-		return false;
-		//echo "<pre>",htmlspecialchars(print_r($arIndexes, true)),"</pre><hR>";
+		return "";
 	}
 
 	function SlaveConnection()
@@ -832,6 +907,7 @@ class CDatabase extends CAllDatabase
 					$arSlaveStatus['Seconds_Behind_Master'] > $max_slave_delay
 					|| $arSlaveStatus['Last_SQL_Error'] != ''
 					|| $arSlaveStatus['Last_IO_Error'] != ''
+					|| $arSlaveStatus['Slave_SQL_Running'] === 'No'
 				)
 				{
 					unset($arSlaves[$i]);
@@ -888,7 +964,11 @@ class CDBResult extends CAllDBResult
 		parent::CAllDBResult($res);
 	}
 
-	//Returns next row of the select result in form of associated array
+	/**
+	 * Returns next row of the select result in form of associated array
+	 *
+	 * @return array
+	 */
 	function Fetch()
 	{
 		if($this->bNavStart || $this->bFromArray)
@@ -900,8 +980,7 @@ class CDBResult extends CAllDBResult
 		}
 		elseif($this->SqlTraceIndex)
 		{
-			list($usec, $sec) = explode(" ", microtime());
-			$start_time = ((float)$usec + (float)$sec);
+			$start_time = microtime(true);
 
 			if(!$this->arUserMultyFields)
 			{
@@ -925,9 +1004,7 @@ class CDBResult extends CAllDBResult
 				}
 			}
 
-			list($usec, $sec) = explode(" ", microtime());
-			$end_time = ((float)$usec + (float)$sec);
-			$exec_time = round($end_time-$start_time, 10);
+			$exec_time = round(microtime(true) - $start_time, 10);
 			$GLOBALS["DB"]->arQueryDebug[$this->SqlTraceIndex - 1]["TIME"] += $exec_time;
 			$GLOBALS["DB"]->timeQuery += $exec_time;
 		}
@@ -964,7 +1041,10 @@ class CDBResult extends CAllDBResult
 		if($this->nSelectedCount !== false)
 			return $this->nSelectedCount;
 
-		return mysql_num_rows($this->result);
+		if(is_resource($this->result))
+			return mysql_num_rows($this->result);
+		else
+			return 0;
 	}
 
 	function AffectedRowsCount()
@@ -984,12 +1064,18 @@ class CDBResult extends CAllDBResult
 
 	function AffectedRowsCountEx()
 	{
-		if (intval(@mysql_num_rows($this->result))>0) return 0; else return mysql_affected_rows();
+		if(is_resource($this->result) && mysql_num_rows($this->result) > 0)
+			return 0;
+		else
+			return mysql_affected_rows();
 	}
 
 	function FieldsCount()
 	{
-		return mysql_num_fields($this->result);
+		if(is_resource($this->result))
+			return mysql_num_fields($this->result);
+		else
+			return 0;
 	}
 
 	function FieldName($iCol)
@@ -1000,7 +1086,11 @@ class CDBResult extends CAllDBResult
 	function DBNavStart()
 	{
 		//total rows count
-		$this->NavRecordCount = mysql_num_rows($this->result);
+		if(is_resource($this->result))
+			$this->NavRecordCount = mysql_num_rows($this->result);
+		else
+			return;
+
 		if($this->NavRecordCount < 1)
 			return;
 
@@ -1020,10 +1110,7 @@ class CDBResult extends CAllDBResult
 		$NavLastRecordShow = $this->NavPageSize * $this->NavPageNomer;
 
 		if($this->SqlTraceIndex)
-		{
-			list($usec, $sec) = explode(" ", microtime());
-			$start_time = ((float)$usec + (float)$sec);
-		}
+			$start_time = microtime(true);
 
 		mysql_data_seek($this->result, $NavFirstRecordShow);
 		$temp_arrray = array();
@@ -1055,9 +1142,7 @@ class CDBResult extends CAllDBResult
 
 		if($this->SqlTraceIndex)
 		{
-			list($usec, $sec) = explode(" ", microtime());
-			$end_time = ((float)$usec + (float)$sec);
-			$exec_time = round($end_time-$start_time, 10);
+			$exec_time = round(microtime(true) - $start_time, 10);
 			$GLOBALS["DB"]->arQueryDebug[$this->SqlTraceIndex - 1]["TIME"] += $exec_time;
 			$GLOBALS["DB"]->timeQuery += $exec_time;
 		}
@@ -1132,7 +1217,14 @@ class CDBResult extends CAllDBResult
 				$this->NavPageCount++;
 
 			//calculate total pages depend on rows count. start with 1
-			$this->NavPageNomer = ($this->PAGEN < 1 || $this->PAGEN > $this->NavPageCount? ($_SESSION[$this->SESS_PAGEN] < 1 || $_SESSION[$this->SESS_PAGEN] > $this->NavPageCount? 1:$_SESSION[$this->SESS_PAGEN]):$this->PAGEN);
+			if($this->PAGEN >= 1 && $this->PAGEN <= $this->NavPageCount)
+				$this->NavPageNomer = $this->PAGEN;
+			elseif($_SESSION[$this->SESS_PAGEN] >= 1 && $_SESSION[$this->SESS_PAGEN] <= $this->NavPageCount)
+				$this->NavPageNomer = $_SESSION[$this->SESS_PAGEN];
+			elseif($arNavStartParams["checkOutOfRange"] !== true)
+				$this->NavPageNomer = 1;
+			else
+				return;
 
 			//rows to skip
 			$NavFirstRecordShow = $this->NavPageSize*($this->NavPageNomer-1);
@@ -1151,16 +1243,8 @@ class CDBResult extends CAllDBResult
 		else
 			$res_tmp = $GLOBALS["DB"]->Query($strSql);
 
-		/*
-		for($i=$NavFirstRecordShow; $i<$NavLastRecordShow; $i++)
-			$temp_arrray[] = mysql_fetch_array($res_tmp->result, MYSQL_ASSOC);
-		*/
-
 		if($this->SqlTraceIndex)
-		{
-			list($usec, $sec) = explode(" ", microtime());
-			$start_time = ((float)$usec + (float)$sec);
-		}
+			$start_time = microtime(true);
 
 		$temp_arrray = array();
 		$temp_arrray_add = array();
@@ -1191,9 +1275,7 @@ class CDBResult extends CAllDBResult
 
 		if($this->SqlTraceIndex)
 		{
-			list($usec, $sec) = explode(" ", microtime());
-			$end_time = ((float)$usec + (float)$sec);
-			$exec_time = round($end_time-$start_time, 10);
+			$exec_time = round(microtime(true) - $start_time, 10);
 			$GLOBALS["DB"]->arQueryDebug[$this->SqlTraceIndex - 1]["TIME"] += $exec_time;
 			$GLOBALS["DB"]->timeQuery += $exec_time;
 		}

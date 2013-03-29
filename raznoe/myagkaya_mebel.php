@@ -1,6 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetTitle("Мягкая мебель");
+$APPLICATION->SetPageProperty("title", "Мягкая мебель отечественная. Фотогалерея моделей угловых диванов. Купить кресло. Продажа мебели в интернет-магазине.");
+$APPLICATION->SetTitle("Мягкая мебель отечественная. Фотогалерея моделей угловых диванов. Купить кресло. Продажа мебели в интернет-магазине.");
 ?><?$APPLICATION->IncludeComponent(
 	"bitrix:catalog.element",
 	"template_statii_det",
@@ -33,10 +34,71 @@ $APPLICATION->SetTitle("Мягкая мебель");
 		"LINK_ELEMENTS_URL" => "link.php?PARENT_ELEMENT_ID=#ELEMENT_ID#"
 	)
 );?> 
-<p>
-  <p>
-    <br />
-  </p>
-</p>
+<p> </p>
  
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
+<p> </p>
+
+<p id="mailru-webagent-gen-40" style="background-color: rgb(255, 255, 255); text-indent: 35.4pt;"> 
+  <br />
+ </p>
+
+<div style="text-indent: 0px;"><span style="text-indent: 35.4pt;"><span style="line-height: 10px;">     </span></span></div>
+ 
+<div style="text-indent: 0px;"><span style="text-indent: 35.4pt;"><font face="Arial, Tahoma, Verdana, sans-serif" size="2">В интерьере любой квартиры или дома испокон века главенствующую роль занимает мягкая мебель. Окружая себя подобными вещами, мы изначально хотим, чтобы в доме не только было красиво и уютно, но и все было предусмотрено для приема гостей.</font></span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-indent: 35.4pt;">Покупка угловой мягкой мебели решает вкупе все проблемы по обустройству интерьера гостиной. Мягкая мебель, которую предлагает отечественный производитель, соответствует европейским стандартам и непревзойденному качеству.</span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-indent: 35.4pt;">Можно не сомневаться, купить ли мягкий диван или кресло производства стран Европы, или довериться российским производителям мебельной индустрии. Ответ очевиден &ndash; наш покупатель всегда доверяет качественной мягкой мебели, изготовленной на отечественных мебельных фабриках.</span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-align: justify; text-indent: 36pt;"> 
+    <br />
+   </span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-align: justify; text-indent: 36pt;"> 
+    <br />
+   </span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-align: justify; text-indent: 36pt;">На фото представлен широкий ряд мягкой мебели на любой вкус и кошелек будущего владельца. У всей продукции есть характерная особенность, которая делает ее максимально удобной. Это современный дизайн, разработанный специально ведущими художниками и конструкторами мебельной фабрики. Вся мягкая мебель отличается мобильностью и функциональностью. Продажа мебели соответствует всем правилам современного менеджмента и мебельного бизнеса.</span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-indent: 35.4pt;">Покупатель может выбрать понравившуюся модель, подобрать к ней подходящие по фактуре и дизайну кресла и пуфы, заказать диванные подушки из ткани обивки мягкого дивана. В свою очередь, мы всегда рады, если покупатель оставит свой отзыв о приобретенной вещи и выразит свою благодарность производителям мягкой мебели.</span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div style="text-indent: 0px;"><span style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; text-indent: 35.4pt;">Фотогалерея модельного ряда, полностью отражает представленную мягкую мебель и удовлетворит желания любого покупателя. Поменяв мебель, вы всегда сможете с уверенностью сказать – наша мягкая мебель настоящий стильный аксессуар для модной гостиной.</span></div>
+ 
+<p></p>
+ 
+<p></p>
+ 
+<p></p>
+ <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

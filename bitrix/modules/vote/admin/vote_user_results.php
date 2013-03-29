@@ -1,9 +1,9 @@
 <?
 ##############################################
-# Bitrix Site Manager Forum                  #
-# Copyright (c) 2002-2009 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
+# Bitrix Site Manager Forum					#
+# Copyright (c) 2002-2009 Bitrix			#
+# http://www.bitrixsoft.com					#
+# mailto:admin@bitrixsoft.com				#
 ##############################################
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/prolog.php");
@@ -49,7 +49,7 @@ if (!($zr=$z->Fetch()))
 }
 
 $aTabs = array(
-        array("DIV" => "edit1", "TAB"=>GetMessage("VOTE_PARAMS"), "ICON"=>"main_vote_edit", "TITLE"=>GetMessage("VOTE_PARAMS_TITE")),
+		array("DIV" => "edit1", "TAB"=>GetMessage("VOTE_PARAMS"), "ICON"=>"main_vote_edit", "TITLE"=>GetMessage("VOTE_PARAMS_TITE")),
 	);
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 GetVoteDataByID($VOTE_ID, $arChannel, $arVote, $arQuestions, $arAnswers, $arDropDown, $arMultiSelect, $arGroupAnswers, "N", $template, $res_template);
@@ -92,11 +92,11 @@ $tabControl->BeginNextTab();
 		<td  ><?=GetMessage("VOTE_VOTE")?></b></font></td>
 		<td ><?
 		?>[<a class="tablebodylink" href="vote_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$arVote["ID"]?>" class="tablebodytext"><?=$arVote["ID"]?></a>]&nbsp;<?
-        if (strlen($arVote["TITLE"])>0) echo $arVote["TITLE"];
-        elseif ($arVote["DESCRIPTION_TYPE"]=="html")
-            echo TruncateText(strip_tags($arVote["~DESCRIPTION"]),200);
-        else
-            echo TruncateText($arVote["DESCRIPTION"],200);
+		if (strlen($arVote["TITLE"])>0) echo $arVote["TITLE"];
+		elseif ($arVote["DESCRIPTION_TYPE"]=="html")
+			echo TruncateText(strip_tags($arVote["~DESCRIPTION"]),200);
+		else
+			echo TruncateText($arVote["DESCRIPTION"],200);
 		?></font></td>
 	</tr>
 	<tr>
@@ -230,7 +230,7 @@ $tabControl->End();
 									if ($show_dropdown!="Y")
 									{
 										$field_name = "vote_dropdown_".$QUESTION_ID;
-                                        $arDropDown[$QUESTION_ID]["reference"] = $arDropDown[$QUESTION_ID]["~reference"];
+										$arDropDown[$QUESTION_ID]["reference"] = $arDropDown[$QUESTION_ID]["~reference"];
 										foreach ($arDropDown[$QUESTION_ID]["reference_id"] as $q)
 										{
 											$selected = CVoteEvent::GetAnswer($EVENT_ID,$q);
@@ -245,7 +245,7 @@ $tabControl->End();
 									{
 										$field_name = "vote_multiselect_".$QUESTION_ID;
 										$arr = array();
-                                        $arMultiSelect[$QUESTION_ID]["reference"] = $arMultiSelect[$QUESTION_ID]["~reference"];
+										$arMultiSelect[$QUESTION_ID]["reference"] = $arMultiSelect[$QUESTION_ID]["~reference"];
 										foreach ($arMultiSelect[$QUESTION_ID]["reference_id"] as $q)
 										{
 											$selected = CVoteEvent::GetAnswer($EVENT_ID,$q);
@@ -258,12 +258,12 @@ $tabControl->End();
 								case 4:
 									$field_name = "vote_field_".$arAnswer["ID"];
 									$value = CVoteEvent::GetAnswer($EVENT_ID,$arAnswer["ID"]);
-									?><?if (strlen(trim($arAnswer["MESSAGE"]))>0):?><font class="text"><?=$arAnswer["MESSAGE"]?></font><br><?endif?><input type="text" name="<?=$field_name?>" value="<?=htmlspecialchars($value)?>" size="<?=$arAnswer["FIELD_WIDTH"]?>" <?=$arAnswer["FIELD_PARAM"]?>><?
+									?><?if (strlen(trim($arAnswer["MESSAGE"]))>0):?><font class="text"><?=$arAnswer["MESSAGE"]?></font><br><?endif?><input type="text" name="<?=$field_name?>" value="<?=htmlspecialcharsbx($value)?>" size="<?=$arAnswer["FIELD_WIDTH"]?>" <?=$arAnswer["FIELD_PARAM"]?>><?
 									break;
 								case 5:
 									$field_name = "vote_memo_".$arAnswer["ID"];
 									$text = CVoteEvent::GetAnswer($EVENT_ID,$arAnswer["ID"]);
-									?><font class="text"><?if (strlen(trim($arAnswer["MESSAGE"]))>0) echo $arAnswer["MESSAGE"]."<br>"?></font><textarea name="<?=$field_name?>" <?=$arAnswer["FIELD_PARAM"]?> cols="<?=$arAnswer["FIELD_WIDTH"]?>" rows="<?=$arAnswer["FIELD_HEIGHT"]?>"><?=htmlspecialchars($text)?></textarea><?
+									?><font class="text"><?if (strlen(trim($arAnswer["MESSAGE"]))>0) echo $arAnswer["MESSAGE"]."<br>"?></font><textarea name="<?=$field_name?>" <?=$arAnswer["FIELD_PARAM"]?> cols="<?=$arAnswer["FIELD_WIDTH"]?>" rows="<?=$arAnswer["FIELD_HEIGHT"]?>"><?=htmlspecialcharsbx($text)?></textarea><?
 									break;
 							endswitch;
 							?></td>

@@ -3,16 +3,16 @@ if (!CModule::IncludeModule("forum")):
 	ShowError(GetMessage("F_NO_MODULE"));
 	return 0;
 elseif (intVal($arParams["FORUM_ID"]) <= 0):
- 	ShowError(GetMessage("F_ERR_FID_EMPTY"));
+	ShowError(GetMessage("F_ERR_FID_EMPTY"));
 	return 0;
 elseif (empty($arParams["ENTITY_TYPE"])):
- 	ShowError(GetMessage("F_ERR_ENT_EMPTY"));
+	ShowError(GetMessage("F_ERR_ENT_EMPTY"));
 	return 0;
 elseif (strlen(trim($arParams["ENTITY_TYPE"])) !== 2 ):
- 	ShowError(GetMessage("F_ERR_ENT_INVALID"));
+	ShowError(GetMessage("F_ERR_ENT_INVALID"));
 	return 0;
 elseif (empty($arParams["ENTITY_XML_ID"]) || (intval($arParams['ENTITY_ID']) <= 0 && $arParams['ENTITY_ID'] !== 0)):
- 	ShowError(GetMessage("F_ERR_EID_EMPTY"));
+	ShowError(GetMessage("F_ERR_EID_EMPTY"));
 	return 0;
 endif;
 /********************************************************************
@@ -33,7 +33,7 @@ foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	if (empty($arParams["URL_TEMPLATES_".strToUpper($URL)]))
 		continue;
 	$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-	$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+	$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 }
 
 /***************** ADDITIONAL **************************************/
@@ -46,6 +46,7 @@ $arParams["SUBSCRIBE_AUTHOR_ELEMENT"] = ($arParams["SUBSCRIBE_AUTHOR_ELEMENT"] =
 $arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 300);
 $arParams["MESSAGES_PER_PAGE"] = intVal($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")):$arParams["DATE_TIME_FORMAT"]);
+$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $arParams["NAME_TEMPLATE"]);
 $arParams["USE_CAPTCHA"] = ($arParams["USE_CAPTCHA"] == "Y" ? "Y" : "N");
 $arParams["PREORDER"] = ($arParams["PREORDER"] == "Y" ? "Y" : "N");
 $arParams["PERMISSION"] = (isset($arParams['PERMISSION']) ? $arParams['PERMISSION'] : null);
@@ -133,7 +134,13 @@ else
 if ($USER->IsAuthorized())
 {
 	$arResult["USER"]["ID"] = $GLOBALS["USER"]->GetID();
-	$arResult["USER"]["SHOWED_NAME"] = trim($_SESSION["FORUM"]["SHOW_NAME"] == "Y" ? $GLOBALS["USER"]->GetFullName() :	$GLOBALS["USER"]->GetLogin());
+	$tmpName = empty($arParams["NAME_TEMPLATE"]) ? $GLOBALS["USER"]->GetFormattedName(false) : CUser::FormatName($arParams["NAME_TEMPLATE"], array(
+			"NAME"			=>	$USER->GetFirstName(),
+			"LAST_NAME"		=>	$USER->GetLastName(),
+			"SECOND_NAME"	=>	$USER->GetSecondName(),
+			"LOGIN"			=>	$USER->GetLogin()
+			));
+	$arResult["USER"]["SHOWED_NAME"] = trim($_SESSION["FORUM"]["SHOW_NAME"] == "Y" ? $tmpName :	$GLOBALS["USER"]->GetLogin());
 	$arResult["USER"]["SHOWED_NAME"] = trim(!empty($arResult["USER"]["SHOWED_NAME"]) ? $arResult["USER"]["SHOWED_NAME"] : $GLOBALS["USER"]->GetLogin());
 }
 
@@ -182,7 +189,7 @@ if ($dbRes && $arRes = $dbRes->Fetch())
 
 if (empty($arResult["FORUM"]))
 {
- 	ShowError(str_replace("#FORUM_ID#", $arParams["FORUM_ID"], GetMessage("F_ERR_FID_IS_NOT_EXIST")));
+	ShowError(str_replace("#FORUM_ID#", $arParams["FORUM_ID"], GetMessage("F_ERR_FID_IS_NOT_EXIST")));
 	return false;
 }
 elseif ($arResult["USER"]["PERMISSION"] <= "A")
@@ -211,7 +218,7 @@ while ($arEvent = $rsEvents->Fetch())
 /********************************************************************
 				Actions
 ********************************************************************/
-ForumSetLastVisit($arParams["FORUM_ID"], 0);
+ForumSetLastVisit($arParams["FORUM_ID"], $arResult['FORUM_TOPIC_ID'], array("nameTemplate" => $arParams["NAME_TEMPLATE"]));
 include($path."/action.php");
 $strErrorMessage = "";
 foreach ($arError as $res)
@@ -276,7 +283,7 @@ if ($arResult["SHOW_POST_FORM"] == "Y")
 			COption::SetOptionString("main", "captcha_password", $captchaPass);
 		}
 		$cpt->SetCodeCrypt($captchaPass);
-		$arResult["CAPTCHA_CODE"] = htmlspecialchars($cpt->GetCodeCrypt());
+		$arResult["CAPTCHA_CODE"] = htmlspecialcharsbx($cpt->GetCodeCrypt());
 	}
 }
 
@@ -447,7 +454,7 @@ if ($arResult['DO_NOT_CACHE'] || $this->StartResultCache($arParams["CACHE_TIME"]
 					}
 					// For quote JS
 					$res["FOR_JS"]["AUTHOR_NAME"] = CUtil::JSEscape($res["AUTHOR_NAME"]);
-					$res["FOR_JS"]["POST_MESSAGE_TEXT"] = CUtil::JSEscape(htmlspecialchars($res["POST_MESSAGE_TEXT"]));
+					$res["FOR_JS"]["POST_MESSAGE_TEXT"] = CUtil::JSEscape(htmlspecialcharsbx($res["POST_MESSAGE_TEXT"]));
 					$arMessages[$res["ID"]] = $res;
 				}
 			}
@@ -459,7 +466,7 @@ if ($arResult['DO_NOT_CACHE'] || $this->StartResultCache($arParams["CACHE_TIME"]
 				$result = ExecuteModuleEventEx($arEvent);
 
 			if(defined("BX_COMP_MANAGED_CACHE"))
-				$CACHE_MANAGER->RegisterTag("forum_topic_".$arResult['FORUM_TOPIC_ID']);
+				CForumCacheManager::SetTag($this->GetCachePath(), "forum_topic_".$arResult['FORUM_TOPIC_ID']);
 		}
 		else
 		{

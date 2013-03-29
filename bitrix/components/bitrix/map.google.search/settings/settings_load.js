@@ -236,14 +236,18 @@ var jsGoogleCESearch = {
 		alert(jsGoogleCE.jsMess.mess_error);
 	},
 	
-	__generateOutput: function()
+	setOutputCoordinates: function()
 	{
 		var obPos = BX.pos(jsGoogleCESearch.obInput);
-		
+		jsGoogleCESearch.obOut.style.top = (obPos.bottom + 2) + 'px';
+		jsGoogleCESearch.obOut.style.left = obPos.left + 'px';		
+	},
+
+	__generateOutput: function()
+	{			
 		jsGoogleCESearch.obOut = document.body.appendChild(document.createElement('UL'));
 		jsGoogleCESearch.obOut.className = 'bx-google-address-search-results';
-		jsGoogleCESearch.obOut.style.top = (obPos.bottom + 2) + 'px';
-		jsGoogleCESearch.obOut.style.left = obPos.left + 'px';
+		jsGoogleCESearch.setOutputCoordinates();
 		jsGoogleCESearch.obOut.style.zIndex = parseInt(BX.WindowManager.Get().zIndex) + 200;
 	},
 
@@ -329,7 +333,10 @@ var jsGoogleCESearch = {
 	showResults: function()
 	{
 		if (null != jsGoogleCESearch.obOut)
+		{
+			jsGoogleCESearch.setOutputCoordinates();
 			jsGoogleCESearch.obOut.style.display = 'block';
+		}
 	},
 
 	hideResults: function()

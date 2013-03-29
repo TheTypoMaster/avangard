@@ -1,5 +1,5 @@
-INSERT  INTO b_forum_dictionary ( ID,TITLE,`TYPE`) VALUES (3, '[en]Bad words', 'W') ;
-INSERT  INTO b_forum_dictionary ( ID,TITLE,`TYPE`) VALUES (4, '[en]Transliteration', 'T') ;
+INSERT  INTO b_forum_dictionary ( ID,TITLE,`TYPE`) VALUES (3, '[en] Bad words', 'W') ;
+INSERT  INTO b_forum_dictionary ( ID,TITLE,`TYPE`) VALUES (4, '[en] Transliteration', 'T') ;
 
 INSERT INTO b_forum_filter (DICTIONARY_ID,WORDS,PATTERN,REPLACEMENT,DESCRIPTION,USE_IT,PATTERN_CREATE) VALUES ('3', 'angry', '', '', '', 'Y', 'TRNSL');
 INSERT INTO b_forum_filter (DICTIONARY_ID,WORDS,PATTERN,REPLACEMENT,DESCRIPTION,USE_IT,PATTERN_CREATE) VALUES ('3', 'ass', '', '', '', 'Y', 'TRNSL');

@@ -100,7 +100,7 @@ foreach($arParams["PROPERTY_CODE"] as $key => $val)
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 //***************** ADDITTIONAL ************************************/
 $arParams["USE_PERMISSIONS"] = ($arParams["USE_PERMISSIONS"] == "Y" ? "Y" : "N");
@@ -143,8 +143,6 @@ $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y"); //Turn on 
 /********************************************************************
 				/Input params
 ********************************************************************/
-$cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]."/");
-
 $oPhoto = new CPGalleryInterface(
 	array(
 		"IBlockID" => $arParams["IBLOCK_ID"],
@@ -152,8 +150,6 @@ $oPhoto = new CPGalleryInterface(
 		"Permission" => $arParams["PERMISSION_EXTERNAL"]),
 	array(
 		"cache_time" => $arParams["CACHE_TIME"],
-		"cache_path" => $cache_path_main,
-		"show_error" => "Y",
 		"set_404" => $arParams["SET_STATUS_404"]
 		)
 	);
@@ -347,6 +343,7 @@ else
 // ADDITIONAL FILTERS
 if ($arParams["ELEMENT_LAST_TYPE"] == "count" && $arParams["ELEMENTS_LAST_COUNT"] > 0)
 {
+	CModule::IncludeModule("iblock");
 	$db_res = CIBlockElement::GetList(array("ID" => "DESC"), $arFilter, false, array("nTopCount" => $arParams["ELEMENTS_LAST_COUNT"]), array("ID"));
 	$iLastID = 0;
 
@@ -399,7 +396,7 @@ $arParams["FILTER"] = $arFilter;
 $arParams["SORTING"] = $arSort;
 
 // EXECUTE
-$arCacheParams = array(
+$cache_id = "detail_list_".serialize(array(
 	"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 	"SECTION_ID" => $arParams["SECTION_ID"],
 	"SELECT_SURROUNDING" => $arParams["SELECT_SURROUNDING"],
@@ -412,11 +409,13 @@ $arCacheParams = array(
 	"NAV1" => $arNavParams,
 	"NAV2" => $arNavigation,
 	"BEHAVIOUR" => $arParams["BEHAVIOUR"],
-	"USER_ALIAS" => $arParams["USER_ALIAS"]);
-$cache_id = "elements_list_".serialize($arCacheParams);
+	"USER_ALIAS" => $arParams["USER_ALIAS"]
+));
 if(($tzOffset = CTimeZone::GetOffset()) <> 0)
 	$cache_id .= "_".$tzOffset;
-$cache_path = $cache_path_main."detaillist/".$arParams["SECTION_ID"];
+
+$cache_path = "/".SITE_ID."/photogallery/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"];
+
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
 	$res = $cache->GetVars();
@@ -433,8 +432,7 @@ if (!is_array($arResult["ELEMENTS_LIST"]) || empty($arResult["ELEMENTS_LIST"]))
 	if ($arParams["SELECT_SURROUNDING"] == "Y")
 	{
 		$arResult["ELEMENTS_CNT"] = CIBlockElement::GetList($arSort, $arFilter, array());
-		$rsElements = CIBlockElement::GetList($arSort, $arFilter, false,
-			array("nElementID" => $arParams["ELEMENT_ID"], "nPageSize" => $arParams["PAGE_ELEMENTS"]), $arSelect);
+		$rsElements = CIBlockElement::GetList($arSort, $arFilter, false, array("nElementID" => $arParams["ELEMENT_ID"], "nPageSize" => $arParams["PAGE_ELEMENTS"]), $arSelect);
 	}
 	else
 	{
@@ -523,7 +521,7 @@ if (!is_array($arResult["ELEMENTS_LIST"]) || empty($arResult["ELEMENTS_LIST"]))
 
 						$res["~URL"] = CComponentEngine::MakePathFromTemplate($arParams["~GALLERY_URL"],
 							array("USER_ALIAS" => $res["CODE"], "USER_ID" => $res["CREATED_BY"], "GROUP_ID" => $res["SOCNET_GROUP_ID"]));
-						$res["URL"] = htmlspecialchars($res["~URL"]);
+						$res["URL"] = htmlspecialcharsbx($res["~URL"]);
 						$arGalleries[$arElement["IBLOCK_SECTION_ID"]] = $res;
 					}
 				}
@@ -550,11 +548,11 @@ if (!is_array($arResult["ELEMENTS_LIST"]) || empty($arResult["ELEMENTS_LIST"]))
 			$arElement["~URL"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_URL"],
 				array("USER_ALIAS" => $arGallery["CODE"], "SECTION_ID" => $arElement["IBLOCK_SECTION_ID"], "ELEMENT_ID" => $arElement["ID"],
 					"USER_ID" => $arGallery["CREATED_BY"], "GROUP_ID" => $arGallery["SOCNET_GROUP_ID"]));
-			$arElement["URL"] = htmlspecialchars($arElement["~URL"]);
+			$arElement["URL"] = htmlspecialcharsbx($arElement["~URL"]);
 			$arElement["~SLIDE_SHOW_URL"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_SLIDE_SHOW_URL"],
 				array("USER_ALIAS" => $arGallery["CODE"], "SECTION_ID" => $arElement["IBLOCK_SECTION_ID"], "ELEMENT_ID" => $arElement["ID"],
 					"USER_ID" => $arElement["GALLERY"]["CREATED_BY"], "GROUP_ID" => $arElement["GALLERY"]["SOCNET_GROUP_ID"]));
-			$arElement["SLIDE_SHOW_URL"] = htmlspecialchars($arElement["~SLIDE_SHOW_URL"]);
+			$arElement["SLIDE_SHOW_URL"] = htmlspecialcharsbx($arElement["~SLIDE_SHOW_URL"]);
 
 			//TAGS
 			$arElement["TAGS_LIST"] = array();
@@ -569,7 +567,7 @@ if (!is_array($arResult["ELEMENTS_LIST"]) || empty($arResult["ELEMENTS_LIST"]))
 							"TAG_NAME" => $tags,
 							"~TAGS_URL" => CComponentEngine::MakePathFromTemplate($arParams["~SEARCH_URL"], array()));
 						$arr["~TAGS_URL"] .= (strpos($arParams["~SEARCH_URL"], "?") === false ? "?" : "&")."tags=".$tags;
-						$arr["TAGS_URL"] = htmlspecialchars($arr["~TAGS_URL"]);
+						$arr["TAGS_URL"] = htmlspecialcharsbx($arr["~TAGS_URL"]);
 						$arr["TAGS_NAME"] = $tags;
 						$arElement["TAGS_LIST"][] = $arr;
 					}
@@ -656,13 +654,18 @@ if (!is_array($arResult["ELEMENTS_LIST"]) || empty($arResult["ELEMENTS_LIST"]))
 		);
 	}
 }
+else
+{
+	$GLOBALS['NavNum'] = intVal($GLOBALS['NavNum']) + 1;
+}
+
 /************** URL ************************************************/
 $arResult["~SLIDE_SHOW"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_SLIDE_SHOW_URL"], array(
 	"USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arParams["SECTION_ID"], "ELEMENT_ID" => 0,
 	"USER_ID" => $arResult["GALLERY"]["CREATED_BY"], "GROUP_ID" => $arResult["GALLERY"]["SOCNET_GROUP_ID"])).
 	(strpos($arParams["~DETAIL_SLIDE_SHOW_URL"], "?") === false ? "?" : "&").
 	"BACK_URL=".urlencode($GLOBALS['APPLICATION']->GetCurPageParam());
-$arResult["SLIDE_SHOW"] = htmlspecialchars($arResult["~SLIDE_SHOW"]);
+$arResult["SLIDE_SHOW"] = htmlspecialcharsbx($arResult["~SLIDE_SHOW"]);
 /********************************************************************
 				/Data
 ********************************************************************/

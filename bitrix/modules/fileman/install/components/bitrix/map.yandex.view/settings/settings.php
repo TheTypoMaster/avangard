@@ -5,7 +5,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.
 __IncludeLang($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/map.yandex.view/lang/'.LANGUAGE_ID.'/settings.php');
 
 //if(!$USER->IsAdmin())
-//	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED")); 
+//	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 $obJSPopup = new CJSPopup('',
 	array(
@@ -19,7 +19,7 @@ $arData = array();
 if ($_REQUEST['MAP_DATA'])
 {
 	CUtil::JSPostUnescape();
-	
+
 	if (CheckSerializedData($_REQUEST['MAP_DATA']))
 	{
 		$arData = unserialize($_REQUEST['MAP_DATA']);
@@ -39,28 +39,30 @@ if ($_REQUEST['MAP_DATA'])
 BX.loadCSS('/bitrix/components/bitrix/map.yandex.view/settings/settings.css');
 window._global_BX_UTF = <?echo defined('BX_UTF') && BX_UTF == true ? 'true' : 'false'?>;
 window.jsYandexMess = {
-	noname: '<?echo GetMessage('MYMV_SET_NONAME')?>',
-	MAP_VIEW_MAP: '<?echo GetMessage('MYMS_PARAM_INIT_MAP_TYPE_MAP')?>', 
-	MAP_VIEW_SATELLITE: '<?echo GetMessage('MYMS_PARAM_INIT_MAP_TYPE_SATELLITE')?>', 
-	MAP_VIEW_HYBRID: '<?echo GetMessage('MYMS_PARAM_INIT_MAP_TYPE_HYBRID')?>',
-	poly_start_point: '<?echo GetMessage('MYMV_SET_POLY_START_POINT')?>',
+	noname: '<?echo CUtil::JSEscape(GetMessage('MYMV_SET_NONAME'))?>',
+	MAP_VIEW_MAP: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_MAP'))?>',
+	MAP_VIEW_SATELLITE: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_SATELLITE'))?>',
+	MAP_VIEW_HYBRID: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_HYBRID'))?>',
+	MAP_VIEW_PUBLIC: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_PUBLIC'))?>',
+	MAP_VIEW_PUBLIC_HYBRID: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_PUBLIC_HYBRID'))?>',
+	poly_start_point: '<?echo CUtil::JSEscape(GetMessage('MYMV_SET_POLY_START_POINT'))?>',
 	current_view: '<?echo CUtil::JSEscape($_REQUEST['INIT_MAP_TYPE'])?>',
-	nothing_found: '<?echo GetMessage('MYMS_PARAM_INIT_MAP_NOTHING_FOUND')?>',
-	
-	poly_finish: '<?echo GetMessage('MYMV_SET_POLY_FINISH')?>',
-	poly_settings: '<?echo GetMessage('MYMV_SET_POLY_SETTINGS')?>',
-	
-	poly_opt_header: '<?echo GetMessage('MYMV_SET_POLY_SETTINGS')?>',
-	poly_opt_title: '<?echo GetMessage('MYMV_SET_POLY_TITLE')?>',
-	poly_opt_color: '<?echo GetMessage('MYMV_SET_POLY_COLOR')?>',
-	poly_opt_width: '<?echo GetMessage('MYMV_SET_POLY_WIDTH')?>',
-	poly_opt_opacity: '<?echo GetMessage('MYMV_SET_POLY_OPACITY')?>'
-	
+	nothing_found: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_NOTHING_FOUND'))?>',
+
+	poly_finish: '<?echo CUtil::JSEscape(GetMessage('MYMV_SET_POLY_FINISH'))?>',
+	poly_settings: '<?echo CUtil::JSEscape(GetMessage('MYMV_SET_POLY_SETTINGS'))?>',
+
+	poly_opt_header: '<?echo CUtil::JSEscape(GetMessage('MYMV_SET_POLY_SETTINGS'))?>',
+	poly_opt_title: '<?echo CUtil::JSEscape(GetMessage('MYMV_SET_POLY_TITLE'))?>',
+	poly_opt_color: '<?echo CUtil::JSEscape(GetMessage('MYMV_SET_POLY_COLOR'))?>',
+	poly_opt_width: '<?echo CUtil::JSEscape(GetMessage('MYMV_SET_POLY_WIDTH'))?>',
+	poly_opt_opacity: '<?echo CUtil::JSEscape(GetMessage('MYMV_SET_POLY_OPACITY'))?>'
+
 };
 
 if (null != window.jsYandexCESearch)
 	jsYandexCESearch.clear();
-	
+
 if (null != window.jsYandexCE)
 	jsYandexCE.clear();
 <?
@@ -78,7 +80,7 @@ jsYandexCE.onInitCompleted = function()
 <?
 		}
 	}
-	
+
 	if (is_array($arData['POLYLINES']))
 	{
 		foreach ($arData['POLYLINES'] as $arPoly)
@@ -116,25 +118,24 @@ $APPLICATION->IncludeComponent('bitrix:map.yandex.system', '', array(
 	'INIT_MAP_LAT' => $arData['yandex_lat'],
 	'INIT_MAP_LON' => $arData['yandex_lon'],
 	'INIT_MAP_SCALE' => $arData['yandex_scale'],
-	'CONTROLS' => array('TOOLBAR', 'TYPECONTROL', 'ZOOM'),
+	'CONTROLS' => array("ZOOM","MINIMAP","TYPECONTROL","SCALELINE"),
 	'OPTIONS' => array('ENABLE_SCROLL_ZOOM', 'ENABLE_DBLCLICK_ZOOM', 'ENABLE_DRAGGING'),
 	'MAP_ID' => 'system_view_edit',
 	'ONMAPREADY' => 'jsYandexCE.init',
 	'ONMAPREADY_PROPERTY' => 'jsYandexCE.map',
-	'WAIT_FOR_EVENT' => 'window.onload',
 	'DEV_MODE' => 'Y',
 ), false, array('HIDE_ICONS' => 'Y'));
 ?>
 </div><div class="bx-yandex-map-address-search" id="bx_yandex_map_address_search" style="visibility: hidden; ">
-	<?echo GetMessage('MYMV_SET_ADDRESS_SEARCH')?>: <input type="text" name="address" value="" style="width: 400px;" onkeypress="jsYandexCESearch.setTypingStarted(this)" autocomplete="off" />
+	<?echo GetMessage('MYMV_SET_ADDRESS_SEARCH')?>: <input type="text" name="address" value="" style="width: 380px;" onkeypress="jsYandexCESearch.setTypingStarted(this)" autocomplete="off" />
 </div><div class="bx-yandex-map-controls" id="bx_yandex_map_controls" style="margin-left: 510px; visibility: hidden;">
 	<div class="bx-yandex-map-controls-group">
 		<b><?echo GetMessage('MYMV_SET_START_POS')?></b><br />
 			<ul id="bx_yandex_position">
-				<li><?echo GetMessage('MYMV_SET_START_POS_LAT')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_lat_value"></span><input type="hidden" name="bx_yandex_lat" value="<?echo $arData['yandex_lat']?>" /></li>
-				<li><?echo GetMessage('MYMV_SET_START_POS_LON')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_lon_value"></span><input type="hidden" name="bx_yandex_lon" value="<?echo $arData['yandex_lon']?>" /></li>
-				<li><?echo GetMessage('MYMV_SET_START_POS_SCALE')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_scale_value"></span><input type="hidden" name="bx_yandex_scale" value="<?echo $arData['yandex_scale']?>" /></li>
-				<li><?echo GetMessage('MYMV_SET_START_POS_VIEW')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_view_value"></span><input type="hidden" name="bx_yandex_view" value="<?echo htmlspecialchars($_REQUEST['INIT_MAP_TYPE'])?>" /></li>
+				<li><?echo GetMessage('MYMV_SET_START_POS_LAT')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_lat_value"></span><input type="hidden" name="bx_yandex_lat" value="<?echo htmlspecialcharsbx($arData['yandex_lat'])?>" /></li>
+				<li><?echo GetMessage('MYMV_SET_START_POS_LON')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_lon_value"></span><input type="hidden" name="bx_yandex_lon" value="<?echo htmlspecialcharsbx($arData['yandex_lon'])?>" /></li>
+				<li><?echo GetMessage('MYMV_SET_START_POS_SCALE')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_scale_value"></span><input type="hidden" name="bx_yandex_scale" value="<?echo htmlspecialcharsbx($arData['yandex_scale'])?>" /></li>
+				<li><?echo GetMessage('MYMV_SET_START_POS_VIEW')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_view_value"></span><input type="hidden" name="bx_yandex_view" value="<?echo htmlspecialcharsbx($_REQUEST['INIT_MAP_TYPE'])?>" /></li>
 				<li><input type="checkbox" id="bx_yandex_position_fix" name="bx_yandex_position_fix" value="Y"<?if ($arData['yandex_scale']):?> checked="checked"<?endif;?>  /> <label for="bx_yandex_position_fix"><?echo GetMessage('MYMV_SET_START_POS_FIX')?></label>&nbsp;|&nbsp;<a href="javascript:void(0)" id="bx_restore_position"><?echo GetMessage('MYMV_SET_START_POS_RESTORE')?></a>
 			</ul>
 	</div>
@@ -143,14 +144,14 @@ $APPLICATION->IncludeComponent('bitrix:map.yandex.system', '', array(
 		<ul id="bx_yandex_points"></ul>
 		<a href="javascript: void(0)" onclick="jsYandexCE.addPoint(); return false;" id="bx_yandex_addpoint_link" style="display: block;"><?echo GetMessage('MYMV_SET_POINTS_ADD')?></a>
 		<div id="bx_yandex_addpoint_message" style="display: none;"><?echo GetMessage('MYMV_SET_POINTS_ADD_DESCRIPTION')?> <a href="javascript:void(0)" onclick="jsYandexCE.addPoint(); return false;"><?echo GetMessage('MYMV_SET_POINTS_ADD_FINISH')?></a>.</div>
-	</div>	
+	</div>
 	<div class="bx-yandex-map-controls-group" id="bx_yandex_polylines_group">
 		<b><?echo GetMessage('MYMV_SET_POLY')?>:</b><br />
 		<ul id="bx_yandex_polylines"></ul>
 		<a href="javascript: void(0)" onclick="jsYandexCE.addPolyline(); return false;" id="bx_yandex_addpoly_link" style="display: block;"><?echo GetMessage('MYMV_SET_POLY_ADD')?></a>
-		<div id="bx_yandex_addpoly_message" style="display: none;"><?echo GetMessage('MYMV_SET_POLY_ADD_DESCRIPTION')?> <a href="javascript:void(0)" onclick="jsYandexCE.addPolyline(); return false;"><?echo GetMessage('MYMV_SET_POLY_ADD_FINISH')?></a>.</div>
+		<div id="bx_yandex_addpoly_message" style="display: none;"><?echo GetMessage('MYMV_SET_POLY_ADD_DESCRIPTION')?> <a href="javascript:void(0)" onclick="jsYandexCE.addPolyline(); return false;"><?echo GetMessage('MYMV_SET_POLY_ADD_FINISH')?></a></div>
 		<div id="bx_yandex_addpoly_message1" style="display: none;"><?echo GetMessage('MYMV_SET_POLY_ADD_DESCRIPTION1')?></div>
-	</div>	
+	</div>
 </div>
 <?
 $obJSPopup->StartButtons();

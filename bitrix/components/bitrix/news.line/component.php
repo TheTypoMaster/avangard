@@ -6,7 +6,7 @@ if(!isset($arParams["CACHE_TIME"]))
 
 $arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
 if(strlen($arParams["IBLOCK_TYPE"])<=0)
- 	$arParams["IBLOCK_TYPE"] = "news";
+	$arParams["IBLOCK_TYPE"] = "news";
 if($arParams["IBLOCK_TYPE"]=="-")
 	$arParams["IBLOCK_TYPE"] = "";
 
@@ -26,12 +26,12 @@ $arParams["SORT_BY1"] = trim($arParams["SORT_BY1"]);
 if(strlen($arParams["SORT_BY1"])<=0)
 	$arParams["SORT_BY1"] = "ACTIVE_FROM";
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER1"]))
-	 $arParams["SORT_ORDER1"]="DESC";
+	$arParams["SORT_ORDER1"]="DESC";
 
 if(strlen($arParams["SORT_BY2"])<=0)
 	$arParams["SORT_BY2"] = "SORT";
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER2"]))
-	 $arParams["SORT_ORDER2"]="ASC";
+	$arParams["SORT_ORDER2"]="ASC";
 
 $arParams["NEWS_COUNT"] = intval($arParams["NEWS_COUNT"]);
 if($arParams["NEWS_COUNT"]<=0)

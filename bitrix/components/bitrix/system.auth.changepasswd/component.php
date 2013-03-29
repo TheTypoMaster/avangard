@@ -28,7 +28,7 @@ $arResult["AUTH_AUTH_URL"] = $APPLICATION->GetCurPageParam("login=yes",$arParams
 
 foreach ($arResult as $key => $value)
 {
-	if (!is_array($value)) $arResult[$key] = htmlspecialchars($value);
+	if (!is_array($value)) $arResult[$key] = htmlspecialcharsbx($value);
 }
 
 $arRequestParams = array(
@@ -40,10 +40,10 @@ $arRequestParams = array(
 foreach ($arRequestParams as $param)
 {
 	$arResult[$param] = strlen($_REQUEST[$param]) > 0 ? $_REQUEST[$param] : "";
-	$arResult[$param] = htmlspecialchars($arResult[$param]);
+	$arResult[$param] = htmlspecialcharsbx($arResult[$param]);
 }
 
-$arResult["LAST_LOGIN"] = (isset($_REQUEST["USER_LOGIN"]) ? htmlspecialchars($_REQUEST["USER_LOGIN"]) : htmlspecialchars($_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"]));
+$arResult["LAST_LOGIN"] = (isset($_REQUEST["USER_LOGIN"]) ? htmlspecialcharsbx($_REQUEST["USER_LOGIN"]) : htmlspecialcharsbx($_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"]));
 
 $arResult["SECURE_AUTH"] = false;
 if(!CMain::IsHTTPS() && COption::GetOptionString('main', 'use_encrypted_auth', 'N') == 'Y')

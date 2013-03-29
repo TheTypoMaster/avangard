@@ -12,6 +12,7 @@ $APPLICATION->IncludeComponent(
 		
 		"PAGE_NAVIGATION_TEMPLATE" =>  $arParams["PAGE_NAVIGATION_TEMPLATE"],
 		"PAGE_NAVIGATION_WINDOW" =>  $arParams["PAGE_NAVIGATION_WINDOW"],
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"]
 		
 	),
 	$component 

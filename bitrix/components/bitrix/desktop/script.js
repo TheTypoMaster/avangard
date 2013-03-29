@@ -114,22 +114,23 @@ function BXGadget(gadgetHolderID, allGadgets)
 		}
 
 		_this.__GDList();
-		var t = document.getElementById('t'+n);
+		var t = BX('t' + n);
 		var tablePos = jsUtils.GetRealPos(t);
-		var d = document.getElementById('d'+n);
+		var d = BX('d' + n);
 
 		d.style.display = 'block';
 		d.width = t.offsetWidth+'px';
 		d.style.height = t.offsetHeight+'px';
 
+//		BX.addClass(t, 'bx-gadgets-drag');
 		t.style.position = 'absolute';
-		t.style.width = d.offsetWidth+'px';
-		t.style.height = d.offsetHeight+'px';
-		t.style.left = tablePos["left"]+20+'px';
-		t.style.top = tablePos["top"]+'px';
+		t.style.width = d.offsetWidth + 'px';
+		t.style.height = d.offsetHeight + 'px';
 		t.style.border = '1px solid #777777';
 		_this.zind = t.style.zIndex;
 		t.style.zIndex = '10000';
+		t.style.left = (tablePos["left"] + 20) + 'px';
+		t.style.top = tablePos["top"] + 'px';
 
 		t.style.MozOpacity = 0.60;
 		t.style.opacity = 0.60;
@@ -223,24 +224,23 @@ function BXGadget(gadgetHolderID, allGadgets)
 		if(_this.gdDrag == false)
 			return;
 
-		var antiselect = document.getElementById("antiselect");
+		var antiselect = BX("antiselect");
 		if(antiselect)
-		{
 			antiselect.style.display = 'none';
-		}
 
-		var t = document.getElementById('t'+_this.gdDrag);
+		var t = BX('t' + _this.gdDrag);
 
 		t.style.MozOpacity = 1;
 		t.style.opacity = 1;
 		t.style.filter = '';
 		t.style.position = 'static';
 		t.style.border = '0px';
+//		BX.removeClass(t, 'bx-gadgets-drag');
 		t.style.width = '';
 		t.style.height = '';
 		t.style.zIndex = _this.zind;
 
-		var d = document.getElementById('d'+_this.gdDrag);
+		var d = BX('d' + _this.gdDrag);
 		d.style.display = 'none';
 
 		t.parentNode.removeChild(t);
@@ -251,7 +251,7 @@ function BXGadget(gadgetHolderID, allGadgets)
 		if(!_this.sendWait)
 		{
 			_this.sendWait = true;
-			setTimeout("getGadgetHolder('"+_this.gadgetHolderID+"').SendUpdatedInfo();", 1000);
+			setTimeout("getGadgetHolder('" + _this.gadgetHolderID + "').SendUpdatedInfo();", 1000);
 		}
 	}
 
@@ -619,8 +619,8 @@ function BXGadget(gadgetHolderID, allGadgets)
 
 		this.menu.PopupShow(pos);
 	}
-	
-	
+
 	jsUtils.addEvent(document.body, "mousemove", _this.onMouseMove);
 	jsUtils.addEvent(document.body, "mouseup", _this.onMouseUp);
 }
+  

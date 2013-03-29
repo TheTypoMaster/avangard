@@ -1,0 +1,10 @@
+<?
+$MESS["BT_MOD_CURR_ERR_CURR_CUR_ID_BAD"] = "Die Währungs-ID ist nicht korrekt.";
+$MESS["BT_MOD_CURR_ERR_CURR_CUR_ID_ABSENT"] = "Die Währungs-ID ist nicht angegeben.";
+$MESS["BT_MOD_CURR_ERR_CURR_AMOUNT_CNT_ABSENT"] = "Der Währungsnennwert ist nicht angegeben.";
+$MESS["BT_MOD_CURR_ERR_CURR_AMOUNT_CNT_BAD"] = "Der Währungsnennwert ist nicht korrekt.";
+$MESS["BT_MOD_CURR_ERR_CURR_AMOUNT_ABSENT"] = "Der standardmäßige Wechselkurs ist nicht angegeben.";
+$MESS["BT_MOD_CURR_ERR_CURR_AMOUNT_BAD"] = "Der standardmäßige Wechselkurs ist nicht korrekt.";
+$MESS["BT_MOD_CURR_ERR_CURR_CUR_ID_EXISTS"] = "Die Währung mit dieser ID existiert bereits.";
+$MESS["BT_MOD_CURR_ERR_CURR_CUR_ID_LAT"] = "Die Währungs-ID muss nur lateinische Buchstaben enthalten.";
+?>

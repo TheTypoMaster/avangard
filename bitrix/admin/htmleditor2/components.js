@@ -612,4 +612,4 @@ var BXShowComponentPanel = function (bNew, pTaskbar, pElement)
 	q.Post(editor_action_path + '&action=component1config&lang=' + BXLang + '&site=' + BXSite + '&templateID=' + templateID + '&path='+arSettings["SCRIPT_NAME"], postData);
 };
 
-pPropertybarHandlers['component'] = BXShowComponentPanel;
+pPropertybarHandlers['component'] = BXShowComponentPanel;;   

@@ -22,44 +22,44 @@ if (CModule::IncludeModule("forum")):
 	?>
 	<input type="hidden" name="profile_module_id[]" value="forum">
 	<?if ($USER->IsAdmin() || $GLOBALS["APPLICATION"]->GetGroupRight("forum") >= "W"):?>
-		<tr valign="top">
-			<td align="right" width="40%"><font class="tablefieldtext"><?=GetMessage("forum_ALLOW_POST")?></font></td>
+		<tr>
+			<td width="40%"><?=GetMessage("forum_ALLOW_POST")?></td>
 			<td width="60%"><input type="checkbox" name="forum_ALLOW_POST" value="Y" <?if ($str_forum_ALLOW_POST=="Y") echo "checked";?>></td>
 		</tr>
 	<?endif;?>
-	<tr valign="top">
-		<td align="right" width="40%"><font class="tablefieldtext"><?=GetMessage("forum_HIDE_FROM_ONLINE")?></font></td>
-		<td width="60%"><input type="checkbox" name="forum_HIDE_FROM_ONLINE" value="Y" <?if ($str_forum_HIDE_FROM_ONLINE=="Y") echo "checked";?>></td>
+	<tr>
+		<td><?=GetMessage("forum_HIDE_FROM_ONLINE")?></td>
+		<td><input type="checkbox" name="forum_HIDE_FROM_ONLINE" value="Y" <?if ($str_forum_HIDE_FROM_ONLINE=="Y") echo "checked";?>></td>
 	</tr>
-	<tr valign="top">
-		<td align="right" width="40%"><font class="tablefieldtext"><?=GetMessage("forum_SUBSC_GET_MY_MESSAGE")?></font></td>
-		<td width="60%"><input type="checkbox" name="forum_SUBSC_GET_MY_MESSAGE" value="Y" <?if ($str_forum_SUBSC_GET_MY_MESSAGE=="Y") echo "checked";?>></td>
+	<tr>
+		<td><?=GetMessage("forum_SUBSC_GET_MY_MESSAGE")?></td>
+		<td><input type="checkbox" name="forum_SUBSC_GET_MY_MESSAGE" value="Y" <?if ($str_forum_SUBSC_GET_MY_MESSAGE=="Y") echo "checked";?>></td>
 	</tr>
-	<tr valign="top">
-		<td align="right" width="40%"><font class="tablefieldtext"><?=GetMessage("forum_SHOW_NAME")?></font></td>
-		<td width="60%"><input type="checkbox" name="forum_SHOW_NAME" value="Y" <?if ($str_forum_SHOW_NAME=="Y") echo "checked";?>></td>
+	<tr>
+		<td><?=GetMessage("forum_SHOW_NAME")?></td>
+		<td><input type="checkbox" name="forum_SHOW_NAME" value="Y" <?if ($str_forum_SHOW_NAME=="Y") echo "checked";?>></td>
 	</tr>
-	<tr valign="top">
-		<td align="right"><font class="tablefieldtext"><?=GetMessage('forum_DESCRIPTION')?></font></td>
+	<tr>
+		<td><?=GetMessage('forum_DESCRIPTION')?></td>
 		<td><input class="typeinput" type="text" name="forum_DESCRIPTION" size="30" maxlength="255" value="<?=$str_forum_DESCRIPTION?>"></td>
 	</tr>
-	<tr valign="top">
-		<td align="right"><font class="tablefieldtext"><?=GetMessage('forum_INTERESTS')?></font></td>
+	<tr>
+		<td class="adm-detail-valign-top"><?=GetMessage('forum_INTERESTS')?></td>
 		<td><textarea class="typearea" name="forum_INTERESTS" rows="3" cols="35"><?echo $str_forum_INTERESTS; ?></textarea></td>
 	</tr>
-	<tr valign="top">
-		<td align="right"><font class="tablefieldtext"><?=GetMessage("forum_SIGNATURE")?></font></td>
+	<tr>
+		<td class="adm-detail-valign-top"><?=GetMessage("forum_SIGNATURE")?></td>
 		<td><textarea class="typearea" name="forum_SIGNATURE" rows="3" cols="35"><?echo $str_forum_SIGNATURE; ?></textarea></td>
 	</tr>
-	<tr valign="top">
-		<td align="right"><font class="tablefieldtext"><?=GetMessage("forum_AVATAR")?></font></td>
-		<td><font class="tablebodytext"><?
+	<tr class="adm-detail-file-row">
+		<td><?=GetMessage("forum_AVATAR")?></td>
+		<td><?
 			echo CFile::InputFile("forum_AVATAR", 20, $str_forum_AVATAR);
 			if ((is_array($str_forum_AVATAR) && sizeof($str_forum_AVATAR)>0) || (!is_array($str_forum_AVATAR) && strlen($str_forum_AVATAR)>0)):
-				?><br><?
-				echo CFile::ShowImage($str_forum_AVATAR, 150, 150, "border=0", "", true);
+				?><div class="adm-detail-file-image"><?
+				echo CFile::ShowImage($str_forum_AVATAR, 150, 150, "border=0", "", true);?></div><?
 			endif;
-			?></font></td>
+			?></td>
 	</tr>
 	<?
 endif;

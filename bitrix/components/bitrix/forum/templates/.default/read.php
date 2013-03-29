@@ -22,17 +22,18 @@ $arInfo = $APPLICATION->IncludeComponent(
 		"URL_TEMPLATES_MESSAGE_SEND" => $arResult["URL_TEMPLATES_MESSAGE_SEND"],
 		"URL_TEMPLATES_RSS" => $arResult["URL_TEMPLATES_RSS"],
 		"URL_TEMPLATES_USER_POST" =>  $arResult["URL_TEMPLATES_USER_POST"],
-		
-		"PAGEN" => intVal($GLOBALS["NavNum"] + 1),
+
 		"PATH_TO_SMILE" =>  $arParams["PATH_TO_SMILE"],
 		"PATH_TO_ICON" => $arParams["PATH_TO_ICON"],
 		"WORD_LENGTH" => $arParams["WORD_LENGTH"],
 		"DATE_FORMAT" =>  $arResult["DATE_FORMAT"],
 		"DATE_TIME_FORMAT" =>  $arResult["DATE_TIME_FORMAT"],
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 		"PAGE_NAVIGATION_TEMPLATE" =>  $arParams["PAGE_NAVIGATION_TEMPLATE"],
 		"PAGE_NAVIGATION_WINDOW" =>  $arParams["PAGE_NAVIGATION_WINDOW"],
-		"FILES_COUNT" => $arParams["FILES_COUNT"], 
-		"IMAGE_SIZE" => $arParams["IMAGE_SIZE"], 			
+		"IMAGE_SIZE" => $arParams["IMAGE_SIZE"],
+		"ATTACH_MODE" => $arParams["ATTACH_MODE"],
+		"ATTACH_SIZE" => $arParams["ATTACH_SIZE"],
 		"AJAX_TYPE" => $arParams["AJAX_TYPE"],
 		"AJAX_POST" => $arParams["AJAX_POST"],
 
@@ -61,7 +62,7 @@ $arInfo = $APPLICATION->IncludeComponent(
 	$component
 );
 ?><?
-if ($arParams["SHOW_STATISTIC"] != "N"):
+if (in_array("USERS_ONLINE", $arParams["SHOW_STATISTIC_BLOCK"])):
 ?><?$APPLICATION->IncludeComponent("bitrix:forum.statistic", "", 
 	Array(
 		"FID"	=>	($arInfo ? $arInfo["FID"] : $arResult["FID"]),
@@ -70,6 +71,7 @@ if ($arParams["SHOW_STATISTIC"] != "N"):
 		"SHOW"	=>	array("USERS_ONLINE"),
 		"URL_TEMPLATES_PROFILE_VIEW"	=>	$arResult["URL_TEMPLATES_PROFILE_VIEW"],
 		"WORD_LENGTH"	=>	$arParams["WORD_LENGTH"],
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 		
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
@@ -99,9 +101,7 @@ if ($arInfo != false):
 		
 		"PATH_TO_SMILE"	=>	$arParams["PATH_TO_SMILE"],
 		"PATH_TO_ICON"	=>	$arParams["PATH_TO_ICON"],
-		"SMILE_TABLE_COLS" => $arParams["SMILE_TABLE_COLS"],
-		"FILES_COUNT" => $arParams["FILES_COUNT"], 
-		"SMILES_COUNT" => $arParams["SMILES_COUNT"],
+		"IMAGE_SIZE" => $arParams["IMAGE_SIZE"],
 		"AJAX_POST" => $arParams["AJAX_POST"],
 		"SHOW_VOTE" => "N", 
 		"VOTE_CHANNEL_ID" => "0", 

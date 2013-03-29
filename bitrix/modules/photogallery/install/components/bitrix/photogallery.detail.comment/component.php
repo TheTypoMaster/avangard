@@ -12,22 +12,24 @@ elseif (!IsModuleInstalled("iblock"))
 	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
 	$arParams["ELEMENT_ID"] = intVal($arParams["ELEMENT_ID"]);
 
-	$arParams["COMMENTS_TYPE"] = ($arParams["COMMENTS_TYPE"] == "forum" ? "forum" : "blog"); 
+	$arParams["COMMENTS_TYPE"] = ($arParams["COMMENTS_TYPE"] == "forum" ? "forum" : "blog");
 	$arParams["IS_SOCNET"] = ($arParams["IS_SOCNET"] == "Y" ? "Y" : "N");
 
 	// For blog
-	$arParams["BLOG_URL"] = trim($arParams["BLOG_URL"]); 
+	$arParams["BLOG_URL"] = trim($arParams["BLOG_URL"]);
 //***************** URL ********************************************/
-	$URL_NAME_DEFAULT = array(
-		"detail" => "PAGE_NAME=detail&SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#");
+	$URL_NAME_DEFAULT = array("detail" => "PAGE_NAME=detail&SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#");
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
 		$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "AJAX_CALL"));
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
+
+	$arParams["DETAIL_URL"] = CComponentEngine::MakePathFromTemplate($arParams["DETAIL_URL"], array("USER_ALIAS" => isset($arParams["USER_ALIAS"]) ? $arParams["USER_ALIAS"] : 'empty'));
+
 //***************** CACHE ******************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
@@ -35,14 +37,7 @@ elseif (!IsModuleInstalled("iblock"))
 		$arParams["CACHE_TIME"] = 0;
 
 	if (intVal($_REQUEST['ELEMENT_ID']) > 0 && $_REQUEST['save_photo_comment'] == 'Y')
-	{
-		PClearComponentCache(array(
-			"photogallery.detail.comment", 
-			//"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/0", 
-			"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"]
-			)
-		);
-	}
+		PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0, $arParams["SECTION_ID"]));
 /********************************************************************
 				/Input params
 ********************************************************************/
@@ -56,6 +51,9 @@ elseif ($arParams["COMMENTS_TYPE"] == "blog" && empty($arParams["BLOG_URL"]))
 elseif ($arParams["ELEMENT_ID"] <= 0)
 	return;
 
+$cache_path = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]);
+
+$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $arParams["NAME_TEMPLATE"]);
 /********************************************************************
 				/Default values
 ********************************************************************/
@@ -64,15 +62,13 @@ if ($arParams["COMMENTS_TYPE"] == "forum")
 	if ($arParams["IS_SOCNET"] == "Y")
 	{
 		$cache = new CPHPCache;
-		$cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]."/");
 		$cache_id = serialize(
 			array(
 				"TYPE" => $arParams["COMMENTS_TYPE"],
-				"ELEMENT_ID" => $arParams["ELEMENT_ID"]
+				"ELEMENT_ID" => $arParams["ELEMENT_ID"],
+				"USER_ALIAS" => $arParams["USER_ALIAS"]
 			)
 		);
-
-		$cache_path = $cache_path_main."galleryforum".$arParams["USER_ALIAS"];
 
 		if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache(3600*24, $cache_id, $cache_path))
 		{
@@ -88,7 +84,7 @@ if ($arParams["COMMENTS_TYPE"] == "forum")
 			$arSelect = array(
 				"ID",
 				"IBLOCK_ID",
-				"PROPERTY_FORUM_TOPIC_ID", 
+				"PROPERTY_FORUM_TOPIC_ID",
 			);
 
 			//WHERE
@@ -101,7 +97,6 @@ if ($arParams["COMMENTS_TYPE"] == "forum")
 			$rsElement = CIBlockElement::GetList(array(), $arFilter, false, false, $arSelect);
 			if ($obElement = $rsElement->GetNextElement())
 			{
-
 				$arElement = $obElement->GetFields();
 				if (intval($arElement["PROPERTY_FORUM_TOPIC_ID_VALUE"]) > 0 && CModule::IncludeModule("forum"))
 					if ($arForumTopic = CForumTopic::GetByID($arElement["PROPERTY_FORUM_TOPIC_ID_VALUE"]))
@@ -131,25 +126,24 @@ elseif ($arParams["COMMENTS_TYPE"] == "blog")
 	*************************************************************************/
 	// Clear cache.
 	if (isset($_REQUEST["parentId"]) || $_REQUEST["save_product_review"] == "Y" || isset($_REQUEST["delete_comment_id"]))
-		PClearComponentCache(array("photogallery.detail.comment/".$arParams["IBLOCK_ID"]));
+		PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0, $arParams["SECTION_ID"]), array($arParams["USER_ALIAS"]));
 
 	/*************************************************************************
 			/Before caching
 	*************************************************************************/
 	$arResult["ELEMENT"] = array();
 	$cache = new CPHPCache;
-	$cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]."/");
 	$cache_id = serialize(
 		array(
 			"TYPE" => $arParams["COMMENTS_TYPE"],
 			"USER" => $USER->GetGroups(),
-			"ELEMENT_ID" => $arParams["ELEMENT_ID"]
+			"ELEMENT_ID" => $arParams["ELEMENT_ID"],
+			"USER_ALIAS" => $arParams["USER_ALIAS"]
 		)
 	);
-	
+
 	if(($tzOffset = CTimeZone::GetOffset()) <> 0)
 		$cache_id .= "_".$tzOffset;
-	$cache_path = $cache_path_main."gallery".$arParams["USER_ALIAS"];
 
 	if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 	{
@@ -182,7 +176,7 @@ elseif ($arParams["COMMENTS_TYPE"] == "blog")
 			"DATE_CREATE",
 			"CREATED_BY",
 			"PROPERTY_REAL_PICTURE",
-			"PROPERTY_BLOG_POST_ID", 
+			"PROPERTY_BLOG_POST_ID",
 			"PROPERTY_BLOG_COMMENTS_CNT"
 		);
 		//WHERE
@@ -220,34 +214,34 @@ elseif ($arParams["COMMENTS_TYPE"] == "blog")
 		{
 			CModule::IncludeModule("iblock");
 			$arFilter = array(
-				"IBLOCK_ID" => $arParams["IBLOCK_ID"], 
+				"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 				"ID" => $arResult["ELEMENT"]["IBLOCK_SECTION_ID"]);
 			$db_res = CIBlockSection::GetList(
-				array(), 
-				$arFilter, 
-				false, 
+				array(),
+				$arFilter,
+				false,
 				array("ID", "ACTIVE", "CODE", "RIGHT_MARGIN", "LEFT_MARGIN")
 			);
 			if ($db_res && $arSection = $db_res->Fetch())
 			{
 				$db_res = CIBlockSection::GetList(
-					array(), 
+					array(),
 					array(
-						"IBLOCK_ID" => $arSection["IBLOCK_ID"], 
-						"SECTION_ID" => 0, 
-						"!LEFT_MARGIN" => $arSection["LEFT_MARGIN"], 
-						"!RIGHT_MARGIN" => $arSection["RIGHT_MARGIN"], 
-						"!ID" => $arSection["ID"]), 
-					false, 
+						"IBLOCK_ID" => $arSection["IBLOCK_ID"],
+						"SECTION_ID" => 0,
+						"!LEFT_MARGIN" => $arSection["LEFT_MARGIN"],
+						"!RIGHT_MARGIN" => $arSection["RIGHT_MARGIN"],
+						"!ID" => $arSection["ID"]),
+					false,
 					array("ID", "CODE", "RIGHT_MARGIN", "LEFT_MARGIN"));
 				if ($db_res)
 				{
-					$arGallery = $db_res->Fetch(); 
+					$arGallery = $db_res->Fetch();
 				}
 			}
 		}
 		$arResult["ELEMENT"]["~DETAIL_PAGE_URL"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_URL"], array("USER_ALIAS" => $arGallery["CODE"],"SECTION_ID" => $arResult["ELEMENT"]["IBLOCK_SECTION_ID"], "ELEMENT_ID" =>$arResult["ELEMENT"]["ID"]));
-		$arResult["ELEMENT"]["DETAIL_PAGE_URL"] = htmlSpecialChars($arResult["ELEMENT"]["~DETAIL_PAGE_URL"]);
+		$arResult["ELEMENT"]["DETAIL_PAGE_URL"] = htmlspecialcharsbx($arResult["ELEMENT"]["~DETAIL_PAGE_URL"]);
 
 		$obProperty = false;
 		$iCommentID = 0;
@@ -312,7 +306,7 @@ elseif ($arParams["COMMENTS_TYPE"] == "blog")
 
 			$arFields=array(
 				"TITLE"			=> $arResult["ELEMENT"]["NAME"],
-				"DETAIL_TEXT"		=> 
+				"DETAIL_TEXT"		=>
 					"[IMG]http://".$_SERVER['HTTP_HOST'].$arResult["ELEMENT"]["DETAIL_PICTURE"]["SRC"]."[/IMG]\n".
 					"[URL=http://".$_SERVER['HTTP_HOST'].$arResult["ELEMENT"]["~DETAIL_PAGE_URL"]."]".$arResult["ELEMENT"]["NAME"]."[/URL]\n".
 					(!empty($arResult["ELEMENT"]["TAGS"]) ? $arResult["ELEMENT"]["TAGS"]."\n" : "").
@@ -333,7 +327,7 @@ elseif ($arParams["COMMENTS_TYPE"] == "blog")
 			{
 				foreach($arCategory as $key)
 					CBlogPostCategory::Add(Array("BLOG_ID" => $arBlog["ID"], "POST_ID" => $newID, "CATEGORY_ID"=>$key));
-					
+
 					BXClearCache(True, "/".SITE_ID."/blog/".$arBlog["URL"]);
 					BXClearCache(True, "/".SITE_ID."/blog/last_messages/");
 					BXClearCache(True, "/".SITE_ID."/blog/groups/".$arBlog["GROUP_ID"]."/");
@@ -357,6 +351,8 @@ elseif ($arParams["COMMENTS_TYPE"] == "blog")
 		$obPhotoCommentEventHandler->SetVars($arParams, $arResult);
 		if (method_exists($obPhotoCommentEventHandler, "OnAfterPhotoCommentAddBlog"))
 			AddEventHandler("blog", "OnCommentAdd", array($obPhotoCommentEventHandler, "OnAfterPhotoCommentAddBlog"));
+		if (method_exists($obPhotoCommentEventHandler, "OnAfterPhotoCommentDeleteBlog"))
+			AddEventHandler("blog", "OnCommentDelete", array($obPhotoCommentEventHandler, "OnAfterPhotoCommentDeleteBlog"));
 	}
 }
 

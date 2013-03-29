@@ -268,7 +268,6 @@ if((klik.checked==false) && (m==l)) klik.checked=true;
 </script>
 
 
-
 <?if($salon) $s_val = $salon; else $s_val=$id; ?>
 
 <div height="50" class="filter_td">
@@ -294,7 +293,7 @@ if((klik.checked==false) && (m==l)) klik.checked=true;
 <td style="padding-left: 6px;">Мебель в наличии</td>
 <td>
 
-<?if($all_models) { ?>
+<?if($all_models) {?>
 <td><a href="/catalog/divan<?=$all_models?>.htm"><?$res = CIBlockElement::GetByID(intVal($all_models));if($ar_res = $res->GetNext())  echo $ar_res['NAME'];?></a></td>
 <?if($from_catalog!="y") {?><td><input type="radio" disabled name="id" value="<?=$salon?>"></td><td style="color: #cccccc;">В этом салоне</td><?}?>
 <td><input type="radio" name="id" checked value="all"></td><td>Во всех салонах</td>
@@ -484,9 +483,15 @@ if($tmp_count==1) { echo "</tr>";}
 
 $arSelect = Array("ID", "NAME", "DATE_ACTIVE_FROM", "PREVIEW_PICTURE", "PREVIEW_TEXT", "PROPERTY_salon", "PROPERTY_razmeri", "PROPERTY_tovar","PROPERTY_color", "PROPERTY_price_old", "PROPERTY_price_new", "PROPERTY_mechanizm",  "PROPERTY_spal", "PROPERTY_aktia", "PROPERTY_sold", "PROPERTY_skidka");
 
+if (IntVal($all_models)==5017 || IntVal($all_models)==5444 || IntVal($all_models)==5507) {
+  $all_models = 5017;
+  $prp_tov[1] = 5444;
+  $prp_tov[2] = 5507;
+} 
 
+$prp_tov[0] = IntVal($all_models); 
 
-if($all_models) $arFilter = Array("IBLOCK_ID"=>IntVal(15), "ACTIVE_DATE"=>"Y", "ACTIVE"=>"Y", "PROPERTY_tovar"=>IntVal($all_models));
+if($all_models) $arFilter = Array("IBLOCK_ID"=>IntVal(15), "ACTIVE_DATE"=>"Y", "ACTIVE"=>"Y", "PROPERTY_tovar"=>$prp_tov);
 else 
 {
 
@@ -499,7 +504,6 @@ else
 if($id>0) $id=$id; else  $id='';
 $arFilter = Array("IBLOCK_ID"=>IntVal(15), "ACTIVE_DATE"=>"Y", "ACTIVE"=>"Y", "PROPERTY_salon"=>IntVal($id));
 }
-
  
 if(count($type)>1) {
 $arFilter["PROPERTY_tovar"] = array();
@@ -635,7 +639,7 @@ opacity: 0.5; /* CSS3 - Mozilla 1.7b +, Firefox 0.9 +, Safari 1.2+, Opera 9 */ "
 		$html_temp .='</td><td';
 		if($arFields["PROPERTY_PRICE_NEW_VALUE"]) $html_temp .= ' class="price_new" nowrap';
 		$html_temp .='>';
-		if($arFields["PROPERTY_PRICE_NEW_VALUE"] && ($id=="566" or $id=="2635" or $id=="4559" or $id=="328" or $id=="339")) $html_temp .= $arFields["PROPERTY_PRICE_NEW_VALUE"].' р.';
+		if($arFields["PROPERTY_PRICE_NEW_VALUE"] && ($id=="566" or $id=="2635" or $id=="4559" or $id=="328" or $id=="339" or $id=="5242" or $id=="5360")) $html_temp .= $arFields["PROPERTY_PRICE_NEW_VALUE"].' р.';
 		$html_temp .='</td></tr>
 			<tr><td class="all_items_td">';
 			if($all_models) $html_temp .='<a href="/redesign/where_buy/detail.php?id='.$arFields["PROPERTY_SALON_VALUE"].'">Показать салон</a>';
@@ -643,7 +647,7 @@ opacity: 0.5; /* CSS3 - Mozilla 1.7b +, Firefox 0.9 +, Safari 1.2+, Opera 9 */ "
 			$html_temp .='</td><td';
 			if($arFields["PROPERTY_PRICE_OLD_VALUE"]) $html_temp .= ' class="price_old" nowrap';
 			$html_temp .='>';
-			if($arFields["PROPERTY_PRICE_OLD_VALUE"] && ($id=="566" or $id=="2635" or $id=="4559" or $id=="328" or $id=="339")) $html_temp .= $arFields["PROPERTY_PRICE_OLD_VALUE"].' р.';
+			if($arFields["PROPERTY_PRICE_OLD_VALUE"] && ($id=="566" or $id=="2635" or $id=="4559" or $id=="328" or $id=="339" or $id=="5242" or $id=="5360")) $html_temp .= $arFields["PROPERTY_PRICE_OLD_VALUE"].' р.';
 			$html_temp .='</td></tr>
 	</table>
 	

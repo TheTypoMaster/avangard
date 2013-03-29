@@ -86,4 +86,4 @@ if(!window.IBlockComponentProperties)
 			return res;
 		}
 	}
-}
+};   

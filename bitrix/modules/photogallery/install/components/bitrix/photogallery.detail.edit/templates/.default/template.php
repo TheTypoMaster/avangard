@@ -4,7 +4,7 @@ if (!$this->__component->__parent || strpos($this->__component->__parent->__name
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/themes/gray/style.css');
 }
-$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/main.calendar/templates/.default/style.css');
+
 /*************************************************************************
 	Processing of received parameters
 *************************************************************************/
@@ -134,6 +134,6 @@ endif;
 </div>
 
 <?
- if ($arParams["AJAX_CALL"] == "Y")
+if ($arParams["AJAX_CALL"] == "Y")
 	die();
 ?>

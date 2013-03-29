@@ -227,12 +227,14 @@ if ($arCurrentValues["USE_WATERMARK"] != "N")
 				"br" => GetMessage("P_WATERMARK_POSITION_BR")),
 			"DEFAULT" => "mc"
 		);
-		$arComponentParameters["PARAMETERS"]["WATERMARK_TRANSPARENCY"] = array(
-			"PARENT" => "WATERMARK",
-			"NAME" => GetMessage("P_WATERMARK_TRANSPARENCY"),
-			"TYPE" => "STRING",
-			"DEFAULT" => "20"
-		);
+
+		if ($arCurrentValues["WATERMARK_TYPE"] != "TEXT")
+			$arComponentParameters["PARAMETERS"]["WATERMARK_TRANSPARENCY"] = array(
+				"PARENT" => "WATERMARK",
+				"NAME" => GetMessage("P_WATERMARK_TRANSPARENCY"),
+				"TYPE" => "STRING",
+				"DEFAULT" => "50"
+			);
 	}
 	else
 	{
@@ -249,12 +251,15 @@ if ($arCurrentValues["USE_WATERMARK"] != "N")
 		);
 	}
 
-	$arComponentParameters["PARAMETERS"]["PATH_TO_FONT"] = array(
-		"PARENT" => "WATERMARK",
-		"NAME" => GetMessage("P_PATH_TO_FONT"),
-		"TYPE" => "STRING",
-		"DEFAULT" => ""
-	);
+	if ($arCurrentValues["UPLOADER_TYPE"] != "applet")
+	{
+		$arComponentParameters["PARAMETERS"]["PATH_TO_FONT"] = array(
+			"PARENT" => "WATERMARK",
+			"NAME" => GetMessage("P_PATH_TO_FONT"),
+			"TYPE" => "STRING",
+			"DEFAULT" => "default.ttf"
+		);
+	}
 
 	$arComponentParameters["PARAMETERS"]["WATERMARK_MIN_PICTURE_SIZE"] = array(
 		"PARENT" => "WATERMARK",

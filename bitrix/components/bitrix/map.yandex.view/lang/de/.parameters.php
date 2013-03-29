@@ -22,9 +22,13 @@ $MESS["MYMS_PARAM_DATA_DEFAULT_LAT"] = "52.5233";
 $MESS["MYMS_PARAM_DATA_DEFAULT_LON"] = "13.4113";
 $MESS["MYMS_PARAM_DATA_SET"] = "bearbeiten";
 $MESS["MYMS_PARAM_DATA_NO_KEY"] = "Der Maps-API-Schlüssel wurde nicht angegeben!";
+$MESS["MYMS_PARAM_DATA_GET_KEY"] = "Den Zugriffsschlüssel bekommen";
+$MESS["MYMS_PARAM_DATA_GET_KEY_URL"] = "http://api.yandex.ru/maps/form.xml";
 $MESS["MYMS_PARAM_MAP_HEIGHT"] = "Map-Höhe";
 $MESS["MYMS_PARAM_MAP_WIDTH"] = "Map-Breite";
 $MESS["MYMS_PARAM_MAP_ID"] = "Map ID";
-$MESS["MYMS_PARAM_DATA_GET_KEY"] = "Den Zugriffsschlüssel bekommen";
-$MESS["MYMS_PARAM_DATA_GET_KEY_URL"] = "http://api.yandex.ru/maps/form.xml";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_PUBLIC"] = "Interaktive Karte";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_PUBLIC_HYBRID"] = "Interaktive Hybridkarte";
+$MESS["MYMS_PARAM_OPTIONS_ENABLE_RIGHT_MAGNIFIER"] = "Benutzen Sie die rechte Maustaste für Zoom-Optionen";
+$MESS["MYMS_PARAM_CONTROLS_SEARCH"] = "Auf der Karte suchen";
 ?>

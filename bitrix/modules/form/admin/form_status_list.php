@@ -23,7 +23,7 @@ $lAdmin = new CAdminList($sTableID, $oSort);
 
 $WEB_FORM_ID = intval($WEB_FORM_ID);
 $arForm = CForm::GetByID_admin($WEB_FORM_ID);
-if (false === $arForm) 
+if (false === $arForm)
 {
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	echo "<a href='form_list.php?lang=".LANGUAGE_ID."' >".GetMessage("FORM_FORM_LIST")."</a>";
@@ -32,7 +32,7 @@ if (false === $arForm)
 	die();
 }
 
-$txt = "(".htmlspecialchars($arForm['SID']).")&nbsp;".htmlspecialchars($arForm['NAME']);
+$txt = "(".htmlspecialcharsbx($arForm['SID']).")&nbsp;".htmlspecialcharsbx($arForm['NAME']);
 $link = "form_edit.php?lang=".LANGUAGE_ID."&ID=".$WEB_FORM_ID;
 $adminChain->AddItem(array("TEXT"=>$txt, "LINK"=>$link));
 
@@ -157,7 +157,7 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && $F_RIGHT>=30 && check
 			break;
 		}
 	}
-	
+
 	if (!$_REQUEST["mode"])
 		LocalRedirect("form_status_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID);
 }
@@ -239,8 +239,8 @@ $lAdmin->AddGroupActionTable(Array(
 	"activate"=>GetMessage("FORM_ACTIVATE_L"),
 	"deactivate"=>GetMessage("FORM_DEACTIVATE_L"),
 	));
-	
-	
+
+
 $aMenu = array(
 	array(
 		"ICON"	=> "btn_new",
@@ -264,7 +264,7 @@ $context = new CAdminContextMenu($arForm['ADMIN_MENU']);
 $context->Show();
 
 echo BeginNote('width="100%"');?>
-<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialchars($arForm["SID"])?>)&nbsp;<?=htmlspecialchars($arForm["NAME"])?>
+<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialcharsbx($arForm["SID"])?>)&nbsp;<?=htmlspecialcharsbx($arForm["NAME"])?>
 <?echo EndNote();
 
 echo ShowError($strError);
@@ -283,31 +283,31 @@ echo ShowNote($strNote);
 			GetMessage("FORM_FL_RESULTS"),
 	        )
 	);
-	
+
 $oFilter->Begin();
 ?>
 <tr>
 	<td nowrap><b><?=GetMessage("FORM_F_TITLE")?></b></td>
-	<td nowrap><input type="text" name="find_title" value="<?echo htmlspecialchars($find_title)?>" size="47"><?=InputType("checkbox", "find_title_exact_match", "Y", $find_title_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td nowrap><input type="text" name="find_title" value="<?echo htmlspecialcharsbx($find_title)?>" size="47"><?=InputType("checkbox", "find_title_exact_match", "Y", $find_title_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?=GetMessage("FORM_F_ID")?></td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>"><?=InputType("checkbox", "find_id_exact_match", "Y", $find_id_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"><?=InputType("checkbox", "find_id_exact_match", "Y", $find_id_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td nowrap><?=GetMessage("FORM_F_ACTIVE")?></td>
 	<td nowrap><?
 	$arr = array("reference"=>array(GetMessage("FORM_YES"), GetMessage("FORM_NO")), "reference_id"=>array("Y","N"));
-	echo SelectBoxFromArray("find_active", $arr, htmlspecialchars($find_active), GetMessage("FORM_ALL"));
+	echo SelectBoxFromArray("find_active", $arr, htmlspecialcharsbx($find_active), GetMessage("FORM_ALL"));
 	?></td>
 </tr>
 <tr>
 	<td nowrap><?=GetMessage("FORM_F_DESCRIPTION")?></td>
-	<td nowrap><input type="text" name="find_description" value="<?echo htmlspecialchars($find_description)?>" size="47"><?=InputType("checkbox", "find_description_exact_match", "Y", $find_description_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td nowrap><input type="text" name="find_description" value="<?echo htmlspecialcharsbx($find_description)?>" size="47"><?=InputType("checkbox", "find_description_exact_match", "Y", $find_description_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td nowrap><?echo GetMessage("FORM_F_RESULTS")?></td>
-	<td nowrap><input type="text" name="find_results_1" value="<?=htmlspecialchars($find_results_1)?>" size="5">&nbsp;<?=GetMessage("FORM_TILL")?>&nbsp;<input type="text" name="find_results_2" value="<?=htmlspecialchars($find_results_2)?>" size="5"></td>
+	<td nowrap><input type="text" name="find_results_1" value="<?=htmlspecialcharsbx($find_results_1)?>" size="5">&nbsp;<?=GetMessage("FORM_TILL")?>&nbsp;<input type="text" name="find_results_2" value="<?=htmlspecialcharsbx($find_results_2)?>" size="5"></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>"form_status_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=$WEB_FORM_ID"));

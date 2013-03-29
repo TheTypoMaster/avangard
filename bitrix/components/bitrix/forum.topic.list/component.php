@@ -1,4 +1,12 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+/**
+ * @global CMain $APPLICATION
+ * @global CUser $USER
+ * @param array $arParams
+ * @param array $arResult
+ * @param string $componentName
+ * @param CBitrixComponent $this
+ */
 if (!CModule::IncludeModule("forum")):
 	ShowError(GetMessage("F_NO_MODULE"));
 	return 0;
@@ -32,7 +40,7 @@ endif;
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["PAGEN"] = (intVal($arParams["PAGEN"]) <= 0 ? 1 : intVal($arParams["PAGEN"]));
@@ -40,7 +48,8 @@ endif;
 	$arParams["MESSAGES_PER_PAGE"] = intVal($arParams["MESSAGES_PER_PAGE"] > 0 ? $arParams["MESSAGES_PER_PAGE"] : COption::GetOptionString("forum", "MESSAGES_PER_PAGE", "10"));
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
-    $arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" || $arResult["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
+	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" || $arResult["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
@@ -89,6 +98,9 @@ $arResult["URL"] = array(
 	"~RSS_DEFAULT" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_RSS"], array("TYPE" => "rss2", "MODE" => "forum", "IID" => $arParams["FID"])));
 $arResult["CanUserAddTopic"] = CForumTopic::CanUserAddTopic($arParams["FID"], $USER->GetUserGroupArray(), $USER->GetID(), $arResult["FORUM"]);
 global $by, $order;
+if (empty($by)) {
+	$by = "LAST_POST_DATE"; $order = "DESC";
+}
 $by = ($by == "ABS_LAST_POST_DATE" ? "LAST_POST_DATE" : $by);
 $arResult["ERROR_MESSAGE"] = "";
 $arResult["OK_MESSAGE"] = "";
@@ -130,7 +142,6 @@ $arResult["USER"] = array(
 ********************************************************************/
 
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
-ForumSetLastVisit($arParams["FID"]);
 
 /********************************************************************
 				Actions
@@ -168,13 +179,13 @@ if (check_bitrix_sessid() && (strLen($ACTION) > 0))
 			endif;
 		break;
 		case "DEL_TOPIC":
-            if (ForumDeleteTopic($arResult["TID"], $strErrorMessage, $strOkMessage)):
-                if (isset($_REQUEST['NAV_PAGE']) && strpos($_REQUEST['NAV_PAGE'], ':') !== false)
-                {
-                    list($NavNum, $NavPageNomer) = explode(":", $_REQUEST['NAV_PAGE']);
-                    LocalRedirect(ForumAddPageParams($arResult["URL"]["~TOPIC_LIST"], array("result" => "delele", "PAGEN_".intval($NavNum) => intval($NavPageNomer))));
-                    return true;
-                }
+			if (ForumDeleteTopic($arResult["TID"], $strErrorMessage, $strOkMessage)):
+				if (isset($_REQUEST['NAV_PAGE']) && strpos($_REQUEST['NAV_PAGE'], ':') !== false)
+				{
+					list($NavNum, $NavPageNomer) = explode(":", $_REQUEST['NAV_PAGE']);
+					LocalRedirect(ForumAddPageParams($arResult["URL"]["~TOPIC_LIST"], array("result" => "delele", "PAGEN_".intval($NavNum) => intval($NavPageNomer))));
+					return true;
+				}
 				LocalRedirect(ForumAddPageParams($arResult["URL"]["~TOPIC_LIST"], array("result" => "delele")));
 				return true;
 			endif;
@@ -208,7 +219,7 @@ else
 				Data
 ********************************************************************/
 $arResult["SortingEx"] = array("TITLE", "POSTS", "VIEWS", "USER_START_NAME", "LAST_POST_DATE");
-InitSorting();
+InitSorting($APPLICATION->GetCurPage()."?PAGE_NAME=list&FID=".$arParams["FID"]);
 if (!$by || !in_array($by, $arResult["SortingEx"])):
 	ForumGetTopicSort($by, $order, $arResult["FORUM"]);
 endif;
@@ -241,7 +252,8 @@ if (($PAGEN == null) && ($arParams["CACHE_TIME"] > 0)) // cache only the first p
 	$arCacheID = array(
 		($arResult["PERMISSION"] < "Q"),
 		$arParams['FID'],
-		CTimeZone::GetOffset()
+		CTimeZone::GetOffset(),
+		$by => $order
 	);
 
 	$cache_id = "forum_topics_".md5(serialize($arCacheID));
@@ -275,12 +287,17 @@ if (($PAGEN == null) && ($arParams["CACHE_TIME"] > 0)) // cache only the first p
 /*******************************************************************
 				/ CACHE
 *******************************************************************/
-
 if (empty($arResult["Topics"])) // cache miss or PAGE > 1
 {
 	/*******************************************************************/
 	$db_res = CForumTopic::GetListEx(array("SORT"=>"ASC", $by=>$order), $arFilter, false, false,
-		array("bDescPageNumbering" => ($arParams["USE_DESC_PAGE"] == "Y"), "nPageSize" => $arParams["TOPICS_PER_PAGE"], "bShowAll" => false));
+		array(
+			"bDescPageNumbering" => ($arParams["USE_DESC_PAGE"] == "Y"),
+			"nPageSize" => $arParams["TOPICS_PER_PAGE"],
+			"bShowAll" => false,
+			"sNameTemplate" => $arParams["NAME_TEMPLATE"]
+		)
+	);
 	$db_res->NavStart($arParams["TOPICS_PER_PAGE"], false);
 	$db_res->nPageWindow = $arParams["PAGE_NAVIGATION_WINDOW"];
 	$arResult["NAV_RESULT"] = $db_res;
@@ -367,7 +384,6 @@ if (empty($arResult["Topics"])) // cache miss or PAGE > 1
 		/************** For custom template/********************************/
 		$arResult["Topics"][] = $res;
 	}
-
 /*******************************************************************
 				CACHE
 *******************************************************************/
@@ -431,27 +447,12 @@ if ($USER->IsAuthorized()):
 		do
 		{
 			$arResult["USER"]["SUBSCRIBE"][$res["ID"]] = $res;
-		}
-		while ($res = $db_res->Fetch());
+		} while ($res = $db_res->Fetch());
 	}
 endif;
 /********************************************************************
 				/Data
 ********************************************************************/
-
-	if ($arParams["SET_TITLE"] == "Y")
-		$APPLICATION->SetTitle($arResult["FORUM"]["NAME"]);
-
-	if ($arParams["SET_NAVIGATION"] != "N"):
-		foreach ($arResult["GROUP_NAVIGATION"] as $key => $res):
-			$APPLICATION->AddChainItem($res["NAME"], $res["URL"]["~GROUP"]);
-		endforeach;
-		$APPLICATION->AddChainItem($arResult["FORUM"]["NAME"]);
-	endif;
-
-	// if($arParams["DISPLAY_PANEL"] == "Y" && $USER->IsAuthorized())
-		// CForumNew::ShowPanel(0, 0, false);
-
 /************** For custom template ********************************/
 	$arResult["CURRENT_PAGE"] = $arResult["URL"]["TOPIC_LIST"];
 	$arResult["index"] = $arResult["URL"]["INDEX"];
@@ -461,5 +462,15 @@ endif;
 	$arResult["sessid"] = bitrix_sessid_get();
 /************** For custom template/********************************/
 	$this->IncludeComponentTemplate();
-//	GetMessage("F_ACT_NO_TOPICS");
+
+if ($arParams["SET_TITLE"] == "Y")
+	$APPLICATION->SetTitle($arResult["FORUM"]["NAME"]);
+
+if ($arParams["SET_NAVIGATION"] != "N"):
+	foreach ($arResult["GROUP_NAVIGATION"] as $key => $res):
+		$APPLICATION->AddChainItem($res["NAME"], $res["URL"]["~GROUP"]);
+	endforeach;
+	$APPLICATION->AddChainItem($arResult["FORUM"]["NAME"]);
+endif;
+
 ?>

@@ -33,7 +33,7 @@ endif;
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
@@ -45,6 +45,7 @@ endif;
 	// Data and data-time format
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 /***************** STANDART ****************************************/
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
@@ -54,8 +55,6 @@ endif;
 if (ForumCurrUserPermissions($arParams["FID"]) < "Q"):
 	$APPLICATION->AuthForm(GetMessage("FM_NO_FPERMS"));
 endif;
-
-ForumSetLastVisit($arParams["FID"]);
 
 $arResult["TOPIC"] = array();
 $arResult["FORUM"] = array();
@@ -75,7 +74,11 @@ endif;
 $message = ForumDataToArray($arParams["MID"]);
 if ($message)
 {
-	$db_res = CForumMessage::GetListEx(array("ID"=>"ASC"), array("@ID" => implode(", ", $message), "TOPIC_ID" => $arParams["TID"]));
+	$db_res = CForumMessage::GetListEx(
+		array("ID"=>"ASC"),
+		array("@ID" => implode(", ", $message), "TOPIC_ID" => $arParams["TID"]),
+		false, 0,
+		array('sNameTemplate' => $arParams["NAME_TEMPLATE"]));
 	if ($db_res && ($res = $db_res->GetNext()))
 	{
 		do
@@ -129,21 +132,7 @@ $parser->MaxStringLen = $arParams["WORD_LENGTH"];
 $parser->image_params["width"] = $arParams["IMAGE_SIZE"];
 $parser->image_params["height"] = $arParams["IMAGE_SIZE"];
 
-$arAllow = array(
-	"HTML" => $arResult["FORUM"]["ALLOW_HTML"],
-	"ANCHOR" => $arResult["FORUM"]["ALLOW_ANCHOR"],
-	"BIU" => $arResult["FORUM"]["ALLOW_BIU"],
-	"IMG" => $arResult["FORUM"]["ALLOW_IMG"],
-	"VIDEO" => $arResult["FORUM"]["ALLOW_VIDEO"],
-	"LIST" => $arResult["FORUM"]["ALLOW_LIST"],
-	"QUOTE" => $arResult["FORUM"]["ALLOW_QUOTE"],
-	"CODE" => $arResult["FORUM"]["ALLOW_CODE"],
-	"FONT" => $arResult["FORUM"]["ALLOW_FONT"],
-	"SMILES" => $arResult["FORUM"]["ALLOW_SMILES"],
-	"UPLOAD" => $arResult["FORUM"]["ALLOW_UPLOAD"],
-	"NL2BR" => $arResult["FORUM"]["ALLOW_NL2BR"],
-	"TABLE" => $arResult["FORUM"]["ALLOW_TABLE"]
-);
+$arAllow = forumTextParser::GetFeatures($arResult["FORUM"]);
 $arResult["PARSER"] = $parser;
 /********************************************************************
 				/Default values
@@ -219,10 +208,8 @@ foreach ($arResult["MESSAGE_LIST"] as $key => $res)
 	$res["POST_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["POST_DATE"], CSite::GetDateFormat()));
 	$res["EDIT_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["EDIT_DATE"], CSite::GetDateFormat()));
 	// text
-	$arAllow["SMILES"] = ($res["USE_SMILES"] == "Y" ? $arResult["FORUM"]["ALLOW_SMILES"] : "N");
+	$res["ALLOW"] = array_merge($arAllow, array("SMILES" => ($res["USE_SMILES"] == "Y" ? $arResult["FORUM"]["ALLOW_SMILES"] : "N")));
 	$res["~POST_MESSAGE_TEXT"] = (COption::GetOptionString("forum", "FILTER", "Y")=="Y" ? $res["~POST_MESSAGE_FILTER"] : $res["~POST_MESSAGE"]);
-	$res["POST_MESSAGE_TEXT"] = $parser->convert($res["~POST_MESSAGE_TEXT"], $arAllow);
-	$arAllow["SMILES"] = $arResult["FORUM"]["ALLOW_SMILES"];
 	// attach
 	$res["ATTACH_IMG"] = ""; $res["FILES"] = array();
 	$res["~ATTACH_FILE"] = array(); $res["ATTACH_FILE"] = array();
@@ -327,6 +314,12 @@ if (!empty($arResult["MESSAGE_LIST"]))
 			$arResult["FILES"][$res["FILE_ID"]] = $res;
 		}while ($res = $db_files->Fetch());
 	}
+/************** Message info ***************************************/
+	$parser->arFiles = $arResult["FILES"];
+	foreach ($arResult["MESSAGE_LIST"] as $iID => $res):
+		$arResult["MESSAGE_LIST"][$iID]["POST_MESSAGE_TEXT"] = $parser->convert($res["~POST_MESSAGE_TEXT"], $res["ALLOW"]);
+		$arResult["MESSAGE_LIST"][$iID]["FILES_PARSED"] = $parser->arFilesIDParsed;
+	endforeach;
 }
 /************** Message List/***************************************/
 $arResult["MESSAGE"] = $arResult["MESSAGE_LIST"];

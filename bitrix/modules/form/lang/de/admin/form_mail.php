@@ -1,0 +1,35 @@
+<?
+$MESS ['FORM_WEB_FORMS'] = "[Web-Formulare]";
+$MESS ['FORM_AUTHORIZED'] = "Angemeldet";
+$MESS ['FORM_DATE_CREATE'] = "Datum -";
+$MESS ['FORM_L_USER_NAME'] = "Vor- und Nachname";
+$MESS ['FORM_VIEW'] = "Anzeigen:";
+$MESS ['FORM_L_DATE_CREATE'] = "Ausgefüllt am";
+$MESS ['FORM_L_FORM_ID'] = "Formular ID";
+$MESS ['FORM_L_NAME'] = "Formularname";
+$MESS ['FORM_L_SID'] = "Formular SID";
+$MESS ['FORM_GENERATING_FINISHED'] = "Generierung der E-Mail-Vorlagen wurde beendet.";
+$MESS ['FORM_PAGE_TITLE'] = "Generierung der E-Mail-Vorlagen";
+$MESS ['FORM_GENERATED_AUTOMATICALLY'] = "Dies ist eine automatisch generierte Nachricht.";
+$MESS ['FORM_NOT_AUTHORIZED'] = "nicht angemeldet";
+$MESS ['FORM_NOT_REGISTERED'] = "nicht registriert";
+$MESS ['FORM_L_RAW'] = "Originalwert";
+$MESS ['FORM_RESULT_ID'] = "Ergebnis -";
+$MESS ['FORM_L_RESULT_ID'] = "Ergebnis ID";
+$MESS ['FORM_STAT_SESSION_ID'] = "Sitzung -";
+$MESS ['FORM_L_STAT_SESSION_ID'] = "Sitzung ID";
+$MESS ['FORM_USER'] = "User -";
+$MESS ['FORM_L_USER_AUTH'] = "War der User angemeldet?";
+$MESS ['FORM_L_USER_EMAIL'] = "User E-Mail";
+$MESS ['FORM_L_USER_ID'] = "User ID";
+$MESS ['FORM_VIEW_TEMPLATE'] = "Vorlage anzeigen";
+$MESS ['FORM_STAT_GUEST_ID'] = "Besucher -";
+$MESS ['FORM_L_STAT_GUEST_ID'] = "Gast ID";
+$MESS ['FORM_FILLING'] = "Ausgefülltes Web-Formular";
+$MESS ['FORM_FILLING_S'] = "Ausgefülltes Web-Formular";
+$MESS["FILE_SIZE_b"] = "B";
+$MESS["FILE_SIZE_Kb"] = "kB";
+$MESS["FILE_SIZE_Mb"] = "MB";
+$MESS["FILE_SIZE_Gb"] = "GB";
+$MESS["FILE_SIZE_Tb"] = "TB";
+?>

@@ -131,4 +131,7 @@ $MESS["FD_YEARS_AGO_10_20"] = "Vor #VALUE# Jahren";
 $MESS["FD_YEARS_AGO_MOD_1"] = "Vor #VALUE# Jahren";
 $MESS["FD_YEARS_AGO_MOD_2_4"] = "Vor #VALUE# Jahren";
 $MESS["FD_YEARS_AGO_MOD_OTHER"] = "Vor #VALUE# Jahren";
+$MESS["CAL_BUTTON"] = "Auswählen";
+$MESS["CAL_TIME_SET"] = "Uhrzeit einstellen";
+$MESS["CAL_TIME"] = "Uhrzeit";
 ?>

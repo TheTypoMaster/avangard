@@ -6,8 +6,11 @@
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 
-//т.к. у Формы action не меняется без клиентских скриптов, поэтому просто будем включать файл для групового изменения прав
+//because Form's action don't changes without client's scripts, so just let's include the file for rights grouping change
 error_reporting(E_COMPILE_ERROR|E_ERROR|E_CORE_ERROR|E_PARSE);
+
+// We prevent displaying WAF form and redirecting with JS errors
+define("BX_SECURITY_SHOW_MESSAGE", true);
 
 if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_POST["perms"])>0 && is_array($_POST["files"]) && count($_POST["files"])>0)
 {
@@ -31,19 +34,21 @@ $site = $_REQUEST['site'];
 
 $site = CFileMan::__CheckSite($site);
 
-if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_GET["fu_action"]) > 0)
+if($_SERVER["REQUEST_METHOD"]=="POST" && strlen($_GET["fu_action"]) > 0 && check_bitrix_sessid())
 {
 	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/classes/general/fileman_utils.php");
 	CFilemanUtils::Request($_GET["fu_action"], $site);
 	die();
 }
 
+$searchSess="";
+
 $bSearch = isset($_REQUEST["search"]) && $_REQUEST["search"] == 'Y';
 if ($bSearch) // Disable logical
 {
 	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/classes/general/fileman_utils.php");
 	$bReplace = isset($_REQUEST["is_replace"]) && $_REQUEST["is_replace"] == 'Y';
-	$searchSess = $_GET['ssess'];
+	$searchSess = preg_replace("/[^a-z0-9]/i", "", $_GET['ssess']);
 	$logical = "N";
 }
 
@@ -144,7 +149,7 @@ $handle_action = true;
 CFileMan::SaveLastPath($path);
 
 // Check user rights
-if ($lAdmin->EditAction() && ($USER->CanDoOperation('fileman_admin_files') || $USER->CanDoOperation('fileman_admin_folders')))
+if ($lAdmin->EditAction() && ($USER->CanDoOperation('fileman_admin_files') || $USER->CanDoOperation('fileman_admin_folders')) && is_array($FIELDS))
 {
 	foreach ($FIELDS as $ID => $arFields)
 	{
@@ -170,8 +175,8 @@ if ($lAdmin->EditAction() && ($USER->CanDoOperation('fileman_admin_files') || $U
 			$prev_name_i = CFileman::GetFileName($ID);
 			$name_i = CFileman::GetFileName($arFields["NAME"]);
 
-			$isPhpFrom = in_array(CFileman::GetFileExtension($prev_name_i), CFileMan::GetScriptFileExt());
-			$isPhpTo = in_array(CFileman::GetFileExtension($name_i), CFileMan::GetScriptFileExt());
+			$isPhpFrom = HasScriptExtension($prev_name_i);
+			$isPhpTo = HasScriptExtension($name_i);
 
 			if ($bSearch)
 			{
@@ -224,7 +229,7 @@ if ($lAdmin->EditAction() && ($USER->CanDoOperation('fileman_admin_files') || $U
 						{
 							$res_log['path'] = substr($pathTo, 1);
 							if (is_dir($documentRoot.$pathTo))
-							    CEventLog::Log(
+								CEventLog::Log(
 									"content",
 									"SECTION_RENAME",
 									"fileman",
@@ -295,6 +300,7 @@ if (($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('fileman_admin_fi
 		switch ($_REQUEST['action'])
 		{
 			case "delete":
+
 				if (!($USER->CanDoFileOperation('fm_delete_file',$arPath_i) || $USER->CanDoFileOperation('fm_delete_folder',$arPath_i)))
 					break;
 
@@ -385,12 +391,12 @@ if (!$bSearch) // Display files and folders list
 				}
 			}
 
-			$lAdmin->onLoadScript = "jsUtils.SetPageTitle('".$title.": ".AddSlashes($dname)."');";
+			$lAdmin->onLoadScript = "BX.adminPanel.setTitle('".CUtil::JSEscape($title.": ".$dname)."');";
 			$title = $title.": ".$dname;
 		}
 		else
 		{
-			$lAdmin->onLoadScript = "jsUtils.SetPageTitle('".addslashes($title)."');";
+			$lAdmin->onLoadScript = "BX.adminPanel.setTitle('".CUtil::JSEscape($title)."');";
 		}
 	}
 
@@ -414,15 +420,17 @@ else // Displaying search result
 	$arDirContent = Array();
 	$date_format = CDatabase::DateFormatToPHP(CLang::GetDateFormat("FULL"));
 
-	CUtil::JSPostUnescape();
+	//CUtil::JSPostUnescape(); http://jabber.bx/view.php?id=32552
 
 	if (isset($_POST['sres']) && CFilemanSearch::CheckSearchSess($searchSess))
 		$searchRes = CFilemanSearch::SetSearchResult($_POST['sres'], $searchSess);
 	else
 		$searchRes = CFilemanSearch::GetSearchResult($searchSess, array($by, $order));
 
+
 	for($i = 0, $l = count($searchRes); $i < $l; $i++)
 	{
+
 		$elPath = $searchRes[$i]['path'];
 		$fullPath = $_SERVER["DOCUMENT_ROOT"].$elPath;
 		$bIsDir = $io->DirectoryExists($fullPath);
@@ -454,6 +462,7 @@ $db_DirContent = new CAdminResult($db_DirContent, $sTableID);
 $db_DirContent->NavStart(20);
 
 // Init list params
+
 $lAdmin->NavText($db_DirContent->GetNavPrint(GetMessage("FILEMAN_PAGES")));
 
 // List header
@@ -493,9 +502,9 @@ if(!$bSearch && strlen($path) > 0 && ($logical != "Y" || rtrim($arSite["DIR"], "
 	$row =& $lAdmin->AddRow(".", array("NAME" => GetMessage("FILEMAN_UP")));
 
 	if($logical == "Y")
-		$showField = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\"><IMG SRC=\"/bitrix/images/fileman/types/folder_up.gif\" WIDTH=\"16\" HEIGHT=\"16\" BORDER=0 alt=\"".GetMessage("FILEMAN_UP")."\"></a>&nbsp;<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\">..</a>";
+		$showField = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\"><span class=\"fileman_icon_folder_up\" alt=\"".GetMessage("FILEMAN_UP")."\"></span>&nbsp;<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\">..</a>";
 	else
-		$showField = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\"><IMG SRC=\"/bitrix/images/fileman/types/folder_up.gif\" WIDTH=\"16\" HEIGHT=\"16\" BORDER=0 alt=\"".GetMessage("FILEMAN_UP")."\"></a>&nbsp;<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\">..</a>";
+		$showField = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\"><span class=\"fileman_icon_folder_up\" alt=\"".GetMessage("FILEMAN_UP")."\"></span>&nbsp;<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".$site."&path=".urlencode(urlencode($arParsedPath["PREV"]))."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\">..</a>";
 
 	$row->AddField("NAME", $showField);
 	$row->AddField("LOGIC_NAME", $showField);
@@ -526,7 +535,15 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 	$arPath = Array($site, $Elem['ABS_PATH']);
 	$fpath = $bSearch ? $Elem['ABS_PATH'] : $path."/".$Elem["NAME"];
 	$fpathUrl = urlencode($fpath);
-	$fname = $documentRoot.$path."/".$Elem["NAME"];
+	//$fname = $documentRoot.$path."/".$Elem["NAME"];
+	$fname = $documentRoot.$fpath;
+	$fnameConverted = CBXVirtualIoFileSystem::ConvertCharset($fname); //http://www.jabber.bx/view.php?id=26893
+
+	if(!file_exists($fnameConverted))
+	{
+		$lAdmin->AddGroupError(GetMessage("FILEMAN_ADMIN_FLIST_ERROR"));
+		break;
+	}
 
 	if ($bSearch)
 		$f_NAME = $Elem['ABS_PATH'];
@@ -535,7 +552,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 	$showFieldText = "";
 	if($Elem["TYPE"] == "D")
 	{
-		$showFieldIcon = "<a href=\"fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."\" onclick=\"".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);return false;\"><IMG SRC=\"/bitrix/images/fileman/types/folder.gif\" WIDTH=\"16\" HEIGHT=\"16\" BORDER=0 ALT=\"\"></a>";
+		$showFieldIcon = "<a href=\"fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."\" onclick=\"".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);return false;\"><span class='fileman_icon_folder'></span></a>";
 		$showFieldText = "<a href=\"fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."\" onclick=\"".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);return false;\">".$f_NAME."</a>";
 	}
 	else
@@ -544,7 +561,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 		if(preg_match('/^\.(.*)?\.menu\.(php|html|php3|php4|php5|php6|phtml)$/', $f_NAME, $regs))
 		{
 			$showFieldIcon = "";
-			$showFieldText = GetMessage("FILEMAN_ADMIN_MENU_TYPE")."&laquo;".htmlspecialchars($regs[1])."&raquo;";
+			$showFieldText = GetMessage("FILEMAN_ADMIN_MENU_TYPE")."&laquo;".htmlspecialcharsbx($regs[1])."&raquo;";
 		}
 		else
 		{
@@ -566,12 +583,16 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 	if ($bSearch)
 		$val = CFileman::GetFileName($val);
 
-	$editField = "<input type=\"text\" name=\"FIELDS[".$f_NAME."][NAME]\" value=\"".htmlspecialchars($val)."\" size=\"40\"> ";
+	//$editField = "<input type=\"text\" name=\"FIELDS[".$f_NAME."][NAME]\" value=\"".htmlspecialcharsbx($val)."\" size=\"40\"> ";
 
 	if($logical=='Y')
 		$row->AddField("NAME", $showField);
 	else
-		$row->AddField("NAME", $showField, $editField);
+	{
+		//$row->AddField("NAME", $showField, $editField);
+		$row->AddViewField("NAME",$showField);
+		$row->AddInputField("NAME", Array('size'=>'40', name => 'FIELDS['.$f_NAME.'][NAME]', 'value' => htmlspecialcharsbx($val)));
+	}
 
 
 	if($logical == 'Y')
@@ -579,12 +600,12 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 		$showFieldIcon = "";
 		$showFieldText = "";
 		if(strlen($f_LOGIC_NAME)<=0)
-			$f_LOGIC_NAME = htmlspecialchars(GetMessage("FILEMAN_ADM_UNTITLED"));
+			$f_LOGIC_NAME = htmlspecialcharsbx(GetMessage("FILEMAN_ADM_UNTITLED"));
 
 		if($Elem["TYPE"] == "D")
 		{
-			$showFieldIcon = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\" title=\"".htmlspecialchars($fpath)."\"><IMG SRC=\"/bitrix/images/fileman/types/folder.gif\" WIDTH=\"16\" HEIGHT=\"16\" BORDER=0 ALT=\"\"></a>";
-			$showFieldText = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\" title=\"".htmlspecialchars($fpath)."\">".$f_LOGIC_NAME."</a>";
+			$showFieldIcon = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\" title=\"".htmlspecialcharsbx($fpath)."\"><span class='fileman_icon_folder'></span></a>";
+			$showFieldText = "<a href=\"javascript:".$sTableID.".GetAdminList('fileman_admin.php?".$addUrl_s."&site=".urlencode($site)."&path=".$fpathUrl."&show_perms_for=".IntVal($show_perms_for)."', GALCallBack);\" title=\"".htmlspecialcharsbx($fpath)."\">".$f_LOGIC_NAME."</a>";
 		}
 		else
 		{
@@ -592,11 +613,11 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 			if(preg_match('/^\.(.*)?\.menu\.(php|html|php3|php4|php5|phtml)$/', $f_NAME, $regs))
 			{
 				$showFieldIcon = "";
-				$showFieldText = GetMessage("FILEMAN_ADMIN_MENU_TYPE")."&laquo;".htmlspecialchars($regs[1])."&raquo;";
+				$showFieldText = GetMessage("FILEMAN_ADMIN_MENU_TYPE")."&laquo;".htmlspecialcharsbx($regs[1])."&raquo;";
 			}
 			else
 			{
-				$showFieldIcon = "<IMG SRC=\"/bitrix/images/fileman/types/".$curFileType.".gif\" WIDTH=\"16\" HEIGHT=\"16\" BORDER=0 ALT=\"\"  title=\"".htmlspecialchars($fpath)."\">";
+				$showFieldIcon = "<IMG SRC=\"/bitrix/images/fileman/types/".$curFileType.".gif\" WIDTH=\"16\" HEIGHT=\"16\" BORDER=0 ALT=\"\"  title=\"".htmlspecialcharsbx($fpath)."\">";
 				$showFieldText = $f_LOGIC_NAME;
 			}
 		}
@@ -605,10 +626,10 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 		$row->AddViewField("LOGIC_NAME", $showField);
 	}
 
-	$row->AddField("SIZE", (($Elem["TYPE"]=="F") ? CFileMan::GetStrFileSize($f_SIZE) : ""));
+	$row->AddField("SIZE", (($Elem["TYPE"] == "F") ? CFile::FormatSize($f_SIZE) : ""));
 	$row->AddField("DATE", $f_DATE);
 
-	$row->AddField("TYPE", ($Elem["TYPE"] == "D") ? GetMessage('FILEMAN_FOLDER') : htmlspecialchars($arFilemanPredifinedFileTypes[$curFileType]["name"]));
+	$row->AddField("TYPE", ($Elem["TYPE"] == "D") ? GetMessage('FILEMAN_FOLDER') : htmlspecialcharsbx($arFilemanPredifinedFileTypes[$curFileType]["name"]));
 
 	$showField = "";
 	if (!CFileMan::IsWindows())
@@ -621,8 +642,8 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 				$showField .= '<span title="'.$UnixFP[1].'">'.$UnixFP[0].'</span>';
 				if(function_exists("posix_getpwuid") && function_exists("posix_getgrgid"))
 				{
-					$arrFileOwner = posix_getpwuid(fileowner($fname));
-					$arrFileGroup = posix_getgrgid(filegroup($fname));
+					$arrFileOwner = posix_getpwuid(fileowner($fnameConverted));
+					$arrFileGroup = posix_getgrgid(filegroup($fnameConverted));
 					$showField .= " ".$arrFileOwner['name']." ".$arrFileGroup['name'];
 				}
 			}
@@ -705,8 +726,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 				{
 					if($USER->CanDoFileOperation('fm_edit_existent_file', $arPath))
 					{
-						if (!in_array(CFileman::GetFileExtension($f_NAME), CFileMan::GetScriptFileExt())
-							|| $USER->CanDoFileOperation('fm_lpa', $arPath) || $USER->CanDoOperation('edit_php'))
+						if (!HasScriptExtension($f_NAME) || $USER->CanDoFileOperation('fm_lpa', $arPath) || $USER->CanDoOperation('edit_php'))
 						{
 							$arActions[] = array(
 								"ICON" => "btn_fileman_html",
@@ -751,10 +771,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 					}
 				}
 
-				if($USER->CanDoFileOperation('fm_view_file', $arPath) &&
-				($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) ||
-				!(in_array(CFileman::GetFileExtension($f_NAME), CFileMan::GetScriptFileExt()) ||
-				substr($Elem["NAME"], 0, 1)==".")))
+				if($USER->CanDoFileOperation('fm_view_file', $arPath) && ($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($f_NAME) || substr($Elem["NAME"], 0, 1) == ".")))
 				{
 					$arActions[] = array(
 						"ICON" => "btn_fileman_view",
@@ -764,17 +781,15 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 					);
 				}
 
-				if(($USER->CanDoFileOperation('fm_download_file', $arPath) &&
-				!(in_array(CFileman::GetFileExtension($f_NAME), CFileMan::GetScriptFileExt()) ||
-				substr($Elem["NAME"], 0, 1) == ".")) ||
-				$USER->CanDoOperation('edit_php'))
+				if(($USER->CanDoFileOperation('fm_download_file', $arPath) && !(HasScriptExtension($f_NAME) || 	substr($Elem["NAME"], 0, 1) == ".")) || $USER->CanDoOperation('edit_php'))
 				{
 					$arActions[] = array(
 						"ICON" => "btn_download",
 						"TEXT" => GetMessage("FILEMAN_DOWNLOAD"),
-						"ACTION" => $lAdmin->ActionRedirect("fileman_file_download.php?path=".$fpathUrl."&site=".$site."&".$addUrl)
+						"ACTION" => $lAdmin->ActionRedirect("fileman_file_download.php?path=".$fpathUrl."&site=".$site."&".$addUrl)." setTimeout(function(){ CloseWaitWindow(); }, 3000);"
 					);
 				}
+
 			}
 		}
 	}
@@ -803,6 +818,26 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 	$type = $Elem["TYPE"] == "F" ? 'file' : 'folder';
 	if ($logical != "Y")
 	{
+		if ($Elem["TYPE"] == "F" && $USER->CanDoFileOperation('fm_view_file', $arPath) && ($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($f_NAME) || substr($Elem["NAME"], 0, 1)==".")) || $Elem["TYPE"] == "D" && $USER->CanDoFileOperation('fm_view_listing', $arPath))
+		{
+			$arActions[] = array("SEPARATOR" => true);
+			$arActions[] = array(
+				"ICON" => "pack",
+				"TEXT" => GetMessage("FILEMAN_ADMIN_ARC_PACK"),
+				"ACTION" => "window.PackUnpackRun(['".CUtil::JSEscape($fpath)."'], true); return false;"
+			);
+
+			$is_archive = CBXArchive::IsArchive($fpath);
+			if ($is_archive)
+			{
+				$arActions[] = array(
+					"ICON" => "unpack",
+					"TEXT" => GetMessage("FILEMAN_ADMIN_ARC_UNPACK"),
+					"ACTION" => "window.PackUnpackRun(['".CUtil::JSEscape($fpath)."'], false); return false;"
+				);
+			}
+		}
+
 		if($USER->CanDoFileOperation('fm_rename_'.$type, $arPath))
 		{
 			$arActions[] = array("SEPARATOR" => true);
@@ -814,11 +849,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 		}
 
 		// Copy
-		if(($USER->CanDoFileOperation('fm_view_file', $arPath) &&
-			($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) ||
-			!(in_array(CFileman::GetFileExtension($f_NAME), CFileMan::GetScriptFileExt()) ||
-			substr($Elem["NAME"], 0, 1)=="."))) && $Elem["TYPE"] == "F" || 
-			$Elem["TYPE"] == "D" && $USER->CanDoFileOperation('fm_view_listing', $arPath))
+		if(($USER->CanDoFileOperation('fm_view_file', $arPath) && ($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($f_NAME) || substr($Elem["NAME"], 0, 1)=="."))) && $Elem["TYPE"] == "F" || $Elem["TYPE"] == "D" && $USER->CanDoFileOperation('fm_view_listing', $arPath))
 		{
 			$arActions[] = array(
 				"ICON" => "copy",
@@ -830,11 +861,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 		// Move
 		if($USER->CanDoOperation('fileman_admin_folders') && $USER->CanDoFileOperation('fm_delete_'.$type, $arPath))
 		{
-			if(($USER->CanDoFileOperation('fm_view_file', $arPath) &&
-			($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) ||
-			!(in_array(CFileman::GetFileExtension($f_NAME), CFileMan::GetScriptFileExt()) ||
-			substr($Elem["NAME"], 0, 1)=="."))) && $Elem["TYPE"] == "F" || 
-			$Elem["TYPE"] == "D" && $USER->CanDoFileOperation('fm_view_listing', $arPath))
+			if(($USER->CanDoFileOperation('fm_view_file', $arPath) && ($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($f_NAME) || substr($Elem["NAME"], 0, 1)=="."))) && $Elem["TYPE"] == "F" || $Elem["TYPE"] == "D" && $USER->CanDoFileOperation('fm_view_listing', $arPath))
 			{
 				$arActions[] = array(
 					"ICON" => "move",
@@ -869,6 +896,7 @@ while($Elem = $db_DirContent->NavNext(true, "f_"))
 				// );
 			}
 		}
+
 	}
 	$row->AddActions($arActions);
 }
@@ -923,6 +951,12 @@ if($USER->CanDoFileOperation('fm_create_new_'.$type,$arPath))
 		"action" => "setCopyMove('".Cutil::JSEscape($site)."', '".Cutil::JSEscape($path)."', true)",
 		"value" => "copy",
 		"name" => GetMessage("FILEMAN_ADM_COPY")
+	);
+
+	$arGrActionAr["pack"] = array(
+		"action" => "setPackUnpack('".Cutil::JSEscape($site)."', '".Cutil::JSEscape($path)."', true)",
+		"value" => "pack",
+		"name" => GetMessage("FILEMAN_ADMIN_ARC_PACK"),
 	);
 }
 
@@ -988,17 +1022,17 @@ if (!$bSearch) // Only for dir viewing, hide for search result mode
 	if($USER->CanDoOperation('fileman_admin_folders') && $USER->CanDoFileOperation('fm_create_new_folder',$arPath))
 	{
 		$aContext[] = Array(
-			"TEXT" => GetMessage("FILEMAN_ADMIN_NEW_FOLDER"),
+			"TEXT" => GetMessage("FILEMAN_ADMIN_ADD_FOLDER"),
 			"ICON" => "btn_new_folder",
 			"LINK" => "fileman_newfolder.php?".$addUrl."&site=".$site."&path=".urlencode($path)."",
-			"TITLE" => GetMessage("FILEMAN_ADMIN_NEW_FOLDER")
+			"TITLE" => GetMessage("FILEMAN_ADMIN_ADD_FOLDER")
 		);
 	}
 
 	if($USER->CanDoOperation('fileman_admin_files') && $USER->CanDoFileOperation('fm_create_new_file',$arPath))
 	{
 		$aContext[] = Array(
-			"TEXT" => GetMessage("FILEMAN_ADMIN_NEW_FILE"),
+			"TEXT" => GetMessage("FILEMAN_ADMIN_ADD_FILE"),
 			"ICON" => "btn_new_file",
 			"LINK" =>
 				($defaultEdit == 'html'?
@@ -1011,7 +1045,28 @@ if (!$bSearch) // Only for dir viewing, hide for search result mode
 						"fileman_file_edit.php?".$addUrl."&site=".$site."&path=".urlencode($path)."&new=y"
 					)
 				),
-			"TITLE" => GetMessage("FILEMAN_ADMIN_NEW_FILE")
+			"TITLE" => GetMessage("FILEMAN_ADMIN_ADD_FILE")
+		);
+	}
+
+	if($USER->CanDoOperation('fileman_add_element_to_menu') && $USER->CanDoFileOperation('fm_add_to_menu',$arPath))
+	{
+		$aContext[] = Array(
+			"TEXT" => GetMessage("FILEMAN_ADMIN_MENU_ADD"),
+			"ICON" => "btn_new_menu",
+			"LINK" => "fileman_menu_edit.php?".$addUrl."&site=".$site."&path=".urlencode($path),
+			"TITLE" => GetMessage("FILEMAN_ADMIN_MENU_ADD")
+		);
+	}
+
+	if(count($aContext) > 1)
+	{
+		$aContext = array(
+			array(
+				"TEXT" => GetMessage("FILEMAN_ADMIN_ADD"),
+				"ICON" => "btn_new",
+				"MENU" => $aContext,
+			),
 		);
 	}
 
@@ -1025,24 +1080,18 @@ if (!$bSearch) // Only for dir viewing, hide for search result mode
 		);
 	}
 
-	if($USER->CanDoOperation('fileman_add_element_to_menu') && $USER->CanDoFileOperation('fm_add_to_menu',$arPath))
-	{
-		$aContext[] = Array(
-			"TEXT" => GetMessage("FILEMAN_ADMIN_MENU_ADD"),
-			"ICON" => "btn_new_menu",
-			"LINK" => "fileman_menu_edit.php?".$addUrl."&site=".$site."&path=".urlencode($path),
-			"TITLE" => GetMessage("FILEMAN_ADMIN_MENU_ADD")
-		);
-	}
 }
 
-if(count($aContext) > 0)
-	$aContext[] = Array("NEWBAR" => true);
+//if(count($aContext) > 0)
+//	$aContext[] = Array("NEWBAR" => true);
 
 // Only for dir viewing, hide for search result mode
+
+$addProp = array();
+
 if(!$bSearch && $USER->CanDoOperation('fileman_edit_existent_folders') && $USER->CanDoFileOperation('fm_edit_existent_folder', $arPath))
 {
-	$aContext[] = Array(
+	$addProp[] = Array(
 		"TEXT" => GetMessage("FILEMAN_ADMIN_FOLDER_PROP"),
 		"LINK" => "fileman_folder.php?".$addUrl."&site=".$site."&path=".urlencode($path)."",
 		"ICON" => "btn_folder_prop",
@@ -1055,16 +1104,29 @@ if($bSearch)
 	$aContext[] = Array(
 		"TEXT" => GetMessage("FILEMAN_GO_BACK"),
 		"LINK" => "fileman_admin.php?".$addUrl."&site=".$site."&path=".urlencode($path)."",
-		"ICON" => "btn_go_back"
+		"ICON" => "btn_list"
 	);
 }
 
 if ($USER->CanDoOperation('view_groups') && $USER->CanDoFileOperation('fm_view_permission', $arPath) && $USER->CanDoFileOperation('fm_edit_existent_folder',$arPath))
-	$aContext[] = Array(
+	$addProp[] = Array(
 		"TEXT" => GetMessage('FILEMAN_SHOW_PRM_FOR'),
 		"TITLE" => GetMessage('FILEMAN_SHOW_PRM_FOR'),
 		"MENU" => $arDDMenu
 	);
+
+
+if(count($addProp) > 0)
+{
+	$aContext[] = array(
+
+			"TEXT" => GetMessage('FILEMAN_ADMIN_FOLDER_EXTRA_PARAM'),
+			"TITLE" => GetMessage('FILEMAN_ADMIN_FOLDER_EXTRA_PARAM_TITLE'),
+			"ICON" => "btn_folder_prop",
+			"MENU" => $addProp
+	);
+}
+
 if(count($aContext) > 0)
 	$aContext[] = Array("NEWBAR" => true);
 
@@ -1110,7 +1172,7 @@ else
 $aContext[] = Array(
 	"TEXT" => $bSearch ? GetMessage("FILEMAN_NEW_SEARCH") : GetMessage("FILEMAN_SEARCH"),
 	"ICON" => "btn_fileman_search",
-	"LINK" => "javascript: window.SearchReplaceRun('".CUtil::JSEscape($path)."', ".($bSearch ? 'true' : 'false').", '".CUtil::JSEscape($searchSess)."', ".$sFormValues.");",
+	"LINK" => "javascript: window.SearchReplaceRun('".CUtil::JSEscape($path)."', ".($bSearch ? 'true' : 'false').", '".CUtil::JSEscape($searchSess)."', ".urlencode($sFormValues).");",
 	"TITLE" => GetMessage("FILEMAN_SEARCH_TITLE")
 );
 
@@ -1172,6 +1234,7 @@ include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/classes/general/
 CFilemanUtils::InitScript(array(
 	'initSearch' => true,
 	'initCopy' => true,
+	'initPack' => true,
 	'viewFilePath' => "fileman_file_view.php?path=#PATH#&site=".$site."&".$addUrl,
 	'viewFolderPath' => "fileman_admin.php?path=#PATH#&site=".$site."&".$addUrl,
 	'site' => $site,
@@ -1256,6 +1319,7 @@ function setAccess(site, path, bServerPermission)
 
 function setCopyMove(site, path, bCopy)
 {
+
 	var
 		arFiles = [],
 		oForm = document.forms['form_<?= $sTableID ?>'],
@@ -1292,6 +1356,45 @@ function setCopyMove(site, path, bCopy)
 	window.CopyMoveRun(arFiles, bCopy);
 }
 
+function setPackUnpack(site, path, bPack)
+{
+	var
+		arFiles = [],
+		oForm = document.forms['form_<?= $sTableID ?>'],
+		expType = oForm.action_target && oForm.action_target.checked,
+		i, l,
+		par = "";
+
+	if (!expType)
+	{
+		for (i = 0, l = oForm.elements.length; i < l; i++)
+		{
+			if (oForm.elements[i].tagName.toUpperCase() == "INPUT"
+				&& oForm.elements[i].type.toUpperCase() == "CHECKBOX"
+				&& oForm.elements[i].name.toUpperCase() == "ID[]"
+				&& oForm.elements[i].checked == true)
+			{
+				<?if ($bSearch):?>
+					arFiles.push(oForm.elements[i].value);
+				<?else:?>
+					arFiles.push((path == '/' ? '' : path) + '/' + oForm.elements[i].value);
+				<?endif;?>
+			}
+		}
+	}
+	else
+	{
+		<?if ($bSearch): // only for action_target and search results mode
+			for($i = 0, $l = count($searchRes); $i < $l; $i++):?>
+				arFiles.push('<?= CUtil::JSEscape($searchRes[$i]['path'])?>');
+			<?endfor;
+		endif;
+		?>
+	}
+
+	window.PackUnpackRun(arFiles, bPack);
+}
+
 function setCheckbox(name)
 {
 	var listTable = BX("<?= $lAdmin->table_id;?>");
@@ -1300,12 +1403,17 @@ function setCheckbox(name)
 		var oTR = listTable.rows[row];
 		var oInputTD = oTR.cells[0];
 		var oInput = oInputTD.firstChild;
+
 		if (!oInput)
 			continue;
+
 		if (oInput.value == name)
 		{
-			oInput.checked = true;
-			oInput.onclick.apply(oInput);
+			//oInput.checked = true;
+			BX.fireEvent(oInput, 'click');
+
+			if(oInput.onclick)
+				oInput.onclick.apply(oInput);
 		}
 		else
 			oInput.checked = false;
@@ -1357,18 +1465,18 @@ $oFilter->Begin();
 <tr>
 	<td><b><?= GetMessage("MAIN_F_NAME")?>:</b></td>
 	<td nowrap>
-		<input type="text" name="find_name" value="<?= htmlspecialchars($find_name)?>" size="35">
+		<input type="text" name="find_name" value="<?= htmlspecialcharsbx($find_name)?>" size="35">
 	</td>
 </tr>
 <tr>
-	<td width="0%" nowrap><?= GetMessage("MAIN_F_TIMESTAMP")." (".CLang::GetDateFormat("SHORT")."):"?></td>
-	<td width="0%" nowrap><?= CalendarPeriod("find_timestamp_1", htmlspecialchars($find_timestamp_1), "find_timestamp_2", htmlspecialchars($find_timestamp_2), "find_form","Y")?></td>
+	<td width="0%" nowrap><?= GetMessage("MAIN_F_TIMESTAMP").":"?></td>
+	<td width="0%" nowrap><?= CalendarPeriod("find_timestamp_1", htmlspecialcharsbx($find_timestamp_1), "find_timestamp_2", htmlspecialcharsbx($find_timestamp_2), "find_form","Y")?></td>
 </tr>
 <tr>
 	<td nowrap><?= GetMessage("MAIN_F_TYPE")?>:</td>
 	<td nowrap><?
 		$arr = array("reference"=>array(GetMessage("FILEMAN_FILE"), GetMessage("FILEMAN_FOLDER")), "reference_id"=>array("F","D"));
-		echo SelectBoxFromArray("find_type", $arr, htmlspecialchars($find_type), GetMessage("MAIN_ALL"));
+		echo SelectBoxFromArray("find_type", $arr, htmlspecialcharsbx($find_type), GetMessage("MAIN_ALL"));
 		?></td>
 </tr>
 <?
@@ -1378,7 +1486,12 @@ $oFilter->End();
 </form>
 <? endif;?>
 
-<?$lAdmin->DisplayList();?>
+<?
+if(empty($arGrActionAr))
+	$lAdmin->bCanBeEdited = false;
+
+$lAdmin->DisplayList();
+?>
 
 <? CFilemanUtils::BuildDialogContent($site);?>
 

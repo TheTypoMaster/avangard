@@ -1,24 +1,23 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
 $type = $arCurrentValues["PLAYER_TYPE"] ? $arCurrentValues["PLAYER_TYPE"] : 'auto';
 $type_ = $type;
 $adv_mode = ($arCurrentValues["ADVANCED_MODE_SETTINGS"] == 'Y');
 $hidden = ($adv_mode) ? "N" : "Y";
 
-if (!function_exists('getSkinsEx'))
+if (!function_exists('getSkinsFromDir'))
 {
-	function getSkinsEx($path)
+	function getSkinsFromDir($path) //http://jabber.bx/view.php?id=28856
 	{
+		$arSkins = Array();
 		$basePath = $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $path);
 		$arSkinExt = array('swf', 'zip');
 		$arPreviewExt = array('png', 'gif', 'jpg', 'jpeg');
-		$prExtCnt = count($arPreviewExt);
-
-		$arSkins = Array();
-		if (!is_dir($basePath)) // Not valid folder
-			return $arSkins;
+		$prExtCnt = count($arPreviewExt);		
 
 		$handle  = @opendir($basePath);
+
 		while(false !== ($f = @readdir($handle)))
 		{
 			if($f == "." || $f == ".." || $f == ".htaccess" || !is_file($basePath.'/'.$f))
@@ -33,20 +32,49 @@ if (!function_exists('getSkinsEx'))
 
 				$Skin = array('filename' => $f);
 				$Skin['name'] = strtoupper(substr($name, 0, 1)).strtolower(substr($name, 1));
+				$Skin['the_path'] = $path;
 
 				// Try to find preview
 				for ($i = 0; $i < $prExtCnt; $i++)
 				{
-					if (file_exists(($basePath.'/'.$name.'.'.$arPreviewExt[$i])))
+					if (file_exists($basePath.'/'.$name.'.'.$arPreviewExt[$i]))
 					{
-						$Skin['preview'] = $name.'.'.$arPreviewExt[$i];
+						$Skin['preview'] = $name.'.'.$arPreviewExt[$i];						
 						break;
 					}
 				}
 				$arSkins[] = $Skin;
 			}
 		}
+
 		return $arSkins;
+	}
+}
+
+if (!function_exists('getSkinsEx'))
+{
+	function getSkinsEx($path)
+	{
+		$basePath = $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $path);
+		$arSkins = Array();
+
+		if (!is_dir($basePath)) // Not valid folder
+			return $arSkins;
+
+		$arSkins = getSkinsFromDir($path);
+
+		$handle  = @opendir($basePath);
+
+		while(false !== ($skinDir = @readdir($handle)))
+		{
+
+			if(!is_dir($basePath.'/'.$skinDir) || $skinDir == "." || $skinDir == ".." )
+				continue;
+
+			$arDirSkins=getSkinsFromDir($path.'/'.$skinDir);			
+			$arSkins = array_merge($arSkins,$arDirSkins);
+		}
+		return $arSkins;		
 	}
 }
 
@@ -179,23 +207,25 @@ if ($arCurrentValues["USE_PLAYLIST"] == 'Y')
 
 if ($type != 'wmv')
 {
-	$arParams["PROVIDER"] = Array(
-		"PARENT" => "BASE_SETTINGS",
-		"NAME" => GetMessage("PC_PAR_PROVIDER"),
-		"TYPE" => "LIST",
-		"VALUES" => array(
-			"" => GetMessage("PC_PAR_PROVIDER_NONE"),
-			"video" => GetMessage("PC_PAR_PROVIDER_VIDEO"),
-			"http" => GetMessage("PC_PAR_PROVIDER_HTTP"),
-			"rtmp" => GetMessage("PC_PAR_PROVIDER_RTMP"),
-			"sound" => GetMessage("PC_PAR_PROVIDER_SOUND"),
-			"image" => GetMessage("PC_PAR_PROVIDER_IMAGE"),
-			"youtube" => GetMessage("PC_PAR_PROVIDER_YOUTUBE")
-		),
-		"ADDITIONAL_VALUES" => "Y",
-		"DEFAULT" => "video",
-		//"HIDDEN" => $hidden,
-	);
+	if($arCurrentValues["USE_PLAYLIST"]!='Y')
+	{
+		$arParams["PROVIDER"] = Array(
+			"PARENT" => "BASE_SETTINGS",
+			"NAME" => GetMessage("PC_PAR_PROVIDER"),
+			"TYPE" => "LIST",
+			"VALUES" => array(
+				"" => GetMessage("PC_PAR_PROVIDER_NONE"),
+				"video" => GetMessage("PC_PAR_PROVIDER_VIDEO"),
+				"http" => GetMessage("PC_PAR_PROVIDER_HTTP"),
+				"rtmp" => GetMessage("PC_PAR_PROVIDER_RTMP"),
+				"sound" => GetMessage("PC_PAR_PROVIDER_SOUND"),
+				"image" => GetMessage("PC_PAR_PROVIDER_IMAGE")
+			),
+			"ADDITIONAL_VALUES" => "Y",
+			"DEFAULT" => "",
+			//"HIDDEN" => $hidden,
+		);
+	}
 
 	$arParams["STREAMER"] = Array(
 		"PARENT" => "BASE_SETTINGS",
@@ -204,6 +234,7 @@ if ($type != 'wmv')
 		"HIDDEN" => $hidden,
 	);
 }
+
 
 //if ($type_ == 'auto' && $adv_mode)
 //	$arParams["PATH"]["REFRESH"] = "Y";
@@ -220,21 +251,22 @@ $arParams["HEIGHT"] = Array(
 	"COLS" => 10,
 	"DEFAULT" => 300,
 );
-$arParams["PREVIEW"] = Array(
-	"PARENT" => "BASE_SETTINGS",
-	"NAME" => GetMessage("PC_PAR_PREVIEW_IMAGE"),
-	"TYPE" => "FILE",
-	"FD_TARGET" => "F",
-	"FD_EXT" => "png,gif,jpg,jpeg",
-	"FD_UPLOAD" => true,
-	"FD_USE_MEDIALIB" => true,
-	"FD_MEDIALIB_TYPES" => Array('image'),
-	"DEFAULT" => '',
-	"HIDDEN" => $hidden,
-);
 
-if ($arCurrentValues["USE_PLAYLIST"] != 'Y')
+if($arCurrentValues["USE_PLAYLIST"]!='Y')
 {
+	$arParams["PREVIEW"] = Array(
+		"PARENT" => "BASE_SETTINGS",
+		"NAME" => GetMessage("PC_PAR_PREVIEW_IMAGE"),
+		"TYPE" => "FILE",
+		"FD_TARGET" => "F",
+		"FD_EXT" => "png,gif,jpg,jpeg",
+		"FD_UPLOAD" => true,
+		"FD_USE_MEDIALIB" => true,
+		"FD_MEDIALIB_TYPES" => Array('image'),
+		"DEFAULT" => '',
+		"HIDDEN" => $hidden,
+	);
+
 	$arParams["FILE_TITLE"] = Array(
 		"PARENT" => "BASE_SETTINGS",
 		"NAME" => GetMessage("PC_PAR_FILE_TITLE"),
@@ -278,21 +310,19 @@ if ($arCurrentValues["USE_PLAYLIST"] != 'Y')
 
 //APPEARANCE   -FLV-
 if ($type != 'wmv')
-{
-	$basePath = "/bitrix/components/bitrix/player/mediaplayer/skins";
+{	
 	$arParams["SKIN_PATH"] = Array(
 		"PARENT" => "APPEARANCE_FLV",
 		"NAME" => GetMessage("PC_PAR_SKIN_PATH"),
 		"TYPE" => "FILE",
 		"FD_TARGET" => "D",
 		"FD_UPLOAD" => false,
-		"DEFAULT" => $basePath,
+		"DEFAULT" => "/bitrix/components/bitrix/player/mediaplayer/skins",
 		"REFRESH" => "Y",
 		"HIDDEN" => $hidden,
 	);
 
-	$arSkins = getSkinsEx($arCurrentValues['SKIN_PATH'] ? $arCurrentValues['SKIN_PATH'] : $basePath);
-
+	$arSkins = getSkinsEx($arCurrentValues['SKIN_PATH'] ? $arCurrentValues['SKIN_PATH'] : "/bitrix/components/bitrix/player/mediaplayer/skins");
 	//print_r($arSkins);
 
 	$arParams["SKIN"] = Array(

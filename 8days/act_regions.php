@@ -3,8 +3,19 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Диван за 7 дней");
 ?> 
 <div class="gray_td"> 
-  <h1>АКЦИИ В РЕГИОНАХ РОССИИ : СКИДКИ В ОКТЯБРЕ</h1>
+  <h1>АКЦИИ В РЕГИОНАХ РОССИИ : МОДЕЛЬ МЕСЯЦА</h1>
  </div>
+
+<div style="position: relative; top: -13px; width: 100%; height: 40px; border: 1px solid rgb(225, 225, 225); "> 	 
+  <table width="100%" height="40" cellspacing="0" cellpadding="0" class="zakladki" style="text-align: justify; "> 		 
+    <tbody> 			 
+      <tr><td bgcolor="#e1e1e1" style="vertical-align: middle; text-align: center; width: 33%; "><a href="/8days/index.php" ><b><font style="font-size: 14px; ">Москва и МО</font></b></a></td>
+	  <td bgcolor="#e1e1e1" style="vertical-align: middle; text-align: center; width: 34%; "><a href="/redesign/where_buy/spb-list.php" ><b><font style="font-size: 14px; ">Санкт-Петербург</font></b></a></td>
+	  <td style="vertical-align: middle; text-align: center; width: 33%; "><b><font style="font-size: 14px; ">Россия</font></b></td></tr>
+    </tbody>
+  </table>
+ </div>
+
 
 <?
 /*

@@ -17,6 +17,7 @@ create table b_forum (
 	ALLOW_SMILES char(1) not null default 'Y',
 	ALLOW_UPLOAD char(1) not null default 'N',
 	ALLOW_TABLE char(1) not null default 'N',
+	ALLOW_ALIGN char(1) not null default 'Y',
 	ALLOW_UPLOAD_EXT varchar(255) null,
 	ALLOW_MOVE_TOPIC char(1) not null default 'Y',
 	ALLOW_TOPIC_TITLED char(1) not null default 'N',
@@ -26,6 +27,7 @@ create table b_forum (
 	ASK_GUEST_EMAIL char(1) not null default 'N',
 	USE_CAPTCHA char(1) not null default 'N',
 	INDEXATION char(1) not null default 'Y',
+	DEDUPLICATION char(1) not null default 'Y',
 	MODERATION char(1) not null default 'N',
 	ORDER_BY char(1) not null default 'P',
 	ORDER_DIRECTION varchar(4) not null default 'DESC',
@@ -122,12 +124,14 @@ create table b_forum_message (
 	MAIL_HEADER text,
 	primary key (ID),
 	index IX_FORUM_MESSAGE_FORUM(FORUM_ID, APPROVED),
-	index IX_FORUM_MESSAGE_TOPIC(TOPIC_ID, APPROVED),
-	index IX_FORUM_MESSAGE_AUTHOR(AUTHOR_ID, APPROVED, FORUM_ID),
+	index IX_FORUM_MESSAGE_TOPIC(TOPIC_ID, APPROVED, ID),
+	index IX_FORUM_MESSAGE_AUTHOR(AUTHOR_ID, APPROVED, FORUM_ID, ID),
 	index IX_FORUM_MESSAGE_APPROVED(APPROVED),
 	index IX_FORUM_MESSAGE_PARAM2(PARAM2),
 	index IX_FORUM_MESSAGE_XML_ID(XML_ID),
-	index IX_FORUM_MESSAGE_DATE_AUTHOR_ID(POST_DATE, AUTHOR_ID)
+	index IX_FORUM_MESSAGE_DATE_AUTHOR_ID(POST_DATE, AUTHOR_ID),
+	index IX_FORUM_MESSAGE_AUTHOR_TOPIC_ID(AUTHOR_ID, TOPIC_ID, ID),
+	index IX_FORUM_MESSAGE_AUTHOR_FORUM_ID(AUTHOR_ID, FORUM_ID, ID, APPROVED, TOPIC_ID)
 );
 create table b_forum_file (
 	ID int(18) not null auto_increment,
@@ -159,12 +163,12 @@ create table b_forum_smile (
 
 create table b_forum_smile_lang
 (
-  ID int not null auto_increment,
-  SMILE_ID int not null,
-  LID char(2) not null,
-  NAME varchar(255) not null,
-  primary key (ID),
-  unique UX_FORUM_SMILE_K(SMILE_ID, LID)
+	ID int not null auto_increment,
+	SMILE_ID int not null,
+	LID char(2) not null,
+	NAME varchar(255) not null,
+	primary key (ID),
+	unique UX_FORUM_SMILE_K(SMILE_ID, LID)
 );
 
 create table b_forum_user (
@@ -278,116 +282,117 @@ CREATE TABLE b_forum_points_lang
 
 CREATE TABLE b_forum_points2post
 (
-  ID int not null auto_increment,
-  MIN_NUM_POSTS int not null,
-  POINTS_PER_POST decimal(18, 4) default 0 not null,
-  primary key (ID),
-  unique UX_FORUM_P2P_MNP(MIN_NUM_POSTS)
+	ID int not null auto_increment,
+	MIN_NUM_POSTS int not null,
+	POINTS_PER_POST decimal(18, 4) default 0 not null,
+	primary key (ID),
+	unique UX_FORUM_P2P_MNP(MIN_NUM_POSTS)
 );
 
 CREATE TABLE b_forum_user_points
 (
-  FROM_USER_ID int not null,
-  TO_USER_ID int not null,
-  POINTS int default 0 not null,
-  DATE_UPDATE datetime null,
-  primary key (FROM_USER_ID, TO_USER_ID)
+	FROM_USER_ID int not null,
+	TO_USER_ID int not null,
+	POINTS int default 0 not null,
+	DATE_UPDATE datetime null,
+	primary key (FROM_USER_ID, TO_USER_ID),
+	INDEX IX_B_FORUM_USER_POINTS_TO_USER(TO_USER_ID)
 );
 
 CREATE TABLE b_forum2site
 (
-  FORUM_ID int not null,
-  SITE_ID char(2) not null,
-  PATH2FORUM_MESSAGE varchar(250) null,
-  primary key (FORUM_ID, SITE_ID)
+	FORUM_ID int not null,
+	SITE_ID char(2) not null,
+	PATH2FORUM_MESSAGE varchar(250) null,
+	primary key (FORUM_ID, SITE_ID)
 );
 CREATE TABLE b_forum_private_message (
-  ID BIGINT(10) NOT NULL AUTO_INCREMENT,
-  AUTHOR_ID INT(11) DEFAULT '0',
-  RECIPIENT_ID INT(11) DEFAULT '0',
-  POST_DATE DATETIME NOT NULL,
-  POST_SUBJ VARCHAR(50) NOT NULL,
-  POST_MESSAGE TEXT NOT NULL,
-  USER_ID INT(11) NOT NULL,
-  FOLDER_ID INT(11) NOT NULL,
-  IS_READ VARCHAR(50) NOT NULL,
-  REQUEST_IS_READ  char(1) NOT NULL,
-  USE_SMILES VARCHAR(50) NOT NULL,
-  PRIMARY KEY  (ID),
-  INDEX IX_B_FORUM_PM_USER(USER_ID), 
-  INDEX IX_B_FORUM_PM_AFR(AUTHOR_ID, FOLDER_ID, IS_READ),
-  INDEX IX_B_FORUM_PM_UFP(USER_ID, FOLDER_ID, POST_DATE),
-  INDEX IX_B_FORUM_PM_POST_DATE(POST_DATE)
+	ID BIGINT(10) NOT NULL AUTO_INCREMENT,
+	AUTHOR_ID INT(11) DEFAULT '0',
+	RECIPIENT_ID INT(11) DEFAULT '0',
+	POST_DATE DATETIME NOT NULL,
+	POST_SUBJ VARCHAR(50) NOT NULL,
+	POST_MESSAGE TEXT NOT NULL,
+	USER_ID INT(11) NOT NULL,
+	FOLDER_ID INT(11) NOT NULL,
+	IS_READ VARCHAR(50) NOT NULL,
+	REQUEST_IS_READ  char(1) NOT NULL,
+	USE_SMILES VARCHAR(50) NOT NULL,
+	PRIMARY KEY  (ID),
+	INDEX IX_B_FORUM_PM_USER(USER_ID),
+	INDEX IX_B_FORUM_PM_AFR(AUTHOR_ID, FOLDER_ID, IS_READ),
+	INDEX IX_B_FORUM_PM_UFP(USER_ID, FOLDER_ID, POST_DATE),
+	INDEX IX_B_FORUM_PM_POST_DATE(POST_DATE)
 );
 CREATE TABLE b_forum_pm_folder (
-  ID INT(11) NOT NULL AUTO_INCREMENT,
-  TITLE VARCHAR(50) NOT NULL,
-  USER_ID INT(11) NOT NULL,
-  SORT INT(11) NOT NULL,
-  PRIMARY KEY  (ID),
-  INDEX IX_B_FORUM_PM_FOLDER_USER_IST(USER_ID, ID, SORT, TITLE)
+	ID INT(11) NOT NULL AUTO_INCREMENT,
+	TITLE VARCHAR(50) NOT NULL,
+	USER_ID INT(11) NOT NULL,
+	SORT INT(11) NOT NULL,
+	PRIMARY KEY  (ID),
+	INDEX IX_B_FORUM_PM_FOLDER_USER_IST(USER_ID, ID, SORT, TITLE)
 );
 CREATE TABLE b_forum_filter (
-   ID INT(11) NOT NULL AUTO_INCREMENT,
-   DICTIONARY_ID INT(11),
-   WORDS VARCHAR(255),
-   PATTERN TEXT,
-   REPLACEMENT VARCHAR(255),
-   DESCRIPTION TEXT,
-   USE_IT VARCHAR(50),
-   PATTERN_CREATE VARCHAR(5),
-   PRIMARY KEY (ID),
-   INDEX IX_B_FORUM_FILTER_2(USE_IT),
-   INDEX IX_B_FORUM_FILTER_3(PATTERN_CREATE)
+	ID INT(11) NOT NULL AUTO_INCREMENT,
+	DICTIONARY_ID INT(11),
+	WORDS VARCHAR(255),
+	PATTERN TEXT,
+	REPLACEMENT VARCHAR(255),
+	DESCRIPTION TEXT,
+	USE_IT VARCHAR(50),
+	PATTERN_CREATE VARCHAR(5),
+	PRIMARY KEY (ID),
+	INDEX IX_B_FORUM_FILTER_2(USE_IT),
+	INDEX IX_B_FORUM_FILTER_3(PATTERN_CREATE)
 );
 CREATE TABLE b_forum_dictionary (
-   ID INT(11) NOT NULL AUTO_INCREMENT,
-   TITLE VARCHAR(50),
-   `TYPE` CHAR(1),
-   PRIMARY KEY (ID)
+	ID INT(11) NOT NULL AUTO_INCREMENT,
+	TITLE VARCHAR(50),
+	`TYPE` CHAR(1),
+	PRIMARY KEY (ID)
 );
 CREATE TABLE b_forum_letter (
-   ID INT(11) NOT NULL AUTO_INCREMENT,
-   DICTIONARY_ID INT(11) DEFAULT '0',
-   LETTER VARCHAR(50),
-   REPLACEMENT VARCHAR(255),
-   PRIMARY KEY (ID)
+	ID INT(11) NOT NULL AUTO_INCREMENT,
+	DICTIONARY_ID INT(11) DEFAULT '0',
+	LETTER VARCHAR(50),
+	REPLACEMENT VARCHAR(255),
+	PRIMARY KEY (ID)
 );
 CREATE TABLE b_forum_user_forum (
-  ID int(11) NOT NULL auto_increment,
-  USER_ID int(11),
-  FORUM_ID int(11),
-  LAST_VISIT datetime,
-  MAIN_LAST_VISIT datetime,
-  PRIMARY KEY  (ID),
-  INDEX IX_B_FORUM_USER_FORUM_ID1(USER_ID, FORUM_ID)
+	ID int(11) NOT NULL auto_increment,
+	USER_ID int(11),
+	FORUM_ID int(11),
+	LAST_VISIT datetime,
+	MAIN_LAST_VISIT datetime,
+	PRIMARY KEY  (ID),
+	INDEX IX_B_FORUM_USER_FORUM_ID1(USER_ID, FORUM_ID)
 );
 
 CREATE TABLE b_forum_user_topic (
-   ID bigint(20) not null auto_increment,
-   TOPIC_ID INT(11),
-   USER_ID INT(11),
-   FORUM_ID INT(11),
-   LAST_VISIT datetime,
-   PRIMARY KEY (TOPIC_ID, USER_ID),
-   KEY (ID),
-   INDEX IX_B_FORUM_USER_FORUM_ID2(USER_ID, FORUM_ID, TOPIC_ID)
+	ID bigint(20) not null auto_increment,
+	TOPIC_ID INT(11),
+	USER_ID INT(11),
+	FORUM_ID INT(11),
+	LAST_VISIT datetime,
+	PRIMARY KEY (TOPIC_ID, USER_ID),
+	KEY (ID),
+	INDEX IX_B_FORUM_USER_FORUM_ID2(USER_ID, FORUM_ID, TOPIC_ID)
 );
 CREATE TABLE b_forum_stat (
-  ID bigint(20) not null auto_increment,
-  USER_ID int(10) default NULL,
-  IP_ADDRESS varchar(128) default NULL,
-  PHPSESSID varchar(255) default NULL,
-  LAST_VISIT datetime default NULL,
-  SITE_ID char(2) default NULL,
-  FORUM_ID smallint(5) NOT NULL default '0',
-  TOPIC_ID int(10) default NULL,
-  SHOW_NAME varchar(101) default NULL,
-  PRIMARY KEY(ID),
-  INDEX IX_B_FORUM_STAT_SITE_ID(SITE_ID, LAST_VISIT),
-  INDEX IX_B_FORUM_STAT_TOPIC_ID(TOPIC_ID, LAST_VISIT),
-  INDEX IX_B_FORUM_STAT_FORUM_ID(FORUM_ID, LAST_VISIT),
-  INDEX IX_B_FORUM_STAT_PHPSESSID(PHPSESSID)
+	ID bigint(20) not null auto_increment,
+	USER_ID int(10) default NULL,
+	IP_ADDRESS varchar(128) default NULL,
+	PHPSESSID varchar(255) default NULL,
+	LAST_VISIT datetime default NULL,
+	SITE_ID char(2) default NULL,
+	FORUM_ID smallint(5) NOT NULL default '0',
+	TOPIC_ID int(10) default NULL,
+	SHOW_NAME varchar(101) default NULL,
+	PRIMARY KEY(ID),
+	INDEX IX_B_FORUM_STAT_SITE_ID(SITE_ID, LAST_VISIT),
+	INDEX IX_B_FORUM_STAT_TOPIC_ID(TOPIC_ID, LAST_VISIT),
+	INDEX IX_B_FORUM_STAT_FORUM_ID(FORUM_ID, LAST_VISIT),
+	INDEX IX_B_FORUM_STAT_PHPSESSID(PHPSESSID)
 );
 CREATE TABLE b_forum_email
 (
@@ -407,4 +412,3 @@ CREATE TABLE b_forum_email
 	INDEX IX_B_FORUM_EMAIL_FORUM_SOC(FORUM_ID, SOCNET_GROUP_ID),
 	INDEX IX_B_FORUM_EMAIL_FILTER_ID(MAIL_FILTER_ID)
 );
-

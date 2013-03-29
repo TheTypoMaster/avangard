@@ -20,7 +20,7 @@ $aTabs = array(
 		"TITLE"=>GetMessage("SEC_IPRULE_ADMIN_MAIN_TAB_TITLE"),
 	),
 );
-$tabControl = new CAdminTabControl("tabControl", $aTabs, true, true);
+$tabControl = new CAdminTabControl("tabControl", $aTabs, false, true);
 
 $rsIPRule = CSecurityIPRule::GetList(array(), array(
 	"=RULE_TYPE" => "A",
@@ -30,6 +30,7 @@ $rsIPRule = CSecurityIPRule::GetList(array(), array(
 	"=ACTIVE_FROM" => false,
 	"=ACTIVE_TO" => false,
 ), array("ID" => "ASC"));
+
 $arIPRule = $rsIPRule->Fetch();
 if($arIPRule)
 {
@@ -41,6 +42,12 @@ else
 	$ID = 0;
 	$ACTIVE = "N";
 }
+
+$exclMasks=array();
+
+$db_events = GetModuleEvents("security", "OnIPRuleAdmin");
+while($arEvent = $db_events->Fetch())
+	$exclMasks = array_merge($exclMasks,ExecuteModuleEventEx($arEvent));
 
 $strError = "";
 $bVarsFromForm = false;
@@ -106,7 +113,7 @@ if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="" || $activate_iprule!=""
 			"INCL_IPS" => $INCL_IPS,
 			"EXCL_IPS" => $_POST["EXCL_IPS"],
 			"INCL_MASKS" => array("/bitrix/admin/*"),
-			"EXCL_MASKS" => array(),
+			"EXCL_MASKS" => $exclMasks,
 		);
 		if($ID > 0)
 		{
@@ -133,12 +140,30 @@ if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="" || $activate_iprule!=""
 	}
 }
 
+$messageDetails = "";
+if ($ID > 0 && $ACTIVE=="Y")
+{
+	$messageType = "OK";
+	$messageText = GetMessage("SEC_IPRULE_ADMIN_ON");
+} else
+{
+	$messageType = "ERROR";
+	$messageText = GetMessage("SEC_IPRULE_ADMIN_OFF");
+}
+
 $APPLICATION->SetTitle(GetMessage("SEC_IPRULE_ADMIN_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
 if($message)
 	echo $message->Show();
+
+CAdminMessage::ShowMessage(array(
+			"MESSAGE"=>$messageText,
+			"TYPE"=>$messageType,
+			"DETAILS"=>$messageDetails,
+			"HTML"=>true
+		));
 ?>
 
 <script language="JavaScript">
@@ -150,6 +175,9 @@ function addNewRow(tableID)
 	var oRow = tbl.insertRow(cnt-1);
 	var oCell = oRow.insertCell(0);
 	var sHTML=tbl.rows[cnt-2].cells[0].innerHTML;
+
+	//styles hack
+	oCell.style.cssText  = 'padding-bottom:3px;';
 
 	var p = 0;
 	while(true)
@@ -217,20 +245,11 @@ $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
 <tr>
-	<td valign="top" colspan="2" align="left">
-		<?if($ID > 0 && $ACTIVE=="Y"):?>
-			<span style="color:green;"><b><?echo GetMessage("SEC_IPRULE_ADMIN_ON")?>.</b></span>
-		<?else:?>
-			<span style="color:red;"><b><?echo GetMessage("SEC_IPRULE_ADMIN_OFF")?>.</b></span>
-		<?endif?>
-	</td>
-</tr>
-<tr>
-	<td valign="top" colspan="2" align="left">
+	<td colspan="2" align="left">
 		<?if($ID > 0 && $ACTIVE=="Y"):?>
 			<input type="submit" name="deactivate_iprule" value="<?echo GetMessage("SEC_IPRULE_ADMIN_BUTTON_OFF")?>"<?if(!$RIGHT_W) echo " disabled"?>>
 		<?else:?>
-			<input type="submit" name="activate_iprule" value="<?echo GetMessage("SEC_IPRULE_ADMIN_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?>>
+			<input type="submit" name="activate_iprule" value="<?echo GetMessage("SEC_IPRULE_ADMIN_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?> class="adm-btn-save">
 		<?endif?>
 	</td>
 </tr>
@@ -246,26 +265,26 @@ if($bVarsFromForm)
 {
 	if(is_array($_POST["EXCL_IPS"]))
 		foreach($_POST["EXCL_IPS"] as $i => $ip)
-			$arExclIPs[] = htmlspecialchars($ip);
+			$arExclIPs[] = htmlspecialcharsbx($ip);
 }
 elseif($ID > 0)
 {
 	$ar = CSecurityIPRule::GetRuleExclIPs($ID);
 	foreach($ar as $i => $ip)
-		$arExclIPs[] = htmlspecialchars($ip);
+		$arExclIPs[] = htmlspecialcharsbx($ip);
 }
 ?>
-<tr valign="top">
-	<td width="40%"><?echo GetMessage("SEC_IPRULE_ADMIN_EXCL_IPS")?>:<br><?echo GetMessage("SEC_IPRULE_ADMIN_EXCL_IPS_SAMPLE")?></td>
+<tr>
+	<td class="adm-detail-valign-top" width="40%"><?echo GetMessage("SEC_IPRULE_ADMIN_EXCL_IPS")?>:<br><?echo GetMessage("SEC_IPRULE_ADMIN_EXCL_IPS_SAMPLE")?></td>
 	<td width="60%">
 	<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbEXCL_IPS">
 		<?foreach($arExclIPs as $i => $ip):?>
-			<tr><td nowrap>
+			<tr><td nowrap style="padding-bottom: 3px;">
 				<input type="text" size="45" name="EXCL_IPS[<?echo $i?>]" value="<?echo $ip?>">
 			</td></tr>
 		<?endforeach;?>
 		<?if(!$bVarsFromForm):?>
-			<tr><td nowrap>
+			<tr><td nowrap style="padding-bottom: 3px;">
 				<input type="text" size="45" name="EXCL_IPS[n0]" value="">
 			</td></tr>
 		<?endif;?>
@@ -276,6 +295,23 @@ elseif($ID > 0)
 	</td>
 </tr>
 <?
+if (count($exclMasks) > 0)
+{
+?>
+<tr>
+	<td class="adm-detail-valign-top" width="40%"><?echo GetMessage("SEC_IPRULE_ADMIN_EXCL_FILES_".(($ACTIVE == 'Y')?'ACTIVE':'INACTIVE'))?></td>
+	<td width="60%">
+		<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbEXCL_FILES">
+		<?foreach($exclMasks as $mask):?>
+			<tr><td nowrap>
+				<?echo htmlspecialcharsbx($mask)?>
+			</td></tr>
+		<?endforeach;?>
+		</table>
+	</td>
+</tr>
+<?
+}
 $tabControl->Buttons(
 	array(
 		"disabled"=>(!$RIGHT_W),

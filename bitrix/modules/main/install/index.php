@@ -62,7 +62,7 @@ Class main extends CModule
 			return true;
 
 		if ($DBType == "mysql" && defined("MYSQL_TABLE_TYPE") && strlen(MYSQL_TABLE_TYPE)>0)
-			$DB->Query("SET table_type = '".MYSQL_TABLE_TYPE."'", true);
+			$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 
 		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/".$DBType."/install.sql");
 		if ($errors !== false)
@@ -72,7 +72,7 @@ Class main extends CModule
 		}
 
 		$group = new CGroup;
-		
+
 		$arGroups = Array(
 			Array(
 				"~ID" => 1,
@@ -116,6 +116,10 @@ Class main extends CModule
 			if ($rsGroup->Fetch())
 				continue;
 
+			//mssql does not allow insert identity by default
+			if(strtolower($DB->type) == "mssql")
+				unset($arGroup["~ID"]);
+
 			$success = (bool)$group->Add($arGroup);
 			if (!$success)
 			{
@@ -123,36 +127,36 @@ Class main extends CModule
 				return false;
 			}
 		}
-		
+
 		// add  ratings
 		$arFields = Array(
 			'ACTIVE' 	=> 'N',
 			'NAME'		=> GetMessage("MAIN_RATING_NAME"),
 			'ENTITY_ID' => 'USER',
-			'CALCULATION_METHOD' => 'SUM',	
-			'~CREATED' 	=> $DB->GetNowFunction(),	
-			'CALCULATED'=> 'N',	
-			'POSITION' 	=> 'Y',	
-			'AUTHORITY'	=> 'N',	
+			'CALCULATION_METHOD' => 'SUM',
+			'~CREATED' 	=> $DB->GetNowFunction(),
+			'CALCULATED'=> 'N',
+			'POSITION' 	=> 'Y',
+			'AUTHORITY'	=> 'N',
 			'CONFIGS' 	=> 'a:3:{s:4:"MAIN";a:2:{s:4:"VOTE";a:1:{s:4:"USER";a:2:{s:11:"COEFFICIENT";s:1:"1";s:5:"LIMIT";s:2:"30";}}s:6:"RATING";a:1:{s:5:"BONUS";a:2:{s:6:"ACTIVE";s:1:"Y";s:11:"COEFFICIENT";s:1:"1";}}}s:5:"FORUM";a:2:{s:4:"VOTE";a:2:{s:5:"TOPIC";a:3:{s:6:"ACTIVE";s:1:"Y";s:11:"COEFFICIENT";s:3:"0.5";s:5:"LIMIT";s:2:"30";}s:4:"POST";a:3:{s:6:"ACTIVE";s:1:"Y";s:11:"COEFFICIENT";s:3:"0.1";s:5:"LIMIT";s:2:"30";}}s:6:"RATING";a:1:{s:8:"ACTIVITY";a:9:{s:6:"ACTIVE";s:1:"Y";s:16:"TODAY_TOPIC_COEF";s:3:"0.4";s:15:"WEEK_TOPIC_COEF";s:3:"0.2";s:16:"MONTH_TOPIC_COEF";s:3:"0.1";s:14:"ALL_TOPIC_COEF";s:1:"0";s:15:"TODAY_POST_COEF";s:3:"0.2";s:14:"WEEK_POST_COEF";s:3:"0.1";s:15:"MONTH_POST_COEF";s:4:"0.05";s:13:"ALL_POST_COEF";s:1:"0";}}}s:4:"BLOG";a:2:{s:4:"VOTE";a:2:{s:4:"POST";a:3:{s:6:"ACTIVE";s:1:"Y";s:11:"COEFFICIENT";s:3:"0.5";s:5:"LIMIT";s:2:"30";}s:7:"COMMENT";a:3:{s:6:"ACTIVE";s:1:"Y";s:11:"COEFFICIENT";s:3:"0.1";s:5:"LIMIT";s:2:"30";}}s:6:"RATING";a:1:{s:8:"ACTIVITY";a:9:{s:6:"ACTIVE";s:1:"Y";s:15:"TODAY_POST_COEF";s:3:"0.4";s:14:"WEEK_POST_COEF";s:3:"0.2";s:15:"MONTH_POST_COEF";s:3:"0.1";s:13:"ALL_POST_COEF";s:1:"0";s:18:"TODAY_COMMENT_COEF";s:3:"0.2";s:17:"WEEK_COMMENT_COEF";s:3:"0.1";s:18:"MONTH_COMMENT_COEF";s:4:"0.05";s:16:"ALL_COMMENT_COEF";s:1:"0";}}}}'
 		);
 		$ratingId = $GLOBALS["DB"]->Add("b_rating", $arFields, array("CONFIGS"));
-	
+
 		// add  authority ratings
 		$arFields = Array(
 			'ACTIVE' 	=> 'N',
 			'NAME'		=> GetMessage("MAIN_RATING_AUTHORITY_NAME"),
 			'ENTITY_ID' => 'USER',
-			'CALCULATION_METHOD' => 'SUM',	
-			'~CREATED' 	=> $DB->GetNowFunction(),	
-			'CALCULATED'=> 'N',	
-			'POSITION' 	=> 'Y',	
-			'AUTHORITY'	=> 'Y',	
+			'CALCULATION_METHOD' => 'SUM',
+			'~CREATED' 	=> $DB->GetNowFunction(),
+			'CALCULATED'=> 'N',
+			'POSITION' 	=> 'Y',
+			'AUTHORITY'	=> 'Y',
 			'CONFIGS' 	=> 'a:3:{s:4:"MAIN";a:2:{s:4:"VOTE";a:1:{s:4:"USER";a:3:{s:6:"ACTIVE";s:1:"Y";s:11:"COEFFICIENT";s:1:"1";s:5:"LIMIT";s:1:"0";}}s:6:"RATING";a:1:{s:5:"BONUS";a:2:{s:6:"ACTIVE";s:1:"Y";s:11:"COEFFICIENT";s:1:"1";}}}s:5:"FORUM";a:2:{s:4:"VOTE";a:2:{s:5:"TOPIC";a:2:{s:11:"COEFFICIENT";s:1:"1";s:5:"LIMIT";s:2:"30";}s:4:"POST";a:2:{s:11:"COEFFICIENT";s:1:"1";s:5:"LIMIT";s:2:"30";}}s:6:"RATING";a:1:{s:8:"ACTIVITY";a:8:{s:16:"TODAY_TOPIC_COEF";s:2:"20";s:15:"WEEK_TOPIC_COEF";s:2:"10";s:16:"MONTH_TOPIC_COEF";s:1:"5";s:14:"ALL_TOPIC_COEF";s:1:"0";s:15:"TODAY_POST_COEF";s:3:"0.4";s:14:"WEEK_POST_COEF";s:3:"0.2";s:15:"MONTH_POST_COEF";s:3:"0.1";s:13:"ALL_POST_COEF";s:1:"0";}}}s:4:"BLOG";a:2:{s:4:"VOTE";a:2:{s:4:"POST";a:2:{s:11:"COEFFICIENT";s:1:"1";s:5:"LIMIT";s:2:"30";}s:7:"COMMENT";a:2:{s:11:"COEFFICIENT";s:1:"1";s:5:"LIMIT";s:2:"30";}}s:6:"RATING";a:1:{s:8:"ACTIVITY";a:8:{s:15:"TODAY_POST_COEF";s:3:"0.4";s:14:"WEEK_POST_COEF";s:3:"0.2";s:15:"MONTH_POST_COEF";s:3:"0.1";s:13:"ALL_POST_COEF";s:1:"0";s:18:"TODAY_COMMENT_COEF";s:3:"0.2";s:17:"WEEK_COMMENT_COEF";s:3:"0.1";s:18:"MONTH_COMMENT_COEF";s:4:"0.05";s:16:"ALL_COMMENT_COEF";s:1:"0";}}}}'
 		);
 		$ratingId = $DB->Add("b_rating", $arFields, array("CONFIGS"));
-		COption::SetOptionString("main", "rating_authority_rating", $ratingId);	
-		
+		COption::SetOptionString("main", "rating_authority_rating", $ratingId);
+
 		// set default rating vote group config
 		$rsGroup = $DB->Query("SELECT * FROM b_group WHERE STRING_ID='RATING_VOTE'", true);
 		if ($arGroup = $rsGroup->Fetch())
@@ -167,7 +171,7 @@ Class main extends CModule
 			);
 			foreach($arVoteGroup as $key => $arField)
 				$DB->Insert("b_rating_vote_group", $arField);
-			
+
 			$arFields = Array(
 				'ACTIVE' => 'N',
 				'NAME' => GetMessage("MAIN_RULE_ADD_GROUP_RATING_NAME"),
@@ -199,7 +203,7 @@ Class main extends CModule
 			$arFields['CONDITION_CONFIG'] = serialize($arFields['CONDITION_CONFIG']);
 			$arFields['ACTION_CONFIG'] = serialize($arFields['ACTION_CONFIG']);
 			$DB->Add("b_rating_rule", $arFields, array("ACTION_CONFIG", "CONDITION_CONFIG"));
-			
+
 			$arFields = Array(
 				'ACTIVE' 			=> 'N',
 				'NAME' 				=> GetMessage("MAIN_RULE_REM_GROUP_RATING_NAME"),
@@ -231,7 +235,7 @@ Class main extends CModule
 			$arFields['CONDITION_CONFIG'] = serialize($arFields['CONDITION_CONFIG']);
 			$arFields['ACTION_CONFIG'] = serialize($arFields['ACTION_CONFIG']);
 			$DB->Add("b_rating_rule", $arFields, array("ACTION_CONFIG", "CONDITION_CONFIG"));
-			
+
 			COption::SetOptionString("main", "rating_assign_rating_group_add", 1);
 			COption::SetOptionString("main", "rating_assign_rating_group_delete", 1);
 			COption::SetOptionString("main", "rating_assign_rating_group", $arGroup['ID']);
@@ -250,7 +254,7 @@ Class main extends CModule
 			);
 			foreach($arVoteGroup as $key => $arField)
 				$DB->Insert("b_rating_vote_group", $arField);
-			
+
 			$arFields = Array(
 				'ACTIVE' => 'N',
 				'NAME' => GetMessage("MAIN_RULE_ADD_GROUP_AUTHORITY_NAME"),
@@ -282,7 +286,7 @@ Class main extends CModule
 			$arFields['CONDITION_CONFIG'] = serialize($arFields['CONDITION_CONFIG']);
 			$arFields['ACTION_CONFIG'] = serialize($arFields['ACTION_CONFIG']);
 			$DB->Add("b_rating_rule", $arFields, array("ACTION_CONFIG", "CONDITION_CONFIG"));
-			
+
 			$arFields = Array(
 				'ACTIVE' 			=> 'N',
 				'NAME' 				=> GetMessage("MAIN_RULE_REM_GROUP_AUTHORITY_NAME"),
@@ -314,12 +318,12 @@ Class main extends CModule
 			$arFields['CONDITION_CONFIG'] = serialize($arFields['CONDITION_CONFIG']);
 			$arFields['ACTION_CONFIG'] = serialize($arFields['ACTION_CONFIG']);
 			$DB->Add("b_rating_rule", $arFields, array("ACTION_CONFIG", "CONDITION_CONFIG"));
-			
+
 			COption::SetOptionString("main", "rating_assign_authority_group_add", 2);
 			COption::SetOptionString("main", "rating_assign_authority_group_delete", 2);
 			COption::SetOptionString("main", "rating_assign_authority_group", $arGroup['ID']);
 		}
-		
+
 		// auto authority vote
 		$arFields = Array(
 			'ACTIVE' 			=> 'Y',
@@ -328,7 +332,7 @@ Class main extends CModule
 			'CONDITION_NAME'	=> 'VOTE',
 			'CONDITION_CLASS' 	=> 'CRatingRulesMain',
 			'CONDITION_METHOD' 	=> 'voteCheck',
-			'CONDITION_CONFIG' 	=> Array(					
+			'CONDITION_CONFIG' 	=> Array(
 				'VOTE' => Array(
 					'VOTE_LIMIT' => 90,
 					'VOTE_RESULT' => 10,
@@ -353,11 +357,11 @@ Class main extends CModule
 		$arFields['CONDITION_CONFIG'] = serialize($arFields['CONDITION_CONFIG']);
 		$arFields['ACTION_CONFIG'] = serialize($arFields['ACTION_CONFIG']);
 		$DB->Add("b_rating_rule", $arFields, array("ACTION_CONFIG", "CONDITION_CONFIG"));
-		
+
 		// rating default config
-		COption::SetOptionString("main", "rating_community_size", 1);	
+		COption::SetOptionString("main", "rating_community_size", 1);
 		COption::SetOptionString("main", "rating_community_authority", round(1*3*10, 4));
-		COption::SetOptionString("main", "rating_vote_weight", 10);	
+		COption::SetOptionString("main", "rating_vote_weight", 10);
 		COption::SetOptionString("main", "rating_normalization_type", "auto");
 		COption::SetOptionString("main", "rating_normalization", 10);
 		COption::SetOptionString("main", "rating_count_vote", 10);
@@ -382,6 +386,7 @@ Class main extends CModule
 				"NAME" => GetMessage("MAIN_DEFAULT_LANGUAGE_NAME"),
 				"FORMAT_DATE" => GetMessage("MAIN_DEFAULT_LANGUAGE_FORMAT_DATE"),
 				"FORMAT_DATETIME" => GetMessage("MAIN_DEFAULT_LANGUAGE_FORMAT_DATETIME"),
+				"FORMAT_NAME" => GetMessage("MAIN_DEFAULT_LANGUAGE_FORMAT_NAME"),
 				"CHARSET" => (defined("BX_UTF") ? "UTF-8" : GetMessage("MAIN_DEFAULT_LANGUAGE_FORMAT_CHARSET"))
 			)
 		);
@@ -394,7 +399,8 @@ Class main extends CModule
 				"DEF" => "N",
 				"NAME" => "English",
 				"FORMAT_DATE" => "MM/DD/YYYY",
-				"FORMAT_DATETIME" => "MM/DD/YYYY HH:MI:SS",
+				"FORMAT_DATETIME" => "MM/DD/YYYY H:MI T",
+				"FORMAT_NAME" => "#NAME# #LAST_NAME#",
 				"CHARSET" => (defined("BX_UTF") ? "UTF-8" : "iso-8859-1")
 			);
 
@@ -407,6 +413,7 @@ Class main extends CModule
 				"NAME" => "German",
 				"FORMAT_DATE" => "DD.MM.YYYY",
 				"FORMAT_DATETIME" => "DD.MM.YYYY HH:MI:SS",
+				"FORMAT_NAME" => "#NAME# #LAST_NAME#",
 				"CHARSET" => (defined("BX_UTF") ? "UTF-8" : "iso-8859-1")
 			);
 
@@ -419,6 +426,7 @@ Class main extends CModule
 				"NAME" => "Russian",
 				"FORMAT_DATE" => "DD.MM.YYYY",
 				"FORMAT_DATETIME" => "DD.MM.YYYY HH:MI:SS",
+				"FORMAT_NAME" => "#NAME# #LAST_NAME#",
 				"CHARSET" => (defined("BX_UTF") ? "UTF-8" : "windows-1251")
 			);
 
@@ -446,6 +454,7 @@ Class main extends CModule
 			"DIR" => "/",
 			"FORMAT_DATE" => GetMessage("MAIN_DEFAULT_SITE_FORMAT_DATE"),
 			"FORMAT_DATETIME" => GetMessage("MAIN_DEFAULT_SITE_FORMAT_DATETIME"),
+			"FORMAT_NAME" => GetMessage("MAIN_DEFAULT_SITE_FORMAT_NAME"),
 			"CHARSET" =>  (defined("BX_UTF") ? "UTF-8" : GetMessage("MAIN_DEFAULT_SITE_FORMAT_CHARSET")),
 			"LANGUAGE_ID" => LANGUAGE_ID,
 		);
@@ -478,12 +487,13 @@ Class main extends CModule
 		RegisterModuleDependences('main', 'OnSetRatingsConfigs', 'main', 'CRatingsComponentsMain', 'OnSetRatingConfigs');
 		RegisterModuleDependences('main', 'OnGetRatingsConfigs', 'main', 'CRatingsComponentsMain', 'OnGetRatingConfigs');
 		RegisterModuleDependences('main', 'OnGetRatingsObjects', 'main', 'CRatingsComponentsMain', 'OnGetRatingObject');
-		RegisterModuleDependences('main', 'OnGetRatingContentOwner', 'main', 'CRatingsComponentsMain', 'OnGetRatingContentOwner');		
+		RegisterModuleDependences('main', 'OnGetRatingContentOwner', 'main', 'CRatingsComponentsMain', 'OnGetRatingContentOwner');
 		RegisterModuleDependences('main', 'OnAfterAddRatingRule', 	 'main', 'CRatingRulesMain', 'OnAfterAddRatingRule');
 		RegisterModuleDependences('main', 'OnAfterUpdateRatingRule', 'main', 'CRatingRulesMain', 'OnAfterUpdateRatingRule');
 		RegisterModuleDependences('main', 'OnGetRatingRuleObjects',  'main', 'CRatingRulesMain', 'OnGetRatingRuleObjects');
 		RegisterModuleDependences('main', 'OnGetRatingRuleConfigs',  'main', 'CRatingRulesMain', 'OnGetRatingRuleConfigs');
 		RegisterModuleDependences('main', 'OnAfterUserAdd', 'main', 'CRatings', 'OnAfterUserRegister');
+		RegisterModuleDependences('main', 'OnUserDelete', 'main', 'CRatings', 'OnUserDelete');
 		RegisterModuleDependences('main', 'OnUserDelete', 'main', 'CAccess', 'OnUserDelete');
 		RegisterModuleDependences('main', 'OnAfterGroupAdd', 'main', 'CGroupAuthProvider', 'OnAfterGroupAdd');
 		RegisterModuleDependences('main', 'OnBeforeGroupUpdate', 'main', 'CGroupAuthProvider', 'OnBeforeGroupUpdate');
@@ -493,6 +503,17 @@ Class main extends CModule
 		RegisterModuleDependences("main", "OnEventLogGetAuditTypes", "main", "CEventMain", "GetAuditTypes");
 		RegisterModuleDependences("main", "OnEventLogGetAuditHandlers", "main", "CEventMain", "MakeMainObject");
 		RegisterModuleDependences("perfmon", "OnGetTableSchema", "main", "CTableSchema", "OnGetTableSchema");
+
+		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeString", "GetUserTypeDescription", 110);
+		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeInteger", "GetUserTypeDescription", 120);
+		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeDouble", "GetUserTypeDescription", 130);
+		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeDateTime", "GetUserTypeDescription", 140);
+		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeBoolean", "GetUserTypeDescription", 150);
+		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeFile", "GetUserTypeDescription", 160);
+		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeEnum", "GetUserTypeDescription", 170);
+		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeIBlockSection", "GetUserTypeDescription", 180);
+		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeIBlockElement", "GetUserTypeDescription", 190);
+		RegisterModuleDependences("main", "OnUserTypeBuildList", "main", "CUserTypeStringFormatted", "GetUserTypeDescription", 200);
 
 		COption::SetOptionString('main', 'auth_comp2', 'Y');
 		COption::SetOptionString("main", "PARAM_MAX_SITES", "2");
@@ -559,29 +580,24 @@ Class main extends CModule
 			$arOptions = array(
 				array(
 					"GADGETS" => array(
-						"ADMIN_ORDERS@111111111" => array(
+						"ADMIN_ORDERS_GRAPH@111111111" => array(
 							"COLUMN" => 0,
 							"ROW" => 0,
+							"HIDE" => "N"
+						),
+						"ADMIN_ORDERS@111111111" => array(
+							"COLUMN" => 0,
+							"ROW" => 1,
 							"HIDE" => "N"
 						),
 						"ADMIN_STAT@222222222" => array(
 							"COLUMN" => 0,
-							"ROW" => 1,
-							"HIDE" => "N"
-						),
-						"ADMIN_CHECKLIST@777888999" => array(
-							"COLUMN" => 0,
-							"ROW" => 2,
-							"HIDE" => "N",											
-						),
-						"ADMIN_INFO@333333333" => array(
-							"COLUMN" => 1,
-							"ROW" => 0,
+							"ROW" => 3,
 							"HIDE" => "N"
 						),
 						"HTML_AREA@444444444" => array(
 							"COLUMN" => 1,
-							"ROW" => 1,
+							"ROW" => 0,
 							"HIDE" => "N",
 							"USERDATA" => array(
 								"content" => $info_table
@@ -592,17 +608,32 @@ Class main extends CModule
 						),
 						"ADMIN_SECURITY@555555555" => array(
 							"COLUMN" => 1,
-							"ROW" => 2,
+							"ROW" => 1,
 							"HIDE" => "N"
 						),
 						"ADMIN_PERFMON@666666666" => array(
 							"COLUMN" => 1,
+							"ROW" => 2,
+							"HIDE" => "N"
+						),
+						"ADMIN_PRODUCTS@111111111" => array(
+							"COLUMN" => 1,
 							"ROW" => 3,
 							"HIDE" => "N"
 						),
-						"RSSREADER@777777777" => array(
+						"ADMIN_INFO@333333333" => array(
+							"COLUMN" => 1,
+							"ROW" => 4,
+							"HIDE" => "N"
+						),
+						"ADMIN_CHECKLIST@777888999" => array(
 							"COLUMN" => 1,
 							"ROW" => 5,
+							"HIDE" => "N",
+						),
+						"RSSREADER@777777777" => array(
+							"COLUMN" => 1,
+							"ROW" => 6,
 							"HIDE" => "N",
 							"SETTINGS" => array(
 								"TITLE_STD" => GetMessage("MAIN_DESKTOP_RSS_TITLE"),
@@ -614,34 +645,24 @@ Class main extends CModule
 				)
 			);
 		}
-		elseif (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/install/index.php"))	
+		elseif (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/install/index.php"))
 		{
 			$arOptions = array(
 				array(
 					"GADGETS" => array(
+						"ADMIN_ORDERS_GRAPH@111111111" => array(
+							"COLUMN" => 0,
+							"ROW" => 0,
+							"HIDE" => "N"
+						),
 						"ADMIN_ORDERS@111111111" => array(
 							"COLUMN" => 0,
-							"ROW" => 0,
-							"HIDE" => "N"
-						),
-						"ADMIN_SECURITY@555555555" => array(
-							"COLUMN" => 0,
 							"ROW" => 1,
-							"HIDE" => "N"
-						),
-						"ADMIN_PERFMON@666666666" => array(
-							"COLUMN" => 0,
-							"ROW" => 2,
-							"HIDE" => "N"
-						),
-						"ADMIN_INFO@333333333" => array(
-							"COLUMN" => 1,
-							"ROW" => 0,
 							"HIDE" => "N"
 						),
 						"HTML_AREA@444444444" => array(
 							"COLUMN" => 1,
-							"ROW" => 1,
+							"ROW" => 0,
 							"HIDE" => "N",
 							"USERDATA" => array(
 								"content" => $info_table
@@ -650,18 +671,38 @@ Class main extends CModule
 								"TITLE_STD" => GetMessage("MAIN_DESKTOP_INFO_TITLE")
 							)
 						),
-						"ADMIN_CHECKLIST@777888999" => array(
+						"ADMIN_SECURITY@555555555" => array(
+							"COLUMN" => 1,
+							"ROW" => 1,
+							"HIDE" => "N"
+						),
+						"ADMIN_PERFMON@666666666" => array(
 							"COLUMN" => 1,
 							"ROW" => 2,
-							"HIDE" => "N",											
+							"HIDE" => "N"
+						),
+						"ADMIN_PRODUCTS@111111111" => array(
+							"COLUMN" => 1,
+							"ROW" => 3,
+							"HIDE" => "N"
+						),
+						"ADMIN_INFO@333333333" => array(
+							"COLUMN" => 1,
+							"ROW" => 4,
+							"HIDE" => "N"
+						),
+						"ADMIN_CHECKLIST@777888999" => array(
+							"COLUMN" => 1,
+							"ROW" => 5,
+							"HIDE" => "N",
 						),
 						"RSSREADER@777777777" => array(
 							"COLUMN" => 1,
-							"ROW" => 3,
+							"ROW" => 6,
 							"HIDE" => "N",
 							"SETTINGS" => array(
 								"TITLE_STD" => GetMessage("MAIN_DESKTOP_RSS_TITLE"),
-								"CNT" => 7,
+								"CNT" => 10,
 								"RSS_URL" => $rss_url
 							)
 						),
@@ -718,7 +759,7 @@ Class main extends CModule
 						"ADMIN_CHECKLIST@777888999" => array(
 							"COLUMN" => 1,
 							"ROW" => 2,
-							"HIDE" => "N",											
+							"HIDE" => "N",
 						)
 					)
 				)
@@ -763,48 +804,25 @@ Class main extends CModule
 								"TITLE_STD" => GetMessage("MAIN_DESKTOP_RSS_TITLE"),
 								"CNT" => 5,
 								"RSS_URL" => $rss_url
-							)						
+							)
 						),
 						"ADMIN_CHECKLIST@777888999" => array(
 							"COLUMN" => 1,
 							"ROW" => 1,
-							"HIDE" => "N",											
+							"HIDE" => "N",
 						)
 					)
 				)
 			);
 		}
 
-		CUserOptions::SetOption('intranet', "~gadgets_admin_index", $arOptions, true);		
+		CUserOptions::SetOption('intranet', "~gadgets_admin_index", $arOptions, true);
 
 		return true;
 	}
 
 	function UnInstallDB()
 	{
-		global $DBType, $DBHost, $DBLogin, $DBPassword, $DBName, $APPLICATION;
-
-		if (!is_object($APPLICATION))
-			$APPLICATION = new CMain;
-
-		$DB = new CDatabase;
-		$DB->DebugToFile = false;
-		//$DB->debug = true;
-		define("DBPersistent", false);
-
-		if (!$DB->Connect($DBHost, $DBName, $DBLogin, $DBPassword))
-		{
-			$APPLICATION->ThrowException(GetMessage("MAIN_INSTALL_DB_ERROR"));
-			return false;
-		}
-
-		$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/".$DBType."/uninstall.sql");
-		if ($errors !== false)
-		{
-			$APPLICATION->ThrowException(implode("", $errors));
-			return false;
-		}
-
 		return true;
 	}
 
@@ -956,6 +974,7 @@ Class main extends CModule
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/components/bitrix", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix", true, true);
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/gadgets/bitrix", $_SERVER["DOCUMENT_ROOT"]."/bitrix/gadgets/bitrix", true, true);
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/image_uploader", $_SERVER["DOCUMENT_ROOT"]."/bitrix/image_uploader", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/panel", $_SERVER["DOCUMENT_ROOT"]."/bitrix/panel", true, true);
 
 		return true;
 	}

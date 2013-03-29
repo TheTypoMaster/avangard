@@ -1,32 +1,59 @@
-BX.CFileInput = function(ID, INPUT_NAME, CID, upload_path)
+;(function(){
+if (!!BX.CFileInput) return;
+
+BX.CFileInput = function(ID, INPUT_NAME, CID, upload_path, bMultiple)
 {
 	this.ID = ID;
 	this.INPUT_NAME = INPUT_NAME;
 	this.CID = CID;
 	this.upload_path = upload_path;
 
+	this.multiple = !!bMultiple;
+
 	this.INPUT = null;
 	this.LIST = null;
 
+	this.bInited = false;
+
 	this.FILES = [];
+
+	BX.CFileInput.Items[ID] = this;
 
 	BX.ready(BX.delegate(this.Init, this));
 }
 
+BX.CFileInput.Items = {};
+
 BX.CFileInput.prototype.setFiles = function(arFiles)
 {
-	if (BX.type.isArray(arFiles))
-		this.FILES = arFiles;
+	if (!BX.type.isArray(arFiles))
+	{
+		return;
+	}
+
+	this.Clear();
+	this.FILES = arFiles;
+
+	if (this.bInited)
+	{
+		setTimeout(BX.delegate(function() {
+			this.Callback(this.FILES, 'init');
+		}, this), 1);
+	}
 }
 
 BX.CFileInput.prototype.Init = function()
 {
+	if (this.bInited)
+		return;
+
 	this.INPUT = BX("file_input_" + this.ID);
 	this.LIST = BX("file_input_upload_list_" + this.ID);
 
 	BX.bind(this.INPUT, "change", BX.proxy(this.OnChange, this));
 
 	setTimeout(BX.delegate(function(){
+		this.bInited = true;
 		this.Callback(this.FILES, 'init');
 	},this),1);
 }
@@ -42,7 +69,7 @@ BX.CFileInput.prototype.CreateFileEntry = function(file, uniqueID)
 				events : {click : BX.PreventDefault}
 			}),
 			BX.create('SPAN', {
-				props: {className: 'upload-file-size'}, 
+				props: {className: 'upload-file-size'},
 				children: [typeof file.fileSize !== 'undefined' ? ('&nbsp;'+file.fileSize) : null]
 			}),
 			BX.create("I"),
@@ -74,6 +101,9 @@ BX.CFileInput.prototype.OnChange = function()
 		uniqueID = Math.floor(Math.random() * 99999);
 	} while(BX("iframe-" + uniqueID));
 
+	if (!this.multiple)
+		BX.cleanNode(this.LIST);
+
 	for (var i = 0; i < files.length; i++) {
 		if (!files[i].fileName && files[i].name) {
 			files[i].fileName = files[i].name;
@@ -98,11 +128,15 @@ BX.CFileInput.prototype.Send = function(uniqueID)
 
 	this.INPUT.name = 'mfi_files[]';
 
-	var form = BX.create("FORM", {
+	// hack: the only way to surely set enctype=multipart/form-data for this form
+	var f = BX.create('DIV');
+	f.innerHTML = '<form enctype="multipart/form-data"></form>';
+	var form = f.firstChild;
+
+	BX.adjust(form, {
 		props: {
 			method: "POST",
 			action: this.upload_path,
-			enctype: "multipart/form-data",
 			target: iframeName
 		},
 		style: {display: "none"},
@@ -141,31 +175,51 @@ BX.CFileInput.prototype.Send = function(uniqueID)
 
 	window['FILE_UPLOADER_CALLBACK_' + uniqueID] = BX.proxy(this.Callback, this);
 
-	document.body.appendChild(form);
-	BX.submit(form, 'mfi_save', 'Y');
+	document.body.appendChild(f);
 
-	this.INPUT.name = originalName;
+	BX.submit(form, 'mfi_save', 'Y', BX.delegate(function(){
+		this.INPUT.name = originalName;
 
-	BX.unbind(this.INPUT, "change", BX.proxy(this.OnChange, this));
-	this.INPUT = originalParent.appendChild(BX.create('INPUT', {
-		attrs: {
-			name: originalName,
-			id: this.INPUT.id,
-			type: 'file',
-			size: '1',
-			multiple: 'multiple'
+		BX.unbind(this.INPUT, "change", BX.proxy(this.OnChange, this));
+		this.INPUT = originalParent.appendChild(BX.create('INPUT', {
+			attrs: {
+				name: originalName,
+				id: this.INPUT.id,
+				type: 'file',
+				size: '1',
+				multiple: 'multiple'
+			}
+		}));
+		BX.bind(this.INPUT, "change", BX.proxy(this.OnChange, this));
+
+		BX.cleanNode(f, true);
+	}, this));
+}
+
+BX.CFileInput.prototype.Clear = function()
+{
+	if(this.LIST)
+	{
+		while(this.LIST.childNodes.length > 0)
+		{
+			this.LIST.removeChild(this.LIST.childNodes[0]);
 		}
-	}));
-	BX.bind(this.INPUT, "change", BX.proxy(this.OnChange, this));
+	}
 
-	BX.cleanNode(form, true);
+	this.FILES = [];
 }
 
 BX.CFileInput.prototype.Callback = function(files, uniqueID)
 {
+	if (!this.bInited)
+	{
+		this.Init();
+		return;
+	}
+
 	BX.show(this.LIST);
 
-	for(i = 0; i < files.length; i++)
+	for(var i = 0; i < files.length; i++)
 	{
 		var elem = BX("file-" + files[i].fileName + "-" + uniqueID);
 		if (!elem)
@@ -185,7 +239,7 @@ BX.CFileInput.prototype.Callback = function(files, uniqueID)
 			elem.appendChild(BX.create("INPUT", {
 				props: {
 					type: "hidden",
-					name: this.INPUT_NAME + '[]',
+					name: this.INPUT_NAME + (this.multiple ? '[]' : ''),
 					value: files[i].fileID
 				}
 			}));
@@ -199,7 +253,7 @@ BX.CFileInput.prototype.Callback = function(files, uniqueID)
 	window['FILE_UPLOADER_CALLBACK_' + uniqueID] = null;
 	BX.cleanNode(BX("iframe-" + uniqueID), true);
 
-	BX.onCustomEvent(this, 'onFileUploaderChange');
+	BX.onCustomEvent(this, 'onFileUploaderChange', [files]);
 }
 
 BX.CFileInput.prototype._deleteFile = function (e)
@@ -215,7 +269,7 @@ BX.CFileInput.prototype._deleteFile = function (e)
 				sessid : BX.bitrix_sessid(),
 				cid : this.CID,
 				mfi_mode : "delete"
-			}
+			};
 			BX.ajax.post(this.upload_path, data);
 		}
 		BX.remove(node.parentNode);
@@ -224,3 +278,4 @@ BX.CFileInput.prototype._deleteFile = function (e)
 
 	BX.PreventDefault(e);
 }
+})();

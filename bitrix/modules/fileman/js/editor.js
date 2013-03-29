@@ -1720,3 +1720,4 @@ function _BXStyleParser()
 }
 
 var BXStyleParser = new _BXStyleParser();
+;   

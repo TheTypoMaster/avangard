@@ -6,7 +6,7 @@ function GetAnswerTypeList()
 {
 	$arr = array(
 		"reference_id" => array(0,1,2,3,4,5),
-		"reference" => array("radio","checkbox","dropdown","multiselect","text","textarea")
+		"reference" => array("radio", "checkbox", "dropdown", "multiselect", "text", "textarea")
 		);
 	return $arr;
 }
@@ -28,7 +28,7 @@ function GetVoteDiagramList()
 }
 
 // vote data
-function GetVoteDataByID($VOTE_ID, &$arChannel, &$arVote, &$arQuestions, &$arAnswers, &$arDropDown, &$arMultiSelect, &$arGroupAnswers, $getGroupAnswers)
+function GetVoteDataByID($VOTE_ID, &$arChannel, &$arVote, &$arQuestions, &$arAnswers, &$arDropDown, &$arMultiSelect, &$arGroupAnswers, $arAddParams = "N")
 {
 	$VOTE_ID = intval($VOTE_ID);
 	$arChannel = array();
@@ -37,105 +37,90 @@ function GetVoteDataByID($VOTE_ID, &$arChannel, &$arVote, &$arQuestions, &$arAns
 	$arAnswers = array();
 	$arDropDown = array();
 	$arMultiSelect = array();
-	$GLOBALS["VOTE_CACHE_VOTING"] = (is_array($GLOBALS["VOTE_CACHE_VOTING"]) ? $GLOBALS["VOTE_CACHE_VOTING"] : array());
+
 	$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID] = (is_array($GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]) ? $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID] : array());
 
-	//$arVote
-	if (!empty($GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["V"])):
-		$arVote = $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["V"];
-	else:
-		$db_res = CVote::GetByID($VOTE_ID);
-		if (!($db_res && $arVote = $db_res->GetNext(true, true))):
-			return false;
-		endif;
-		$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["V"] = $arVote;
-	endif;
-
-	//$arChannel
-	if (!empty($GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["C"])):
-		$arChannel = $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["C"];
-	else:
-		$db_res = CVoteChannel::GetByID($arVote["CHANNEL_ID"]);
-		if (!($db_res && $arChannel = $db_res->GetNext(true, false))):
-			return false;
-		endif;
-		$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["C"] = $arChannel;
-	endif;
-	
-	if (!empty($GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]))
+	if (empty($GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]))
 	{
-		$arQuestions =  $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["Q"];
-		$arAnswers = $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["A"];
-		$arMultiSelect = $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["M"];
-		$arDropDown = $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["D"];
+		$db_res = CVote::GetByIDEx($VOTE_ID);
+		if (!($db_res && $arVote = $db_res->GetNext())){
+			return false;}
 
-		if ($GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["GA"] == "N" && $getGroupAnswers == "Y")
-		{
-            $db_res = CVoteEvent::GetUserAnswerStat($VOTE_ID);
-            while($res = $db_res->GetNext(true, false))
-            {
-                $arGroupAnswers[$res['ANSWER_ID']][] = $res;
-            }
-			$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["G"] = $arGroupAnswers;
-		}
-		else
-		{
-			$arGroupAnswers = $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["G"];
-		}
-	}
-	else
-	{
-		$db_res = CVoteQuestion::GetList($VOTE_ID, ($by="s_c_sort"), ($order="asc"), array("ACTIVE" => "Y"), $is_filtered);
-		while ($res = $db_res->GetNext(true,false)) 
-		{
-			$arQuestions[] = $res;
-			$w = CVoteAnswer::GetList($res["ID"],($by="s_c_sort"), ($order="asc"), array("ACTIVE"=>"Y"));
-			while ($wr=$w->GetNext(true,true))
-			{
-				$arAnswers[$res["ID"]][] = $wr;
+		foreach ($arVote as $key => $res) {
+			if (strpos($key, "CHANNEL_") === 0) {
+				$arChannel[substr($key, 8)] = $res;
+			} elseif (strpos($key, "~CHANNEL_") === 0) {
+				$arChannel["~".substr($key, 9)] = $res;
 			}
 		}
-        if ($getGroupAnswers=="Y")
-        {
-            $db_res = CVoteEvent::GetUserAnswerStat($VOTE_ID);
-            while($res = $db_res->GetNext(true, false))
-            {
-                $arGroupAnswers[$res['ANSWER_ID']][] = $res;
-            }
-        }
 
-		// dropdown and multiselect and text inputs
-		foreach ($arQuestions as $key => $arQ)
-		{
-			$QUESTION_ID = $arQ["ID"];
-			$arDropReference = array();
-			$arDropReferenceID = array();
-			$arMultiReference = array();
-			$arMultiReferenceID = array();
-			if (!is_array($arAnswers[$QUESTION_ID])):
-				continue;
-			endif;
-			foreach ($arAnswers[$QUESTION_ID] as $keya => $arA)
-			{
-				switch ($arA["FIELD_TYPE"])
+		$db_res = CVoteQuestion::GetList($VOTE_ID, ($by="s_c_sort"), ($order="asc"), array("ACTIVE" => "Y"), $is_filtered);
+		while ($res = $db_res->GetNext()) {
+			$arQuestions[$res["ID"]] = $res + array("ANSWERS" => array());
+		}
+		if (!empty($arQuestions)) {
+			$db_res = CVoteAnswer::GetListEx(
+				array("S_C_SORT" => "ASC"),
+				array("VOTE_ID" => $VOTE_ID, "ACTIVE" => "Y", "@QUESTION_ID" => array_keys($arQuestions)));
+			while ($res = $db_res->GetNext()) {
+				$arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ID"]] = $res;
+
+				$arAnswers[$res["QUESTION_ID"]][] = $res;
+
+				switch ($res["FIELD_TYPE"]) // dropdown and multiselect and text inputs
 				{
 					case 2:
-						$arDropReference[] = $arA["MESSAGE"];
-                        $arDropReferenceTilda[] = $arA["~MESSAGE"];
-						$arDropReferenceID[] = $arA["ID"];
-						break;
+						$arDropDown[$res["QUESTION_ID"]] = (is_array($arDropDown[$res["QUESTION_ID"]]) ? $arDropDown[$res["QUESTION_ID"]] :
+							array("reference" => array(), "reference_id" => array(), "~reference" => array()));
+						$arDropDown[$res["QUESTION_ID"]]["reference"][] = $res["MESSAGE"];
+						$arDropDown[$res["QUESTION_ID"]]["~reference"][] = $res["~MESSAGE"];
+						$arDropDown[$res["QUESTION_ID"]]["reference_id"][] = $res["ID"];
+					break;
 					case 3:
-						$arMultiReference[] = $arA["MESSAGE"];
-                        $arMultiReferenceTilda[] = $arA["~MESSAGE"];
-						$arMultiReferenceID[] = $arA["ID"];
-                        break;
+						$arMultiSelect[$res["QUESTION_ID"]] = (is_array($arMultiSelect[$res["QUESTION_ID"]]) ? $arMultiSelect[$res["QUESTION_ID"]] :
+							array("reference" => array(), "reference_id" => array(), "~reference" => array()));
+						$arMultiSelect[$res["QUESTION_ID"]]["reference"][] = $res["MESSAGE"];
+						$arMultiSelect[$res["QUESTION_ID"]]["~reference"][] = $res["~MESSAGE"];
+						$arMultiSelect[$res["QUESTION_ID"]]["reference_id"][] = $res["ID"];
+					break;
 				}
 			}
-			if (count($arDropReference) > 0)
-				$arDropDown[$QUESTION_ID] = array("reference"=>$arDropReference, "~reference"=>$arDropReferenceTilda, "reference_id"=>$arDropReferenceID);
-			if (count($arMultiReference)>0)
-				$arMultiSelect[$QUESTION_ID] = array("reference"=>$arMultiReference, "~reference"=>$arMultiReferenceTilda, "reference_id"=>$arMultiReferenceID);
+			$event_id = intval($arAddParams["bRestoreVotedData"] == "Y" && !!$_SESSION["VOTE"]["VOTES"][$VOTE_ID] ?
+				$_SESSION["VOTE"]["VOTES"][$VOTE_ID] : 0);
+			$db_res = CVoteEvent::GetUserAnswerStat($VOTE_ID,
+				array("bGetMemoStat" => "N", "bGetEventResults" => $event_id));
+			if ($db_res && ($res = $db_res->Fetch()))
+			{
+				do
+				{
+					if (isset($arQuestions[$res["QUESTION_ID"]]) && is_array($arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]]) && is_array($res)) {
+						$arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]] += $res;
+						if ($event_id > 0 && !empty($res["RESTORED_ANSWER_ID"])) {
+							switch ($arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]]["FIELD_TYPE"]):
+								case 0: // radio
+								case 2: // dropdown list
+									$fieldName = ($arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]]["FIELD_TYPE"] == 0 ?
+										"vote_radio_" : "vote_dropdown_").$res["QUESTION_ID"];
+									$_REQUEST[$fieldName] = $res["RESTORED_ANSWER_ID"];
+									break;
+								case 1: // checkbox
+								case 3: // multiselect list
+									$fieldName = ($arQuestions[$res["QUESTION_ID"]]["ANSWERS"][$res["ANSWER_ID"]]["FIELD_TYPE"] == 1 ?
+										"vote_checkbox_" : "vote_multiselect_").$res["QUESTION_ID"];
+									$_REQUEST[$fieldName] = (is_array($_REQUEST[$fieldName]) ? $_REQUEST[$fieldName] : array());
+									$_REQUEST[$fieldName][] = $res["ANSWER_ID"];
+									break;
+								case 4: // field
+								case 5: // text
+									// do not restored
+									break;
+							endswitch;
+						}
+					}
+				} while ($res = $db_res->Fetch());
+			}
 		}
+
 		reset($arChannel);
 		reset($arVote);
 		reset($arQuestions);
@@ -143,15 +128,38 @@ function GetVoteDataByID($VOTE_ID, &$arChannel, &$arVote, &$arQuestions, &$arAns
 		reset($arMultiSelect);
 		reset($arAnswers);
 
-		$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["Q"] = $arQuestions;
-		$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["A"] = $arAnswers;
-		$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["M"] = $arMultiSelect;
-		$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["D"] = $arDropDown;
-		$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["G"] = $arGroupAnswers;
-		$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["GA"] = ($getGroupAnswers == "Y" ? "Y" : "N");
-
+		$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID] = array(
+			"V" => $arVote,
+			"C" => $arChannel,
+			"QA" => array(
+				"Q" => $arQuestions,
+				"A" => $arAnswers,
+				"M" => $arMultiSelect,
+				"D" => $arDropDown,
+				"G" => array(),
+				"GA" => "N"
+			)
+		);
 	}
 
+	if ($arAddParams["bGetMemoStat"] == "Y" && $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["GA"] == "N")
+	{
+		$db_res = CVoteEvent::GetUserAnswerStat($VOTE_ID, array("bGetMemoStat" => "Y"));
+		while($res = $db_res->GetNext(true, false))
+		{
+			$arGroupAnswers[$res['ANSWER_ID']][] = $res;
+		}
+		$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["G"] = $arGroupAnswers;
+		$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["GA"] = "Y";
+	}
+
+	$arVote = $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["V"];
+	$arChannel = $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["C"];
+	$arQuestions =	$GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["Q"];
+	$arAnswers = $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["A"];
+	$arMultiSelect = $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["M"];
+	$arDropDown = $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["D"];
+	$arGroupAnswers = $GLOBALS["VOTE_CACHE_VOTING"][$VOTE_ID]["QA"]["G"];
 	return $arVote["ID"];
 }
 
@@ -197,7 +205,7 @@ function GetPrevVote($GROUP_SID, $level=1, $site_id=SITE_ID, $access=1)
 }
 
 // return votes list id for channel sid with check permissions and ACTIVE vote
-function GetVoteList($GROUP_SID = "", $strSqlOrder = "ORDER BY C.C_SORT, C.ID, V.DATE_START desc", $site_id = SITE_ID)
+function GetVoteList($GROUP_SID = "", $strSqlOrder = "ORDER BY C.C_SORT, C.ID, V.C_SORT, V.DATE_START desc", $site_id = SITE_ID)
 {
 	$arFilter["SITE"] = $site_id;
 	if (is_array($GROUP_SID) && !empty($GROUP_SID)):
@@ -231,7 +239,7 @@ function IsUserVoted($PUBLIC_VOTE_ID)
 	{
 		$VOTE_USER_ID = intval($GLOBALS["APPLICATION"]->get_cookie("VOTE_USER_ID"));
 		$res = CVote::UserAlreadyVote($arVote["ID"], $VOTE_USER_ID, $arVote["UNIQUE_TYPE"], $arVote["KEEP_IP_SEC"], $GLOBALS["USER"]->GetID());
-		return $res;
+		return ($res != false);
 	}
 
 	return false;
@@ -368,15 +376,13 @@ function ShowVote($VOTE_ID, $template1="")
 	$USER_GROUP_PERMISSION = intval($USER_GROUP_PERMISSION);
 	if ($USER_GROUP_PERMISSION > 2) $USER_GROUP_PERMISSION = 0;
 
-	/***** for old pre-component templates **********/
-	global $VOTE_PERMISSION;
-	$VOTE_PERMISSION = CVote::UserGroupPermission($arChannel["ID"]);
-	/***** /old *************************************/
-
 	$VOTE_ID = GetVoteDataByID($VOTE_ID, $arChannel, $arVote, $arQuestions, $arAnswers, $arDropDown, $arMultiSelect, $arGroupAnswers, "N");
 	if (intval($VOTE_ID)>0)
 	{
 		$perm = CVoteChannel::GetGroupPermission($arChannel["ID"]);
+		/***** for old pre-component templates **********/
+		$GLOBALS["VOTE_PERMISSION"] = $perm;
+		/***** /old *************************************/
 		if (intval($perm)>=2)
 		{
 			$template = (strlen($arVote["TEMPLATE"])<=0) ? "default.php" : $arVote["TEMPLATE"];
@@ -412,6 +418,7 @@ function ShowVote($VOTE_ID, $template1="")
 						);
 				echo $APPLICATION->IncludeStringBefore($arIcons);
 			}
+			$template = Rel2Abs('/', $template);
 			include($_SERVER["DOCUMENT_ROOT"].$path.$template);
 			if ($APPLICATION->GetShowIncludeAreas())
 			{
@@ -446,27 +453,28 @@ function ShowVoteResults($VOTE_ID, $template1="")
 				if (CModule::IncludeModule("fileman"))
 				{
 					$arIcons[] =
-							Array(						
+							Array(
 								"URL" => "/bitrix/admin/fileman_file_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&full_src=Y&path=". urlencode($path.$template),
 								"SRC" => "/bitrix/images/vote/panel/edit_template.gif",
 								"ALT" => GetMessage("VOTE_PUBLIC_ICON_TEMPLATE")
 							);
 					$arrUrl = parse_url($_SERVER["REQUEST_URI"]);
 					$arIcons[] =
-							Array(						
+							Array(
 								"URL" => "/bitrix/admin/fileman_file_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&full_src=Y&path=". urlencode($arrUrl["path"]),
 								"SRC" => "/bitrix/images/vote/panel/edit_file.gif",
 								"ALT" => GetMessage("VOTE_PUBLIC_ICON_HANDLER")
 							);
 				}
 				$arIcons[] =
-						Array(						
+						Array(
 							"URL" => "/bitrix/admin/vote_edit.php?lang=".LANGUAGE_ID."&ID=".$VOTE_ID,
 							"SRC" => "/bitrix/images/vote/panel/edit_vote.gif",
 							"ALT" => GetMessage("VOTE_PUBLIC_ICON_SETTINGS")
 						);
 				echo $APPLICATION->IncludeStringBefore($arIcons);
 			}
+			$template = Rel2Abs('/', $template);
 			include($_SERVER["DOCUMENT_ROOT"].$path.$template);
 			if ($APPLICATION->GetShowIncludeAreas())
 			{
@@ -476,7 +484,7 @@ function ShowVoteResults($VOTE_ID, $template1="")
 	}
 }
 
-function fill_arc($start, $end, $color) 
+function fill_arc($start, $end, $color)
 {
 	global $diameter, $centerX, $centerY, $im, $radius;
 	$radius = $diameter/2;

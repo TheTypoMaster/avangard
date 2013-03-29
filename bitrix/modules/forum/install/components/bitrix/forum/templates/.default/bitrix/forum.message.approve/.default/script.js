@@ -1,15 +1,3 @@
-function SelectPost(table)
-{
-	
-	if (table == null)
-		return;
-
-	if(table.className.match(/forum-post-selected/))
-		table.className = table.className.replace(/\s*forum-post-selected/i, '');
-	else
-		table.className += ' forum-post-selected';
-}
-
 function Validate(form)
 {
 	if (typeof(form) != "object" || form == null)
@@ -36,17 +24,17 @@ function Validate(form)
 				}
 			}
 			if (bEmptyData)
-				oError.push(oText['no_data']);
+				oError.push(BX.message("no_data"));
 		}
 	}
 	if (form['ACTION'].value == '')
-		oError.push(oText['no_action']);
+		oError.push(BX.message("no_action"));
 	if (oError.length > 0)
 	{
 		alert(oError.join('\n'));
 		return false;
 	}
 	if (form['ACTION'].value == 'DEL')
-		return confirm(oText['cdms']);
+		return confirm(BX.message("cdms"));
 	return true;
 }

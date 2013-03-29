@@ -191,31 +191,49 @@ class CForumParameters
 			"DEFAULT" => "Y");
 	}
 	
-	function AddPagerSettings(&$arComponentParameters, $sTitle = "", $bComponent = true)
+	function AddPagerSettings(&$arComponentParameters, $sTitle = "", $arParams = array(
+			// "bAddGroupOnly" => false,
+			// "bDescNumbering" => true
+	))
 	{
+		$arParams = (!is_array($arParams) ? array($arParams) : $arParams);
+		$arParamsDefault = array(
+			"bAddGroupOnly" => false,
+			"bDescNumbering" => true);
+
+		foreach ($arParamsDefault as $key => $val)
+			$arParams[$key] = ((is_set($arParams, $key) ? $arParams[$key]: $arParamsDefault[$key]) == true);
+
 		$arComponentParameters["GROUPS"]["PAGER_SETTINGS"] = array(
 			"NAME" => GetMessage("FORUM_PAGER_SETTINGS"));
 
-		$arComponentParameters["PARAMETERS"]["PAGER_DESC_NUMBERING"] = Array(
-			"PARENT" => "PAGER_SETTINGS",
-			"NAME" => GetMessage("FORUM_PAGER_DESC_NUMBERING"),
-			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "Y");
-		$arComponentParameters["PARAMETERS"]["PAGER_SHOW_ALWAYS"] = Array(
-			"PARENT" => "PAGER_SETTINGS",
-			"NAME" => GetMessage("FORUM_PAGER_SHOW_ALWAYS"),
-			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "N");
-		$arComponentParameters["PARAMETERS"]["PAGER_TITLE"] = Array(
-			"PARENT" => "PAGER_SETTINGS",
-			"NAME" => GetMessage("FORUM_PAGER_TITLE"),
-			"TYPE" => "STRING",
-			"DEFAULT" => $sTitle);
-		$arComponentParameters["PARAMETERS"]["PAGER_TEMPLATE"] = Array(
-			"PARENT" => "PAGER_SETTINGS",
-			"NAME" => GetMessage("FORUM_PAGER_TEMPLATE"),
-			"TYPE" => "STRING",
-			"DEFAULT" => "");
+		if (!$arParams["bAddGroupOnly"])
+		{
+			if ($arParams["bDescNumbering"])
+			{
+				$arComponentParameters["PARAMETERS"]["PAGER_DESC_NUMBERING"] = Array(
+					"PARENT" => "PAGER_SETTINGS",
+					"NAME" => GetMessage("FORUM_PAGER_DESC_NUMBERING"),
+					"TYPE" => "CHECKBOX",
+					"DEFAULT" => "Y");
+			}
+			$arComponentParameters["PARAMETERS"]["PAGER_SHOW_ALWAYS"] = Array(
+				"PARENT" => "PAGER_SETTINGS",
+				"NAME" => GetMessage("FORUM_PAGER_SHOW_ALWAYS"),
+				"TYPE" => "CHECKBOX",
+				"DEFAULT" => "N");
+			$arComponentParameters["PARAMETERS"]["PAGER_TITLE"] = Array(
+				"PARENT" => "PAGER_SETTINGS",
+				"NAME" => GetMessage("FORUM_PAGER_TITLE"),
+				"TYPE" => "STRING",
+				"DEFAULT" => $sTitle);
+			$arComponentParameters["PARAMETERS"]["PAGER_TEMPLATE"] = Array(
+				"PARENT" => "PAGER_SETTINGS",
+				"NAME" => GetMessage("FORUM_PAGER_TEMPLATE"),
+				"TYPE" => "STRING",
+				"DEFAULT" => "");
+		}
+
 	}
 }
 
@@ -223,30 +241,17 @@ class CForumFormat
 {
 	function DateFormat($format="", $timestamp="")
 	{
-		if(LANG=="en")
+		global $DB;
+
+		switch($format)
 		{
-			return date($format, $timestamp);
+			case "SHORT":
+				return FormatDate($DB->dateFormatToPHP(FORMAT_DATE), $timestamp);
+			case "FULL":
+				return FormatDate($DB->dateFormatToPHP(FORMAT_DATETIME), $timestamp);
+			default:
+				return FormatDate($format, $timestamp);
 		}
-		elseif(preg_match_all("/[FMlD]/", $format, $matches))
-		{
-			$ar = preg_split("/[FMlD]/", $format);
-			$result = "";
-			foreach($matches[0] as $i=>$match)
-			{
-				switch($match)
-				{
-					case "F":$match=GetMessage("FORUM_MONTH_".date("n", $timestamp));break;
-					case "M":$match=GetMessage("FORUM_MON_".date("n", $timestamp));break;
-					case "l":$match=GetMessage("FORUM_DAY_OF_WEEK_".date("w", $timestamp));break;
-					case "D":$match=GetMessage("FORUM_DOW_".date("w", $timestamp));break;
-				}
-				$result .= date($ar[$i], $timestamp).$match;
-			}
-			$result .= date($ar[count($ar)-1], $timestamp);
-			return $result;
-		}
-		else
-			return date($format, $timestamp);
 	}
 	
 	function FormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="DD.MM.YYYY HH:MI:SS")

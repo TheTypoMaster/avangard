@@ -104,8 +104,8 @@ class CBlogPostCategory extends CAllBlogPostCategory
 				"BLOG_ID" => array("FIELD" => "C.BLOG_ID", "TYPE" => "int"),
 				"POST_ID" => array("FIELD" => "C.POST_ID", "TYPE" => "int"),
 				"CATEGORY_ID" => array("FIELD" => "C.CATEGORY_ID", "TYPE" => "int"),
-				"NAME" => array("FIELD" => "CC.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_blog_category CC ON (CC.ID = C.CATEGORY_ID AND CC.BLOG_ID = C.BLOG_ID)"),
-				"POST_PUBLISH_STATUS" => array("FIELD" => "P.PUBLISH_STATUS", "TYPE" => "string", "FROM" => "INNER JOIN b_blog_post P ON (P.ID = C.POST_ID AND P.BLOG_ID = C.BLOG_ID)"),
+				"NAME" => array("FIELD" => "CC.NAME", "TYPE" => "string", "FROM" => "LEFT JOIN b_blog_category CC ON (CC.ID = C.CATEGORY_ID)"),
+				"POST_PUBLISH_STATUS" => array("FIELD" => "P.PUBLISH_STATUS", "TYPE" => "string", "FROM" => "INNER JOIN b_blog_post P ON (P.ID = C.POST_ID)"),
 				
 			);
 		// <-- FIELDS
@@ -125,7 +125,7 @@ class CBlogPostCategory extends CAllBlogPostCategory
 			if (strlen($arSqls["GROUPBY"]) > 0)
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!1!=".htmlspecialchars($strSql)."<br>";
+			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($arRes = $dbRes->Fetch())
@@ -156,7 +156,7 @@ class CBlogPostCategory extends CAllBlogPostCategory
 			if (strlen($arSqls["GROUPBY"]) > 0)
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!2.1!=".htmlspecialchars($strSql_tmp)."<br>";
+			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
@@ -172,16 +172,16 @@ class CBlogPostCategory extends CAllBlogPostCategory
 
 			$dbRes = new CDBResult();
 
-			//echo "!2.2!=".htmlspecialchars($strSql)."<br>";
+			//echo "!2.2!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes->NavQuery($strSql, $cnt, $arNavStartParams);
 		}
 		else
 		{
 			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) > 0)
-				$strSql .= "LIMIT ".$arNavStartParams["nTopCount"];
+				$strSql .= "LIMIT ".IntVal($arNavStartParams["nTopCount"]);
 
-			//echo "!3!=".htmlspecialchars($strSql)."<br>";
+			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}

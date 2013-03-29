@@ -3,7 +3,7 @@
 $bWasSelect = false;
 
 if($arParams["arUserField"]["SETTINGS"]["DISPLAY"]!="CHECKBOX"):
-	?><select name="<?=$arParams["arUserField"]["FIELD_NAME"]?>"<?if($arParams["arUserField"]["SETTINGS"]["LIST_HEIGHT"] > 1):?> size="<?=$arParams["arUserField"]["SETTINGS"]["LIST_HEIGHT"]
+	?><select class="bx-user-field-enum" name="<?=$arParams["arUserField"]["FIELD_NAME"]?>"<?if($arParams["arUserField"]["SETTINGS"]["LIST_HEIGHT"] > 1):?> size="<?=$arParams["arUserField"]["SETTINGS"]["LIST_HEIGHT"]
 	?>"<?endif;?> <?
 	if ($arParams["arUserField"]["MULTIPLE"]=="Y"):
 	?> multiple="multiple"<?

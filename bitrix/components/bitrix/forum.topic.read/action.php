@@ -64,7 +64,9 @@ if ((strLen($action) > 0 || strlen($s_action) > 0) && ($_REQUEST["MESSAGE_MODE"]
 						"AUTHOR_EMAIL" => $_POST["AUTHOR_EMAIL"],
 						"USE_SMILES" => $_POST["USE_SMILES"],
 						"captcha_word" =>  $_POST["captcha_word"],
-						"captcha_code" => $_POST["captcha_code"]);
+						"captcha_code" => $_POST["captcha_code"],
+						"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"]
+						);
 				if (!empty($_FILES["ATTACH_IMG"]))
 				{
 					$arFields["ATTACH_IMG"] = $_FILES["ATTACH_IMG"]; 
@@ -90,7 +92,7 @@ if ((strLen($action) > 0 || strlen($s_action) > 0) && ($_REQUEST["MESSAGE_MODE"]
 						endforeach;
 					}
 					if (!empty($arFiles))
-						$arFields["FILES"] = $arFiles; 
+						$arFields["FILES"] = $arFiles;
 				}
 				$url = CComponentEngine::MakePathFromTemplate(
 						$arParams["~URL_TEMPLATES_MESSAGE"], 
@@ -293,24 +295,21 @@ elseif($_POST["MESSAGE_MODE"] == "VIEW")
 		"UPLOAD" => $arResult["FORUM"]["ALLOW_UPLOAD"],
 		"NL2BR" => $arResult["FORUM"]["ALLOW_NL2BR"]);
 	$arAllow["SMILES"] = ($_POST["USE_SMILES"]!="Y" ? "N" : $arResult["FORUM"]["ALLOW_SMILES"]);
-	$arResult["POST_MESSAGE_VIEW"] = $parser->convert($_POST["POST_MESSAGE"], $arAllow);
-	$arResult["MESSAGE_VIEW"]["AUTHOR_NAME"] = ($USER->IsAuthorized() || empty($_POST["AUTHOR_NAME"]) ? $arResult["USER"]["SHOW_NAME"] : trim($_POST["AUTHOR_NAME"]));
-	$arResult["MESSAGE_VIEW"]["TEXT"] = $arResult["POST_MESSAGE_VIEW"];
 	$arFields = array(
-		"FORUM_ID" => intVal($arParams["FID"]), 
-		"TOPIC_ID" => intVal($arParams["TID"]), 
-		"MESSAGE_ID" => intVal($arParams["MID"]), 
+		"FORUM_ID" => intVal($arParams["FID"]),
+		"TOPIC_ID" => intVal($arParams["TID"]),
+		"MESSAGE_ID" => intVal($arParams["MID"]),
 		"USER_ID" => intVal($GLOBALS["USER"]->GetID()));
 	$arFiles = array();
 	$arFilesExists = array();
 	$res = array();
-	
+
 	foreach ($_FILES as $key => $val):
 		if (substr($key, 0, strLen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
 			$arFiles[] = $_FILES[$key];
 		endif;
 	endforeach;
-	foreach ($_REQUEST["FILES"] as $key => $val) 
+	foreach ($_REQUEST["FILES"] as $key => $val)
 	{
 		if (!in_array($val, $_REQUEST["FILES_TO_UPLOAD"]))
 		{
@@ -318,7 +317,7 @@ elseif($_POST["MESSAGE_MODE"] == "VIEW")
 			unset($_REQUEST["FILES"][$key]);
 			unset($_REQUEST["FILES_TO_UPLOAD"][$key]);
 		}
-		else 
+		else
 		{
 			$arFilesExists[$val] = array("FILE_ID" => $val);
 		}
@@ -336,7 +335,11 @@ elseif($_POST["MESSAGE_MODE"] == "VIEW")
 		$arFilesExists[$key] = $val;
 	$arFilesExists = array_keys($arFilesExists);
 	sort($arFilesExists);
-	$arResult["MESSAGE_VIEW"]["FILES"] = $_REQUEST["FILES"] = $arFilesExists;	
+	$arResult["MESSAGE_VIEW"]["FILES"] = $_REQUEST["FILES"] = $arFilesExists;
+	$arResult["POST_MESSAGE_VIEW"] = $parser->convert($_POST["POST_MESSAGE"], $arAllow, "html", $arResult["MESSAGE_VIEW"]["FILES"]);
+	$arResult["MESSAGE_VIEW"]["FILES_PARSED"] = $parser->arFilesIDParsed;
+	$arResult["MESSAGE_VIEW"]["AUTHOR_NAME"] = ($USER->IsAuthorized() || empty($_POST["AUTHOR_NAME"]) ? $arResult["USER"]["SHOW_NAME"] : trim($_POST["AUTHOR_NAME"]));
+	$arResult["MESSAGE_VIEW"]["TEXT"] = $arResult["POST_MESSAGE_VIEW"];
 	$arResult["VIEW"] = "Y";
 }
 ?>

@@ -49,4 +49,7 @@ $MESS["BPC_LINK"] = "Link einfügen";
 $MESS["BPC_IMAGE_SIZE_NOTICE"] = "Maximal zulässige Bildergröße <b>#SIZE#Mb</b>.";
 $MESS["BLOG_IMAGE"] = "Bild";
 $MESS["BLOG_P_IMAGE_UPLOAD"] = "Bild hochladen";
+$MESS["BLOG_PHOTO"] = "Foto:";
+$MESS["MPF_IMAGE_TITLE"] = "Bild in die Nachricht einfügen";
+$MESS["BLOG_ADD_FILES"] = "Dateien hinzufügen";
 ?>

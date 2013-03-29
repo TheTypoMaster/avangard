@@ -14,7 +14,7 @@ class CVoteChannel extends CAllVoteChannel
 		$module_id = "vote";
 		return "<br>Module: ".$module_id."<br>Class: CVoteChannel<br>File: ".__FILE__;
 	}
-	
+
 	function GetDropDownList()
 	{
 		global $DB;

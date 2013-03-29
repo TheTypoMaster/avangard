@@ -9,6 +9,6 @@ $MESS["GD_INFO_product_name_bitrix"] = "Bitrix Site Manager";
 $MESS["GD_INFO_product_name_bitrix_portal"] = "Bitrix Intranet";
 $MESS["GD_INFO_LASTUPDATE"] = "Last updated: #VALUE#";
 $MESS["GD_INFO_PERFMON"] = "Current performance score: #VALUE#";
-$MESS["GD_PERFMON_NO_RESULT"] = "not tested";
+$MESS["GD_INFO_PERFMON_NO_RESULT"] = "not tested";
 $MESS["GD_INFO_USERS"] = "User count: #VALUE#";
 ?>

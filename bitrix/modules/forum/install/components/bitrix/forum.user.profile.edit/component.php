@@ -13,10 +13,8 @@ endif;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-$arParams["UID"] = intVal(intVal($arParams["UID"]) > 0 ? $arParams["UID"] : $_REQUEST["UID"]);
-$arParams["UID"] = intVal(intVal($arParams["UID"]) > 0 ? $arParams["UID"] : $_REQUEST["ID"]);
-if (!$USER->IsAdmin())
-	$arParams["UID"] = intVal($USER->GetId());
+$arParams["UID"] = intval(!empty($arParams["UID"]) ? $arParams["UID"] : (!empty($_REQUEST["UID"]) ? $_REQUEST["UID"] : $_REQUEST["ID"]));
+$arParams["UID"] = (!$USER->IsAdmin() ? intval($USER->GetId()) : $arParams["UID"]);
 /***************** URL *********************************************/
 $URL_NAME_DEFAULT = array(
 	"profile_view" => "PAGE_NAME=profile_view&UID=#UID#");
@@ -29,6 +27,7 @@ foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 }
 /***************** ADDITIONAL **************************************/
 $arParams["USER_PROPERTY"] = (is_array($arParams["USER_PROPERTY"]) ? $arParams["USER_PROPERTY"] : array());
+$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : '#NAME# #LAST_NAME#');
 /***************** STANDART ****************************************/
 $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 $arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
@@ -45,7 +44,7 @@ $arResult["USER"] = array();
 if ($arParams["UID"] > 0)
 {
 	$db_user = CUser::GetByID($arParams["UID"]);
-	if (($db_user) && ($ar_user = $db_user->Fetch()))
+	if ($db_user && ($ar_user = $db_user->Fetch()))
 	{
 		while (list($key, $val) = each($ar_user))
 		{
@@ -57,11 +56,13 @@ if ($arParams["UID"] > 0)
 		$ar_forum_user = CForumUser::GetByUSER_ID($arParams["UID"]);
 		if ($ar_forum_user)
 		{
+
 			while (list($key, $val) = each($ar_forum_user))
 			{
-				${"str_FORUM_".$key} = htmlspecialchars($val);
+				${"str_FORUM_".$key} = htmlspecialcharsbx($val);
 				$arResult["str_FORUM_".$key] = htmlspecialcharsEx($val);
 			}
+			$arResult["FORUM_USER"] = $ar_forum_user;
 		}
 	}
 }
@@ -71,9 +72,6 @@ if ($arParams["UID"] <= 0):
 	return 0;
 elseif (empty($arResult["USER"])):
 	ShowError(GetMessage("FP_ERR_INTERN"));
-	return 0;
-elseif (!$USER->CanDoOperation('edit_own_profile')):
-	ShowError(GetMessage("F_ACCESS_DENIED"));
 	return 0;
 endif;
 
@@ -87,9 +85,9 @@ $arResult["IsAuthorized"] = $USER->IsAuthorized() ? "Y" : "N";
 $arResult["IsAdmin"] = $USER->IsAdmin() ? "Y" : "N";
 $bVarsFromForm = false;
 $arError = array();
-ForumSetLastVisit();
 $arResult["ERROR_MESSAGE"] = "";
 $arResult["OK_MESSAGE"] = "";
+$arResult["UID"] = $arParams["UID"];
 /********************************************************************
 				/Default values
 ********************************************************************/
@@ -221,7 +219,7 @@ if ($bVarsFromForm)
 	{
 		if (array_key_exists($arUserFields[$i], $_REQUEST))
 		{
-			${"str_".$arUserFields[$i]} = htmlspecialchars($_REQUEST[$arUserFields[$i]]);
+			${"str_".$arUserFields[$i]} = htmlspecialcharsbx($_REQUEST[$arUserFields[$i]]);
 			$arResult["str_".$arUserFields[$i]] = htmlspecialcharsEx($_REQUEST[$arUserFields[$i]]);
 		}
 	}
@@ -231,7 +229,7 @@ if ($bVarsFromForm)
 	{
 		if (array_key_exists("FORUM_".$arUserFields[$i], $_REQUEST))
 		{
-			${"str_FORUM_".$arUserFields[$i]} = htmlspecialchars($_REQUEST["FORUM_".$arUserFields[$i]]);
+			${"str_FORUM_".$arUserFields[$i]} = htmlspecialcharsbx($_REQUEST["FORUM_".$arUserFields[$i]]);
 			$arResult["str_FORUM_".$arUserFields[$i]] = htmlspecialcharsEx($_REQUEST["FORUM_".$arUserFields[$i]]);
 		}
 	}
@@ -308,31 +306,34 @@ if (!empty($arParams["USER_PROPERTY"]))
 }
 // ******************** /User properties ***************************************************
 // *****************************************************************************************
-$ShowName = "";
-if ($str_FORUM_SHOW_NAME == "Y")
-	$ShowName = trim($str_NAME." ".$str_LAST_NAME);
-if (strLen($ShowName) <= 0)
-	$ShowName = $str_LOGIN;
-$arResult["SHOW_NAME"] = $ShowName;
-$arResult["UID"] = $arParams["UID"];
-/********************************************************************
-			/Data
-********************************************************************/
-if ($arParams["SET_NAVIGATION"] != "N"):
-	$APPLICATION->AddChainItem($ShowName, $arResult["~profile_view"]);
-	$APPLICATION->AddChainItem(GetMessage("F_TITLE_TITLE"));
-endif;
-if ($arParams["SET_TITLE"] != "N")
-	$APPLICATION->SetTitle($ShowName." (".GetMessage("F_TITLE").")");
-// if($arParams["DISPLAY_PANEL"] == "Y" && $USER->IsAuthorized())
-	// CForumNew::ShowPanel(0, 0, false);
+$arResult["SHOW_NAME"] = $ShowName = CForumUser::GetFormattedNameByUserID(
+	$arParams["UID"],
+	$arParams["NAME_TEMPLATE"],
+	array(
+		"SHOW_NAME" => $arResult["FORUM_USER"]["SHOW_NAME"],
+		"LOGIN" => $arResult["USER"]["LOGIN"],
+		"NAME" => $arResult["USER"]["NAME"],
+		"SECOND_NAME" => $arResult["USER"]["SECOND_NAME"],
+		"LAST_NAME" => $arResult["USER"]["LAST_NAME"]
+	));
 
 //time zones
 $arResult["TIME_ZONE_ENABLED"] = CTimeZone::Enabled();
 if($arResult["TIME_ZONE_ENABLED"])
 	$arResult["TIME_ZONE_LIST"] = CTimeZone::GetZones();
 
+/********************************************************************
+			/Data
+********************************************************************/
+
 // *****************************************************************************************
 $this->IncludeComponentTemplate();
 // *****************************************************************************************
+if ($arParams["SET_NAVIGATION"] != "N"):
+	$APPLICATION->AddChainItem($arResult["SHOW_NAME"], $arResult["~profile_view"]);
+	$APPLICATION->AddChainItem(GetMessage("F_TITLE_TITLE"));
+endif;
+if ($arParams["SET_TITLE"] != "N")
+	$APPLICATION->SetTitle($ShowName." (".GetMessage("F_TITLE").")");
+
 ?>

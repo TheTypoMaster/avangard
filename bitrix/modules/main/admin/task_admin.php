@@ -28,7 +28,7 @@ for($i = 0, $l = count($modules); $i < $l;$i++)
 	IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/".$MID."/admin/task_description.php");
 	if (!($m = CModule::CreateModuleObject($MID)))
 		continue;
-	$arModuleRef[] = htmlspecialchars($m->MODULE_NAME);
+	$arModuleRef[] = htmlspecialcharsbx($m->MODULE_NAME);
 	$arModuleRefId[] = $MID;
 }
 $arr = array("reference" => $arModuleRef, "reference_id" => $arModuleRefId);
@@ -153,7 +153,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$row->AddViewField("BINDING", GetMessage("TASK_BINDING_".strtoupper($f_BINDING)));
 	$arActions = Array();
 	$arActions[] = array("ICON"=>"edit", "TEXT"=>(($sys) ? GetMessage("MENU_VIEW") : GetMessage("MAIN_ADMIN_MENU_EDIT")),"DEFAULT" => true, "ACTION"=>$lAdmin->ActionRedirect("task_edit.php?ID=".$f_ID));
-	$arActions[] = array("ICON"=>"copy", "TEXT"=>GetMessage("MAIN_ADMIN_MENU_COPY"), "ACTION"=>$lAdmin->ActionRedirect("task_edit.php?".htmlspecialchars("COPY_ID=").$f_ID));
+	$arActions[] = array("ICON"=>"copy", "TEXT"=>GetMessage("MAIN_ADMIN_MENU_COPY"), "ACTION"=>$lAdmin->ActionRedirect("task_edit.php?COPY_ID=".$f_ID));
 
 	if($USER->CanDoOperation('edit_tasks') && (!$sys))
 	{
@@ -214,18 +214,18 @@ $oFilter->Begin();
 ?>
 <tr>
 	<td nowrap><?echo GetMessage("TASK_FILTER_ID")?>:</td>
-	<td nowrap><input type="text" name="find_id" value="<?echo htmlspecialchars($find_id)?>" size="35"></td>
+	<td nowrap><input type="text" name="find_id" value="<?echo htmlspecialcharsbx($find_id)?>" size="35"></td>
 </tr>
 <tr>
 	<td nowrap><?echo GetMessage("TASK_FILTER_LETTER")?>:</td>
-	<td nowrap><input type="text" name="find_letter" value="<?echo htmlspecialchars($find_letter)?>" size="10"></td>
+	<td nowrap><input type="text" name="find_letter" value="<?echo htmlspecialcharsbx($find_letter)?>" size="10"></td>
 </tr>
 <tr>
 	<td nowrap><?echo GetMessage("TASK_FILTER_MODULE_ID")?>:</td>
 	<td nowrap>
 	<?
 	$arr = array("reference" => $arModuleRef, "reference_id" => $arModuleRefId);
-	echo SelectBoxFromArray("find_module_id", $arr, htmlspecialchars($find_module_id));
+	echo SelectBoxFromArray("find_module_id", $arr, htmlspecialcharsbx($find_module_id));
 	?>
 	</td>
 </tr>
@@ -234,7 +234,7 @@ $oFilter->Begin();
 	<td nowrap>
 		<?
 		$arr = array("reference" => array(GetMessage("TASK_FILTER_ANY"), GetMessage("MAIN_YES"), GetMessage("MAIN_NO")), "reference_id" => array("", "Y", "N"));
-		echo SelectBoxFromArray("find_sys", $arr, htmlspecialchars($find_sys));
+		echo SelectBoxFromArray("find_sys", $arr, htmlspecialcharsbx($find_sys));
 		?>
 	</td>
 </tr>
@@ -256,12 +256,12 @@ $oFilter->Begin();
 			$arRefId[] = $b;
 		}
 		$arr = array("reference" => $arRef, "reference_id" => $arRefId);
-		echo SelectBoxFromArray("find_binding", array("reference" => $arRef, "reference_id" => $arRefId), htmlspecialchars($find_binding));	
+		echo SelectBoxFromArray("find_binding", array("reference" => $arRef, "reference_id" => $arRefId), htmlspecialcharsbx($find_binding));	
 		?>
 	</td>
 </tr>
 <?
-$oFilter->Buttons(array("table_id"=>htmlspecialchars($sTableID), "url"=>$APPLICATION->GetCurPage(), "form"=>"find_form"));
+$oFilter->Buttons(array("table_id"=>htmlspecialcharsbx($sTableID), "url"=>$APPLICATION->GetCurPage(), "form"=>"find_form"));
 $oFilter->End();
 ?>
 </form>

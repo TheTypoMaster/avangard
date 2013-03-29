@@ -144,6 +144,7 @@ arEditorFastDialogs['asksave'] = function(pObj)
 				new BX.CWindowButton(
 				{
 					title: BX_MESS.TBSaveExit,
+					className: 'adm-btn-save',
 					action: function()
 					{
 						pObj.pMainObj.isSubmited = true;
@@ -175,7 +176,7 @@ arEditorFastDialogs['asksave'] = function(pObj)
 				window.oBXEditorDialog.btnCancel
 			]);
 
-			BX.addClass(window.oBXEditorDialog.PARTS.CONTENT, "bxed-dialog");
+			BX.addClass(window.oBXEditorDialog.PARTS.CONTENT_DATA, "bxed-dialog");
 			window.oBXEditorDialog.adjustSizeEx();
 		}
 	};

@@ -1,5 +1,5 @@
 function showWMVPlayer(contID, config, playlistConfig)
-{
+{	
 	playlistConfig = playlistConfig || {};
 	playlistConfig.format = playlistConfig.format || 'xspf';
 	playlistConfig.size = playlistConfig.size || 180;
@@ -10,7 +10,9 @@ function showWMVPlayer(contID, config, playlistConfig)
 }
 
 function BXSilverlightPlaylist(contID, config, playlistConfig)
-{
+{	
+	this.currentTrack = 0;
+	this.repeat = config.repeat || false;	
 	this.playerConfig = config;
 	this.playerCont = document.getElementById(contID);
 	this.contId = contID;
@@ -291,19 +293,43 @@ BXSilverlightPlaylist.prototype.Play = function(ind, start)
 {
 	if (!this.Items[ind])
 		return;
+	var _this  = this;
+	this.currentTrack = ind;
 	this.playerConfig.file = this.Items[ind].file;
 	this.playerConfig.image = this.Items[ind].image;
 	this.playerConfig.link = this.Items[ind].link;
 	this.playerConfig.autostart = start || false;
 	
 	if (!this.player)
-	{
+	{		
 		this.player = new jeroenwijering.Player(this.playerCont, '/bitrix/components/bitrix/player/wmvplayer/wmvplayer.xaml',  this.playerConfig);
+			
+		// auto play next
+		setTimeout(  
+			function()
+			{
+				_this.player.addListener('STATE', 
+					function(ost,nst) 
+					{
+						if(_this.Items.length > _this.currentTrack+1)
+							var nextInd = _this.currentTrack+1;
+						else if(_this.repeat) //auto repeat
+							var nextInd = 0;
+						else 
+							return;
+						
+						if(nst=="Completed") 													
+							BX('bx_playlist_item_' + nextInd).click(); 
+					}
+				);	
+			}, 1500
+		);
+
 		return;
-	}
-	this.player.sendEvent('LOAD', this.playerConfig.file);
-	var _player  = this.player;
-	setTimeout(function(){_player.sendEvent('PLAY');}, 10);
+	}	
+
+	this.player.sendEvent('LOAD', this.playerConfig.file);	
+	setTimeout(function(){_this.player.sendEvent('PLAY');}, 10);
 };
 
 function bxhtmlspecialchars(str)

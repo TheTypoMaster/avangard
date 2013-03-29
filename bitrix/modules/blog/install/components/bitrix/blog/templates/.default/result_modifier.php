@@ -31,13 +31,13 @@ if($arParams["SHOW_NAVIGATION"] != "N" && (IntVal($arResult["VARIABLES"]["group_
 		
 	$arResultTmp["PATH_TO_INDEX"] = trim($arResult["PATH_TO_INDEX"]);
 	if(strlen($arResult["PATH_TO_INDEX"])<=0)
-		$arResultTmp["PATH_TO_INDEX"] = htmlspecialchars($GLOBALS['APPLICATION']->GetCurPage());	
+		$arResultTmp["PATH_TO_INDEX"] = htmlspecialcharsbx($GLOBALS['APPLICATION']->GetCurPage());	
 	$arResultTmp["PATH_TO_BLOG"] = trim($arResult["PATH_TO_BLOG"]);
 	if(strlen($arResultTmp["PATH_TO_BLOG"])<=0)
-		$arResultTmp["PATH_TO_BLOG"] = htmlspecialchars($GLOBALS['APPLICATION']->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");	
+		$arResultTmp["PATH_TO_BLOG"] = htmlspecialcharsbx($GLOBALS['APPLICATION']->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");	
 	$arResultTmp["PATH_TO_GROUP"] = trim($arResult["PATH_TO_GROUP"]);
 	if(strlen($arResultTmp["PATH_TO_GROUP"])<=0)
-		$arResultTmp["PATH_TO_GROUP"] = htmlspecialchars($GLOBALS['APPLICATION']->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
+		$arResultTmp["PATH_TO_GROUP"] = htmlspecialcharsbx($GLOBALS['APPLICATION']->GetCurPage()."?".$arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#");
 		
 	$arBlog = Array();
 	?>

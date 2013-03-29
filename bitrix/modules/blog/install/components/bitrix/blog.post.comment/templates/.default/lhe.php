@@ -30,7 +30,8 @@ if(CModule::IncludeModule("fileman"))
 			name : LHE_MESS.Image,
 			handler: function(pBut)
 			{
-				pBut.pLEditor.OpenDialog({id : 'BlogImage', obj: false});
+				//pBut.pLEditor.OpenDialog({id : 'BlogImage', obj: false});
+				blogShowFile();
 			},
 			OnBeforeCreate: function(pLEditor, pBut)
 				{
@@ -58,7 +59,7 @@ if(CModule::IncludeModule("fileman"))
 							}
 						}
 
-						sContent = sContent.replace(/\[IMG ID=(\d+)(?:\s*?WIDTH=(\d+)\s*?HEIGHT=(\d+))?\]/ig, function(str, id, width, height)
+						sContent = sContent.replace(/\[IMG ID=((?:\s|\S)*?)(?:\s*?WIDTH=(\d+)\s*?HEIGHT=(\d+))?\]/ig, function(str, id, width, height)
 						{
 							if (!pLEditor.arBlogImages[id])
 								return str;
@@ -104,7 +105,7 @@ if(CModule::IncludeModule("fileman"))
 			var str = 
 				'<span class="errortext" id="lhed_blog_image_error" style="display:none;"></span>' +
 				'<table width="100%"><tr>' +
-				'<td class="lhe-dialog-label lhe-label-imp"><?= GetMessage('BLOG_IMAGE')?>:</td>' +
+				'<td class="lhe-dialog-label lhe-label-imp"><?= GetMessageJS('BLOG_IMAGE')?>:</td>' +
 				'<td class="lhe-dialog-param">' +
 				'<form id="' + pObj.pLEditor.id + 'img_upload_form" action="<?=CUtil::JSEscape(POST_FORM_ACTION_URI)?>" method="post" enctype="multipart/form-data" style="margin: 0!important; padding: 0!important;">' +
 				'<?=bitrix_sessid_post()?>' +
@@ -114,11 +115,11 @@ if(CModule::IncludeModule("fileman"))
 				'</form>'+
 				'</td>' +
 				'</tr><tr id="' + pObj.pLEditor.id + 'lhed_blog_notice">' +
-				'<td colSpan="2" style="padding: 0 0 20px 25px !important; font-size: 11px!important;"><?= GetMessage('BPC_IMAGE_SIZE_NOTICE', Array('#SIZE#' => DoubleVal(COption::GetOptionString("blog", "image_max_size", 1000000)/1000000)))?></td>' +
+				'<td colSpan="2" style="padding: 0 0 20px 25px !important; font-size: 11px!important;"><?= GetMessageJS('BPC_IMAGE_SIZE_NOTICE', Array('#SIZE#' => DoubleVal(COption::GetOptionString("blog", "image_max_size", 1000000)/1000000)))?></td>' +
 			'</tr></table>';
 
 			return {
-				title: "<?= GetMessage('BLOG_P_IMAGE_UPLOAD')?>",
+				title: "<?= GetMessageJS('BLOG_P_IMAGE_UPLOAD')?>",
 				innerHTML : str,
 				width: 500,
 				OnLoad: function()
@@ -203,13 +204,13 @@ if(CModule::IncludeModule("fileman"))
 		// Rename image button and change Icon
 		LHEButtons['Image'].id = 'ImageLink';
 		LHEButtons['Image'].src = '/bitrix/components/bitrix/blog/templates/.default/images/bbcode/font_image_upload.gif';
-		LHEButtons['Image'].name = '<?=GetMessage("BLOG_P_IMAGE_LINK")?>';
+		LHEButtons['Image'].name = '<?=GetMessageJS("BLOG_P_IMAGE_LINK")?>';
 
 		LHEButtons['BlogInputVideo'] = {
 			id : 'BlogInputVideo',
 			src : '/bitrix/components/bitrix/blog/templates/.default/images/bbcode/font_video.gif',
-			name : '<?=GetMessage("FPF_VIDEO")?>',
-			title : '<?=GetMessage("FPF_VIDEO")?>',
+			name : '<?=GetMessageJS("FPF_VIDEO")?>',
+			title : '<?=GetMessageJS("FPF_VIDEO")?>',
 			handler: function(pBut)
 			{
 				pBut.pLEditor.OpenDialog({id : 'BlogVideo', obj: false});
@@ -245,13 +246,13 @@ if(CModule::IncludeModule("fileman"))
 		window.LHEDailogs['BlogVideo'] = function(pObj)
 		{
 			var str = '<table width="100%"><tr>' +
-				'<td class="lhe-dialog-label lhe-label-imp"><label for="' + pObj.pLEditor.id + 'lhed_blog_video_path"><b><?= GetMessage('BPC_VIDEO_P')?>:</b></label></td>' +
+				'<td class="lhe-dialog-label lhe-label-imp"><label for="' + pObj.pLEditor.id + 'lhed_blog_video_path"><b><?= GetMessageJS('BPC_VIDEO_P')?>:</b></label></td>' +
 				'<td class="lhe-dialog-param">' +
 				'<input id="' + pObj.pLEditor.id + 'lhed_blog_video_path" value="" size="30"/>' +
 				'</td>' +
 			'</tr><tr>' +
 				'<td></td>' +
-				'<td style="padding: 0!important; font-size: 11px!important;"><?= GetMessage('BPC_VIDEO_PATH_EXAMPLE')?></td>' +
+				'<td style="padding: 0!important; font-size: 11px!important;"><?= GetMessageJS('BPC_VIDEO_PATH_EXAMPLE')?></td>' +
 			'</tr><tr>' +
 				'<td class="lhe-dialog-label lhe-label-imp"><label for="' + pObj.pLEditor.id + 'lhed_blog_video_width">' + LHE_MESS.ImageSizing + ':</label></td>' +
 				'<td class="lhe-dialog-param">' +
@@ -262,7 +263,7 @@ if(CModule::IncludeModule("fileman"))
 			'</tr></table>';
 
 			return {
-				title: "<?= GetMessage('FPF_VIDEO')?>",
+				title: "<?= GetMessageJS('FPF_VIDEO')?>",
 				innerHTML : str,
 				width: 480,
 				OnLoad: function()
@@ -302,8 +303,8 @@ if(CModule::IncludeModule("fileman"))
 		LHEButtons['CreateLinkNC'] = {
 			id : 'CreateLinkNC',
 			src : '/bitrix/components/bitrix/blog/templates/.default/images/bbcode/font_link.gif',
-			name : '<?=GetMessage("BPC_LINK")?>',
-			title : '<?=GetMessage("BPC_LINK")?>',
+			name : '<?=GetMessageJS("BPC_LINK")?>',
+			title : '<?=GetMessageJS("BPC_LINK")?>',
 			handler: function(pBut)
 			{
 				pBut.pLEditor.OpenDialog({id : 'CreateLinkNCDialog', obj: false});
@@ -317,7 +318,7 @@ if(CModule::IncludeModule("fileman"))
 				str = document.getElementById('nocommentreason').innerHTML;
 
 			return {
-				title: "<?= GetMessage('BPC_LINK')?>",
+				title: "<?= GetMessageJS('BPC_LINK')?>",
 				innerHTML : str,
 				width: 480,
 				OnLoad: function() {},
@@ -369,7 +370,7 @@ if(CModule::IncludeModule("fileman"))
 			'Image',
 			(($arResult["allowImageUpload"] == "Y") ? 'BlogImage' : ''),
 			(($arResult["allowVideo"] == "Y") ? 'BlogInputVideo' : ''),
-			'Table',
+			'Table', 'Justify',
 			'InsertOrderedList',
 			'InsertUnorderedList',
 			//'Translit',
@@ -380,7 +381,6 @@ if(CModule::IncludeModule("fileman"))
 		'arSmiles' => $arSmiles,
 		'smileCountInToolbar' => $arParams['SMILES_COUNT'],
 		'bSaveOnBlur' => false,
-		//'BBCode' => !$arResult["allow_html"],
 		'BBCode' => true,
 		'bResizable' => $arParams['EDITOR_RESIZABLE'],
 		'bAutoResize' => true,
@@ -394,3 +394,57 @@ if(CModule::IncludeModule("fileman"))
 	));
 }
 ?>
+<script>
+function insertBlogImageFile(id)
+{
+	img = BX.findChild(BX('wd-doc'+id), {'tag': 'img'}, true, false);
+	src = img.getAttribute('rel');
+	imageId = id+'file';
+	pLEditor = window.oBlogComLHE;
+	if (!pLEditor.arBlogImages[imageId])
+	{
+		pLEditor.arBlogImages[imageId] = {
+						src : src,
+						pTitle: ""
+					};
+	}
+	pLEditor.SetFocus();
+	InsertBlogImage(imageId);
+}
+
+BX.ready(function() {	
+	BX.addCustomEvent(BX('blog-comment-user-fields-UF_BLOG_COMMENT_DOC'), 'OnFileUploadSuccess', function(result, obj){
+		if(BX.findChild(BX('form_comment'), {'attr': {id: 'upload-cid'}}, true, false))
+			BX.findChild(BX('form_comment'), {'attr': {id: 'upload-cid'}}, true, false).value = obj.CID;
+
+		if(result.element_content_type.substr(0,6) == 'image/')
+		{
+			img = BX.findChild(BX('wd-doc'+result.element_id), {'tag': 'img'}, true, false);
+			
+			el = BX.findChild(BX('wd-doc'+result.element_id), {'className': 'feed-add-img-wrap'}, true, false);
+			BX.bind(el, "click", function(){insertBlogImageFile(result.element_id);});
+			el.style.cursor = "pointer";
+			el.title = "<?=GetMessageJS("MPF_IMAGE_TITLE")?>";
+			el = BX.findChild(BX('wd-doc'+result.element_id), {'className': 'feed-add-img-title'}, true, false);
+			BX.bind(el, "click", function(){insertBlogImageFile(result.element_id);});
+			el.style.cursor = "pointer";
+			el.title = "<?=GetMessageJS("MPF_IMAGE_TITLE")?>";
+			insertBlogImageFile(result.element_id);
+		}
+	});
+
+	BX.addCustomEvent(BX('blog-comment-user-fields-UF_BLOG_COMMENT_DOC'), 'OnFileUploadRemove', function(result){
+		if(BX.findChild(BX('wd-doc'+result), {'tag': 'img'}, true, false))
+		{
+			pLEditor = window.oBlogComLHE;
+			pLEditor.SaveContent();
+			content = pLEditor.GetContent();
+			content = content.replace(new RegExp('\\[IMG ID='+result+'file\\]','g'), '');
+			pLEditor.SetContent(content);
+			pLEditor.SetEditorContent(pLEditor.content);
+			pLEditor.SetFocus();
+			pLEditor.AutoResize();
+		}
+	});
+});
+</script>

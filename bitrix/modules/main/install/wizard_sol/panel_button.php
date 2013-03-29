@@ -42,6 +42,7 @@ class CWizardSolPanel
 					"DIR"				=> "/site_".$newSiteID."/",
 					"FORMAT_DATE"		=> FORMAT_DATE,
 					"FORMAT_DATETIME"	=> FORMAT_DATETIME,
+					"FORMAT_NAME"		=> CSite::GetDefaultNameFormat(),
 					"CHARSET"			=> SITE_CHARSET,
 					"SITE_NAME"			=> $newSiteID,
 					"SERVER_NAME"		=> $_SERVER["SERVER_NAME"],
@@ -91,7 +92,7 @@ class CWizardSolPanel
 				),
 			);
 
-	 		$arMenu[] = Array(		
+			$arMenu[] = Array(		
 				"ACTION" => "if(confirm('".AddSlashes(GetMessage("SOL_BUTTON_CONFIRM_W2"))."')) jsUtils.Redirect([], '".CUtil::JSEscape(SITE_DIR)."?delete_button_sol=sol&".bitrix_sessid_get()."');",
 				"ICON" => "wizard-clear",
 				"TEXT" => GetMessage("SOL_BUTTON_DEL_TEXT"),
@@ -110,15 +111,15 @@ class CWizardSolPanel
 					if($site <> '')
 						$url = $protocol.$site.'/'.ltrim($url, '/');
 				}
-		 		$arSites[] = Array(		
+				$arSites[] = Array(		
 					"ACTION" => "jsUtils.Redirect([], '".CUtil::JSEscape($url)."');",
 					"ICON" => ($arSite["LID"] == SITE_ID? "checked":""),
 					"TEXT" => $arSite["NAME"],
 					"TITLE" => GetMessage("SOL_BUTTON_GOTOSITE")." ".$arSite["NAME"],
 				);
 			}
-	 		$arMenu[] = Array("SEPARATOR"=>true);
-	 		$arMenu[] = Array(		
+			$arMenu[] = Array("SEPARATOR"=>true);
+			$arMenu[] = Array(		
 				"TEXT" => GetMessage("SOL_BUTTON_GOTOSITE"),
 				"MENU" => $arSites,
 			);
@@ -127,10 +128,10 @@ class CWizardSolPanel
 				"HREF" => SITE_DIR."?add_new_site_sol=sol&".bitrix_sessid_get(),
 				"ID" => "solutions_wizard",
 				"ICON" => "bx-panel-install-solution-icon",
-                "TYPE" => "BIG",
+				"TYPE" => "BIG",
 				"ALT" => GetMessage("SOL_BUTTON_TEST_TITLE"),
 				"TEXT" => GetMessage("SOL_BUTTON_TEST_TEXT"),
-				"MAIN_SORT" => 2500,
+				"MAIN_SORT" => 2520,
 				"SORT" => 20,
 				"MENU" => $arMenu,
 				'HINT' => array(

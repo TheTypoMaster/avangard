@@ -16,10 +16,10 @@ CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
 	$arParams["SECTION_ID"] = intVal($arParams["SECTION_ID"]);
 	$arParams["BEHAVIOUR"] = ($arParams["BEHAVIOUR"] == "USER" ? "USER" : "SIMPLE");
-	$arParams["USER_ALIAS"] = preg_replace("/[^a-z0-9\_]+/is" , "", $arParams["USER_ALIAS"]);	
+	$arParams["USER_ALIAS"] = preg_replace("/[^a-z0-9\_]+/is" , "", $arParams["USER_ALIAS"]);
 	$arParams["PERMISSION_EXTERNAL"] = trim($arParams["PERMISSION"]);
 
-	$arParams["SORT_BY"] = trim($arParams["SORT_BY"]); 
+	$arParams["SORT_BY"] = trim($arParams["SORT_BY"]);
 	$arParams["SORT_BY"] = (!empty($arParams["SORT_BY"]) ? $arParams["SORT_BY"] : "ID");
 	$arParams["SORT_ORD"] = ($arParams["SORT_ORD"] != "ASC" ? "DESC" : "ASC");
 
@@ -54,19 +54,19 @@ CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 //***************** ADDITIONAL **************************************/
 	$arParams["PASSWORD_CHECKED"] = true;
-	
+
 	$arParams["ALBUM_PHOTO_SIZE"] = (intVal($arParams["ALBUM_PHOTO_SIZE"]) > 0 ? intVal($arParams["ALBUM_PHOTO_SIZE"]) : 150);
 	$arParams["ALBUM_PHOTO_THUMBS_SIZE"] = (intVal($arParams["ALBUM_PHOTO_THUMBS_SIZE"]) > 0 ? intVal($arParams["ALBUM_PHOTO_THUMBS_SIZE"]) : 70);
 
 	$arParams["PAGE_ELEMENTS"] = intVal($arParams["PAGE_ELEMENTS"]);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 5);
-	
-	$arParams["DATE_TIME_FORMAT"] = trim(!empty($arParams["DATE_TIME_FORMAT"]) ? $arParams["DATE_TIME_FORMAT"] : 
+
+	$arParams["DATE_TIME_FORMAT"] = trim(!empty($arParams["DATE_TIME_FORMAT"]) ? $arParams["DATE_TIME_FORMAT"] :
 		$GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("SHORT")));
 	$arParams["SET_STATUS_404"] = ($arParams["SET_STATUS_404"] == "Y" ? "Y" : "N");
 //***************** STANDART ****************************************/
@@ -91,17 +91,13 @@ $arResult["SECTIONS"] = array();
 $arResult["SECTIONS_CNT"] = 0;
 
 $cache = new CPHPCache;
-$cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]."/");
-
-$oPhoto = new CPGalleryInterface( 
+$oPhoto = new CPGalleryInterface(
 	array(
-		"IBlockID" => $arParams["IBLOCK_ID"], 
-		"GalleryID" => $arParams["USER_ALIAS"], 
-		"Permission" => $arParams["PERMISSION_EXTERNAL"]), 
+		"IBlockID" => $arParams["IBLOCK_ID"],
+		"GalleryID" => $arParams["USER_ALIAS"],
+		"Permission" => $arParams["PERMISSION_EXTERNAL"]),
 	array(
-		"cache_time" => $arParams["CACHE_TIME"], 
-		"cache_path" => $cache_path_main, 
-		"show_error" => "Y", 
+		"cache_time" => $arParams["CACHE_TIME"],
 		"set_404" => $arParams["SET_STATUS_404"]
 		)
 	);
@@ -122,7 +118,7 @@ if ($arParams["SECTION_ID"] > 0)
 		$url = CComponentEngine::MakePathFromTemplate(
 			$arParams["~SECTION_URL"],
 			array(
-				"USER_ALIAS" => $arGallery["CODE"], 
+				"USER_ALIAS" => $arGallery["CODE"],
 				"SECTION_ID" => $arParams["SECTION_ID"]));
 		LocalRedirect($url, false, "301 Moved Permanently");
 		return false;
@@ -147,23 +143,30 @@ if ($arParams["PAGE_ELEMENTS"] > 0)
 	$arNavParams = array("nPageSize" => $arParams["PAGE_ELEMENTS"], "bShowAll" => false);
 	$arNavigation = CDBResult::GetNavParams($arNavParams);
 }
+
 //CACHE
-$cache_id = serialize(array(
+$cache_id = "sections".serialize(array(
+	"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 	"SECTION_ID" => $arParams["SECTION_ID"],
 	"BEHAVIOUR" => $arParams["BEHAVIOUR"],
-	"GALLERY" => $arResult["GALLERY"]["ID"], 
+	"GALLERY" => $arResult["GALLERY"]["ID"],
 	"PERMISSION" => ($arParams["PERMISSION"] >= "U" ? "Y" : "N"),
 	"NAV1" => $arNavParams,
-	"NAV2" => $arNavigation));
+	"NAV2" => $arNavigation
+));
 if(($tzOffset = CTimeZone::GetOffset()) <> 0)
 	$cache_id .= "_".$tzOffset;
-$cache_path = $cache_path_main."sections".$arParams["SECTION_ID"];
+
+$cache_path = "/".SITE_ID."/photogallery/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"];
+
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
 	$res = $cache->GetVars();
 	$arResult["SECTIONS"] = $res["SECTIONS"];
 	$arResult["NAV_STRING"] = $res["NAV_STRING"];
 	$arResult["NAV_RESULT"] = $res["NAV_RESULT"];
+
+	$GLOBALS['NavNum'] = intVal($GLOBALS['NavNum']) + 1;
 }
 else
 {
@@ -207,35 +210,35 @@ else
 			$res["DETAIL_PICTURE"] = CFile::GetFileArray($res["DETAIL_PICTURE"]);
 
 			$res["SECTIONS_CNT"] = intVal(CIBlockSection::GetCount(array("IBLOCK_ID" => $arParams["IBLOCK_ID"], "SECTION_ID" => $res["ID"])));
-			
+
 			$res["ELEMENTS_CNT"] = intVal(CIBlockSection::GetSectionElementsCount($res["ID"], array("CNT_ACTIVE" => "Y")));
 			if ($arParams["PERMISSION"] >= "U")
 				$res["ELEMENTS_CNT_ALL"] = intVal(CIBlockSection::GetSectionElementsCount($res["ID"], array("CNT_ALL"=>"Y")));
-			
+
 			if ($arParams["PERMISSION"] < "U" && $res["ELEMENTS_CNT"] <= 0)
 				continue;
 
-			$res["~LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"], 
+			$res["~LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"],
 				array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $res["ID"]));
-			$res["LINK"] = htmlspecialchars($res["~LINK"]);
+			$res["LINK"] = htmlspecialcharsbx($res["~LINK"]);
 			if ($arParams["PERMISSION"] >= "W")
 			{
 				$res["~NEW_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_EDIT_URL"],
 					array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $res["ID"], "ACTION" => "new"));
-				$res["NEW_LINK"] = htmlSpecialChars($res["~NEW_LINK"]);
+				$res["NEW_LINK"] = htmlspecialcharsbx($res["~NEW_LINK"]);
 				$res["~EDIT_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_EDIT_URL"],
 					array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $res["ID"], "ACTION" => "edit"));
-				$res["EDIT_LINK"] = htmlSpecialChars($res["~EDIT_LINK"]);
+				$res["EDIT_LINK"] = htmlspecialcharsbx($res["~EDIT_LINK"]);
 				if ($res["ELEMENTS_CNT_ALL"] > 0)
 				{
 					$res["~EDIT_ICON_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_EDIT_ICON_URL"],
 						array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $res["ID"], "ACTION" => "edit"));
-					$res["EDIT_ICON_LINK"] = htmlSpecialChars($res["~EDIT_ICON_LINK"]);
+					$res["EDIT_ICON_LINK"] = htmlspecialcharsbx($res["~EDIT_ICON_LINK"]);
 				}
 				$res["~DROP_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_EDIT_URL"],
 					array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $res["ID"], "ACTION" => "drop")).
 					(strpos($arParams["~SECTION_EDIT_URL"], "?") === false ? "?" : "&")."edit=Y";
-				$res["DROP_LINK"] = htmlSpecialChars($res["~DROP_LINK"]);
+				$res["DROP_LINK"] = htmlspecialcharsbx($res["~DROP_LINK"]);
 			}
 			$arResult["SECTIONS"][$res["ID"]] = $res;
 		}
@@ -247,26 +250,27 @@ else
 		}
 	}
 }
+
 /************** URLS SECTION ***************************************/
 $arResult["SECTIONS"] = (!is_array($arResult["SECTIONS"]) ? array() : $arResult["SECTIONS"]);
 /************** URL ************************************************/
 if ($arParams["PERMISSION"] >= "U")
 {
 	$arResult["SECTION"]["~UPLOAD_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~UPLOAD_URL"],
-		array("USER_ALIAS" => $arParams["USER_ALIAS"], 
+		array("USER_ALIAS" => $arParams["USER_ALIAS"],
 			"SECTION_ID" => ($arParams["SECTION_ID"] == $arResult["GALLERY"]["ID"] ? 0 : $arParams["SECTION_ID"])));
-	$arResult["SECTION"]["UPLOAD_LINK"] = htmlspecialchars($arResult["SECTION"]["~UPLOAD_LINK"]);
+	$arResult["SECTION"]["UPLOAD_LINK"] = htmlspecialcharsbx($arResult["SECTION"]["~UPLOAD_LINK"]);
 	$arResult["SECTION"]["~NEW_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_EDIT_URL"],
-		array("USER_ALIAS" => $arParams["USER_ALIAS"], 
+		array("USER_ALIAS" => $arParams["USER_ALIAS"],
 			"SECTION_ID" => ($arParams["SECTION_ID"] == $arResult["GALLERY"]["ID"] ? 0 : $arParams["SECTION_ID"]), "ACTION" => "new"));
-	$arResult["SECTION"]["NEW_LINK"] = htmlSpecialChars($arResult["SECTION"]["~NEW_LINK"]);
-	
+	$arResult["SECTION"]["NEW_LINK"] = htmlspecialcharsbx($arResult["SECTION"]["~NEW_LINK"]);
+
 }
 if ($arParams["SECTION_ID"] > 0 && $arResult["GALLERY"]["ID"] != $arParams["SECTION_ID"])
 {
 	$arResult["SECTION"]["~BACK_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"],
 			array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arParams["SECTION_ID"]));
-	$arResult["SECTION"]["BACK_LINK"] = htmlspecialchars($arResult["SECTION"]["~BACK_LINK"]);
+	$arResult["SECTION"]["BACK_LINK"] = htmlspecialcharsbx($arResult["SECTION"]["~BACK_LINK"]);
 }
 /********************************************************************
 				/Data
@@ -304,5 +308,5 @@ endif;
 /********************************************************************
 				/Standart
 ********************************************************************/
-return $arResult; 
+return $arResult;
 ?>

@@ -2,6 +2,15 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 require_once($_SERVER["DOCUMENT_ROOT"].$componentPath."/functions.php");
 
+/**
+* Bitrix vars
+*
+* @var array $arParams
+* @var CBitrixComponent $this
+* @var CMain $APPLICATION
+* @var CUser $USER
+*/
+
 //Menu depth level
 if (isset($arParams["MAX_LEVEL"]) && 1 < intval($arParams["MAX_LEVEL"]) && intval($arParams["MAX_LEVEL"]) < 5)
 	$arParams["MAX_LEVEL"] = intval($arParams["MAX_LEVEL"]);
@@ -10,13 +19,13 @@ else
 
 //Root menu type
 if (isset($arParams["ROOT_MENU_TYPE"]) && strlen($arParams["ROOT_MENU_TYPE"]) > 0)
-	$arParams["ROOT_MENU_TYPE"] = htmlspecialchars(trim($arParams["ROOT_MENU_TYPE"]));
+	$arParams["ROOT_MENU_TYPE"] = htmlspecialcharsbx(trim($arParams["ROOT_MENU_TYPE"]));
 else
 	$arParams["ROOT_MENU_TYPE"] = "left";
 
 //Child menu type
 if (isset($arParams["CHILD_MENU_TYPE"]) && strlen($arParams["CHILD_MENU_TYPE"]) > 0)
-	$arParams["CHILD_MENU_TYPE"] = htmlspecialchars(trim($arParams["CHILD_MENU_TYPE"]));
+	$arParams["CHILD_MENU_TYPE"] = htmlspecialcharsbx(trim($arParams["CHILD_MENU_TYPE"]));
 else
 	$arParams["CHILD_MENU_TYPE"] = "left";
 
@@ -27,6 +36,9 @@ $arParams["DELAY"] = (isset($arParams["DELAY"]) && $arParams["DELAY"] == "Y" ? "
 
 //Allow multiple highlightning of current item in menu
 $arParams["ALLOW_MULTI_SELECT"] = ($arParams["ALLOW_MULTI_SELECT"] == "Y");
+
+//Find current menu item in RecalcMenu(). Cach ID depends on this parameter too
+$arParams["CACHE_SELECTED_ITEMS"] = ($arParams["CACHE_SELECTED_ITEMS"] <> "N" && $arParams["CACHE_SELECTED_ITEMS"] !== false);
 
 $curDir = $APPLICATION->GetCurDir();
 
@@ -47,7 +59,11 @@ else
 
 if($arParams["MENU_CACHE_TIME"])
 {
-	$strCacheID = $APPLICATION->GetCurPage().
+	if($arParams["CACHE_SELECTED_ITEMS"])
+		$strCacheID = $APPLICATION->GetCurPage();
+	else
+		$strCacheID = "";
+	$strCacheID .=
 		":".$arParams["USE_EXT"].
 		":".$arParams["MAX_LEVEL"].
 		":".$arParams["ROOT_MENU_TYPE"].
@@ -59,6 +75,9 @@ if($arParams["MENU_CACHE_TIME"])
 
 	if($arParams["MENU_CACHE_USE_GROUPS"] === "Y")
 		$strCacheID .= ":".$USER->GetGroups();
+
+	if($arParams["MENU_CACHE_USE_USERS"] === "Y")
+		$strCacheID .= ":".$USER->GetID();
 
 	if(is_array($arParams["MENU_CACHE_GET_VARS"]))
 	{
@@ -85,7 +104,6 @@ if($arParams["MENU_CACHE_TIME"] && $CACHE_MANAGER->Read($arParams["MENU_CACHE_TI
 }
 else
 {
-
 	if($arParams["MENU_CACHE_TIME"] && defined("BX_COMP_MANAGED_CACHE"))
 		$CACHE_MANAGER->StartTagCache("managed:menu");
 
@@ -93,9 +111,9 @@ else
 	$menu = new CMenu($arParams["ROOT_MENU_TYPE"]);
 	$menu->Init($curDir, $arParams["USE_EXT"], $componentPath."/stub.php");
 
-	$menu->RecalcMenu($arParams["ALLOW_MULTI_SELECT"]);
+	$menu->RecalcMenu($arParams["ALLOW_MULTI_SELECT"], $arParams["CACHE_SELECTED_ITEMS"]);
 
-	$arResult = Array();
+	$arResult = array();
 
 	//Read child menu recursive
 	if ($arParams["MAX_LEVEL"] > 1)
@@ -108,7 +126,8 @@ else
 			$menu->template,
 			$currentLevel = 1,
 			$arParams["MAX_LEVEL"],
-			$arParams["ALLOW_MULTI_SELECT"]
+			$arParams["ALLOW_MULTI_SELECT"],
+			$arParams["CACHE_SELECTED_ITEMS"]
 		);
 
 		if($arParams["SHOW_LAST_LEVEL_BUTTONS"]!="Y")
@@ -159,6 +178,10 @@ $menuDir = $arResult["menuDir"];
 unset($arResult["menuDir"]);
 $menuType = $arResult["menuType"];
 unset($arResult["menuType"]);
+
+//we have no selected items therefore we should find selection now
+if($arParams["CACHE_SELECTED_ITEMS"] == false)
+	_SetSelectedItems($arResult);
 
 //****************
 //Icons
@@ -215,11 +238,11 @@ if($USER->IsAuthorized())
 		);
 	
 		//Icons
-		$arIcons[] = Array(
-			"URL"		=> 'javascript:'.$menu_edit_url,
-			"ICON"		=> "bx-context-toolbar-edit-icon",
-			"TITLE"		=> GetMessage("MAIN_MENU_EDIT"),
-			"DEFAULT"	=> true,
+		$arIcons[] = array(
+			"URL" => 'javascript:'.$menu_edit_url,
+			"ICON" => "bx-context-toolbar-edit-icon",
+			"TITLE" => GetMessage("MAIN_MENU_EDIT"),
+			"DEFAULT" => true,
 		);
 	
 		//panel
@@ -230,15 +253,15 @@ if($USER->IsAuthorized())
 			define($static_var_name, 1);
 	
 			$APPLICATION->AddPanelButton(array(
-				"HREF"		=> ($bDefaultItem ? 'javascript:'.$menu_edit_url : ''),
-				"ID"		=> $buttonID,
-				"ICON"		=> "bx-panel-menu-icon",
-				"ALT"		=> GetMessage('MAIN_MENU_TOP_PANEL_BUTTON_ALT')
+				"HREF" => ($bDefaultItem ? 'javascript:'.$menu_edit_url : ''),
+				"ID" => $buttonID,
+				"ICON" => "bx-panel-menu-icon",
+				"ALT" => GetMessage('MAIN_MENU_TOP_PANEL_BUTTON_ALT')
 					.($bDefaultItem ? ' '.'"'.(isset($arMenuTypes[$menuType]) ? $arMenuTypes[$menuType]:$menuType).'"' : ''),
-				"TEXT"		=> GetMessage("MAIN_MENU_TOP_PANEL_BUTTON_TEXT"),
+				"TEXT" => GetMessage("MAIN_MENU_TOP_PANEL_BUTTON_TEXT"),
 				"MAIN_SORT"	=> "300",
-				"SORT"		=> 10,
-				"RESORT_MENU"=>true,
+				"SORT" => 10,
+				"RESORT_MENU" => true,
 				"HINT" => array(
 					"TITLE" => GetMessage('MAIN_MENU_TOP_PANEL_BUTTON_TEXT'),
 					"TEXT" => GetMessage('MAIN_MENU_TOP_PANEL_BUTTON_HINT'),
@@ -246,18 +269,18 @@ if($USER->IsAuthorized())
 			), $bDefaultItem);
 	
 			$aMenuItem =  array(
-				"TEXT"		=> GetMessage(
+				"TEXT" => GetMessage(
 					'MAIN_MENU_TOP_PANEL_ITEM_TEXT',
 					array('#MENU_TITLE#' => (isset($arMenuTypes[$menuType]) ? $arMenuTypes[$menuType] : $menuType))
 				),
-				"TITLE"		=> GetMessage(
+				"TITLE" => GetMessage(
 					'MAIN_MENU_TOP_PANEL_ITEM_ALT',
 					array('#MENU_TITLE#' => (isset($arMenuTypes[$menuType]) ? $arMenuTypes[$menuType] : $menuType))
 				),
 				"SORT" => "100",
-				"ICON"		=> "menu-edit",
-				"ACTION"	=> $menu_edit_url,
-				"DEFAULT"	=> $bDefaultItem,
+				"ICON" => "menu-edit",
+				"ACTION" => $menu_edit_url,
+				"DEFAULT" => $bDefaultItem,
 			);
 			$APPLICATION->AddPanelButtonMenu($buttonID, $aMenuItem);
 		}
@@ -268,7 +291,8 @@ if($USER->IsAuthorized())
 		$newMenuType = $menuType;
 		if($arParams["SHOW_LAST_LEVEL_BUTTONS"]=="Y" && $arParams["CHILD_MENU_TYPE"]!=$newMenuType)
 			$newMenuType = $arParams["CHILD_MENU_TYPE"];
-	
+
+		/** @noinspection PhpUndefinedVariableInspection */
 		$menu_edit_url = $APPLICATION->GetPopupLink(array(
 			"URL" => "/bitrix/admin/public_menu_edit.php?new=Y&lang=".LANGUAGE_ID.
 				"&site=".SITE_ID."&back_url=".urlencode($_SERVER["REQUEST_URI"]).
@@ -277,7 +301,7 @@ if($USER->IsAuthorized())
 		);
 	
 		//Icons
-		$arIcons[] = Array(
+		$arIcons[] = array(
 			"URL"		=> 'javascript:'.$menu_edit_url,
 			"ICON"		=> "menu-add",
 			"TITLE"		=> GetMessage('MAIN_MENU_ADD_NEW'),
@@ -293,15 +317,15 @@ if($USER->IsAuthorized())
 			define($static_var_name, 1);
 	
 			$APPLICATION->AddPanelButton(array(
-				"HREF"		=> ($bDefaultItem ? 'javascript:'.$menu_edit_url : ''),
-				"ID"		=> $buttonID,
-				"ICON"		=> "icon-menu",
-				"ALT"		=> GetMessage('MAIN_MENU_TOP_PANEL_BUTTON_ALT')
+				"HREF" => ($bDefaultItem ? 'javascript:'.$menu_edit_url : ''),
+				"ID" => $buttonID,
+				"ICON" => "bx-panel-menu-icon",
+				"ALT" => GetMessage('MAIN_MENU_TOP_PANEL_BUTTON_ALT')
 					.($bDefaultItem ? ' '.'&quot;'.(isset($arMenuTypes[$newMenuType]) ? $arMenuTypes[$newMenuType]:$newMenuType).'&quot;' : ''),
-				"TEXT"		=> GetMessage("MAIN_MENU_TOP_PANEL_BUTTON_TEXT"),
-				"MAIN_SORT"	=> "300",
-				"SORT"		=> 10,
-				"RESORT_MENU"=>true,
+				"TEXT" => GetMessage("MAIN_MENU_TOP_PANEL_BUTTON_TEXT"),
+				"MAIN_SORT" => "300",
+				"SORT" => 10,
+				"RESORT_MENU" => true,
 				"HINT" => array(
 					"TITLE" => GetMessage('MAIN_MENU_TOP_PANEL_BUTTON_TEXT'),
 					"TEXT" => GetMessage('MAIN_MENU_TOP_PANEL_BUTTON_HINT'),
@@ -309,19 +333,18 @@ if($USER->IsAuthorized())
 			), false);
 	
 			$aMenuItem =  array(
-				"TEXT"		=> GetMessage(
+				"TEXT" => GetMessage(
 					'MAIN_MENU_ADD_TOP_PANEL_ITEM_TEXT',
 					array('#MENU_TITLE#' => (isset($arMenuTypes[$newMenuType]) ? $arMenuTypes[$newMenuType] : $newMenuType))
 				),
-				"TITLE"		=> GetMessage(
+				"TITLE" => GetMessage(
 					'MAIN_MENU_ADD_TOP_PANEL_ITEM_ALT',
 					array('#MENU_TITLE#' => (isset($arMenuTypes[$newMenuType]) ? $arMenuTypes[$newMenuType] : $newMenuType))
 				),
 				"SORT" => "200",
-				"ICON"		=> "menu-add",
-				"ACTION"	=> $menu_edit_url,
-				"DEFAULT"	=> false,
-	
+				"ICON" => "menu-add",
+				"ACTION" => $menu_edit_url,
+				"DEFAULT" => false,
 			);
 	
 			if (!defined('BX_TOPPANEL_MENU_SEPARATOR_INCLUDED'))
@@ -342,10 +365,10 @@ if($USER->IsAuthorized())
 			"&path=".urlencode($menuDir)."&name=".$menuType."&action=delete&".bitrix_sessid_get()."')}";
 	
 		//Icons
-		$arIcons[] = Array(
-			"URL"		=> "javascript:".$menu_del_url,
-			"ICON"		=> "menu-delete",
-			"TITLE"		=> GetMessage('menu_comp_del_menu'),
+		$arIcons[] = array(
+			"URL" => "javascript:".$menu_del_url,
+			"ICON" => "menu-delete",
+			"TITLE" => GetMessage('menu_comp_del_menu'),
 			"IN_PARAMS_MENU" => true
 		);
 	
@@ -357,12 +380,12 @@ if($USER->IsAuthorized())
 			define($static_var_name, 1);
 	
 			$APPLICATION->AddPanelButton(array(
-				"HREF"		=> '',
-				"ID"		=> $buttonID,
-				"ICON"		=> "bx-panel-menu-icon",
-				"TEXT"		=> GetMessage("MAIN_MENU_TOP_PANEL_BUTTON_TEXT"),
-				"MAIN_SORT"	=> "300",
-				"SORT"		=> 10,
+				"HREF" => '',
+				"ID" => $buttonID,
+				"ICON" => "bx-panel-menu-icon",
+				"TEXT" => GetMessage("MAIN_MENU_TOP_PANEL_BUTTON_TEXT"),
+				"MAIN_SORT" => "300",
+				"SORT" => 10,
 				"RESORT_MENU"=>true,
 				"HINT" => array(
 					"TITLE" => GetMessage('MAIN_MENU_TOP_PANEL_BUTTON_TEXT'),
@@ -371,11 +394,11 @@ if($USER->IsAuthorized())
 			));
 	
 			$aMenuItem =  array(
-				"TEXT"		=> GetMessage(
+				"TEXT" => GetMessage(
 					'MAIN_MENU_DEL_TOP_PANEL_ITEM_TEXT',
 					array('#MENU_TITLE#' => (isset($arMenuTypes[$menuType]) ? $arMenuTypes[$menuType] : $menuType))
 				),
-				"TITLE"		=> GetMessage(
+				"TITLE" => GetMessage(
 					'MAIN_MENU_DEL_TOP_PANEL_ITEM_ALT',
 					array('#MENU_TITLE#' => (isset($arMenuTypes[$menuType]) ? $arMenuTypes[$menuType] : $menuType))
 				),
@@ -403,32 +426,12 @@ if($USER->IsAuthorized())
 
 if ($arParams["DELAY"] == "Y")
 {
-	if (!function_exists('__GetMenuString'))
-	{
-		function __GetMenuString($type = "left", $obMenuComponent)
-		{
-			$sReturn = "";
-
-			if ($GLOBALS["APPLICATION"]->buffer_manual)
-			{
-				$arMenuCustom = $GLOBALS["BX_MENU_CUSTOM"]->GetItems($type);
-				if (is_array($arMenuCustom))
-					$obMenuComponent->arResult = array_merge($obMenuComponent->arResult, $arMenuCustom);
-
-				ob_start();
-				$obMenuComponent->IncludeComponentTemplate();
-				$sReturn = ob_get_contents();
-				ob_end_clean();
-			}
-			return $sReturn;
-		}
-	}
-
-	$GLOBALS["APPLICATION"]->AddBufferContent("__GetMenuString", $arParams["ROOT_MENU_TYPE"], $this);
+	$APPLICATION->AddBufferContent("__GetMenuString", $arParams["ROOT_MENU_TYPE"], $this);
 
 	if ($this->InitComponentTemplate())
-		$GLOBALS["APPLICATION"]->SetAdditionalCSS($this->__template->__folder."/style.css");
+		$APPLICATION->SetAdditionalCSS($this->__template->__folder."/style.css");
 }
 else
+{
 	$this->IncludeComponentTemplate();
-?>
+}

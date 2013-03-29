@@ -1,4 +1,4 @@
-<? 
+<?
 /*
 ##############################################
 # Bitrix: SiteManager                        #
@@ -41,7 +41,7 @@ $message = null;
 $ID = intval($ID);
 $WEB_FORM_ID = intval($WEB_FORM_ID);
 $arForm = CForm::GetByID_admin($WEB_FORM_ID);
-if (false === $arForm) 
+if (false === $arForm)
 {
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	echo "<a href='form_list.php?lang=".LANGUAGE_ID."' >".GetMessage("FORM_FORM_LIST")."</a>";
@@ -50,7 +50,7 @@ if (false === $arForm)
 	die();
 }
 
-$txt = "(".htmlspecialchars($arForm['SID']).")&nbsp;".htmlspecialchars($arForm['NAME']);
+$txt = "(".htmlspecialcharsbx($arForm['SID']).")&nbsp;".htmlspecialcharsbx($arForm['NAME']);
 $link = "form_edit.php?lang=".LANGUAGE_ID."&ID=".$WEB_FORM_ID;
 $adminChain->AddItem(array("TEXT"=>$txt, "LINK"=>$link));
 
@@ -58,7 +58,7 @@ $F_RIGHT = CForm::GetPermission($WEB_FORM_ID);
 if($F_RIGHT<25) $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 // copying
-if (intval($copy_id)>0 && check_bitrix_sessid() && $F_RIGHT >= 30) 
+if (intval($copy_id)>0 && check_bitrix_sessid() && $F_RIGHT >= 30)
 {
 	$new_id = CFormStatus::Copy($copy_id);
 	if (strlen($strError)<=0 && intval($new_id)>0)
@@ -94,7 +94,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $F_RIGHT
 		$ID = $res;
 		if (strlen($strError)<=0)
 		{
-			if (strlen($save)>0) LocalRedirect("form_status_list.php?WEB_FORM_ID=".$WEB_FORM_ID."&lang=".LANGUAGE_ID); 
+			if (strlen($save)>0) LocalRedirect("form_status_list.php?WEB_FORM_ID=".$WEB_FORM_ID."&lang=".LANGUAGE_ID);
 			else LocalRedirect("form_status_edit.php?ID=".$ID."&WEB_FORM_ID=".$WEB_FORM_ID."&lang=".LANGUAGE_ID."&".$tabControl->ActiveTabParam());
 		}
 	}
@@ -106,17 +106,17 @@ if ($ID > 0)
 
 if ($ID <= 0 || !$rsStatus || !$rsStatus->ExtractFields())
 {
-	$ID=0; 
+	$ID=0;
 	$str_ACTIVE = "Y";
 	$str_C_SORT = CFormStatus::GetNextSort($WEB_FORM_ID);
 	$str_CSS = "statusgreen";
 	$str_DEFAULT_VALUE = (intval($arForm["STATUSES"])<=0) ? "Y" : "N";
 }
-else 
+else
 {
 	CFormStatus::GetPermissionList($ID, $arPERMISSION_VIEW, $arPERMISSION_MOVE, $arPERMISSION_EDIT, $arPERMISSION_DELETE);
-	
-	if (strlen($strError)<=0) 
+
+	if (strlen($strError)<=0)
 	{
 		//$arSITE = CForm::GetSiteArray($ID);
 		$arMAIL_TEMPLATE = CFormStatus::GetMailTemplateArray($ID);
@@ -136,7 +136,7 @@ $context = new CAdminContextMenu($arForm['ADMIN_MENU']);
 $context->Show();
 
 echo BeginNote('width="100%"');?>
-<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialchars($arForm["SID"])?>)&nbsp;<?=htmlspecialchars($arForm["NAME"])?>
+<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialcharsbx($arForm["SID"])?>)&nbsp;<?=htmlspecialcharsbx($arForm["NAME"])?>
 <?echo EndNote();
 
 $aMenu = array();
@@ -164,12 +164,12 @@ if ($F_RIGHT>=30 && $ID>0)
 		"LINK"	=> "javascript:if(confirm('".GetMessage("FORM_CONFIRM_DELETE")."'))window.location='form_status_list.php?action=delete&ID=".$ID."&WEB_FORM_ID=".$WEB_FORM_ID."&".bitrix_sessid_get()."&lang=".LANGUAGE_ID."';",
 		"WARNING"=>"Y"
 		);
-	
+
 	$context = new CAdminContextMenu($aMenu);
 	$context->Show();
 }
 
-if($strError) 
+if($strError)
 {
 	$aMsg=array();
 	$arrErr = explode("<br>",$strError);
@@ -212,8 +212,8 @@ $tabControl->BeginNextTab();
 		<td width="40%"><?=GetMessage("FORM_ACTIVE")?></td>
 		<td width="60%"><?=InputType("checkbox","ACTIVE","Y",$str_ACTIVE,false)?></td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span>&nbsp;<?=GetMessage("FORM_TITLE")?></td>
+	<tr class="adm-detail-required-field">
+		<td><?=GetMessage("FORM_TITLE")?></td>
 		<td><input type="text" name="TITLE" size="50" maxlength="255" value="<?=$str_TITLE?>"></td>
 	</tr>
 	<tr>
@@ -259,7 +259,7 @@ var bInProcess = false;
 function GenerateMailTemplate()
 {
 	if (bInProcess) return;
-	
+
 	var url = '/bitrix/admin/form_status_mail.php?lang=<?=LANGUAGE_ID?>&<?=bitrix_sessid_get()?>&WEB_FORM_ID=<?=$WEB_FORM_ID;?>&STATUS_ID=<?=intval($ID)?>';
 	CHttpRequest.Action = function() {CloseWaitWindow(); bInProcess = false;}
 	ShowWaitWindow();
@@ -271,7 +271,7 @@ function _processData(arReturn)
 {
 	//alert(arReturn.NOTE);
 	//alert(arReturn.TEMPLATES);
-	
+
 	var obTable = document.getElementById('form_templates_table');
 	var obContainer = document.getElementById('form_templates');
 
@@ -285,19 +285,19 @@ function _processData(arReturn)
 			obTable.setAttribute('cellspacing', '0');
 			obTable.setAttribute('cellpadding', '0');
 			obTable.appendChild(document.createElement('TBODY'));
-		
+
 			obContainer.insertBefore(obTable, obContainer.firstChild);
 		}
-		
+
 		for (var i=0; i<arReturn.TEMPLATES.length; i++)
 		{
 			var obRow = obTable.tBodies[0].insertRow(-1);
 			obRow.id = 'ft_' + arReturn.TEMPLATES[i].ID;
-			
+
 			var obCell = obRow.insertCell(-1);
 			obCell.setAttribute('nowrap', 'nowrap');
 			obCell.style.padding = '0px';
-			
+
 			var obCheckbox = BX.create('INPUT', {
 				props: {
 					type: 'checkbox',
@@ -309,16 +309,16 @@ function _processData(arReturn)
 
 			obCell.appendChild(obCheckbox);
 			obCell.innerHTML += '[<a class="tablebodylink" href="/bitrix/admin/message_edit.php?ID=' + arReturn.TEMPLATES[i].ID + '&lang=<?=LANGUAGE_ID?>">' + arReturn.TEMPLATES[i].ID + '</a>]&nbsp;';
-			
+
 			var obLabel = document.createElement('LABEL');
 			obLabel.setAttribute('for', arReturn.TEMPLATES[i].ID);
 			obLabel.appendChild(document.createTextNode('(' + arReturn.TEMPLATES[i].FIELDS.LID + ') ' + arReturn.TEMPLATES[i].FIELDS.SUBJECT.substring(0, 50) + ' ...'));
 			obCell.appendChild(obLabel);
-			
+
 			var obCell = obRow.insertCell(-1);
 			obCell.setAttribute('nowrap', 'nowrap');
 			obCell.style.padding = '0px';
-			
+
 			obCell.innerHTML = '&nbsp;[&nbsp;<a href="javascript:void(0)" onclick="DeleteMailTemplate(\'' + arReturn.TEMPLATES[i].ID + '\')"><?=CUtil::JSEscape(GetMessage("FORM_DELETE_MAIL_TEMPLATE"))?></a>&nbsp;]';
 		}
 
@@ -351,10 +351,10 @@ function DeleteMailTemplate(template_id)
 			CloseWaitWindow();
 			bInProcess = false;
 		}
-	
+
 		//var url = 'message_admin.php?action=delete&ID=' + template_id + '&lang=<?echo LANGUAGE_ID?>&<?=bitrix_sessid_get()?>';
 		var url = '/bitrix/admin/form_status_mail.php?action=delete&ID=' + template_id + '&lang=<?echo LANGUAGE_ID?>&<?=bitrix_sessid_get()?>&WEB_FORM_ID=<?=intval($ID)?>';
-		
+
 		CHttpRequest.Action = __process;
 		ShowWaitWindow();
 		bInProcess = true;
@@ -370,7 +370,7 @@ function DeleteMailTemplate(template_id)
 			<?
 			$arr = CFormStatus::GetTemplateList($ID);
 			//echo '<pre>'; print_r($arr); echo '</pre>';
-			if (is_array($arr) && count($arr)>0): 
+			if (is_array($arr) && count($arr)>0):
 				$arrMAIL = array();
 				reset($arr);
 				if (is_array($arr["reference_id"]))
@@ -475,7 +475,4 @@ $tabControl->Buttons(array("disabled"=>($F_RIGHT<30), "back_url"=>"form_list.php
 $tabControl->End();
 ?>
 </form>
-<?echo BeginNote();?>
-<span class="required">*</span> - <?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote();?>
 <? require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php"); ?>

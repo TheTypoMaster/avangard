@@ -20,7 +20,7 @@ _Create: function ()
 	if(this.OnCreate && this.OnCreate()==false)
 		return false;
 
-	var pElement, i, j, obj = this;
+	var obj = this;
 
 	if (this.id && this.iconkit)
 	{
@@ -313,6 +313,8 @@ _Create: function ()
 	if (BX.browser.IsIE() && !BX.browser.IsDoctype())
 		this.pWnd.style.height = "20px";
 
+	this.pWnd.appendChild(BX.create("IMG", {props: {src: one_gif_src, className: 'bx-list-over'}}));
+
 	var
 		pTable = this.pWnd.appendChild(BX.create("TABLE")),
 		r = pTable.insertRow(-1);
@@ -494,7 +496,7 @@ _Close: function ()
 OnKey: function (e)
 {
 	if(!e)
-		e = window.event
+		e = window.event;
 	if(e.keyCode == 27 && this.bOpened)
 		this.Close();
 },
@@ -521,6 +523,8 @@ SetValues: function (values)
 		item.onmouseout = function (e){BX.removeClass(this, "bx-list-item-over");};
 		item.onclick = function ()
 		{
+			if (oPrevRange)
+				BXSelectRange(oPrevRange, _this.pMainObj.pEditorDocument, _this.pMainObj.pEditorWindow);
 			_this.Close();
 			_this._OnChange(this.value);
 			_this.FireChangeEvent();
@@ -674,19 +678,21 @@ BXStyleList.prototype.FillList = function()
 	//"clear style" item
 	this.CreateListRow('', BX_MESS.DeleteStyleOpt, {value: '', name: BX_MESS.DeleteStyleOptTitle});
 
-	var style_title, counter = 0, arStyleTitle;
+	var
+		style_title, counter = 0,
+		arStyleTitle = this.pMainObj.arTemplateParams["STYLES_TITLE"];
+
 	// other styles
 	for(i = 0, l = this.filter.length; i < l;  i++)
 	{
 		arStyles = this.pMainObj.oStyles.GetStyles(this.filter[i]);
 		for(j = 0; j < arStyles.length; j++)
 		{
-			if(arStyles[j].className.length <= 0)
+			if(arStyles[j].className == '')
 				continue;
-			arStyleTitle = this.pMainObj.arTemplateParams["STYLES_TITLE"];
 
 			if(this.pMainObj.arTemplateParams && arStyleTitle && arStyleTitle[arStyles[j].className])
-				style_title = arStyleTitle[arStyles[j].className];
+				style_title = arStyleTitle[arStyles[j].className] ;
 			else if(!this.pMainObj.arConfig["bUseOnlyDefinedStyles"])
 			 	style_title = arStyles[j].className;
 			else
@@ -949,11 +955,8 @@ function BXEdColorPicker()
 BXEdColorPicker.prototype = {
 	_Create: function ()
 	{
-		this.pWnd = BX.create("TABLE", {props: {className: 'bx-ed-colorpicker'}});
-		var
-			_this = this,
-			row = this.pWnd.insertRow(-1),
-			cell = row.insertCell(-1);
+		this.pWnd = BX.create("DIV", {props: {className: 'bx-ed-colorpicker'}});
+		var _this = this;
 
 		if(this.OnSelectionChange)
 			this.pMainObj.AddEventHandler("OnSelectionChange", this.OnSelectionChange, this);
@@ -963,17 +966,15 @@ BXEdColorPicker.prototype = {
 
 		if(this.with_input)
 		{
-			this.pInput = cell.appendChild(BX.create("INPUT", {props: {size: 7}}));
+			this.pInput = this.pWnd.appendChild(BX.create("INPUT", {props: {size: 7}}));
 			if (_this.OnChange)
 				this.pInput.onchange = function(){_this.OnChange(this.value);};
-
-			cell = row.insertCell(-1);
 		}
 
 		if (!this.id)
 			this.id = 'BackColor';
 
-		this.pIcon = cell.appendChild(BX.create("IMG", {props: {id: 'bx_btn_' + this.id, title: this.title, src: one_gif_src, className: "bxedtbutton"}, style:  {border: '1px solid '+borderColorNormal, backgroundImage: "url(" + image_path + "/_global_iconkit.gif)"}}));
+		this.pIcon = this.pWnd.appendChild(BX.create("IMG", {props: {id: 'bx_btn_' + this.id, title: this.title, src: one_gif_src, className: "bxedtbutton"}, style:  {border: '1px solid '+borderColorNormal, backgroundImage: "url(" + image_path + "/_global_iconkit.gif)"}}));
 
 		this.pIcon.onclick = function(e){_this.OnClick(e, this)};
 		this.pIcon.onmouseover = function (e){if(!_this.disabled){BX.addClass(this, "bxedtbuttonover");}};
@@ -1127,21 +1128,6 @@ BXEdColorPicker.prototype = {
 			BX.addClass(this.pIcon, 'bxedtbutton-disabled');
 		else
 			BX.removeClass(this.pIcon, 'bxedtbutton-disabled');
-
-		// if(bFlag)
-		// {
-			// BX.addClass(this.pIcon, 'bxedtbutton-disabled');
-			//this.pIcon.className = 'bxedtbuttondisabled';
-			//this.pWnd.style.filter = 'gray() alpha(opacity=30)';
-		// }
-		// else
-		// {
-			// BX.removeClass(this.pIcon, 'bxedtbutton-disabled');
-			//this.pIcon.className = 'bxedtbutton';
-			//this.pIcon.style.backgroundColor ="";
-			//this.pIcon.style.borderColor = borderColorNormal;
-			//this.pWnd.style.filter = '';
-		//}
 	},
 
 	SetValue: function(val)
@@ -1173,7 +1159,6 @@ _Create: function ()
 {
 	this.pWnd = BX.create("TABLE", {props: {className: 'bx-ed-alignpicker'}});
 	var
-		pElement, i, j,
 		_this = this,
 		row = this.pWnd.insertRow(-1),
 		cell = row.insertCell(-1);
@@ -1503,7 +1488,6 @@ BXDialog.prototype = {
 		pObj = window.pObj = this;
 
 		oPrevRange = BXGetSelectionRange(this.pMainObj.pEditorDocument, this.pMainObj.pEditorWindow);
-
 		var ShowResult = function(result, bFastMode)
 		{
 			BX.closeWait();
@@ -1537,11 +1521,13 @@ BXDialog.prototype = {
 				}
 			}
 
-			window.oBXEditorDialog = new BX.CDialog(arDConfig);
+			window.oBXEditorDialog = new BX.CEditorDialog(arDConfig);
+			window.oBXEditorDialog.editorParams = _this.params;
 
 			BX.addCustomEvent(window.oBXEditorDialog, 'onWindowUnRegister', function()
 			{
-				window.oBXEditorDialog.DIV.parentNode.removeChild(window.oBXEditorDialog.DIV);
+				if (window.oBXEditorDialog && window.oBXEditorDialog.DIV && window.oBXEditorDialog.DIV.parentNode)
+					window.oBXEditorDialog.DIV.parentNode.removeChild(window.oBXEditorDialog.DIV);
 			});
 
 			if (bFastMode)
@@ -1560,7 +1546,7 @@ BXDialog.prototype = {
 			return ShowResult(potRes, true);
 
 		var
-			addUrl = (this.params.PHPGetParams ? this.params.PHPGetParams : '') + '&mode=public' + (window.bxsessid ? '&sessid=' + bxsessid : '') + (this.not_use_default ? '&not_use_default=Y' : ''),
+			addUrl = (this.params.PHPGetParams ? this.params.PHPGetParams : '') + '&mode=public' + '&sessid=' + BX.bitrix_sessid() + (this.not_use_default ? '&not_use_default=Y' : ''),
 			handler = this.handler ? '/bitrix/admin/' + this.handler : editor_dialog_path,
 			url = handler + '?lang=' + BXLang + '&bxpublic=Y&site=' + BXSite + '&name=' + this.name + addUrl;
 
@@ -1578,6 +1564,9 @@ BXDialog.prototype = {
 		}
 		else
 		{
+			// hack to loading auth
+			url += '&bxsender=core_window_cadmindialog';
+
 			BX.ajax.post(url, {}, ShowResult);
 		}
 	},
@@ -1593,4 +1582,4 @@ BXDialog.prototype = {
 BXHTMLEditor.prototype.OpenEditorDialog = function(dialogName, obj, width, arParams, notUseDefaultButtons)
 {
 	this.CreateCustomElement("BXDialog", {width: parseInt(width) || 500, name: dialogName, params: arParams || {}, not_use_default: notUseDefaultButtons});
-}
+}  

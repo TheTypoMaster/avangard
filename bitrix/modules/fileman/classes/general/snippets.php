@@ -189,8 +189,8 @@ class CSnippets
 		$template = CFileMan::SecurePathVar($Params['template']);
 		$site = $Params['site'];
 		$code = $Params['code'];
-		$thumb = CFileMan::SecurePathVar($Params['thumb']);
 		$contPath = $_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$template."/snippets";
+		$thumb = $Params['thumb'] === false ? false : CFileMan::SecurePathVar($Params['thumb']);
 
 		if (!file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$template))
 		{
@@ -211,7 +211,6 @@ class CSnippets
 			}
 			$name = $name.'.snp';
 		}
-
 		$key = $path.($path != '' ? '/' : '').$name;
 
 		// 1. Save new snippet with new content
@@ -237,17 +236,18 @@ class CSnippets
 			{
 				if (CSnippets::CheckFile(array('site' => $Params["site"], 'template' => $Params['template'], 'path' => $k)))
 					$contentSrc .= '$SNIPPETS[\''.CUtil::addslashes($k).'\'] = Array("title"=>\''.Cutil::addslashes($_arSn['title']).'\', "description"=>\''.Cutil::addslashes($_arSn['description']).'\');'.chr(10);
-					//$contentSrc .= '$SNIPPETS[\''.CUtil::JSEscape($k).'\'] = Array("title"=>\''.Cutil::JSEscape($_arSn['title']).'\', "description"=>\''.Cutil::JSEscape($_arSn['description']).'\');'.chr(10);
 			}
 			$contentSrc .= '?>';
 
 			$APPLICATION->SaveFileContent($contPath."/.content.php", $contentSrc);
 		}
 
+		CSnippets::ClearCache();
+		
 		// 3. Handle thumbnail
-		if ($thumb)
+		if ($thumb !== false)
 		{
-			if (substr($thumb,0,1)=='/')
+			if (substr($thumb,0,1) == '/')
 				$thumb = substr($thumb,1);
 
 			$pos = strrpos($name,".");
@@ -266,7 +266,7 @@ class CSnippets
 					CFileman::DeleteFile(Array($site, $p_));
 			}
 
-			if ($thumb == '' || strrpos($thumb, '.') === FALSE)
+			if (empty($thumb) || strrpos($thumb, '.') === FALSE)
 				return true;
 
 			// Copy Thumbnail
@@ -281,15 +281,10 @@ class CSnippets
 				if (in_array($f_ext, $arExt))
 				{
 					$path_to = $img_path1.'.'.$f_ext;
-					echo '$path_to = '.$path_to."\n\n";
 					$strWarning_tmp = CFileMan::CopyEx(Array($site, $path_from), Array($site, $path_to));
-
-					echo '$strWarning_tmp = '.$strWarning_tmp."\n\n";
 				}
 			}
 		}
-		
-		CSnippets::ClearCache();
 	}
 
 	function Delete($Params)

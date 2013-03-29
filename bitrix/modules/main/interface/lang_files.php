@@ -76,7 +76,7 @@ foreach($NEW_LANGS as $i=>$vvv):
 				{
 					$bFound = true;
 					$k = "#$k";
-					$stf .= ' <a href="/bitrix/admin/translate_edit.php?lang='.LANGUAGE_ID.'&file='.$NEW_LANGS[$i].$k.'">'.htmlspecialchars($v)."</a><br>";
+					$stf .= ' <a href="/bitrix/admin/translate_edit.php?lang='.LANGUAGE_ID.'&file='.$NEW_LANGS[$i].$k.'">'.htmlspecialcharsbx($v)."</a><br>";
 				}
 			}
 			$MESS = $MESS_t;
@@ -125,8 +125,8 @@ if(defined('NO_LANG_FILES') || (defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == t
 	foreach($v as $vname=>$vvalue):
 		if($vname=="srchlngfilb" || $vname=="srchlngfil") continue;
 	?>
-	<input type="hidden" name="<?echo htmlspecialchars($vname)?>" value="<?echo htmlspecialchars($vvalue)?>">
+	<input type="hidden" name="<?echo htmlspecialcharsbx($vname)?>" value="<?echo htmlspecialcharsbx($vvalue)?>">
 	<?endforeach?>
-	<input type="text" size="30" class="typeinput" name="srchlngfil"  value="<?=htmlspecialchars($_REQUEST["srchlngfil"])?>">
+	<input type="text" size="30" class="typeinput" name="srchlngfil"  value="<?=htmlspecialcharsbx($_REQUEST["srchlngfil"])?>">
 	<input type="submit" class="button" name="srchlngfilb" value="OK">
 </form>

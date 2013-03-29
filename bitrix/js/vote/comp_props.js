@@ -26,3 +26,4 @@ function ComponentPropsVoteIPDelay(arParams)
 	if (oSelected = BX.findChild(oSelect, {property:{value: arValue[1]}}))
 		oSelected.setAttribute("selected", "selected");
 }
+  

@@ -9,41 +9,18 @@ endif;
 // *****************************************************************************************
 if(!function_exists("GetUserName"))
 {
-	function GetUserName($USER_ID)
+	function GetUserName($USER_ID, $sNameTemplate = "")
 	{
-		$ar_res = false;
-		if (IntVal($USER_ID)>0)
-		{
-			$db_res = CUser::GetByID(IntVal($USER_ID));
-			$ar_res = $db_res->Fetch();
-		}
-
-		if (!$ar_res)
+		$sNameTemplate = str_replace(array("#NOBR#","#/NOBR#"), "", (!empty($sNameTemplate) ? $sNameTemplate : CSite::GetDefaultNameFormat()));
+		if (intval($USER_ID) <= 0)
 		{
 			$db_res = CUser::GetByLogin($USER_ID);
 			$ar_res = $db_res->Fetch();
+			$USER_ID = $ar_res["ID"];
 		}
-
-		$USER_ID = IntVal($ar_res["ID"]);
-		$f_LOGIN = htmlspecialcharsex($ar_res["LOGIN"]);
-
-		$forum_user = CForumUser::GetByUSER_ID($USER_ID);
-		if (($forum_user["SHOW_NAME"]=="Y") && (strlen(trim($ar_res["NAME"]))>0 || strlen(trim($ar_res["LAST_NAME"]))>0))
-		{
-			return trim(htmlspecialcharsex($ar_res["NAME"])." ". htmlspecialcharsex($ar_res["LAST_NAME"]));
-		}
-		else
-			return $f_LOGIN;
+		return CForumUser::GetFormattedNameByUserID($USER_ID, $sNameTemplate);
 	}
 }
-
-	InitSorting();
-	global $by, $order;
-	if (empty($by))
-	{
-		$by = "post_date";
-		$order = "desc";
-	}
 /********************************************************************
 				Input params
 ********************************************************************/
@@ -54,6 +31,14 @@ if(!function_exists("GetUserName"))
 		$arParams["FID"] = 3;
 	$arParams["MID"] = intVal(intVal($arParams["MID"]) > 0 ? $arParams["MID"] : $_REQUEST["MID"]);
 	$arParams["UID"] = intVal($USER->GetID());
+/***************** Sorting *****************************************/
+	InitSorting($GLOBALS["APPLICATION"]->GetCurPage()."?PAGE_NAME=pm_list&FID=".$arParams["FID"]);
+	global $by, $order;
+	if (empty($by))
+	{
+		$by = "post_date";
+		$order = "desc";
+	}
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 		"pm_list" => "PAGE_NAME=pm_list&FID=#FID#",
@@ -73,19 +58,19 @@ if(!function_exists("GetUserName"))
 				array("by" => $by, "order" => $order), false, false);
 		}
 		
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 	$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
+	$arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "",
+		(!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : CSite::GetDefaultNameFormat()));
 /***************** STANDART ****************************************/
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 /********************************************************************
 				/Input params
 ********************************************************************/
-
-ForumSetLastVisit();
 
 /********************************************************************
 				Default values
@@ -94,7 +79,8 @@ ForumSetLastVisit();
 	
 	$arResult["ERROR_MESSAGE"] = "";
 	$arResult["OK_MESSAGE"] = "";
-	$arResult["CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_READ"], 
+	$arResult["CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate(
+		$arParams["URL_TEMPLATES_PM_READ"],
 		array("FID" => $arParams["FID"], "MID" => $arParams["MID"]));
 	$arResult["MESSAGE"] = array();
 	$arResult["MESSAGE_PREV"] = array();
@@ -106,27 +92,38 @@ ForumSetLastVisit();
 if ($arParams["MID"] <= 0)
 {
 	LocalRedirect(ForumAddPageParams(
-		CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"], array("FID" => $arParams["FID"])),
-			array("result" => "no_mid")));
+		CComponentEngine::MakePathFromTemplate(
+			$arParams["URL_TEMPLATES_PM_LIST"],
+			array("FID" => $arParams["FID"])),
+		array("result" => "no_mid")));
 }
-$db_res = CForumPrivateMessage::GetListEx(array(), array("ID" => $arParams["MID"]));
+$db_res = CForumPrivateMessage::GetListEx(
+	array(),
+	array("ID" => $arParams["MID"]),
+	false,
+	0,
+	array("sNameTemplate" => $arParams["NAME_TEMPLATE"]));
 if(!($db_res && ($res = $db_res->GetNext())))
 {
-	LocalRedirect(ForumAddPageParams(
-		CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"], array("FID" => $arParams["FID"])),
-		array("result" => "no_mid")));
+	LocalRedirect(
+		ForumAddPageParams(
+			CComponentEngine::MakePathFromTemplate(
+				$arParams["URL_TEMPLATES_PM_LIST"],
+				array("FID" => $arParams["FID"])),
+			array("result" => "no_mid")));
 }
 elseif (!CForumPrivateMessage::CheckPermissions($arParams["MID"])) 
 {
-	LocalRedirect(ForumAddPageParams(
-		CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_LIST"], array("FID" => $arParams["FID"])),
-		array("result" => "no_perm")));
+	LocalRedirect(
+		ForumAddPageParams(
+			CComponentEngine::MakePathFromTemplate(
+				$arParams["URL_TEMPLATES_PM_LIST"],
+				array("FID" => $arParams["FID"])),
+			array("result" => "no_perm")));
 	die();
 }
-if ($arParams["FID"] != 2)
-	$arParams["FID"] = intVal($res["FOLDER_ID"]);
+$arParams["FID"] = ($arParams["FID"] != 2 ? intVal($res["FOLDER_ID"]) : $arParams["FID"]);
 $arResult["MESSAGE"] = $res;
-
 /********************************************************************
 				Action
 ********************************************************************/
@@ -134,7 +131,7 @@ if($res["IS_READ"] != "Y" && $arParams["FID"] != 2)
 {
 	CForumPrivateMessage::MakeRead($arParams["MID"]);
 	BXClearCache(true, "/bitrix/forum/user/".$USER->GetId()."/");
-	$arComponentPath = array("bitrix:forum", "bitrix:forum.menu");
+	$arComponentPath = array("bitrix:forum");
 	foreach ($arComponentPath as $path)
 	{
 		$componentRelativePath = CComponentEngine::MakeComponentPath($path);
@@ -168,7 +165,12 @@ if (!empty($_REQUEST["action"]))
 			"FOLDER_ID"=>$arParams["FID"]);
 		if ($arParams["FID"] == 2) //If this is outbox folder
 			$arFilter = array("OWNER_ID" => $arParams["UID"]);
-		$db_res = CForumPrivateMessage::GetListEx(array($by=>$order), $arFilter);
+		$db_res = CForumPrivateMessage::GetListEx(
+			array($by=>$order),
+			$arFilter,
+			false,
+			0,
+			array("sNameTemplate" => $arParams["NAME_TEMPLATE"]));
 		if($db_res && ($res = $db_res->Fetch()))
 		{
 			$bFound = false;
@@ -191,12 +193,22 @@ if (!empty($_REQUEST["action"]))
 	elseif (!(is_array($message) && !empty($message))):
 		$arError[] = array("id" => "bad_data", "text" => GetMessage("PM_ERR_NO_DATA"));
 	elseif ($action == "edit"):
-		$arResult["pm_edit"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_EDIT"], 
-			array("FID"=>$arParams["FID"], "mode" => "edit", "MID" => $arParams["MID"], "UID" => $arResult["MESSAGE"]["RECIPIENT_ID"]));
+		$arResult["pm_edit"] = CComponentEngine::MakePathFromTemplate(
+			$arParams["URL_TEMPLATES_PM_EDIT"],
+			array(
+				"FID" => $arParams["FID"],
+				"mode" => "edit",
+				"MID" => $arParams["MID"],
+				"UID" => $arResult["MESSAGE"]["RECIPIENT_ID"]));
 		LocalRedirect($arResult["pm_edit"]);
 	elseif ($action == "reply"):
-		$arResult["pm_reply"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_EDIT"], 
-			array("FID"=>$arParams["FID"], "mode" => "reply", "MID" => $arParams["MID"], "UID" => $arResult["MESSAGE"]["AUTHOR_ID"]));
+		$arResult["pm_reply"] = CComponentEngine::MakePathFromTemplate(
+			$arParams["URL_TEMPLATES_PM_EDIT"],
+			array(
+				"FID" => $arParams["FID"],
+				"mode" => "reply",
+				"MID" => $arParams["MID"],
+				"UID" => $arResult["MESSAGE"]["AUTHOR_ID"]));
 		LocalRedirect($arResult["pm_reply"]);
 	elseif ($action == "delete"):
 		foreach ($message as $MID) 
@@ -257,7 +269,7 @@ if (!empty($_REQUEST["action"]))
 		if($newMID = CForumPrivateMessage::Send($arFields))
 		{
 			BXClearCache(true, "/bitrix/forum/user/".$arResult["MESSAGE"]["AUTHOR_ID"]."/");
-			$arComponentPath = array("bitris:forum", "bitrix:forum.menu");
+			$arComponentPath = array("bitris:forum");
 			foreach ($arComponentPath as $path)
 			{
 				$componentRelativePath = CComponentEngine::MakeComponentPath($path);
@@ -350,7 +362,8 @@ $arResult["MESSAGE"]["POST_MESSAGE"] = $parser->convert(
 		"SMILES" => $arResult["MESSAGE"]["USE_SMILES"],
 		"UPLOAD" => "N",
 		"NL2BR" => "N",
-		"TABLE" => "Y"
+		"TABLE" => "Y",
+		"ALIGN" => "Y"
 	));
 $arResult["MESSAGE"]["RECIPIENT_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], 
 	array("UID" => $arResult["MESSAGE"]["RECIPIENT_ID"]));
@@ -364,7 +377,13 @@ $arFilter = array(
 	"FOLDER_ID"=>$arParams["FID"]);
 if ($arParams["FID"] == 2) //If this is outbox folder
 	$arFilter = array("OWNER_ID" => $arParams["UID"]);
-$db_res = CForumPrivateMessage::GetListEx(array($by=>$order), $arFilter);
+$db_res = CForumPrivateMessage::GetListEx(
+	array($by => $order),
+	$arFilter,
+	false,
+	0,
+	array("sNameTemplate" => $arParams["NAME_TEMPLATE"])
+);
 $prev = array();
 $next = array();
 $bFound = false;
@@ -387,15 +406,15 @@ if($db_res && ($res = $db_res->Fetch()))
 
 if (!empty($next))
 {
-	$arResult["MESSAGE_NEXT"] = $next;
-	$arResult["MESSAGE_NEXT"]["MESSAGE_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_READ"], 
-		array("FID" => $arParams["FID"], "MID" => $next["ID"]));
+	$arResult["MESSAGE_NEXT"] = $next + array("MESSAGE_LINK" => CComponentEngine::MakePathFromTemplate(
+		$arParams["URL_TEMPLATES_PM_READ"],
+		array("FID" => $arParams["FID"], "MID" => $next["ID"])));
 }
 if (!empty($prev))
 {
-	$arResult["MESSAGE_PREV"] = $prev;
-	$arResult["MESSAGE_PREV"]["MESSAGE_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_READ"], 
-		array("FID" => $arParams["FID"], "MID" => $prev["ID"]));
+	$arResult["MESSAGE_PREV"] = $prev + array("MESSAGE_LINK" => CComponentEngine::MakePathFromTemplate(
+		$arParams["URL_TEMPLATES_PM_READ"],
+		array("FID" => $arParams["FID"], "MID" => $prev["ID"])));
 }
 
 $arResult["pm_edit"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_EDIT"], 

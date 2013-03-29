@@ -25,7 +25,7 @@ IncludeModuleLangFile(__FILE__);
 
 $strError = '';
 
-if (false === $arForm) 
+if (false === $arForm)
 {
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	echo "<a href='form_list.php?lang=".LANGUAGE_ID."' class='navchain'>".GetMessage("FORM_FORM_LIST")."</a>";
@@ -34,7 +34,7 @@ if (false === $arForm)
 	die();
 }
 
-$txt = "(".htmlspecialchars($arForm['SID']).")&nbsp;".htmlspecialchars($arForm['NAME']);
+$txt = "(".htmlspecialcharsbx($arForm['SID']).")&nbsp;".htmlspecialcharsbx($arForm['NAME']);
 $link = "form_edit.php?lang=".LANGUAGE_ID."&ID=".$WEB_FORM_ID;
 $adminChain->AddItem(array("TEXT"=>$txt, "LINK"=>$link));
 
@@ -122,7 +122,7 @@ if ($lAdmin->EditAction() && $FORM_RIGHT>="W" && $F_RIGHT>=30 && check_bitrix_se
 		$arFieldsStore = Array(
 			"TIMESTAMP_X"	=> $DB->GetNowFunction(),
 		);
-		
+
 		$arFlds = array('C_SORT', 'ACTIVE', 'REQUIRED', 'IN_RESULTS_TABLE', 'IN_EXCEL_TABLE');
 		foreach ($arFlds as $key)
 		{
@@ -183,7 +183,7 @@ if(($arID = $lAdmin->GroupAction()) && $FORM_RIGHT=="W" && $F_RIGHT>=30 && check
 			break;
 		}
 	}
-	
+
 	if (!$_REQUEST["mode"])
 		LocalRedirect("form_field_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID."&additional=".$additional);
 
@@ -210,7 +210,7 @@ if ($additional != 'Y')
 
 if (!$bSimple)
 	$headers[]=array("id"=>"SID", "content"=>GetMessage("FORM_SID"), "sort"=>"s_sid", "default"=>true);
-	
+
 
 if ($additional=="Y")
 {
@@ -255,11 +255,11 @@ while($arRes = $rsData->NavNext(true, "f_"))
 		$row->AddCheckField("REQUIRED");
 	else
 		$row->AddViewField('REQUIRED', '');
-	
+
 	$row->AddCheckField("IN_RESULTS_TABLE");
 	$row->AddCheckField("IN_EXCEL_TABLE");
 	$row->AddInputField("C_SORT");
-	$row->AddViewField("SID","<a href=\"form_field_edit.php?lang=".LANGUAGE_ID."&ID=".$f_ID."&WEB_FORM_ID=".$WEB_FORM_ID."&additional=".$additional."\" title=\"".$msg."\">".htmlspecialchars($f_SID)."</a>");
+	$row->AddViewField("SID","<a href=\"form_field_edit.php?lang=".LANGUAGE_ID."&ID=".$f_ID."&WEB_FORM_ID=".$WEB_FORM_ID."&additional=".$additional."\" title=\"".$msg."\">".htmlspecialcharsbx($f_SID)."</a>");
 
 	$arActions = Array();
 
@@ -279,7 +279,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 			"ACTION"=>$lAdmin->ActionRedirect("form_field_edit.php?lang=".LANGUAGE_ID."&ID=$f_ID&WEB_FORM_ID=$WEB_FORM_ID&additional=$additional"),
 			"TEXT"=>GetMessage("FORM_FIELD_EDIT")
 		);
-		
+
 	if ($F_RIGHT>=30)
 	{
 		$arActions[] = array(
@@ -291,7 +291,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 		$arActions[] = array(
 			"ICON"=>"delete",
 			"TITLE"=>GetMessage("FORM_DELETE_FIELD"),
-			"ACTION"=>$lAdmin->ActionRedirect("javascript:if(confirm('".GetMessage("FORM_CONFIRM_DELETE")."')) window.location='?lang=".LANGUAGE_ID."&action=delete&ID=$f_ID&WEB_FORM_ID=$WEB_FORM_ID&additional=$additional&".bitrix_sessid_get()."'"),
+			"ACTION"=>"if(confirm('".GetMessage("FORM_CONFIRM_DELETE")."')) ".$lAdmin->ActionDoGroup($f_ID, "delete", "&WEB_FORM_ID=".$WEB_FORM_ID."&additional=$additional"),
 			"TEXT"=>GetMessage("FORM_DELETE_FIELD")
 		);
 	}
@@ -348,7 +348,7 @@ $context = new CAdminContextMenu($arForm['ADMIN_MENU']);
 $context->Show();
 
 echo BeginNote('width="100%"');?>
-<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialchars($arForm["SID"])?>)&nbsp;<?=htmlspecialchars($arForm["NAME"])?>
+<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialcharsbx($arForm["SID"])?>)&nbsp;<?=htmlspecialcharsbx($arForm["NAME"])?>
 <?echo EndNote();
 
 if ($strError)
@@ -395,33 +395,33 @@ $oFilter->Begin();
 
 <tr>
 	<td><b><?echo ($additional=="Y") ? GetMessage("FORM_ADDITIONAL_TITLE") : GetMessage("FORM_TITLE")?>:</b></td>
-	<td><input type="text" name="find_title" size="47" value="<?echo htmlspecialchars($find_title)?>"><?=InputType("checkbox", "find_title_exact_match", "Y", $find_title_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_title" size="47" value="<?echo htmlspecialcharsbx($find_title)?>"><?=InputType("checkbox", "find_title_exact_match", "Y", $find_title_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("FORM_F_ID")?></td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>"><?=InputType("checkbox", "find_id_exact_match", "Y", $find_id_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"><?=InputType("checkbox", "find_id_exact_match", "Y", $find_id_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td nowrap><?echo GetMessage("FORM_F_ACTIVE")?></td>
 	<td nowrap><?
 		$arr = array("reference"=>array(GetMessage("FORM_YES"), GetMessage("FORM_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_active", $arr, htmlspecialchars($find_active), GetMessage("FORM_ALL"));
+		echo SelectBoxFromArray("find_active", $arr, htmlspecialcharsbx($find_active), GetMessage("FORM_ALL"));
 		?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("FORM_F_SID")?></td>
-	<td><input type="text" name="find_sid" size="47" value="<?echo htmlspecialchars($find_sid)?>"><?=InputType("checkbox", "find_sid_exact_match", "Y", $find_sid_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_sid" size="47" value="<?echo htmlspecialcharsbx($find_sid)?>"><?=InputType("checkbox", "find_sid_exact_match", "Y", $find_sid_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("FORM_F_COMMENTS")?></td>
-	<td><input type="text" name="find_comments" size="47" value="<?echo htmlspecialchars($find_comments)?>"><?=InputType("checkbox", "find_comments_exact_match", "Y", $find_comments_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_comments" size="47" value="<?echo htmlspecialcharsbx($find_comments)?>"><?=InputType("checkbox", "find_comments_exact_match", "Y", $find_comments_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <?if ($additional!="Y"):?>
 <tr>
 	<td nowrap><?echo GetMessage("FORM_F_REQUIRED")?></td>
 	<td nowrap><?
 		$arr = array("reference"=>array(GetMessage("FORM_YES"), GetMessage("FORM_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_required", $arr, htmlspecialchars($find_required), GetMessage("FORM_ALL"));
+		echo SelectBoxFromArray("find_required", $arr, htmlspecialcharsbx($find_required), GetMessage("FORM_ALL"));
 		?></td>
 </tr>
 <?endif;?>
@@ -429,21 +429,21 @@ $oFilter->Begin();
 	<td nowrap><?echo GetMessage("FORM_F_IN_TABLE")?></td>
 	<td nowrap><?
 		$arr = array("reference"=>array(GetMessage("FORM_YES"), GetMessage("FORM_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_in_table", $arr, htmlspecialchars($find_in_table), GetMessage("FORM_ALL"));
+		echo SelectBoxFromArray("find_in_table", $arr, htmlspecialcharsbx($find_in_table), GetMessage("FORM_ALL"));
 		?></td>
 </tr>
 <tr>
 	<td nowrap><?echo GetMessage("FORM_F_IN_EXCEL")?></td>
 	<td nowrap><?
 		$arr = array("reference"=>array(GetMessage("FORM_YES"), GetMessage("FORM_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_in_excel", $arr, htmlspecialchars($find_in_excel), GetMessage("FORM_ALL"));
+		echo SelectBoxFromArray("find_in_excel", $arr, htmlspecialcharsbx($find_in_excel), GetMessage("FORM_ALL"));
 		?></td>
 </tr>
 <tr>
 	<td nowrap><?echo GetMessage("FORM_F_IN_FILTER")?></td>
 	<td nowrap><?
 		$arr = array("reference"=>array(GetMessage("FORM_YES"), GetMessage("FORM_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_in_filter", $arr, htmlspecialchars($find_in_filter), GetMessage("FORM_ALL"));
+		echo SelectBoxFromArray("find_in_filter", $arr, htmlspecialcharsbx($find_in_filter), GetMessage("FORM_ALL"));
 		?></td>
 </tr>
 <?=ShowLogicRadioBtn()?>

@@ -1,10 +1,13 @@
 <?
 class CPerfomanceTableList extends CDBResult
 {
-	function GetList()
+	function GetList($bFull = true)
 	{
 		global $DB;
-		$rsTables = $DB->Query("show table status");
+		if($bFull)
+			$rsTables = $DB->Query("show table status");
+		else
+			$rsTables = $DB->Query("show tables from `".$DB->ForSQL($DB->DBName)."`");
 		return new CPerfomanceTableList($rsTables);
 	}
 
@@ -14,12 +17,20 @@ class CPerfomanceTableList extends CDBResult
 		$ar = parent::Fetch();
 		if($ar)
 		{
-			$ar = array(
-				"TABLE_NAME" => $ar["Name"],
-				"ENGINE_TYPE" => $ar["Engine"],
-				"NUM_ROWS" => $ar["Rows"],
-				"BYTES" => $ar["Data_length"],
-			);
+			if(isset($ar["Tables_in_".$DB->DBName]))
+				$ar = array(
+					"TABLE_NAME" => $ar["Tables_in_".$DB->DBName],
+					"ENGINE_TYPE" => "",
+					"NUM_ROWS" => "",
+					"BYTES" => "",
+				);
+			else
+				$ar = array(
+					"TABLE_NAME" => $ar["Name"],
+					"ENGINE_TYPE" => $ar["Engine"],
+					"NUM_ROWS" => $ar["Rows"],
+					"BYTES" => $ar["Data_length"],
+				);
 		}
 		return $ar;
 	}
@@ -51,6 +62,32 @@ class CPerfomanceTable extends CAllPerfomanceTable
 			return false;
 	}
 
+	function GetIndexes($TABLE_NAME = false)
+	{
+		static $cache = array();
+
+		if($TABLE_NAME===false)
+			$TABLE_NAME = $this->TABLE_NAME;
+
+		if(!array_key_exists($TABLE_NAME, $cache))
+		{
+			global $DB;
+
+			$strSql = "
+				SHOW INDEXES FROM `".$DB->ForSQL($TABLE_NAME)."`
+			";
+			$rs = $DB->Query($strSql);
+			$arResult = array();
+			while($ar = $rs->Fetch())
+			{
+				$arResult[$ar["Key_name"]][$ar["Seq_in_index"]] = $ar["Column_name"];
+			}
+			$cache[$TABLE_NAME] = $arResult;
+		}
+
+		return $cache[$TABLE_NAME];
+	}
+
 	function GetUniqueIndexes($TABLE_NAME = false)
 	{
 		static $cache = array();
@@ -70,7 +107,7 @@ class CPerfomanceTable extends CAllPerfomanceTable
 			while($ar = $rs->Fetch())
 			{
 				if(!$ar["Non_unique"])
-					$arResult[$ar["Key_name"]][] = $ar["Column_name"];
+					$arResult[$ar["Key_name"]][$ar["Seq_in_index"]] = $ar["Column_name"];
 			}
 			$cache[$TABLE_NAME] = $arResult;
 		}
@@ -78,7 +115,7 @@ class CPerfomanceTable extends CAllPerfomanceTable
 		return $cache[$TABLE_NAME];
 	}
 
-	function GetTableFields($TABLE_NAME = false)
+	function GetTableFields($TABLE_NAME = false, $bExtended = false)
 	{
 		static $cache = array();
 
@@ -94,13 +131,19 @@ class CPerfomanceTable extends CAllPerfomanceTable
 			";
 			$rs = $DB->Query($strSql);
 			$arResult = array();
+			$arResultExt = array();
 			while($ar = $rs->Fetch())
 			{
-				if(preg_match("/^(varchar|char|text)/", $ar["Type"]))
+				if(preg_match("/^(varchar|char)\\((\\d+)\\)/", $ar["Type"], $match))
+				{
+					$ar["DATA_TYPE"] = "string";
+					$ar["DATA_LENGTH"] = $match[2];
+				}
+				elseif(preg_match("/^(varchar|char|text|longtext|mediumtext)/", $ar["Type"]))
 				{
 					$ar["DATA_TYPE"] = "string";
 				}
-				elseif(preg_match("/^datetime/", $ar["Type"]))
+				elseif(preg_match("/^(datetime|timestamp)/", $ar["Type"]))
 				{
 					$ar["DATA_TYPE"] = "datetime";
 				}
@@ -117,10 +160,21 @@ class CPerfomanceTable extends CAllPerfomanceTable
 					$ar["DATA_TYPE"] = "unknown";
 				}
 				$arResult[$ar["Field"]] = $ar["DATA_TYPE"];
+				$arResultExt[$ar["Field"]] = array(
+					"type" => $ar["DATA_TYPE"],
+					"length" => $ar["DATA_LENGTH"],
+					"nullable" => $ar["Null"] !== "NO",
+					"default" => $ar["Default"],
+					//"info" => $ar,
+				);
 			}
-			$cache[$TABLE_NAME] = $arResult;
+			$cache[$TABLE_NAME] = array($arResult, $arResultExt);
 		}
-		return $cache[$TABLE_NAME];
+
+		if($bExtended)
+			return $cache[$TABLE_NAME][1];
+		else
+			return $cache[$TABLE_NAME][0];
 	}
 
 	function NavQuery($arNavParams, $arQuerySelect, $strTableName, $strQueryWhere, $arQueryOrder)
@@ -130,7 +184,7 @@ class CPerfomanceTable extends CAllPerfomanceTable
 		{
 			$strSql = "
 				SELECT
-					count(*) C
+					count(1) C
 				FROM
 					".$strTableName." t
 			";

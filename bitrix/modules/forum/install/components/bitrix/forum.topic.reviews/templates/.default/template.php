@@ -119,15 +119,15 @@ foreach ($arResult["MESSAGES"] as $res):
 				<span class="separator"></span>
 				<a href="#review_anchor" title="<?=GetMessage("F_QUOTE_HINT")?>" class="reviews-button-small" <?
 					?>onMouseDown="quoteMessageEx('<?=$res["FOR_JS"]["AUTHOR_NAME"]?>', 'message_text_<?=$res["ID"]?>')"><?=GetMessage("F_QUOTE_FULL")?></a>
-<?		  	} ?>
+<?			} ?>
 <?			if ($arResult["PANELS"]["MODERATE"] == "Y") { ?>
 				<span class="separator"></span>
 				<a rel="nofollow" href="<?=$res["URL"]["MODERATE"]?>" class="reviews-button-small" <? if ($arParams['AJAX_POST'] == 'Y') { ?>onclick="return replyActionComment(this, 'MODERATE');"<? } ?>><?=GetMessage((($res["APPROVED"] == 'Y') ? "F_HIDE" : "F_SHOW"))?></a>
-<?		  	} ?>
+<?			} ?>
 <?			if ($arResult["PANELS"]["DELETE"] == "Y") { ?>
 				<span class="separator"></span>
 				<a rel="nofollow" href="<?=$res["URL"]["DELETE"]?>" class="reviews-button-small" <? if ($arParams['AJAX_POST'] == 'Y') { ?>onclick="return replyActionComment(this, 'DEL');"<? } ?>><?=GetMessage("F_DELETE")?></a>
-<?		  	} ?>
+<?			} ?>
 <?			if ($arParams["SHOW_RATING"] == "Y") { ?>
 			<span class="rating_vote_text">
 			<span class="separator"></span>
@@ -355,26 +355,7 @@ endif;
 		'bAutoResize' => true
 	);
 
-	$arEditorFeatures = array(
-		"ALLOW_BIU" => array('Bold', 'Italic', 'Underline', 'Strike'),
-		"ALLOW_FONT" => array('ForeColor','FontList', 'FontSizeList'),
-		"ALLOW_QUOTE" => array('Quote'),
-		"ALLOW_CODE" => array('Code'),
-		'ALLOW_ANCHOR' => array('CreateLink', 'DeleteLink'),
-		"ALLOW_IMG" => array('Image'),
-		"ALLOW_VIDEO" => array('ForumVideo'),
-		"ALLOW_TABLE" => array('Table'),
-		"ALLOW_LIST" => array('InsertOrderedList', 'InsertUnorderedList'),
-		"ALLOW_SMILES" => array('SmileList'),
-		"ALLOW_UPLOAD" => array(''),
-		"ALLOW_NL2BR" => array(''),
-	);
-	foreach ($arEditorFeatures as $featureName => $toolbarIcons)
-	{
-		if (isset($arResult['FORUM'][$featureName]) && ($arResult['FORUM'][$featureName] == 'Y'))
-			$arEditorParams['toolbarConfig'] = array_merge($arEditorParams['toolbarConfig'], $toolbarIcons);
-	}
-	$arEditorParams['toolbarConfig'] = array_merge($arEditorParams['toolbarConfig'], array('RemoveFormat', 'Translit', 'Source'));
+	$arEditorParams['toolbarConfig'] = forumTextParser::GetEditorToolbar(array('forum' => $arResult['FORUM']));
 	$LHE->Show($arEditorParams);
 ?>
 	</div>
@@ -471,13 +452,6 @@ if ($arResult["SHOW_SUBSCRIBE"] == "Y"):
 					?><?=($arResult["TOPIC_SUBSCRIBE"] == "Y")? "checked disabled " : "";?> tabindex="<?=$tabIndex++;?>" /><?
 				?>&nbsp;<label for="TOPIC_SUBSCRIBE<?=$arParams["form_index"]?>"><?=GetMessage("F_WANT_SUBSCRIBE_TOPIC")?></label></div>
 <?
-	if ($arResult["FORUM_SUBSCRIBE"] == "Y"):
-?>			<div class="reviews-reply-field-setting">
-				<input type="checkbox" name="FORUM_SUBSCRIBE" id="FORUM_SUBSCRIBE<?=$arParams["form_index"]?>" value="Y" <?
-				?><?=($arResult["FORUM_SUBSCRIBE"] == "Y")? "checked disabled " : "";?> tabindex="<?=$tabIndex++;?>"/><?
-				?>&nbsp;<label for="FORUM_SUBSCRIBE<?=$arParams["form_index"]?>"><?=GetMessage("F_WANT_SUBSCRIBE_FORUM")?></label></div>
-<?
-	endif;
 endif;
 ?>
 		</div>
@@ -579,7 +553,7 @@ function fToggleCommentsForm(link, forceOpen)
 
 function reply2author(name)
 {
-    name = name.replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&quot;/gi, "\"");
+	name = name.replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&quot;/gi, "\"");
 	replyForumFormOpen();
 
 	if (window.oLHE)

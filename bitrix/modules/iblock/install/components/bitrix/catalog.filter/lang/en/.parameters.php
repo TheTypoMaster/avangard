@@ -1,7 +1,7 @@
 <?
 $MESS["IBLOCK_PRICES"] = "Prices";
-$MESS["IBLOCK_TYPE"] = "Info-block type";
-$MESS["IBLOCK_IBLOCK"] = "Info-block";
+$MESS["IBLOCK_TYPE"] = "Infoblock type";
+$MESS["IBLOCK_IBLOCK"] = "Infoblock";
 $MESS["IBLOCK_PROPERTY"] = "Properties";
 $MESS["IBLOCK_PRICE_CODE"] = "Price type";
 $MESS["IBLOCK_FIELD"] = "Fields";

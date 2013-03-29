@@ -2409,7 +2409,7 @@ class CUpdateSystem
 				{
 					if (strtolower($DB->type)=="mysql" && defined("MYSQL_TABLE_TYPE") && strlen(MYSQL_TABLE_TYPE)>0)
 					{
-						$DB->Query("SET table_type = '".MYSQL_TABLE_TYPE."'", True);
+						$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", True);
 					}
 				}
 

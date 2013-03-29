@@ -170,7 +170,7 @@ $oFilter->Begin();
 ?><tr>
 	<td><b><?=GetMessage("F_SEARCH")?>:</b></td>
 	<td nowrap>
-		<input type="text" size="25" name="find" value="<?=htmlspecialchars($find)?>" title="<?=GetMessage("F_SEARCH_TITLE")?>">
+		<input type="text" size="25" name="find" value="<?=htmlspecialcharsbx($find)?>" title="<?=GetMessage("F_SEARCH_TITLE")?>">
 		<select name="find_type">
 			<option value="event_name"<?if($find_type=="event_name") echo " selected"?>><?=GetMessage('F_EVENT_NAME')?></option>
 			<option value="name"<?if($find_type=="subject") echo " selected"?>><?=GetMessage('F_NAME')?></option>
@@ -180,11 +180,11 @@ $oFilter->Begin();
 </tr>
 <tr>
 	<td>ID <?=GetMessage('F_TYPE')?>:</td>
-	<td><input type="text" name="find_type_id" size="47" value="<?=htmlspecialchars($find_type_id)?>"></td>
+	<td><input type="text" name="find_type_id" size="47" value="<?=htmlspecialcharsbx($find_type_id)?>"></td>
 </tr>
 <tr>
 	<td>ID <?=GetMessage('F_TMPL')?>:</td>
-	<td><input type="text" name="find_tmpl_id" size="47" value="<?=htmlspecialchars($tmpl)?>"></td>
+	<td><input type="text" name="find_tmpl_id" size="47" value="<?=htmlspecialcharsbx($tmpl)?>"></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage(), "form"=>"find_form"));

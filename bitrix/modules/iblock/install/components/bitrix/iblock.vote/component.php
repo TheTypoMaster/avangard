@@ -210,12 +210,12 @@ if($this->StartResultCache(false, array($USER->GetGroups(), $bVoted)))
 			$arResult = $obElement->GetFields();
 			$arResult["PROPERTIES"] = $obElement->GetProperties();
 		}
-		$arResult["BACK_PAGE_URL"] = htmlspecialchars($APPLICATION->GetCurPageParam());
+		$arResult["BACK_PAGE_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam());
 		$arResult["VOTE_NAMES"] = array();
 		foreach($arParams["VOTE_NAMES"] as $k=>$v)
 		{
 			if(strlen($v)>0)
-				$arResult["VOTE_NAMES"][]=htmlspecialchars($v);
+				$arResult["VOTE_NAMES"][]=htmlspecialcharsbx($v);
 			if(count($arResult["VOTE_NAMES"])>=$arParams["MAX_VOTE"])
 				break;
 		}
@@ -224,7 +224,7 @@ if($this->StartResultCache(false, array($USER->GetGroups(), $bVoted)))
 				$arResult["VOTE_NAMES"][$i]=$i+1;
 
 		$arResult["VOTED"] = $bVoted;
-		//echo "<pre>",htmlspecialchars(print_r($arResult,true)),"</pre>";
+		//echo "<pre>",htmlspecialcharsbx(print_r($arResult,true)),"</pre>";
 		$this->SetResultCacheKeys(array(
 			"AJAX",
 		));

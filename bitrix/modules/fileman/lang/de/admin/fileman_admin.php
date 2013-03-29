@@ -82,4 +82,12 @@ $MESS["FM_UTIL_SERVER_PERM_TITLE"] = "Berechtigung für Zugriff auf Datei oder Or
 $MESS["FILEMAN_ADM_INCORRECT_PATH"] = "Der angefragte Pfad \"#PATH#\" ist nicht vorhanden.";
 $MESS["FILEMAN_ADM_READONLY"] = "Nur Lesen";
 $MESS["FILEMAN_ADM_FULL_ACCESS"] = "Volle Berechtigung";
+$MESS["FILEMAN_ADMIN_ARC_PACK"] = "Archivieren";
+$MESS["FILEMAN_ADMIN_ARC_UNPACK"] = "Entpacken";
+$MESS["FILEMAN_ADMIN_FLIST_ERROR"] = "Dieses Verzeichnis kann aufgrund unzureichender Zugriffsberechtigungen nicht angezeigt werden.";
+$MESS["FILEMAN_ADMIN_ADD_FOLDER"] = "Ordner hinzufügen";
+$MESS["FILEMAN_ADMIN_ADD_FILE"] = "Datei hinzufügen";
+$MESS["FILEMAN_ADMIN_ADD"] = "Hinzufügen";
+$MESS["FILEMAN_ADMIN_FOLDER_EXTRA_PARAM"] = "Zusätzlich";
+$MESS["FILEMAN_ADMIN_FOLDER_EXTRA_PARAM_TITLE"] = "Zusätzliche Parameter anzeigen";
 ?>

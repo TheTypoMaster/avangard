@@ -16,7 +16,7 @@ window.GetParameters = function(form_name)
 		var form = document.forms[this.form_name];
 	else
 		var form = document.forms[form_name];
-	
+
 	if(!form)
 		return "";
 
@@ -26,7 +26,7 @@ window.GetParameters = function(form_name)
 	for(i=0; i<n; i++)
 	{
 		if (s != '') delim = '&';
-		
+
 		var el = form.elements[i];
 		if (el.disabled)
 			continue;
@@ -76,6 +76,9 @@ window.BXAuthForm = function()
 		return;
 	var editorDialogDiv = document.getElementById("BX_editor_dialog");
 
+	if (!window.BX && top.BX)
+		window.BX = top.BX;
+
 	if (window != top)
 	{
 		top.originalName = top.jsPopup.form_name;
@@ -93,6 +96,9 @@ window.BXAuthForm = function()
 			top.obForm.innerHTML = form.innerHTML;
 		}
 
+		if (!top.jsPopup.div)
+			return BX.reload();
+
 		var offset = top.jsPopup.div.firstChild.offsetHeight;
 
 		top.obDiv.style.position = 'absolute';
@@ -106,7 +112,7 @@ window.BXAuthForm = function()
 
 		top.jsPopup.div.appendChild(top.obDiv);
 		top.obDiv.appendChild(top.obForm);
-		
+
 		top.obForm.name = form.name;
 		top.obForm.action = form.action;
 		top.obForm.method = 'POST';
@@ -114,7 +120,7 @@ window.BXAuthForm = function()
 		top.obForm.target = 'file_edit_form_target';
 		top.obForm.onsubmit = function() {top.ShowWaitWindow(); top.jsPopup.form_name = top.originalName; return true;};
 		top.obForm.USER_LOGIN.focus();
-		
+
 		top.CloseWaitWindow();
 	}
 	else if(editorDialogDiv) // Handle authorization lost in editor dialogs
@@ -122,11 +128,11 @@ window.BXAuthForm = function()
 		editorDialogDiv.style.width = "520px";
 		editorDialogDiv.childNodes[1].style.paddingLeft = "10px";
 		editorDialogDiv.childNodes[1].style.backgroundColor = "#F9FAFD";
-		
+
 		document.getElementById('BX_editor_dialog_title').innerHTML = '<?=GetMessage("AUTH_PLEASE_AUTH")?>';
 		jsFloatDiv.AdjustShadow(editorDialogDiv);
-		
-		form.onsubmit = function() 
+
+		form.onsubmit = function()
 		{
 			var r = new JCHttpRequest();
 			r.Action = function(){jsUtils.onCustomEvent('onEditorLostSession');};

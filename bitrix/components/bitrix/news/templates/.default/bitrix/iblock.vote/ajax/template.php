@@ -130,7 +130,7 @@ if(!window.voteScript) window.voteScript =
 		<?if($DISPLAY_VALUE):?>
 			<?foreach($arResult["VOTE_NAMES"] as $i=>$name):?>
 				<?if(round($DISPLAY_VALUE) > $i):?>
-					<td><div id="vote_<?echo $arResult["ID"]?>_<?echo $i?>" class="star-active star-voted" title="<?echo $name?>" onmouseover="voteScript.trace_vote(this, true);" onmouseout="voteScript.trace_vote(this, false)" onclick="<?echo htmlspecialchars($onclick);
+					<td><div id="vote_<?echo $arResult["ID"]?>_<?echo $i?>" class="star-active star-voted" title="<?echo $name?>" onmouseover="voteScript.trace_vote(this, true);" onmouseout="voteScript.trace_vote(this, false)" onclick="<?echo htmlspecialcharsbx($onclick);
 //11*
 //Вызов функции, которая сформирует, отошлет и обработает запрос
 //Первый параметр - понадобится для определения величины голоса
@@ -138,12 +138,12 @@ if(!window.voteScript) window.voteScript =
 //Третий - содержит ключ к параметрам
 ?>"></div></td>
 				<?else:?>
-					<td><div id="vote_<?echo $arResult["ID"]?>_<?echo $i?>" class="star-active star-empty" title="<?echo $name?>" onmouseover="voteScript.trace_vote(this, true);" onmouseout="voteScript.trace_vote(this, false)" onclick="<?echo htmlspecialchars($onclick)?>"></div></td>
+					<td><div id="vote_<?echo $arResult["ID"]?>_<?echo $i?>" class="star-active star-empty" title="<?echo $name?>" onmouseover="voteScript.trace_vote(this, true);" onmouseout="voteScript.trace_vote(this, false)" onclick="<?echo htmlspecialcharsbx($onclick)?>"></div></td>
 				<?endif?>
 			<?endforeach?>
 		<?else:?>
 			<?foreach($arResult["VOTE_NAMES"] as $i=>$name):?>
-				<td><div id="vote_<?echo $arResult["ID"]?>_<?echo $i?>" class="star-active star-empty" title="<?echo $name?>" onmouseover="voteScript.trace_vote(this, true);" onmouseout="voteScript.trace_vote(this, false)" onclick="<?echo htmlspecialchars($onclick)?>"></div></td>
+				<td><div id="vote_<?echo $arResult["ID"]?>_<?echo $i?>" class="star-active star-empty" title="<?echo $name?>" onmouseover="voteScript.trace_vote(this, true);" onmouseout="voteScript.trace_vote(this, false)" onclick="<?echo htmlspecialcharsbx($onclick)?>"></div></td>
 			<?endforeach?>
 		<?endif?>
 	<?endif?>

@@ -1,4 +1,4 @@
-  <?
+<?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 if(!CModule::IncludeModule("iblock"))
@@ -20,7 +20,7 @@ if(strlen($arParams["ELEMENT_SORT_FIELD"])<=0)
 	$arParams["ELEMENT_SORT_FIELD"]="sort";
 
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER"]))
-	 $arParams["ELEMENT_SORT_ORDER"]="asc";
+	$arParams["ELEMENT_SORT_ORDER"]="asc";
 
 $arParams["DETAIL_URL"]=trim($arParams["DETAIL_URL"]);
 $arParams["BASKET_URL"]=trim($arParams["BASKET_URL"]);
@@ -78,7 +78,7 @@ if(strlen($arParams["ELEMENT_SORT_FIELD_BOX"])<=0)
 	$arParams["ELEMENT_SORT_FIELD_BOX"]="sort";
 
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER_BOX"]))
-	 $arParams["ELEMENT_SORT_ORDER_BOX"]="asc";
+	$arParams["ELEMENT_SORT_ORDER_BOX"]="asc";
 
 $arParams["PRICE_VAT_INCLUDE"] = $arParams["PRICE_VAT_INCLUDE"] !== "N";
 
@@ -101,6 +101,16 @@ else
 	unset($arParams["LINK_FIELD_CODE"]);
 }
 
+$arParams['CONVERT_CURRENCY'] = (isset($arParams['CONVERT_CURRENCY']) && 'Y' == $arParams['CONVERT_CURRENCY'] ? 'Y' : 'N');
+$arParams['CURRENCY_ID'] = trim(strval($arParams['CURRENCY_ID']));
+if ('' == $arParams['CURRENCY_ID'])
+{
+	$arParams['CONVERT_CURRENCY'] = 'N';
+}
+elseif ('N' == $arParams['CONVERT_CURRENCY'])
+{
+	$arParams['CURRENCY_ID'] = '';
+}
 
 $arID = array();
 if(isset($_REQUEST["ID"]))
@@ -130,6 +140,8 @@ if(isset($_REQUEST["op_code"]))
 	if(!is_array($arOP))
 		$arOP = array($arOP);
 }
+
+$arResult = array();
 
 /*************************************************************************
 			Handling the Compare button
@@ -164,6 +176,7 @@ if(isset($_REQUEST["action"]))
 					"ACTIVE_DATE" => "Y",
 					"ACTIVE" => "Y",
 					"CHECK_PERMISSIONS" => "Y",
+					"MIN_PERMISSION" => "R"
 				);
 				if($OFFERS_IBLOCK_ID > 0)
 					$arFilter["IBLOCK_ID"] = array($arParams["IBLOCK_ID"], $OFFERS_IBLOCK_ID);
@@ -196,12 +209,12 @@ if(isset($_REQUEST["action"]))
 				if($arMaster)
 				{
 					$arMaster["NAME"] = $arElement["NAME"];
-					$arMaster["DELETE_URL"] = htmlspecialchars($APPLICATION->GetCurPageParam("action=DELETE_FROM_COMPARE_RESULT&id=".$arMaster["ID"], array("action", "id")));
+					$arMaster["DELETE_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam("action=DELETE_FROM_COMPARE_RESULT&id=".$arMaster["ID"], array("action", "id")));
 					$_SESSION[$arParams["NAME"]][$arParams["IBLOCK_ID"]]["ITEMS"][$_REQUEST["id"]] = $arMaster;
 				}
 				elseif($arElement)
 				{
-					$arElement["DELETE_URL"] = htmlspecialchars($APPLICATION->GetCurPageParam("action=DELETE_FROM_COMPARE_RESULT&id=".$arElement["ID"], array("action", "id")));
+					$arElement["DELETE_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam("action=DELETE_FROM_COMPARE_RESULT&id=".$arElement["ID"], array("action", "id")));
 					$_SESSION[$arParams["NAME"]][$arParams["IBLOCK_ID"]]["ITEMS"][$_REQUEST["id"]] = $arElement;
 				}
 			}
@@ -326,6 +339,32 @@ if(is_array($arCompare) && count($arCompare)>0)
 	//in case catalog module n/a prices get values from element properties
 	$arResult["PRICES"] = CIBlockPriceTools::GetCatalogPrices($arParams["IBLOCK_ID"], $arParams["PRICE_CODE"]);
 
+	$arConvertParams = array();
+	if ('Y' == $arParams['CONVERT_CURRENCY'])
+	{
+		if (!CModule::IncludeModule('currency'))
+		{
+			$arParams['CONVERT_CURRENCY'] = 'N';
+			$arParams['CURRENCY_ID'] = '';
+		}
+		else
+		{
+			$arCurrencyInfo = CCurrency::GetByID($arParams['CURRENCY_ID']);
+			if (!(is_array($arCurrencyInfo) && !empty($arCurrencyInfo)))
+			{
+				$arParams['CONVERT_CURRENCY'] = 'N';
+				$arParams['CURRENCY_ID'] = '';
+			}
+			else
+			{
+				$arParams['CURRENCY_ID'] = $arCurrencyInfo['CURRENCY'];
+				$arConvertParams['CURRENCY_ID'] = $arCurrencyInfo['CURRENCY'];
+			}
+		}
+	}
+
+	$arResult['CONVERT_CURRENCY'] = $arConvertParams;
+
 	$arOffers = CIBlockPriceTools::GetOffersIBlock($arParams["IBLOCK_ID"]);
 	if($arOffers)
 	{
@@ -361,14 +400,27 @@ if(is_array($arCompare) && count($arCompare)>0)
 	else
 		$arFilter["IBLOCK_ID"] = $arParams["IBLOCK_ID"];
 
-	if(!$arParams["USE_PRICE_COUNT"])
+	$arPriceTypeID = array();
+	if (!$arParams["USE_PRICE_COUNT"])
 	{
-		foreach($arResult["PRICES"] as $key => $value)
+		foreach($arResult["PRICES"] as &$value)
 		{
 			$arSelect[] = $value["SELECT"];
 			$arFilter["CATALOG_SHOP_QUANTITY_".$value["ID"]] = $arParams["SHOW_PRICE_COUNT"];
 		}
+		if (isset($value))
+			unset($value);
 	}
+	else
+	{
+		foreach($arResult["PRICES"] as &$value)
+		{
+			$arPriceTypeID[] = $value["ID"];
+		}
+		if (isset($value))
+			unset($value);
+	}
+
 	$arSort = array(
 		$arParams["ELEMENT_SORT_FIELD"] => $arParams["ELEMENT_SORT_ORDER"],
 		"ID" => "DESC",
@@ -507,9 +559,9 @@ if(is_array($arCompare) && count($arCompare)>0)
 			{
 				if(CModule::IncludeModule("catalog"))
 				{
-					$arItem["PRICE_MATRIX"] = CatalogGetPriceTableEx($arOffer["ID"]);
+					$arItem["PRICE_MATRIX"] = CatalogGetPriceTableEx($arOffer["ID"], 0, $arPriceTypeID, 'Y', $arConvertParams);
 					foreach($arItem["PRICE_MATRIX"]["COLS"] as $keyColumn=>$arColumn)
-						$arItem["PRICE_MATRIX"]["COLS"][$keyColumn]["NAME_LANG"] = htmlspecialchars($arColumn["NAME_LANG"]);
+						$arItem["PRICE_MATRIX"]["COLS"][$keyColumn]["NAME_LANG"] = htmlspecialcharsbx($arColumn["NAME_LANG"]);
 				}
 				else
 				{
@@ -520,7 +572,7 @@ if(is_array($arCompare) && count($arCompare)>0)
 			else
 			{
 				$arItem["PRICE_MATRIX"] = false;
-				$arItem["PRICES"] = CIBlockPriceTools::GetItemPrices($arOffer["IBLOCK_ID"], $arResult["PRICES"], $arOffer, $arParams["PRICE_VAT_INCLUDE"]);
+				$arItem["PRICES"] = CIBlockPriceTools::GetItemPrices($arOffer["IBLOCK_ID"], $arResult["PRICES"], $arOffer, $arParams["PRICE_VAT_INCLUDE"], $arConvertParams);
 			}
 			$arItem["CAN_BUY"] = CIBlockPriceTools::CanBuy($arParams["IBLOCK_ID"], $arResult["PRICES"], $arOffer);
 		}
@@ -530,9 +582,9 @@ if(is_array($arCompare) && count($arCompare)>0)
 			{
 				if(CModule::IncludeModule("catalog"))
 				{
-					$arItem["PRICE_MATRIX"] = CatalogGetPriceTableEx($arItem["ID"]);
+					$arItem["PRICE_MATRIX"] = CatalogGetPriceTableEx($arItem["ID"], 0, $arPriceTypeID, 'Y', $arConvertParams);
 					foreach($arItem["PRICE_MATRIX"]["COLS"] as $keyColumn=>$arColumn)
-						$arItem["PRICE_MATRIX"]["COLS"][$keyColumn]["NAME_LANG"] = htmlspecialchars($arColumn["NAME_LANG"]);
+						$arItem["PRICE_MATRIX"]["COLS"][$keyColumn]["NAME_LANG"] = htmlspecialcharsbx($arColumn["NAME_LANG"]);
 				}
 				else
 				{
@@ -543,7 +595,7 @@ if(is_array($arCompare) && count($arCompare)>0)
 			else
 			{
 				$arItem["PRICE_MATRIX"] = false;
-				$arItem["PRICES"] = CIBlockPriceTools::GetItemPrices($arItem["IBLOCK_ID"], $arResult["PRICES"], $arItem, $arParams["PRICE_VAT_INCLUDE"]);
+				$arItem["PRICES"] = CIBlockPriceTools::GetItemPrices($arItem["IBLOCK_ID"], $arResult["PRICES"], $arItem, $arParams["PRICE_VAT_INCLUDE"], $arConvertParams);
 			}
 			$arItem["CAN_BUY"] = CIBlockPriceTools::CanBuy($arParams["IBLOCK_ID"], $arResult["PRICES"], $arItem);
 		}
@@ -551,8 +603,8 @@ if(is_array($arCompare) && count($arCompare)>0)
 		if($arOffer)
 			$arItem["ID"] = $arOffer["ID"];
 
-		$arItem["BUY_URL"] = htmlspecialchars($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=COMPARE_BUY&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arItem["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
-		$arItem["ADD_URL"] = htmlspecialchars($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=COMPARE_ADD2BASKET&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arItem["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
+		$arItem["BUY_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=COMPARE_BUY&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arItem["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
+		$arItem["ADD_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=COMPARE_ADD2BASKET&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arItem["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
 
 
 		$arResult["ITEMS"][] = $arItem;
@@ -596,7 +648,6 @@ if(is_array($arCompare) && count($arCompare)>0)
 			$arResult["ITEMS_TO_ADD"][$arElement["ID"]]=$arElement["NAME"];
 		}
 	}
-	//echo "<pre>",htmlspecialchars(print_r($arResult,true)),"</pre>";
 	$this->IncludeComponentTemplate();
 }
 else

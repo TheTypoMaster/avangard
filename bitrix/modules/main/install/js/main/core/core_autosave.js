@@ -19,7 +19,7 @@ BX.CAutoSave = function(params)
 	this.DISABLE_STANDARD_NOTIFY = params.DISABLE_STANDARD_NOTIFY;
 	this.NOTIFY_CONTEXT = null;
 
-	BX.ready(BX.delegate(this.Prepare, this));
+	BX.ready(BX.defer(this.Prepare, this));
 	BX.garbage(BX.delegate(this.Clear, this));
 }
 
@@ -98,11 +98,11 @@ BX.CAutoSave.prototype._PrepareAfter = function()
 	{
 		var id = this.FORM.name || Math.random();
 		BX.addCustomEvent('onExtAutoSaveRestoreClick_' + id, BX.proxy(this.Restore, this));
-	
+
 		var o = this._NotifyContext();
 		if (o)
 		{
-			o.Notify(BX.message('AUTOSAVE') + ' <a href="javascript:void(0)" onclick="BX.CAutoSave.Restore(\'' + BX.util.urlencode(id) + '\'); return false;">' + BX.message('AUTOSAVE_R') + '</a>');
+			o.Notify(BX.message('AUTOSAVE') + ' <a href="javascript:void(0)" onclick="BX.CAutoSave.Restore(\'' + BX.util.urlencode(id) + '\', this); return false;">' + BX.message('AUTOSAVE_R') + '</a>');
 		}
 
 		// may be useful sometimes
@@ -187,7 +187,7 @@ BX.CAutoSave.prototype.Save = function()
 					default:
 						v = el.value;
 				}
-				
+
 				if (n.indexOf('[]') > 0)
 				{
 					n = _encodeName(n);
@@ -204,7 +204,7 @@ BX.CAutoSave.prototype.Save = function()
 		// we can adjust form_data before autosaving
 		BX.onCustomEvent(this.FORM, 'onAutoSave', [this, data.form_data]);
 		BX.ajax.post(
-			'/bitrix/tools/autosave.php?sessid=' + BX.bitrix_sessid(), data, BX.proxy(this._Save, this)
+			'/bitrix/tools/autosave.php?bxsender=core_autosave&sessid=' + BX.bitrix_sessid(), data, BX.proxy(this._Save, this)
 		);
 	}
 	else
@@ -218,7 +218,7 @@ BX.CAutoSave.prototype._Save = function(data)
 	BX.onCustomEvent(this.FORM, 'onAutoSaveFinished', [this, data]);
 }
 
-BX.CAutoSave.prototype.Restore = function(data)
+BX.CAutoSave.prototype.Restore = function(data, clicker)
 {
 	if (data)
 	{
@@ -307,8 +307,8 @@ BX.CAutoSave.prototype.Restore = function(data)
 		}
 
 		var o = this._NotifyContext();
-		if (o) 
-			o.hideNotify();
+		if (o)
+			o.hideNotify(clicker.parentNode.parentNode);
 
 		this.bRestoreInProgress = false;
 
@@ -326,7 +326,9 @@ BX.CAutoSave.prototype._NotifyContext = function()
 			o = this.NOTIFY_CONTEXT;
 		else if (BX.WindowManager && BX.WindowManager.Get())
 			o = BX.WindowManager.Get();
-		else if (BX.admin.panel)
+		else if (BX.adminPanel)
+			o = BX.adminPanel;
+		else if (BX.admin && BX.admin.panel)
 			o = BX.admin.panel;
 
 		this.NOTIFY_CONTEXT = o;
@@ -365,9 +367,9 @@ BX.CAutoSave.prototype.Clear = function()
 	this.TIMERS = null;
 }
 
-BX.CAutoSave.Restore = function(id)
+BX.CAutoSave.Restore = function(id, el)
 {
-	BX.onCustomEvent('onExtAutoSaveRestoreClick_' + id);
+	BX.onCustomEvent('onExtAutoSaveRestoreClick_' + id, [null, el]);
 }
 
 function _encodeName(n)

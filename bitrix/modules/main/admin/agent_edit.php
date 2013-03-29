@@ -113,49 +113,49 @@ $editTab->BeginNextTab();
 ?>
 	<input type="hidden" name="ID" value=<?echo $ID?>>
 	<?if($ID > 0):?>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("MAIN_AGENT_LAST_EXEC")?></td>
 		<td><?echo $a_LAST_EXEC?></td>
 	</tr>
 	<?endif;?>
 
-	<tr valign="top">
-		<td><span class="required">*</span><?echo GetMessage("MAIN_AGENT_START_EXEC")." (".CLang::GetDateFormat("FULL")."):"?></td>
-		<td><?echo CalendarDate("NEXT_EXEC", htmlspecialchars($a_NEXT_EXEC), "f_agent", 20)?></td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?echo GetMessage("MAIN_AGENT_START_EXEC")?>:</td>
+		<td width="60%"><?echo CalendarDate("NEXT_EXEC", htmlspecialcharsbx($a_NEXT_EXEC), "f_agent", 20)?></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage('MAIN_AGENT_ACTIVE')?></td>
 		<td>
 			<input type="hidden" name="ACTIVE" value="N">
 			<input type="checkbox" name="ACTIVE" value="Y"<?if($a_ACTIVE=="Y") echo " checked"?>>
 		</td>
 	</tr>
-	<tr valign="top">
-		<td width="40%"><?echo GetMessage("MAIN_AGENT_MODULE_ID")?></td>
-		<td width="60%"><input type="text" name="MODULE_ID" size="40" value="<? echo $a_MODULE_ID?>"></td>
+	<tr>
+		<td><?echo GetMessage("MAIN_AGENT_MODULE_ID")?></td>
+		<td><input type="text" name="MODULE_ID" size="40" value="<? echo $a_MODULE_ID?>"></td>
 	</tr>
-	<tr valign="top">
-		<td width="40%"><span class="required">*</span><?echo GetMessage("MAIN_AGENT_NAME")?></td>
-		<td width="60%"><input type="text" name="NAME" size="40" value="<? echo $a_NAME?>"></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("MAIN_AGENT_NAME")?></td>
+		<td><input type="text" name="NAME" size="40" value="<? echo $a_NAME?>"></td>
 	</tr>
-	<tr valign="top">
-		<td width="40%"><?echo GetMessage("MAIN_AGENT_USER_ID")?></td>
-		<td width="60%"><?echo FindUserID("USER_ID", $a_USER_ID, "", "f_agent", 4)?>
+	<tr>
+		<td><?echo GetMessage("MAIN_AGENT_USER_ID")?></td>
+		<td><?echo FindUserID("USER_ID", $a_USER_ID, "", "f_agent", 4)?>
 	</tr>
-	<tr valign="top">
-		<td width="40%"><?echo GetMessage("MAIN_AGENT_SORT")?></td>
-		<td width="60%"><input type="text" name="SORT" size="40" value="<? echo $a_SORT?>"></td>
+	<tr>
+		<td><?echo GetMessage("MAIN_AGENT_SORT")?></td>
+		<td><input type="text" name="SORT" size="40" value="<? echo $a_SORT?>"></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("MAIN_AGENT_PERIOD")?></td>
 		<td>
 			<input type="hidden" name="IS_PERIOD" value="N">
 			<input type="checkbox" name="IS_PERIOD" value="Y"<?if($a_IS_PERIOD=="Y") echo " checked"?>>
 		</td>
 	</tr>
-	<tr valign="top">
-		<td width="40%"><?echo GetMessage("MAIN_AGENT_INTERVAL")?></td>
-		<td width="60%"><input type="text" name="AGENT_INTERVAL" size="40" value="<? echo $a_AGENT_INTERVAL?>"></td>
+	<tr>
+		<td><?echo GetMessage("MAIN_AGENT_INTERVAL")?></td>
+		<td><input type="text" name="AGENT_INTERVAL" size="40" value="<? echo $a_AGENT_INTERVAL?>"></td>
 	</tr>
 
 <?
@@ -167,11 +167,5 @@ $editTab->End();
 $editTab->ShowWarnings("f_agent", $message);
 ?>
 
-<?echo BeginNote();?>
-<span class="required">*</span> <?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote();?>
-
 <?
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
-?>
-

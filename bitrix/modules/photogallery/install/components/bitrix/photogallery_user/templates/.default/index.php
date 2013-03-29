@@ -17,7 +17,7 @@
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "sessid", "edit", "order"));
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 //***************** ADDITTIONAL ************************************/
 	$arParams["SHOW_TAGS"] = ($arParams["SHOW_TAGS"] == "Y" ? "Y" : "N");
@@ -257,7 +257,7 @@ if (!$bEmptyBest)
 			"PAGE_ELEMENTS" => $arParams["INDEX_PAGE_TOP_ELEMENTS_COUNT"],
 			"PAGE_NAVIGATION_TEMPLATE" => $arParams["PAGE_NAVIGATION_TEMPLATE"],
 
-	 		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
+			"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
 
 			"ADDITIONAL_SIGHTS" => $arParams["~ADDITIONAL_SIGHTS"],
 			"PICTURES_SIGHT"	=>	"",
@@ -489,7 +489,7 @@ elseif (!$GLOBALS["USER"]->IsAuthorized() && $arParams['SHOW_CONTROLS_BUTTONS'] 
 	<div class="photo-controls photo-controls-buttons photo-controls-authorize">
 		<ul class="photo-controls">
 			<li class="photo-control photo-control-first photo-control-last photo-control-authorize">
-				<a rel="nofollow" href="<?=htmlspecialchars($APPLICATION->GetCurPageParam("auth=yes&backurl=".$arResult["backurl_encode"],
+				<a rel="nofollow" href="<?=htmlspecialcharsbx($APPLICATION->GetCurPageParam("auth=yes&backurl=".$arResult["backurl_encode"],
 			array("login", "logout", "register", "forgot_password", "change_password", BX_AJAX_PARAM_ID)))?>"><span><?=GetMessage("P_LOGIN")?></span></a>
 			</li>
 		</ul>

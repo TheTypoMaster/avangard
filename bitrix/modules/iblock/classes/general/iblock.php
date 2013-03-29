@@ -191,6 +191,13 @@ class CAllIBlock
 		if($IBLOCK_ID <= 0)
 			return $arButtons;
 
+		$bCatalog = false;
+		if(isset($arOptions["CATALOG"]) && $arOptions["CATALOG"] == true)
+		{
+			if(CModule::IncludeModule('catalog'))
+				$bCatalog = true;
+		}
+
 		$return_url = array(
 			"add_element" => "",
 			"edit_element" => "",
@@ -244,7 +251,13 @@ class CAllIBlock
 
 		if($ELEMENT_ID > 0 && CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ELEMENT_ID, "element_edit"))
 		{
-			$url = "/bitrix/admin/iblock_element_edit.php?type=".$arIBlock["IBLOCK_TYPE_ID"].$s."&lang=".LANGUAGE_ID."&IBLOCK_ID=".$IBLOCK_ID."&ID=".$ELEMENT_ID."&filter_section=".$SECTION_ID."&bxpublic=Y&from_module=iblock&return_url=".UrlEncode($return_url["edit_element"]);
+			$url = "/bitrix/admin/".CIBlock::GetAdminElementEditLink($IBLOCK_ID, $ELEMENT_ID, array(
+				"force_catalog" => $bCatalog,
+				"filter_section" => $SECTION_ID,
+				"bxpublic" => "Y",
+				"from_module" => "iblock",
+				"return_url" => $return_url["edit_element"],
+			));
 
 			$action = $APPLICATION->GetPopupLink(
 				array(
@@ -289,7 +302,14 @@ class CAllIBlock
 
 		if(CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, $SECTION_ID, "section_element_bind"))
 		{
-			$url = "/bitrix/admin/iblock_element_edit.php?type=".$arIBlock["IBLOCK_TYPE_ID"]."&lang=".LANGUAGE_ID."&IBLOCK_ID=".$IBLOCK_ID."&filter_section=".$SECTION_ID."&IBLOCK_SECTION_ID=".$SECTION_ID."&bxpublic=Y&from_module=iblock&return_url=".UrlEncode($return_url["add_element"]);
+			$url = "/bitrix/admin/".CIBlock::GetAdminElementEditLink($IBLOCK_ID, null, array(
+				"force_catalog" => $bCatalog,
+				"filter_section" => $SECTION_ID,
+				"IBLOCK_SECTION_ID" => $SECTION_ID,
+				"bxpublic" => "Y",
+				"from_module" => "iblock",
+				"return_url" => $return_url["add_element"],
+			));
 
 			$action = $APPLICATION->GetPopupLink(
 				array(
@@ -344,9 +364,9 @@ class CAllIBlock
 			$arButton = array(
 				"TEXT" => (strlen($arLabels["ELEMENT_DELETE_TEXT"])? $arLabels["ELEMENT_DELETE_TEXT"]: $arIBlock["ELEMENT_DELETE"]),
 				"TITLE" => (strlen($arLabels["ELEMENT_DELETE_TITLE"])? $arLabels["ELEMENT_DELETE_TITLE"]: $arIBlock["ELEMENT_DELETE"]),
-				"ACTION"=>"javascript:if(confirm('".GetMessage("IBLOCK_PANEL_ELEMENT_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
+				"ACTION"=>"javascript:if(confirm('".GetMessageJS("IBLOCK_PANEL_ELEMENT_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 				"ACTION_URL" => $url,
-				"ONCLICK"=>"if(confirm('".GetMessage("IBLOCK_PANEL_ELEMENT_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
+				"ONCLICK"=>"if(confirm('".GetMessageJS("IBLOCK_PANEL_ELEMENT_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 				"ICON" => "bx-context-toolbar-delete-icon",
 				"ID" => "bx-context-toolbar-delete-element"
 			);
@@ -369,7 +389,13 @@ class CAllIBlock
 					if(!empty($arButtons["submenu"]))
 						$arButtons["submenu"][] = array("SEPARATOR" => "Y", "HREF" => "");
 
-					$url = "/bitrix/admin/iblock_section_edit.php?ID=". $SECTION_ID."&type=".$arIBlock["IBLOCK_TYPE_ID"]."&lang=".LANGUAGE_ID. "&IBLOCK_ID=". $IBLOCK_ID."&filter_section=".$SECTION_ID."&bxpublic=Y&from_module=iblock&return_url=".UrlEncode($return_url["edit_section"]);
+					$url = "/bitrix/admin/".CIBlock::GetAdminSectionEditLink($IBLOCK_ID, $SECTION_ID, array(
+						"force_catalog" => $bCatalog,
+						"filter_section" => $SECTION_ID,
+						"bxpublic" => "Y",
+						"from_module" => "iblock",
+						"return_url" => $return_url["edit_section"],
+					));
 
 					$action = $APPLICATION->GetPopupLink(
 						array(
@@ -401,7 +427,14 @@ class CAllIBlock
 
 				if(CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, $SECTION_ID, "section_section_bind"))
 				{
-					$url = "/bitrix/admin/iblock_section_edit.php?type=".$arIBlock["IBLOCK_TYPE_ID"]."&lang=".LANGUAGE_ID."&IBLOCK_ID=".$IBLOCK_ID."&IBLOCK_SECTION_ID=".$SECTION_ID."&filter_section=".$SECTION_ID."&bxpublic=Y&from_module=iblock&return_url=".UrlEncode($return_url["add_section"]);
+					$url = "/bitrix/admin/".CIBlock::GetAdminSectionEditLink($IBLOCK_ID, null, array(
+						"force_catalog" => $bCatalog,
+						"IBLOCK_SECTION_ID" => $SECTION_ID,
+						"filter_section" => $SECTION_ID,
+						"bxpublic" => "Y",
+						"from_module" => "iblock",
+						"return_url" => $return_url["add_section"],
+					));
 
 					$action = $APPLICATION->GetPopupLink(
 						array(
@@ -443,9 +476,9 @@ class CAllIBlock
 					$arButton = array(
 						"TEXT" => (strlen($arLabels["SECTION_DELETE_TEXT"])? $arLabels["SECTION_DELETE_TEXT"]: $arIBlock["SECTION_DELETE"]),
 						"TITLE" => (strlen($arLabels["SECTION_DELETE_TITLE"])? $arLabels["SECTION_DELETE_TITLE"]: $arIBlock["SECTION_DELETE"]),
-						"ACTION" => "javascript:if(confirm('".GetMessage("IBLOCK_PANEL_SECTION_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
+						"ACTION" => "javascript:if(confirm('".GetMessageJS("IBLOCK_PANEL_SECTION_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 						"ACTION_URL" => $url,
-						"ONCLICK" => "if(confirm('".GetMessage("IBLOCK_PANEL_SECTION_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
+						"ONCLICK" => "if(confirm('".GetMessageJS("IBLOCK_PANEL_SECTION_DEL_CONF")."'))jsUtils.Redirect([], '".CUtil::JSEscape($url)."')",
 						"ICON" => "bx-context-toolbar-delete-icon",
 						"ID" => "bx-context-toolbar-delete-section"
 					);
@@ -683,6 +716,9 @@ class CAllIBlock
 			unset($arFields["EXTERNAL_ID"]);
 		}
 
+		if(array_key_exists("SECTION_PROPERTY", $arFields))
+			$arFields["SECTION_PROPERTY"] = "Y";
+
 		unset($arFields["ID"]);
 
 		if(!$this->CheckFields($arFields))
@@ -771,7 +807,7 @@ class CAllIBlock
 
 			if($arFields["VERSION"] == 2)
 			{
-			 	if($this->_Add($ID))
+				if($this->_Add($ID))
 				{
 					$Result = $ID;
 					$arFields["ID"] = &$ID;
@@ -853,6 +889,9 @@ class CAllIBlock
 
 		if(is_set($arFields, "SITE_ID"))
 			$arFields["LID"] = $arFields["SITE_ID"];
+
+		if(is_set($arFields, "SECTION_PROPERTY"))
+			$arFields["SECTION_PROPERTY"] = "Y";
 
 		$RIGHTS_MODE = CIBlock::GetArrayByID($ID, "RIGHTS_MODE");
 
@@ -1057,6 +1096,8 @@ class CAllIBlock
 		$obIBlockRights = new CIBlockRights($ID);
 		$obIBlockRights->DeleteAllRights();
 
+		CIBlockSectionPropertyLink::DeleteByIBlock($ID);
+
 		$DB->Query("delete from b_iblock_offers_tmp where PRODUCT_IBLOCK_ID=".$ID, false, $err_mess.__LINE__);
 		$DB->Query("delete from b_iblock_offers_tmp where OFFERS_IBLOCK_ID=".$ID, false, $err_mess.__LINE__);
 
@@ -1172,9 +1213,9 @@ class CAllIBlock
 
 			foreach($arFields["LID"] as $v)
 			{
-    			$r = CSite::GetByID($v);
-    			if(!$r->Fetch())
-    				$this->LAST_ERROR .= "'".$v."' - ".GetMessage("IBLOCK_BAD_SITE_ID")."<br>";
+				$r = CSite::GetByID($v);
+				if(!$r->Fetch())
+					$this->LAST_ERROR .= "'".$v."' - ".GetMessage("IBLOCK_BAD_SITE_ID")."<br>";
 			}
 		}
 
@@ -1610,6 +1651,17 @@ REQ
 						"COMPRESSION" => intval($arDef["COMPRESSION"]) > 100? 100: (intval($arDef["COMPRESSION"]) > 0? intval($arDef["COMPRESSION"]): ""),
 						"DELETE_WITH_DETAIL" => $arDef["DELETE_WITH_DETAIL"] === "Y"? "Y": "N",
 						"UPDATE_WITH_DETAIL" => $arDef["UPDATE_WITH_DETAIL"] === "Y"? "Y": "N",
+						"USE_WATERMARK_TEXT" => $arDef["USE_WATERMARK_TEXT"] === "Y"? "Y": "N",
+						"WATERMARK_TEXT" => $arDef["WATERMARK_TEXT"],
+						"WATERMARK_TEXT_FONT" => $arDef["WATERMARK_TEXT_FONT"],
+						"WATERMARK_TEXT_COLOR" => $arDef["WATERMARK_TEXT_COLOR"],
+						"WATERMARK_TEXT_SIZE" => intval($arDef["WATERMARK_TEXT_SIZE"]) > 0? intval($arDef["WATERMARK_TEXT_SIZE"]): "",
+						"WATERMARK_TEXT_POSITION" => $arDef["WATERMARK_TEXT_POSITION"],
+						"USE_WATERMARK_FILE" => $arDef["USE_WATERMARK_FILE"] === "Y"? "Y": "N",
+						"WATERMARK_FILE" => $arDef["WATERMARK_FILE"],
+						"WATERMARK_FILE_ALPHA" => intval($arDef["WATERMARK_FILE_ALPHA"]) > 0? intval($arDef["WATERMARK_FILE_ALPHA"]): "",
+						"WATERMARK_FILE_POSITION" => $arDef["WATERMARK_FILE_POSITION"],
+						"WATERMARK_FILE_ORDER" => $arDef["WATERMARK_FILE_ORDER"],
 					));
 				}
 				else
@@ -1629,6 +1681,17 @@ REQ
 						"IGNORE_ERRORS" => $arDef["IGNORE_ERRORS"] === "Y"? "Y": "N",
 						"METHOD" => $arDef["METHOD"] === "resample"? "resample": "",
 						"COMPRESSION" => intval($arDef["COMPRESSION"]) > 100? 100: (intval($arDef["COMPRESSION"]) > 0? intval($arDef["COMPRESSION"]): ""),
+						"USE_WATERMARK_TEXT" => $arDef["USE_WATERMARK_TEXT"] === "Y"? "Y": "N",
+						"WATERMARK_TEXT" => $arDef["WATERMARK_TEXT"],
+						"WATERMARK_TEXT_FONT" => $arDef["WATERMARK_TEXT_FONT"],
+						"WATERMARK_TEXT_COLOR" => $arDef["WATERMARK_TEXT_COLOR"],
+						"WATERMARK_TEXT_SIZE" => intval($arDef["WATERMARK_TEXT_SIZE"]) > 0? intval($arDef["WATERMARK_TEXT_SIZE"]): "",
+						"WATERMARK_TEXT_POSITION" => $arDef["WATERMARK_TEXT_POSITION"],
+						"USE_WATERMARK_FILE" => $arDef["USE_WATERMARK_FILE"] === "Y"? "Y": "N",
+						"WATERMARK_FILE" => $arDef["WATERMARK_FILE"],
+						"WATERMARK_FILE_ALPHA" => intval($arDef["WATERMARK_FILE_ALPHA"]) > 0? intval($arDef["WATERMARK_FILE_ALPHA"]): "",
+						"WATERMARK_FILE_POSITION" => $arDef["WATERMARK_FILE_POSITION"],
+						"WATERMARK_FILE_ORDER" => $arDef["WATERMARK_FILE_ORDER"],
 					));
 				}
 				else
@@ -1678,6 +1741,17 @@ REQ
 						"COMPRESSION" => intval($arDef["COMPRESSION"]) > 100? 100: (intval($arDef["COMPRESSION"]) > 0? intval($arDef["COMPRESSION"]): ""),
 						"DELETE_WITH_DETAIL" => $arDef["DELETE_WITH_DETAIL"] === "Y"? "Y": "N",
 						"UPDATE_WITH_DETAIL" => $arDef["UPDATE_WITH_DETAIL"] === "Y"? "Y": "N",
+						"USE_WATERMARK_TEXT" => $arDef["USE_WATERMARK_TEXT"] === "Y"? "Y": "N",
+						"WATERMARK_TEXT" => $arDef["WATERMARK_TEXT"],
+						"WATERMARK_TEXT_FONT" => $arDef["WATERMARK_TEXT_FONT"],
+						"WATERMARK_TEXT_COLOR" => $arDef["WATERMARK_TEXT_COLOR"],
+						"WATERMARK_TEXT_SIZE" => intval($arDef["WATERMARK_TEXT_SIZE"]) > 0? intval($arDef["WATERMARK_TEXT_SIZE"]): "",
+						"WATERMARK_TEXT_POSITION" => $arDef["WATERMARK_TEXT_POSITION"],
+						"USE_WATERMARK_FILE" => $arDef["USE_WATERMARK_FILE"] === "Y"? "Y": "N",
+						"WATERMARK_FILE" => $arDef["WATERMARK_FILE"],
+						"WATERMARK_FILE_ALPHA" => intval($arDef["WATERMARK_FILE_ALPHA"]) > 0? intval($arDef["WATERMARK_FILE_ALPHA"]): "",
+						"WATERMARK_FILE_POSITION" => $arDef["WATERMARK_FILE_POSITION"],
+						"WATERMARK_FILE_ORDER" => $arDef["WATERMARK_FILE_ORDER"],
 					));
 				}
 				else
@@ -1697,6 +1771,17 @@ REQ
 						"IGNORE_ERRORS" => $arDef["IGNORE_ERRORS"] === "Y"? "Y": "N",
 						"METHOD" => $arDef["METHOD"] === "resample"? "resample": "",
 						"COMPRESSION" => intval($arDef["COMPRESSION"]) > 100? 100: (intval($arDef["COMPRESSION"]) > 0? intval($arDef["COMPRESSION"]): ""),
+						"USE_WATERMARK_TEXT" => $arDef["USE_WATERMARK_TEXT"] === "Y"? "Y": "N",
+						"WATERMARK_TEXT" => $arDef["WATERMARK_TEXT"],
+						"WATERMARK_TEXT_FONT" => $arDef["WATERMARK_TEXT_FONT"],
+						"WATERMARK_TEXT_COLOR" => $arDef["WATERMARK_TEXT_COLOR"],
+						"WATERMARK_TEXT_SIZE" => intval($arDef["WATERMARK_TEXT_SIZE"]) > 0? intval($arDef["WATERMARK_TEXT_SIZE"]): "",
+						"WATERMARK_TEXT_POSITION" => $arDef["WATERMARK_TEXT_POSITION"],
+						"USE_WATERMARK_FILE" => $arDef["USE_WATERMARK_FILE"] === "Y"? "Y": "N",
+						"WATERMARK_FILE" => $arDef["WATERMARK_FILE"],
+						"WATERMARK_FILE_ALPHA" => intval($arDef["WATERMARK_FILE_ALPHA"]) > 0? intval($arDef["WATERMARK_FILE_ALPHA"]): "",
+						"WATERMARK_FILE_POSITION" => $arDef["WATERMARK_FILE_POSITION"],
+						"WATERMARK_FILE_ORDER" => $arDef["WATERMARK_FILE_ORDER"],
 					));
 				}
 				else
@@ -1906,14 +1991,15 @@ REQ
 		return $arRes;
 	}
 
-	function GetPermission($IBLOCK_ID, $USER_ID = false)
+	function GetPermission($IBLOCK_ID, $FOR_USER_ID = false)
 	{
 		global $DB, $USER;
 		static $CACHE = array();
+		$USER_ID = is_object($USER)? intval($USER->GetID()): 0;
 
-		if($USER_ID > 0 && $USER_ID != $USER->GetID())
+		if($FOR_USER_ID > 0 && $FOR_USER_ID != $USER_ID)
 		{
-			$arGroups = CUser::GetUserGroup($USER_ID);
+			$arGroups = CUser::GetUserGroup($FOR_USER_ID);
 			if(
 				in_array(1, $arGroups)
 				&& COption::GetOptionString("main", "controller_member", "N") != "Y"
@@ -1922,15 +2008,19 @@ REQ
 				return "X";
 			$USER_GROUPS = implode(",", $arGroups);
 		}
-		else
+		elseif(is_object($USER))
 		{
 			if($USER->IsAdmin())
 				return "X";
 			$USER_GROUPS = $USER->GetGroups();
 		}
+		else
+		{
+			$USER_GROUPS = "2";
+		}
 
 		$IBLOCK_ID = intval($IBLOCK_ID);
-		$CACHE_KEY = $IBLOCK_ID.$USER_GROUPS;
+		$CACHE_KEY = $IBLOCK_ID."|".$USER_GROUPS;
 
 		if(!array_key_exists($CACHE_KEY, $CACHE))
 		{
@@ -2037,7 +2127,7 @@ REQ
 	{
 		global $DB;
 
- 		if(!is_array($vals))
+		if(!is_array($vals))
 			$vals=Array($vals);
 
 		if(count($vals)<1)
@@ -2061,10 +2151,10 @@ REQ
 			$strOperation = "<=";
 		elseif($cOperationType=="L")
 			$strOperation = "<";
- 		elseif($cOperationType=='B')
- 			$strOperation = array('BETWEEN', 'AND');
- 		elseif($cOperationType=='NB')
- 			$strOperation = array('BETWEEN', 'AND');
+		elseif($cOperationType=='B')
+			$strOperation = array('BETWEEN', 'AND');
+		elseif($cOperationType=='NB')
+			$strOperation = array('BETWEEN', 'AND');
 		else
 			$strOperation = "=";
 
@@ -2099,9 +2189,9 @@ REQ
 							$res[] = GetFilterQuery($fname, $val, "N");
 					}
 					elseif($cOperationType=="S" || $cOperationType=="NS")
-  						$res[] = ($cOperationType=="NS"?" ".$fname." IS NULL OR NOT ":"")."(".CIBlock::_Upper($fname)." LIKE ".CIBlock::_Upper("'%".CIBlock::ForLIKE($val)."%'").")";
+						$res[] = ($cOperationType=="NS"?" ".$fname." IS NULL OR NOT ":"")."(".CIBlock::_Upper($fname)." LIKE ".CIBlock::_Upper("'%".CIBlock::ForLIKE($val)."%'").")";
 					elseif(($cOperationType=="B" || $cOperationType=="NB") && is_array($val) && count($val)==2)
-  						$res[] = ($cOperationType=="NB"?" ".$fname." IS NULL OR NOT ":"")."(".CIBlock::_Upper($fname)." ".$strOperation[0]." '".CIBlock::_Upper($DB->ForSql($val[0]))."' ".$strOperation[1]." '".CIBlock::_Upper($DB->ForSql($val[1]))."')";
+						$res[] = ($cOperationType=="NB"?" ".$fname." IS NULL OR NOT ":"")."(".CIBlock::_Upper($fname)." ".$strOperation[0]." '".CIBlock::_Upper($DB->ForSql($val[0]))."' ".$strOperation[1]." '".CIBlock::_Upper($DB->ForSql($val[1]))."')";
 					else
 					{
 						if(strlen($val)<=0)
@@ -2122,10 +2212,10 @@ REQ
 					}
 					elseif(($cOperationType=="B" || $cOperationType=="NB") && is_array($val) && count($val)==2)
 					{
-  						$res[] = ($cOperationType=="NB"?" ".$fname." IS NULL OR NOT ":"")."(".CIBlock::_Upper($fname)." ".$strOperation[0]." '".CIBlock::_Upper($DB->ForSql($val[0]))."' ".$strOperation[1]." '".CIBlock::_Upper($DB->ForSql($val[1]))."')";
+						$res[] = ($cOperationType=="NB"?" ".$fname." IS NULL OR NOT ":"")."(".CIBlock::_Upper($fname)." ".$strOperation[0]." '".CIBlock::_Upper($DB->ForSql($val[0]))."' ".$strOperation[1]." '".CIBlock::_Upper($DB->ForSql($val[1]))."')";
 					}
 					elseif($cOperationType=="S" || $cOperationType=="NS")
-  						$res[] = ($cOperationType=="NS"?" ".$fname." IS NULL OR NOT ":"")."(".CIBlock::_Upper($fname)." LIKE ".CIBlock::_Upper("'%".CIBlock::ForLIKE($val)."%'").")";
+						$res[] = ($cOperationType=="NS"?" ".$fname." IS NULL OR NOT ":"")."(".CIBlock::_Upper($fname)." LIKE ".CIBlock::_Upper("'%".CIBlock::ForLIKE($val)."%'").")";
 					else
 					{
 						if(strlen($val)<=0)
@@ -2138,10 +2228,10 @@ REQ
 					}
 					break;
 				case "date":
-					if(strlen($val)<=0 && !is_array($val))
+					if(!is_array($val) && strlen($val)<=0)
 						$res[] = ($cOperationType=="N"?"NOT":"")."(".$fname." IS NULL)";
 					elseif(($cOperationType=="B" || $cOperationType=="NB") && is_array($val) && count($val)==2)
-  						$res[] = ($cOperationType=='NB'?' '.$fname.' IS NULL OR NOT ':'').'('.$fname.' '.$strOperation[0].' '.$DB->CharToDateFunction($DB->ForSql($val[0]), "FULL").' '.$strOperation[1].' '.$DB->CharToDateFunction($DB->ForSql($val[1]), "FULL").')';
+						$res[] = ($cOperationType=='NB'?' '.$fname.' IS NULL OR NOT ':'').'('.$fname.' '.$strOperation[0].' '.$DB->CharToDateFunction($DB->ForSql($val[0]), "FULL").' '.$strOperation[1].' '.$DB->CharToDateFunction($DB->ForSql($val[1]), "FULL").')';
 					else
 						$res[] = ($bNegative? " ".$fname." IS NULL OR NOT ": "")."(".$fname." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "FULL").")";
 					break;
@@ -2857,7 +2947,7 @@ REQ
 				$height = $height_orig;
 
 			$height_new = $height_orig;
-                        if($width_orig > $width)
+			if($width_orig > $width)
 				$height_new = ($width / $width_orig) * $height_orig;
 
 			if($height_new > $height)
@@ -2937,9 +3027,72 @@ REQ
 		}
 	}
 
+	function FilterPicture($filePath, $arFilter)
+	{
+		$io = CBXVirtualIo::GetInstance();
+		if (!$io->FileExists($filePath))
+			return false;
+
+		$arFileSize = CFile::GetImageSize($filePath);
+		if(!is_array($arFileSize))
+			return false;
+
+		switch ($arFileSize[2])
+		{
+		case IMAGETYPE_GIF:
+			$picture = imagecreatefromgif($io->GetPhysicalName($filePath));
+			$bHasAlpha = true;
+			break;
+
+		case IMAGETYPE_PNG:
+			$picture = imagecreatefrompng($io->GetPhysicalName($filePath));
+			$bHasAlpha = true;
+			break;
+
+		case IMAGETYPE_JPEG:
+			$picture = imagecreatefromjpeg($io->GetPhysicalName($filePath));
+			$bHasAlpha = false;
+			break;
+
+		default:
+			$picture = false;
+			$bHasAlpha = false;
+			break;
+		}
+		if (!is_resource($picture))
+			return false;
+
+		$bNeedCreatePicture = CFile::ApplyImageFilter($picture, $arFilter, $bHasAlpha);
+		if ($bNeedCreatePicture)
+		{
+			switch ($arFileSize[2])
+			{
+			case IMAGETYPE_GIF:
+				imagegif($picture, $io->GetPhysicalName($filePath));
+				break;
+
+			case IMAGETYPE_PNG:
+				imagealphablending($picture, false);
+				imagesavealpha($picture, true);
+				imagepng($picture, $io->GetPhysicalName($filePath));
+				break;
+
+			case IMAGETYPE_JPEG:
+				$jpgQuality = intval(COption::GetOptionString('main', 'image_resize_quality', '95'));
+				if ($jpgQuality <= 0 || $jpgQuality > 100)
+					$jpgQuality = 95;
+
+				imagejpeg($picture, $io->GetPhysicalName($filePath), $jpgQuality);
+				break;
+			}
+		}
+		imagedestroy($picture);
+		return true;
+	}
+
 	function NumberFormat($num)
 	{
-		if(strlen($num) > 0)
+		if (strlen($num) > 0)
 		{
 			$res = preg_replace("#\\.([0-9]*?)(0+)\$#", ".\\1", $num);
 			return rtrim($res, ".");
@@ -2981,32 +3134,86 @@ REQ
 		return $o;
 	}
 
-	function GetAdminElementListLink($IBLOCK_ID, $arParams)
+	function GetAdminSectionEditLink($IBLOCK_ID, $SECTION_ID, $arParams = array(), $strAdd = "")
 	{
-		if(CIBlock::GetAdminListMode($IBLOCK_ID) == 'C')
+		if (
+			(defined("CATALOG_PRODUCT") || $arParams["force_catalog"])
+			&& !array_key_exists("menu", $arParams)
+		)
+			$url = "cat_section_edit.php";
+		else
+			$url = "iblock_section_edit.php";
+
+		$url.= "?IBLOCK_ID=".intval($IBLOCK_ID);
+		$url.= "&type=".urlencode(CIBlock::GetArrayByID($IBLOCK_ID, "IBLOCK_TYPE_ID"));
+		if($SECTION_ID !== null)
+			$url.= "&ID=".intval($SECTION_ID);
+		$url.= "&lang=".urlencode(LANGUAGE_ID);
+		foreach ($arParams as $name => $value)
+			if (isset($value))
+				$url.= "&".urlencode($name)."=".urlencode($value);
+
+		return $url.$strAdd;
+	}
+
+	function GetAdminElementEditLink($IBLOCK_ID, $ELEMENT_ID, $arParams = array(), $strAdd = "")
+	{
+		if (
+			(defined("CATALOG_PRODUCT") || $arParams["force_catalog"])
+			&& !array_key_exists("menu", $arParams)
+		)
+			$url = "cat_product_edit.php";
+		else
+			$url = "iblock_element_edit.php";
+
+		$url.= "?IBLOCK_ID=".intval($IBLOCK_ID);
+		$url.= "&type=".urlencode(CIBlock::GetArrayByID($IBLOCK_ID, "IBLOCK_TYPE_ID"));
+		if($ELEMENT_ID !== null)
+			$url.= "&ID=".intval($ELEMENT_ID);
+		$url.= "&lang=".urlencode(LANGUAGE_ID);
+		foreach ($arParams as $name => $value)
+			if (isset($value))
+				$url.= "&".urlencode($name)."=".urlencode($value);
+
+		return $url.$strAdd;
+	}
+
+	function GetAdminElementListLink($IBLOCK_ID, $arParams = array(), $strAdd = "")
+	{
+		if (defined("CATALOG_PRODUCT") && !array_key_exists("menu", $arParams))
+			$url = "cat_product_admin.php";
+		elseif (CIBlock::GetAdminListMode($IBLOCK_ID) == 'C')
 			$url = "iblock_list_admin.php";
 		else
 			$url = "iblock_element_admin.php";
-		$url .= "?IBLOCK_ID=".intval($IBLOCK_ID);
-		$url .= "&type=".urlencode(CIBlock::GetArrayByID($IBLOCK_ID, "IBLOCK_TYPE_ID"));
-		$url .= "&lang=".urlencode(LANGUAGE_ID);
-		foreach($arParams as $name => $value)
-			$url .= "&".urlencode($name)."=".urlencode($value);
-		return $url;
+
+		$url.= "?IBLOCK_ID=".intval($IBLOCK_ID);
+		$url.= "&type=".urlencode(CIBlock::GetArrayByID($IBLOCK_ID, "IBLOCK_TYPE_ID"));
+		$url.= "&lang=".urlencode(LANGUAGE_ID);
+		foreach ($arParams as $name => $value)
+			if (isset($value))
+				$url.= "&".urlencode($name)."=".urlencode($value);
+
+		return $url.$strAdd;
 	}
 
-	function GetAdminSectionListLink($IBLOCK_ID, $arParams)
+	function GetAdminSectionListLink($IBLOCK_ID, $arParams = array(), $strAdd = "")
 	{
-		if(CIBlock::GetAdminListMode($IBLOCK_ID) == 'C')
+		if (defined("CATALOG_PRODUCT") && !array_key_exists("menu", $arParams))
+			$url = "cat_section_admin.php";
+		elseif (CIBlock::GetAdminListMode($IBLOCK_ID) == 'C')
 			$url = "iblock_list_admin.php";
 		else
 			$url = "iblock_section_admin.php";
-		$url .= "?IBLOCK_ID=".intval($IBLOCK_ID);
-		$url .= "&type=".urlencode(CIBlock::GetArrayByID($IBLOCK_ID, "IBLOCK_TYPE_ID"));
-		$url .= "&lang=".urlencode(LANGUAGE_ID);
-		foreach($arParams as $name => $value)
-			$url .= "&".urlencode($name)."=".urlencode($value);
-		return $url;
+
+		$url.= "?IBLOCK_ID=".intval($IBLOCK_ID);
+		$url.= "&type=".urlencode(CIBlock::GetArrayByID($IBLOCK_ID, "IBLOCK_TYPE_ID"));
+		$url.= "&lang=".urlencode(LANGUAGE_ID);
+		foreach ($arParams as $name => $value)
+			if (isset($value))
+				$url.= "&".urlencode($name)."=".urlencode($value);
+
+		return $url.$strAdd;
 	}
 
 	function GetAdminListMode($IBLOCK_ID)
@@ -3027,25 +3234,22 @@ REQ
 		$arIBlock = CIBlock::GetArrayByID($IBLOCK_ID);
 
 		$ar = $arIBlock["FIELDS"]["CODE"]["DEFAULT_VALUE"];
-		if(
+		if (
 			is_array($ar)
 			&& $ar["UNIQUE"] == "Y"
 			&& !$DB->IndexExists("b_iblock_element", array("IBLOCK_ID", "CODE"))
 		)
-		{
 			$DB->Query("create index ix_iblock_element_code on b_iblock_element (IBLOCK_ID, CODE)");
-		}
 
 		$ar = $arIBlock["FIELDS"]["SECTION_CODE"]["DEFAULT_VALUE"];
-		if(
+		if (
 			is_array($ar)
 			&& $ar["UNIQUE"] == "Y"
 			&& !$DB->IndexExists("b_iblock_section", array("IBLOCK_ID", "CODE"))
 		)
-		{
 			$DB->Query("create index ix_iblock_section_code on b_iblock_section (IBLOCK_ID, CODE)");
-		}
 	}
+
 
 	function GetAuditTypes()
 	{
@@ -3065,20 +3269,34 @@ REQ
 	function roundDB($value)
 	{
 		$len = 18;
-		$dec =  4;
+		$dec = 4;
+		$eps = 1.00 / pow(10, $len + 4);
+		$rounded = round(doubleval($value) + $eps, $len);
+		if (is_nan($rounded) || is_infinite($rounded))
+			$rounded = 0;
 
-		$result = doubleval($value);
-		if(is_nan($result) || is_infinite($result))
-			$result = 0;
-
-		$eps = 1.00/pow(10, $len + 4);
-		$result = round(doubleval($result) + $eps, $len);
-
-		$result = sprintf("%01.".$dec."f", $result);
-		if(strlen($result) > ($len - $dec))
+		$result = sprintf("%01.".$dec."f", $rounded);
+		if (strlen($result) > ($len - $dec))
 			$result = trim(substr($result, 0, $len - $dec), ".");
 
 		return $result;
+	}
+
+	function _transaction_lock($IBLOCK_ID)
+	{
+		global $DB;
+		$DB->Query("UPDATE b_iblock set TMP_ID = '".md5(mt_rand())."' WHERE ID = ".$IBLOCK_ID);
+	}
+
+	function isShortDate($strDate)
+	{
+		$arDate = ParseDateTime($strDate, FORMAT_DATETIME);
+		unset($arDate["DD"]);
+		unset($arDate["MMMM"]);
+		unset($arDate["MM"]);
+		unset($arDate["M"]);
+		unset($arDate["YYYY"]);
+		return array_sum($arDate) == 0;
 	}
 }
 ?>

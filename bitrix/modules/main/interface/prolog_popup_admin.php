@@ -1,14 +1,18 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html>
+<!DOCTYPE html>
+<html id="bx-admin-prefix">
 <head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title><?echo $APPLICATION->GetTitle()?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=<?echo LANG_CHARSET?>">
 <?
 if(!is_object($adminPage))
 	$adminPage = new CAdminPage();
+
+CJSCore::Init(array('admin_interface'));
+
 $APPLICATION->AddBufferContent(array($adminPage, "ShowCSS"));
 echo $adminPage->ShowScript();
 $APPLICATION->ShowHeadScripts();
@@ -25,7 +29,4 @@ function PopupOnKeyPress(e)
 jsUtils.addEvent(window, "keypress", PopupOnKeyPress);
 </script>
 </head>
-<body class="body-popup" onkeypress="PopupOnKeyPress();">
-<table cellpadding="0" cellspacing="0" border="0" width="100%">
-	<tr>
-		<td>
+<body class="body-popup adm-workarea" onkeypress="PopupOnKeyPress();">

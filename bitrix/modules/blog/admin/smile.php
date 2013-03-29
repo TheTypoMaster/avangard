@@ -120,7 +120,7 @@ while ($arBlog = $dbResultList->NavNext(true, "f_"))
 	if (in_array("NAME", $arVisibleColumns))
 	{
 		$arSmileLang = CBlogSmile::GetLangByID($f_ID, LANG);
-		$fieldShow .= htmlspecialchars($arSmileLang["NAME"]);
+		$fieldShow .= htmlspecialcharsbx($arSmileLang["NAME"]);
 	}
 	$row->AddField("NAME", $fieldShow);
 
@@ -130,7 +130,7 @@ while ($arBlog = $dbResultList->NavNext(true, "f_"))
 	$arActions = Array();
 	if ($blogModulePermissions >= "R")
 	{
-		$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("BLOG_EDIT_DESCR"), "ACTION"=>$lAdmin->ActionRedirect("blog_smile_edit.php?ID=".$f_ID."&lang=".LANG."&".GetFilterParams("filter_").""), "DEFAULT"=>true);
+		$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("BLOG_EDIT_DESCR"), "ACTION"=>$lAdmin->ActionRedirect("blog_smile_edit.php?ID=".$f_ID."&lang=".LANG), "DEFAULT"=>true);
 	}
 	if ($blogModulePermissions >= "W")
 	{

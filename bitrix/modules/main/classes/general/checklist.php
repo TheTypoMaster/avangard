@@ -64,7 +64,7 @@ class CCheckList
 						$this->current_result[$key] = Array(
 							"STATUS"=>"W");
 				}
-
+				////$this->current_result[$key] = Array("STATUS"=>"A");
 			}
 		}
 		if ($this->current_result != false && $this->report_id == false)
@@ -76,7 +76,10 @@ class CCheckList
 		$arSections = $this->checklist["CATEGORIES"];
 		$arResult = Array();
 		foreach($arSections as $key=>$arFields)
+		{
 			$arResult[$key] = array_merge($this->GetDescription($key),$arFields);
+			$arResult[$key]["STATS"] = $this->GetSectionStat($key);
+		}
 		return $arResult;
 	}
 
@@ -85,6 +88,7 @@ class CCheckList
 	{
 		$arResult = Array(
 			"CHECK"=>0,
+			"CHECK_R"=>0,
 			"FAILED"=>0,
 			"WAITING"=>0,
 			"TOTAL"=>0,
@@ -97,12 +101,16 @@ class CCheckList
 		if (($ID!=false && array_key_exists($ID, $this->checklist["CATEGORIES"])) || $ID == false)
 		{
 			$arPoints = $this->GetPoints($ID);
-			$arSections = $this->GetSections();
+			$arSections = $this->checklist["CATEGORIES"];
 			if (count($arPoints)>0)
 				foreach ($arPoints as $arPointFields)
 				{
 					if ($arPointFields["STATE"]["STATUS"] == "A")
+					{
 						$arResult["CHECK"]++;
+						if (isset($arPointFields['REQUIRE']) && $arPointFields['REQUIRE']=='Y')
+							$arResult["CHECK_R"]++;
+					}
 					if ($arPointFields["STATE"]["STATUS"] == "F")
 						$arResult["FAILED"]++;
 					if ($arPointFields["STATE"]["STATUS"] == "W")
@@ -182,11 +190,11 @@ class CCheckList
 				continue;
 			}
 
-		 	$arFields = $arSectionFields;
-		 	$arFields["POINTS"] = $this->GetPoints($key);
-		 	$arFields = array_merge($arFields, $this->GetSectionStat($key));
-		 	$arSections[$arFields["PARENT"]]["CATEGORIES"][$key] = $arFields;
-		 	unset($arSections[$key]);
+			$arFields = $arSectionFields;
+			$arFields["POINTS"] = $this->GetPoints($key);
+			$arFields = array_merge($arFields, $this->GetSectionStat($key));
+			$arSections[$arFields["PARENT"]]["CATEGORIES"][$key] = $arFields;
+			unset($arSections[$key]);
 		}
 
 		$arResult["STRUCTURE"] = $arSections;
@@ -319,23 +327,26 @@ class CCheckList
 		return $arResult;
 	}
 
-	function AddReport($arReportFields = Array())
+	function AddReport($arReportFields = Array(), $errorCheck = false)
 	{//saving current state to a report
 		if ($this->report_id)
 			return false;
 
-		if (!$arReportFields["TESTER"] && !$arReportFields["COMPANY_NAME"])
+		if ($errorCheck && !$arReportFields["TESTER"] && !$arReportFields["COMPANY_NAME"])
 			return Array("ERROR" => GetMessage("EMPTY_NAME"));
 
 		$arStats = $this->GetSectionStat();
 		$arFields = Array(
 				"TESTER" => $arReportFields["TESTER"],
 				"COMPANY_NAME" => $arReportFields["COMPANY_NAME"],
+				"PHONE" => $arReportFields["PHONE"],
+				"EMAIL" => $arReportFields["EMAIL"],
 				"PICTURE" => $arReportFields["PICTURE"],
 				"REPORT_COMMENT" => $arReportFields["COMMENT"],
 				"STATE" => $this->current_result,
 				"TOTAL" => $arStats["TOTAL"],
 				"SUCCESS" => $arStats["CHECK"],
+				"SUCCESS_R" => $arStats["CHECK_R"],
 				"FAILED" => $arStats["FAILED"],
 				"PENDING"=> $arStats["WAITING"],
 				"REPORT" =>true
@@ -442,10 +453,10 @@ class CCheckListResult
 		if (is_array($arFilter) && count($arFilter)>0)
 		{
 			$arSqlWhere = "";
-			$arSqlFields=Array("ID","REPORT");
+			$arSqlFields=Array("ID","REPORT","HIDDEN","SENDED_TO_BITRIX");
 			foreach($arFilter as $key=>$value):
 				if (in_array($key,$arSqlFields))
-					$arSqlWhere[] = $key."='".$value."'";
+					$arSqlWhere[] = $key."='".$DB->ForSql($value)."'";
 			endforeach;
 			$arSqlWhereStr = GetFilterSqlSearch($arSqlWhere);
 		}
@@ -459,6 +470,19 @@ class CCheckListResult
 		return $arResult;
 	}
 
+	function Update($ID, $arFields)
+	{
+		global $DB, $USER;
+		$ID = IntVal($ID);
+
+		$strUpdate = $DB->PrepareUpdate("b_checklist", $arFields);
+
+		$strSql =
+			"UPDATE b_checklist SET ".$strUpdate." WHERE ID = ".$ID." ";
+		$DB->Query($strSql);
+		return $ID;
+	}
+	
 	function Delete($ID)
 	{
 		global $DB;
@@ -548,16 +572,36 @@ class CAutoCheck
 
 	function CheckBackup()
 	{
-		$arBackUpFolder = $_SERVER['DOCUMENT_ROOT']."/bitrix/backup";
 		$arCount = 0;
 		$arResult = Array();
 		$arResult["STATUS"] = false;
-		if (file_exists($arBackUpFolder) && $handle = opendir($arBackUpFolder))
+		$bMcrypt = function_exists('mcrypt_encrypt');
+		$bBitrixCloud = $bMcrypt && CModule::IncludeModule('bitrixcloud') && CModule::IncludeModule('clouds');
+
+		$site = CSite::GetSiteByFullPath(DOCUMENT_ROOT);
+		$path = BX_ROOT."/backup";
+		$arTmpFiles = array();
+		$arFilter = array();
+		GetDirList(Array($site, $path), $arDir, $arTmpFiles, $arFilter, Array('sort' => 'asc'), "F");
+
+		foreach($arTmpFiles as $ar)
 		{
-			while(($file = readdir($handle))!==false)
-			{
-				if (strpos($file,".tar.gz"))
-					$arCount++;
+			if (strpos($ar['NAME'],".enc.gz") || strpos($ar['NAME'],".tar.gz") || strpos($ar['NAME'],".tar") || strpos($ar['NAME'],".enc"))
+				$arCount++;
+		}
+
+		if ($bBitrixCloud)
+		{
+			$backup = CBitrixCloudBackup::getInstance();
+			try {
+				foreach($backup->listFiles() as $ar)
+				{
+					if (strpos($ar['FILE_NAME'],".enc.gz") || strpos($ar['FILE_NAME'],".tar.gz") || strpos($ar['FILE_NAME'],".tar") || strpos($ar['FILE_NAME'],".enc"))
+						$arCount++;
+				}
+			} catch (Exception $e) {
+				$bBitrixCloud = false;
+				$strBXError = $e->getMessage();
 			}
 		}
 		if ($arCount>0)
@@ -567,7 +611,6 @@ class CAutoCheck
 		}
 		else
 			$arResult["MESSAGE"]["PREVIEW"] = GetMessage("CL_NOT_FOUND_BACKUP");
-
 		return $arResult;
 	}
 
@@ -815,7 +858,7 @@ class CAutoCheck
 		switch ($arParams["ACTION"])
 		{
 			case "SECURITY_LEVEL":
-				if (IsModuleInstalled("security"))
+				if (CModule::IncludeModule("security"))
 				{
 						if ($arMask = CSecurityFilterMask::GetList()->Fetch())
 							$arMessage.= $err++.". ".GetMessage("CL_FILTER_EXEPTION_FOUND")."\n";
@@ -926,7 +969,7 @@ class CAutoCheck
 			if ($DBPassword == strtolower($DBPassword))
 				$arMessage.=$err++.". ".GetMessage("CL_SAME_REGISTER")."\n";
 
-			for($j=0;$j<strlen($DBPassword);$j++)
+			for($j=0, $c=strlen($DBPassword); $j<$c; $j++)
 			{
 				if (strpos($sign,$DBPassword[$j])!==false)
 					$have_sign = true;
@@ -1044,7 +1087,7 @@ class CAutoCheck
 			$files = Array();
 			$arPathTmp = $arPath;
 			foreach($arPathTmp as $key=>$path)
-			CCheckListTools::__scandir($path,&$files,$arExept);
+			CCheckListTools::__scandir($path,$files,$arExept);
 			$_SESSION["BX_CHECKLIST"]["COUNT"] = count($files);
 		}
 
@@ -1052,7 +1095,7 @@ class CAutoCheck
 		foreach ($arPath as $namespace)
 		{
 			$files = Array();
-			CCheckListTools::__scandir($namespace,&$files,$arExept);
+			CCheckListTools::__scandir($namespace,$files,$arExept);
 			foreach($files as $file)
 			{
 				$arFileNum++;
@@ -1068,7 +1111,7 @@ class CAutoCheck
 				{
 					if ($content = @fread($f,filesize($file)))
 						//preg_match('/\<\?[^(\?\>)]*?(?:mysql_query|odbc_exec)\(/ism',$content,$queries);
-						preg_match('/((?:mysql_query|odbc_exec|oci_execute|odbc_execute|\$DB-\>Query)\(.*\))/ism',$content,$queries);
+						preg_match('/((?:mysql_query|odbc_exec|oci_execute|odbc_execute)\(.*\))/ism',$content,$queries);
 				}
 				if ($queries && count($queries[0])>0)
 					$_SESSION["BX_CHECKLIST"]["FOUND"].=str_replace(Array("//","\\\\"),Array("/","\\"),$file)."\n";
@@ -1123,7 +1166,7 @@ class CAutoCheck
 
 class CCheckListTools
 {
-	function __scandir($pwd,$arFiles,$arExept = false)
+	function __scandir($pwd,&$arFiles,$arExept = false)
 	{
 		$dir = scandir($pwd);
 		foreach ($dir as $file)
@@ -1133,7 +1176,7 @@ class CCheckListTools
 			if (is_dir($pwd."$file"))
 			{
 				if (!in_array($file,$arExept["FOLDERS"]))
-					CCheckListTools::__scandir($pwd."$file/",&$arFiles,$arExept);
+					CCheckListTools::__scandir($pwd."$file/",$arFiles,$arExept);
 			}
 			elseif(in_array(substr(strrchr($file, '.'), 1),$arExept["EXT"])
 				&& !in_array($pwd.$file,$arExept["FILES"])

@@ -19,6 +19,8 @@
 		
 		"PATH_TO_SMILE" => $arParams["PATH_TO_SMILE"],
 		"DATE_TIME_FORMAT" =>  $arParams["DATE_TIME_FORMAT"],
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
+		"SEO_USER" => $arParams["SEO_USER"]
 ),
 	$component
 );

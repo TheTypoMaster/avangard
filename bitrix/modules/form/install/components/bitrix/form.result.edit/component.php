@@ -12,6 +12,10 @@ if (CModule::IncludeModule("form"))
 		"USE_EXTENDED_ERRORS" => "N",
 	);
 
+	$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE'])
+		? (method_exists('CSite', 'GetNameFormat') ? CSite::GetNameFormat() : "#NAME# #LAST_NAME#")
+		: $arParams["NAME_TEMPLATE"];
+
 	foreach ($arDefaultComponentParameters as $key => $value) if (!is_set($arParams, $key)) $arParams[$key] = $value;
 
 	$arDefaultUrl = array(
@@ -150,6 +154,10 @@ if (CModule::IncludeModule("form"))
 				}
 
 				$arResult["arForm"]["USE_CAPTCHA"] = "N";
+			}
+			else
+			{
+				$arResult["ERROR"] = "FORM_RESULT_ACCESS_DENIED";
 			}
 		}
 		else
@@ -395,6 +403,7 @@ if (CModule::IncludeModule("form"))
 			$arResult["RESULT_USER_EMAIL"] = $arUser["USER_EMAIL"];
 			$arResult["RESULT_USER_FIRST_NAME"] = $arUser["NAME"];
 			$arResult["RESULT_USER_LAST_NAME"] = $arUser["LAST_NAME"];
+			$arResult["RESULT_USER_SECOND_NAME"] = $arUser["SECOND_NAME"];
 		}
 
 		$arResult["isResultStatusChangeAccess"] = in_array("EDIT", $arResult["arrRESULT_PERMISSION"]) ? "Y" : "N";
@@ -427,12 +436,12 @@ if (CModule::IncludeModule("form"))
 					$arResult["arForm"]["SID"], POST_FORM_ACTION_URI, "POST"
 				),
 
-				"FORM_TITLE"			=> trim(htmlspecialchars($arResult["arForm"]["NAME"])), // form title
+				"FORM_TITLE"			=> trim(htmlspecialcharsbx($arResult["arForm"]["NAME"])), // form title
 
 				"FORM_DESCRIPTION" => // form description
 					$arResult["arForm"]["DESCRIPTION_TYPE"] == "html" ?
 					trim($arResult["arForm"]["DESCRIPTION"]) :
-					nl2br(htmlspecialchars(trim($arResult["arForm"]["DESCRIPTION"]))),
+					nl2br(htmlspecialcharsbx(trim($arResult["arForm"]["DESCRIPTION"]))),
 
 				"isFormTitle"			=> strlen($arResult["arForm"]["NAME"]) > 0 ? "Y" : "N", // flag "does form have title"
 				"isFormDescription"		=> strlen($arResult["arForm"]["DESCRIPTION"]) > 0 ? "Y" : "N", // flag "does form have description"
@@ -455,12 +464,16 @@ if (CModule::IncludeModule("form"))
 			// check image file existance and assign image data
 			if (substr($arImage["SRC"], 0, 1) == "/")
 			{
-				list(
-					$arResult["FORM_IMAGE"]["WIDTH"],
-					$arResult["FORM_IMAGE"]["HEIGHT"],
-					$arResult["FORM_IMAGE"]["TYPE"],
-					$arResult["FORM_IMAGE"]["ATTR"]
-				) = @getimagesize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
+				$arSize = CFile::GetImageSize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
+				if (is_array($arSize))
+				{
+					list(
+						$arResult["FORM_IMAGE"]["WIDTH"],
+						$arResult["FORM_IMAGE"]["HEIGHT"],
+						$arResult["FORM_IMAGE"]["TYPE"],
+						$arResult["FORM_IMAGE"]["ATTR"]
+					) = $arSize;
+				}
 			}
 			else
 			{
@@ -484,7 +497,7 @@ if (CModule::IncludeModule("form"))
 				"CAPTION" => // field caption
 					$arResult["arQuestions"][$FIELD_SID]["TITLE_TYPE"] == "html" ?
 					$arResult["arQuestions"][$FIELD_SID]["TITLE"] :
-					nl2br(htmlspecialchars($arResult["arQuestions"][$FIELD_SID]["TITLE"])),
+					nl2br(htmlspecialcharsbx($arResult["arQuestions"][$FIELD_SID]["TITLE"])),
 
 				"IS_HTML_CAPTION"			=> $arResult["arQuestions"][$FIELD_SID]["TITLE_TYPE"] == "html" ? "Y" : "N",
 				"REQUIRED"					=> $arResult["arQuestions"][$FIELD_SID]["REQUIRED"] == "Y" ? "Y" : "N",
@@ -786,7 +799,7 @@ if (CModule::IncludeModule("form"))
 							{
 								if (intval($arFile["USER_FILE_ID"])>0)
 								{
-									$res .= "<a title=\"".GetMessage("FORM_VIEW_FILE")."\" target=\"_blank\" class=\"tablebodylink\" href=\"/bitrix/tools/form_show_file.php?rid=".$arParams["RESULT_ID"]."&hash=".$arFile["USER_FILE_HASH"]."&lang=".LANGUAGE_ID."\">".htmlspecialchars($arFile["USER_FILE_NAME"])."</a>&nbsp;(";
+									$res .= "<a title=\"".GetMessage("FORM_VIEW_FILE")."\" target=\"_blank\" class=\"tablebodylink\" href=\"/bitrix/tools/form_show_file.php?rid=".$arParams["RESULT_ID"]."&hash=".$arFile["USER_FILE_HASH"]."&lang=".LANGUAGE_ID."\">".htmlspecialcharsbx($arFile["USER_FILE_NAME"])."</a>&nbsp;(";
 									$a = array("b", "Kb", "Mb", "Gb");
 									$pos = 0;
 									$size = $arFile["USER_FILE_SIZE"];
@@ -872,12 +885,16 @@ if (CModule::IncludeModule("form"))
 				// check image file existance and assign image data
 				if (substr($arImage["SRC"], 0, 1) == "/")
 				{
-					list(
-						$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["WIDTH"],
-						$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["HEIGHT"],
-						$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["TYPE"],
-						$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["ATTR"]
-					) = @getimagesize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
+					$arSize = CFile::GetImageSize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
+					if (is_array($arSize))
+					{
+						list(
+							$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["WIDTH"],
+							$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["HEIGHT"],
+							$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["TYPE"],
+							$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["ATTR"]
+						) = $arSize;
+					}
 				}
 				else
 				{

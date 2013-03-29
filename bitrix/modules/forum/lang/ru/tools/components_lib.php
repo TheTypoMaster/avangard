@@ -53,5 +53,5 @@ $MESS ['F_WORD_LENGTH'] = "Длина слова";
 $MESS ['F_WORD_WRAP_CUT'] = "Длина фразы (если \"0\", то фраза не обрезается)";
 $MESS ['F_WORD_WRAP'] = "Разорвать";
 $MESS ['F_WORD_CUT'] = "Обрезать";
-$MESS ['F_AJAX_TYPE'] = "Использовать аякс";
+$MESS ['F_AJAX_TYPE'] = "Использовать AJAX";
 ?>

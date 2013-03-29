@@ -28,12 +28,13 @@ if (!CModule::IncludeModule("forum"))
 		$arParams["CACHE_TIME"] = $arParams["arFormParams"]["CACHE_TIME"];
 	}
 /***************** BASE ********************************************/
+	$arParams["MESSAGE_TYPE"] = (in_array(strToUpper($arParams["MESSAGE_TYPE"]), array("REPLY", "EDIT", "NEW")) ? strToUpper($arParams["MESSAGE_TYPE"]):"NEW");
 	$arParams["FID"] = intVal(empty($arParams["FID"]) ? $_REQUEST["FID"] : $arParams["FID"]);
 	$arParams["TID"] = intVal(empty($arParams["TID"]) ? $_REQUEST["TID"] : $arParams["TID"]);
 	$arParams["MID"] = intVal(empty($arParams["MID"]) ? $_REQUEST["MID"] : $arParams["MID"]);
+	$arParams["MID"] = ($arParams["MESSAGE_TYPE"] == "EDIT" ? $arParams["MID"] : 0);
 
-	$arParams["PAGE_NAME"] = htmlspecialchars((empty($arParams["PAGE_NAME"]) ? $_REQUEST["PAGE_NAME"] : $arParams["PAGE_NAME"]));
-	$arParams["MESSAGE_TYPE"] = (in_array(strToUpper($arParams["MESSAGE_TYPE"]), array("REPLY", "EDIT", "NEW")) ? strToUpper($arParams["MESSAGE_TYPE"]):"NEW");
+	$arParams["PAGE_NAME"] = htmlspecialcharsbx((empty($arParams["PAGE_NAME"]) ? $_REQUEST["PAGE_NAME"] : $arParams["PAGE_NAME"]));
 	$arParams["FORUM"] = (!empty($arParams["arForum"]) ? $arParams["arForum"] : (!empty($arParams["FORUM"]) ? $arParams["FORUM"] : array()));
 	$arParams["bVarsFromForm"] = ($arParams["bVarsFromForm"] == "Y" || $arParams["bVarsFromForm"] === true ? "Y" : "N");
 /***************** URL *********************************************/
@@ -53,7 +54,7 @@ if (!CModule::IncludeModule("forum"))
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["EDITOR_CODE_DEFAULT"] = ($arParams["EDITOR_CODE_DEFAULT"] == "Y" ? "Y" : "N");
@@ -155,8 +156,8 @@ if ($arParams["SHOW_VOTE"] == "Y")
 
 	if ($permission < 2)
 		$arParams["SHOW_VOTE"] = "N";
-    $res = array_intersect($USER->GetUserGroupArray(), $arParams["VOTE_GROUP_ID"]);
-    $arParams["SHOW_VOTE"] = (empty($res) ? "N" : $arParams["SHOW_VOTE"]);
+	$res = array_intersect($USER->GetUserGroupArray(), $arParams["VOTE_GROUP_ID"]);
+	$arParams["SHOW_VOTE"] = (empty($res) ? "N" : $arParams["SHOW_VOTE"]);
 }
 /********************************************************************
 				Data
@@ -237,37 +238,39 @@ if ($arParams["bVarsFromForm"] == "Y")
 		$arResult["MESSAGE"]["FILES"][$val] = $val;
 	endforeach;
 	$arResult["QUESTIONS"] = array();
-	if (!empty($_REQUEST["QUESTION"])):
-		foreach ($_REQUEST["QUESTION"] as $key => $val):
+	if (!empty($_REQUEST["QUESTION"]))
+	{
+		foreach ($_REQUEST["QUESTION"] as $key => $val)
+		{
 			$res = array(
 				"QUESTION" => trim($val),
-				"MULTI" => ($_REQUEST["MULTI"][$key] == "Y" ? "Y" : "N"));
-			if (is_set($arResult["~QUESTIONS"], $_REQUEST["QUESTION_ID"][$key])):
+				"MULTI" => ($_REQUEST["MULTI"][$key] == "Y" ? "Y" : "N"),
+				"ANSWERS" => array());
+			if (is_set($arResult["~QUESTIONS"], $_REQUEST["QUESTION_ID"][$key])) {
 				$res["ID"] = intVal($_REQUEST["QUESTION_ID"][$key]);
-				if ($_REQUEST["QUESTION_DEL"][$key] == "Y"):
-					$res["DEL"] = "Y";
-				endif;
-			elseif ($_REQUEST["QUESTION_DEL"][$key] == "Y"):
-				continue;
-			endif;
-			$res["ANSWERS"] = array();
-			if (is_array($_REQUEST["ANSWER"]) && !empty($_REQUEST["ANSWER"])):
-				foreach ($_REQUEST["ANSWER"][$key] as $keya => $vala):
+				if ($_REQUEST["QUESTION_DEL"][$key] == "Y")
+					$res["DEL"] = "Y"; }
+			elseif ($_REQUEST["QUESTION_DEL"][$key] == "Y") {
+				continue; }
+
+			if (is_array($_REQUEST["ANSWER"]) && !empty($_REQUEST["ANSWER"])) {
+				foreach ($_REQUEST["ANSWER"][$key] as $keya => $vala) {
 					$resa = array("MESSAGE" => trim($vala));
-					if ($res["ID"] > 0 && is_set($arResult["~QUESTIONS"][$res["ID"]]["ANSWERS"], $_REQUEST["ANSWER_ID"][$key][$keya])):
+					if ($res["ID"] > 0 &&
+						is_set($arResult["~QUESTIONS"][$res["ID"]]["ANSWERS"], $_REQUEST["ANSWER_ID"][$key][$keya])) {
 						$resa["ID"] = intVal($_REQUEST["ANSWER_ID"][$key][$keya]);
-						if ($_REQUEST["ANSWER_DEL"][$key][$keya] == "Y"):
-							$resa["DEL"] = "Y";
-						endif;
-					elseif ($_REQUEST["ANSWER_DEL"][$key][$keya] == "Y" || empty($resa["MESSAGE"])):
-						continue;
-					endif;
+						if ($_REQUEST["ANSWER_DEL"][$key][$keya] == "Y")
+							$resa["DEL"] = "Y"; }
+					elseif ($_REQUEST["ANSWER_DEL"][$key][$keya] == "Y" || empty($resa["MESSAGE"])) {
+						continue; }
 					$res["ANSWERS"][] = $resa;
-				endforeach;
-			endif;
+				}
+			}
+			if (empty($res["ANSWERS"]) && empty($res["QUESTION"]) && empty($res["ID"]))
+				continue;
 			$arResult["QUESTIONS"][] = $res;
-		endforeach;
-	endif;
+		}
+	}
 }
 /*******************************************************************/
 if (($arParams["MESSAGE_TYPE"]=="NEW" || $arParams["MESSAGE_TYPE"]=="REPLY") && $arResult["IsAuthorized"] == "N" ||
@@ -335,16 +338,16 @@ if ($arResult["SHOW_PANEL_ATTACH_IMG"] == "Y")
 $arResult["MESSAGE"]["CAPTCHA_CODE"] = "";
 if (!$USER->IsAuthorized() && $arParams["FORUM"]["USE_CAPTCHA"]=="Y")
 {
-	//include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
-	//$cpt = new CCaptcha();
+	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
+	$cpt = new CCaptcha();
 	$captchaPass = COption::GetOptionString("main", "captcha_password", "");
 	if (strlen($captchaPass) <= 0)
 	{
 		$captchaPass = randString(10);
 		COption::SetOptionString("main", "captcha_password", $captchaPass);
 	}
-	//$cpt->SetCodeCrypt($captchaPass);
-	//$arResult["CAPTCHA_CODE"] = htmlspecialchars($cpt->GetCodeCrypt());
+	$cpt->SetCodeCrypt($captchaPass);
+	$arResult["CAPTCHA_CODE"] = htmlspecialcharsbx($cpt->GetCodeCrypt());
 }
 /*******************************************************************/
 $arResult["SUBMIT"] = GetMessage("FPF_EDIT");
@@ -366,7 +369,7 @@ endforeach;
 foreach ($arResult["TOPIC"] as $key => $val):
 	$arResult["TOPIC"][$key] = htmlspecialcharsEx($val);
 	$arResult["TOPIC"]["~".$key] = $val;
-	$arResult["str_".$key] = htmlspecialchars($val);
+	$arResult["str_".$key] = htmlspecialcharsbx($val);
 	$arResult["~str_".$key] = $val;
 endforeach;
 if (!empty($arResult["MESSAGE"]["FILES"])):

@@ -44,10 +44,10 @@ class CMainPage
 		$site_id = false;
 		$arUserLang = explode(",", $_SERVER["HTTP_ACCEPT_LANGUAGE"]);
 		$rsSites = CSite::GetDefList();
-		while($arSite = $rsSites->Fetch()) 
+		while($arSite = $rsSites->Fetch())
 		{
 			$last_site_id = $arSite["ID"];
-			if($arSite["DEF"]=="Y") 
+			if($arSite["DEF"]=="Y")
 				$site_id = $arSite["ID"];
 			$arSites[] = $arSite;
 		}
@@ -59,12 +59,12 @@ class CMainPage
 				foreach($arSites as $arSite)
 				{
 					$sid = ($compare_site_id) ? strtolower($arSite["ID"]) : strtolower($arSite["LANGUAGE_ID"]);
-					if($user_lid==$sid) 
+					if($user_lid==$sid)
 						return $arSite["ID"];
 				}
 			}
 		}
-		if(strlen($site_id)<=0) 
+		if(strlen($site_id)<=0)
 			return $last_site_id;
 		return $site_id;
 	}
@@ -78,7 +78,7 @@ class CMainPage
 		{
 			$arSite["DIR"] = RTrim($arSite["DIR"], ' \/');
 			if(strlen($arSite["DIR"])>0)
-				LocalRedirect((strlen($arSite["SERVER_NAME"])>0?"http://".$arSite["SERVER_NAME"]:"").$arSite["DIR"].$_SERVER["REQUEST_URI"]);
+				LocalRedirect((strlen($arSite["SERVER_NAME"])>0?"http://".$arSite["SERVER_NAME"]:"").$arSite["DIR"].$_SERVER["REQUEST_URI"], true);
 		}
 	}
 

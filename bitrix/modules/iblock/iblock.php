@@ -38,16 +38,22 @@ $arClasses = array(
 	"CIBlockFormatProperties" => "classes/general/comp_formatprops.php",
 	"CIBlockSequence" => "classes/".$DBType."/iblocksequence.php",
 	"CIBlockPropertySequence" => "classes/general/prop_seq.php",
-	"CIBlockPropertyElementAutoComplete" => "/classes/general/prop_element_auto.php",
-	"CIBlockPropertySKU" => "/classes/general/prop_element_sku.php",
-	"CAllIBlockOffersTmp" => "/classes/general/iblockoffers.php",
-	"CIBlockOffersTmp" => "/classes/".$DBType."/iblockoffers.php",
-	"CEventIblock" => "/classes/general/iblock_event_list.php",
-	"CRatingsComponentsIBlock" => "/classes/general/ratings_components.php",
-	"CIBlockRights" => "/classes/general/iblock_rights.php",
-	"CIBlockSectionRights" => "/classes/general/iblock_rights.php",
-	"CIBlockElementRights" => "/classes/general/iblock_rights.php",
-	"CIBlockRightsStorage" => "/classes/general/iblock_rights.php",
+	"CIBlockPropertyElementAutoComplete" => "classes/general/prop_element_auto.php",
+	"CIBlockPropertySKU" => "classes/general/prop_element_sku.php",
+	"CAllIBlockOffersTmp" => "classes/general/iblockoffers.php",
+	"CIBlockOffersTmp" => "classes/".$DBType."/iblockoffers.php",
+	"CEventIblock" => "classes/general/iblock_event_list.php",
+	"CRatingsComponentsIBlock" => "classes/general/ratings_components.php",
+	"CIBlockRights" => "classes/general/iblock_rights.php",
+	"CIBlockSectionRights" => "classes/general/iblock_rights.php",
+	"CIBlockElementRights" => "classes/general/iblock_rights.php",
+	"CIBlockRightsStorage" => "classes/general/iblock_rights.php",
+	"Bitrix\\Iblock\\IblockTable" => "lib/iblock.php",
+	"Bitrix\\Iblock\\ElementTable" => "lib/element.php",
+	"Bitrix\\Iblock\\SectionElementTable" => "lib/sectionelement.php",
+	"Bitrix\\Iblock\\SectionTable" => "lib/section.php",
+	"Bitrix\\Iblock\\SiteTable" => "lib/site.php",
+	"CIBlockSectionPropertyLink" => "classes/general/section_property.php",
 );
 
 if(IsModuleInstalled('bizproc'))
@@ -59,180 +65,62 @@ CModule::AddAutoloadClasses("iblock", $arClasses);
 
 IncludeModuleLangFile(__FILE__);
 
-/********************************************************************
-*  Information blocks classes
-********************************************************************/
-function CIBlockPropertyDateTime_GetUserTypeDescription()
-{
-	return array(
-		"PROPERTY_TYPE" => "S",
-		"USER_TYPE" => "DateTime",
-		"DESCRIPTION" => GetMessage("IBLOCK_PROP_DATETIME_DESC"),
-		//optional handlers
-		"GetPublicViewHTML" => array("CIBlockPropertyDateTime","GetPublicViewHTML"),
-		"GetPublicEditHTML" => array("CIBlockPropertyDateTime","GetPublicEditHTML"),
-		"GetAdminListViewHTML" => array("CIBlockPropertyDateTime","GetAdminListViewHTML"),
-		"GetPropertyFieldHtml" => array("CIBlockPropertyDateTime","GetPropertyFieldHtml"),
-		"CheckFields" => array("CIBlockPropertyDateTime","CheckFields"),
-		"ConvertToDB" => array("CIBlockPropertyDateTime","ConvertToDB"),
-		"ConvertFromDB" => array("CIBlockPropertyDateTime","ConvertFromDB"),
-		"GetSettingsHTML" => array("CIBlockPropertyDateTime","GetSettingsHTML"),
-		"GetAdminFilterHTML" => array("CIBlockPropertyDateTime","GetAdminFilterHTML"),
-		"GetPublicFilterHTML" => array("CIBlockPropertyDateTime","GetPublicFilterHTML"),
-		"AddFilterFields" => array("CIBlockPropertyDateTime","AddFilterFields"),
-	);
-}
-AddEventHandler("iblock", "OnIBlockPropertyBuildList", "CIBlockPropertyDateTime_GetUserTypeDescription");
-
-function CIBlockPropertyXmlID_GetUserTypeDescription()
-{
-	return array(
-		"PROPERTY_TYPE"		=>"S",
-		"USER_TYPE"		=>"ElementXmlID",
-		"DESCRIPTION"		=>GetMessage("IBLOCK_PROP_XMLID_DESC"),
-		"GetPublicViewHTML"	=>array("CIBlockPropertyXmlID","GetPublicViewHTML"),
-		"GetAdminListViewHTML"	=>array("CIBlockPropertyXmlID","GetAdminListViewHTML"),
-		"GetPropertyFieldHtml"	=>array("CIBlockPropertyXmlID","GetPropertyFieldHtml"),
-		"GetSettingsHTML"	=>array("CIBlockPropertyXmlID","GetSettingsHTML"),
-	);
-}
-AddEventHandler("iblock", "OnIBlockPropertyBuildList", "CIBlockPropertyXmlID_GetUserTypeDescription");
-
-function CIBlockPropertyFileMan_GetUserTypeDescription()
-{
-	return array(
-		"PROPERTY_TYPE"		=>"S",
-		"USER_TYPE"		=>"FileMan",
-		"DESCRIPTION"		=>GetMessage("IBLOCK_PROP_FILEMAN_DESC"),
-		"GetPropertyFieldHtml"	=>array("CIBlockPropertyFileMan","GetPropertyFieldHtml"),
-		"ConvertToDB"		=>array("CIBlockPropertyFileMan","ConvertToDB"),
-		"ConvertFromDB"		=>array("CIBlockPropertyFileMan","ConvertFromDB"),
-	);
-}
-AddEventHandler("iblock", "OnIBlockPropertyBuildList", "CIBlockPropertyFileMan_GetUserTypeDescription");
-
-function CIBlockPropertyHTML_GetUserTypeDescription()
-{
-	return array(
-		"PROPERTY_TYPE" => "S",
-		"USER_TYPE" => "HTML",
-		"DESCRIPTION" => GetMessage("IBLOCK_PROP_HTML_DESC"),
-		"GetPublicViewHTML" => array("CIBlockPropertyHTML","GetPublicViewHTML"),
-		"GetPublicEditHTML" => array("CIBlockPropertyHTML","GetPublicEditHTML"),
-		"GetAdminListViewHTML" => array("CIBlockPropertyHTML","GetAdminListViewHTML"),
-		"GetPropertyFieldHtml" => array("CIBlockPropertyHTML","GetPropertyFieldHtml"),
-		"ConvertToDB" => array("CIBlockPropertyHTML","ConvertToDB"),
-		"ConvertFromDB" => array("CIBlockPropertyHTML","ConvertFromDB"),
-		"GetLength" =>array("CIBlockPropertyHTML","GetLength"),
-		"PrepareSettings" =>array("CIBlockPropertyHTML","PrepareSettings"),
-		"GetSettingsHTML" =>array("CIBlockPropertyHTML","GetSettingsHTML"),
-	);
-}
-AddEventHandler("iblock", "OnIBlockPropertyBuildList", "CIBlockPropertyHTML_GetUserTypeDescription");
-
-function CIBlockPropertyElementList_GetUserTypeDescription()
-{
-	return array(
-		"PROPERTY_TYPE" => "E",
-		"USER_TYPE" => "EList",
-		"DESCRIPTION" => GetMessage("IBLOCK_PROP_ELIST_DESC"),
-		"GetPropertyFieldHtml" => array("CIBlockPropertyElementList","GetPropertyFieldHtml"),
-		"GetPropertyFieldHtmlMulty" => array("CIBlockPropertyElementList","GetPropertyFieldHtmlMulty"),
-		"GetPublicEditHTML" => array("CIBlockPropertyElementList","GetPropertyFieldHtml"),
-		"GetPublicEditHTMLMulty" => array("CIBlockPropertyElementList","GetPropertyFieldHtmlMulty"),
-		"GetAdminFilterHTML" => array("CIBlockPropertyElementList","GetAdminFilterHTML"),
-		"PrepareSettings" =>array("CIBlockPropertyElementList","PrepareSettings"),
-		"GetSettingsHTML" =>array("CIBlockPropertyElementList","GetSettingsHTML"),
-	);
-}
-AddEventHandler("iblock", "OnIBlockPropertyBuildList", "CIBlockPropertyElementList_GetUserTypeDescription");
-
-function CIBlockPropertySequence_GetUserTypeDescription()
-{
-	return array(
-		"PROPERTY_TYPE" => "N",
-		"USER_TYPE" => "Sequence",
-		"DESCRIPTION" => GetMessage("IBLOCK_PROP_SEQUENCE_DESC"),
-		"GetPropertyFieldHtml" => array("CIBlockPropertySequence","GetPropertyFieldHtml"),
-		"GetPublicEditHTML" => array("CIBlockPropertySequence","GetPropertyFieldHtml"),
-		"PrepareSettings" =>array("CIBlockPropertySequence","PrepareSettings"),
-		"GetSettingsHTML" =>array("CIBlockPropertySequence","GetSettingsHTML"),
-		"GetAdminFilterHTML" => array("CIBlockPropertySequence","GetPublicFilterHTML"),
-		"GetPublicFilterHTML" => array("CIBlockPropertySequence","GetPublicFilterHTML"),
-		"AddFilterFields" => array("CIBlockPropertySequence","AddFilterFields"),
-	);
-}
-AddEventHandler("iblock", "OnIBlockPropertyBuildList", "CIBlockPropertySequence_GetUserTypeDescription");
-
-function CIBlockPropertyElementAutoComplete_GetUserTypeDescription()
-{
-	return array(
-		"PROPERTY_TYPE" => "E",
-		"USER_TYPE" => "EAutocomplete",
-		"DESCRIPTION" => GetMessage("IBLOCK_PROP_EAUTOCOMPLETE_DESC"),
-		"GetPropertyFieldHtml" => array("CIBlockPropertyElementAutoComplete", "GetPropertyFieldHtml"),
-		"GetPropertyFieldHtmlMulty" => array('CIBlockPropertyElementAutoComplete','GetPropertyFieldHtmlMulty'),
-		"GetAdminListViewHTML" => array("CIBlockPropertyElementAutoComplete","GetAdminListViewHTML"),
-		"GetPublicViewHTML" => array("CIBlockPropertyElementAutoComplete", "GetPublicViewHTML"),
-		"GetAdminFilterHTML" => array('CIBlockPropertyElementAutoComplete','GetAdminFilterHTML'),
-		"GetSettingsHTML" => array('CIBlockPropertyElementAutoComplete','GetSettingsHTML'),
-		"PrepareSettings" => array('CIBlockPropertyElementAutoComplete','PrepareSettings'),
-		"AddFilterFields" => array('CIBlockPropertyElementAutoComplete','AddFilterFields'),
-	);
-}
-
-AddEventHandler("iblock", "OnIBlockPropertyBuildList", "CIBlockPropertyElementAutoComplete_GetUserTypeDescription");
-
-function CIBlockPropertySKU_GetUserTypeDescription()
-{
-	return array(
-		"PROPERTY_TYPE" => "E",
-		"USER_TYPE" =>"SKU",
-		"DESCRIPTION" => GetMessage('IBLOCK_PROP_SKU_DESC'),
-		"GetPropertyFieldHtml" => array("CIBlockPropertySKU", "GetPropertyFieldHtml"),
-		"GetPublicViewHTML" => array("CIBlockPropertySKU", "GetPublicViewHTML"),
-		"GetAdminListViewHTML" => array("CIBlockPropertySKU","GetAdminListViewHTML"),
-		"GetAdminFilterHTML" => array('CIBlockPropertySKU','GetAdminFilterHTML'),
-		"GetSettingsHTML" => array('CIBlockPropertySKU','GetSettingsHTML'),
-		"PrepareSettings" => array('CIBlockPropertySKU','PrepareSettings'),
-		"AddFilterFields" => array('CIBlockPropertySKU','AddFilterFields'),
-		//"GetOffersFieldHtml" => array('CIBlockPropertySKU','GetOffersFieldHtml'),
-	);
-}
-
-AddEventHandler("iblock", "OnIBlockPropertyBuildList", "CIBlockPropertySKU_GetUserTypeDescription");
-
 /*********************************************
 Public helper functions
 *********************************************/
-function GetIBlockListWithCnt($type, $arTypesInc = Array(), $arTypesExc = Array(), $arOrder=Array("SORT"=>"ASC"), $cnt=0)
+function GetIBlockListWithCnt($type, $arTypesInc = array(), $arTypesExc = array(), $arOrder = array(
+	"SORT" => "ASC",
+), $cnt = 0)
 {
-	if(!is_array($arTypesInc))
-		$arTypesInc = Array($arTypesInc);
+	if (!is_array($arTypesInc))
+	{
+		$arTypesInc = array(
+			$arTypesInc,
+		);
+	}
 
-	$arIDsInc = Array();
-	$arCODEsInc = Array();
-	for($i=0; $i<count($arTypesInc); $i++)
-		if(IntVal($arTypesInc[$i])>0)
-			$arIDsInc[] = $arTypesInc[$i];
+	$arIDsInc = array();
+	$arCODEsInc = array();
+	foreach ($arTypesInc as $i)
+	{
+		if (intval($i) > 0)
+			$arIDsInc[] = $i;
 		else
-			$arCODEsInc[] = $arTypesInc[$i];
+			$arCODEsInc[] = $i;
+	}
 
-	if(!is_array($arTypesExc))
-		$arTypesExc = Array($arTypesExc);
+	if (!is_array($arTypesExc))
+	{
+		$arTypesExc = array(
+			$arTypesExc,
+		);
+	}
 
-	$arIDsExc = Array();
-	$arCODEsExc = Array();
-	for($i=0; $i<count($arTypesExc); $i++)
-		if(IntVal($arTypesExc[$i])>0)
-			$arIDsExc[] = $arTypesExc[$i];
+	$arIDsExc = array();
+	$arCODEsExc = array();
+	foreach ($arTypesExc as $i)
+	{
+		if (intval($i) > 0)
+			$arIDsExc[] = $i;
 		else
-			$arCODEsExc[] = $arTypesExc[$i];
+			$arCODEsExc[] = $i;
+	}
 
-	$res = CIBlock::GetList($arOrder, Array("type"=>$type, "LID"=>LANG, "ACTIVE"=>"Y", "ID"=>$arIDsInc, "CNT_ACTIVE"=>"Y", "CODE"=>$arCODEsInc, "!ID"=>$arIDsExc, "!CODE"=>$arCODEsExc), true);
-	$dbr = new  CIBlockResult($res);
-	if($cnt>0)
+	$res = CIBlock::GetList($arOrder, array(
+		"type" => $type,
+		"LID" => LANG,
+		"ACTIVE" => "Y",
+		"ID" => $arIDsInc,
+		"CNT_ACTIVE" => "Y",
+		"CODE" => $arCODEsInc,
+		"!ID" => $arIDsExc,
+		"!CODE" => $arCODEsExc,
+	), true);
+
+	$dbr = new CIBlockResult($res);
+	if ($cnt > 0)
 		$dbr->NavStart($cnt);
+
 	return $dbr;
 }
 
@@ -241,34 +129,58 @@ function GetIBlockList($type, $arTypesInc = Array(), $arTypesExc = Array(), $arO
 	return GetIBlockListLang(LANG, $type, $arTypesInc, $arTypesExc, $arOrder, $cnt);
 }
 
-function GetIBlockListLang($lang, $type, $arTypesInc = Array(), $arTypesExc = Array(), $arOrder=Array("SORT"=>"ASC"), $cnt=0)
+function GetIBlockListLang($lang, $type, $arTypesInc = array(), $arTypesExc = array(), $arOrder = array(
+	"SORT" => "ASC",
+), $cnt = 0)
 {
-	if(!is_array($arTypesInc))
-		$arTypesInc = Array($arTypesInc);
+	if (!is_array($arTypesInc))
+	{
+		$arTypesInc = array(
+			$arTypesInc,
+		);
+	}
 
-	$arIDsInc = Array();
-	$arCODEsInc = Array();
-	for($i=0; $i<count($arTypesInc); $i++)
-		if(IntVal($arTypesInc[$i])>0)
-			$arIDsInc[] = $arTypesInc[$i];
+	$arIDsInc = array();
+	$arCODEsInc = array();
+	foreach ($arTypesInc as $i)
+	{
+		if (IntVal($i) > 0)
+			$arIDsInc[] = $i;
 		else
-			$arCODEsInc[] = $arTypesInc[$i];
+			$arCODEsInc[] = $i;
+	}
 
-	if(!is_array($arTypesExc))
-		$arTypesExc = Array($arTypesExc);
+	if (!is_array($arTypesExc))
+	{
+		$arTypesExc = array(
+			$arTypesExc,
+		);
+	}
 
-	$arIDsExc = Array();
-	$arCODEsExc = Array();
-	for($i=0; $i<count($arTypesExc); $i++)
-		if(IntVal($arTypesExc[$i])>0)
-			$arIDsExc[] = $arTypesExc[$i];
+	$arIDsExc = array();
+	$arCODEsExc = array();
+	foreach ($arTypesExc as $i)
+	{
+		if (intval($arTypesExc[$i]) > 0)
+			$arIDsExc[] = $i;
 		else
-			$arCODEsExc[] = $arTypesExc[$i];
+			$arCODEsExc[] = $i;
+	}
 
-	$res = CIBlock::GetList($arOrder, Array("type"=>$type, "LID"=>$lang, "ACTIVE"=>"Y", "ID"=>$arIDsInc, "CODE"=>$arCODEsInc, "!ID"=>$arIDsExc, "!CODE"=>$arCODEsExc));
-	$dbr = new  CIBlockResult($res);
-	if($cnt>0)
+	$res = CIBlock::GetList($arOrder, array(
+		"type" => $type,
+		"LID" => $lang,
+		"ACTIVE" => "Y",
+		"ID" => $arIDsInc,
+		"CODE" => $arCODEsInc,
+		"!ID" => $arIDsExc,
+		"!CODE" => $arCODEsExc,
+	));
+
+	$dbr = new CIBlockResult($res);
+	if ($cnt > 0)
 		$dbr->NavStart($cnt);
+
 	return $dbr;
 }
 
@@ -320,52 +232,63 @@ function GetIBlockElementCountExLang($lang, $type, $arTypesInc=Array(), $arTypes
 	return CIBlockElement::GetList($arOrder, $filter, true);
 }
 
-
-function _GetIBlockElementListExLang_tmp($lang, $type, $arTypesInc=Array(), $arTypesExc=Array(), $arOrder=Array("sort"=>"asc"), $cnt=0, $arFilter = Array(), $arSelect=Array())
+function _GetIBlockElementListExLang_tmp($lang, $type, $arTypesInc = array(), $arTypesExc = array(), $arOrder = array(
+	"sort" => "asc",
+), $cnt = 0, $arFilter = array(), $arSelect = array())
 {
-	global $DB;
-	if(!is_array($arTypesInc))
+	if (!is_array($arTypesInc))
 	{
-		if($arTypesInc!==false)
-			$arTypesInc = Array($arTypesInc);
-		else
-			$arTypesInc = Array();
-	}
-
-	$arIDsInc = Array();
-	$arCODEsInc = Array();
-	for($i=0; $i<count($arTypesInc); $i++)
-		if(IntVal($arTypesInc[$i])>0)
-			$arIDsInc[] = $arTypesInc[$i];
-		else
-			$arCODEsInc[] = $arTypesInc[$i];
-
-	if(!is_array($arTypesExc))
-	{
-		if($arTypesExc!==false)
-			$arTypesExc = Array($arTypesExc);
-		else
-			$arTypesExc = Array();
-	}
-
-	$arIDsExc = Array();
-	$arCODEsExc = Array();
-	for($i=0; $i<count($arTypesExc); $i++)
-		if(IntVal($arTypesExc[$i])>0)
-			$arIDsExc[] = $arTypesExc[$i];
-		else
-			$arCODEsExc[] = $arTypesExc[$i];
-
-	$filter = Array(
-			"IBLOCK_ID"=>$arIDsInc, "IBLOCK_LID"=>$lang, "IBLOCK_ACTIVE"=>"Y",
-			"IBLOCK_CODE"=>$arCODEsInc, "!IBLOCK_ID"=>$arIDsExc,
-			"!IBLOCK_CODE"=>$arCODEsExc, "ACTIVE_DATE"=>"Y", "ACTIVE"=>"Y", "CHECK_PERMISSIONS"=>"Y"
+		if ($arTypesInc !== false)
+			$arTypesInc = array(
+				$arTypesInc,
 			);
+		else
+			$arTypesInc = array();
+	}
+	$arIDsInc = array();
+	$arCODEsInc = array();
+	foreach ($arTypesInc as $i)
+	{
+		if (intval($i) > 0)
+			$arIDsInc[] = $i;
+		else
+			$arCODEsInc[] = $i;
+	}
 
-	if($type!=false && strlen($type)>0)
-		$filter["IBLOCK_TYPE"]=$type;
+	if (!is_array($arTypesExc))
+	{
+		if ($arTypesExc !== false)
+			$arTypesExc = array(
+				$arTypesExc,
+			);
+		else
+			$arTypesExc = array();
+	}
+	$arIDsExc = array();
+	$arCODEsExc = array();
+	foreach ($arTypesExc as $i)
+	{
+		if (intval($i) > 0)
+			$arIDsExc[] = $i;
+		else
+			$arCODEsExc[] = $i;
+	}
 
-	if(is_array($arFilter) && count($arFilter)>0)
+	$filter = array(
+		"IBLOCK_ID" => $arIDsInc,
+		"IBLOCK_LID" => $lang,
+		"IBLOCK_ACTIVE" => "Y",
+		"IBLOCK_CODE" => $arCODEsInc,
+		"!IBLOCK_ID" => $arIDsExc,
+		"!IBLOCK_CODE" => $arCODEsExc,
+		"ACTIVE_DATE" => "Y",
+		"ACTIVE" => "Y",
+		"CHECK_PERMISSIONS" => "Y",
+	);
+	if ($type != false && strlen($type) > 0)
+		$filter["IBLOCK_TYPE"] = $type;
+
+	if (is_array($arFilter) && count($arFilter) > 0)
 		$filter = array_merge($filter, $arFilter);
 
 	return $filter;
@@ -515,7 +438,7 @@ function xml_depth_rss($vals, &$i)
 	{
 		switch ($vals[$i]['type'])
 		{
-		   case 'open':
+			case 'open':
 				if (isset($vals[$i]['tag']))
 					$tagname = $vals[$i]['tag'];
 				else
@@ -563,7 +486,7 @@ function xml_depth_rss($vals, &$i)
 	return $children;
 }
 
-function GetIBlockDropDownList($IBLOCK_ID, $strTypeName, $strIBlockName, $arFilter = false)
+function GetIBlockDropDownList($IBLOCK_ID, $strTypeName, $strIBlockName, $arFilter = false, $strAddType = '', $strAddIBlock = '')
 {
 	$html = '';
 
@@ -627,21 +550,24 @@ function GetIBlockDropDownList($IBLOCK_ID, $strTypeName, $strIBlockName, $arFilt
 		}
 	}
 
-	$html .= '<select name="'.htmlspecialchars($strTypeName).'" id="'.htmlspecialchars($strTypeName).'" OnChange="'.htmlspecialchars('OnTypeChanged(this, \''.CUtil::JSEscape($strIBlockName).'\')').'">'."\n";
+	$strAddType = trim($strAddType);
+	$strAddIBlock = trim($strAddIBlock);
+
+	$html .= '<select name="'.htmlspecialcharsbx($strTypeName).'" id="'.htmlspecialcharsbx($strTypeName).'" OnChange="'.htmlspecialcharsbx('OnTypeChanged(this, \''.CUtil::JSEscape($strIBlockName).'\')').'"'.($strAddType != '' ? ' '.$strAddType : '').'>'."\n";
 	foreach($arTypes as $key => $value)
 	{
 		if($IBLOCK_TYPE === false)
 			$IBLOCK_TYPE = $key;
-		$html .= '<option value="'.htmlspecialchars($key).'"'.($IBLOCK_TYPE===$key? ' selected': '').'>'.htmlspecialchars($value).'</option>'."\n";
+		$html .= '<option value="'.htmlspecialcharsbx($key).'"'.($IBLOCK_TYPE===$key? ' selected': '').'>'.htmlspecialcharsbx($value).'</option>'."\n";
 	}
 	$html .= "</select>\n";
 
 	$html .= "&nbsp;\n";
 
-	$html .= '<select name="'.htmlspecialchars($strIBlockName).'" id="'.htmlspecialchars($strIBlockName).'">'."\n";
+	$html .= '<select name="'.htmlspecialcharsbx($strIBlockName).'" id="'.htmlspecialcharsbx($strIBlockName).'"'.($strAddIBlock != '' ? ' '.$strAddIBlock : '').'>'."\n";
 	foreach($arIBlocks[$IBLOCK_TYPE] as $key => $value)
 	{
-		$html .= '<option value="'.htmlspecialchars($key).'"'.($IBLOCK_ID==$key? ' selected': '').'>'.htmlspecialchars($value).'</option>'."\n";
+		$html .= '<option value="'.htmlspecialcharsbx($key).'"'.($IBLOCK_ID==$key? ' selected': '').'>'.htmlspecialcharsbx($value).'</option>'."\n";
 	}
 	$html .= "</select>\n";
 
@@ -728,21 +654,21 @@ function GetIBlockDropDownListEx($IBLOCK_ID, $strTypeName, $strIBlockName, $arFi
 	$strAddType = trim($strAddType);
 	$strAddIBlock = trim($strAddIBlock);
 
-	$html .= '<select name="'.htmlspecialchars($strTypeName).'" id="'.htmlspecialchars($strTypeName).'" onchange="'.htmlspecialchars($onChangeType).'"'.($strAddType != '' ? ' '.$strAddType : '').'>'."\n";
+	$html .= '<select name="'.htmlspecialcharsbx($strTypeName).'" id="'.htmlspecialcharsbx($strTypeName).'" onchange="'.htmlspecialcharsbx($onChangeType).'"'.($strAddType != '' ? ' '.$strAddType : '').'>'."\n";
 	foreach($arTypes as $key => $value)
 	{
 		if($IBLOCK_TYPE === false)
 			$IBLOCK_TYPE = $key;
-		$html .= '<option value="'.htmlspecialchars($key).'"'.($IBLOCK_TYPE===$key? ' selected': '').'>'.htmlspecialchars($value).'</option>'."\n";
+		$html .= '<option value="'.htmlspecialcharsbx($key).'"'.($IBLOCK_TYPE===$key? ' selected': '').'>'.htmlspecialcharsbx($value).'</option>'."\n";
 	}
 	$html .= "</select>\n";
 
 	$html .= "&nbsp;\n";
 
-	$html .= '<select name="'.htmlspecialchars($strIBlockName).'" id="'.htmlspecialchars($strIBlockName).'"'.($onChangeIBlock != '' ? ' onchange="'.$onChangeIBlock.'"' : '').($strAddType != '' ? ' '.$strAddType : '').'>'."\n";
+	$html .= '<select name="'.htmlspecialcharsbx($strIBlockName).'" id="'.htmlspecialcharsbx($strIBlockName).'"'.($onChangeIBlock != '' ? ' onchange="'.$onChangeIBlock.'"' : '').($strAddIBlock != '' ? ' '.$strAddIBlock : '').'>'."\n";
 	foreach($arIBlocks[$IBLOCK_TYPE] as $key => $value)
 	{
-		$html .= '<option value="'.htmlspecialchars($key).'"'.($IBLOCK_ID==$key? ' selected': '').'>'.htmlspecialchars($value).'</option>'."\n";
+		$html .= '<option value="'.htmlspecialcharsbx($key).'"'.($IBLOCK_ID==$key? ' selected': '').'>'.htmlspecialcharsbx($value).'</option>'."\n";
 	}
 	$html .= "</select>\n";
 

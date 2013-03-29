@@ -1,7 +1,7 @@
 <?
 if (!function_exists("_GetChildMenuRecursive"))
 {
-	function _GetChildMenuRecursive(&$arMenu, &$arResult, $menuType, $use_ext, $menuTemplate, $currentLevel, $maxLevel, $bMultiSelect)
+	function _GetChildMenuRecursive(&$arMenu, &$arResult, $menuType, $use_ext, $menuTemplate, $currentLevel, $maxLevel, $bMultiSelect, $bCheckSelected)
 	{
 		if ($currentLevel > $maxLevel)
 			return;
@@ -34,12 +34,12 @@ if (!function_exists("_GetChildMenuRecursive"))
 				{
 					$menu = new CMenu($menuType);
 					$success = $menu->Init($arMenu[$menuIndex]["LINK"], $use_ext, $menuTemplate, $onlyCurrentDir = true);
-					$subMenuExists = ($success && count($menu->arMenu) > 0 && ($arResult["menuDir"] <> $menu->MenuDir));
+					$subMenuExists = ($success && count($menu->arMenu) > 0);
 
 					if ($subMenuExists)
 					{
-						$menu->RecalcMenu($bMultiSelect);
-	
+						$menu->RecalcMenu($bMultiSelect, $bCheckSelected);
+
 						$arResult[] = $arMenu[$menuIndex] + Array("DEPTH_LEVEL" => $currentLevel, "IS_PARENT" => (count($menu->arMenu) > 0));
 	
 						if($arMenu[$menuIndex]["SELECTED"])
@@ -47,9 +47,9 @@ if (!function_exists("_GetChildMenuRecursive"))
 							$arResult["menuType"] = $menuType;
 							$arResult["menuDir"] = $arMenu[$menuIndex]["LINK"];
 						}
-	
+
 						if(count($menu->arMenu) > 0)
-							_GetChildMenuRecursive($menu->arMenu, $arResult, $menuType, $use_ext, $menuTemplate, $currentLevel+1, $maxLevel, $bMultiSelect);
+							_GetChildMenuRecursive($menu->arMenu, $arResult, $menuType, $use_ext, $menuTemplate, $currentLevel+1, $maxLevel, $bMultiSelect, $bCheckSelected);
 					}
 				}
 			}
@@ -59,4 +59,99 @@ if (!function_exists("_GetChildMenuRecursive"))
 		}
 	}
 }
-?>
+
+if (!function_exists('__GetMenuString'))
+{
+	/**
+	 * @param string $type
+	 * @param CBitrixComponent $obMenuComponent
+	 * @return string
+	 */
+	function __GetMenuString($type = "left", $obMenuComponent)
+	{
+		/** @var CMenuCustom*/
+		global $BX_MENU_CUSTOM;
+
+		$sReturn = "";
+
+		if ($GLOBALS["APPLICATION"]->buffer_manual)
+		{
+			$arMenuCustom = $BX_MENU_CUSTOM->GetItems($type);
+			if (is_array($arMenuCustom))
+				$obMenuComponent->arResult = array_merge($obMenuComponent->arResult, $arMenuCustom);
+
+			ob_start();
+			$obMenuComponent->IncludeComponentTemplate();
+			$sReturn = ob_get_contents();
+			ob_end_clean();
+		}
+		return $sReturn;
+	}
+}
+
+if (!function_exists('_SetSelectedItems'))
+{
+	function _SetSelectedItems(&$arResult)
+	{
+		/** @global CMain $APPLICATION */
+		global $APPLICATION;
+
+		$cur_page = $APPLICATION->GetCurPage(true);
+		$cur_page_no_index = $APPLICATION->GetCurPage(false);
+		$cur_selected = -1;
+		$cur_selected_len = -1;
+
+		foreach($arResult as $iMenuItem => $MenuItem)
+		{
+			$LINK = $MenuItem['LINK'];
+			$ADDITIONAL_LINKS = $MenuItem['ADDITIONAL_LINKS'];
+			$SELECTED = false;
+
+			$all_links = array();
+			if(is_array($ADDITIONAL_LINKS))
+			{
+				foreach($ADDITIONAL_LINKS as $link)
+				{
+					$tested_link = trim($link);
+					if(strlen($tested_link)>0)
+						$all_links[] = $tested_link;
+				}
+			}
+			$all_links[] = $LINK;
+
+			if($MenuItem['PERMISSION'] != 'Z')
+			{
+				foreach($all_links as $tested_link)
+				{
+					if($tested_link == '')
+						continue;
+
+					$SELECTED = CMenu::IsItemSelected($tested_link, $cur_page, $cur_page_no_index);
+					if($SELECTED)
+					{
+						$arResult[$iMenuItem]['SELECTED'] = true;
+						break;
+					}
+				}
+			}
+
+			if($SELECTED)
+			{
+				/** @noinspection PhpUndefinedVariableInspection */
+				$new_len = strlen($tested_link);
+				if($new_len > $cur_selected_len)
+				{
+					if($cur_selected !== -1)
+						$arResult[$cur_selected]['SELECTED'] = false;
+
+					$cur_selected = $iMenuItem;
+					$cur_selected_len = $new_len;
+				}
+				elseif($new_len > 1)
+				{
+					$arResult[$iMenuItem]['SELECTED'] = false;
+				}
+			}
+		}
+	}
+}

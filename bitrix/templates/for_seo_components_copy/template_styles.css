@@ -191,10 +191,13 @@ p {padding-bottom:10px;}
 #top_line_4 { height: 173px; background: #ffffff; }
 #t_l_left { vertical-align: top; }
 #t_l_center { background: url(img/top_img3.jpg) no-repeat center 2px; width: 100%; vertical-align: top; }
+#t_l_center0{ vertical-align: top; padding-top:9px; }
+#t_l_center2 { background: url(img/mob_msk5.png) no-repeat center 0px; width: 100%; vertical-align: top; }
 #t_l_right { width: 230px; padding: 5px 0px 0px 0px; vertical-align: top; }
 
-#skype, #chat, #icq, #mail, #zvonok { z-index: 2; position: fixed; background-color: #FFFFFF; padding: 7px; border: 1px solid #666666; display:none; width:150px; border-radius:7px; -moz-border-radius:7px; text-align:center; }
-#skype { margin:-50px 0px 0px -170px; font: normal 16px/18px "Arial" ,"Helvetica" ,"Sans-serif"; color: #000000; }
+#skype, #chat, #icq, #mail, #zvonok, #mobmen { z-index: 2; position: fixed; background-color: #FFFFFF; padding: 7px; border: 1px solid #666666; display:none; width:150px; border-radius:7px; -moz-border-radius:7px; text-align:center; }
+#skype { margin:-5px 0px 0px -150px; font: normal 16px/18px "Arial" ,"Helvetica" ,"Sans-serif"; color: #000000; }
+#mobmen { width:250px; margin:40px 0px 0px -150px; font: normal 14px/16px "Arial" ,"Helvetica" ,"Sans-serif"; color: #000000; }
 #bzvonok { position: absolute; width:175px; margin:0px; padding:0px; margin-top:-20px; }
 #zvonok { width:170px; margin-top:-20px; position: absolute; z-index:9999; font: normal 16px/18px "Arial" ,"Helvetica" ,"Sans-serif"; color: #000000; }
 #zvonok_link a { font: normal 16px/18px "Arial" ,"Helvetica" ,"Sans-serif"; color: #000000; text-decoration: underline; }

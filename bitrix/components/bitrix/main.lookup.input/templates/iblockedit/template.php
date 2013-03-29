@@ -3,17 +3,17 @@
 if ((defined('BX_PUBLIC_MODE')) && (1 == BX_PUBLIC_MODE))
 {
 ?>
-<link rel="stylesheet" type="text/css" href="<?php echo $this->GetFolder().'/style.css'; ?>">
+<link rel="stylesheet" type="text/css" href="<? echo $this->GetFolder().'/style.css'; ?>">
 <script type="text/javascript" src="/bitrix/js/main/ajax.js"></script>
 <script type="text/javascript" src="/bitrix/js/main/utils.js"></script>
 <script type="text/javascript" src="/bitrix/js/main/public_tools.js"></script>
-<script type="text/javascript" src="<?php echo $this->__component->GetPath().'/script.js'; ?>"></script>
-<script type="text/javascript" src="<?php echo $this->GetFolder().'/script2.js'; ?>"></script>
-<?php
+<script type="text/javascript" src="<? echo $this->__component->GetPath().'/script.js'; ?>"></script>
+<script type="text/javascript" src="<? echo $this->GetFolder().'/script2.js'; ?>"></script>
+<?
 }
 else
 {
-	?><script type="text/javascript" src="<?php echo $this->GetFolder().'/script2.js'; ?>"></script><?
+	?><script type="text/javascript" src="<? echo $this->GetFolder().'/script2.js'; ?>"></script><?
 }
 
 $control_id = $arParams['CONTROL_ID'];
@@ -47,12 +47,12 @@ if(isset($arParams['INPUT_VALUE_STRING']) && strlen($arParams['INPUT_VALUE_STRIN
 <div class="mli-layout" id="layout_<?=$control_id?>">
 	<input type="hidden" name="<?echo $arParams['~INPUT_NAME']; ?>" value="">
 	<?if($arParams["MULTIPLE"]=="Y"):?>
-	<textarea name="<?=$textarea_id?>" id="<?=$textarea_id?>" class="mli-field"><?if (isset($arParams['INPUT_VALUE_STRING'])) echo htmlspecialchars($arParams['INPUT_VALUE_STRING']);?></textarea>
+	<textarea name="<?=$textarea_id?>" id="<?=$textarea_id?>" class="mli-field"><?if (isset($arParams['INPUT_VALUE_STRING'])) echo htmlspecialcharsbx($arParams['INPUT_VALUE_STRING']);?></textarea>
 	<?else:?>
-	<input autocomplete="off" type="text" name="<?=$textarea_id?>" id="<?=$textarea_id?>" value="<?if (isset($arParams['INPUT_VALUE_STRING'])) echo htmlspecialchars($arParams['INPUT_VALUE_STRING']);?>" class="mli-field">
+	<input autocomplete="off" type="text" name="<?=$textarea_id?>" id="<?=$textarea_id?>" value="<?if (isset($arParams['INPUT_VALUE_STRING'])) echo htmlspecialcharsbx($arParams['INPUT_VALUE_STRING']);?>" class="mli-field">
 	<?endif?>
 </div>
-<?php
+<?
 $arAjaxParams = array(
 	"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 );
@@ -76,28 +76,29 @@ var jsMLI_<?=$control_id?> = new JCMainLookupAdminSelector({
 	'VALUE': <?echo CUtil::PhpToJsObject($INPUT_VALUE)?>,
 	'VISUAL': {
 		'ID': '<?=$textarea_id?>',
-		'MAX_HEIGHT': <?php echo $arParams['MAX_HEIGHT']; ?>,
-		'MIN_HEIGHT': <?php echo $arParams['MIN_HEIGHT']; ?>,
-		<?php
+		'MAX_HEIGHT': <? echo $arParams['MAX_HEIGHT']; ?>,
+		'MIN_HEIGHT': <? echo $arParams['MIN_HEIGHT']; ?>,
+		<?
 		if (0 < $arParams['MAX_WIDTH'])
 		{
 		?>
-		'MAX_WIDTH': <?php echo $arParams['MAX_WIDTH']?>,
-		<?php
+		'MAX_WIDTH': <? echo $arParams['MAX_WIDTH']?>,
+		<?
 		}
 		?>
 		'START_TEXT': '<?echo CUtil::JSEscape($arParams['START_TEXT'])?>'
 	}
 });
-<?php if ((defined('BX_PUBLIC_MODE')) && (1 == BX_PUBLIC_MODE))
+<? if ((defined('BX_PUBLIC_MODE')) && (1 == BX_PUBLIC_MODE))
 { ?>
 jsMLI_<?=$control_id?>.Init();
-<?php
+<?
 }
-?><?php 
+?><?
 if ('Y' == $arParams['RESET'])
 {
-?>jsMLI_<?=$control_id?>.Reset(true,false);<?php 
+?>jsMLI_<?=$control_id?>.Reset(true,false);<?
 }
 ?>
+BX.addCustomEvent(BX.WindowManager.Get(), 'onWindowClose', BX.delegate(jsMLI_<?=$control_id?>.Clear, jsMLI_<?=$control_id?>));
 </script>

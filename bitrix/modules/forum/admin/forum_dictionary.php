@@ -88,7 +88,7 @@
 		$row->AddViewField("ID", '<a title="'.GetMessage("FLT_ACT_EDIT").'" href="'.($TYPE == "T"?"forum_letter.php":"forum_words.php")."?DICTIONARY_ID=".$t_ID."&amp;lang=".LANG.'">'.$t_ID.'</a>');
 		$row->AddInputField("TITLE", array("size" => "50"));
 
-	 	$arActions = Array();
+		$arActions = Array();
 		$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("FLT_ACT_EDIT"), "ACTION"=>$lAdmin->ActionRedirect("forum_dictionary_edit.php?DICTIONARY_ID=".$t_ID."&lang=".LANG), "DEFAULT" => true);
 		$arActions[] = array("SEPARATOR" => true);
 		$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("FLT_ACT_DEL"), "ACTION"=>"if(confirm('".GetMessage("FLT_ACT_DEL_CONFIRM")."')) ".$lAdmin->ActionDoGroup($t_ID, "delete"),);

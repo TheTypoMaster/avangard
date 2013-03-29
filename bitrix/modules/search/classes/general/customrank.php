@@ -51,7 +51,7 @@ class CSearchCustomRank
 
 		if(count($arOrder) == 0)
 			$arOrder = array(
-				 "CR.SITE_ID ASC"
+				"CR.SITE_ID ASC"
 				,"CR.MODULE_ID ASC"
 				,"CR.PARAM1 DESC"
 				,"CR.PARAM2 DESC"

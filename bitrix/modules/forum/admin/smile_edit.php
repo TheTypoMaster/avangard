@@ -21,7 +21,7 @@ while ($res = $db_res->Fetch())
 {
 	$arLang[$res["LID"]] = $res;
 	$arLangTitle["reference_id"][] = $res["LID"];
-	$arLangTitle["reference"][] = htmlspecialchars($res["NAME"]);
+	$arLangTitle["reference"][] = htmlspecialcharsbx($res["NAME"]);
 }
 $bInitVars = false;
 /********************************************************************
@@ -33,8 +33,12 @@ $APPLICATION->SetTitle($ID > 0 ? GetMessage("FORUM_EDIT_RECORD", array("#ID#" =>
 /********************************************************************
 				Action
 ********************************************************************/
+$fileName = '';
 if ($REQUEST_METHOD == "POST" && $forumPermissions >= "W" && (strlen($save) > 0 || strlen($apply) > 0))
 {
+	if (isset($_FILES["IMAGE"]["name"]))
+		$fileName = RemoveScriptExtension($_FILES["IMAGE"]["name"]);
+
 	if (!check_bitrix_sessid())
 	{
 		$arError[] = array(
@@ -67,14 +71,14 @@ if ($REQUEST_METHOD == "POST" && $forumPermissions >= "W" && (strlen($save) > 0 
 				"id" => "IMAGE", 
 				"text" => $res);
 		}
-		elseif (file_exists($sUploadDir . $_FILES["IMAGE"]["name"]) && !(isset($arSmile["IMAGE"]) && $arSmile["IMAGE"] != $_FILES["IMAGE"]["name"]))
+		elseif (file_exists($sUploadDir . $fileName) && !(isset($arSmile["IMAGE"]) && $arSmile["IMAGE"] != $fileName))
 		{
 			$arError[] = array(
 				"id" => "IMAGE", 
 				"text" => GetMessage("ERROR_EXISTS_IMAGE", 
-					array("#FILE#" => str_replace("//", "/", "/".BX_ROOT."/images/forum/".($_REQUEST["TYPE"] == "I" ? "icon" : "smile")."/".$_FILES["IMAGE"]["name"]))));
+					array("#FILE#" => str_replace("//", "/", "/".BX_ROOT."/images/forum/".($_REQUEST["TYPE"] == "I" ? "icon" : "smile")."/".$fileName))));
 		}
-		elseif (!@copy($_FILES["IMAGE"]["tmp_name"], $sUploadDir.$_FILES["IMAGE"]["name"]))
+		elseif (!@copy($_FILES["IMAGE"]["tmp_name"], $sUploadDir.$fileName))
 		{
 			$arError[] = array(
 				"id" => "IMAGE", 
@@ -82,10 +86,10 @@ if ($REQUEST_METHOD == "POST" && $forumPermissions >= "W" && (strlen($save) > 0 
 		}
 		else
 		{
-			@chmod($sUploadDir.$_FILES["IMAGE"]["name"], BX_FILE_PERMISSIONS);
+			@chmod($sUploadDir.$fileName, BX_FILE_PERMISSIONS);
 		}
 	}
-	
+
 	if (empty($arError))
 	{
 		$GLOBALS["APPLICATION"]->ResetException();
@@ -97,14 +101,16 @@ if ($REQUEST_METHOD == "POST" && $forumPermissions >= "W" && (strlen($save) > 0 
 			"DESCRIPTION" => $_REQUEST["DESCRIPTION"], 
 			"LANG" => array());
 		if (!empty($_FILES["IMAGE"]["tmp_name"]))
-			$arFields["IMAGE"] = $_FILES["IMAGE"]["name"];
+			$arFields["IMAGE"] = $fileName;
 		foreach ($arLang as $key => $val)
 			$arFields["LANG"][$key] = array("LID" => $key, "NAME" => $_REQUEST["NAME_".$key]);
 
-		if ($ID > 0)
+		if ($ID > 0) {
+			$arSmile = (empty($arSmile) ? CForumSmile::GetByID($ID) : $arSmile);
 			CForumSmile::Update($ID, $arFields);
-		else
+		} else {
 			$ID = CForumSmile::Add($arFields);
+		}
 
 		if ($e = $GLOBALS["APPLICATION"]->GetException())
 		{
@@ -113,7 +119,7 @@ if ($REQUEST_METHOD == "POST" && $forumPermissions >= "W" && (strlen($save) > 0 
 				"text" => $e->getString());
 			if (!empty($_FILES["IMAGE"]["tmp_name"]) && isset($sUploadDir))
 			{
-				@unlink($sUploadDir.$_FILES["IMAGE"]["name"]);
+				@unlink($sUploadDir.$fileName);
 				unset($arFields["IMAGE"]);
 			}
 		}
@@ -125,15 +131,24 @@ if ($REQUEST_METHOD == "POST" && $forumPermissions >= "W" && (strlen($save) > 0 
 			if (!empty($arSmile))
 			{
 				$res = CForumSmile::GetByID($ID);
-				if ($arSmile["TYPE"] != $res["TYPE"] || $arSmile["IMAGE"] != $res["IMAGE"]) 
+				if ($arSmile["IMAGE"] != $res["IMAGE"]) {
 					@unlink($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/images/forum/".($arSmile["TYPE"] == "I" ? "icon" : "smile")."/".$arSmile["IMAGE"]);
+				} elseif ($arSmile["TYPE"] != $res["TYPE"]) {
+					CopyDirFiles(
+						$_SERVER["DOCUMENT_ROOT"].BX_ROOT."/images/forum/".($arSmile["TYPE"] == "I" ? "icon" : "smile")."/".$arSmile["IMAGE"],
+						$_SERVER["DOCUMENT_ROOT"].BX_ROOT."/images/forum/".($res["TYPE"] == "I" ? "icon" : "smile")."/".$arSmile["IMAGE"],
+						false,
+						false,
+						true,
+						""
+					);
+				}
 			}
-			LocalRedirect(strlen($save) > 0 ? 
+			LocalRedirect(strlen($save) > 0 ?
 				"forum_smile.php?lang=".LANG."&".GetFilterParams("filter_", false) : 
 				"forum_smile_edit.php?lang=".LANG."&ID=".$ID."&".GetFilterParams("filter_", false));
 		}
 	}
-	
 	$e = new CAdminException($arError);
 	$message = new CAdminMessage(($ID > 0 ? GetMessage("ERROR_EDIT_SMILE") : GetMessage("ERROR_ADD_SMILE")), $e);
 	$bInitVars = true;
@@ -170,10 +185,10 @@ else
 foreach ($arSmile as $key => $val):
 	if ($key == "LANG")
 		continue;
-	$arSmile[$key] = htmlspecialchars($val);
+	$arSmile[$key] = htmlspecialcharsbx($val);
 endforeach;
 foreach ($arSmile["LANG"] as $key => $val):
-	$arSmile["LANG"][$key] = array("LID" => htmlspecialchars($val["LID"]), "NAME" => htmlspecialchars($val["NAME"]));
+	$arSmile["LANG"][$key] = array("LID" => htmlspecialcharsbx($val["LID"]), "NAME" => htmlspecialcharsbx($val["NAME"]));
 endforeach;
 /*********************************************************************/
 /********************  BODY  *****************************************/
@@ -257,11 +272,8 @@ endif;
 		</td>
 	</tr>
 
-	<tr>
+	<tr<?if ($ID <= 0){ ?> class="adm-detail-required-field"<? }?>>
 		<td>
-			<?if ($ID <= 0):?>
-				<span class="required">*</span>
-			<?endif;?>
 			<?=GetMessage("FORUM_IMAGE")?>:<br><small><?=GetMessage("FORUM_IMAGE_NOTE")?></small></td>
 		<td>
 			<input type="file" name="IMAGE" size="30" />
@@ -276,10 +288,10 @@ endif;
 		</td>
 	</tr>
 	<tr class="heading">
-		<td colspan="2"><span class="required">*</span><?=GetMessage("FORUM_IMAGE_NAME")?></td>
+		<td colspan="2"><?=GetMessage("FORUM_IMAGE_NAME")?></td>
 	</tr>
 	<?foreach ($arLang as $key => $val):?>
-		<tr>
+		<tr class="adm-detail-required-field">
 			<td><?=$val["NAME"]?> [<?=$key?>]:</td>
 			<td><input type="text" name="NAME_<?=$key?>" value="<?=$arSmile["LANG"][$key]["NAME"]?>" size="40" /></td>
 		</tr>

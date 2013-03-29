@@ -101,7 +101,8 @@
 
 .photo-comment-info-text { overflow:hidden;}
 .photo-comment-hover .photo-comment-edit, .photo-comment-hover .photo-comment-remove, .photo-comment-hover .photo-comment-reply{display:block; top:0px;}
-.photo-comment-info {line-height:10px; position:relative; padding-bottom:9px; zoom:1;}
+.photo-comment-info {line-height:15px; position:relative; padding-bottom:9px; zoom:1;}
+.photo-comment-info .bx-ilike-right-wrap {line-height:11px !important;}
 .photo-comment-name {color:#545454!important; margin-right:5px;}
 .photo-comment-name:hover {color:#656565!important;}
 .photo-comment-info  span { color:#999!important;}
@@ -161,16 +162,19 @@
 .photo-next-slide span {background:url("images/photo-gall-but.png") no-repeat 0 -113px; cursor:pointer; display:block; height:60px; position:absolute; right:15px; width:28px; top:340px;  }
 .photo-next-slide:hover span {background-position:-35px -113px;}
 
-.photo-rating .ilike-light { margin-top: -1px; display: inline-block}
+.photo-rating .bx-ilike-left-wrap  {  display: inline-block; height: 17px!important}
+.photo-rating .bx-ilike-right-wrap  { display: inline-block; height: 17px!important}
+.photo-rating .ilike-light { margin-top: 0px; display: inline-block}
 .review-rating  .ilike-light { margin-left: 5px; display: inline-block}
-.photo-rating .ilike-light .bx-ilike-right, .review-rating  .ilike-light .bx-ilike-right { padding: 0px 1px 0 11px; background-position:0 -41px; line-height: 16px;}
-.photo-rating .ilike-light .bx-you-like .bx-ilike-right, .review-rating   .ilike-light .bx-you-like .bx-ilike-right { background-position:0 -21px; }
-.photo-rating .ilike-light .bx-ilike-text, .review-rating  .ilike-light .bx-ilike-text  {	padding: 0; text-decoration: none;}
+.photo-rating .ilike-light .bx-ilike-right, .review-rating  .ilike-light .bx-ilike-right { padding: 0px 1px 0 11px; background-position:0 -42px; height: 16px;}
+.photo-rating .ilike-light .bx-you-like .bx-ilike-right, .review-rating   .ilike-light .bx-you-like .bx-ilike-right { background-position:0 -22px; }
+.photo-rating .ilike-light .bx-ilike-text, .review-rating  .ilike-light .bx-ilike-text  {	padding: 0; text-decoration: none; height: 15px}
 .photo-rating .ilike-light .bx-ilike-text  { color: #7B7B7B !important; }
 .review-rating  .ilike-light .bx-ilike-text  { color: #999999 !important; }
 .photo-rating .ilike-light .bx-ilike-text:hover, .review-rating .ilike-light .bx-ilike-text:hover  {	text-decoration: underline; }
 .photo-rating  .bx-rating span, .photo-rating  .bx-rating a, .review-rating .bx-rating a { color: #929292; }
 .review-rating .bx-rating {margin-left: 5px;}
+.photo-comment .photo-rating .ilike-light .bx-ilike-right, .photo-comment .review-rating .ilike-light .bx-ilike-right {background-position: 0 -44px;}
 
 body, html{width: 100%; height: 100%;}
 .photo-quirks-mode {position: absolute!important;}
@@ -305,7 +309,7 @@ body, html{width: 100%; height: 100%;}
 .photo-slider a.photo-wait:hover{background: none!important;}
 .photo-comments-warning{color: #858585;}
 
-.photo-comments .reviews-note-error{color: #800000!important;}
+.photo-comments .reviews-note-error{color: #EE0000!important;}
 
 .photo-rotate-90{-moz-transform:rotate(90deg); -webkit-transform:rotate(90deg); -o-transform:rotate(90deg);filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=1);}
 .photo-rotate-180{-moz-transform:rotate(180deg);-webkit-transform:rotate(180deg);-o-transform:rotate(180deg);filter:progid:DXImageTransform.Microsoft.BasicImage(rotation=2);}
@@ -412,7 +416,7 @@ div.blog-comment-new .photo-info-date {background-color: #F0F0F0; padding: 3px 6
 
 /* Dark theme for blog's comments */
 .photo-dark-theme .photo-comments .bxlhe-frame-table{border: 1px solid #313131!important;}
-.photo-dark-theme .photo-comments div.bxlhe-frame{background: #313131!important;}
+.photo-dark-theme .photo-comments div.bxlhe-frame{background: #313131!important; border-bottom: none!important;}
 .photo-dark-theme .photo-comments td.bxlhe-editor-cell{border: 1px solid #898989!important;}
 .photo-dark-theme .photo-comments div.blog-post-quote table.blogquote {border-color: #898989!important; color: #BBBBBB!important; background: url(images/quote-gray-dark.png) no-repeat scroll left top #464646!important;}
 .photo-dark-theme .photo-comments .bxlhe-frame-table .bxlhe-editor-cell{background-color: #464646!important;}
@@ -424,3 +428,6 @@ div.blog-comment-new .photo-info-date {background-color: #F0F0F0; padding: 3px 6
 .photo-dark-theme .photo-comments #lhe_btn_quote{background-position: -107px -55px!important}
 .photo-dark-theme .lhe-button-over {background-color:#505050!important;}
 .photo-dark-theme div.blog-comment-new .photo-info-date {background-color: #222222!important;}
+.photo-dark-theme .lhe-stat-toolbar-cont {border-style: none!important;}
+.photo-dark-theme .blog-comment-field-user input, .photo-dark-theme  .blog-comment-field-captcha-label input{background-color: #464646!important; border: 1px solid #898989!important; border-radius: 2px; color: #FFFFFF!important;}
+.photo-dark-theme .blog-comment-field-user label, .photo-dark-theme  .blog-comment-field-captcha-label label{color: #c2c2c2!important;}

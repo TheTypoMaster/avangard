@@ -1,4 +1,6 @@
 <?
+$MESS["BT_ADM_IEP_PROPERTY_NEW"] = "New property";
+$MESS["BT_ADM_IEP_PROPERTY_EDIT"] = "Edit property: \"#NAME#\"";
 $MESS["BT_ADM_IEP_PROPERTY_ID_IS_ABSENT"] = "The property ID is not specified.";
 $MESS["BT_ADM_IEP_IBLOCK_ID_IS_ABSENT"] = "Information Block ID is not specified";
 $MESS["BT_ADM_IEP_IBLOCK_ID_IS_INVALID"] = "Invalid information block ID.";
@@ -20,7 +22,8 @@ $MESS["BT_ADM_IEP_PROP_EXTERNAL_CODE"] = "Code in external DB source:";
 $MESS["BT_ADM_IEP_PROP_MULTIPLE"] = "Multiple:";
 $MESS["BT_ADM_IEP_PROP_IS_REQUIRED"] = "Required:";
 $MESS["BT_ADM_IEP_PROP_SEARCHABLE"] = "Property values to be used in search:";
-$MESS["BT_ADM_IEP_PROP_FILTRABLE"] = "Use property in a filter on an element list page:";
+$MESS["BT_ADM_IEP_PROP_FILTRABLE"] = "Include property in filter on element list page:";
+$MESS["BT_ADM_IEP_PROP_SECTION_PROPERTY"] = "Display on element editing page:";
 $MESS["BT_ADM_IEP_PROP_WITH_DESC"] = "Display value description field:";
 $MESS["BT_ADM_IEP_PROP_MULTIPLE_CNT"] = "Number of input fields for multiple entries:";
 $MESS["BT_ADM_IEP_PROP_APPEARANCE"] = "Appearance:";
@@ -46,4 +49,11 @@ $MESS["BT_ADM_IEP_PROP_LINK_IBLOCK"] = "Information block:";
 $MESS["BT_ADM_IEP_PROP_SIZE"] = "Input field size (Rows and Columns):";
 $MESS["BT_ADM_IEP_PROP_DEFAULT"] = "Default values:";
 $MESS["BT_ADM_IEP_PROP_USER_TYPE_SETTINGS"] = "Additional Settings";
+$MESS["BT_ADM_IEP_PROP_HINT_DET"] = "Info caption for \'?\' sign:";
+$MESS["BT_ADM_IEP_LIST"] = "Properties";
+$MESS["BT_ADM_IEP_DELETE"] = "Delete";
+$MESS["BT_ADM_IEP_CONFIRM_DEL_MESSAGE"] = "This will delete all the property values. Continue?";
+$MESS["BT_ADM_IEP_PROP_SMART_FILTER"] = "Include in Smart Filter:";
+$MESS["BT_ADM_IEP_TAB"] = "Property";
+$MESS["BT_ADM_IEP_TAB_TITLE"] = "Property parameters";
 ?>

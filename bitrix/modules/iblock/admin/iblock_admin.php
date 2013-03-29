@@ -25,11 +25,11 @@ $arFilterFields = Array(
 	"find_lang",
 	"find_active",
 	"find_code",
-	);
+);
 
 $lAdmin->InitFilter($arFilterFields);
 
-$arFilter = Array(
+$arFilter = array(
 	"ID" => $find_id,
 	"ACTIVE" => $find_active,
 	"LID" => $find_lang,
@@ -92,7 +92,7 @@ if($arID = $lAdmin->GroupAction())
 				$lAdmin->AddGroupError(GetMessage("IBLOCK_ADM_DELETE_ERROR"), $ID);
 			}
 			else
-			{	
+			{
 				if(COption::GetOptionString("iblock", "event_log_iblock", "N") === "Y")
 				{
 					$res_log["NAME"] = $arIBlock["NAME"];
@@ -100,8 +100,8 @@ if($arID = $lAdmin->GroupAction())
 						"IBLOCK",
 						"IBLOCK_DELETE",
 						"iblock",
-						$ID, 
-						serialize($res_log)				
+						$ID,
+						serialize($res_log)
 					);
 				}
 			}
@@ -223,25 +223,25 @@ while($dbrs = $rsIBlocks->NavNext(true, "f_"))
 		&& CIBlockRights::UserHasRightTo($f_ID, $f_ID, "iblock_edit")
 	)
 	{
-		$row =& $lAdmin->AddRow($f_ID, $dbrs, 'iblock_edit.php?ID='.$f_ID.'&type='.htmlspecialchars($type).'&lang='.LANG.'&admin='.($_REQUEST["admin"]=="Y"? "Y": "N"), GetMessage("IBLOCK_ADM_TO_EDIT"));
+		$row =& $lAdmin->AddRow($f_ID, $dbrs, 'iblock_edit.php?ID='.$f_ID.'&type='.htmlspecialcharsbx($type).'&lang='.LANG.'&admin='.($_REQUEST["admin"]=="Y"? "Y": "N"), GetMessage("IBLOCK_ADM_TO_EDIT"));
 	}
 	else
 	{
 		if($arIBTYPE["SECTIONS"]=="Y")
-			$row =& $lAdmin->AddRow($f_ID, $dbrs, CIBlock::GetAdminSectionListLink($f_ID, array('SECTION_ID'=>0)), GetMessage("IBLOCK_ADM_TO_EL_LIST"));
+			$row =& $lAdmin->AddRow($f_ID, $dbrs, CIBlock::GetAdminSectionListLink($f_ID, array('find_section_section'=>0)), GetMessage("IBLOCK_ADM_TO_EL_LIST"));
 		else
-			$row =& $lAdmin->AddRow($f_ID, $dbrs, CIBlock::GetAdminElementListLink($f_ID, array('filter_section'=>-1)), GetMessage("IBLOCK_ADM_TO_EL_LIST"));
+			$row =& $lAdmin->AddRow($f_ID, $dbrs, CIBlock::GetAdminElementListLink($f_ID, array('find_section_section'=>-1)), GetMessage("IBLOCK_ADM_TO_EL_LIST"));
 	}
 
 	if(!strlen($f_SECTIONS_NAME))
-		$f_SECTIONS_NAME = $arIBTYPE["SECTION_NAME"]? htmlspecialchars($arIBTYPE["SECTION_NAME"]): GetMessage("IBLOCK_ADM_SECTIONS");
+		$f_SECTIONS_NAME = $arIBTYPE["SECTION_NAME"]? htmlspecialcharsbx($arIBTYPE["SECTION_NAME"]): GetMessage("IBLOCK_ADM_SECTIONS");
 	if(!$f_ELEMENTS_NAME)
-		$f_ELEMENTS_NAME = $arIBTYPE["ELEMENT_NAME"]? htmlspecialchars($arIBTYPE["ELEMENT_NAME"]): GetMessage("IBLOCK_ADM_ELEMENTS");
+		$f_ELEMENTS_NAME = $arIBTYPE["ELEMENT_NAME"]? htmlspecialcharsbx($arIBTYPE["ELEMENT_NAME"]): GetMessage("IBLOCK_ADM_ELEMENTS");
 
 	$f_LID = '';
 	$db_LID = CIBlock::GetSite($f_ID);
 	while($ar_LID = $db_LID->Fetch())
-		$f_LID .= ($f_LID!=""?" / ":"").htmlspecialchars($ar_LID["LID"]);
+		$f_LID .= ($f_LID!=""?" / ":"").htmlspecialcharsbx($ar_LID["LID"]);
 
 	$row->AddViewField("LID", $f_LID);
 	if(
@@ -251,10 +251,10 @@ while($dbrs = $rsIBlocks->NavNext(true, "f_"))
 	{
 		$row->AddViewField("ID", $f_ID);
 
-		$row->AddInputField("NAME", Array("size"=>"35"));
-		$row->AddViewField("NAME", '<div class="iblock_menu_icon_iblocks"></div><a href="iblock_edit.php?ID='.$f_ID.'&type='.htmlspecialchars($type).'&lang='.LANG.'&admin='.($_REQUEST["admin"]=="Y"? "Y": "N").'" title="'.GetMessage("IBLOCK_ADM_TO_EDIT").'">'.$f_NAME.'</a>');
+		$row->AddInputField("NAME", array("size"=>"35"));
+		$row->AddViewField("NAME", '<a href="iblock_edit.php?ID='.$f_ID.'&type='.htmlspecialcharsbx($type).'&lang='.LANG.'&admin='.($_REQUEST["admin"]=="Y"? "Y": "N").'" title="'.GetMessage("IBLOCK_ADM_TO_EDIT").'">'.$f_NAME.'</a>');
 
-		$row->AddInputField("SORT", Array("size"=>"3"));
+		$row->AddInputField("SORT", array("size"=>"3"));
 		$row->AddCheckField("ACTIVE");
 		$row->AddInputField("CODE");
 		$row->AddInputField("LIST_PAGE_URL");
@@ -266,9 +266,9 @@ while($dbrs = $rsIBlocks->NavNext(true, "f_"))
 	else
 	{
 		if($arIBTYPE["SECTIONS"]=="Y")
-			$row->AddViewField("NAME", '<div class="iblock_menu_icon_iblocks"></div><a href="'.htmlspecialchars(CIBlock::GetAdminSectionListLink($f_ID , array('SECTION_ID'=>0))).'" title="'.GetMessage("IBLOCK_ADM_TO_SECTLIST").'">'.$f_NAME.'</a>');
+			$row->AddViewField("NAME", '<a href="'.htmlspecialcharsbx(CIBlock::GetAdminSectionListLink($f_ID , array('find_section_section'=>0))).'" title="'.GetMessage("IBLOCK_ADM_TO_SECTLIST").'">'.$f_NAME.'</a>');
 		else
-			$row->AddViewField("NAME", '<div class="iblock_menu_icon_iblocks"></div><a href="'.htmlspecialchars(CIBlock::GetAdminElementListLink($f_ID , array('filter_section'=>-1))).'" title="'.GetMessage("IBLOCK_ADM_TO_EL_LIST").'">'.$f_NAME.'</a>');
+			$row->AddViewField("NAME", '<a href="'.htmlspecialcharsbx(CIBlock::GetAdminElementListLink($f_ID , array('find_section_section'=>-1))).'" title="'.GetMessage("IBLOCK_ADM_TO_EL_LIST").'">'.$f_NAME.'</a>');
 		$row->AddCheckField("ACTIVE", false);
 		$row->AddCheckField("INDEX_ELEMENT", false);
 		if($bWorkflow)
@@ -278,11 +278,11 @@ while($dbrs = $rsIBlocks->NavNext(true, "f_"))
 	if(in_array("ELEMENT_CNT", $lAdmin->GetVisibleHeaderColumns()))
 	{
 		$f_ELEMENT_CNT = CIBlock::GetElementCount($f_ID);
-		$row->AddViewField("ELEMENT_CNT", '<a href="'.htmlspecialchars(CIBlock::GetAdminElementListLink($f_ID, array('filter_section'=>-1))).'" title="'.GetMessage("IBLOCK_ADM_TO_ELLIST").'">'.$f_ELEMENT_CNT.'</a>');
+		$row->AddViewField("ELEMENT_CNT", '<a href="'.htmlspecialcharsbx(CIBlock::GetAdminElementListLink($f_ID, array('find_section_section'=>-1))).'" title="'.GetMessage("IBLOCK_ADM_TO_ELLIST").'">'.$f_ELEMENT_CNT.'</a>');
 	}
 
 	if($arIBTYPE["SECTIONS"]=="Y" && in_array("SECTION_CNT", $lAdmin->GetVisibleHeaderColumns()))
-		$row->AddViewField("SECTION_CNT", '<a href="'.htmlspecialchars(CIBlock::GetAdminSectionListLink($f_ID, array())).'" title="'.GetMessage("IBLOCK_ADM_TO_SECTLIST").'">'.IntVal(CIBlockSection::GetCount(array("IBLOCK_ID"=>$f_ID))).'</a>');
+		$row->AddViewField("SECTION_CNT", '<a href="'.htmlspecialcharsbx(CIBlock::GetAdminSectionListLink($f_ID, array())).'" title="'.GetMessage("IBLOCK_ADM_TO_SECTLIST").'">'.IntVal(CIBlockSection::GetCount(array("IBLOCK_ID"=>$f_ID))).'</a>');
 
 	if(
 		$bBizproc
@@ -304,7 +304,17 @@ while($dbrs = $rsIBlocks->NavNext(true, "f_"))
 		&& CIBlockRights::UserHasRightTo($f_ID, $f_ID, "iblock_edit")
 	)
 	{
-		$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("MAIN_ADMIN_MENU_EDIT"), "DEFAULT"=>$_REQUEST["admin"]=="Y", "ACTION"=>"window.location='iblock_edit.php?ID=".$f_ID."&type=".htmlspecialchars($type)."&lang=".LANG."&admin=".($_REQUEST["admin"]=="Y"? "Y": "N")."';");
+		$arActions[] = array(
+			"ICON" => "edit",
+			"TEXT" => GetMessage("MAIN_ADMIN_MENU_EDIT"),
+			"DEFAULT" => $_REQUEST["admin"]=="Y",
+			"ACTION" => $lAdmin->ActionRedirect("iblock_edit.php?ID=".$f_ID."&type=".urlencode($type)."&lang=".LANGUAGE_ID."&admin=".($_REQUEST["admin"]=="Y"? "Y": "N")),
+		);
+		$arActions[] = array(
+			"ICON" => "list",
+			"TEXT" => GetMessage("IBLOCK_ADM_MENU_PROPERTIES"),
+			"ACTION" => $lAdmin->ActionRedirect("iblock_property_admin.php?IBLOCK_ID=".$f_ID."&lang=".LANGUAGE_ID.($_REQUEST["admin"]=="Y"? "&admin=Y": "&admin=N")),
+		);
 	}
 
 	if(
@@ -329,7 +339,7 @@ while($dbrs = $rsIBlocks->NavNext(true, "f_"))
 		$arActions[] = array(
 			"ICON"=>"delete",
 			"TEXT"=>GetMessage("MAIN_ADMIN_MENU_DELETE"),
-			"ACTION"=>"if(confirm('".GetMessage("IBLOCK_ADM_CONFIRM_DEL_MESSAGE")."')) ".$lAdmin->ActionDoGroup($f_ID, "delete", "&type=".htmlspecialchars($type)."&lang=".LANG."&admin=".($_REQUEST["admin"]=="Y"? "Y": "N")),
+			"ACTION"=>"if(confirm('".GetMessageJS("IBLOCK_ADM_CONFIRM_DEL_MESSAGE")."')) ".$lAdmin->ActionDoGroup($f_ID, "delete", "&type=".htmlspecialcharsbx($type)."&lang=".LANG."&admin=".($_REQUEST["admin"]=="Y"? "Y": "N")),
 		);
 	}
 
@@ -380,7 +390,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 <input type="hidden" name="admin" value="<?echo ($_REQUEST["admin"]=="Y"? "Y": "N")?>">
 <input type="hidden" name="lang" value="<?echo LANG?>">
 <input type="hidden" name="filter" value="Y">
-<input type="hidden" name="type" value="<?echo htmlspecialchars($type)?>">
+<input type="hidden" name="type" value="<?echo htmlspecialcharsbx($type)?>">
 <?
 $oFilter = new CAdminFilter(
 	$sTableID."_filter",
@@ -396,7 +406,7 @@ $oFilter->Begin();
 ?>
 	<tr>
 		<td><b><?echo GetMessage("IBLOCK_ADM_FILT_NAME")?></b></td>
-		<td><input type="text" name="find_name" value="<?echo htmlspecialchars($find_name)?>" size="40">&nbsp;<?=ShowFilterLogicHelp()?></td>
+		<td><input type="text" name="find_name" value="<?echo htmlspecialcharsbx($find_name)?>" size="40">&nbsp;<?=ShowFilterLogicHelp()?></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("IBLOCK_ADM_FILT_SITE");?>:</td>
@@ -423,14 +433,14 @@ $oFilter->Begin();
 	</tr>
 	<tr>
 		<td>ID:</td>
-		<td><input type="text" name="find_id" value="<?echo htmlspecialchars($find_id)?>" size="15"></td>
+		<td><input type="text" name="find_id" value="<?echo htmlspecialcharsbx($find_id)?>" size="15"></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("IBLOCK_FIELD_CODE")?>:</td>
-		<td><input type="text" name="find_code" value="<?echo htmlspecialchars($find_code)?>" size="15">&nbsp;<?=ShowFilterLogicHelp()?></td>
+		<td><input type="text" name="find_code" value="<?echo htmlspecialcharsbx($find_code)?>" size="15">&nbsp;<?=ShowFilterLogicHelp()?></td>
 	</tr>
 <?
-$oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage().'?type='.urlencode($type), "form"=>"find_form"));
+$oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPageParam().'?type='.urlencode($type), "form"=>"find_form"));
 $oFilter->End();
 ?>
 </form>
@@ -440,7 +450,7 @@ $lAdmin->DisplayList();
 if($_REQUEST["admin"]!="Y"):
 	echo	BeginNote(),
 		GetMessage("IBLOCK_ADM_MANAGE_HINT"),
-		' <a href="iblock_admin.php?type='.htmlspecialchars($type).'&amp;lang='.LANG.'&amp;admin=Y">',
+		' <a href="iblock_admin.php?type='.htmlspecialcharsbx($type).'&amp;lang='.LANG.'&amp;admin=Y">',
 		GetMessage("IBLOCK_ADM_MANAGE_HINT_HREF"),
 		'</a>.',
 	EndNote();

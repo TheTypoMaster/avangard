@@ -9,4 +9,5 @@ $MESS["EVENT_LIST_PAGE_NAV"] = "Showing records";
 $MESS["EVENT_LIST_DATE_FILTER_DAYS"] = "days";
 $MESS["EVENT_LIST_FILTER_SHOW"] = "show";
 $MESS["EVENT_LIST_FILTER_HIDE"] = "hide";
+$MESS["EVENT_LIST_NO_ACTIVE_FEATURES_ERROR"] = "No events selected in the filter.";
 ?>

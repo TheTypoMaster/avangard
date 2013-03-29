@@ -116,14 +116,20 @@ function GetNextRGB($base_color, $total)
 	return $res;
 }
 
-function GetBNextRGB($base_color, $total, $start_color="999900", $end_color="99FFFF")
+function GetBNextRGB($base_color, $total, $start_color = "999900", $end_color = "99FFFF")
 {
-	$step = round((hexdec($end_color)-hexdec($start_color))/$total);
-	$dec = intval(hexdec($base_color))+intval($step);
-	if ($dec<hexdec($start_color)-$step) $dec = $start_color;
-	elseif ($dec>hexdec($end_color)+$step) $dec = $end_color;
-	elseif ($dec>hexdec("FFFFFF")) $dec = "000000";
-	else $dec = sprintf("%06X",$dec);
+	$step = round((hexdec($end_color) - hexdec($start_color)) / $total);
+	$dec = intval(hexdec($base_color)) + intval($step);
+
+	if ($dec < hexdec($start_color) - $step)
+		$dec = $start_color;
+	elseif ($dec > hexdec($end_color) + $step)
+		$dec = $end_color;
+	elseif ($dec > hexdec("FFFFFF"))
+		$dec = "000000";
+	else
+		$dec = sprintf("%06X", $dec);
+
 	return $dec;
 }
 
@@ -224,7 +230,7 @@ function GetArrayY($arrY, &$MinY, &$MaxY, $max_grid=15, $first_null="Y", $intege
 	else
 	{
 		$shiftY = round(($MaxY-$MinY)/$max_grid);
-		if($shiftY<=0) 
+		if($shiftY<=0)
 		{
 			if($integers==false)
 				$shiftY = round(($MaxY-$MinY)/$max_grid,3);
@@ -251,17 +257,22 @@ function GetArrayY($arrY, &$MinY, &$MaxY, $max_grid=15, $first_null="Y", $intege
 }
 
 /******************************************************************************
-* $srtCol - Color. Example 'FFFFFF' or '#FF0000'
+* $colorString - Color. Example 'FFFFFF' or '#FF0000'
 * ReColor - function converting HEX to DEC color
 ******************************************************************************/
-function ReColor($srtCol){
-	if(strlen($srtCol)!=6&&strlen($srtCol)!=7) return 0;
-	if(strlen($srtCol)==7)$srtCol=substr($srtCol,1);
-	$color=Array();
-	$color[0]=hexdec(substr($srtCol,0,2));
-	$color[1]=hexdec(substr($srtCol,2,2));
-	$color[2]=hexdec(substr($srtCol,4,2));
-	return $color;
+function ReColor($colorString)
+{
+	if (!is_string($colorString))
+		return 0;
+
+	if (!preg_match('/^#{0,1}([0-9a-z]{2})([0-9a-z]{2})([0-9a-z]{2})$/i', $colorString, $match))
+		return 0;
+
+	return array(
+		hexdec($match[1]),
+		hexdec($match[2]),
+		hexdec($match[3]),
+	);
 }
 
 /******************************************************************************
@@ -380,7 +391,7 @@ function DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle, $bgC
 	$xP0 = $xA;
 	$yP0 = $yA;
 	$yP1 = $yC;
-	while ($i<=$PointsX)
+	while ($i < $PointsX)
 	{
 		if ($i==$PointsX-1)
 		{
@@ -432,7 +443,7 @@ function DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle, $bgC
 	$yM0 = $yB;
 	$xM1 = $xA;
 	$yM1 = $yA;
-	while ($i<=$PointsY)
+	while ($i < $PointsY)
 	{
 		if ($i==$PointsY-1)
 		{

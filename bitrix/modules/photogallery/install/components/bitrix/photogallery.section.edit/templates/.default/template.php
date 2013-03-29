@@ -161,7 +161,7 @@ BX.ready(function(){
 						<div class="photo-item-cover-block-outer">
 							<div class="photo-item-cover-block-inner">
 								<div class="photo-item-cover-block-inside">
-									<div id="photo_album_cover_<?= intVal($arResult["SECTION"]['ID'])?>" class="photo-item-cover photo-album-thumbs-avatar <?= (empty($arResult["SECTION"]["PICTURE"]["SRC"])? "photo-album-avatar-empty" : "")?>" 
+									<div id="photo_album_cover_<?= intVal($arResult["SECTION"]['ID'])?>" class="photo-item-cover photo-album-thumbs-avatar <?= (empty($arResult["SECTION"]["PICTURE"]["SRC"])? "photo-album-avatar-empty" : "")?>"
 										<?if (!empty($arResult["SECTION"]["PICTURE"]["SRC"])):?>
 											style="background-image: url('<?= $arResult["SECTION"]["PICTURE"]["SRC"]?>');"
 										<?endif;?>
@@ -197,7 +197,9 @@ BX.ready(function(){
 				<div class="photo-al-ed-add-cont">
 					<div style="float: left;">
 					<label for="DATE_CREATE"><?=GetMessage("P_ALBUM_DATE")?>:</label>
-					<?$GLOBALS["APPLICATION"]->IncludeComponent("bitrix:system.field.edit",
+					<?
+					$arResult["FORM"]["~DATE"]['VALUE'] = FormatDateFromDB($arResult["FORM"]["~DATE"]['VALUE']);
+					$GLOBALS["APPLICATION"]->IncludeComponent("bitrix:system.field.edit",
 							$arResult["FORM"]["~DATE"]["USER_TYPE"]["USER_TYPE_ID"],
 							array(
 								"bVarsFromForm" => $arResult["bVarsFromForm"],
@@ -254,10 +256,10 @@ BX.ready(function(){
 												onmouseover="BX.addClass(this,'photo-item-over');"
 												onmouseout="BX.removeClass(this, 'photo-item-over');"
 											<?else:?>
-												onclick="window.location='<?=CUtil::JSEscape(htmlspecialchars($res["~LINK"]))?>';"
+												onclick="window.location='<?=CUtil::JSEscape(htmlspecialcharsbx($res["~LINK"]))?>';"
 											<?endif;?>>
 											<?if ($arParams["PERMISSION"] >= "W"):?>
-											<div class="photo-album-menu" onclick="window.location='<?=CUtil::JSEscape(htmlspecialchars($res["~LINK"]))?>'"><div class="photo-album-menu-substrate"></div>
+											<div class="photo-album-menu" onclick="window.location='<?=CUtil::JSEscape(htmlspecialcharsbx($res["~LINK"]))?>'"><div class="photo-album-menu-substrate"></div>
 												<div class="photo-album-menu-controls">
 													<a rel="nofollow" href="<?=$res["EDIT_LINK"]?>" class="photo-control-edit photo-control-album-edit" title="<?=GetMessage("P_SECTION_EDIT_TITLE")?>"><span><?=GetMessage("P_SECTION_EDIT")?></span></a>
 													<a rel="nofollow" href="<?= $res["DROP_LINK"]?>" class="photo-control-drop photo-control-album-drop" onclick="BX.PreventDefault(event); if(confirm('<?=GetMessage('P_SECTION_DELETE_ASK')?>')) {DropAlbum(this.href);} return false;" title="<?=GetMessage("P_SECTION_DELETE_TITLE")?>"><span><?=GetMessage("P_SECTION_DELETE")?></span></a>
@@ -276,7 +278,7 @@ BX.ready(function(){
 								<div class="photo-item-info-block-inner">
 									<div class="photo-album-photos-top"><?=$res["ELEMENTS_CNT"]?> <?=GetMessage("P_PHOTOS")?></div>
 									<div class="photo-album-name">
-										<a href="<?=$res["LINK"]?>" id="photo_album_name_<?=$res["ID"]?>" title="<?=htmlspecialchars($res["~NAME"])?>"><?=$res["NAME"]?></a>
+										<a href="<?=$res["LINK"]?>" id="photo_album_name_<?=$res["ID"]?>" title="<?=htmlspecialcharsbx($res["~NAME"])?>"><?=$res["NAME"]?></a>
 									</div>
 									<div class="photo-album-description" id="photo_album_description_<?=$res["ID"]?>"><?=$res["DESCRIPTION"]?></div>
 									<div class="photo-album-date"><span id="photo_album_date_<?=$res["ID"]?>"><?=$res["DATE"]?></span></div>
@@ -396,7 +398,6 @@ BX.ready(function(){
 <?endif;?>
 
 <?if ($arParams["AJAX_CALL"] == "Y"):?>
-<link href="/bitrix/components/bitrix/main.calendar/templates/.default/style.css" type="text/css" rel="stylesheet" />
 <?
 	$GLOBALS["APPLICATION"]->ShowHeadScripts();
 	$GLOBALS["APPLICATION"]->ShowHeadStrings();

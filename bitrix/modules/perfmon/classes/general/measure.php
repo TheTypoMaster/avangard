@@ -239,7 +239,8 @@ class CPerfAccel
 			$is_ok = $this->enabled;
 			foreach($arParams["enabled"] as $ar)
 			{
-				$ar["IS_OK"] = $is_ok;
+				if(!isset($ar["IS_OK"]))
+					$ar["IS_OK"] = $is_ok;
 				$arResult[] = $ar;
 			}
 		}
@@ -327,10 +328,13 @@ class CPerfAccel
 	{
 		$str = strtolower($str);
 		$res = intval($str);
-		if(substr($str, -1) == "k")
+		$suffix = substr($str, -1);
+		if($suffix == "k")
 			$res *= 1024;
-		elseif(substr($str, -1) == "m")
-			$res *= 1024*1024;
+		elseif($suffix == "m")
+			$res *= 1048576;
+		elseif($suffix == "g")
+			$res *= 1048576*1024;
 		return $res;
 	}
 }
@@ -406,6 +410,9 @@ class CPerfAccelZend extends CPerfAccel
 
 class CPerfAccelAPC extends CPerfAccel
 {
+	var $is_enabled = null;
+	var $is_cache_by_default = null;
+
 	function __construct()
 	{
 		return $this->CPerfAccelAPC();
@@ -413,15 +420,18 @@ class CPerfAccelAPC extends CPerfAccel
 
 	function CPerfAccelAPC()
 	{
-		$apc_enabled = ini_get('apc.enabled');
-		$apc_stat = ini_get('apc.stat');
+		$apc_enabled = strtolower(ini_get('apc.enabled'));
+		$this->is_enabled = !($apc_enabled=="0" || $apc_enabled=="off");
+		$apc_cache_by_default = strtolower(ini_get('apc.cache_by_default'));
+		$this->is_cache_by_default = !($apc_cache_by_default=="0" || $apc_cache_by_default=="off");
+		$apc_stat = strtolower(ini_get('apc.stat'));
 		$memory = apc_sma_info(true);
 
 		parent::CPerfAccel(
-			!($apc_enabled=="0" || strtolower($apc_enabled)=="off"),
+			$this->is_enabled && $this->is_cache_by_default,
 			intval(ini_get('apc.ttl')),
 			CPerfAccel::unformat(ini_get('apc.max_file_size')),
-			!($apc_stat=="0" || strtolower($apc_stat)=="off"),
+			!($apc_stat=="0" || $apc_stat=="off"),
 			$memory["seg_size"],
 			$memory["seg_size"] - $memory["avail_mem"]
 		);
@@ -435,6 +445,13 @@ class CPerfAccelAPC extends CPerfAccel
 					"PARAMETER" => 'apc.enabled',
 					"VALUE" => ini_get('apc.enabled'),
 					"RECOMMENDATION" => GetMessage("PERFMON_MEASURE_SET_REC", array("#value#" => "1")),
+					"IS_OK" => $this->is_enabled,
+				),
+				array(
+					"PARAMETER" => 'apc.cache_by_default',
+					"VALUE" => ini_get('apc.cache_by_default'),
+					"RECOMMENDATION" => GetMessage("PERFMON_MEASURE_SET_REC", array("#value#" => "1")),
+					"IS_OK" => $this->is_cache_by_default,
 				),
 			),
 			"cache_ttl" => array(

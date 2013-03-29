@@ -1799,3 +1799,4 @@ function BXCreateTaskbars(pMainObj, arParams)
 }
 
 pBXEventDispatcher.AddEditorHandler("OnCreate", BXCreateTaskbars);
+;   

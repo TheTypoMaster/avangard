@@ -41,7 +41,7 @@ $MESS["comp_util_err9"] = "Template with the name '#T_NAME#' for the component '
 $MESS["comp_util_err10"] = "Template for the target site is not specified";
 $MESS["comp_util_err11"] = "Component template can not be copied to the same site template with the same name";
 $MESS["comp_util_err12"] = "Template '#NAME#' already exists";
-$MESS["COMP_NAME_TEMPLATE_SMITH_JOHN"] = "Smith, John";
+$MESS["COMP_NAME_TEMPLATE_SMITH_JOHN"] = "Smith John";
 $MESS["COMP_NAME_TEMPLATE_SMITH_JOHN_LLOYD"] = "Smith John Lloyd";
 $MESS["COMP_NAME_TEMPLATE_SMITH_COMMA_JOHN_LLOYD"] = "Smith, John Lloyd";
 $MESS["COMP_NAME_TEMPLATE_JOHN_LLOYD_SMITH"] = "John Lloyd Smith";
@@ -59,4 +59,7 @@ $MESS["COMP_PARAM_CACHE_AUTO_OFF"] = "<span style=\"color:red\">off</span>";
 $MESS["COMP_PARAM_CACHE_MANAGED_ON"] = "on";
 $MESS["COMP_PARAM_CACHE_MANAGED_OFF"] = "<span style=\"color:red\">off</span>";
 $MESS["COMP_PARAM_CACHE_MAN"] = "+ Managed";
+$MESS["COMP_PARAM_DATE_FORMAT_SITE"] = "Site date format";
+$MESS["COMP_PARAM_DATETIME_FORMAT_SITE"] = "Site date-time format";
+$MESS["COMP_PARAM_NAME_FORMAT_SITE"] = "Website format";
 ?>

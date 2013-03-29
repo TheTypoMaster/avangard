@@ -11,7 +11,7 @@
 a.access-provider-button { font: 12px Arial; display:block; border-radius:3px; padding:4px 7px; text-decoration:none; font-weight:bold; outline:none; line-height:18px; }
 a.access-provider-button, 
 a.access-provider-button:active, 
-a.access-provider-button:link { color: #000!important; }
+a.access-provider-button:link { color: #000!important; text-decoration: none }
 
 a.access-provider-button-selected {background-color:#FFDF87;  }
 a.access-provider-button:hover {background-color:#EFEFEF; }

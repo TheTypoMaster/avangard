@@ -7,13 +7,13 @@ function ValidateForm(form, ajax_type)
 	var MessageMax = 64000;
 	var MessageLength = form.POST_MESSAGE.value.length;
 
-	if (form.TITLE && (form.TITLE.value.length < 2))
+	if (form.POST_SUBJ && (form.POST_SUBJ.value.length < 2))
 		errors += oErrors['no_topic_name'];
 
 	if (MessageLength < 2)
 		errors += oErrors['no_message'];
-    else if ((MessageMax != 0) && (MessageLength > MessageMax))
-		errors += oErrors['max_len1'] + MessageMax + oErrors['max_len2'] + MessageLength;
+	else if ((MessageMax != 0) && (MessageLength > MessageMax))
+		errors += oErrors['max_len'].replace("#MAX_LENGTH#", MessageMax).replace("#LENGTH#", MessageLength);
 
 	if (errors != "")
 	{
@@ -27,11 +27,6 @@ function ValidateForm(form, ajax_type)
 		var butt = arr[i];
 		if (butt.getAttribute("type") == "submit")
 			butt.disabled = true;
-	}
-		
-	if (ajax_type == 'Y' && window['ForumPostMessage'])
-	{
-		ForumPostMessage(form);
 	}
 	return true;
 }

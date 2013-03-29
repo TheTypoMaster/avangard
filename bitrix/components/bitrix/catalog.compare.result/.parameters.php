@@ -6,20 +6,24 @@ if(!CModule::IncludeModule("iblock"))
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 
+$arIBlock = array();
 $rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"], "ACTIVE"=>"Y"));
 while($arr=$rsIBlock->Fetch())
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
 
 $arProperty = array();
 $arProperty_N = array();
-$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$arCurrentValues["IBLOCK_ID"]));
-while ($arr=$rsProp->Fetch())
+if (0 < intval($arCurrentValues["IBLOCK_ID"]))
 {
-	if($arr["PROPERTY_TYPE"] != "F")
-		$arProperty[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("IBLOCK_ID"=>$arCurrentValues["IBLOCK_ID"], "ACTIVE"=>"Y"));
+	while ($arr=$rsProp->Fetch())
+	{
+		if($arr["PROPERTY_TYPE"] != "F")
+			$arProperty[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
 
-	if($arr["PROPERTY_TYPE"] == "N")
-		$arProperty_N[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+		if($arr["PROPERTY_TYPE"] == "N")
+			$arProperty_N[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+	}
 }
 
 $arOffers = CIBlockPriceTools::GetOffersIBlock($arCurrentValues["IBLOCK_ID"]);
@@ -27,7 +31,7 @@ $OFFERS_IBLOCK_ID = is_array($arOffers)? $arOffers["OFFERS_IBLOCK_ID"]: 0;
 $arProperty_Offers = array();
 if($OFFERS_IBLOCK_ID)
 {
-	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$OFFERS_IBLOCK_ID));
+	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("IBLOCK_ID"=>$OFFERS_IBLOCK_ID, "ACTIVE"=>"Y"));
 	while($arr=$rsProp->Fetch())
 	{
 		if($arr["PROPERTY_TYPE"] != "F")
@@ -225,6 +229,36 @@ $arComponentParameters = array(
 		),
 	),
 );
+
+if (CModule::IncludeModule('catalog') && CModule::IncludeModule('currency'))
+{
+	$arComponentParameters["PARAMETERS"]['CONVERT_CURRENCY'] = array(
+		'PARENT' => 'PRICES',
+		'NAME' => GetMessage('CP_BCCR_CONVERT_CURRENCY'),
+		'TYPE' => 'CHECKBOX',
+		'DEFAULT' => 'N',
+		'REFRESH' => 'Y',
+	);
+
+	if (isset($arCurrentValues['CONVERT_CURRENCY']) && 'Y' == $arCurrentValues['CONVERT_CURRENCY'])
+	{
+		$arCurrencyList = array();
+		$rsCurrencies = CCurrency::GetList(($by = 'SORT'), ($order = 'ASC'));
+		while ($arCurrency = $rsCurrencies->Fetch())
+		{
+			$arCurrencyList[$arCurrency['CURRENCY']] = $arCurrency['CURRENCY'];
+		}
+		$arComponentParameters['PARAMETERS']['CURRENCY_ID'] = array(
+			'PARENT' => 'PRICES',
+			'NAME' => GetMessage('CP_BCCR_CURRENCY_ID'),
+			'TYPE' => 'LIST',
+			'VALUES' => $arCurrencyList,
+			'DEFAULT' => CCurrency::GetBaseCurrency(),
+			"ADDITIONAL_VALUES" => "Y",
+		);
+	}
+}
+
 if(!$OFFERS_IBLOCK_ID)
 {
 	unset($arComponentParameters["PARAMETERS"]["OFFERS_FIELD_CODE"]);

@@ -150,3 +150,4 @@ BXXML.prototype.SelectSingleNode = function( xpath, contextNode)
 		return this.DOMDocument.selectSingleNode( xpath ) ;
 }
 */
+;   

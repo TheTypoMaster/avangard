@@ -72,7 +72,7 @@ class CSelectSiteWizardStep extends CWizardStep
 
 		$arSites = array(); 
 		$arSitesSelect = array(); 
-		$db_res = CSite::GetList($by="sort", $order="desc", array());
+		$db_res = CSite::GetList($by="sort", $order="desc", array("ACTIVE" => "Y"));
 		if ($db_res && $res = $db_res->GetNext())
 		{
 			do 
@@ -479,8 +479,8 @@ class CSiteSettingsWizardStep extends CWizardStep
 
 class CDataInstallWizardStep extends CWizardStep
 {
-    var $repeatCurrentService = false;
-  
+	var $repeatCurrentService = false;
+
 	function CorrectServices(&$arServices)
 	{
 	}
@@ -550,7 +550,7 @@ class CDataInstallWizardStep extends CWizardStep
 		$wizard =& $this->GetWizard();
 		$serviceID = $wizard->GetVar("nextStep");
 		$serviceStage = $wizard->GetVar("nextStepStage");
-        
+
 		if ($serviceID == "finish")
 		{
 			$wizard->SetCurrentStep("finish");
@@ -584,7 +584,8 @@ class CDataInstallWizardStep extends CWizardStep
 					"NAME"				=> $defSiteName,
 					"DIR"				=> $wizard->GetVar("siteFolder"),
 					"FORMAT_DATE"		=> (LANGUAGE_ID=="en"?"MM/DD/YYYY":"DD.MM.YYYY"),
-					"FORMAT_DATETIME"	=> (LANGUAGE_ID=="en"?"MM/DD/YYYY HH:MI:SS":"DD.MM.YYYY HH:MI:SS"),
+					"FORMAT_DATETIME"	=> (LANGUAGE_ID=="en"?"MM/DD/YYYY H:MI T":"DD.MM.YYYY HH:MI:SS"),
+					"FORMAT_NAME"		=> CSite::GetDefaultNameFormat(),
 					"CHARSET"			=> (defined("BX_UTF") ? "UTF-8" : (LANGUAGE_ID=="ru"?"windows-1251":"ISO-8859-1")),
 					"SITE_NAME"			=> $defSiteName,
 					"SERVER_NAME"		=> $_SERVER["SERVER_NAME"],
@@ -642,38 +643,38 @@ class CDataInstallWizardStep extends CWizardStep
 
 		if(count($arMenuTypes) == 0){
 			$arMenuTypes = Array(
-						 'left'   => GetMessage("WIZ_MENU_LEFT"),
-						 'top'    => GetMessage("WIZ_MENU_TOP"),
-						 'bottom' => GetMessage("WIZ_MENU_BOTTOM")
-						);
+				'left' => GetMessage("WIZ_MENU_LEFT"),
+				'top' => GetMessage("WIZ_MENU_TOP"),
+				'bottom' => GetMessage("WIZ_MENU_BOTTOM")
+			);
 		}else{
 
 			if(!$arMenuTypes['left'] || $arMenuTypes['left'] == GetMessage("WIZ_MENU_LEFT_DEFAULT"))
 				$arMenuTypes['left']   = GetMessage("WIZ_MENU_LEFT");
 
 			if(!$arMenuTypes['top'] || $arMenuTypes['top'] == GetMessage("WIZ_MENU_TOP_DEFAULT"))
-				$arMenuTypes['top']    = GetMessage("WIZ_MENU_TOP");
+				$arMenuTypes['top'] = GetMessage("WIZ_MENU_TOP");
 
 			if(!$arMenuTypes['bottom'])
 				$arMenuTypes['bottom'] = GetMessage("WIZ_MENU_BOTTOM");		
 		}
 
-		SetMenuTypes($arMenuTypes, $site_id);          
+		SetMenuTypes($arMenuTypes, $site_id);
 
 		$arServices = WizardServices::GetServices($_SERVER["DOCUMENT_ROOT"].$wizard->GetPath(), "/site/services/");
 
 		$this->CorrectServices($arServices);
-        
+
 		if ($serviceStage == "skip")
 			$success = true;
-		else						    
-			$success = $this->InstallService($serviceID, $serviceStage);               
-		      
+		else
+			$success = $this->InstallService($serviceID, $serviceStage);
+
 		if (!$this->repeatCurrentService) 
-		{ 
-			list($nextService, $nextServiceStage, $stepsComplete, $status) = $this->GetNextStep($arServices, $serviceID, $serviceStage);                  
-		}         
-        
+		{
+			list($nextService, $nextServiceStage, $stepsComplete, $status) = $this->GetNextStep($arServices, $serviceID, $serviceStage);
+		}
+
 		if ($nextService == "finish")
 		{
 			$formName = $wizard->GetFormName();
@@ -687,7 +688,7 @@ class CDataInstallWizardStep extends CWizardStep
 			$stepsCount = $arServices[$lastService]["POSITION"];
 			if (array_key_exists("STAGES", $arServices[$lastService]) && is_array($arServices[$lastService]))
 				$stepsCount += count($arServices[$lastService]["STAGES"])-1;
-			$percent = round($stepsComplete/$stepsCount * 100);       
+			$percent = round($stepsComplete/$stepsCount * 100);
 			$response = "window.ajaxForm.SetStatus('".$percent."'); window.ajaxForm.Post('".$nextService."', '".$nextServiceStage."','".$status."');";
 		}
 		die("[response]".$response."[/response]");
@@ -756,7 +757,7 @@ class CDataInstallWizardStep extends CWizardStep
 
 		@set_time_limit(3600);
 		global $DB, $DBType, $APPLICATION, $USER, $CACHE_MANAGER;
-		include(WIZARD_SERVICE_ABSOLUTE_PATH."/".$serviceStage);    
+		include(WIZARD_SERVICE_ABSOLUTE_PATH."/".$serviceStage);
 	}
 
 	function GetNextStep(&$arServices, &$currentService, &$currentStage)

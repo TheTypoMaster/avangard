@@ -82,8 +82,8 @@ $tabControl->Begin();
 
 $tabControl->BeginNextTab();
 ?>
-	<tr valign="top">
-		<td width="40%"><span class="required">*</span><?echo GetMessage("MAIN_WIZARD_LOAD_FILE")?>:</td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?echo GetMessage("MAIN_WIZARD_LOAD_FILE")?>:</td>
 		<td width="60%"><input type="file" size="35" name="wizardFile"></td>
 	</tr>
 
@@ -91,14 +91,10 @@ $tabControl->BeginNextTab();
 $tabControl->Buttons();
 ?>
 	<input type="hidden" name="action" value="import">
-	<input <?if(!$isAdmin) echo "disabled" ?> type="submit" name="import" value="<?echo GetMessage("MAIN_WIZARD_LOAD_SUBMIT")?>">
+	<input <?if(!$isAdmin) echo "disabled" ?> type="submit" name="import" value="<?echo GetMessage("MAIN_WIZARD_LOAD_SUBMIT")?>" class="adm-btn-save">
 <?
 $tabControl->End();
 ?>
 </form>
-
-<?echo BeginNote();?>
-<span class="required">*</span> - <?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote();?>
 
 <?require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");?>

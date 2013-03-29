@@ -115,7 +115,6 @@ $arHeaders = array(
 	array("id"=>"SOCNET_GROUP_ID", "content"=>GetMessage('BLB_SOCNET_GROUP_ID'), "sort"=>"SOCNET_GROUP_ID"),
 	array("id"=>"URL", "content"=>GetMessage('BLB_URL'), "sort"=>"URL", "default"=>true),
 	array("id"=>"GROUP_ID", "content"=>GetMessage('BLB_GROUP_ID'), "sort"=>"GROUP_ID", "default"=>true),
-	array("id"=>"ALLOW_HTML", "content"=>GetMessage('BLB_ALLOW_HTML'), "sort"=>"ALLOW_HTML", "default"=>false),
 	array("id"=>"USE_SOCNET", "content"=>GetMessage('BLB_USE_SOCNET'), "sort"=>"USE_SOCNET", "default"=>false),
 );
 $USER_FIELD_MANAGER->AdminListAddHeaders("BLOG_BLOG", $arHeaders);
@@ -123,7 +122,7 @@ $lAdmin->AddHeaders($arHeaders);
 
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
-$arSelectedFields = array("ID", "NAME", "DATE_CREATE", "DATE_UPDATE", "ACTIVE", "OWNER_ID", "URL", "REAL_URL", "GROUP_ID", "OWNER_LOGIN", "OWNER_NAME", "OWNER_LAST_NAME", "OWNER_EMAIL", "GROUP_NAME", "GROUP_SITE_ID", "ALLOW_HTML", "SOCNET_GROUP_ID", "USE_SOCNET");
+$arSelectedFields = array("ID", "NAME", "DATE_CREATE", "DATE_UPDATE", "ACTIVE", "OWNER_ID", "URL", "REAL_URL", "GROUP_ID", "OWNER_LOGIN", "OWNER_NAME", "OWNER_LAST_NAME", "OWNER_EMAIL", "GROUP_NAME", "GROUP_SITE_ID", "SOCNET_GROUP_ID", "USE_SOCNET");
 
 foreach($arVisibleColumns as $val)
 	if(!in_array($val, $arSelectedFields))
@@ -168,7 +167,6 @@ while ($arBlog = $dbResultList->NavNext(true, "f_"))
 	}
 	$row->AddField("URL", $f_URL);
 	$row->AddField("GROUP_ID", "<a href=\"/bitrix/admin/blog_group_edit.php?ID=".$f_GROUP_ID."&lang=".LANG."\">[".$f_GROUP_SITE_ID."] ".$f_GROUP_NAME."</a>");
-	$row->AddField("ALLOW_HTML", (($f_ALLOW_HTML == "Y") ? GetMessage("BLB_YES") : GetMessage("BLB_NO")));
 	$row->AddField("USE_SOCNET", (($f_USE_SOCNET == "Y") ? GetMessage("BLB_YES") : GetMessage("BLB_NO")));
 	
 	$USER_FIELD_MANAGER->AddUserFields("BLOG_BLOG", $arBlog, $row);
@@ -242,7 +240,7 @@ $oFilter->Begin();
 ?>
 	<tr>
 		<td><?echo GetMessage("BLB_FILTER_NAME")?>:</td>
-		<td><input type="text" name="filter_name" value="<?echo htmlspecialchars($filter_name)?>" size="40"><?=ShowFilterLogicHelp()?></td>
+		<td><input type="text" name="filter_name" value="<?echo htmlspecialcharsbx($filter_name)?>" size="40"><?=ShowFilterLogicHelp()?></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("BLB_FILTER_ACTIVE")?>:</td>
@@ -256,7 +254,7 @@ $oFilter->Begin();
 	</tr>
 	<tr>
 		<td><?echo GetMessage("BLB_FILTER_URL")?>:</td>
-		<td><input type="text" name="filter_url" value="<?echo htmlspecialchars($filter_url)?>" size="40"></td>
+		<td><input type="text" name="filter_url" value="<?echo htmlspecialcharsbx($filter_url)?>" size="40"></td>
 	</tr>
 	<tr>
 		<td valign="top"><?echo GetMessage("BLB_FILTER_GROUP_ID");?>:</td>
@@ -275,7 +273,7 @@ $oFilter->Begin();
 	</tr>
 	<tr>
 		<td><?echo GetMessage("BLB_FILTER_OWNER")?>:</td>
-		<td><input type="text" name="filter_owner" value="<?echo htmlspecialchars($filter_owner)?>" size="40"><?=ShowFilterLogicHelp()?></td>
+		<td><input type="text" name="filter_owner" value="<?echo htmlspecialcharsbx($filter_owner)?>" size="40"><?=ShowFilterLogicHelp()?></td>
 	</tr>
 <?
 $USER_FIELD_MANAGER->AdminListShowFilter("BLOG_BLOG");

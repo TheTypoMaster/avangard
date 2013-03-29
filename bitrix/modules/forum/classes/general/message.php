@@ -59,9 +59,9 @@ class CAllForumMessage
 				return false;
 			if (COption::GetOptionString("forum", "USER_EDIT_OWN_POST", "N") == "Y")
 				return true;
-            $iCnt = CForumMessage::GetList(array("ID" => "ASC"), array("TOPIC_ID"=>$arTopic["ID"], ">ID"=>$MID), True);
-            if (intVal($iCnt) <= 0)
-                return true;
+			$iCnt = CForumMessage::GetList(array("ID" => "ASC"), array("TOPIC_ID"=>$arTopic["ID"], ">ID"=>$MID), True);
+			if (intVal($iCnt) <= 0)
+				return true;
 		}
 		return false;
 	}
@@ -100,12 +100,29 @@ class CAllForumMessage
 			$arMessage = CForumMessage::GetByID($ID, array("FILTER" => "N"));
 		}
 
+		$bDeduplication = true;
 		if ((is_set($arFields, "FORUM_ID") || $ACTION=="ADD") && intVal($arFields["FORUM_ID"])<=0)
 		{
 			$aMsg[] = array(
 				"id"=>'empty_forum_id',
 				"text" => GetMessage("F_ERR_EMPTY_FORUM_ID"));
 		}
+		else
+		{
+			$forumID = (($ACTION == 'ADD') ? intVal($arFields["FORUM_ID"]) : intVal($arMessage["FORUM_ID"]));
+			$arForum = CForumNew::GetByID($forumID);
+			if (!is_array($arForum))
+			{
+				$aMsg[] = array(
+					"id"=>'invalid_forum_id',
+					"text" => GetMessage("F_ERR_INVALID_FORUM_ID"));
+			}
+			else
+			{
+				$bDeduplication = ($arForum['DEDUPLICATION'] === 'Y');
+			}
+		}
+
 		if ((is_set($arFields, "TOPIC_ID") || $ACTION=="ADD") && intVal($arFields["TOPIC_ID"])<=0)
 		{
 			$aMsg[] = array(
@@ -130,13 +147,16 @@ class CAllForumMessage
 		{
 			$arFields["POST_MESSAGE_CHECK"] = md5($arFields["POST_MESSAGE"] . (is_set($arFields, 'FILES')?serialize($arFields['FILES']):''));
 
-			$iCnt = CForumMessage::GetList(array(), array("TOPIC_ID" => $arMessage["TOPIC_ID"], "!ID" => $ID,
-				"AUTHOR_NAME" => $arMessage["AUTHOR_NAME"], "POST_MESSAGE_CHECK" => $arFields["POST_MESSAGE_CHECK"]), true);
-			if (intVal($iCnt)>0)
+			if ($bDeduplication)
 			{
-				$aMsg[] = array(
-					"id"=>'message_already_exists',
-					"text" => GetMessage("F_ERR_MESSAGE_ALREADY_EXISTS"));
+				$iCnt = CForumMessage::GetList(array(), array("TOPIC_ID" => $arMessage["TOPIC_ID"], "!ID" => $ID,
+					"AUTHOR_NAME" => $arMessage["AUTHOR_NAME"], "POST_MESSAGE_CHECK" => $arFields["POST_MESSAGE_CHECK"]), true);
+				if (intVal($iCnt)>0)
+				{
+					$aMsg[] = array(
+						"id"=>'message_already_exists',
+						"text" => GetMessage("F_ERR_MESSAGE_ALREADY_EXISTS"));
+				}
 			}
 		}
 
@@ -157,7 +177,7 @@ class CAllForumMessage
 			}
 			else
 			{
-				$arParams = array("FORUM_ID" => $arMessage["FORUM_ID"], "USER_ID" => $arFields["AUTHOR_ID"]);
+				$arParams = array("FORUM_ID" => $arMessage["FORUM_ID"], "MESSAGE_ID" => 0, "USER_ID" => $arFields["AUTHOR_ID"]);
 			}
 			if (!CForumFiles::CheckFields($arFields["FILES"], $arParams))
 			{
@@ -377,7 +397,7 @@ class CAllForumMessage
 					$bUpdatedStatistic = true;
 				endif;
 			}
-            $arForum = CForumNew::GetByID($arMessage["FORUM_ID"]);
+			$arForum = CForumNew::GetByID($arMessage["FORUM_ID"]);
 			if (CModule::IncludeModule("search") && $arForum["INDEXATION"] == "Y")
 			{
 				// if message was removed from indexing forum to no-indexing forum we must delete index
@@ -445,10 +465,17 @@ class CAllForumMessage
 
 		foreach ($arParams["SITE"] as $key => $val)
 		{
-			$arSearchInd["LID"][$key] = CForumNew::PreparePath2Message($val,
-				array("FORUM_ID" => $arMessage["FORUM_ID"], "TOPIC_ID" => $arMessage["TOPIC_ID"], "MESSAGE_ID" => $arMessage["ID"],
-				"SOCNET_GROUP_ID" => $arMessage["TOPIC_INFO"]["SOCNET_GROUP_ID"], "OWNER_ID" => $arMessage["TOPIC_INFO"]["OWNER_ID"],
-				"PARAM1" => $arMessage["PARAM1"], "PARAM2" => $arMessage["PARAM2"]));
+			$arSearchInd["LID"][$key] =
+				CForumNew::PreparePath2Message(
+					$val,
+					array(
+						"FORUM_ID" => $arMessage["FORUM_ID"],
+						"TOPIC_ID" => $arMessage["TOPIC_ID"],
+						"MESSAGE_ID" => $arMessage["ID"],
+						"SOCNET_GROUP_ID" => $arMessage["TOPIC_INFO"]["SOCNET_GROUP_ID"],
+						"OWNER_ID" => $arMessage["TOPIC_INFO"]["OWNER_ID"],
+						"PARAM1" => $arMessage["PARAM1"],
+						"PARAM2" => $arMessage["PARAM2"]));
 			if (empty($arSearchInd["URL"]) && !empty($arSearchInd["LID"][$key]))
 				$arSearchInd["URL"] = $arSearchInd["LID"][$key];
 		}
@@ -559,14 +586,11 @@ class CAllForumMessage
 				if ($arAddParams["FILTER"] != "Y"):
 					unset($res["HTML"]);
 				endif;
-				if (COption::GetOptionString("forum", "FILTER", "Y") == "Y" || COption::GetOptionString("forum", "MESSAGE_HTML", "N") == "Y")
-				{
-					$db_res_filter = new CDBResult;
-					$db_res_filter->InitFromArray(array($res));
-					$db_res_filter = new _CMessageDBResult($db_res_filter);
-					if ($res_filter = $db_res_filter->Fetch())
-						$GLOBALS["FORUM_CACHE"]["MESSAGE_FILTER"][$ID] = $res_filter;
-				}
+				$db_res_filter = new CDBResult;
+				$db_res_filter->InitFromArray(array($res));
+				$db_res_filter = new _CMessageDBResult($db_res_filter, $arAddParams);
+				if ($res_filter = $db_res_filter->Fetch())
+					$GLOBALS["FORUM_CACHE"]["MESSAGE_FILTER"][$ID] = $res_filter;
 			}
 		}
 		if ($arAddParams["FILTER"] == "Y")
@@ -624,7 +648,7 @@ class CAllForumMessage
 			"SELECT FM.*, ".$DB->DateToCharFunction("FM.POST_DATE", "FULL")." as POST_DATE,
 				FU.SHOW_NAME, FU.DESCRIPTION, FU.NUM_POSTS, FU.POINTS as NUM_POINTS, FU.SIGNATURE, FU.AVATAR, FU.RANK_ID,
 				".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG,
-				U.EMAIL, U.PERSONAL_ICQ, U.LOGIN ".
+				U.EMAIL, U.PERSONAL_ICQ, U.LOGIN, U.NAME, U.SECOND_NAME, U.LAST_NAME".
 				(!empty($arSqlSelect) ? ", ".implode(", ", $arSqlSelect) : "")."
 			FROM b_forum_message FM
 				LEFT JOIN b_forum_user FU ON (FM.AUTHOR_ID = FU.USER_ID)
@@ -653,12 +677,10 @@ class CAllForumMessage
 						$GLOBALS["FORUM_CACHE"]["TOPIC_FILTER"][intVal($res["TOPIC_INFO"]["ID"])] = $res_filter;
 				endif;
 			endif;
-			if ($arAddParams["FILTER"] != "N" || COption::GetOptionString("forum", "MESSAGE_HTML", "N") == "Y"):
-				$db_res = new CDBResult;
-				$db_res->InitFromArray(array($res));
-				$db_res = new _CMessageDBResult($db_res);
-				$res = $db_res->Fetch();
-			endif;
+			$db_res = new CDBResult;
+			$db_res->InitFromArray(array($res));
+			$db_res = new _CMessageDBResult($db_res, $arAddParams);
+			$res = $db_res->Fetch();
 
 			if ($arAddParams["GET_TOPIC_INFO"] == "Y" || $arAddParams["GET_FORUM_INFO"] == "Y"):
 				$res["TOPIC_INFO"] = array();
@@ -727,7 +749,7 @@ class CAllForumMessage
 	{
 		global $USER;
 		$MID = intVal($MID);
-		$arMessage = array(); $arTopic = array(); $arForum = array(); $arFiles = array(); $arFilesInfo = array();
+		$arMessage = array(); $arTopic = array(); $arForum = array(); $arFiles = array();
 		$mailTemplate = ($mailTemplate === false ? "NEW_FORUM_MESSAGE" : $mailTemplate);
 		$event = new CEvent;
 		if ($MID > 0)
@@ -742,14 +764,9 @@ class CAllForumMessage
 				do
 				{
 					$arFiles[$res["ID"]] = CFile::GetFileArray($res["FILE_ID"]);
-					$arFilesInfo[] =
-						$arFiles[$res["ID"]]["ORIGINAL_NAME"]. " (".
-						($GLOBALS['APPLICATION']->IsHTTPS() ? "https://" : "http://").
-							"#SERVER_NAME#/bitrix/components/bitrix/forum.interface/show_file.php?fid=".$res["FILE_ID"].")";
 				} while ($res = $db_files->Fetch());
 			}
 		}
-
 		if (empty($arMessage))
 			return false;
 
@@ -770,31 +787,31 @@ class CAllForumMessage
 		if (!is_set($arFields, "MAPPROVED")) $arFields["MAPPROVED"] = $arMessage["APPROVED"];
 		if (!is_set($arFields, "FROM_EMAIL")) $arFields["FROM_EMAIL"] = COption::GetOptionString("forum", "FORUM_FROM_EMAIL", "nomail@nomail.nomail");
 
-        //If the message is from socialnetwork, check if mail processor exists for this social network
+		//If the message is from socialnetwork, check if mail processor exists for this social network
 		if($arTopic["SOCNET_GROUP_ID"]>0)
 		{
 			if(CModule::IncludeModule("mail") && CModule::IncludeModule("socialnetwork"))
 			{
 				$arMailParams = CForumEMail::GetForumFilters($FID, $arTopic["SOCNET_GROUP_ID"]);
-                //If the processor exists:
+				//If the processor exists:
 				if($arMailParams)
 				{
 					global $DB;
 					if($arMessage["XML_ID"]=='')
 					{
-                        //check if MSG_ID field exists, generate it if not
+						//check if MSG_ID field exists, generate it if not
 						$arMessage["XML_ID"] = "M".$MID.".".md5(uniqid())."@".($_SERVER["SERVER_NAME"]!=''?$_SERVER["SERVER_NAME"]:$_SERVER["SERVER_ADDR"]);
 						$DB->Query("UPDATE b_forum_message SET XML_ID='".$DB->ForSQL($arMessage["XML_ID"])."' WHERE ID=".$MID);
 					}
 
-                    //get MSG_ID topics, it would be IN_REPLY_TO
+					//get MSG_ID topics, it would be IN_REPLY_TO
 					if($arTopic["XML_ID"]=='')
 					{
 						$arTopic["XML_ID"] = "T".$TID.".".md5(uniqid())."@".($_SERVER["SERVER_NAME"]!=''?$_SERVER["SERVER_NAME"]:$_SERVER["SERVER_ADDR"]);
 						$DB->Query("UPDATE b_forum_topic SET XML_ID='".$DB->ForSQL($arTopic["XML_ID"])."' WHERE ID=".$TID);
 					}
 
-                    //fill FROM_EMAIL from AUTHOR_NAME + FROM_EMAIL or AUTHOR_EMAIL or from 'b_user' by AUTHOR_ID depending on the settings of mail processor
+					//fill FROM_EMAIL from AUTHOR_NAME + FROM_EMAIL or AUTHOR_EMAIL or from 'b_user' by AUTHOR_ID depending on the settings of mail processor
 					if($arMailParams['USE_EMAIL'] == 'Y' && $arMessage["AUTHOR_EMAIL"]!='')
 						$arFields["FROM_EMAIL"] = '"'.$arMessage['AUTHOR_NAME'].'" <'.$arMessage['AUTHOR_EMAIL'].'>';
 					elseif($arMailParams['USE_EMAIL'] == 'Y' && $arMessage["EMAIL"]!='')
@@ -812,8 +829,7 @@ class CAllForumMessage
 						$arFields["=Message-Id"] = $arFields["MSG_ID"] = "<".$arMessage["XML_ID"].">";
 						$arFields["=In-Reply-To"] = $arFields["IN_REPLY_TO"] = "<".$arTopic["XML_ID"].">";
 					}
-
-                    //fill REPLY_TO from the settings of the mail processor
+					//fill REPLY_TO from the settings of the mail processor
 					$arFields["=Reply-To"] = $arFields["REPLY_TO"] = $arMailParams["EMAIL"];
 					$arFields["FORUM_EMAIL"] = $arMailParams["EMAIL"];
 
@@ -893,7 +909,7 @@ class CAllForumMessage
 				continue;
 
 			// Check email
-			if (strLen($res["EMAIL"]) <= 0)
+			if (empty($res["EMAIL"]))
 				continue;
 
 			if($mailTemplate == "FORUM_NEW_MESSAGE_MAIL" && $res["USER_ID"] == $arMessage["AUTHOR_ID"])
@@ -910,33 +926,34 @@ class CAllForumMessage
 			if (!is_set($arFields_tmp, "MESSAGE_TEXT"))
 			{
 				if (!isset(${"parser_".$res["SITE_ID"]}))
-					${"parser_".$res["SITE_ID"]} = new textParser($res["SITE_ID"]);
-
-				$POST_MESSAGE_HTML = $arMessage["POST_MESSAGE"];
-				if (COption::GetOptionString("forum", "FILTER", "Y") == "Y"):
-					if (empty($arMessage["POST_MESSAGE_FILTER"])):
-						$POST_MESSAGE_HTML = CFilterUnquotableWords::Filter($POST_MESSAGE_HTML);
-					else:
-						$POST_MESSAGE_HTML = $arMessage["POST_MESSAGE_FILTER"];
-					endif;
-				endif;
-				$arFields_tmp["MESSAGE_TEXT"] = ${"parser_".$res["SITE_ID"]}->convert4mail($POST_MESSAGE_HTML);
-			}
-			if (!empty($arFilesInfo))
-			{
+					${"parser_".$res["SITE_ID"]} = new forumTextParser($res["SITE_ID"]);
 				if (empty($arSiteFields[$res["SITE_ID"]]))
 				{
 					$arSiteFields[$res["SITE_ID"]] = $event->GetSiteFieldsArray($res["SITE_ID"]);
 					$db_site = CSite::GetByID($res["SITE_ID"]);
 					if ($db_site && $arSite = $db_site->Fetch())
 					{
-						$arSiteFields[$res["SITE_ID"]] += $arSite;
-						$arSiteFields[$res["SITE_ID"]]["LANG_MESS"] = IncludeModuleLangFile(__FILE__, $arSiteFields[$res["SITE_ID"]]["LANGUAGE_ID"], true);
+						$arSiteFields[$res["SITE_ID"]] = array_merge($arSiteFields[$res["SITE_ID"]], $arSite,
+							array("LANG_MESS" => IncludeModuleLangFile(__FILE__, $arSiteFields[$res["SITE_ID"]]["LANGUAGE_ID"], true)));
 						$arSiteFields[$res["SITE_ID"]]["ATTACHED_FILES"] = $arSiteFields[$res["SITE_ID"]]["LANG_MESS"]["F_ATTACHED_FILES"];
 					}
 				}
-				$str = str_replace("#SERVER_NAME#", $arSiteFields[$res["SITE_ID"]]["SERVER_NAME"], implode("\n", $arFilesInfo));
-				$arFields_tmp["MESSAGE_TEXT"] .= "\n\n".$arSiteFields[$res["SITE_ID"]]["ATTACHED_FILES"]."\n".$str."\n";
+				if (!empty($arSiteFields[$res["SITE_ID"]]["SERVER_NAME"]))
+					${"parser_".$res["SITE_ID"]}->serverName = $arSiteFields[$res["SITE_ID"]]["SERVER_NAME"];
+				${"parser_".$res["SITE_ID"]}->arFiles = $arFiles;
+
+				$POST_MESSAGE_HTML = $arMessage["POST_MESSAGE"];
+				if (COption::GetOptionString("forum", "FILTER", "Y") == "Y")
+					$POST_MESSAGE_HTML = (empty($arMessage["POST_MESSAGE_FILTER"]) ? CFilterUnquotableWords::Filter($POST_MESSAGE_HTML) : $arMessage["POST_MESSAGE_FILTER"]);
+				$arFields_tmp["MESSAGE_TEXT"] = ${"parser_".$res["SITE_ID"]}->convert4mail($POST_MESSAGE_HTML);
+				$arFields_tmp["PARSED_FILES"] = ${"parser_".$res["SITE_ID"]}->arFilesIDParsed;
+				$tmp = array_diff(array_keys($arFiles), ${"parser_".$res["SITE_ID"]}->arFilesIDParsed);
+				if (!empty($tmp))
+				{
+					$str = "[FILE ID=".implode("]\n[FILE ID=", $tmp)."]";
+					${"parser_".$res["SITE_ID"]}->ParserFile($str, ${"parser_".$res["SITE_ID"]}, "mail");
+					$arFields_tmp["MESSAGE_TEXT"] .= "\n\n".$arSiteFields[$res["SITE_ID"]]["ATTACHED_FILES"]."\n".$str;
+				}
 			}
 
 			$arFields_tmp["RECIPIENT"] = $res["EMAIL"];
@@ -1074,115 +1091,155 @@ class CAllForumMessage
 
 class _CMessageDBResult extends CDBResult
 {
-	function _CMessageDBResult($res)
+	var $sNameTemplate = '';
+	function _CMessageDBResult($res, $params = array())
 	{
+		$this->sNameTemplate = (!empty($params["sNameTemplate"]) ? $params["sNameTemplate"] : '');
 		parent::CDBResult($res);
 	}
 	function Fetch()
 	{
 		global $DB;
 		$arFields = array();
-		$arForum = array();
 		if($res = parent::Fetch())
 		{
-			if (((strLen(trim($res["POST_MESSAGE_HTML"])) <= 0) && (COption::GetOptionString("forum", "MESSAGE_HTML", "N") == "Y")) ||
-				((strLen(trim($res["POST_MESSAGE_FILTER"])) <= 0) && (COption::GetOptionString("forum", "FILTER", "Y") == "Y"))):
-				$arForum = CForumNew::GetByID($res["FORUM_ID"]);
-
-				if ((COption::GetOptionString("forum", "FILTER", "Y") == "Y") && (strLen(trim($res["POST_MESSAGE_FILTER"])) <= 0))
+			if (COption::GetOptionString("forum", "MESSAGE_HTML", "N") == "Y" ||
+				COption::GetOptionString("forum", "FILTER", "Y") == "Y")
+			{
+				$res["POST_MESSAGE_HTML"] = trim($res["POST_MESSAGE_HTML"]);
+				$res["POST_MESSAGE_FILTER"] = trim($res["POST_MESSAGE_FILTER"]);
+				if (empty($res["POST_MESSAGE_HTML"]) && COption::GetOptionString("forum", "MESSAGE_HTML", "N") == "Y" ||
+					empty($res["POST_MESSAGE_FILTER"]) && COption::GetOptionString("forum", "FILTER", "Y") == "Y")
 				{
-					$arFields["POST_MESSAGE_FILTER"] = CFilterUnquotableWords::Filter($res["POST_MESSAGE"]);
-					$arFields["POST_MESSAGE_FILTER"] = (empty($arFields["POST_MESSAGE_FILTER"]) ? "*" : $arFields["POST_MESSAGE_FILTER"]);
-				}
-
-				if ((COption::GetOptionString("forum", "MESSAGE_HTML", "N") == "Y") && strLen(trim($res["POST_MESSAGE_HTML"])) <= 0)
-				{
-					$parser = new forumTextParser(LANGUAGE_ID);
-					$allow = array(
-							"HTML" => $arForum["ALLOW_HTML"],
-							"ANCHOR" => $arForum["ALLOW_ANCHOR"],
-							"BIU" => $arForum["ALLOW_BIU"],
-							"IMG" => $arForum["ALLOW_IMG"],
-							"VIDEO" => $arForum["ALLOW_VIDEO"],
-							"LIST" => $arForum["ALLOW_LIST"],
-							"QUOTE" => $arForum["ALLOW_QUOTE"],
-							"CODE" => $arForum["ALLOW_CODE"],
-							"FONT" => $arForum["ALLOW_FONT"],
-							"SMILES" => $arForum["ALLOW_SMILES"],
-							"UPLOAD" => $arForum["ALLOW_UPLOAD"],
-							"NL2BR" => $arForum["ALLOW_NL2BR"],
-							"SMILES" => (($res["USE_SMILES"] == "Y") ? $arForum["ALLOW_SMILES"] : "N"),
-							"TABLE" => $arForum["TABLE"]
-							);
-					$POST_MESSAGE_HTML = (is_set($arFields, "POST_MESSAGE_FILTER") ? $arFields["POST_MESSAGE_FILTER"] : $res["POST_MESSAGE"]);
-					$arFields["POST_MESSAGE_HTML"] = $parser->convert($POST_MESSAGE_HTML, $allow);
-				}
-				$strUpdate = $DB->PrepareUpdate("b_forum_message", $arFields);
-				$strSql = "UPDATE b_forum_message SET ".$strUpdate." WHERE ID = ".intVal($res["ID"]);
-				if ($DB->QueryBind($strSql, $arFields, false, "File: ".__FILE__."<br>Line: ".__LINE__))
-				{
-					foreach ($arFields as $key => $val)
-						$res[$key] = $val;
-				}
-			endif;
-
-			if (COption::GetOptionString("forum", "FILTER", "Y") == "Y" && (is_set($res, "HTML") || is_set($res, "FM_HTML"))):
-				$arr = @unserialize(is_set($res, "HTML") ? $res["HTML"] : $res["FM_HTML"]);
-				if (empty($arr) || !is_array($arr))
-				{
-					$arr = array(
-						"AUTHOR_NAME" => $res["AUTHOR_NAME"],
-						"AUTHOR_EMAIL" => $res["AUTHOR_EMAIL"],
-						"EDITOR_NAME" => $res["EDITOR_NAME"],
-						"EDITOR_EMAIL" => $res["EDITOR_EMAIL"],
-						"EDIT_REASON" => $res["EDIT_REASON"]);
-					foreach ($arr as $key => $val):
-						if (!empty($val)):
-							$val = CFilterUnquotableWords::Filter($val);
-							$arr[$key] = (empty($val) ? "*" : $val);
-						else:
-							$arr[$key] = '';
-						endif;
-
-					endforeach;
-					$arFields = array("HTML" => serialize($arr));
+					$arForum = CForumNew::GetByID($res["FORUM_ID"]);
+					if ((COption::GetOptionString("forum", "FILTER", "Y") == "Y") && empty($res["POST_MESSAGE_FILTER"]))
+					{
+						$arFields["POST_MESSAGE_FILTER"] = CFilterUnquotableWords::Filter($res["POST_MESSAGE"]);
+						$arFields["POST_MESSAGE_FILTER"] = (empty($arFields["POST_MESSAGE_FILTER"]) ? "*" : $arFields["POST_MESSAGE_FILTER"]);
+					}
+					if (COption::GetOptionString("forum", "MESSAGE_HTML", "N") == "Y" && empty($res["POST_MESSAGE_HTML"]))
+					{
+						/* Info about one file is saved in old table field ATTACH_IMG */
+						$arFiles = false;
+						if (intval($res["ATTACH_IMG"]) > 0)
+						{
+							$arFiles = array();
+							$db_files = CForumFiles::GetList(array("MESSAGE_ID" => "ASC"), array("MESSAGE_ID" => $res["ID"]));
+							if ($db_files && $res_file = $db_files->Fetch())
+							{
+								do
+								{
+									$res_file["SRC"] = CFile::GetFileSRC($res);
+									$arFiles[$res_file["ID"]] = $res_file;
+								} while ($res_file = $db_files->Fetch());
+							}
+						}
+						$parser = new forumTextParser(LANGUAGE_ID);
+						$allow = forumTextParser::GetFeatures($arForum);
+						$allow['SMILES'] = ($res["USE_SMILES"] == "Y" ? $allow['SMILES'] : "N");
+						$POST_MESSAGE_HTML = (is_set($arFields, "POST_MESSAGE_FILTER") ? $arFields["POST_MESSAGE_FILTER"] : $res["POST_MESSAGE"]);
+						$arFields["POST_MESSAGE_HTML"] = $parser->convert($POST_MESSAGE_HTML, $allow, "html", $arFiles);
+					}
 					$strUpdate = $DB->PrepareUpdate("b_forum_message", $arFields);
 					$strSql = "UPDATE b_forum_message SET ".$strUpdate." WHERE ID = ".intVal($res["ID"]);
-					$DB->QueryBind($strSql, $arFields, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-				}
-				foreach ($arr as $key => $val)
-				{
-					$res["~".$key] = $res[$key];
-					$res["".$key] = $val;
-				}
-			endif;
-
-			if (!empty($res["FT_HTML"]) && COption::GetOptionString("forum", "FILTER", "Y") == "Y"):
-				$arr = @unserialize($res["FT_HTML"]);
-				if (is_array($arr) && !empty($arr["TITLE"]))
-				{
-					foreach ($arr as $key => $val)
+					if ($DB->QueryBind($strSql, $arFields, false, "File: ".__FILE__."<br>Line: ".__LINE__))
 					{
-						$res["~FT_".$key] = $res["FT_".$key];
-						$res["FT_".$key] = $val;
+						foreach ($arFields as $key => $val)
+							$res[$key] = $val;
 					}
 				}
-			endif;
-
-			if (!empty($res["F_HTML"]) && COption::GetOptionString("forum", "FILTER", "Y") == "Y"):
-				$arr = @unserialize($res["F_HTML"]);
-				if (is_array($arr))
+			}
+			if (COption::GetOptionString("forum", "FILTER", "Y") == "Y")
+			{
+				if (is_set($res, "HTML") || is_set($res, "FM_HTML"))
 				{
+					$arr = @unserialize(is_set($res, "HTML") ? $res["HTML"] : $res["FM_HTML"]);
+					if (empty($arr) || !is_array($arr))
+					{
+						$arr = array(
+							"AUTHOR_NAME" => $res["AUTHOR_NAME"],
+							"AUTHOR_EMAIL" => $res["AUTHOR_EMAIL"],
+							"EDITOR_NAME" => $res["EDITOR_NAME"],
+							"EDITOR_EMAIL" => $res["EDITOR_EMAIL"],
+							"EDIT_REASON" => $res["EDIT_REASON"]);
+						foreach ($arr as $key => $val)
+						{
+							if (!empty($val)):
+								$val = CFilterUnquotableWords::Filter($val);
+								$arr[$key] = (empty($val) ? "*" : $val);
+							else:
+								$arr[$key] = '';
+							endif;
+						}
+						$arFields = array("HTML" => serialize($arr));
+						$strUpdate = $DB->PrepareUpdate("b_forum_message", $arFields);
+						$strSql = "UPDATE b_forum_message SET ".$strUpdate." WHERE ID = ".intVal($res["ID"]);
+						$DB->QueryBind($strSql, $arFields, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					}
 					foreach ($arr as $key => $val)
 					{
-						$res["~F_".$key] = $res["F_".$key];
-						$res["F_".$key] = $val;
-
+						$res["~".$key] = $res[$key];
+						$res["".$key] = $val;
 					}
 				}
-				if (!empty($res["FT_TITLE"]))
-					$res["F_TITLE"] = $res["FT_TITLE"];
-			endif;
+
+				if (!empty($res["FT_HTML"]))
+				{
+					$arr = @unserialize($res["FT_HTML"]);
+					if (is_array($arr) && !empty($arr["TITLE"]))
+					{
+						foreach ($arr as $key => $val)
+						{
+							$res["~FT_".$key] = $res["FT_".$key];
+							$res["FT_".$key] = $val;
+						}
+					}
+				}
+
+				if (!empty($res["F_HTML"]))
+				{
+					$arr = @unserialize($res["F_HTML"]);
+					if (is_array($arr))
+					{
+						foreach ($arr as $key => $val)
+						{
+							$res["~F_".$key] = $res["F_".$key];
+							$res["F_".$key] = $val;
+
+						}
+					}
+					if (!empty($res["FT_TITLE"]))
+						$res["F_TITLE"] = $res["FT_TITLE"];
+				}
+			}
+			if (!empty($this->sNameTemplate))
+			{
+				$arTmp = array();
+				foreach (array(
+					"AUTHOR_ID" => "AUTHOR_NAME",
+					"EDITOR_ID" => "EDITOR_NAME",
+					"USER_START_ID" => "USER_START_NAME") as $id => $name)
+				{
+					if (array_key_exists($id, $res))
+					{
+						$tmp = "";
+						if (!empty($res[$id]))
+						{
+							if (in_array($res[$id], $arTmp))
+							{
+								$tmp = $arTmp[$res[$id]];
+							}
+							else
+							{
+								$arTmp[$res[$id]] = $tmp = (!empty($res[$name."_FRMT"]) ? $res[$name."_FRMT"] :
+									CForumUser::GetFormattedNameByUserID($res[$id], $this->sNameTemplate, ($id == "AUTHOR_ID" ? $res : array())));
+							}
+						}
+						$res[$name] = (!empty($tmp) ? $tmp : $res[$name]);
+						unset($res[$name."_FRMT"]);
+					}
+				}
+			}
 		}
 		return $res;
 	}
@@ -1196,9 +1253,11 @@ class CALLForumFiles
 		$arFiles = (!is_array($arFields) ? array($arFields) : $arFields);
 		$arParams = (!is_array($arParams) ? array($arParams) : $arParams);
 		$arParams["FORUM_ID"] = intVal($arParams["FORUM_ID"]);
-		$arParams["TOPIC_ID"] = intVal($arParams["TOPIC_ID"]);
+		if (isset($arParams["TOPIC_ID"]))
+			$arParams["TOPIC_ID"] = intVal($arParams["TOPIC_ID"]);
 		$arParams["MESSAGE_ID"] = intVal($arParams["MESSAGE_ID"]);
 		$arParams["USER_ID"] = intVal($arParams["USER_ID"]);
+
 		if (empty($arFiles))
 			return true;
 		elseif (!empty($arFiles["name"]))
@@ -1253,8 +1312,12 @@ class CALLForumFiles
 			endforeach;
 			if ($ACTION != "NOT_CHECK_DB" && !empty($arFilesExists))
 			{
-				$arFilter = array("FILE_FORUM_ID" => $arParams["FORUM_ID"], "FILE_TOPIC_ID" => $arParams["TOPIC_ID"],
-					"FILE_MESSAGE_ID" => $arParams["MESSAGE_ID"], "@FILE_ID" => array_keys($arFilesExists));
+				$arFilter = array("FILE_FORUM_ID" => $arParams["FORUM_ID"]);
+				if (isset($arParams["TOPIC_ID"]))
+					$arFilter["FILE_TOPIC_ID"] = $arParams["TOPIC_ID"];
+				if (isset($arParams["MESSAGE_ID"]))
+					$arFilter["FILE_MESSAGE_ID"] = $arParams["MESSAGE_ID"];
+				$arFilter["@FILE_ID"] = array_keys($arFilesExists);
 
 				$db_res = CForumFiles::GetList(array("FILE_ID" => "ASC"), $arFilter);
 				if ($db_res && $res = $db_res->Fetch())
@@ -1331,13 +1394,11 @@ class CALLForumFiles
 				}
 				if (($res > 0 || !empty($val["del"])) && $old_file > 0)
 				{
-					$GLOBALS["DB"]->Query("DELETE FROM b_forum_file WHERE FILE_ID=".$old_file, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 					CFile::Delete($old_file);
 					unset($arFields[$key]);
 				}
 			}
 			elseif (!empty($val["del"])):
-				$GLOBALS["DB"]->Query("DELETE FROM b_forum_file WHERE FILE_ID=".$val["FILE_ID"]);
 				CFile::Delete($val["FILE_ID"]);
 				unset($arFields[$key]);
 			else:
@@ -1394,10 +1455,19 @@ class CALLForumFiles
 		{
 			do
 			{
-				$DB->Query("DELETE from b_forum_file where FILE_ID=".$res["FILE_ID"], false, "FILE: ".__FILE__." LINE:".__LINE__);
 				CFile::Delete($res["FILE_ID"]);
 			} while ($res = $db_res->Fetch());
 		}
+	}
+
+	function OnFileDelete($arFile)
+	{
+		$result = true;
+		if($arFile["MODULE_ID"] == "forum")
+		{
+			$GLOBALS["DB"]->Query("DELETE from b_forum_file where FILE_ID=".$arFile["ID"], false, "FILE: ".__FILE__." LINE:".__LINE__);
+		}
+		return $result;
 	}
 }
 ?>

@@ -26,7 +26,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 CAdminMessage::ShowMessage(array(
 	"MESSAGE" => GetMessage("MAIN_EXEC_RESTORE_MSG"),
-	"DETAILS" => GetMessage("MAIN_EXEC_RESTORE_TEXT").' '.htmlspecialchars($path),
+	"DETAILS" => GetMessage("MAIN_EXEC_RESTORE_TEXT").' '.htmlspecialcharsbx($path),
 	"HTML" => true));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

@@ -135,7 +135,6 @@ $MESS["COUNTRY_97"] = "Morocco";
 $MESS["COUNTRY_98"] = "Namibia";
 $MESS["COUNTRY_99"] = "Nepal";
 $MESS["COUNTRY_100"] = "Nigeria";
-$MESS["COUNTRY_101"] = "Netherlands";
 $MESS["COUNTRY_102"] = "Nicaragua";
 $MESS["COUNTRY_103"] = "New Zealand";
 $MESS["COUNTRY_104"] = "Norway";

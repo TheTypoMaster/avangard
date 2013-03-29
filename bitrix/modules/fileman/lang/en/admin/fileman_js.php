@@ -188,6 +188,6 @@ $MESS["FILEMAN_JS_ListConfigTitle"] = "Customize List Items";
 $MESS["FILEMAN_JS_NoVal"] = "None";
 $MESS["FILEMAN_JS_LinkNoindex"] = "Deny Search Engines (nofollow, noindex)";
 $MESS["FILEMAN_JS_Rel"] = "REL Attribute";
-$MESS["FILEMAN_JS_SaveProp"] = "Constrain Proportions";
+$MESS["FILEMAN_JS_SaveProp"] = "Keep proportions";
 $MESS["FILEMAN_JS_CompNoParams"] = "This component has no configurable parameters.";
 ?>

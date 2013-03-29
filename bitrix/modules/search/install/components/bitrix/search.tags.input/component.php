@@ -15,7 +15,7 @@ foreach($exFILTER as $i => $subFilter)
 		&& is_array($subFilter["PARAMS"])
 		&& array_key_exists("socnet_group", $subFilter["PARAMS"])
 	)
-		$exFILTER[$i]["SOCIAL_NETWORK_GROUP"] = $subFilter["PARAMS"]["socnet_group"];
+		$exFILTER["SOCIAL_NETWORK_GROUP"] = $subFilter["PARAMS"]["socnet_group"];
 }
 
 $exFILTER["SITE_ID"] = (!empty($arParams["SITE_ID"]) ? $arParams["SITE_ID"] : SITE_ID);

@@ -1,7 +1,7 @@
 <?
 class CAllPerfomanceSQL
 {
-	function GetList($arSelect, $arFilter, $arOrder, $bGroup)
+	function GetList($arSelect, $arFilter, $arOrder, $bGroup, $arNavStartParams = false)
 	{
 		global $DB;
 
@@ -106,7 +106,7 @@ class CAllPerfomanceSQL
 		$obQueryWhere->SetFields(array(
 			"HIT_ID" => array(
 				"TABLE_ALIAS" => "s",
-				"FIELD_NAME" => "HIT_ID",
+				"FIELD_NAME" => "s.HIT_ID",
 				"FIELD_TYPE" => "int", //int, double, file, enum, int, string, date, datetime
 				"JOIN" => false,
 				//"LEFT_JOIN" => "lt",
@@ -119,46 +119,93 @@ class CAllPerfomanceSQL
 			),
 			"ID" => array(
 				"TABLE_ALIAS" => "s",
-				"FIELD_NAME" => "ID",
+				"FIELD_NAME" => "s.ID",
 				"FIELD_TYPE" => "int",
 				"JOIN" => false,
+			),
+			"QUERY_TIME" => array(
+				"TABLE_ALIAS" => "s",
+				"FIELD_NAME" => "s.QUERY_TIME",
+				"FIELD_TYPE" => "double",
+				"JOIN" => false,
+			),
+			"SUGGEST_ID" => array(
+				"TABLE_ALIAS" => "iss",
+				"FIELD_NAME" => "iss.SUGGEST_ID",
+				"FIELD_TYPE" => "int",
+				"JOIN" => "INNER JOIN b_perf_index_suggest_sql iss on iss.SQL_ID = s.ID",
+				"LEFT_JOIN" => "LEFT JOIN b_perf_index_suggest_sql is on is.SQL_ID = s.ID",
 			),
 		));
 
 		if(count($arQuerySelect) < 1)
 			$arQuerySelect = array("ID"=>"s.ID");
 
-		$strSql = "
-			SELECT
-			".implode(", ", $arQuerySelect)."
-			FROM
-				b_perf_sql s
-		";
 		if(!is_array($arFilter))
 			$arFilter = array();
-		if($strQueryWhere = $obQueryWhere->GetQuery($arFilter))
+		$strQueryWhere = $obQueryWhere->GetQuery($arFilter);
+
+		if(is_array($arNavStartParams) && $arNavStartParams["nTopCount"] > 0)
 		{
-			$strSql .= "
-				WHERE
-				".$strQueryWhere."
-			";
+			$strSql = $DB->TopSQL("
+				SELECT ".implode(", ", $arQuerySelect)."
+				FROM b_perf_sql s
+				".$obQueryWhere->GetJoins()."
+				".($strQueryWhere? "WHERE ".$strQueryWhere: "")."
+				".($bGroup? "GROUP BY ".implode(", ", $arQueryGroup): "")."
+				".(count($arQueryOrder)? "ORDER BY ".implode(", ", $arQueryOrder): "")."
+			", $arNavStartParams["nTopCount"] );
+			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
-		if($bGroup)
+		elseif(is_array($arNavStartParams))
 		{
-			$strSql .= "
-				GROUP BY
-				".implode(", ", $arQueryGroup)."
+			$strSql = "
+				SELECT count('x') CNT
+				FROM b_perf_sql s
+				".$obQueryWhere->GetJoins()."
+				".($strQueryWhere? "WHERE ".$strQueryWhere: "")."
+				".($bGroup? "GROUP BY ".implode(", ", $arQueryGroup): "")."
 			";
+			$res_cnt = $DB->Query($strSql);
+			$ar_cnt = $res_cnt->Fetch();
+
+			$strSql = "
+				SELECT ".implode(", ", $arQuerySelect)."
+				FROM b_perf_sql s
+				".$obQueryWhere->GetJoins()."
+				".($strQueryWhere? "WHERE ".$strQueryWhere: "")."
+				".($bGroup? "GROUP BY ".implode(", ", $arQueryGroup): "")."
+				".(count($arQueryOrder)? "ORDER BY ".implode(", ", $arQueryOrder): "")."
+			";
+			$res = new CDBResult();
+			$res->NavQuery($strSql, $ar_cnt["CNT"], $arNavStartParams);
 		}
-		if(count($arQueryOrder) > 0)
+		else
 		{
-			$strSql .= "
-				ORDER BY
-				".implode(", ", $arQueryOrder)."
+			$strSql = "
+				SELECT ".implode(", ", $arQuerySelect)."
+				FROM b_perf_sql s
+				".$obQueryWhere->GetJoins()."
+				".($strQueryWhere? "WHERE ".$strQueryWhere: "")."
+				".($bGroup? "GROUP BY ".implode(", ", $arQueryGroup): "")."
+				".(count($arQueryOrder)? "ORDER BY ".implode(", ", $arQueryOrder): "")."
 			";
+			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
-		//echo "<pre>",htmlspecialchars($strSql),"</pre><hr>";
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+
+		return $res;
+	}
+
+	function GetBacktraceList($sql_id)
+	{
+		global $DB;
+		return $DB->Query("
+			SELECT *
+			FROM b_perf_sql_backtrace
+			WHERE SQL_ID = ".intval($sql_id)."
+			AND NN > 0
+			ORDER BY NN
+		");
 	}
 
 	function Format($strSql)
@@ -238,12 +285,6 @@ class CAllPerfomanceSQL
 			$strSql = str_replace($arMatch[1], $res, $strSql);
 		}
 		return $strSql;
-	}
-
-	function Clear()
-	{
-		global $DB;
-		return $DB->Query("TRUNCATE TABLE b_perf_sql");
 	}
 }
 ?>

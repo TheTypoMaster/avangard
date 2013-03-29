@@ -6,6 +6,7 @@ if(!CModule::IncludeModule("iblock"))
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 
+$arIBlock = array();
 $rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"], "ACTIVE"=>"Y"));
 while($arr=$rsIBlock->Fetch())
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
@@ -13,23 +14,26 @@ while($arr=$rsIBlock->Fetch())
 $arProperty_LNS = array();
 $arProperty_N = array();
 $arProperty_X = array();
-$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$arCurrentValues["IBLOCK_ID"]));
-while ($arr=$rsProp->Fetch())
+if (0 < intval($arCurrentValues['IBLOCK_ID']))
 {
-	if($arr["PROPERTY_TYPE"] != "F")
-		$arProperty[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
-
-	if($arr["PROPERTY_TYPE"]=="N")
-		$arProperty_N[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
-
-	if($arr["PROPERTY_TYPE"]!="F")
+	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("IBLOCK_ID"=>$arCurrentValues["IBLOCK_ID"], "ACTIVE"=>"Y"));
+	while ($arr=$rsProp->Fetch())
 	{
-		if($arr["MULTIPLE"] == "Y")
-			$arProperty_X[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
-		elseif($arr["PROPERTY_TYPE"] == "L")
-			$arProperty_X[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
-		elseif($arr["PROPERTY_TYPE"] == "E" && $arr["LINK_IBLOCK_ID"] > 0)
-			$arProperty_X[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+		if($arr["PROPERTY_TYPE"] != "F")
+			$arProperty[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+
+		if($arr["PROPERTY_TYPE"]=="N")
+			$arProperty_N[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+
+		if($arr["PROPERTY_TYPE"]!="F")
+		{
+			if($arr["MULTIPLE"] == "Y")
+				$arProperty_X[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+			elseif($arr["PROPERTY_TYPE"] == "L")
+				$arProperty_X[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+			elseif($arr["PROPERTY_TYPE"] == "E" && $arr["LINK_IBLOCK_ID"] > 0)
+				$arProperty_X[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+		}
 	}
 }
 
@@ -48,7 +52,7 @@ $OFFERS_IBLOCK_ID = is_array($arOffers)? $arOffers["OFFERS_IBLOCK_ID"]: 0;
 $arProperty_Offers = array();
 if($OFFERS_IBLOCK_ID)
 {
-	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$OFFERS_IBLOCK_ID));
+	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("IBLOCK_ID"=>$OFFERS_IBLOCK_ID, "ACTIVE"=>"Y"));
 	while($arr=$rsProp->Fetch())
 	{
 		if($arr["PROPERTY_TYPE"] != "F")
@@ -148,7 +152,12 @@ $arComponentParameters = array(
 		"INCLUDE_SUBSECTIONS" => array(
 			"PARENT" => "DATA_SOURCE",
 			"NAME" => GetMessage("CP_BCS_INCLUDE_SUBSECTIONS"),
-			"TYPE" => "CHECKBOX",
+			"TYPE" => "LIST",
+			"VALUES" => array(
+				"Y" => GetMessage('CP_BCS_INCLUDE_SUBSECTIONS_ALL'),
+				"A" => GetMessage('CP_BCS_INCLUDE_SUBSECTIONS_ACTIVE'),
+				"N" => GetMessage('CP_BCS_INCLUDE_SUBSECTIONS_NO'),
+			),
 			"DEFAULT" => "Y",
 		),
 		"SHOW_ALL_WO_SECTION" => array(
@@ -303,6 +312,12 @@ $arComponentParameters = array(
 			"DEFAULT" => "asc",
 			"ADDITIONAL_VALUES" => "Y",
 		),
+		"OFFERS_LIMIT" => array(
+			"PARENT" => "VISUAL",
+			"NAME" => GetMessage('CP_BCS_OFFERS_LIMIT'),
+			"TYPE" => "STRING",
+			"DEFAULT" => 5,
+		),
 		"PRICE_CODE" => array(
 			"PARENT" => "PRICES",
 			"NAME" => GetMessage("IBLOCK_PRICE_CODE"),
@@ -357,6 +372,36 @@ $arComponentParameters = array(
 	),
 );
 CIBlockParameters::AddPagerSettings($arComponentParameters, GetMessage("T_IBLOCK_DESC_PAGER_CATALOG"), true, true);
+
+if (CModule::IncludeModule('catalog') && CModule::IncludeModule('currency'))
+{
+	$arComponentParameters["PARAMETERS"]['CONVERT_CURRENCY'] = array(
+		'PARENT' => 'PRICES',
+		'NAME' => GetMessage('CP_BCS_CONVERT_CURRENCY'),
+		'TYPE' => 'CHECKBOX',
+		'DEFAULT' => 'N',
+		'REFRESH' => 'Y',
+	);
+
+	if (isset($arCurrentValues['CONVERT_CURRENCY']) && 'Y' == $arCurrentValues['CONVERT_CURRENCY'])
+	{
+		$arCurrencyList = array();
+		$rsCurrencies = CCurrency::GetList(($by = 'SORT'), ($order = 'ASC'));
+		while ($arCurrency = $rsCurrencies->Fetch())
+		{
+			$arCurrencyList[$arCurrency['CURRENCY']] = $arCurrency['CURRENCY'];
+		}
+		$arComponentParameters['PARAMETERS']['CURRENCY_ID'] = array(
+			'PARENT' => 'PRICES',
+			'NAME' => GetMessage('CP_BCS_CURRENCY_ID'),
+			'TYPE' => 'LIST',
+			'VALUES' => $arCurrencyList,
+			'DEFAULT' => CCurrency::GetBaseCurrency(),
+			"ADDITIONAL_VALUES" => "Y",
+		);
+	}
+}
+
 if(!$OFFERS_IBLOCK_ID)
 {
 	unset($arComponentParameters["PARAMETERS"]["OFFERS_FIELD_CODE"]);

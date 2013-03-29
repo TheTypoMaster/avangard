@@ -49,6 +49,7 @@ create table if not exists b_iblock
 	SECTION_CHOOSER char(1) null,
 	LIST_MODE char(1) null,
 	RIGHTS_MODE char(1) null,
+	SECTION_PROPERTY char(1) null,
 	VERSION int not null default 1,
 	LAST_CONV_ELEMENT int(11) not null default 0,
 	SOCNET_GROUP_ID int(18) NULL,
@@ -91,7 +92,7 @@ create table if not exists b_iblock_property
 	ID int(11) not null auto_increment,
 	TIMESTAMP_X timestamp not null,
 	IBLOCK_ID int(11) not null REFERENCES b_iblock(ID),
-	NAME varchar(100) not null,
+	NAME varchar(255) not null,
 	ACTIVE char(1) not null default 'Y',
 	SORT int(11) not null default 500,
 	CODE varchar(50),
@@ -113,8 +114,10 @@ create table if not exists b_iblock_property
 	VERSION int not null default 1,
 	USER_TYPE varchar(255) null,
 	USER_TYPE_SETTINGS text,
+	HINT varchar(255),
 	PRIMARY KEY (ID),
 	INDEX ix_iblock_property_1(IBLOCK_ID),
+	INDEX ix_iblock_property_3(LINK_IBLOCK_ID),
 	index ix_iblock_property_2(CODE)
 );
 
@@ -152,7 +155,19 @@ create table if not exists b_iblock_section
 	INDEX ix_iblock_section_code (IBLOCK_ID, CODE)
 );
 
-create table if not exists b_iblock_element (
+create table if not exists b_iblock_section_property
+(
+	IBLOCK_ID int(11) not null,
+	SECTION_ID int(11) not null,
+	PROPERTY_ID int(11) not null,
+	SMART_FILTER char(1),
+	PRIMARY KEY pk_b_iblock_section_property (IBLOCK_ID, SECTION_ID, PROPERTY_ID),
+	INDEX ix_b_iblock_section_property_1 (PROPERTY_ID),
+	INDEX ix_b_iblock_section_property_2 (SECTION_ID)
+);
+
+create table if not exists b_iblock_element
+(
 	ID int(11) not null auto_increment,
 	TIMESTAMP_X datetime,
 	MODIFIED_BY int(18),
@@ -192,7 +207,6 @@ create table if not exists b_iblock_element (
 	index ix_iblock_element_3 (WF_PARENT_ELEMENT_ID),
 	index ix_iblock_element_code (IBLOCK_ID, CODE)
 );
-
 
 create table if not exists b_iblock_element_property
 (

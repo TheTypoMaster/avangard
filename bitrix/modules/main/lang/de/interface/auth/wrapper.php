@@ -1,0 +1,30 @@
+<?
+$MESS["admin_authorize_error"] = "Fehler bei der Anmeldung";
+$MESS["admin_forgot_password_error"] = "Fehler beim Wiederherstellen des Passwortes";
+$MESS["admin_change_password_error"] = "Fehler beim Ändern des Passwortes";
+$MESS["admin_authorize_info"] = "Informationen";
+$MESS["AUTH_LOGIN"] = "Login";
+$MESS["AUTH_PASSWORD"] = "Passwort";
+$MESS["AUTH_REMEMBER_ME"] = "Auf diesem Computer merken";
+$MESS["AUTH_PLEASE_AUTH"] = "Melden Sie sich bitte an";
+$MESS["AUTH_FORGOT_PASSWORD_2"] = "Passwort vergessen?";
+$MESS["AUTH_CAPTCHA_PROMT"] = "Geben Sie das Wort vom Bild ein";
+$MESS["AUTH_CHANGE_PASSWORD"] = "Passwort ändern";
+$MESS["AUTH_CHANGE_PASSWORD_1"] = "Geben Sie die Kontrollzeile und das neue Passwort ein";
+$MESS["AUTH_CHANGE_PASSWORD_2"] = "Das Passwort wurde erfolgreich geändert.";
+$MESS["AUTH_CHANGE"] = "Passwort ändern";
+$MESS["AUTH_CHECKWORD"] = "Kontrollzeile";
+$MESS["AUTH_NEW_PASSWORD"] = "Neues Passwort";
+$MESS["AUTH_NEW_PASSWORD_CONFIRM"] = "Bestätigung";
+$MESS["AUTH_NEW_PASSWORD_CONFIRM_WRONG"] = "Eingegebene Passwörter stimmen nicht überein";
+$MESS["AUTH_FORGOT_PASSWORD"] = "Passwortanforderung";
+$MESS["AUTH_FORGOT_PASSWORD_1"] = "Wenn Sie Ihr Passwort vergessen haben, geben Sie den Login oder die E-Mail ein, die Sie bei der Anmeldung angegeben haben. Die Kontrollzeile zur Passwortänderung wird Ihnen per E-Mail zugesendet.";
+$MESS["AUTH_OR"] = "oder";
+$MESS["AUTH_GOTO_AUTH_FORM"] = "Zum Anmeldeformular wechseln";
+$MESS["AUTH_GOTO_FORGOT_FORM"] = "Zum Formular für die Passwortanforderung wechseln";
+$MESS["AUTH_GOTO_CHANGE_FORM"] = "Zum Formular der Passwortänderung wechseln";
+$MESS["AUTH_GET_CHECK_STRING"] = "Kontrollzeile senden";
+$MESS["AUTH_GET_CHECK_STRING_SENT"] = "Kontrollzeile wurde gesendet";
+$MESS["AUTH_SEND"] = "Senden";
+$MESS["AUTH_GOTO_AUTH_FORM_1"] = "Anmelden";
+?>

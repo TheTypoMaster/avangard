@@ -119,7 +119,7 @@ foreach($arMessages as $strMessage)
 
 if(count($arErrors)==0):?>
 	<?if($STEP==0):?>
-		<p><span class="required"><?=GetMessage("IBCONV_ATTENTION")?></span> <?=GetMessage("IBCONV_WARNING_MESSAGE",array("#IBLOCK_NAME#"=>htmlspecialchars($arIBlock["NAME"])))?>
+		<p><span class="required"><?=GetMessage("IBCONV_ATTENTION")?></span> <?=GetMessage("IBCONV_WARNING_MESSAGE",array("#IBLOCK_NAME#"=>htmlspecialcharsbx($arIBlock["NAME"])))?>
 		<input type="button" name="START" value="<?=GetMessage("IBCONV_MOVE")?>" OnClick="DoNext(<?=$arIBlock["VERSION"]==2?21:12?>,1)">
 	<?elseif($STEP>=1 && $STEP<=5):?>
 		<?if($WAY==12):?>
@@ -177,19 +177,38 @@ function DoNext(way, step){
 <?
 function FirstStep12($arIBlock)
 {
-	global $DB,$_SESSION,$arErrors,$arMessages,$INTERVAL;
-/*	$DB->Query("DROP TABLE b_iblock_element_prop_s31",true);
-	$DB->Query("DROP TABLE b_iblock_element_prop_m31",true);
-	$DB->Query("DROP SEQUENCE sq_b_iblock_element_prop_m31",true);*/
+	global $DB, $_SESSION, $arErrors, $arMessages, $INTERVAL;
+
 	$obIBlock = new CIBlock;
 	$LAST_CONV_ELEMENT = intval($arIBlock["LAST_CONV_ELEMENT"]);
 	if($LAST_CONV_ELEMENT==0)
 	{
+		$strSql = "
+			SELECT
+				COUNT(*) CNT
+			FROM
+				b_iblock_property
+			WHERE
+				IBLOCK_ID = ".$arIBlock["ID"]."
+		";
+		$rs = $DB->Query($strSql);
+		if($ar = $rs->Fetch())
+		{
+			if($ar["CNT"] > 50)
+			{
+				$arErrors[] = GetMessage("IBCONV_TOO_MANY_PROPERTIES", array("#NUM#" => 50));
+				return 3;
+			}
+		}
+
 		$bOK = $obIBlock->_Add($arIBlock["ID"]);
 		$DB->Query("UPDATE b_iblock SET LAST_CONV_ELEMENT = -1 WHERE ID = ".$arIBlock["ID"]);
 	}
 	else
+	{
 		$bOK = true;
+	}
+
 	if($bOK)
 	{
 		$obIBlockProperty = new CIBlockProperty;

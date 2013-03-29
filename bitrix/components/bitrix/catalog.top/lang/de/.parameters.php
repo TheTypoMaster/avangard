@@ -37,4 +37,7 @@ $MESS["CP_BCT_OFFERS_PROPERTY_CODE"] = "Eigenschaften der Produktvariante";
 $MESS["CP_BCT_OFFERS_SORT_FIELD"] = "Produktvariante nach Feld sortieren";
 $MESS["CP_BCT_OFFERS_SORT_ORDER"] = "Sortierungsordnung der Produktvariante";
 $MESS["CP_BCT_OFFERS_CART_PROPERTIES"] = "Eigenschaften der Produktvariante im Warenkorb";
+$MESS["CP_BCT_CONVERT_CURRENCY"] = "Preise in einer Währung anzeigen";
+$MESS["CP_BCT_CURRENCY_ID"] = "Währung in die die Preise konvertiert werden";
+$MESS["CP_BCT_OFFERS_LIMIT"] = "Maximale Anzahl anzuzeigender Produktvarianten (benutzen Sie 0, um alle anzuzeigen)";
 ?>

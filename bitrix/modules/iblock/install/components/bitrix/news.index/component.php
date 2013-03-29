@@ -16,18 +16,18 @@ if(!in_array($arParams["IBLOCK_SORT_BY"], array("SORT","NAME","ID")))
 	$arParams["SORT_BY1"] = "SORT";
 $arParams["IBLOCK_SORT_ORDER"] = strtoupper($arParams["IBLOCK_SORT_ORDER"]);
 if($arParams["IBLOCK_SORT_ORDER"]!="DESC")
-	 $arParams["IBLOCK_SORT_ORDER"]="ASC";
+	$arParams["IBLOCK_SORT_ORDER"]="ASC";
 
 $arParams["SORT_BY1"] = trim($arParams["SORT_BY1"]);
 if(strlen($arParams["SORT_BY1"])<=0)
 	$arParams["SORT_BY1"] = "ACTIVE_FROM";
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER1"]))
-	 $arParams["SORT_ORDER1"]="DESC";
+	$arParams["SORT_ORDER1"]="DESC";
 
 if(strlen($arParams["SORT_BY2"])<=0)
 	$arParams["SORT_BY2"] = "SORT";
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER2"]))
-	 $arParams["SORT_ORDER2"]="ASC";
+	$arParams["SORT_ORDER2"]="ASC";
 
 if(!is_array($arParams["FIELD_CODE"]))
 	$arParams["FIELD_CODE"] = array();
@@ -120,7 +120,7 @@ if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 			strlen($arParams["IBLOCK_URL"])? trim($arParams["~IBLOCK_URL"]): $arIBlock["~LIST_PAGE_URL"]
 		);
 		$arIBlock["~LIST_PAGE_URL"] = preg_replace("'/+'s", "/", $arIBlock["~LIST_PAGE_URL"]);
-		$arIBlock["LIST_PAGE_URL"] = htmlspecialchars($arIBlock["~LIST_PAGE_URL"]);
+		$arIBlock["LIST_PAGE_URL"] = htmlspecialcharsbx($arIBlock["~LIST_PAGE_URL"]);
 
 		$arIBlock["ITEMS"]=array();
 		$arrFilter["IBLOCK_ID"] = $arIBlock["ID"];
@@ -160,8 +160,10 @@ if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 			foreach($arParams["PROPERTY_CODE"] as $pid)
 			{
 				$prop = &$arItem["PROPERTIES"][$pid];
-				if((is_array($prop["VALUE"]) && count($prop["VALUE"])>0) ||
-				   (!is_array($prop["VALUE"]) && strlen($prop["VALUE"])>0))
+				if(
+					(is_array($prop["VALUE"]) && count($prop["VALUE"])>0)
+					|| (!is_array($prop["VALUE"]) && strlen($prop["VALUE"])>0)
+				)
 				{
 					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop, "news_out");
 				}

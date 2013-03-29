@@ -15,6 +15,7 @@
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		
 		"SET_TITLE" => $arParams["SET_TITLE"],
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"]
 	),
 	$component
 );?><?

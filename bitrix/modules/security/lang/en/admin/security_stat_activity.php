@@ -19,5 +19,5 @@ $MESS ['SEC_STATACT_DEFENCE_STACK_TIME'] = "if during";
 $MESS ['SEC_STATACT_DEFENCE_STACK_TIME_MEAS'] = "(sec.)";
 $MESS ['SEC_STATACT_DEFENCE_MAX_HITS'] = "client makes over";
 $MESS ['SEC_STATACT_DEFENCE_MAX_HITS_MEAS'] = "hits";
-$MESS ['SEC_STATACT_DEFENCE_LOG'] = "Add entry to <a href=\"#HREF#\">event log</a>:";
+$MESS ['SEC_STATACT_DEFENCE_LOG'] = "Add entry to event log:";
 ?>

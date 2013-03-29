@@ -15,14 +15,17 @@ while($arr=$rsIBlock->Fetch())
 
 $arProperty = array();
 $arProperty_N = array();
-$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$arCurrentValues["IBLOCK_ID"]));
-while ($arr=$rsProp->Fetch())
+if (0 < intval($arCurrentValues["IBLOCK_ID"]))
 {
-	if($arr["PROPERTY_TYPE"] != "F")
-		$arProperty[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("IBLOCK_ID"=>$arCurrentValues["IBLOCK_ID"], "ACTIVE"=>"Y"));
+	while ($arr=$rsProp->Fetch())
+	{
+		if($arr["PROPERTY_TYPE"] != "F")
+			$arProperty[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
 
-	if($arr["PROPERTY_TYPE"] == "N")
-		$arProperty_N[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+		if($arr["PROPERTY_TYPE"] == "N")
+			$arProperty_N[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
+	}
 }
 $arProperty_LNS = $arProperty;
 
@@ -32,10 +35,10 @@ while($arr=$rsIblock->Fetch())
 	$arIBlock_LINK[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
 
 $arProperty_LINK = array();
-$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$arCurrentValues["LINK_IBLOCK_ID"]));
-while ($arr=$rsProp->Fetch())
+if (0 < intval($arCurrentValues["LINK_IBLOCK_ID"]))
 {
-	if (in_array($arr["PROPERTY_TYPE"], array("E")))
+	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("IBLOCK_ID"=>$arCurrentValues["LINK_IBLOCK_ID"], 'PROPERTY_TYPE' => 'E', "ACTIVE"=>"Y"));
+	while ($arr=$rsProp->Fetch())
 	{
 		$arProperty_LINK[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
 	}
@@ -52,7 +55,7 @@ $OFFERS_IBLOCK_ID = is_array($arOffers)? $arOffers["OFFERS_IBLOCK_ID"]: 0;
 $arProperty_Offers = array();
 if($OFFERS_IBLOCK_ID)
 {
-	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$OFFERS_IBLOCK_ID));
+	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("IBLOCK_ID"=>$OFFERS_IBLOCK_ID, "ACTIVE"=>"Y"));
 	while($arr=$rsProp->Fetch())
 	{
 		if($arr["PROPERTY_TYPE"] != "F")
@@ -93,6 +96,9 @@ $arComponentParameters = array(
 		"TOP_SETTINGS" => array(
 			"NAME" => GetMessage("T_IBLOCK_DESC_TOP_SETTINGS"),
 		),
+		"SECTIONS_SETTINGS" => array(
+			"NAME" => GetMessage("CP_BC_SECTIONS_SETTINGS"),
+		),
 		"LIST_SETTINGS" => array(
 			"NAME" => GetMessage("T_IBLOCK_DESC_LIST_SETTINGS"),
 		),
@@ -104,6 +110,9 @@ $arComponentParameters = array(
 		),
 		"ALSO_BUY_SETTINGS" => array(
 			"NAME" => GetMessage("T_IBLOCK_DESC_ALSO_BUY_SETTINGS"),
+		),
+		"STORE_SETTINGS" => array(
+			"NAME" => GetMessage("T_IBLOCK_DESC_STORE_SETTINGS"),
 		),
 		"OFFERS_SETTINGS" => array(
 			"NAME" => GetMessage("CP_BC_OFFERS_SETTINGS"),
@@ -180,6 +189,18 @@ $arComponentParameters = array(
 			"DEFAULT" => "Y",
 			"REFRESH" => "Y",
 		),
+		"SECTION_COUNT_ELEMENTS" => array(
+			"PARENT" => "SECTIONS_SETTINGS",
+			"NAME" => GetMessage('CP_BC_SECTION_COUNT_ELEMENTS'),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "Y",
+		),
+		"SECTION_TOP_DEPTH" => array(
+			"PARENT" => "SECTIONS_SETTINGS",
+			"NAME" => GetMessage('CP_BC_SECTION_TOP_DEPTH'),
+			"TYPE" => "STRING",
+			"DEFAULT" => "2",
+		),
 		"PAGE_ELEMENT_COUNT" => array(
 			"PARENT" => "LIST_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_PAGE_ELEMENT_COUNT"),
@@ -228,7 +249,12 @@ $arComponentParameters = array(
 		"INCLUDE_SUBSECTIONS" => array(
 			"PARENT" => "LIST_SETTINGS",
 			"NAME" => GetMessage("CP_BC_INCLUDE_SUBSECTIONS"),
-			"TYPE" => "CHECKBOX",
+			"TYPE" => "LIST",
+			"VALUES" => array(
+				"Y" => GetMessage('CP_BC_INCLUDE_SUBSECTIONS_ALL'),
+				"A" => GetMessage('CP_BC_INCLUDE_SUBSECTIONS_ACTIVE'),
+				"N" => GetMessage('CP_BC_INCLUDE_SUBSECTIONS_NO'),
+			),
 			"DEFAULT" => "Y",
 		),
 		"LIST_META_KEYWORDS" => array(
@@ -311,7 +337,12 @@ $arComponentParameters = array(
 			"TYPE"		=> "STRING",
 			"DEFAULT"	=> "SECTION_ID"
 		),
-
+		"PRODUCT_QUANTITY_VARIABLE" => array(
+			"PARENT" => "URL_TEMPLATES",
+			"NAME" => GetMessage("CP_BC_PRODUCT_QUANTITY_VARIABLE"),
+			"TYPE" => "STRING",
+			"DEFAULT" => "quantity",
+		),
 		"CACHE_TIME"  =>  Array("DEFAULT"=>36000000),
 		"CACHE_FILTER" => array(
 			"PARENT" => "CACHE_SETTINGS",
@@ -363,6 +394,12 @@ $arComponentParameters = array(
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N",
 		),
+		"USE_PRODUCT_QUANTITY" => array(
+			"PARENT" => "PRICES",
+			"NAME" => GetMessage("CP_BC_USE_PRODUCT_QUANTITY"),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "N",
+		),
 		"LINK_IBLOCK_TYPE" => array(
 			"PARENT" => "LINK",
 			"NAME" => GetMessage("IBLOCK_LINK_IBLOCK_TYPE"),
@@ -401,6 +438,19 @@ $arComponentParameters = array(
 			"REFRESH" => "Y",
 		),
 
+		"USE_STORE" => Array(
+			"PARENT" => "STORE_SETTINGS",
+			"NAME" => GetMessage("T_IBLOCK_DESC_USE_STORE"),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "N",
+			"REFRESH" => "Y",
+		),
+		"USE_ELEMENT_COUNTER" => array(
+			"PARENT" => "ADDITIONAL_SETTINGS",
+			"NAME" => GetMessage('CP_BC_USE_ELEMENT_COUNTER'),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "Y"
+		),
 	),
 );
 CIBlockParameters::AddPagerSettings($arComponentParameters, GetMessage("T_IBLOCK_DESC_PAGER_CATALOG"), true, true);
@@ -697,6 +747,52 @@ elseif($arCurrentValues["USE_REVIEW"]=="Y")
 	);
 }
 
+
+if (CModule::IncludeModule('catalog') && $arCurrentValues["USE_STORE"]=='Y')
+{
+	$arComponentParameters["PARAMETERS"]['USE_STORE_PHONE'] = array(
+		'PARENT' => 'STORE_SETTINGS',
+		'NAME' => GetMessage('USE_STORE_PHONE'),
+		'TYPE' => 'CHECKBOX',
+		'DEFAULT' => 'N',
+	);
+
+	$arComponentParameters["PARAMETERS"]['USE_STORE_SCHEDULE'] = array(
+		'PARENT' => 'STORE_SETTINGS',
+		'NAME' => GetMessage('USE_STORE_SCHEDULE'),
+		'TYPE' => 'CHECKBOX',
+		'DEFAULT' => 'N',
+	);
+	$arComponentParameters["PARAMETERS"]['USE_MIN_AMOUNT'] = array(
+		'PARENT' => 'STORE_SETTINGS',
+		'NAME' => GetMessage('USE_MIN_AMOUNT'),
+		'TYPE' => 'CHECKBOX',
+		'DEFAULT' => 'Y',
+		"REFRESH" => "Y",
+	);
+	if ($arCurrentValues['USE_MIN_AMOUNT']!="N")
+	{
+		$arComponentParameters["PARAMETERS"]["MIN_AMOUNT"] = array(
+				"PARENT" => "STORE_SETTINGS",
+				"NAME"		=> GetMessage("MIN_AMOUNT"),
+				"TYPE"		=> "STRING",
+				"DEFAULT"	=> 10,
+			);
+	}
+	$arComponentParameters["PARAMETERS"]['STORE_PATH'] = array(
+		'PARENT' => 'STORE_SETTINGS',
+		'NAME' => GetMessage('STORE_PATH'),
+		"TYPE"		=> "STRING",
+		"DEFAULT"	=> "/store/#store_id#",
+	);
+	$arComponentParameters["PARAMETERS"]['MAIN_TITLE'] = array(
+		'PARENT' => 'STORE_SETTINGS',
+		'NAME' => GetMessage('MAIN_TITLE'),
+		"TYPE"		=> "STRING",
+		"DEFAULT"	=> GetMessage('MAIN_TITLE_VALUE'),
+	);
+}
+
 if(!IsModuleInstalled("sale"))
 {
 	unset($arComponentParameters["PARAMETERS"]["USE_ALSO_BUY"]);
@@ -716,6 +812,38 @@ elseif($arCurrentValues["USE_ALSO_BUY"]=="Y")
 			"TYPE"		=> "STRING",
 			"DEFAULT"	=> 2
 		);
+}
+
+
+
+
+if (CModule::IncludeModule('catalog') && CModule::IncludeModule('currency'))
+{
+	$arComponentParameters["PARAMETERS"]['CONVERT_CURRENCY'] = array(
+		'PARENT' => 'PRICES',
+		'NAME' => GetMessage('CP_BC_CONVERT_CURRENCY'),
+		'TYPE' => 'CHECKBOX',
+		'DEFAULT' => 'N',
+		'REFRESH' => 'Y',
+	);
+
+	if (isset($arCurrentValues['CONVERT_CURRENCY']) && 'Y' == $arCurrentValues['CONVERT_CURRENCY'])
+	{
+		$arCurrencyList = array();
+		$rsCurrencies = CCurrency::GetList(($by = 'SORT'), ($order = 'ASC'));
+		while ($arCurrency = $rsCurrencies->Fetch())
+		{
+			$arCurrencyList[$arCurrency['CURRENCY']] = $arCurrency['CURRENCY'];
+		}
+		$arComponentParameters['PARAMETERS']['CURRENCY_ID'] = array(
+			'PARENT' => 'PRICES',
+			'NAME' => GetMessage('CP_BC_CURRENCY_ID'),
+			'TYPE' => 'LIST',
+			'VALUES' => $arCurrencyList,
+			'DEFAULT' => CCurrency::GetBaseCurrency(),
+			"ADDITIONAL_VALUES" => "Y",
+		);
+	}
 }
 
 if(!$OFFERS_IBLOCK_ID)

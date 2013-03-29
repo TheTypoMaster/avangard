@@ -102,7 +102,7 @@ $arTabs = array(
 		"TAB" => GetMessage("SUP_TAB_UPDATES_LIST"),
 		"ICON" => "",
 		"TITLE" => GetMessage("SUP_TAB_UPDATES_LIST_ALT"),
-	),	
+	),
 	array(
 		"DIV" => "tab3",
 		"TAB" => GetMessage("SUP_TAB_COUPON"),
@@ -118,10 +118,18 @@ $tabControl->Begin();
 <?
 $tabControl->BeginNextTab();
 ?>
-
+	<?if(strlen($myaddmodule) > 0)
+	{
+		?><script>
+		BX.ready(function()
+		{
+			if(window.tabControl)
+				tabControl.SelectTab('tab2');
+		});
+		</script><?
+	}?>
 	<tr>
 		<td colspan="2">
-
 			<?
 			$countModuleUpdates = 0;
 			$countTotalImportantUpdates = 0;
@@ -218,7 +226,7 @@ $tabControl->BeginNextTab();
 							}
 							else
 							{
-								alert("<?= GetMessage("SUPP_SUBR_ERR") ?>: " + result);
+								alert('<?= GetMessageJS("SUPP_SUBR_ERR") ?>: ' + result);
 							}
 						}
 
@@ -243,41 +251,15 @@ $tabControl->BeginNextTab();
 										<td valign="top" width="5%">
 										</td>
 										<td valign="top">
-											<script language="JavaScript">
-											<!--
-											var ns4 = (document.layers) ? true : false;
-											var ie4 = (document.all) ? true : false;
-
-											var txt = '';
-											if (ns4)
-											{
-												txt += '<table border=0 cellpadding=0 cellspacing=0><tr><td>';
-												txt += '<layer width="300" height="15" bgcolor="#365069" top="0" left="0"></layer>';
-												txt += '<layer width="298" height="13" bgcolor="#ffffff" top="1" left="1"></layer>';
-												txt += '<layer name="PBdoneD" width="298" height="13" bgcolor="#D5E7F3" top="1" left="1"></layer>';
-												txt += '</td></tr></table>';
-												txt += '<br>';
-												txt += '<table border=0 cellpadding=0 cellspacing=0><tr><td>';
-												txt += '<layer width="300" height="15" bgcolor="#365069" top="0" left="0"></layer>';
-												txt += '<layer width="298" height="13" bgcolor="#ffffff" top="1" left="1"></layer>';
-												txt += '<layer name="PBdone" width="298" height="13" bgcolor="#D5E7F3" top="1" left="1"></layer>';
-												txt += '</td></tr></table>';
-											}
-											else
-											{
-												txt += '<div style="top:0px; left:0px; width:300; height:15px; background-color:#365069; font-size:1px;">';
-												txt += '<div style="position:relative; top:1px; left:1px; width:298px; height:13px; background-color:#ffffff; font-size:1px;">';
-												txt += '<div id="PBdoneD" style="position:relative; top:0px; left:0px; width:0px; height:13px; background-color:#D5E7F3; font-size:1px;">';
-												txt += '</div></div></div>';
-												txt += '<br>';
-												txt += '<div style="top:0px; left:0px; width:300; height:15px; background-color:#365069; font-size:1px;">';
-												txt += '<div style="position:relative; top:1px; left:1px; width:298px; height:13px; background-color:#ffffff; font-size:1px;">';
-												txt += '<div id="PBdone" style="position:relative; top:0px; left:0px; width:0px; height:13px; background-color:#D5E7F3; font-size:1px;">';
-												txt += '</div></div></div>';
-											}
-											document.write(txt);
-											//-->
-											</script>
+											<div style="top:0px; left:0px; width:300px; height:15px; background-color:#365069; font-size:1px;">
+											<div style="position:relative; top:1px; left:1px; width:298px; height:13px; background-color:#ffffff; font-size:1px;">
+											<div id="PBdoneD" style="position:relative; top:0px; left:0px; width:0px; height:13px; background-color:#D5E7F3; font-size:1px;">
+											</div></div></div>
+											<br>
+											<div style="top:0px; left:0px; width:300px; height:15px; background-color:#365069; font-size:1px;">
+											<div style="position:relative; top:1px; left:1px; width:298px; height:13px; background-color:#ffffff; font-size:1px;">
+											<div id="PBdone" style="position:relative; top:0px; left:0px; width:0px; height:13px; background-color:#D5E7F3; font-size:1px;">
+											</div></div></div>
 											<br>
 											<div id="install_progress_hint"></div>
 										</td>
@@ -302,7 +284,7 @@ $tabControl->BeginNextTab();
 										<tr>
 											<td class="icon-new"><div class="icon icon-main-partner"></div></td>
 											<td>
-								<b><?= GetMessage("SUP_SU_RECOMEND") ?>:</b> 
+								<b><?= GetMessage("SUP_SU_RECOMEND") ?>:</b>
 								<?
 								$bComma = False;
 								if ($countModuleUpdates > 0)
@@ -341,8 +323,8 @@ $tabControl->BeginNextTab();
 				var updSuccessDiv = document.getElementById("upd_success_div");
 				var updErrorDiv = document.getElementById("upd_error_div");
 
-				var PBdone = (ns4) ? findlayer('PBdone', document) : (ie4) ? document.all['PBdone'] : document.getElementById('PBdone');
-				var PBdoneD = (ns4) ? findlayer('PBdoneD', document) : (ie4) ? document.all['PBdoneD'] : document.getElementById('PBdoneD');
+				var PBdone = document.getElementById('PBdone');
+				var PBdoneD = document.getElementById('PBdoneD');
 
 				var aStrParams;
 
@@ -354,6 +336,8 @@ $tabControl->BeginNextTab();
 				var cycleModules = <?= ($countModuleUpdates > 0) ? "true" : "false" ?>;
 
 				var bStopUpdates = false;
+
+				var arModulesList = [];
 
 				function findlayer(name, doc)
 				{
@@ -372,15 +356,7 @@ $tabControl->BeginNextTab();
 
 				function SetProgress(val)
 				{
-					if (ns4)
-					{
-						PBdone.clip.left = 0;
-						PBdone.clip.top = 0;
-						PBdone.clip.right = val*298/100;
-						PBdone.clip.bottom = 13;
-					}
-					else
-						PBdone.style.width = (val*298/100) + 'px';
+					PBdone.style.width = (val*298/100) + 'px';
 				}
 
 				function SetProgressD()
@@ -391,15 +367,7 @@ $tabControl->BeginNextTab();
 
 					var val = globalCounterD * 100 / globalQuantityD;
 
-					if (ns4)
-					{
-						PBdoneD.clip.left = 0;
-						PBdoneD.clip.top = 0;
-						PBdoneD.clip.right = val * 298 / 100;
-						PBdoneD.clip.bottom = 13;
-					}
-					else
-						PBdoneD.style.width = (val * 298 / 100) + 'px';
+					PBdoneD.style.width = (val * 298 / 100) + 'px';
 
 					if (!bStopUpdates)
 						setTimeout(SetProgressD, 1000);
@@ -420,10 +388,10 @@ $tabControl->BeginNextTab();
 					}
 					else
 					{
-						SetProgressHint("<?= GetMessage("SUP_INITIAL") ?>");
+						SetProgressHint('<?= GetMessageJS("SUP_INITIAL") ?>');
 
 						aStrParams = "addmodule=<?= CUtil::JSEscape($myaddmodule) ?>";
-						
+
 						var moduleList = "";
 						var tableUpdatesSelList = document.getElementById("table_updates_sel_list");
 						var i;
@@ -439,7 +407,7 @@ $tabControl->BeginNextTab();
 									if (moduleList.length > 0)
 										moduleList += ",";
 									moduleList += mod;
-									
+
 									if(document.getElementById('md_new_'+mod))
 									{
 										if(document.getElementById('md_new_'+mod).value == 'Y')
@@ -451,7 +419,7 @@ $tabControl->BeginNextTab();
 								}
 							}
 						}
-						
+
 						__InstallUpdates();
 						SetProgressD();
 					}
@@ -486,7 +454,7 @@ $tabControl->BeginNextTab();
 						arData = data.split("|");
 						globalCounter += parseInt(arData[0]);
 						if (arData.length > 1)
-							SetProgressHint("<?= GetMessage("SUP_SU_UPD_INSMED") ?> " + arData[1]);
+							SetProgressHint('<?= GetMessageJS("SUP_SU_UPD_INSMED") ?> ' + arData[1]);
 						if (globalCounter > globalQuantity)
 							globalCounter = 0;
 						SetProgress(globalCounter * 100 / globalQuantity);
@@ -537,20 +505,20 @@ $tabControl->BeginNextTab();
 							DisableUpdatesTable();
 
 							var updSuccessDivText = document.getElementById("upd_success_div_text");
-							updSuccessDivText.innerHTML = "<?= GetMessage("SUP_SU_UPD_INSSUC") ?>: " + globalCounter;
-						
+							updSuccessDivText.innerHTML = '<?= GetMessageJS("SUP_SU_UPD_INSSUC") ?>: ' + globalCounter;
+
 							if(modNewCount >= 1)
 							{
-								updSuccessDivText.innerHTML += '<br /><br /><b><?=GetMessage("SUP_SU_UPD_MP_NEW");?></b>';
+								updSuccessDivText.innerHTML += '<br /><br /><b><?=GetMessageJS("SUP_SU_UPD_MP_NEW");?></b>';
 								for (i=0; i<modNewCount; i++)
 								{
 									if(document.getElementById('md_name_'+moduleNew[i]))
 									{
 										n = document.getElementById('md_name_'+moduleNew[i]).value;
-										updSuccessDivText.innerHTML += '<br />' + n +'&nbsp;&nbsp;<input type="button" onclick="window.open(\'/bitrix/admin/partner_modules.php?lang=<?=LANGUAGE_ID?>&amp;id='+moduleNew[i]+'&amp;install=Y&amp;<?=bitrix_sessid_get()?>\');" value="<?=GetMessage("SUP_SU_UPD_MP_NEW_INST")?>">';
+										updSuccessDivText.innerHTML += '<br />' + n +'&nbsp;&nbsp;<input type="button" onclick="window.open(\'/bitrix/admin/partner_modules.php?lang=<?=LANGUAGE_ID?>&amp;id='+moduleNew[i]+'&amp;install=Y&amp;<?=bitrix_sessid_get()?>\');" value="<?=GetMessageJS("SUP_SU_UPD_MP_NEW_INST")?>">';
 									}
 								}
-								updSuccessDivText.innerHTML += '<br /><br /><?=GetMessage("SUP_SU_UPD_MP_NEW2");?>';
+								updSuccessDivText.innerHTML += '<br /><br /><?=GetMessageJS("SUP_SU_UPD_MP_NEW2");?>';
 							}
 						}
 					}
@@ -607,7 +575,7 @@ $tabControl->BeginNextTab();
 													<td><?echo $arUpdateList["CLIENT"][0]["@"]["NAME"]?></td>
 												</tr>
 											<?endif;?>
-											
+
 											<tr>
 												<td><b><?= GetMessage("SUP_LICENSE_KEY_MD5") ?>:&nbsp;&nbsp;</b></td>
 												<td><b><?= md5("BITRIX".CUpdateClientPartner::GetLicenseKey()."LICENCE"); ?></b></td>
@@ -657,15 +625,9 @@ $tabControl->BeginNextTab();
 			<input type="hidden" name="need_license" id="need_license" value="N">
 			<input type="hidden" name="need_license_module" id="need_license_module" value="">
 			<input type="hidden" name="need_license_sel" id="need_license_sel" value="">
-
 			<?
 			if ($arUpdateList)
 			{
-/*			
-echo "<pre>";
-print_r($arUpdateList["MODULE"]);
-echo "</pre>";
-*/
 				?>
 				<table border="0" cellspacing="1" cellpadding="3" width="100%" class="internal" id="table_updates_sel_list">
 					<tr>
@@ -690,21 +652,37 @@ echo "</pre>";
 					{
 						for ($i = 0, $cnt = count($arUpdateList["MODULE"]); $i < $cnt; $i++)
 						{
+							$checked = " checked";
 							$arModuleTmp = $arUpdateList["MODULE"][$i];
+							if(strlen($myaddmodule) > 0)
+							{
+								if(toLower($myaddmodule) != toLower($arModuleTmp["@"]["ID"]))
+									$checked = "";
+							}
 							$strTitleTmp = $arModuleTmp["@"]["NAME"]." (".$arModuleTmp["@"]["ID"].")\n".$arModuleTmp["@"]["DESCRIPTION"]."\n";
 							if (is_array($arModuleTmp["#"]) && array_key_exists("VERSION", $arModuleTmp["#"]) && count($arModuleTmp["#"]["VERSION"]) > 0)
 								for ($j = 0, $cntj = count($arModuleTmp["#"]["VERSION"]); $j < $cntj; $j++)
 									$strTitleTmp .= str_replace("#VER#", $arModuleTmp["#"]["VERSION"][$j]["@"]["ID"], GetMessage("SUP_SULL_VERSION"))."\n".$arModuleTmp["#"]["VERSION"][$j]["#"]["DESCRIPTION"][0]["#"]."\n";
-							$strTitleTmp = htmlspecialchars(preg_replace("/<.+?>/i", "", $strTitleTmp));
+							$strTitleTmp = htmlspecialcharsbx(preg_replace("/<.+?>/i", "", $strTitleTmp));
 							?>
-							<tr title="<?= $strTitleTmp ?>" ondblclick="ShowDescription('<?= htmlspecialchars($arModuleTmp["@"]["ID"]) ?>')">
-								<td><INPUT TYPE="checkbox" NAME="select_module_<?= htmlspecialchars($arModuleTmp["@"]["ID"]) ?>" value="Y" onClick="ModuleCheckboxClicked(this, '<?= htmlspecialchars($arModuleTmp["@"]["ID"]) ?>', new Array());" checked id="id_select_module_<?= htmlspecialchars($arModuleTmp["@"]["ID"]) ?>"></td>
-								<td><label for="id_select_module_<?= htmlspecialchars($arModuleTmp["@"]["ID"]) ?>"><?= htmlspecialchars($arModuleTmp["@"]["PARTNER_NAME"]) ?></label></td>
-								<td><a target="_blank" href="<?= str_replace("#NAME#", htmlspecialchars($arModuleTmp["@"]["ID"]), GetMessage("SUP_SULL_MODULE_PATH")) ?>"><?= str_replace("#NAME#", ($arModuleTmp["@"]["NAME"]), GetMessage("SUP_SULL_MODULE")) ?></a></td>
+							<tr title="<?= $strTitleTmp ?>" ondblclick="ShowDescription('<?= CUtil::JSEscape($arModuleTmp["@"]["ID"]) ?>')">
+								<td><INPUT TYPE="checkbox" NAME="select_module_<?= htmlspecialcharsbx($arModuleTmp["@"]["ID"]) ?>" value="Y" onClick="ModuleCheckboxClicked(this, '<?= htmlspecialcharsbx($arModuleTmp["@"]["ID"]) ?>', new Array());"<?=$checked?> id="id_select_module_<?= htmlspecialcharsbx($arModuleTmp["@"]["ID"]) ?>"></td>
+								<td><label for="id_select_module_<?= htmlspecialcharsbx($arModuleTmp["@"]["ID"]) ?>"><?=$arModuleTmp["@"]["PARTNER_NAME"]?></label></td>
+								<td><a target="_blank" href="<?= str_replace("#NAME#", htmlspecialcharsbx($arModuleTmp["@"]["ID"]), GetMessage("SUP_SULL_MODULE_PATH")) ?>"><?= str_replace("#NAME#", ($arModuleTmp["@"]["NAME"]), GetMessage("SUP_SULL_MODULE")) ?></a></td>
 								<td><?
-								if(array_key_exists($arUpdateList["MODULE"][$i]["@"]["ID"], $arClientModules))
+									if(array_key_exists($arUpdateList["MODULE"][$i]["@"]["ID"], $arClientModules))
 									{
 										echo GetMessage("SUP_SULL_REF_O");
+										if($arUpdateList["MODULE"][$i]["@"]["AGR"] == "N")
+										{
+											?>
+											<input type="hidden" name="need_new_agr_<?=CUtil::JSEscape($arModuleTmp["@"]["ID"]);?>" id="need_new_agr_<?=CUtil::JSEscape($arModuleTmp["@"]["ID"]);?>" value="Y">
+											<script>
+												arModulesList[arModulesList.length] = '<?=CUtil::JSEscape($arModuleTmp["@"]["ID"]);?>';
+												BX("need_license").value = 'Y';
+											</script>
+											<?
+										}
 									}
 									else
 									{
@@ -713,20 +691,20 @@ echo "</pre>";
 										{
 											?>
 											<script>
-											document.getElementById("need_license").value = 'Y';
-											document.getElementById("need_license_module").value = '<?=CUtil::JSEscape($arModuleTmp["@"]["ID"]);?>';
+											BX("need_license").value = 'Y';
+											BX("need_license_module").value = '<?=CUtil::JSEscape($arModuleTmp["@"]["ID"]);?>';
 											</script><?
 										}
 										$md = CUtil::JSEscape($arModuleTmp["@"]["ID"]);
 										?>
-										<input type="hidden" name="md_name_<?=$md?>" id="md_name_<?=$md?>" value="<?=CUtil::JSEscape(str_replace("#NAME#", htmlspecialchars($arModuleTmp["@"]["NAME"]), GetMessage("SUP_SULL_MODULE")))?>">
+										<input type="hidden" name="md_name_<?=$md?>" id="md_name_<?=$md?>" value="<?=CUtil::JSEscape(str_replace("#NAME#", htmlspecialcharsbx($arModuleTmp["@"]["NAME"]), GetMessage("SUP_SULL_MODULE")))?>">
 										<input type="hidden" name="md_new_<?=$md?>" id="md_new_<?=$md?>" value="Y">
 										<?
 									}
-									
-									?></td>
+									?>
+								</td>
 								<td><?=isset($arModuleTmp["#"]["VERSION"]) ? $arModuleTmp["#"]["VERSION"][count($arModuleTmp["#"]["VERSION"]) - 1]["@"]["ID"] : "";?></td>
-								<td><a href="javascript:ShowDescription('<?= htmlspecialchars($arModuleTmp["@"]["ID"]) ?>')"><?= GetMessage("SUP_SULL_NOTE_D") ?></a></td>
+								<td><a href="javascript:ShowDescription('<?= htmlspecialcharsbx($arModuleTmp["@"]["ID"]) ?>')"><?= GetMessage("SUP_SULL_NOTE_D") ?></a></td>
 							</tr>
 							<?
 						}
@@ -769,7 +747,7 @@ echo "</pre>";
 
 							if ($i > 0)
 								echo ",\n";
-							echo "\"".htmlspecialchars($arModuleTmp["@"]["ID"])."\" : \"".$strTitleTmp."\"";
+							echo "\"".htmlspecialcharsbx($arModuleTmp["@"]["ID"])."\" : \"".$strTitleTmp."\"";
 						}
 					}
 					?>};
@@ -861,6 +839,7 @@ echo "</pre>";
 					function DisableUpdatesTable()
 					{
 						document.getElementById("install_updates_sel_button").disabled = true;
+						document.getElementById("install_updates_button").disabled = true;
 
 						var tableUpdatesSelList = document.getElementById("table_updates_sel_list");
 						var i;
@@ -879,15 +858,14 @@ echo "</pre>";
 					var modNewCount=0;
 					function InstallUpdatesSel()
 					{
-						var nlicence = document.getElementById("need_license").value;
-						if(nlicence == 'Y')
+						if(BX("need_license").value == 'Y')
 						{
 							ShowLicence();
-							document.getElementById("need_license_sel").value = 'Y';
+							BX("need_license_sel").value = 'Y';
 						}
 						else
 						{
-							SetProgressHint("<?= GetMessage("SUP_INITIAL") ?>");
+							SetProgressHint("<?= GetMessageJS("SUP_INITIAL") ?>");
 
 							var moduleList = "";
 
@@ -910,7 +888,7 @@ echo "</pre>";
 												moduleList += ",";
 											moduleList += mod;
 											globalQuantity += arModuleUpdatesCnt[box.name.substring(14)];
-											
+
 											if(document.getElementById('md_new_'+mod))
 											{
 												if(document.getElementById('md_new_'+mod).value == 'Y')
@@ -1018,8 +996,32 @@ echo "</pre>";
 									}
 								}
 							}
+							if(BX('need_new_agr_'+module) && BX('need_new_agr_'+module).value == 'Y')
+							{
+								if(BX.util.in_array(module, arModulesList))
+								{
+									var arModulesList1 = arModulesList;
+									for(var is = 0; is < arModulesList1.length; is++)
+									{
+										if(arModulesList1[is] == module)
+											arModulesList = BX.util.deleteFromArray(arModulesList, is);
+									}
+								}
+							}
+
 						}
-						
+						else
+						{
+							if(BX('need_new_agr_'+module) && BX('need_new_agr_'+module).value == 'Y')
+							{
+								if(BX.util.in_array(module, arModulesList) === false)
+								{
+									arModulesList[arModulesList.length] = module;
+									BX('need_license').value = 'Y';
+								}
+							}
+						}
+
 						EnableInstallButton(checkbox);
 					}
 
@@ -1041,8 +1043,8 @@ echo "</pre>";
 								}
 							}
 						}
-						var installUpdatesSelButton = document.getElementById("install_updates_sel_button");
-						installUpdatesSelButton.disabled = !bEnable;
+						BX("install_updates_sel_button").disabled = !bEnable;
+						BX("install_updates_button").disabled = !bEnable;
 					}
 
 					function SelectAllRows(checkbox)
@@ -1060,18 +1062,17 @@ echo "</pre>";
 									box.checked = bChecked;
 							}
 						}
-						var installUpdatesSelButton = document.getElementById("install_updates_sel_button");
-						installUpdatesSelButton.disabled = !bChecked;
+						BX("install_updates_sel_button").disabled = !bChecked;
+						BX("install_updates_button").disabled = !bChecked;
 					}
 
 					function LockControls()
 					{
-						//tabControl.SelectTab('tab1');
 						tabControl.DisableTab('tab1');
 						tabControl.DisableTab('tab2');
-						//tabControl.DisableTab('tab3');
 						document.getElementById("install_updates_button").disabled = true;
-						document.getElementById("id_view_updates_list_span").innerHTML = "<u><?= GetMessage("SUP_SU_UPD_VIEW") ?></u>";
+						document.getElementById("install_updates_sel_button").disabled = true;
+						document.getElementById("id_view_updates_list_span").innerHTML = "<u><?= GetMessageJS("SUP_SU_UPD_VIEW") ?></u>";
 						document.getElementById("id_view_updates_list_span").disabled = true;
 					}
 
@@ -1079,50 +1080,81 @@ echo "</pre>";
 					{
 						tabControl.EnableTab('tab1');
 						tabControl.EnableTab('tab2');
-						//tabControl.EnableTab('tab3');
-						document.getElementById("install_updates_button").disabled = <?= (($countModuleUpdates <= 0) ? "true" : "false") ?>;
+
+						// document.getElementById("install_updates_button").disabled = <?= (($countModuleUpdates <= 0) ? "true" : "false") ?>;
 						document.getElementById("id_view_updates_list_span").disabled = false;
-						document.getElementById("id_view_updates_list_span").innerHTML = '<a id="id_view_updates_list" href="javascript:tabControl.SelectTab(\'tab2\');"><?= GetMessage("SUP_SU_UPD_VIEW") ?></a>';
+						document.getElementById("id_view_updates_list_span").innerHTML = '<a id="id_view_updates_list" href="javascript:tabControl.SelectTab(\'tab2\');"><?= GetMessageJS("SUP_SU_UPD_VIEW") ?></a>';
 
 						var cnt = document.getElementById("id_register_btn");
 						if (cnt != null)
 							cnt.disabled = false;
 					}
-					
+
+					var isFreeModule = true;
+					var NeedAgree = false;
+					var moduleId = '';
 					function ShowLicence()
 					{
+						CloseLicence();
+						var name = '';
+						var freeModule = 'Y';
+						NeedAgree = true;
+						isFreeModule = true;
+						if(BX('need_license_module') && BX('need_license_module').value.length > 0 && BX('id_select_module_'+BX('need_license_module').value).checked)
+							name = BX('need_license_module').value;
+
+						if(name.length == 0)
+						{
+							if(arModulesList.length > 0)
+							{
+								for (var i = 0; i < arModulesList.length; i++)
+								{
+									if(BX('id_select_module_'+arModulesList[i]) && BX('id_select_module_'+arModulesList[i]).checked)
+									{
+										name = arModulesList[i];
+										freeModule = 'N';
+										isFreeModule = false;
+									}
+								}
+							}
+						}
+						if(name.length == 0)
+						{
+							CloseLicence();
+							NeedAgree = false;
+							return;
+						}
+						moduleId = name;
 						if (document.getElementById("licence_float_div"))
 							return;
 
 						LockControls();
 
 						var div = document.body.appendChild(document.createElement("DIV"));
-
 						div.id = "licence_float_div";
 						div.className = "settings-float-form";
 						div.style.position = 'absolute';
-
 						var txt = '<div class="title">';
 						txt += '<table cellspacing="0" width="100%">';
 						txt += '<tr>';
-						txt += '<td width="100%" class="title-text" onmousedown="jsFloatDiv.StartDrag(arguments[0], document.getElementById(\'licence_float_div\'));"><?= GetMessage("SUP_SUBT_LICENCE") ?></td>';
-						txt += '<td width="0%"><a class="close" href="javascript:CloseLicenceTextWindow();" title="<?= GetMessage("SUP_SULD_CLOSE") ?>"></a></td>';
+						txt += '<td width="100%" class="title-text" onmousedown="jsFloatDiv.StartDrag(arguments[0], document.getElementById(\'licence_float_div\'));"><?= GetMessageJS("SUP_SUBT_LICENCE") ?></td>';
+						txt += '<td width="0%"><a class="close" href="javascript:CloseLicenceTextWindow();" title="<?= GetMessageJS("SUP_SULD_CLOSE") ?>"></a></td>';
 						txt += '</tr>';
 						txt += '</table>';
 						txt += '</div>';
 						txt += '<div class="content">';
 						txt += '<form name="license_form">';
-						txt += '<h2><?= GetMessage("SUP_SUBT_LICENCE") ?></h2>';
+						txt += '<h2><?= GetMessageJS("SUP_SUBT_LICENCE") ?></h2>';
 						txt += '<table cellspacing="0"><tr><td>';
-						txt += '<iframe name="license_text" src="http://www.1c-bitrix.ru/license.php?module='+document.getElementById("need_license_module").value+'&free_module=Y" style="width:450px; height:250px; display:block;"></iframe>';
+						txt += '<iframe name="license_text" src="http://www.1c-bitrix.ru/license.php?module='+name+'&free_module='+freeModule+'&updatesystem=Y" style="width:450px; height:250px; display:block;"></iframe>';
 						txt += '</td></tr><tr><td>';
-						txt += '<input name="agree_license" type="checkbox" value="Y" id="agree_license_id" onclick="AgreeLicenceCheckbox(this)">';
-						txt += '<label for="agree_license_id"><?= GetMessage("SUP_SUBT_AGREE") ?></label>';
+						txt += '<input name="agree_license" type="checkbox" value="Y" id="agree_license_id">';
+						txt += '<label for="agree_license_id"><?= GetMessageJS("SUP_SUBT_AGREE") ?></label>';
 						txt += '</td></tr></table>';
 						txt += '</form>';
 						txt += '</div>';
 						txt += '<div class="buttons">';
-						txt += '<input type="button" value="<?= GetMessage("SUP_APPLY") ?>" disabled id="licence_agree_button" onclick="AgreeLicence()" title="<?= GetMessage("SUP_APPLY") ?>">';
+						txt += '<input type="button" value="<?= GetMessageJS("SUP_APPLY") ?>" id="licence_agree_button" onclick="AgreeLicence()" title="<?= GetMessageJS("SUP_APPLY") ?>">';
 						txt += '</div>';
 
 						div.innerHTML = txt;
@@ -1151,25 +1183,46 @@ echo "</pre>";
 						CloseLicence();
 					}
 
-					function AgreeLicenceCheckbox(checkbox)
-					{
-						if(checkbox.checked)
-							document.getElementById("need_license").value = 'N';
-						else
-							document.getElementById("need_license").value = 'Y';
-
-						var lab = document.getElementById("licence_agree_button");
-						lab.disabled=<?if(!$USER->CanDoOperation('install_updates')):?>true<?else:?>!checkbox.checked<?endif;?>;
-					}
-
 					function AgreeLicence()
 					{
-						CloseLicence();
-						
-						if(document.getElementById('need_license_sel').value == 'Y')
-							InstallUpdatesSel();
-						else
-							InstallUpdates();
+						if(BX('agree_license_id').checked === false)
+						{
+							BX('id_select_module_'+moduleId).checked = false;
+							ModuleCheckboxClicked(BX('id_select_module_'+moduleId), moduleId, new Array());
+						}
+						if(!isFreeModule && arModulesList.length > 0)
+						{
+							var arModulesList1 = arModulesList;
+							for(var is = 0; is < arModulesList1.length; is++)
+							{
+								if(arModulesList1[is] == moduleId)
+									arModulesList = BX.util.deleteFromArray(arModulesList, is);
+							}
+						}
+						if(isFreeModule && BX('agree_license_id').checked)
+						{
+							BX('need_license_module').value = '';
+						}
+
+						ShowLicence();
+
+						if(NeedAgree === false)
+						{
+							CloseLicence();
+							EnableInstallButton(BX('id_select_module_'+moduleId));
+
+							if(!BX("install_updates_sel_button").disabled && !BX("install_updates_button").disabled)
+							{
+								BX('need_license').value = "N";
+								InstallUpdatesSel();
+								/*
+								if(document.getElementById('need_license_sel').value == 'Y')
+									InstallUpdatesSel();
+								else
+									InstallUpdates();
+								*/
+							}
+						}
 					}
 
 					function CloseLicence()
@@ -1207,7 +1260,7 @@ $tabControl->BeginNextTab();
 							<td>
 								<?= GetMessage("SUP_SUAC_TEXT") ?><br /><br />
 								<?= GetMessage("SUP_SUAC_TEXT2") ?><br />
-								 <INPUT TYPE="text" ID="id_coupon" NAME="COUPON" value="" size="35">
+								<INPUT TYPE="text" ID="id_coupon" NAME="COUPON" value="" size="35">
 								<input TYPE="button" ID="id_coupon_btn" NAME="coupon_btn" value="<?= GetMessage("SUP_SUAC_ADD") ?>" onclick="ActivateCoupon()">
 							</td>
 						</tr>
@@ -1226,12 +1279,12 @@ $tabControl->BeginNextTab();
 						result = PrepareString(result);
 						if (result == "Y")
 						{
-							alert("<?= GetMessage("SUP_SUAC_SUCCESS") ?>");
+							alert("<?= GetMessageJS("SUP_SUAC_SUCCESS") ?>");
 							window.location.href = "update_system_partner.php?lang=<?= LANG ?>&tabControl_active_tab=tab2";
 						}
 						else
 						{
-							alert("<?= GetMessage("SUP_SUAC_COUPON_ERROR") ?>: " + result);
+							alert("<?= GetMessageJS("SUP_SUAC_COUPON_ERROR") ?>: " + result);
 							document.getElementById("id_coupon_btn").disabled = false;
 						}
 					}
@@ -1247,7 +1300,7 @@ $tabControl->BeginNextTab();
 					{
 						document.getElementById("id_coupon_btn").disabled = false;
 						CloseWaitWindow();
-						alert("<?= GetMessage("SUP_SUAC_NO_COUP") ?>");
+						alert("<?= GetMessageJS("SUP_SUAC_NO_COUP") ?>");
 					}
 				}
 				//-->

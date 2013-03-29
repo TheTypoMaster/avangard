@@ -15,7 +15,6 @@ $MESS["URL_TEMPLATES_PM_EDIT_TIP"] = "Personal Messages Page";
 $MESS["URL_TEMPLATES_MESSAGE_SEND_TIP"] = "Message Creation Page";
 $MESS["URL_TEMPLATES_RSS_TIP"] = "RSS Page";
 $MESS["URL_TEMPLATES_USER_POST_TIP"] = "User's Messages Page";
-$MESS["PAGEN_TIP"] = "Page Number in The Breadcrumbs on The Target Page";
 $MESS["PATH_TO_SMILE_TIP"] = "Smiley Folder Path (relative to the site root)";
 $MESS["MESSAGES_PER_PAGE_TIP"] = "Number of Messages Per Page";
 $MESS["DATE_FORMAT_TIP"] = "Date Format";

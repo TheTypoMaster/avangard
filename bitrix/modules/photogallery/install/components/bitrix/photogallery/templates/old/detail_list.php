@@ -7,7 +7,7 @@
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "sessid", "edit"));
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 
 ?><div class="photo-controls"><?
@@ -40,9 +40,9 @@ if ($arParams["USE_COMMENTS"] == "Y")
 }
 ?><div class="photo-controls photo-view only-on-main"><?
 	$counter = 0;
-	
+
 	foreach ($arSort as $key => $val):
-	
+
 		$addClassName = (count($arSort) <= 1 ? " single" : "");
 		$addClassName .= ($order == $key ? " active" : "");
 
@@ -50,9 +50,9 @@ if ($arParams["USE_COMMENTS"] == "Y")
 			?>title="<?=$val["description"]?>" class="photo-view <?=$key?><?=$addClassName?>"><?=$val["title"]?></a></noindex><?
 
 		if ($counter < (count($arSort) - 1)):
-			?><span class="empty"></span><?	
+			?><span class="empty"></span><?
 		endif;
-		
+
 		$counter++;
 	endforeach;
 ?></div><?
@@ -67,7 +67,7 @@ $photo_to = trim($_REQUEST["photo_to"]);
 ?><form action="<?=POST_FORM_ACTION_URI?>"<?
 	?> id="photo_filter_form" method="post" class="photo-form"><?
 	?><span id="photo_filter_calendar"><?
-	$APPLICATION->IncludeComponent("bitrix:main.calendar", ".default", 
+	$APPLICATION->IncludeComponent("bitrix:main.calendar", ".default",
 	Array(
 		"SHOW_INPUT"	=>	"Y",
 		"INPUT_NAME"	=>	"photo_from",
@@ -88,8 +88,8 @@ $photo_to = trim($_REQUEST["photo_to"]);
 <script>
 function show_filter()
 {
-	document.getElementById('photo_filter_form_div').style.display='block'; 
-	document.getElementById('photo_filter_form').photo_from.focus(); 
+	document.getElementById('photo_filter_form_div').style.display='block';
+	document.getElementById('photo_filter_form').photo_from.focus();
 	return false;
 }
 </script><?
@@ -112,58 +112,48 @@ endif;
 		elseif ($arParams["COMMENTS_TYPE"] == "forum")
 			$arParams["ELEMENT_FILTER"] = array(">PROPERTY_FORUM_MESSAGE_CNT" => "0");
 	}
-	
-?><?$APPLICATION->IncludeComponent("bitrix:photogallery.detail.list", $arParams["TEMPLATE_LIST"], 
+
+?><?$APPLICATION->IncludeComponent("bitrix:photogallery.detail.list", $arParams["TEMPLATE_LIST"],
 		Array(
 			"IBLOCK_TYPE"	=>	$arParams["IBLOCK_TYPE"],
 			"IBLOCK_ID"	=>	$arParams["IBLOCK_ID"],
 			"SECTION_ID"	=>	$arParams["SECTION_ID"],
-			
 			"COMMENTS_TYPE" => $arParams["COMMENTS_TYPE"],
 			"ELEMENT_LAST_TYPE"	=>	str_replace("show_", "", $arParams["SHOW_PHOTO_ON_DETAIL_LIST"]),
 			"ELEMENTS_LAST_TIME_FROM"	=>	$photo_from,
 			"ELEMENTS_LAST_TIME_TO"	=>	$photo_to,
 			"ELEMENTS_LAST_COUNT" => $arParams["SHOW_PHOTO_ON_DETAIL_LIST_COUNT"],
 			"ELEMENT_LAST_TIME" => $arParams["SHOW_PHOTO_ON_DETAIL_LIST_COUNT"],
-	 		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
-				
+			"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
 			"PAGE_ELEMENTS"	=>	$arParams["ELEMENTS_PAGE_ELEMENTS"],
 			"USE_DESC_PAGE"	=>	$arParams["ELEMENTS_USE_DESC_PAGE"],
 			"PAGE_NAVIGATION_TEMPLATE" => $arParams["PAGE_NAVIGATION_TEMPLATE"],
-			
-			"ELEMENT_SORT_FIELD" => $order, 
-			"ELEMENT_SORT_ORDER" => "desc", 
+			"ELEMENT_SORT_FIELD" => $order,
+			"ELEMENT_SORT_ORDER" => "desc",
 			"ELEMENT_FILTER" => $arParams["ELEMENT_FILTER"],
-			
 			"DETAIL_URL"	=>	$arResult["URL_TEMPLATES"]["detail"],
 			"SEARCH_URL"	=>	$arResult["URL_TEMPLATES"]["search"],
 			"DETAIL_SLIDE_SHOW_URL"	=>	$arResult["URL_TEMPLATES"]["detail_slide_show"],
-
 			"USE_PERMISSIONS" => $arParams["USE_PERMISSIONS"],
 			"GROUP_PERMISSIONS" => $arParams["GROUP_PERMISSIONS"],
-			
 			"ADDITIONAL_SIGHTS"	=>	$arParams["ADDITIONAL_SIGHTS"],
 			"PICTURES_SIGHT"	=>	"",
-		"SET_STATUS_404" => "N", 			
+			"SET_STATUS_404" => "N",
 			"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 			"CACHE_TIME" => $arParams["CACHE_TIME"],
-			
 			"SET_TITLE"	=>	$arParams["SET_TITLE"],
-			
 			"THUMBS_SIZE"	=>	$arParams["THUMBS_SIZE"],
 			"SHOW_PAGE_NAVIGATION"	=>	"bottom",
 			"SHOW_CONTROLS"	=>	"N",
 			"CELL_COUNT"	=>	$arParams["CELL_COUNT"],
-			
 			"SHOW_TAGS" => $arParams["SHOW_TAGS"],
 			"SHOW_RATING" => (($arParams["USE_RATING"] == "Y" && $order == "rating") ? "Y" : $arParams["SHOW_RATING"]),
 			"SHOW_COMMENTS" => (($arParams["USE_COMMENTS"] == "Y" && $order == "comments") ? "Y" : $arParams["SHOW_COMMENTS"]),
 			"SHOW_SHOWS" => ($order == "shows" ? "Y" : $arParams["SHOW_SHOWS"]),
-			
 			"MAX_VOTE" => $arParams["MAX_VOTE"],
 			"VOTE_NAMES" => $arParams["VOTE_NAMES"],
 			"DISPLAY_AS_RATING" => $arParams["DISPLAY_AS_RATING"]
-			), 
-			$component, 
+			),
+			$component,
 			array("HIDE_ICONS" => "Y"));
 ?></div>

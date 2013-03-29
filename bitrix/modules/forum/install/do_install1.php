@@ -19,9 +19,9 @@ if (($GLOBALS["DB"]->TableExists("b_forum_dictionary") || $GLOBALS["DB"]->TableE
 {
 		$tmp_res_q = $GLOBALS["DB"]->Query(
 		"SELECT COUNT(FF.ID) AS COUNT_WORDS
-	    FROM b_forum_dictionary FD
-	    LEFT JOIN b_forum_filter FF ON (FD.ID=FF.DICTIONARY_ID)
-	    WHERE (FD.ID=1 OR FD.ID=2)", True);
+		FROM b_forum_dictionary FD
+		LEFT JOIN b_forum_filter FF ON (FD.ID=FF.DICTIONARY_ID)
+		WHERE (FD.ID=1 OR FD.ID=2)", True);
 		if ($tmp_res_q && ($res = $tmp_res_q->Fetch()))
 			$SHOW["FILTER"] = "N";
 }
@@ -95,8 +95,8 @@ if ($db_res && ($res = $db_res->Fetch()))
 <!--
 function ChangeInstallPublic(oObj)
 {
-	 if (typeof oObj != "object")
-	 	return false;
+	if (typeof oObj != "object")
+		return false;
 	var form = oObj.form;
 	var bRewriteDisabled = true;
 	for (var ii = 0; ii < form.elements.length; ii++)

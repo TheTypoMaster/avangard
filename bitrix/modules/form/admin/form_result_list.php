@@ -32,7 +32,9 @@ $bSimple = (COption::GetOptionString("form", "SIMPLE", "N") == "Y") ? true : fal
 $WEB_FORM_ID = intval($WEB_FORM_ID);
 $arForm = CForm::GetByID_admin($WEB_FORM_ID);
 
-if (false === $arForm) 
+$aMenu = array();
+
+if (false === $arForm)
 {
 	define('BX_ADMIN_FORM_MENU_OPEN', 1);
 	if($_REQUEST["mode"] == "list")
@@ -54,8 +56,13 @@ if (false === $arForm)
 	{
 		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	}
-	
+
 	die();
+}
+else
+{
+	$dbRes = CFormCrm::GetByFormID($WEB_FORM_ID);
+	$arFormCrmLink = $dbRes->Fetch();
 }
 
 $HELP_FILE_ACCESS = $APPLICATION->GetFileAccessPermission("/bitrix/modules/form/help/".LANGUAGE_ID."/index.php");
@@ -137,6 +144,7 @@ $F_RIGHT = CForm::GetPermission($WEB_FORM_ID);
 if($F_RIGHT<15) $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 if ($F_RIGHT >= 20)
+{
 	$arFilterFields = Array(
 		"find_id",
 		"find_id_exact_match",
@@ -156,6 +164,9 @@ if ($F_RIGHT >= 20)
 		"find_session_id",
 		"find_session_id_exact_match"
 	);
+	if (is_array($arFormCrmLink))
+		$arFilterFields[] = "find_sent_to_crm";
+}
 else
 	$arFilterFields = array(
 		"find_id",
@@ -205,9 +216,11 @@ InitBVar($find_status_id_exact_match);
 InitBVar($find_user_id_exact_match);
 InitBVar($find_guest_id_exact_match);
 InitBVar($find_session_id_exact_match);
+
 if (CheckFilter())
 {
 	if ($F_RIGHT >= 20)
+	{
 		$arFilter = Array(
 			"ID"						=> $find_id,
 			"ID_EXACT_MATCH"			=> $find_id_exact_match,
@@ -227,6 +240,10 @@ if (CheckFilter())
 			"SESSION_ID"				=> $find_session_id,
 			"SESSION_ID_EXACT_MATCH"	=> $find_session_id_exact_match
 		);
+		if (is_array($arFormCrmLink))
+			$arFilter["SENT_TO_CRM"] = $find_sent_to_crm;
+
+	}
 	else
 		$arFilter = Array(
 			"ID"						=> $find_id,
@@ -236,8 +253,8 @@ if (CheckFilter())
 			"DATE_CREATE_1"				=> $find_date_create_1,
 			"DATE_CREATE_2"				=> $find_date_create_2,
 		);
-	
-		
+
+
 	if (is_array($arrFORM_FILTER))
 	{
 		foreach ($arrFORM_FILTER as $arrF)
@@ -277,9 +294,9 @@ if ($lAdmin->EditAction() && /*$FORM_RIGHT>="W"*/ $F_RIGHT >= 20 && check_bitrix
 				$error_text = $ex->GetString();
 			else
 				$error_text = GetMessage("FORM_SAVE_STATUS_ERROR");
-			
+
 			$lAdmin->AddUpdateError(GetMessage("FORM_SAVE_ERROR").$ID.": ".$error_text, $ID);
-			
+
 			$DB->Rollback();
 		}
 		$DB->Commit();
@@ -291,9 +308,11 @@ if(($arID = $lAdmin->GroupAction()) && /*$FORM_RIGHT>="W"*/ $F_RIGHT >= 20 && ch
 	if($_REQUEST['action_target']=='selected')
 	{
 			$arID = Array();
-	$result = CFormResult::GetList($WEB_FORM_ID, $r_by, $r_order, $arFilter, $r_is_filtered);
+			$result = CFormResult::GetList($WEB_FORM_ID, $r_by, $r_order, $arFilter, $r_is_filtered);
 			while($arRes = $result->Fetch())
-					$arID[] = $arRes['ID'];
+			{
+				$arID[] = $arRes['ID'];
+			}
 	}
 
 	foreach($arID as $ID)
@@ -320,9 +339,9 @@ if(($arID = $lAdmin->GroupAction()) && /*$FORM_RIGHT>="W"*/ $F_RIGHT >= 20 && ch
 				$DB->Commit();
 				break;
 		}
-		
+
 	}
-	
+
 	if (!$_REQUEST["mode"])
 		LocalRedirect("form_result_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID);
 }
@@ -351,6 +370,9 @@ else
 	if (!$bSimple)
 		$headers[] = array("id"=>"STATUS_ID", "content"=>GetMessage("FORM_STATUS"), "sort"=>"s_status", "default"=>true);
 
+	if (is_array($arFormCrmLink))
+		$headers[] = array("id"=>"SENT_TO_CRM", "content"=>GetMessage("FORM_SENT_TO_CRM"), "sort"=>"s_sent_to_crm", "default"=>true);
+
 	$headers[] = array("id"=>"DATE_CREATE", "content"=>GetMessage("FORM_DATE_CREATE"), "sort"=>"s_date_create", "default"=>false);
 	$headers[] = array("id"=>"TIMESTAMP_X", "content"=>GetMessage("FORM_TIMESTAMP"), "sort"=>"s_timestamp", "default"=>true);
 	$headers[] = array("id"=>"USER_ID", "content"=>GetMessage("FORM_USER"), "sort"=>"s_user_id", "default"=>true);
@@ -366,11 +388,11 @@ else
 	else
 		$arFilter = array("IN_RESULTS_TABLE" => "Y");
 
+	$arFilter['ACTIVE'] = 'Y';
+
 	$rsFields = CFormField::GetList($WEB_FORM_ID, "ALL", ($v1="s_c_sort"), ($v2="asc"), $arFilter, $v3);
 	while ($arField = $rsFields->Fetch())
 	{
-	#	print "<pre>";print_r($arField);print "</pre><hr>";
-
 		if (strlen($arField['RESULTS_TABLE_TITLE'])>0)
 			$r=$arField['RESULTS_TABLE_TITLE'];
 		elseif (strlen($arField['TITLE'])>0)
@@ -400,7 +422,7 @@ else
 		$arrAnswers = array();
 		$arrColumns = array();
 		$arrAnswersSID = array();
-		
+
 		CForm::GetResultAnswerArray($WEB_FORM_ID, $arrColumns, $arrAnswers, $arrAnswersSID, $arFilter);
 		//echo "<pre>"; print_r($arrAnswers); echo "</pre>";
 		if (!is_array($arrAnswers[$f_ID])) $arrAnswers[$f_ID] = array();
@@ -416,7 +438,7 @@ else
 					{
 						$f_LOGIN = $arUser['LOGIN'];
 						$f_USER_NAME = $arUser['NAME']." ".$arUser['LAST_NAME'];
-						
+
 						$arrUsers[$f_USER_ID]["USER_NAME"] = $f_USER_NAME;
 						$arrUsers[$f_USER_ID]["LOGIN"] = $f_LOGIN;
 					}
@@ -430,15 +452,15 @@ else
 					$f_USER_NAME = $arrUsers[$f_USER_ID]["USER_NAME"];
 					$f_LOGIN = $arrUsers[$f_USER_ID]["LOGIN"];
 				}
-				
-				$txt = "[<a title='".GetMessage("FORM_EDIT_USER")."' href=\"user_edit.php?lang=".LANGUAGE_ID."&ID=".$f_USER_ID."\">".$f_USER_ID."</a>] (".htmlspecialchars($f_LOGIN).") ".htmlspecialchars($f_USER_NAME);
+
+				$txt = "[<a title='".GetMessage("FORM_EDIT_USER")."' href=\"user_edit.php?lang=".LANGUAGE_ID."&ID=".$f_USER_ID."\">".$f_USER_ID."</a>] (".htmlspecialcharsbx($f_LOGIN).") ".htmlspecialcharsbx($f_USER_NAME);
 				$txt.= ($f_USER_AUTH=="N") ? GetMessage("FORM_NOT_AUTH") : "";
 			}
 			else
 			{
 				$txt = GetMessage("FORM_NOT_REGISTERED");
 			}
-			
+
 			$row->AddViewField("USER_ID",$txt); unset($txt);
 
 			if (CModule::IncludeModule("statistic")):
@@ -449,6 +471,15 @@ else
 					$row->AddViewField("STAT_SESSION_ID", " (<a title='".GetMessage("FORM_SESSION_TITLE")."' href='/bitrix/admin/session_list.php?lang=".LANGUAGE_ID."&find_id=". $f_STAT_SESSION_ID."&set_filter=Y'>".$f_STAT_SESSION_ID."</a>)");
 				endif;
 			endif;
+
+			if($_REQUEST["mode"] == "excel")
+			{
+				$row->AddViewField('SENT_TO_CRM', $f_SENT_TO_CRM == 'N' ? GetMessage('MAIN_NO') : GetMessage('MAIN_YES'));
+			}
+			else
+			{
+				$row->AddViewField('SENT_TO_CRM', $f_SENT_TO_CRM == 'N' ? '<img src="/bitrix/images/form/red.gif" height="14" width="14" border="0" id="crm_sent_'.$f_ID.'" />' : '<img src="/bitrix/images/form/green.gif" height="14" width="14" border="0" id="crm_sent_'.$f_ID.'" />');
+			}
 
 			foreach ($arFieldValues as $arrA)
 			{
@@ -462,7 +493,7 @@ else
 					if (intval($arrA["USER_FILE_ID"])>0)
 					{
 						if ($arrA["USER_FILE_IS_IMAGE"]=="Y" && $USER->IsAdmin())
-							$txt.= htmlspecialchars($arrA["USER_TEXT"])."<br>";
+							$txt.= htmlspecialcharsbx($arrA["USER_TEXT"])."<br>";
 					}
 					else $txt.= TxtToHTML($arrA["USER_TEXT"],true,100)."<br>";
 				}
@@ -482,7 +513,7 @@ else
 					if ($arrA["USER_FILE_IS_IMAGE"]=="Y") :
 						$txt.= CFile::ShowImage($arrA["USER_FILE_ID"], 0, 0, "border=0", "", true);
 					else :
-						$txt.="<a title=\"".GetMessage("FORM_VIEW_FILE")."\" href=\"/bitrix/tools/form_show_file.php?rid=$f_ID&hash=$arrA[USER_FILE_HASH]&lang=".LANGUAGE_ID."\">".htmlspecialchars($arrA["USER_FILE_NAME"])."</a><br>(";
+						$txt.="<a title=\"".GetMessage("FORM_VIEW_FILE")."\" href=\"/bitrix/tools/form_show_file.php?rid=$f_ID&hash=$arrA[USER_FILE_HASH]&lang=".LANGUAGE_ID."\">".htmlspecialcharsbx($arrA["USER_FILE_NAME"])."</a><br>(";
 						$a = array("b", "Kb", "Mb", "Gb");
 						$pos = 0;
 						$size = $arrA["USER_FILE_SIZE"];
@@ -504,6 +535,10 @@ else
 		{
 			if (in_array("EDIT",$arrRESULT_PERMISSION) || in_array("VIEW",$arrRESULT_PERMISSION))
 				$arActions[] = array("ICON"=>"edit", "TITLE"=>GetMessage("FORM_EDIT_ALT"), "TEXT"=>GetMessage("FORM_EDIT"), "ACTION"=>$lAdmin->ActionRedirect("form_result_edit.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=$WEB_FORM_ID&RESULT_ID=$f_ID&WEB_FORM_NAME=$WEB_FORM_NAME"), 'DEFAULT' => 'Y');
+			if (is_array($arFormCrmLink))
+			{
+				$arActions[] = array("ICON" => "copy", "TITLE" => GetMessage('FORM_SEND_TO_CRM_TITLE'), "TEXT" => GetMessage('FORM_SEND_TO_CRM'), "ACTION" => "sendToCrm('".$WEB_FORM_ID."', '".$f_ID."')");
+			}
 			/*if (in_array("VIEW",$arrRESULT_PERMISSION))
 				$arActions[] = array("ICON"=>"view", "TITLE"=>GetMessage("FORM_VIEW_ALT"), "TEXT"=>GetMessage("FORM_VIEW"), "ACTION"=>$lAdmin->ActionRedirect("form_result_view.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=$WEB_FORM_ID&RESULT_ID=$f_ID&WEB_FORM_NAME=$WEB_FORM_NAME"));*/
 			if (in_array("DELETE",$arrRESULT_PERMISSION))
@@ -552,7 +587,7 @@ if(!is_set($_REQUEST, "mode"))
 
 	echo BeginNote('width="100%"');
 ?>
-<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialchars($arForm["SID"])?>)&nbsp;<?=htmlspecialchars($arForm["NAME"])?>
+<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialcharsbx($arForm["SID"])?>)&nbsp;<?=htmlspecialcharsbx($arForm["NAME"])?>
 <?
 	echo EndNote();
 }
@@ -586,6 +621,10 @@ else
 			$arFieldsTitle[]=GetMessage("FORM_FL_STATUS");
 			$arFieldsTitle[]=GetMessage("FORM_FL_STATUS_ID");
 		}
+
+		if (is_array($arFormCrmLink))
+			$arFieldsTitle[] = GetMessage('FORM_FL_SENT_TO_CRM');
+
 	}
 	else
 	{
@@ -596,16 +635,16 @@ else
 	}
 
 	$arrFORM_FILTER = (is_array($arrFORM_FILTER)) ? $arrFORM_FILTER : array();
-	
+
 	foreach ($arrFORM_FILTER as $key => $arrFILTER)
 	{
 		reset($arrFILTER);
 		list($key, $arrF) = each($arrFILTER);
 
 		if (strlen($arrF["FILTER_TITLE"])>0)
-			$arFieldsTitle[] = htmlspecialchars($arrF["FILTER_TITLE"]);
+			$arFieldsTitle[] = htmlspecialcharsbx($arrF["FILTER_TITLE"]);
 		elseif (strlen($arrF["TITLE"])>0)
-			$arFieldsTitle[] = htmlspecialchars($arrF["TITLE"]);
+			$arFieldsTitle[] = htmlspecialcharsbx($arrF["TITLE"]);
 		else
 			$arFieldsTitle[] = $arrF["SID"];
 	}
@@ -633,14 +672,14 @@ else
 		<td>
 			<?
 			$arr = array("reference"=>array(GetMessage("FORM_YES"), GetMessage("FORM_NO")), "reference_id"=>array("Y","N"));
-			echo SelectBoxFromArray("find_registered", $arr, htmlspecialchars($find_registered), GetMessage("FORM_ALL"));
+			echo SelectBoxFromArray("find_registered", $arr, htmlspecialcharsbx($find_registered), GetMessage("FORM_ALL"));
 			?></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("FORM_F_AUTH")?></td>
 		<td><?
 			$arr = array("reference"=>array(GetMessage("FORM_YES"), GetMessage("FORM_NO")), "reference_id"=>array("Y","N"));
-			echo SelectBoxFromArray("find_user_auth", $arr, htmlspecialchars($find_user_auth), GetMessage("FORM_ALL"));
+			echo SelectBoxFromArray("find_user_auth", $arr, htmlspecialcharsbx($find_user_auth), GetMessage("FORM_ALL"));
 			?></td>
 	</tr>
 	<tr>
@@ -663,7 +702,7 @@ else
 		<tr>
 			<td><?echo GetMessage("FORM_F_STATUS")?></td>
 			<td><?
-				echo SelectBox("find_status", CFormStatus::GetDropdown($WEB_FORM_ID, array("VIEW")), GetMessage("FORM_ALL"), htmlspecialchars($find_status));
+				echo SelectBox("find_status", CFormStatus::GetDropdown($WEB_FORM_ID, array("VIEW")), GetMessage("FORM_ALL"), htmlspecialcharsbx($find_status));
 				?></td>
 		</tr>
 		<tr>
@@ -674,6 +713,12 @@ else
 				?></td>
 		</tr>
 	<?endif;?>
+	<?if (is_array($arFormCrmLink)):?>
+	<tr>
+		<td><?echo GetMessage("FORM_FL_SENT_TO_CRM")?></td>
+		<td><?=CForm::GetCrmFlagFilter("sent_to_crm")?></td>
+	</tr>
+	<?endif;?>
 <?endif;?>
 	<?
 	$arrFORM_FILTER = (is_array($arrFORM_FILTER)) ? $arrFORM_FILTER : array();
@@ -682,10 +727,10 @@ else
 	{
 		foreach ($arrFILTER as $key => $arrF)
 		{
-			
+
 			$fname = $arrF["SID"];
 
-			if (!is_array($arrNOT_SHOW_FILTER) || !in_array($fname,$arrNOT_SHOW_FILTER)) 
+			if (!is_array($arrNOT_SHOW_FILTER) || !in_array($fname,$arrNOT_SHOW_FILTER))
 			{
 
 				if ($arrF["ADDITIONAL"]=="Y" || $arrF["ADDITIONAL"]!="Y")
@@ -693,51 +738,51 @@ else
 					$i++;
 					if ($fname != $prev_fname)
 					{
-					
+
 						echo $i > 1 ? '</td></tr>' : '';
 ?>
 	<tr>
 		<td width="40%">
 <?
 						if (strlen($arrF["FILTER_TITLE"])>0)
-							echo htmlspecialchars($arrF["FILTER_TITLE"]);
+							echo htmlspecialcharsbx($arrF["FILTER_TITLE"]);
 						elseif (strlen($arrF["TITLE"])>0)
-							echo htmlspecialchars($arrF["TITLE"]);
+							echo htmlspecialcharsbx($arrF["TITLE"]);
 						else
 							echo $arrF["SID"];
 
-						if ($arrF["FILTER_TYPE"]=="date") 
+						if ($arrF["FILTER_TYPE"]=="date")
 							echo " (".CSite::GetDateFormat("SHORT").")";
 ?>
 		</td>
 		<td nowrap width="60%">
 <?
 					} //endif;
-					
+
 					switch($arrF["FILTER_TYPE"])
 					{
 						case "text":
 							echo CForm::GetTextFilter($arrF["FID"], 45, "class=\"typeinput\"", "");
 							break;
-							
+
 						case "date":
 							echo CForm::GetDateFilter($arrF["FID"], "form1", "Y", "class=\"typeselect\"", "class=\"typeinput\"");
 							break;
-							
+
 						case "integer":
 							echo CForm::GetNumberFilter($arrF["FID"], 10, "class=\"typeinput\"");
 							break;
-							
+
 						case "dropdown":
 							echo CForm::GetDropDownFilter($arrF["ID"], $arrF["PARAMETER_NAME"], $arrF["FID"], "class=\"typeselect\"");
 							break;
-							
+
 						case "exist":
 							echo CForm::GetExistFlagFilter($arrF["FID"], "");
 							break;
-							
+
 					} //endswitch;
-					
+
 					if ($arrF["PARAMETER_NAME"]=="ANSWER_TEXT")
 					{
 						echo "&nbsp;<sup>[...]</sup>";
@@ -748,9 +793,9 @@ else
 						echo "&nbsp;<sup>(...)</sup>";
 						$f_ansvalue = "Y";
 					}
-					
+
 					echo "<br />";
-					
+
 					$prev_fname = $fname;
 				} //endif;
 			} //endif;
@@ -769,6 +814,32 @@ else
 
 #############
 }
+
+if (is_array($arFormCrmLink)):
+?>
+<script type="text/javascript">
+function sendToCrm(FORM_ID, RESULT_ID)
+{
+	BX.ajax.loadJSON('/bitrix/admin/form_crm.php?action=add_lead&FORM_ID=<?=$WEB_FORM_ID?>&RESULT_ID=' + parseInt(RESULT_ID) + '&<?=bitrix_sessid_get()?>', function(result){
+		if (result.result == 'ok')
+		{
+			var img = BX('crm_sent_' + RESULT_ID);
+			if (img)
+				img.src = '/bitrix/images/form/green.gif';
+			alert('<?=CUtil::JSEscape(GetMessage('FORM_SEND_TO_CRM_OK'))?>'.replace('#ID#', result.ID));
+		}
+		else
+		{
+			var img = BX('crm_sent_' + RESULT_ID);
+			if (img)
+				img.src = '/bitrix/images/form/red.gif';
+			alert('<?=CUtil::JSEscape(GetMessage('FORM_SEND_TO_CRM_ERROR'))?>'.replace('#ERROR#', result.error));
+		}
+	});
+}
+</script>
+<?
+endif;
 
 $lAdmin->DisplayList();
 

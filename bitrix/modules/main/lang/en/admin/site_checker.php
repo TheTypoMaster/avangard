@@ -107,7 +107,7 @@ $MESS["SC_NO_PROXY"] = "Cannot connect to the proxy server.";
 $MESS["SC_PROXY_ERR_RESP"] = "Invalid proxy assisted update server response.";
 $MESS["SC_UPDATE_ERR_RESP"] = "Invalid update server response.";
 $MESS["SC_FILE_EXISTS"] = "File exists:";
-$MESS["SC_WARN_SUHOSIN"] = "The suhosin module loaded, some Control Panel problems may arise (suhosin.simultaion=#VAL#).";
+$MESS["SC_WARN_SUHOSIN"] = "The suhosin module loaded, some Control Panel problems may arise (suhosin.simulation=#VAL#).";
 $MESS["SC_WARN_SECURITY"] = "The mod_security module loaded, some Control Panel problems may arise.";
 $MESS["SC_DELIMITER_ERR"] = "Current delimiter: &quot;#VAL#&quot;, &quot;.&quot; is required.";
 $MESS["SC_DB_MISC_CHARSET"] = "The table #TBL# charset (#T_CHAR#) does not match the database charset (#CHARSET#).";
@@ -166,7 +166,7 @@ $MESS["SC_HELP_CHECK_SERVER_VARS"] = "This will check the server variables.
 The value of HTTP_HOST is derived from the current virtual host (domain). Some browsers cannot save cookies for invalid domain names, which will cause cookie authorization failure.";
 $MESS["SC_HELP_CHECK_MBSTRING"] = "The mbstring module is required for internationalization support. The module is very strict as to setting the correct parameters depending on the current website encoding: the parameters for UTF-8 encoding are different from those of any national charset (e.g. cp1252).
 
-The following parameters are mandatory for UTF-8 based websites: 
+The following parameters are mandatory for UTF-8 based websites:
 <b>mbstring.func_overload=2</b>
 <b>mbstring.internal_encoding=utf-8</b>
 
@@ -181,7 +181,7 @@ If you cannot disable function redirection for some reason, try using a single-b
 
 If the assigned values does not match the website parameters, you will encounter weird and bizarre errors like truncated words, broken XML import etc.
 
-<b>Remember</b> that the <b>mbstring.func_overload</b> parameter is defined in the global php.ini (or in httpd.conf for a virtual server), while the encoding parameter sits in .htaccess. 
+<b>Remember</b> that the <b>mbstring.func_overload</b> parameter is defined in the global php.ini (or in httpd.conf for a virtual server), while the encoding parameter sits in .htaccess.
 
 All the Bitrix modules use the <i>BX_UTF</I> constant to resolve the current encoding. A UTF-8 website requires the following code in <i>/bitrix/php_interface/dbconn.php</i>:
 <code>define('BX_UTF', true);</code>
@@ -238,9 +238,9 @@ If the current value is less than that, add this line of code to <i>/bitrix/php_
 $MESS["SC_HELP_CHECK_SESSION"] = "This will check if the server is capable of storing data using sessions. This is required to preserve authorization between hits.
 
 This test will fail if no session support is installed on the server, an invalid session directory is specified in php.ini or if this directory is read-only.";
-$MESS["SC_HELP_CHECK_SESSION_UA"] = "This will also test the session storage capability, but without setting the <i>User-Agent</i> HTTP header. 
+$MESS["SC_HELP_CHECK_SESSION_UA"] = "This will also test the session storage capability, but without setting the <i>User-Agent</i> HTTP header.
 
-Many external applications and add-ons don't set this header: file and photo uploaders, WebDav clients etc. 
+Many external applications and add-ons don't set this header: file and photo uploaders, WebDav clients etc.
 
 If the test fails, the most likely problem is incorrect configuration of the <b>suhosin</b> PHP module.";
 $MESS["SC_HELP_CHECK_CACHE"] = "This will check if a PHP process can create a <b>.tmp</b> file in the cache directory and then rename it to <b>.php</b>. Some Windows web server may fail to rename the file if the user permissions are configured incorrectly.";

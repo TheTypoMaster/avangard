@@ -73,4 +73,6 @@ $MESS["MAIN_ADMIN_LIST_REM_GROUP"] = "remove from group";
 $MESS["MAIN_ADMIN_LIST_GROUP"] = "(select group)";
 $MESS["MAIN_ADMIN_LIST_ADD_STRUCT"] = "add to company structure";
 $MESS["MAIN_ADMIN_LIST_REM_STRUCT"] = "remove from company structure";
+$MESS["MAIN_ADMIN_AUTH"] = "Authorize";
+$MESS["MAIN_ADMIN_AUTH_TITLE"] = "Authorize as this user";
 ?>

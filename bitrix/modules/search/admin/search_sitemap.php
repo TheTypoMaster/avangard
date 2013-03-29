@@ -51,17 +51,21 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Generate"]=="Y")
 		$sm_record_limit = COption::GetOptionString("search", "sm_record_limit");
 
 		$arSiteMap=$cSiteMap->Create($SM_SITE_ID, array($sm_max_execution_time, $sm_record_limit), $NS, $arOptions);
-		if(is_array($arSiteMap)):?>
-			<table border="0" cellpadding="3" width="350" cellspacing="1" class="message message-ok"><tr><td>
-			<?echo GetMessage("SEARCH_SITEMAP_DOC_COUNT")?>: <b><?echo intval($arSiteMap["CNT"])?></b>.<br>
-			<?echo GetMessage("SEARCH_SITEMAP_ERR_COUNT")?>: <b><?echo intval($arSiteMap["ERROR_CNT"])?></b>.<br>
-			</td></tr></table>
+		if(is_array($arSiteMap)):
+			CAdminMessage::ShowMessage(array(
+				"TYPE" => "PROGRESS",
+				"HTML" => true,
+				"DETAILS" => GetMessage("SEARCH_SITEMAP_DOC_COUNT").": <b>".intval($arSiteMap["CNT"])."</b>.<br>"
+					.GetMessage("SEARCH_SITEMAP_ERR_COUNT").": <b>".intval($arSiteMap["ERROR_CNT"])."</b>.<br>",
+			));
+			?>
 			<script>
 				CloseWaitWindow();
 				DoNext(<?echo CUtil::PhpToJSObject(array("NS"=>$arSiteMap))?>);
 			</script>
 		<?elseif($arSiteMap===true):?>
-			<p><?echo GetMessage("SEARCH_SITEMAP_CREATED")?>: <b><a href="<?=htmlspecialchars($cSiteMap->m_href)?>"><?=$cSiteMap->m_href?></a></b></p>
+			<?echo BeginNote()?>
+			<p><?echo GetMessage("SEARCH_SITEMAP_CREATED")?>: <b><a href="<?=htmlspecialcharsbx($cSiteMap->m_href)?>"><?=$cSiteMap->m_href?></a></b></p>
 			<p><?echo GetMessage("SEARCH_SITEMAP_INSTR1")?>:</p>
 			<ol>
 				<li>
@@ -78,16 +82,22 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Generate"]=="Y")
 			<p><?echo GetMessage("SEARCH_SITEMAP_INSTR6")?></p>
 			<?if($cSiteMap->m_errors_count>0):?>
 				<p>
-				<?echo GetMessage("SEARCH_SITEMAP_WARN")?> <a href="<?=htmlspecialchars($cSiteMap->m_errors_href)?>"><?=$cSiteMap->m_errors_href?></a>.
+				<?echo GetMessage("SEARCH_SITEMAP_WARN")?> <a href="<?=htmlspecialcharsbx($cSiteMap->m_errors_href)?>"><?=$cSiteMap->m_errors_href?></a>.
 				<br><?echo GetMessage("SEARCH_SITEMAP_WARN1")?>.
 				</p>
 			<?endif;?>
+			<?echo EndNote()?>
 			<script>
 				CloseWaitWindow();
 				EndReindex();
 			</script>
 		<?elseif($arSiteMap===false):?>
-			<?CAdminMessage::ShowMessage(array("MESSAGE"=>GetMessage("SEARCH_SITEMAP_ERR"),"DETAILS"=>$cSiteMap->m_error,"TYPE"=>"ERROR","HTML"=>"Y"))?>
+			<?CAdminMessage::ShowMessage(array(
+				"MESSAGE" => GetMessage("SEARCH_SITEMAP_ERR"),
+				"DETAILS" => $cSiteMap->m_error,
+				"TYPE" => "ERROR",
+				"HTML" => "Y",
+			));?>
 			<script>
 				CloseWaitWindow();
 				EndReindex();
@@ -198,7 +208,7 @@ function EndReindex()
 <div id="reindex_result_div">
 </div>
 
-<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?echo htmlspecialchars(LANG)?>" name="fs2">
+<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?echo htmlspecialcharsbx(LANG)?>" name="fs2">
 <?
 
 $sm_max_execution_time = intval(COption::GetOptionInt("search", "sm_max_execution_time"));
@@ -246,7 +256,7 @@ $tabControl->BeginNextTab();
 <?
 $tabControl->Buttons();
 ?>
-	<input type="button" id="start_button" value="<?=GetMessage("SEARCH_SITEMAP_CREATE")?>" OnClick="StartReindex();">
+	<input type="button" id="start_button" value="<?=GetMessage("SEARCH_SITEMAP_CREATE")?>" OnClick="StartReindex();" class="adm-btn-save">
 	<input type="button" id="stop_button" value="<?=GetMessage("SEARCH_SITEMAP_STOP")?>" OnClick="StopReindex();" disabled>
 	<input type="button" id="continue_button" value="<?=GetMessage("SEARCH_SITEMAP_CONTINUE")?>" OnClick="ContinueReindex();" disabled>
 <?

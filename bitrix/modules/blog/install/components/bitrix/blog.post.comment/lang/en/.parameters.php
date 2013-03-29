@@ -37,8 +37,8 @@ $MESS["SHOW_RATING"] = "Enable rating";
 $MESS["SHOW_RATING_CONFIG"] = "default";
 $MESS["RATING_TYPE"] = "Rating buttons design";
 $MESS["RATING_TYPE_CONFIG"] = "default";
-$MESS["RATING_TYPE_STANDART_TEXT"] = "I like it/I don't like it (text)";
-$MESS["RATING_TYPE_STANDART_GRAPHIC"] = "I like it/I don't like it (image)";
-$MESS["RATING_TYPE_LIKE_TEXT"] = "I like it (text)";
-$MESS["RATING_TYPE_LIKE_GRAPHIC"] = "I like it (image)";
+$MESS["RATING_TYPE_STANDART_TEXT"] = "Like/Unlike (text)";
+$MESS["RATING_TYPE_STANDART_GRAPHIC"] = "Like/Unlike (image)";
+$MESS["RATING_TYPE_LIKE_TEXT"] = "Like (text)";
+$MESS["RATING_TYPE_LIKE_GRAPHIC"] = "Like (image)";
 ?>

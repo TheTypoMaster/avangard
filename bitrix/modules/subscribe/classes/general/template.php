@@ -59,26 +59,26 @@ class CPostingTemplate
 
 		$rubrics = CRubric::GetList(array(), array("ACTIVE"=>"Y", "AUTO"=>"Y"));
 		$current_time = time();
-		$arCDate = localtime($current_time);
-		$ct = $arCDate[0]+$arCDate[1]*60+$arCDate[2]*3600; //number of seconds science midnight
 		$time_of_exec = false;
 		$result = "";
 		while(($arRubric=$rubrics->Fetch()) && $time_of_exec===false)
 		{
-			if(strlen($arRubric["LAST_EXECUTED"])>0)
-				$last_executed = MakeTimeStamp(ConvertDateTime($arRubric["LAST_EXECUTED"], "DD.MM.YYYY HH:MI:SS"), "DD.MM.YYYY HH:MI:SS");
-			else
+			if ($arRubric["LAST_EXECUTED"] == '')
 				continue;
+
+			$last_executed = MakeTimeStamp(ConvertDateTime($arRubric["LAST_EXECUTED"], "DD.MM.YYYY HH:MI:SS"), "DD.MM.YYYY HH:MI:SS");
+
+			if ($last_executed <= 0)
+				continue;
+
 			//parse schedule
 			$arDoM = CPostingTemplate::ParseDaysOfMonth($arRubric["DAYS_OF_MONTH"]);
 			$arDoW = CPostingTemplate::ParseDaysOfWeek($arRubric["DAYS_OF_WEEK"]);
 			$arToD = CPostingTemplate::ParseTimesOfDay($arRubric["TIMES_OF_DAY"]);
 			if($arToD)
 				sort($arToD, SORT_NUMERIC);
-			$arSDate = localtime($last_executed);
-			//le = number of seconds scince midnight
-			$le = $arSDate[0]+$arSDate[1]*60+$arSDate[2]*3600;
 			//sdate = truncate(last_execute)
+			$arSDate = localtime($last_executed);
 			$sdate = mktime(0, 0, 0, $arSDate[4]+1, $arSDate[3], $arSDate[5]+1900);
 			while($sdate < $current_time && $time_of_exec===false)
 			{
@@ -95,6 +95,7 @@ class CPostingTemplate
 					$flag = array_search($arSDate[6], $arDoW);
 				else
 					$flag=false;
+
 				if($flag!==false && $arToD)
 					foreach($arToD as $intToD)
 					{
@@ -144,6 +145,7 @@ class CPostingTemplate
 				ob_end_clean();
 			}
 		}
+		$ID = false;
 		//If there was an array returned then add posting
 		if(is_array($arFields))
 		{
@@ -171,6 +173,7 @@ class CPostingTemplate
 		//Update last execution time mark
 		$strSql = "UPDATE b_list_rubric SET LAST_EXECUTED=".$DB->CharToDateFunction($arRubric["END_TIME"])." WHERE ID=".intval($arRubric["ID"]);
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $ID;
 	}
 
 	function ParseDaysOfMonth($strDaysOfMonth)

@@ -647,7 +647,6 @@ function bxhtmlunspecialchars(str)
 // Global object - collect global event handlers
 function BXEventDispatcher()
 {
-	this.eventsSet = false;
 	this.arHandlers = [];
 	this.arEditorHandlers = [];
 	this.arEditors = [];
@@ -730,7 +729,6 @@ function BXEventDispatcher()
 			for(var i=0; i<this.arHandlers[eventName].length; i++)
 				addAdvEvent(pDocument, eventName, window['OnDispatcherEvent_pEditorDocument_' + name_cur_obj]);
 		}
-		this.eventsSet=true;
 	}
 
 	//Internal method for adding BXHTMLEditor-type object
@@ -874,7 +872,7 @@ BXPreloader.prototype.RemoveStep = function(ind)
 // CONTEXT MENU
 function BXContextMenu() {}
 
-BXContextMenu.prototype.Create = function(zIndex, dxShadow, oPos, pElement, arParams)
+BXContextMenu.prototype.Create = function()
 {
 	this.pref = this.pMainObj.name.toUpperCase()+'_';
 	this.oDiv = document.body.appendChild(BXCreateElement('DIV', {className: 'bx_ed_context_menu', id: this.pref + '_BXContextMenu'}, {position: 'absolute', zIndex: 1500, left: '-1000px', top: '-1000px', visibility: 'hidden'}, document));
@@ -912,13 +910,16 @@ BXContextMenu.prototype.FetchAndBuildItems = function(pElement, arParams)
 {
 	var pElementTemp, i, k, arMenuItems = [], el, el_params, arUsed = [], strPath, strPath1, bxTag = false, bxtagname = false, id;
 
+	if (!arParams)
+		arParams = {};
+
 	// Handling and creation menu elements array
 	// Single custom element
 	if (arParams && arParams.bxtagname)
 	{
 		bxtagname = arParams.bxtagname;
 	}
-	else if (pElement && pElement.getAttribute && (id = pElement.arAttributes["id"]))
+	else if (pElement && pElement.arAttributes && (id = pElement.arAttributes["id"]))
 	{
 		bxTag = this.pMainObj.GetBxTag(id);
 		if (bxTag && bxTag.tag)
@@ -934,7 +935,11 @@ BXContextMenu.prototype.FetchAndBuildItems = function(pElement, arParams)
 	}
 	else // Elements in editor iframe
 	{
-		var pElement = this.pMainObj.GetSelectionObject();
+		if (!pElement)
+			pElement = this.pMainObj.GetSelectionObject();
+
+		arParams.pElement = pElement;
+
 		//Adding to default list
 		for(i = 0; i < arCMButtons["DEFAULT"].length; i++)
 			arMenuItems.push(arCMButtons["DEFAULT"][i]);
@@ -963,7 +968,7 @@ BXContextMenu.prototype.FetchAndBuildItems = function(pElement, arParams)
 			else
 			{
 				pElement = pElementTemp;
-				continue;
+					continue;
 			}
 		}
 	}
@@ -1130,18 +1135,20 @@ BXContextMenu.prototype.BuildItems = function(arMenuItems, arParams, contTbl, pa
 				}
 
 				oTable.onmouseout = function(e){this.className = 'popupitem';};
-				oTable.onclick = function(e)
+
+				oTable.onclick = function()
 				{
 					__this.pMainObj.SetFocus();
 					var res = false;
-					if (BX.browser.IsIE()) //Restore selection for IE
-						BXSelectRange(__this.oPrevRange, __this.pMainObj.pEditorDocument, __this.pMainObj.pEditorWindow);
+					try{
+						if (BX.browser.IsIE() && !BX.browser.IsIE9()) //Restore selection for IE
+							BXSelectRange(__this.oPrevRange, __this.pMainObj.pEditorDocument, __this.pMainObj.pEditorWindow);
+					}catch(e){}
 
-					if (this.handler)
-						if(this.handler(arParams) !== false)
-							res = true;
+					if (this.handler && typeof this.handler == 'function' && this.handler(arParams) !== false)
+						res = true;
 
-					if (!res)
+					if (!res && this.cmd)
 						res = this.pMainObj.executeCommand(this.cmd);
 
 					__this.pMainObj.SetFocus();
@@ -1405,19 +1412,20 @@ function BXSelectRange(oRange, oDoc, oWin)
 	if (!oWin)
 		oWin = window;
 
-	BXClearSelection(oDoc,oWin);
-
-	if (oDoc.createRange)
+	BXClearSelection(oDoc, oWin);
+	if (oDoc.createRange && oWin.getSelection)
 	{
-		//FF, Opera
+		//FF, Opera, IE9
 		var oSel = oWin.getSelection();
 		oSel.removeAllRanges();
-		oSel.addRange(oRange);
+		if (oRange && oSel.addRange)
+			oSel.addRange(oRange);
 	}
 	else
 	{
 		//IE
-		oRange.select();
+		if (oRange && oRange.select)
+			oRange.select();
 	}
 }
 
@@ -1559,7 +1567,7 @@ BXEditorUtils.prototype.addToolbar = function(arToolbar)
 	arToolbarSettings_default[arToolbar[0]] = arToolbar[3];
 }
 
-BXEditorUtils.prototype.appendButton = function(name,arButton,toolbarName)
+BXEditorUtils.prototype.appendButton = function(name, arButton, toolbarName)
 {
 	if (!arToolbars[toolbarName])
 		return false;
@@ -1707,4 +1715,4 @@ function CheckChilds(node, params)
 			CheckChilds(child, params);
 		}
 	}
-}
+}  

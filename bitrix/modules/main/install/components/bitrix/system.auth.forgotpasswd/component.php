@@ -26,10 +26,10 @@ $arResult["AUTH_AUTH_URL"] = $APPLICATION->GetCurPageParam("login=yes",$arParams
 
 foreach ($arResult as $key => $value)
 {
-	if (!is_array($value)) $arResult[$key] = htmlspecialchars($value);
+	if (!is_array($value)) $arResult[$key] = htmlspecialcharsbx($value);
 }
 
-$arResult["LAST_LOGIN"] = htmlspecialchars($_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"]);
+$arResult["LAST_LOGIN"] = htmlspecialcharsbx($_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"]);
 
 $this->IncludeComponentTemplate();
 ?>

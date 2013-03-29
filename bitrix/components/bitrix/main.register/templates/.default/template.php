@@ -55,7 +55,7 @@ endif;
 			<td>
 				<select name="REGISTER[TIME_ZONE]"<?if(!isset($_REQUEST["REGISTER"]["TIME_ZONE"])) echo 'disabled="disabled"'?>>
 		<?foreach($arResult["TIME_ZONE_LIST"] as $tz=>$tz_name):?>
-					<option value="<?=htmlspecialchars($tz)?>"<?=$arResult["VALUES"]["TIME_ZONE"] == $tz ? " selected=\"selected\"" : ""?>><?=htmlspecialchars($tz_name)?></option>
+					<option value="<?=htmlspecialcharsbx($tz)?>"<?=$arResult["VALUES"]["TIME_ZONE"] == $tz ? " selected=\"selected\"" : ""?>><?=htmlspecialcharsbx($tz_name)?></option>
 		<?endforeach?>
 				</select>
 			</td>

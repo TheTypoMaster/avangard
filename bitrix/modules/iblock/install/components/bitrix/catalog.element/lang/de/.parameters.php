@@ -33,11 +33,15 @@ $MESS["CP_BCE_PRODUCT_QUANTITY_VARIABLE"] = "Parametername für die Produktmenge"
 $MESS["CP_BCE_PRODUCT_PROPS_VARIABLE"] = "Parametername für die Produkteigenschaften";
 $MESS["CP_BCE_USE_PRODUCT_QUANTITY"] = "Feld fpr die Produktmenge einschalten";
 $MESS["CP_BCE_PRODUCT_PROPERTIES"] = "Produkteigenschaften";
-$MESS["IBLOCK_SORT_ASC"] = "aufsteigend";
-$MESS["IBLOCK_SORT_DESC"] = "absteigend";
 $MESS["CP_BCE_OFFERS_FIELD_CODE"] = "Felder der Produktvariante";
 $MESS["CP_BCE_OFFERS_PROPERTY_CODE"] = "Eigenschaften der Produktvariante";
 $MESS["CP_BCE_OFFERS_SORT_FIELD"] = "Produktvariante nach Feld sortieren";
 $MESS["CP_BCE_OFFERS_SORT_ORDER"] = "Sortierungsordnung der Produktvariante";
 $MESS["CP_BCE_OFFERS_CART_PROPERTIES"] = "Eigenschaften der Produktvariante im Warenkorb";
+$MESS["IBLOCK_SORT_ASC"] = "aufsteigend";
+$MESS["IBLOCK_SORT_DESC"] = "absteigend";
+$MESS["CP_BCE_CONVERT_CURRENCY"] = "Preise in einer Währung anzeigen";
+$MESS["CP_BCE_CURRENCY_ID"] = "Währung in die die Preise konvertiert werden";
+$MESS["CP_BCE_OFFERS_LIMIT"] = "Maximale Anzahl anzuzeigender Produktvarianten (benutzen Sie 0, um alle anzuzeigen)";
+$MESS["CP_BCE_USE_ELEMENT_COUNTER"] = "Ansichtszähler benutzen";
 ?>

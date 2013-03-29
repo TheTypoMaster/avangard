@@ -13,7 +13,7 @@ ShowMessage($arResult['ERROR_MESSAGE']);
 	<div class="bx-auth-note"><?=GetMessage("AUTH_PLEASE_AUTH")?></div>
 
 	<form name="form_auth" method="post" target="_top" action="<?=$arResult["AUTH_URL"]?>">
-	
+
 		<input type="hidden" name="AUTH_FORM" value="Y" />
 		<input type="hidden" name="TYPE" value="AUTH" />
 		<?if (strlen($arResult["BACKURL"]) > 0):?>
@@ -81,7 +81,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 		<noindex>
 			<p>
 				<a href="<?=$arResult["AUTH_REGISTER_URL"]?>" rel="nofollow"><?=GetMessage("AUTH_REGISTER")?></a><br />
-				<?=GetMessage("AUTH_FIRST_ONE")?> 
+				<?=GetMessage("AUTH_FIRST_ONE")?>
 			</p>
 		</noindex>
 <?endif?>
@@ -99,14 +99,17 @@ try{document.form_auth.USER_LOGIN.focus();}catch(e){}
 
 <?if($arResult["AUTH_SERVICES"]):?>
 <?
-$APPLICATION->IncludeComponent("bitrix:socserv.auth.form", "", 
+$APPLICATION->IncludeComponent("bitrix:socserv.auth.form", "",
 	array(
-		"AUTH_SERVICES"=>$arResult["AUTH_SERVICES"],
-		"CURRENT_SERVICE"=>$arResult["CURRENT_SERVICE"],
-		"AUTH_URL"=>$arResult["AUTH_URL"],
-		"POST"=>$arResult["POST"],
-	), 
-	$component, 
+		"AUTH_SERVICES" => $arResult["AUTH_SERVICES"],
+		"CURRENT_SERVICE" => $arResult["CURRENT_SERVICE"],
+		"AUTH_URL" => $arResult["AUTH_URL"],
+		"POST" => $arResult["POST"],
+		"SHOW_TITLES" => $arResult["FOR_INTRANET"]?'N':'Y',
+		"FOR_SPLIT" => $arResult["FOR_INTRANET"]?'Y':'N',
+		"AUTH_LINE" => $arResult["FOR_INTRANET"]?'N':'Y',
+	),
+	$component,
 	array("HIDE_ICONS"=>"Y")
 );
 ?>

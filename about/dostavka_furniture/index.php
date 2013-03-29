@@ -20,7 +20,7 @@ function viewfoto(width, height, src) {
 	}
 //--></script>
 
-<h3>Служба логистики</h3>
+<!-- <h3>Служба логистики</h3> -->
 
 <table class="s" cellspacing="0" cellpadding="0" width="100%" border="0">
   <tbody>

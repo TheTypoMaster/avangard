@@ -32,13 +32,85 @@ Class vote extends CModule
 		}
 		else
 		{
-			$this->MODULE_VERSION = $VOTE_VERSION;
-			$this->MODULE_VERSION_DATE = $VOTE_VERSION_DATE;
+			$this->MODULE_VERSION = VOTE_VERSION;
+			$this->MODULE_VERSION_DATE = VOTE_VERSION_DATE;
 		}
 
 		$this->MODULE_NAME = GetMessage("VOTE_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("VOTE_MODULE_DESCRIPTION");
 		$this->MODULE_CSS = "/bitrix/modules/vote/vote.css";
+	}
+
+	function InstallUserFields()
+	{
+		global $USER_FIELD_MANAGER, $APPLICATION;
+		if (!IsModuleInstalled("blog"))
+			return;
+		$db_res = CUserTypeEntity::GetList(array("ID" => "ASC"), array(/*"USER_TYPE_ID" => "vote", */"FIELD_NAME" => "UF_BLOG_POST_VOTE"));
+		if ($db_res && ($res = $db_res->Fetch()))
+			return;
+
+		AddEventHandler("main", "OnUserTypeBuildList", array("CUserTypeVote", "GetUserTypeDescription"));
+		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/classes/general/usertypevote.php");
+		$USER_FIELD_MANAGER->CleanCache();
+		$USER_FIELD_MANAGER->arUserTypes = '';
+
+		$arFields = array(
+			"BLOG_POST" => array(
+				"ENTITY_ID" => "BLOG_POST",
+				"FIELD_NAME" => "UF_BLOG_POST_VOTE",
+				"XML_ID" => "UF_BLOG_POST_VOTE",
+				"SETTINGS" => array(
+					"CHANNEL_ID" => "add",
+					"CHANNEL_TITLE" => "UF_BLOG_POST_VOTE",
+					"CHANNEL_SYMBOLIC_NAME" => "UF_BLOG_POST_VOTE",
+					"CHANNEL_USE_CAPTCHA" => "N",
+					"UNIQUE" => 13,
+					"UNIQUE_IP_DELAY" => array(
+						"DELAY" => "10",
+						"DELAY_TYPE" => "D")
+				)
+			)
+		);
+
+		$arFieldProps = Array(
+			"USER_TYPE_ID" => "vote",
+			"SORT" => 100
+		);
+
+		foreach ($arFields as $arField)
+		{
+			$rsData = CUserTypeEntity::GetList(array("FIELD_NAME" => "ASC"), $arField);
+			if (!($arRes = $rsData->Fetch()))
+			{
+				$arProps = array_merge($arFieldProps, $arField);
+				$obUserField  = new CUserTypeEntity;
+				$intID = $obUserField->Add($arProps);
+
+				if (false == $intID)
+				{
+					if ($strEx = $APPLICATION->GetException())
+					{
+						$this->errors[] = $strEx->GetString();
+					}
+				}
+			}
+		}
+	}
+	function UnInstallUserFields()
+	{
+		@set_time_limit(0);
+		$db_res = CUserTypeEntity::GetList(array("ID" => "ASC"), array("USER_TYPE_ID" => "vote"));
+		if ($db_res && ($res = $db_res->Fetch())) {
+			$GLOBALS["DB"]->StartTransaction();
+			$obUserField = new CUserTypeEntity;
+			@set_time_limit(0);
+			do {
+				if ($obUserField->Delete($res["ID"]))
+					$GLOBALS["DB"]->Rollback();
+			} while ($res = $db_res->Fetch());
+			$GLOBALS["DB"]->Commit();
+		}
 	}
 
 	function InstallDB($arParams = array())
@@ -64,6 +136,7 @@ Class vote extends CModule
 			COption::SetOptionString("vote", "VOTE_COMPATIBLE_OLD_TEMPLATE", "N");
 
 			RegisterModuleDependences("main", "OnBeforeProlog", "main", "", "", 100, "/modules/vote/keepvoting.php");
+			RegisterModuleDependences("main", "OnUserTypeBuildList", "vote", "CUserTypeVote", "GetUserTypeDescription", 200);
 
 			return true;
 		}
@@ -89,6 +162,7 @@ Class vote extends CModule
 		// Events
 		include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/events/del_events.php");
 
+		UnRegisterModuleDependences("main", "OnUserTypeBuildList", "vote", "CUserTypeVote", "GetUserTypeDescription", 200);
 		UnRegisterModuleDependences("main", "OnBeforeProlog", "main", "", "", "/modules/vote/keepvoting.php");
 		UnRegisterModule("vote");
 
@@ -129,13 +203,13 @@ Class vote extends CModule
 
 		if($_ENV["COMPUTERNAME"]!='BX')
 		{
-            CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-            CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/public/tools/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools/");
-            CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/themes/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/", true, true);
-            CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/vote", true, true);
-            CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
-            CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js/vote", true, true);
-        }
+			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
+			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/public/tools/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools/");
+			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/themes/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/", true, true);
+			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/vote", true, true);
+			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
+			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js/vote", true, true);
+		}
 
 		$bReWriteAdditionalFiles = (($GLOBALS["public_rewrite"] == "Y") ? True : False);
 
@@ -156,13 +230,13 @@ Class vote extends CModule
 	{
 		if($_ENV["COMPUTERNAME"]!='BX')
 		{
-            DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-            DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");//css
-            DeleteDirFilesEx("/bitrix/themes/.default/icons/vote/");//icons
-            DeleteDirFilesEx("/bitrix/images/vote/");//images
-            DeleteDirFilesEx("/bitrix/js/vote/");//images
-            DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/public/tools/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools/");
-        }
+			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
+			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");//css
+			DeleteDirFilesEx("/bitrix/themes/.default/icons/vote/");//icons
+			DeleteDirFilesEx("/bitrix/images/vote/");//images
+			DeleteDirFilesEx("/bitrix/js/vote/");//images
+			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/public/tools/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools/");
+		}
 		return true;
 	}
 
@@ -184,6 +258,7 @@ Class vote extends CModule
 				{
 					$this->InstallEvents();
 					$this->InstallFiles();
+					$this->InstallUserFields();
 				}
 				$GLOBALS["errors"] = $this->errors;
 				$GLOBALS["install_step"] = 2;
@@ -214,6 +289,7 @@ Class vote extends CModule
 					$this->UnInstallEvents();
 				}
 				$this->UnInstallFiles();
+				$this->UnInstallUserFields();
 				$GLOBALS["errors"] = $this->errors;
 				$GLOBALS["uninstall_step"] = 2;
 				$APPLICATION->IncludeAdminFile(GetMessage("VOTE_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/install/unstep.php");

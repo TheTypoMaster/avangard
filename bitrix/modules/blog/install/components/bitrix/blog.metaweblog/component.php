@@ -15,11 +15,11 @@ if(strLen($arParams["POST_VAR"])<=0)
 	
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
 if(strlen($arParams["PATH_TO_BLOG"])<=0)
-	$arParams["PATH_TO_BLOG"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
 if(strlen($arParams["PATH_TO_POST"])<=0)
-	$arParams["PATH_TO_POST"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
+	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 	
 if(function_exists("file_get_contents"))
 	$DATA = file_get_contents("php://input");
@@ -78,71 +78,71 @@ if(strlen($DATA) > 0)
 					break;
 				default:
 					$result = '<fault>
-						  <value>
-							 <struct>
+						<value>
+							<struct>
 								<member>
-								   <name>faultCode</name>
-								   <value><int>1</int></value>
-								   </member>
+									<name>faultCode</name>
+									<value><int>1</int></value>
+								</member>
 								<member>
-								   <name>faultString</name>
-								   <value><string>Unknown method name.</string></value>
-								   </member>
-								</struct>
-							 </value>
-					  </fault>';
+									<name>faultString</name>
+									<value><string>Unknown method name.</string></value>
+								</member>
+							</struct>
+						</value>
+					</fault>';
 			}
 		}
 		else
 		{
 				$result = '<fault>
-				  <value>
-					 <struct>
-						<member>
-						   <name>faultCode</name>
-						   <value><int>2</int></value>
-						   </member>
-						<member>
-						   <name>faultString</name>
-						   <value><string>Unknown method class.</string></value>
-						   </member>
+					<value>
+						<struct>
+							<member>
+								<name>faultCode</name>
+								<value><int>2</int></value>
+							</member>
+							<member>
+								<name>faultString</name>
+								<value><string>Unknown method class.</string></value>
+							</member>
 						</struct>
-					 </value>
-				  </fault>';
+					</value>
+				</fault>';
 		}
 	}
 	else
 		$result = '<fault>
-		  <value>
-			 <struct>
-				<member>
-				   <name>faultCode</name>
-				   <value><int>2</int></value>
-				   </member>
-				<member>
-				   <name>faultString</name>
-				   <value><string>Empty request.</string></value>
-				   </member>
-				</struct>
-			 </value>
-		  </fault>';
+				<value>
+					<struct>
+						<member>
+							<name>faultCode</name>
+							<value><int>2</int></value>
+						</member>
+						<member>
+							<name>faultString</name>
+							<value><string>Empty request.</string></value>
+						</member>
+					</struct>
+				</value>
+			</fault>';
 
 }
 else
 	$result = '<fault>
-	  <value>
-		 <struct>
-			<member>
-			   <name>faultCode</name>
-			   <value><int>3</int></value>
-			   </member>
-			<member>
-			   <name>faultString</name>
-			   <value><string>Empty request.</string></value>
-			   </member>
-			</struct>
-		 </value>
-	  </fault>';
+			<value>
+				<struct>
+					<member>
+						<name>faultCode</name>
+						<value><int>3</int></value>
+					</member>
+					<member>
+						<name>faultString</name>
+						<value><string>Empty request.</string></value>
+					</member>
+				</struct>
+			</value>
+		</fault>';
 
 $bDesignMode = $GLOBALS["APPLICATION"]->GetShowIncludeAreas() && is_object($GLOBALS["USER"]) && $GLOBALS["USER"]->IsAdmin();
 if(!$bDesignMode)

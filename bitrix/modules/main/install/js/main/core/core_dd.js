@@ -61,27 +61,33 @@ BX.DD.dragdrop = function(params)
  */
 BX.DD.dropFiles = function(div)
 {
-	if (! BX.type.isElementNode(div)) return false;
-	div.setAttribute('dropzone', 'copy f:*/*');
-	this.DIV = div;
-	this._timer = null;
-	this._initEvents();
+	if (BX.type.isElementNode(div)
+		&& this.supported())
+	{
+		div.setAttribute('dropzone', 'copy f:*/*');
+		this.DIV = div;
+		this._timer = null;
+		this._initEvents();
 
-	this._cancelLeave = function()
-	{
-		if (this._timer != null)
+		this._cancelLeave = function()
 		{
-			clearTimeout(this._timer);
-			this._timer = null;
+			if (this._timer != null)
+			{
+				clearTimeout(this._timer);
+				this._timer = null;
+			}
 		}
+		this._prepareLeave = function()
+		{
+			this._cancelLeave();
+			this._timer = setTimeout( BX.delegate(function() {
+				BX.onCustomEvent(this, 'dragLeave')
+			}, this), 100);
+		}
+
+		return this;
 	}
-	this._prepareLeave = function()
-	{
-		this._cancelLeave();
-		this._timer = setTimeout( BX.delegate(function() {
-			BX.onCustomEvent(this, 'dragLeave')
-		}, this), 100);
-	}
+	return false;
 }
 
 BX.DD.dropFiles.prototype._initEvents = function()
@@ -95,7 +101,7 @@ BX.DD.dropFiles.prototype._initEvents = function()
 
 BX.DD.dropFiles.prototype._dragEnter = function(e)
 {
-	e.preventDefault();
+	BX.PreventDefault(e);
 	this._cancelLeave();
 	BX.onCustomEvent(this, 'dragEnter');
 	return true;
@@ -103,7 +109,7 @@ BX.DD.dropFiles.prototype._dragEnter = function(e)
 
 BX.DD.dropFiles.prototype._dragExit = function(e)
 {
-	e.preventDefault();
+	BX.PreventDefault(e);
 	this._prepareLeave();
 	return false;
 }
@@ -111,20 +117,21 @@ BX.DD.dropFiles.prototype._dragExit = function(e)
 
 BX.DD.dropFiles.prototype._dragLeave = function(e)
 {
+	BX.PreventDefault(e);
 	this._prepareLeave();
 	return false;
 }
 
 BX.DD.dropFiles.prototype._dragOver = function(e)
 {
-	e.preventDefault();
+	BX.PreventDefault(e);
 	this._cancelLeave();
 	return true;
 }
 
 BX.DD.dropFiles.prototype._drop = function(e)
 {
-	e.preventDefault();
+	BX.PreventDefault(e);
 	var dt = e.dataTransfer;
 	var files = dt.files;
 	BX.onCustomEvent(this, 'dropFiles', [files]);

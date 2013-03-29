@@ -11,7 +11,7 @@ $arParams["USER_ID"] = IntVal($arParams["USER_ID"]);
 
 $arParams["POST_ID"] = trim($arParams["POST_ID"]);
 $bIDbyCode = false;
-if(!is_numeric($arParams["POST_ID"]) || strlen(IntVal($arParams["ID"])) != strlen($arParams["ID"]))
+if(!is_numeric($arParams["POST_ID"]) || strlen(IntVal($arParams["POST_ID"])) != strlen($arParams["POST_ID"]))
 {
 	$arParams["POST_ID"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["~POST_ID"]));
 	$bIDbyCode = true;
@@ -75,15 +75,15 @@ if(strLen($arParams["USER_VAR"])<=0)
 
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
 if(strlen($arParams["PATH_TO_BLOG"])<=0)
-	$arParams["PATH_TO_BLOG"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
 if(strlen($arParams["PATH_TO_POST"])<=0)
-	$arParams["PATH_TO_POST"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
+	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if(strlen($arParams["PATH_TO_USER"])<=0)
-	$arParams["PATH_TO_USER"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 	
 if($arParams["MODE"] != "C")
 	$arParams["MODE"] = "P";
@@ -95,20 +95,19 @@ if(is_numeric($arParams["NO_URL_IN_COMMENTS_AUTHORITY"]))
 	$arParams["NO_URL_IN_COMMENTS_AUTHORITY_CHECK"] = "Y";
 }
 
+$arParams["IMAGE_MAX_WIDTH"] = IntVal($arParams["IMAGE_MAX_WIDTH"]);
+$arParams["IMAGE_MAX_HEIGHT"] = IntVal($arParams["IMAGE_MAX_HEIGHT"]);
 
+$arFeedParams = Array("ALLOW_POST_CODE" => $arParams["ALLOW_POST_CODE"], "IMAGE_MAX_WIDTH" => $arParams["IMAGE_MAX_WIDTH"], "IMAGE_MAX_HEIGHT" => $arParams["IMAGE_MAX_HEIGHT"]);
+
+$user_id = IntVal($USER->GetID());
 if($bSoNet)
 {
-	$arFilterblg = Array(
-		    "ACTIVE" => "Y",
-			"GROUP_ID" => $arParams["GROUP_ID"],
-			"GROUP_SITE_ID" => SITE_ID,
-			);
-		if($bGroupMode)
-			$arFilterblg["SOCNET_GROUP_ID"] = $arParams["SOCNET_GROUP_ID"];
-		else
-			$arFilterblg["OWNER_ID"] = $arParams["USER_ID"];
-		$dbBl = CBlog::GetList(Array(), $arFilterblg, false, false, Array("ID", "SOCNET_BLOG_READ", "ACTIVE", "GROUP_ID", "SOCNET_GROUP_ID", "OWNER_ID"));
-		$arBlog = $dbBl ->Fetch();
+	$arFeedParams["USE_SOCNET"] = "Y";
+	if($bGroupMode)
+		$arFeedParams["SOCNET_GROUP_ID"] = $arParams["SOCNET_GROUP_ID"];
+	else
+		$arFeedParams["USER_ID"] = $arParams["USER_ID"];
 }
 else
 {
@@ -117,9 +116,11 @@ else
 
 $cache = new CPHPCache; 
 $cache_id = "blog_rss_out_".serialize($arParams);
+if($bSoNet)
+	$cache_id .= "_".$user_id;
 $cache_path = "/".SITE_ID."/blog/".$arBlog["URL"]."/rss_out/";
 
-if (!empty($arBlog))
+if (!empty($arBlog) || $bSoNet)
 {
 	if($arParams["MODE"] == "C")
 	{
@@ -132,8 +133,15 @@ if (!empty($arBlog))
 			$arParams["POST_ID"] = CBlogPost::GetID($arParams["POST_ID"], $arBlog["ID"]);
 			$arPost = CBlogPost::GetByID($arParams["POST_ID"]);
 		}
+		if(!empty($arPost))
+			$arBlog = CBlog::GetByID($arPost["BLOG_ID"]);
+		$arFeedParams["PATH_TO_BLOG"] = $arParams["PATH_TO_BLOG"];
+		$arFeedParams["PATH_TO_POST"] = $arParams["PATH_TO_POST"];
+		$arFeedParams["PATH_TO_USER"] = $arParams["PATH_TO_USER"];
+		$arFeedParams["NO_URL_IN_COMMENTS"] = $arParams["NO_URL_IN_COMMENTS"];
+		$arFeedParams["NO_URL_IN_COMMENTS_AUTHORITY_CHECK"] = $arParams["NO_URL_IN_COMMENTS_AUTHORITY_CHECK"];
+		$arFeedParams["NO_URL_IN_COMMENTS_AUTHORITY"] = $arParams["NO_URL_IN_COMMENTS_AUTHORITY"];
 	}
-
 	if(($arParams["MODE"] == "C" && !empty($arPost)) || $arParams["MODE"] == "P")
 	{
 		$APPLICATION->RestartBuffer();
@@ -146,21 +154,18 @@ if (!empty($arBlog))
 		}
 		else
 		{
-		$arParams["IMAGE_MAX_WIDTH"] = IntVal($arParams["IMAGE_MAX_WIDTH"]);
-$arParams["IMAGE_MAX_HEIGHT"] = IntVal($arParams["IMAGE_MAX_HEIGHT"]);
+			if($arParams["MODE"] == "P")
+				$textRSS = CBlog::BuildRSS($arBlog["ID"], $arResult["TYPE"], $arParams["MESSAGE_COUNT"], $arParams["PATH_TO_BLOG"], $arParams["PATH_TO_POST"], $arParams["PATH_TO_USER"], $bSoNet, $arFeedParams);
+			else
+				$textRSS = CBlogComment::BuildRSS($arPost["ID"], $arBlog["ID"], $arResult["TYPE"], $arParams["MESSAGE_COUNT"], $arFeedParams);
+			
+			if ($arParams["CACHE_TIME"] > 0)
+				$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
 
-				if($arParams["MODE"] == "P")
-					$textRSS = CBlog::BuildRSS($arBlog["ID"], $arResult["TYPE"], $arParams["MESSAGE_COUNT"], $arParams["PATH_TO_BLOG"], $arParams["PATH_TO_POST"], $arParams["PATH_TO_USER"], $bSoNet, Array("ALLOW_POST_CODE" => $arParams["ALLOW_POST_CODE"], "IMAGE_MAX_WIDTH" => $arParams["IMAGE_MAX_WIDTH"], "IMAGE_MAX_HEIGHT" => $arParams["IMAGE_MAX_HEIGHT"]));
-				else
-					$textRSS = CBlogComment::BuildRSS($arPost["ID"], $arBlog["ID"], $arResult["TYPE"], $arParams["MESSAGE_COUNT"], Array("PATH_TO_BLOG" => $arParams["PATH_TO_BLOG"], "PATH_TO_POST" => $arParams["PATH_TO_POST"], "PATH_TO_USER" =>$arParams["PATH_TO_USER"], "ALLOW_POST_CODE" => $arParams["ALLOW_POST_CODE"], "NO_URL_IN_COMMENTS" => $arParams["NO_URL_IN_COMMENTS"], "NO_URL_IN_COMMENTS_AUTHORITY_CHECK" => $arParams["NO_URL_IN_COMMENTS_AUTHORITY_CHECK"], "NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["NO_URL_IN_COMMENTS_AUTHORITY"], "IMAGE_MAX_WIDTH" => $arParams["IMAGE_MAX_WIDTH"], "IMAGE_MAX_HEIGHT" => $arParams["IMAGE_MAX_HEIGHT"]));
-				
-				if ($arParams["CACHE_TIME"] > 0)
-					$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
+				echo $textRSS;
 
-					echo $textRSS;
-
-				if ($arParams["CACHE_TIME"] > 0)
-					$cache->EndDataCache(array());
+			if ($arParams["CACHE_TIME"] > 0)
+				$cache->EndDataCache(array());
 		}
 		die();
 	}

@@ -52,7 +52,7 @@ function BxInterfaceGrid(table_id)
 						cell.onbxdrag = _this.Drag;
 						cell.onbxdraghout = function(){_this.HighlightGutter(this, false)};
 						jsDD.registerObject(cell);
-	
+
 						cell.onbxdestdraghover = _this.DragHover;
 						cell.onbxdestdraghout = _this.DragOut;
 						cell.onbxdestdragfinish = _this.DragFinish;
@@ -113,15 +113,15 @@ function BxInterfaceGrid(table_id)
 		if(!_this.menu)
 			return;
 
-		if(!e) 
+		if(!e)
 			e = window.event;
 		if(!phpVars.opt_context_ctrl && e.ctrlKey || phpVars.opt_context_ctrl && !e.ctrlKey)
 			return;
 
 		var targetElement;
-		if(e.target) 
+		if(e.target)
 			targetElement = e.target;
-		else if(e.srcElement) 
+		else if(e.srcElement)
 			targetElement = e.srcElement;
 
 		//column context menu
@@ -147,7 +147,7 @@ function BxInterfaceGrid(table_id)
 		_this.activeRow = el;
 		if(_this.activeRow)
 			_this.activeRow.className += ' bx-active';
-			
+
 		menu.OnClose = function()
 		{
 			if(_this.activeRow)
@@ -157,7 +157,7 @@ function BxInterfaceGrid(table_id)
 			}
 			_this.SaveColumns;
 		}
-		
+
 		//combined menu
 		var menuItems = BX.util.array_merge(col_menu, el.oncontextmenu());
 		if(menuItems.length == 0)
@@ -175,7 +175,7 @@ function BxInterfaceGrid(table_id)
 		menu.PopupShow(pos);
 
 		e.returnValue = false;
-		if(e.preventDefault) 
+		if(e.preventDefault)
 			e.preventDefault();
 	}
 
@@ -187,7 +187,7 @@ function BxInterfaceGrid(table_id)
 		if(_this.activeRow)
 			_this.activeRow.className += ' bx-active';
 
-		_this.menu.ShowMenu(el, _this.oActions[index], false, false, 
+		_this.menu.ShowMenu(el, _this.oActions[index], false, false,
 			function()
 			{
 				if(_this.activeRow)
@@ -435,7 +435,7 @@ function BxInterfaceGrid(table_id)
 											'href':'javascript:void(0);',
 											'title': this.vars.mess.calend_title
 										},
-										'html':'<img src="'+this.vars.calendar_image+'" alt="'+this.vars.mess.calend_title+'" class="calendar-icon" onclick="jsCalendar.Show(this, \''+name+'\', \'\', \'\', false, \''+this.vars.server_time+'\');" onmouseover="this.className+=\' calendar-icon-hover\';" onmouseout="this.className = this.className.replace(/\s*calendar-icon-hover/ig, \'\');" border="0"/>'}));
+										'html':'<img src="'+this.vars.calendar_image+'" alt="'+this.vars.mess.calend_title+'" class="calendar-icon" onclick="BX.calendar({node:this, field:\''+name+'\', bTime: true, currentTime: \''+this.vars.server_time+'\'});" onmouseover="this.className+=\' calendar-icon-hover\';" onmouseout="this.className = this.className.replace(/\s*calendar-icon-hover/ig, \'\');" border="0"/>'}));
 									td.appendChild(span);
 									break;
 								default:
@@ -613,6 +613,12 @@ function BxInterfaceGrid(table_id)
 		this.SaveColumns();
 	}
 
+	this.ApplySaveColumns = function()
+	{
+		this.menu.PopupHide();
+		this.SaveColumns();
+	}
+
 	this.SaveColumns = function(columns)
 	{
 		var sCols = '';
@@ -641,7 +647,6 @@ function BxInterfaceGrid(table_id)
 
 		if(this.vars.ajax.AJAX_ID != '')
 			BX.ajax.insertToNode(url+(url.indexOf('?') == -1? '?':'&')+'bxajaxid='+this.vars.ajax.AJAX_ID, 'comp_'+this.vars.ajax.AJAX_ID);
-			//jsAjaxUtil.InsertDataToNode(url+(url.indexOf('?') == -1? '?':'&')+'bxajaxid='+this.vars.ajax.AJAX_ID, 'comp_'+this.vars.ajax.AJAX_ID, this.vars.ajax.AJAX_OPTION_SHADOW);
 		else
 			window.location = url;
 	}
@@ -661,8 +666,8 @@ function BxInterfaceGrid(table_id)
 	this.SetView = function(view_id)
 	{
 		var filter_id = _this.oOptions.views[view_id].saved_filter;
-		var func = (filter_id && _this.oOptions.filters[filter_id]? 
-			function(){_this.ApplyFilter(filter_id)} : 
+		var func = (filter_id && _this.oOptions.filters[filter_id]?
+			function(){_this.ApplyFilter(filter_id)} :
 			function(){_this.Reload()});
 
 		BX.ajax.get('/bitrix/components'+_this.vars.component_path+'/settings.php?GRID_ID='+_this.table_id+'&action=setview&view_id='+view_id+'&sessid='+_this.vars.sessid, func);
@@ -670,7 +675,7 @@ function BxInterfaceGrid(table_id)
 
 	this.EditCurrentView = function()
 	{
-		this.ShowSettings(this.oOptions.views[this.oOptions.current_view], 
+		this.ShowSettings(this.oOptions.views[this.oOptions.current_view],
 			function()
 			{
 				var data = _this.SaveSettings(_this.oOptions.current_view);
@@ -691,16 +696,16 @@ function BxInterfaceGrid(table_id)
 			view[i] = this.oOptions.views[this.oOptions.current_view][i];
 		view.name = this.vars.mess.viewsNewView;
 
-		this.ShowSettings(view, 
+		this.ShowSettings(view,
 			function()
 			{
 				var data = _this.SaveSettings(view_id);
 
 				_this.oOptions.views[view_id] = {
-					'name':data.name, 
-					'columns':data.columns, 
-					'sort_by':data.sort_by, 
-					'sort_order':data.sort_order, 
+					'name':data.name,
+					'columns':data.columns,
+					'sort_by':data.sort_by,
+					'sort_order':data.sort_order,
 					'page_size':data.page_size,
 					'saved_filter':data.saved_filter
 				};
@@ -714,16 +719,16 @@ function BxInterfaceGrid(table_id)
 
 	this.EditView = function(view_id)
 	{
-		this.ShowSettings(this.oOptions.views[view_id], 
+		this.ShowSettings(this.oOptions.views[view_id],
 			function()
 			{
 				var data = _this.SaveSettings(view_id);
 
 				_this.oOptions.views[view_id] = {
-					'name':data.name, 
-					'columns':data.columns, 
-					'sort_by':data.sort_by, 
-					'sort_order':data.sort_order, 
+					'name':data.name,
+					'columns':data.columns,
+					'sort_by':data.sort_by,
+					'sort_order':data.sort_order,
 					'page_size':data.page_size,
 					'saved_filter':data.saved_filter
 				};
@@ -739,7 +744,7 @@ function BxInterfaceGrid(table_id)
 	{
 		if(!confirm(this.vars.mess.viewsDelete))
 			return;
-		
+
 		var form = document['views_'+this.table_id];
 		var index = form.views_list.selectedIndex;
 		form.views_list.remove(index);
@@ -749,14 +754,14 @@ function BxInterfaceGrid(table_id)
 
 		BX.ajax.get('/bitrix/components'+this.vars.component_path+'/settings.php?GRID_ID='+this.table_id+'&action=delview&view_id='+view_id+'&sessid='+_this.vars.sessid);
 	}
-	
+
 	this.ShowSettings = function(view, action)
 	{
 		var bCreated = false;
 		if(!window['settingsDialog'+this.table_id])
-		{		
+		{
 			window['settingsDialog'+this.table_id] = new BX.CDialog({
-				'content':'<form name="settings_'+this.table_id+'"></form>', 
+				'content':'<form name="settings_'+this.table_id+'"></form>',
 				'title': this.vars.mess.settingsTitle,
 				'width': this.vars.settingWndSize.width,
 				'height': this.vars.settingWndSize.height,
@@ -764,7 +769,7 @@ function BxInterfaceGrid(table_id)
 			});
 			bCreated = true;
 		}
-		
+
 		window['settingsDialog'+this.table_id].ClearButtons();
 		window['settingsDialog'+this.table_id].SetButtons([
 			{
@@ -777,12 +782,12 @@ function BxInterfaceGrid(table_id)
 			BX.CDialog.prototype.btnCancel
 		]);
 		window['settingsDialog'+this.table_id].Show();
-		
+
 		var form = document['settings_'+this.table_id];
 
 		if(bCreated)
 			form.appendChild(BX('view_settings_'+this.table_id));
-		
+
 		//name
 		form.view_name.focus();
 		form.view_name.value = view.name;
@@ -798,7 +803,7 @@ function BxInterfaceGrid(table_id)
 			for(var i in this.oColsMeta)
 				aVisCols[aVisCols.length] = i;
 		}
-			
+
 		var oVisCols = {};
 		for(var i=0, n=aVisCols.length; i<n; i++)
 			oVisCols[aVisCols[i]] = true;
@@ -813,14 +818,14 @@ function BxInterfaceGrid(table_id)
 		jsSelectUtils.deleteAllOptions(form.view_cols);
 		for(var i in oVisCols)
 			form.view_cols.options[form.view_cols.length] = new Option(this.oColsNames[i], i, false, false);
-				
+
 		//sorting
 		jsSelectUtils.selectOption(form.view_sort_by, view.sort_by);
 		jsSelectUtils.selectOption(form.view_sort_order, view.sort_order);
-		
+
 		//page size
 		jsSelectUtils.selectOption(form.view_page_size, view.page_size);
-		
+
 		//saved filter
 		jsSelectUtils.deleteAllOptions(form.view_filters);
 		form.view_filters.options[0] = new Option(this.vars.mess.viewsFilter, '');
@@ -849,24 +854,24 @@ function BxInterfaceGrid(table_id)
 			'page_size': form.view_page_size.value,
 			'saved_filter': form.view_filters.value
 		};
-			
+
 		BX.ajax.post('/bitrix/components'+_this.vars.component_path+'/settings.php', data);
 
 		return data;
 	}
-	
+
 	this.ReloadViews = function()
 	{
-		if(_this.bViewsChanged) 
+		if(_this.bViewsChanged)
 			_this.Reload();
 	}
-	
+
 	this.ShowViews = function()
 	{
 		this.bViewsChanged = false;
 		var bCreated = false;
 		if(!window['viewsDialog'+this.table_id])
-		{		
+		{
 			var applyBtn = new BX.CWindowButton({
 				'title': this.vars.mess.viewsApply,
 				'hint': this.vars.mess.viewsApplyTitle,
@@ -874,14 +879,14 @@ function BxInterfaceGrid(table_id)
 					var form = document['views_'+_this.table_id];
 					if(form.views_list.selectedIndex != -1)
 						_this.SetView(form.views_list.value);
-					
+
 					window['bxGrid_'+_this.table_id].bViewsChanged = false;
 					this.parentWindow.Close();
 				}
 			});
-		
+
 			window['viewsDialog'+this.table_id] = new BX.CDialog({
-				'content':'<form name="views_'+this.table_id+'"></form>', 
+				'content':'<form name="views_'+this.table_id+'"></form>',
 				'title': this.vars.mess.viewsTitle,
 				'buttons': [applyBtn, BX.CDialog.prototype.btnClose],
 				'width': this.vars.viewsWndSize.width,
@@ -890,10 +895,10 @@ function BxInterfaceGrid(table_id)
 			});
 
 			BX.addCustomEvent(window['viewsDialog'+this.table_id], 'onWindowUnRegister', this.ReloadViews);
-			
+
 			bCreated = true;
 		}
-		
+
 		window['viewsDialog'+this.table_id].Show();
 
 		var form = document['views_'+this.table_id];
@@ -1047,7 +1052,7 @@ function BxInterfaceGrid(table_id)
 				}
 			}
 		}
-		
+
 		var row = BX('flt_row_'+this.table_id+'_'+row_id);
 		row.style.display = (this.oFilterRows[row_id]? 'none':'');
 		this.oFilterRows[row_id] = (this.oFilterRows[row_id]? false:true);
@@ -1055,12 +1060,14 @@ function BxInterfaceGrid(table_id)
 		var a = BX('a_minmax_'+this.table_id);
 		if(a && a.className.indexOf('bx-filter-max') != -1)
 			this.SwitchFilter(a);
-		
+
 		this.SaveFilterRows();
 	}
 
 	this.SwitchFilterRows = function(on)
 	{
+		this.menu.PopupHide();
+
 		var i=0;
 		for(var id in this.oFilterRows)
 		{
@@ -1081,7 +1088,7 @@ function BxInterfaceGrid(table_id)
 				break;
 			mnu[i].ICONCLASS = (on? 'checked':'');
 		}
-		
+
 		var a = BX('a_minmax_'+this.table_id);
 		if(a && a.className.indexOf('bx-filter-max') != -1)
 			this.SwitchFilter(a);
@@ -1104,10 +1111,10 @@ function BxInterfaceGrid(table_id)
 		var on = (a.className.indexOf('bx-filter-min') != -1);
 		a.className = (on? 'bx-filter-btn bx-filter-max' : 'bx-filter-btn bx-filter-min');
 		a.title = (on? this.vars.mess.filterShow : this.vars.mess.filterHide);
-		
+
 		var row = BX('flt_content_'+this.table_id);
 		row.style.display = (on? 'none':'');
-		
+
 		BX.ajax.get('/bitrix/components'+this.vars.component_path+'/settings.php?GRID_ID='+this.table_id+'&action=filterswitch&show='+(on? 'N':'Y')+'&sessid='+this.vars.sessid);
 	}
 
@@ -1147,7 +1154,7 @@ function BxInterfaceGrid(table_id)
 	{
 		var bCreated = false;
 		if(!window['filtersDialog'+this.table_id])
-		{		
+		{
 			var applyBtn = new BX.CWindowButton({
 				'title': this.vars.mess.filtersApply,
 				'hint': this.vars.mess.filtersApplyTitle,
@@ -1158,9 +1165,9 @@ function BxInterfaceGrid(table_id)
 					this.parentWindow.Close();
 				}
 			});
-		
+
 			window['filtersDialog'+this.table_id] = new BX.CDialog({
-				'content':'<form name="filters_'+this.table_id+'"></form>', 
+				'content':'<form name="filters_'+this.table_id+'"></form>',
 				'title': this.vars.mess.filtersTitle,
 				'buttons': [applyBtn, BX.CDialog.prototype.btnClose],
 				'width': this.vars.filtersWndSize.width,
@@ -1170,7 +1177,7 @@ function BxInterfaceGrid(table_id)
 
 			bCreated = true;
 		}
-		
+
 		window['filtersDialog'+this.table_id].Show();
 
 		var form = document['filters_'+this.table_id];
@@ -1185,19 +1192,19 @@ function BxInterfaceGrid(table_id)
 		var filter_id = 'filter_'+Math.round(Math.random()*1000000);
 		var filter = {'name':this.vars.mess.filtersNew, 'fields':fields};
 
-		this.ShowFilterSettings(filter, 
+		this.ShowFilterSettings(filter,
 			function()
 			{
 				var data = _this.SaveFilter(filter_id);
 
 				_this.oOptions.filters[filter_id] = {
-					'name':data.name, 
+					'name':data.name,
 					'fields':data.fields
 				};
 
 				var form = document['filters_'+_this.table_id];
 				form.filters_list.options[form.filters_list.length] = new Option((data.name != ''? data.name:_this.vars.mess.viewsNoName), filter_id, true, true);
-				
+
 				if(_this.filterMenu.length == 4) //no saved filters
 					_this.filterMenu = BX.util.insertIntoArray(_this.filterMenu, 1, {'SEPARATOR':true});
 				var mnuItem = {'ID': 'mnu_'+_this.table_id+'_'+filter_id, 'TEXT': BX.util.htmlspecialchars(data.name), 'TITLE': _this.vars.mess.ApplyTitle, 'ONCLICK':'bxGrid_'+_this.table_id+'.ApplyFilter(\''+filter_id+'\')'};
@@ -1205,7 +1212,7 @@ function BxInterfaceGrid(table_id)
 			}
 		);
 	}
-	
+
 	this.AddFilterAs = function()
 	{
 		var form = document.forms['filter_'+this.table_id];
@@ -1216,19 +1223,19 @@ function BxInterfaceGrid(table_id)
 
 	this.EditFilter = function(filter_id)
 	{
-		this.ShowFilterSettings(this.oOptions.filters[filter_id], 
+		this.ShowFilterSettings(this.oOptions.filters[filter_id],
 			function()
 			{
 				var data = _this.SaveFilter(filter_id);
 
 				_this.oOptions.filters[filter_id] = {
-					'name':data.name, 
+					'name':data.name,
 					'fields':data.fields
 				};
 
 				var form = document['filters_'+_this.table_id];
 				form.filters_list.options[form.filters_list.selectedIndex].text = (data.name != ''? data.name:_this.vars.mess.viewsNoName);
-				
+
 				for(var i=0, n=_this.filterMenu.length; i<n; i++)
 				{
 					if(_this.filterMenu[i].ID && _this.filterMenu[i].ID == 'mnu_'+_this.table_id+'_'+filter_id)
@@ -1245,7 +1252,7 @@ function BxInterfaceGrid(table_id)
 	{
 		if(!confirm(this.vars.mess.filtersDelete))
 			return;
-		
+
 		var form = document['filters_'+this.table_id];
 		var index = form.filters_list.selectedIndex;
 		form.filters_list.remove(index);
@@ -1261,19 +1268,19 @@ function BxInterfaceGrid(table_id)
 				break;
 			}
 		}
-		
+
 		delete this.oOptions.filters[filter_id];
 
 		BX.ajax.get('/bitrix/components'+this.vars.component_path+'/settings.php?GRID_ID='+this.table_id+'&action=delfilter&filter_id='+filter_id+'&sessid='+_this.vars.sessid);
 	}
-	
+
 	this.ShowFilterSettings = function(filter, action)
 	{
 		var bCreated = false;
 		if(!window['filterSettingsDialog'+this.table_id])
-		{		
+		{
 			window['filterSettingsDialog'+this.table_id] = new BX.CDialog({
-				'content':'<form name="flt_settings_'+this.table_id+'"></form>', 
+				'content':'<form name="flt_settings_'+this.table_id+'"></form>',
 				'title': this.vars.mess.filterSettingsTitle,
 				'width': this.vars.filterSettingWndSize.width,
 				'height': this.vars.filterSettingWndSize.height,
@@ -1281,7 +1288,7 @@ function BxInterfaceGrid(table_id)
 			});
 			bCreated = true;
 		}
-		
+
 		window['filterSettingsDialog'+this.table_id].ClearButtons();
 		window['filterSettingsDialog'+this.table_id].SetButtons([
 			{
@@ -1294,15 +1301,15 @@ function BxInterfaceGrid(table_id)
 			BX.CDialog.prototype.btnCancel
 		]);
 		window['filterSettingsDialog'+this.table_id].Show();
-		
+
 		var form = document['flt_settings_'+this.table_id];
 
 		if(bCreated)
 			form.appendChild(BX('filter_settings_'+this.table_id));
-		
+
 		form.filter_name.focus();
 		form.filter_name.value = filter.name;
-		
+
 		this.SetFilterFields(form, filter.fields);
 	}
 
@@ -1311,12 +1318,12 @@ function BxInterfaceGrid(table_id)
 		for(var i=0, n = form.elements.length; i<n; i++)
 		{
 			var el = form.elements[i];
-			
+
 			if(el.name == 'filter_name')
 				continue;
-				
+
 			var val = fields[el.name] || '';
-			
+
 			switch(el.type.toLowerCase())
 			{
 				case 'select-one':
@@ -1355,10 +1362,10 @@ function BxInterfaceGrid(table_id)
 		for(var i=0, n = form.elements.length; i<n; i++)
 		{
 			var el = form.elements[i];
-			
+
 			if(el.name == 'filter_name')
 				continue;
-			
+
 			switch(el.type.toLowerCase())
 			{
 				case 'select-one':
@@ -1396,20 +1403,18 @@ function BxInterfaceGrid(table_id)
 			'name': form.filter_name.value,
 			'fields': this.GetFilterFields(form)
 		};
-			
+
 		BX.ajax.post('/bitrix/components'+_this.vars.component_path+'/settings.php', data);
 
 		return data;
 	}
-	
+
 	this.ApplyFilter = function(filter_id)
 	{
 		var form = document.forms['filter_'+this.table_id];
 		this.SetFilterFields(form, this.oOptions.filters[filter_id].fields);
 
-		if(form.onsubmit)
-			form.onsubmit();
-		form.submit();
+		BX.submit(form);
 	}
 
 	this.OnDateChange = function(sel)
@@ -1424,7 +1429,7 @@ function BxInterfaceGrid(table_id)
 			bShowFrom = true;
 		else if(sel.value == 'days')
 			bShowDays = true;
-	
+
 		BX.findNextSibling(sel, {'tag':'span', 'class':'bx-filter-from'}).style.display = (bShowFrom? '':'none');
 		BX.findNextSibling(sel, {'tag':'span', 'class':'bx-filter-to'}).style.display = (bShowTo? '':'none');
 		BX.findNextSibling(sel, {'tag':'span', 'class':'bx-filter-hellip'}).style.display = (bShowHellip? '':'none');

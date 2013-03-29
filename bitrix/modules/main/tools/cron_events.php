@@ -13,4 +13,6 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.ph
 @ignore_user_abort(true);
 
 CEvent::CheckEvents();
+
+require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/tools/backup.php");
 ?>

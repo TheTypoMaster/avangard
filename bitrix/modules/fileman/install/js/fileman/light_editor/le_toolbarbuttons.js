@@ -380,18 +380,25 @@ LHEButtons['Strike'] = {
 			pElement = pBut.pLEditor.GetSelectionObject(),
 			arNodes = [];
 
-		if (pElement)
+		if (pElement && pElement.nodeName)
 		{
-			var arNodes = BX.findChildren(pElement, {tagName: 'del'}, true);
-			if (!arNodes || !arNodes.length)
-				arNodes = [];
+			if (pElement.nodeName.toLowerCase() == 'body')
+			{
+				// Body ?
+			}
+			else
+			{
+				var arNodes = BX.findChildren(pElement, {tagName: 'del'}, true);
+				if (!arNodes || !arNodes.length)
+					arNodes = [];
 
-			var pPar = BX.findParent(pElement, {tagName: 'del'});
-			if (pPar)
-				arNodes.push(pPar);
+				var pPar = BX.findParent(pElement, {tagName: 'del'});
+				if (pPar)
+					arNodes.push(pPar);
 
-			if (pElement.nodeName && pElement.nodeName.toLowerCase() == 'del')
-				arNodes.push(pElement);
+				if (pElement.nodeName.toLowerCase() == 'del')
+					arNodes.push(pElement);
+			}
 		}
 
 		if (arNodes && arNodes.length > 0)
@@ -456,13 +463,14 @@ LHEButtons['Quote'] = {
 				res = document.selection.createRange().text;
 			else if (window.getSelection)
 				res = window.getSelection().toString();
+			res = res.replace(/\n/g, '<br />');
 
 			var strId = '';
 			if (!pBut.pLEditor.bBBCode)
 				strId = " id\"=" + pBut.pLEditor.SetBxTag(false, {tag: "quote"}) + "\"";
 
 			if (res && res.length > 0)
-				return pBut.pLEditor.InsertHTML('<blockquote class="bx-quote"' + strId + ">" + res + "</blockquote>");
+				return pBut.pLEditor.InsertHTML('<blockquote class="bx-quote"' + strId + ">" + res + "</blockquote><br/>");
 		}
 
 		// Catch all blockquotes
@@ -494,6 +502,13 @@ LHEButtons['Quote'] = {
 					arBQ[i].className = "bx-quote";
 					arBQ[i].id = pBut.pLEditor.SetBxTag(false, {tag: "quote"});
 				}
+				try{arBQ[i].setAttribute("style", '');}catch(e){}
+
+				if (!arBQ[i].nextSibling)
+					arBQ[i].parentNode.appendChild(BX.create("BR", {}, pBut.pLEditor.pEditorDocument));
+
+				if (arBQ[i].previousSibling && arBQ[i].previousSibling.nodeName && arBQ[i].previousSibling.nodeName.toLowerCase() == 'blockquote')
+					arBQ[i].parentNode.insertBefore(BX.create("BR", {}, pBut.pLEditor.pEditorDocument), arBQ[i]);
 			}
 		}, 10);
 	},
@@ -518,7 +533,12 @@ LHEButtons['Quote'] = {
 			Parse: function(sName, sContent, pLEditor)
 			{
 				sContent = sContent.replace(/\[quote\]/ig, '<blockquote class="bx-quote" id="' + pLEditor.SetBxTag(false, {tag: "quote"}) + '">');
+				// Add additional <br> after "quote" in the end of the text
+				sContent = sContent.replace(/\[\/quote\]$/ig, '</blockquote><br/>');
+				// Add additional <br> between two quotes
+				sContent = sContent.replace(/\[\/quote\](<blockquote)/ig, "</blockquote><br/>$1");
 				sContent = sContent.replace(/\[\/quote\]/ig, '</blockquote>');
+
 				return sContent;
 			},
 			UnParse: function(bxTag, pNode, pLEditor)
@@ -659,10 +679,10 @@ LHEButtons['Justify'] =
 	{
 		pList.arJustifyInd = {justifyleft: 0, justifycenter: 1, justifyright: 2, justifyfull: 3};
 		pList.arJustify = [
-			{id : 'JustifyLeft', name : LHE_MESS.JustifyLeft, cmd : 'JustifyLeft'},
-			{id : 'JustifyCenter', name : LHE_MESS.JustifyCenter, cmd : 'JustifyCenter'},
-			{id : 'JustifyRight', name : LHE_MESS.JustifyRight, cmd : 'JustifyRight'},
-			{id : 'JustifyFull', name : LHE_MESS.JustifyFull, cmd : 'JustifyFull'}
+			{id : 'JustifyLeft', name : LHE_MESS.JustifyLeft, cmd : 'JustifyLeft', bb: 'LEFT'},
+			{id : 'JustifyCenter', name : LHE_MESS.JustifyCenter, cmd : 'JustifyCenter', bb: 'CENTER'},
+			{id : 'JustifyRight', name : LHE_MESS.JustifyRight, cmd : 'JustifyRight', bb: 'RIGHT'},
+			{id : 'JustifyFull', name : LHE_MESS.JustifyFull, cmd : 'JustifyFull', bb: 'JUSTIFY'}
 		];
 
 		var l = pList.arJustify.length, i;
@@ -684,7 +704,9 @@ LHEButtons['Justify'] =
 			pList.arJustify[i].pIcon.onmouseout = function(){BX.removeClass(this, "lhe-tlbr-just-over");};
 			pList.arJustify[i].pIcon.onmousedown = function()
 			{
-				pList.pLEditor.SelectRange(pList.pLEditor.oPrevRange);
+				if(pList.pLEditor.sEditorMode != 'code') // Exec command for WYSIWYG
+					pList.pLEditor.SelectRange(pList.pLEditor.oPrevRange);
+
 				var ind = pList.arJustifyInd[this.id.substr("lhe_btn_".length)];
 				pList.oBut.SetJustify(pList.arJustify[ind], pList);
 			};
@@ -699,13 +721,78 @@ LHEButtons['Justify'] =
 		// 2. Set selected
 		pList.selected = Justify;
 
-		// Exec command
-		if(pList.pLEditor.sEditorMode != 'code')
+		// Exec command for BB codes
+		if (pList.pLEditor.sEditorMode == 'code' && pList.pLEditor.bBBCode)
+			pList.pLEditor.FormatBB({tag: Justify.bb});
+		else if(pList.pLEditor.sEditorMode != 'code') // Exec command for WYSIWYG
+		{
 			pList.pLEditor.executeCommand(Justify.cmd);
+			if (pList.pLEditor.bBBCode)
+			{
+				setTimeout(function()
+				{
+					var
+						i, node,
+						arNodes = [],
+						arDiv = pList.pLEditor.pEditorDocument.getElementsByTagName("DIV"),
+						arP = pList.pLEditor.pEditorDocument.getElementsByTagName("P");
+
+					for(i = 0; i < arDiv.length; i++)
+						arNodes.push(arDiv[i]);
+					for(i = 0; i < arP.length; i++)
+						arNodes.push(arP[i]);
+
+					for(i = 0; i < arNodes.length; i++)
+					{
+						node = arNodes[i];
+						if (node && node.nodeType == 1 && node.childNodes.length > 0 && node.getAttribute("align"))
+							node.innerHTML = node.innerHTML.replace(/<span[^>]*?text-align[^>]*?>((?:\s|\S)*?)<\/span>/ig, "$1");
+					}
+				}, 100);
+			}
+		}
 
 		// Close
 		if (pList.bOpened)
 			pList.Close();
+	},
+	parser: {
+		name: 'align',
+		obj:{
+			Parse: function(sName, sContent, pLEditor)
+			{
+				if (BX.browser.IsIE())
+					sContent = sContent.replace(/<span[^>]*?text\-align\:((?:\s|\S)*?);display\:block;[^>]*?>((?:\s|\S)*?)<\/span>/ig, "<p align=\"$1\">$2</p>");
+
+				if (!pLEditor.bBBCode)
+					return sContent;
+
+				var align, key, arJus = ['left', 'right', 'center', 'justify'];
+
+				for(key in arJus)
+				{
+					align = arJus[key];
+					sContent = sContent.replace(new RegExp(BX.util.preg_quote("\[" + align + "\]"), "ig"), '<div align="' + align + '" id="' + pLEditor.SetBxTag(false, {tag: 'align'}) + '">');
+					sContent = sContent.replace(new RegExp(BX.util.preg_quote("\[\/" + align + "\]"), "ig"), '</div>');
+				}
+				return sContent;
+			},
+			UnParse: function(bxTag, pNode, pLEditor)
+			{
+				// Called only for BB codes
+				if (bxTag.tag == 'align' && (pNode.arAttributes.align || pNode.arStyle.textAlign))
+				{
+					var align = pNode.arStyle.textAlign || pNode.arAttributes.align;
+					align = align.toUpperCase();
+					var i, l = pNode.arNodes.length, res = "[" + align + "]";
+					for (i = 0; i < l; i++)
+						res += pLEditor._RecursiveGetHTML(pNode.arNodes[i]);
+					res += "[/" + align + "]";
+					return res;
+				}
+				return "";
+			}
+		}
 	}
 };
 
@@ -838,7 +925,7 @@ LHEButtons['Video'] = {
 
 				if (arParams['flashvars']) // FLV
 				{
-					str = '<embed src="/bitrix/components/bitrix/player/mediaplayer/player.swf" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" pluginspage="http:/' + '/www.macromedia.com/go/getflashplayer" ';
+					str = '<embed src="/bitrix/components/bitrix/player/mediaplayer/player" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" pluginspage="http:/' + '/www.macromedia.com/go/getflashplayer" ';
 					str += 'id="' + arParams.id + '" ';
 					if (arVidConf.WMode)
 						str += 'WMode="' + arVidConf.WMode + '" ';
@@ -897,6 +984,12 @@ LHEButtons['SmileList'] = {
 	name : LHE_MESS.SmileList,
 	bBBShow: true,
 	type: 'List',
+	OnBeforeCreate: function(pLEditor, pBut)
+	{
+		if (pLEditor.arConfig.arSmiles.length <= 0)
+			return false;
+		return pBut;
+	},
 	OnAfterCreate: function(pLEditor, pList)
 	{
 		var n = parseInt(pLEditor.arConfig.smileCountInToolbar);
@@ -905,7 +998,7 @@ LHEButtons['SmileList'] = {
 		{
 			var
 				arSmiles = pLEditor.arConfig.arSmiles,
-				l = arSmiles.length,
+				i, l = arSmiles.length,
 				smileTable = pList.pWnd.parentNode.appendChild(BX.create("TABLE", {props: {className: "lhe-smiles-tlbr-table"}})),
 				r = smileTable.insertRow(-1),
 				pImg, oSmile, pSmile, k, arImg = [];
@@ -943,28 +1036,37 @@ LHEButtons['SmileList'] = {
 				var i, n = arImg.length;
 				for (i = 0; i < n; i++)
 				{
-					var
-						h = arImg[i].offsetHeight,
-						w = arImg[i].offsetWidth;
-
-					if (h > 20)
-					{
-						arImg[i].style.height = "20px";
-						arImg[i].height = "20";
-						h = 20;
-					}
-
-					arImg[i].style.marginTop = Math.round((20 - h) / 2) + "px";
-
-					if (w > 20)
-					{
-						arImg[i].parentNode.style.width = arImg[i].offsetWidth + "px";
-						w = 20;
-					}
-					arImg[i].style.marginLeft = Math.round((20 - w) / 2) + "px";
-					arImg[i].style.visibility = "visible";
+					arImg[i].removeAttribute('height');
+					arImg[i].style.height = 'auto';
+					arImg[i].style.width = 'auto';
 				}
-				smileTable.parentNode.style.width = (parseInt(smileTable.offsetWidth) + 16 /*left margin*/) + "px";
+
+				setTimeout(function(){
+					for (i = 0; i < n; i++)
+					{
+						var
+							h = arImg[i].offsetHeight,
+							w = arImg[i].offsetWidth;
+
+						if (h > 20)
+						{
+							arImg[i].style.height = "20px";
+							arImg[i].height = "20";
+							h = 20;
+						}
+
+						arImg[i].style.marginTop = Math.round((20 - h) / 2) + "px";
+
+						if (w > 20)
+						{
+							arImg[i].parentNode.style.width = arImg[i].offsetWidth + "px";
+							w = 20;
+						}
+						arImg[i].style.marginLeft = Math.round((20 - w) / 2) + "px";
+						arImg[i].style.visibility = "visible";
+					}
+					smileTable.parentNode.style.width = (parseInt(smileTable.offsetWidth) + 16 /*left margin*/) + "px";
+				}, 10);
 			};
 
 			BX.addCustomEvent(pLEditor, 'onShow', function()
@@ -978,8 +1080,11 @@ LHEButtons['SmileList'] = {
 	{
 		var
 			arSmiles = pList.pLEditor.arConfig.arSmiles,
-			l = arSmiles.length,
-			pImg, pSmile, i, oSmile, k;
+			l = arSmiles.length, row,
+		pImg, pSmile, i, oSmile, k;
+
+		if (l <= 0)
+			return;
 
 		pList.pValuesCont.style.width = '100px';
 		pList.oSmiles = {};

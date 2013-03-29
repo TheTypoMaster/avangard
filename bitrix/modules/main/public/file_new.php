@@ -17,7 +17,7 @@ function BXCreateSection(&$fileContent, &$sectionFileContent, &$absoluteFilePath
 	//Create dir
 	if (!$io->CreateDirectory($absoluteFilePath))
 	{
-		$GLOBALS["APPLICATION"]->ThrowException(GetMessage("PAGE_NEW_FOLDER_CREATE_ERROR")."<br /> (".htmlspecialchars($absoluteFilePath).")", "DIR_NOT_CREATE");
+		$GLOBALS["APPLICATION"]->ThrowException(GetMessage("PAGE_NEW_FOLDER_CREATE_ERROR")."<br /> (".htmlspecialcharsbx($absoluteFilePath).")", "DIR_NOT_CREATE");
 		return false;
 	}
 
@@ -32,8 +32,8 @@ function BXCreateSection(&$fileContent, &$sectionFileContent, &$absoluteFilePath
 	else
 	{
 		if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
-		{	
-			$res_log['path'] = $sectionPath."/index.php";	
+		{
+			$res_log['path'] = $sectionPath."/index.php";
 			CEventLog::Log(
 				"content",
 				"PAGE_ADD",
@@ -94,7 +94,7 @@ if($createNewFolder && (!$USER->CanDoFileOperation("fm_create_new_folder", Array
 elseif(!$USER->CanDoFileOperation("fm_create_new_file", Array($site, $path)))
 	$popupWindow->ShowError(GetMessage("PAGE_NEW_ACCESS_DENIED"));
 elseif(!$io->DirectoryExists($documentRoot.$path))
-	$popupWindow->ShowError(GetMessage("PAGE_NEW_FOLDER_NOT_FOUND")." (".htmlspecialchars($path).")");
+	$popupWindow->ShowError(GetMessage("PAGE_NEW_FOLDER_NOT_FOUND")." (".htmlspecialcharsbx($path).")");
 
 if(!$USER->CanDoFileOperation("fm_edit_existent_file", Array($site, $path)))
 	$canEditNewPage = false;
@@ -358,7 +358,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 			'arContent' => array(
 				'absPath' => $absoluteFilePath,
 				'path' => rtrim($path, "/")."/".$fileName,
-				'site' => $site
+				'site' => $site,
+				'public' => 'Y'
 			)
 		);
 
@@ -372,9 +373,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 	else
 	{
 		if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
-		{	
+		{
 			$res_log['path'] = substr($arUndoParams['arContent']['path'], 1);
-			if (!$createNewFolder)		
+			if (!$createNewFolder)
 				CEventLog::Log(
 					"content",
 					"PAGE_ADD",
@@ -383,7 +384,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 					serialize($res_log)
 				);
 			else
-				 CEventLog::Log(
+				CEventLog::Log(
 					"content",
 					"SECTION_ADD",
 					"main",
@@ -417,7 +418,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 			{
 				$arGroups = $arEditGroups;
 			}
-			
+
 			//write permissions
 			if($arGroups !== false)
 			{
@@ -454,7 +455,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 				'menuName' => $menuName,
 				'menuPath' => $relativePath
 			);
-			
+
 			if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 			{
 				$mt = COption::GetOptionString("fileman", "menutypes", $default_value, $site);
@@ -490,9 +491,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 		structReload('<?=urlencode($pathToEdit)?>');
 	}
 
-	(new BX.CAdminDialog({
+	(new BX.CEditorDialog({
 		content_url: "/bitrix/admin/public_file_edit.php?<?=$_GET['subdialog'] == 'Y' ? "subdialog=Y" : ""?>&bxpublic=Y&lang=<?=CUtil::JSEscape($lang)?>" + "&path=<?=urlencode($pathToEdit)?>&site=<?=urlencode($site)?>&templateID=<?=urlencode($_REQUEST['templateID'])?>&back_url=<?=urlencode($relativePath)?>&edit_new_file_undo=<?= $ID?>",
-		height: 470, 
+		height: 470,
 		width: 780,
 		resizable: true,
 		min_width: 780,
@@ -579,7 +580,7 @@ if (isset($strWarning) && $strWarning != "")
 	$popupWindow->ShowValidationError($strWarning);
 ?>
 
-<p><?=GetMessage("PAGE_NEW_SUB_TITLE")?> <b><?=htmlspecialchars($path)?></b></p>
+<p><?=GetMessage("PAGE_NEW_SUB_TITLE")?> <b><?=htmlspecialcharsbx($path)?></b></p>
 
 <?if (IsModuleInstalled("fileman")):?>
 	<?if ($createNewFolder):?>
@@ -652,7 +653,7 @@ if($bInEditGroups || $bAdmin):
 					<input type="radio" name="limitAccessWho" value="editors" checked="checked" id="bx_acc_lim_who_editors" onclick="BXLimitAccessWho(this.checked);"/>
 					<label for="bx_acc_lim_who_editors"><?= GetMessage("PAGE_NEW_LIMIT_ACCESS_EDITORS")?> (<a href="/bitrix/admin/settings.php?lang=<?=LANGUAGE_ID?>&amp;mid=fileman&amp;tabControl_active_tab=edit3#limitaccess" target="_blank"><?echo GetMessage("page_new_limit_settings")?></a>)</label>
 				</div>
-	
+
 				<div style="margin-top:2px">
 					<input type="radio" name="limitAccessWho" value="extended" id="bx_acc_lim_who_extended" onclick="BXLimitAccessWho(!this.checked);"/>
 					<label for="bx_acc_lim_who_extended"><?= GetMessage("PAGE_NEW_LIMIT_ACCESS_EXTENDED")?></label>
@@ -696,7 +697,7 @@ endif; //!empty($arEditGroups) || $bAdmin
 		<td>
 			<select id="bx_menu_type" id="menuType" name="menuType" style="width:50%" onchange="BXChangeMenuType(this.options[this.selectedIndex].value, true)">
 			<?foreach ($arMenu as $type => $arMenuProp):?>
-				<option value="<?=htmlspecialchars($type)?>" <?=($menuType == $type ? "selected" : "")?>><?=htmlspecialcharsEx($arMenuProp["NAME"])?></option>
+				<option value="<?=htmlspecialcharsbx($type)?>" <?=($menuType == $type ? "selected" : "")?>><?=htmlspecialcharsEx($arMenuProp["NAME"])?></option>
 			<?endforeach?>
 			</select>
 		</td>
@@ -898,7 +899,7 @@ window.BXFirstStepNext = function(wizard)
 	if (!addToMenu || !addToMenu.checked)
 	{
 		wizard.SetCurrentStep("bx_new_page_menu");
-		
+
 		if(!bTemplateWiz)
 			wizard.SetCurrentStep("bx_new_page_template");
 
@@ -956,7 +957,7 @@ window.BXPropStepPrev = function(wizard)
 {
 	var addToMenu = BX("bx_add_to_menu");
 	var bTemplateWiz = <?=($wiz_template_html <> ''? 'true':'false')?>;
-	
+
 	if(!bTemplateWiz)
 	{
 		wizard.SetCurrentStep("bx_new_page_template");
@@ -1200,4 +1201,6 @@ window.bxNewPageWizard.AddStep("bx_new_page_prop", {
 window.bxNewPageWizard.Display();
 </script>
 
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");?>
+<?
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
+?>

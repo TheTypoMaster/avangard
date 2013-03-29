@@ -351,8 +351,8 @@ function BXFormElementsTaskbar()
 						row_num = obj_params[obj_params.length-2];
 						row_fld = obj_params[obj_params.length-1];
 
-						var fld_value = (obj.type != "checkbox" && obj.type != "radio") 
-							? obj.value 
+						var fld_value = (obj.type != "checkbox" && obj.type != "radio")
+							? obj.value
 							: (obj.checked ? "Y" : "N");
 
 						if (oForm.arQuestions[element_index][_i][row_num] == null)
@@ -539,9 +539,9 @@ function BXFormElementsTaskbar()
 							}
 							else
 							{
-								var bChecked = oForm.arQuestions[element_index][_i][_j]['FIELD_PARAM'] == "CHECKED" || oForm.arQuestions[element_index][_i][_j]['FIELD_PARAM'] == "SELECTED";
+								var bChecked = /CHECKED|SELECTED/i.test(oForm.arQuestions[element_index][_i][_j]['FIELD_PARAM']);
 							}
-							
+
 							__input.checked = bChecked;
 							__input.defaultChecked = bChecked;
 

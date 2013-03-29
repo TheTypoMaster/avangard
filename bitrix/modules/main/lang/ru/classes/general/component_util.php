@@ -59,4 +59,7 @@ $MESS["COMP_PARAM_CACHE_AUTO_OFF"] = "<span style=\"color:red\">выключено</span>
 $MESS["COMP_PARAM_CACHE_MANAGED_ON"] = "включен";
 $MESS["COMP_PARAM_CACHE_MANAGED_OFF"] = "<span style=\"color:red\">выключен</span>";
 $MESS["COMP_PARAM_CACHE_MAN"] = "+ Управляемое";
+$MESS["COMP_PARAM_DATE_FORMAT_SITE"] = "Формат сайта";
+$MESS["COMP_PARAM_DATETIME_FORMAT_SITE"] = "Формат сайта (включая время)";
+$MESS["COMP_PARAM_NAME_FORMAT_SITE"] = "Формат сайта";
 ?>

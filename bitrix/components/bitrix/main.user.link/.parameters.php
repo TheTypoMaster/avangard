@@ -61,18 +61,19 @@ if ($bSocNet)
 }
 
 $arNameTemplate = array(
-	'#NOBR##LAST_NAME# #NAME##/NOBR#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SMITH_JOHN'),
-	'#NOBR##LAST_NAME# #NAME##/NOBR# #SECOND_NAME#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SMITH_JOHN_LLOYD'),
-	'#LAST_NAME#, #NOBR##NAME# #SECOND_NAME##/NOBR#' => GetMessage('IMAIN_UL_P_NAME_TEMPLATE_SMITH_COMMA_JOHN_LLOYD'),
+	'#LAST_NAME# #NAME#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SMITH_JOHN'),
+	'#LAST_NAME# #NAME# #SECOND_NAME#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SMITH_JOHN_LLOYD'),
+	'#LAST_NAME#, #NAME# #SECOND_NAME#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SMITH_COMMA_JOHN_LLOYD'),
 	'#NAME# #SECOND_NAME# #LAST_NAME#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_JOHN_LLOYD_SMITH'),
-	'#NOBR##NAME_SHORT# #SECOND_NAME_SHORT# #LAST_NAME##/NOBR#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_J_L_SMITH'),
-	'#NOBR##NAME_SHORT# #LAST_NAME##/NOBR#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_J_SMITH'),
-	'#NOBR##LAST_NAME# #NAME_SHORT##/NOBR#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SMITH_J'),
-	'#NOBR##LAST_NAME# #NAME_SHORT# #SECOND_NAME_SHORT##/NOBR#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SMITH_J_L'),
-	'#NOBR##LAST_NAME#, #NAME_SHORT##/NOBR#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SMITH_COMMA_J'),
-	'#NOBR##LAST_NAME#, #NAME_SHORT# #SECOND_NAME_SHORT##/NOBR#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SMITH_COMMA_J_L'),
-	'#NOBR##NAME# #LAST_NAME##/NOBR#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_JOHN_SMITH'),
-	'#NOBR##NAME# #SECOND_NAME_SHORT# #LAST_NAME##/NOBR#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_JOHN_L_SMITH'),
+	'#NAME_SHORT# #SECOND_NAME_SHORT# #LAST_NAME#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_J_L_SMITH'),
+	'#NAME_SHORT# #LAST_NAME#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_J_SMITH'),
+	'#LAST_NAME# #NAME_SHORT#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SMITH_J'),
+	'#LAST_NAME# #NAME_SHORT# #SECOND_NAME_SHORT#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SMITH_J_L'),
+	'#LAST_NAME#, #NAME_SHORT#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SMITH_COMMA_J'),
+	'#LAST_NAME#, #NAME_SHORT# #SECOND_NAME_SHORT#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SMITH_COMMA_J_L'),
+	'#NAME# #LAST_NAME#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_JOHN_SMITH'),
+	'#NAME# #SECOND_NAME_SHORT# #LAST_NAME#' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_JOHN_L_SMITH'),
+	'' => GetMessage('MAIN_UL_P_NAME_TEMPLATE_SITE')
 );
 
 $arComponentParameters = array(
@@ -83,7 +84,7 @@ $arComponentParameters = array(
 			"NAME" => GetMessage("MAIN_UL_P_USER_ID"),
 			"TYPE" => "STRING",
 			"MULTIPLE" => "N",
-			"DEFAULT" => "",	
+			"DEFAULT" => "",
 		),
 		'NAME_TEMPLATE' => array(
 			'TYPE' => 'LIST',
@@ -91,13 +92,13 @@ $arComponentParameters = array(
 			'VALUES' => $arNameTemplate,
 			'MULTIPLE' => 'N',
 			'ADDITIONAL_VALUES' => 'Y',
-			'DEFAULT' => "#NOBR##LAST_NAME# #NAME##/NOBR#",
+			'DEFAULT' => "",
 			'PARENT' => 'BASE',
 		),
 		'SHOW_LOGIN' => array(
 			'TYPE' => 'CHECKBOX',
 			'NAME' => GetMessage('MAIN_UL_P_SHOW_LOGIN'),
-			'VALUE' => 'Y',			
+			'VALUE' => 'Y',
 			'DEFAULT' => 'Y',
 			'PARENT' => 'BASE',
 		),
@@ -112,24 +113,24 @@ $arComponentParameters = array(
 );
 
 if ($arCurrentValues["USE_THUMBNAIL_LIST"] == "Y"):
-	$arComponentParameters["PARAMETERS"]["THUMBNAIL_LIST_SIZE"] = array(		
+	$arComponentParameters["PARAMETERS"]["THUMBNAIL_LIST_SIZE"] = array(
 		"PARENT" => "VISUAL",
 		"NAME" => GetMessage("MAIN_UL_P_THUMBNAIL_SIZE_SMALL"),
 		"TYPE" => "STRING",
 		"MULTIPLE" => "N",
-		"DEFAULT" => "30",	
+		"DEFAULT" => "30",
 	);
-endif;	
+endif;
 
 if ($bSocNet && CModule::IncludeModule('socialnetwork')):
 
-	if (in_array("PERSONAL_PHOTO", $arCurrentValues['SHOW_FIELDS'])):
+	if (is_array($arCurrentValues['SHOW_FIELDS']) && in_array("PERSONAL_PHOTO", $arCurrentValues['SHOW_FIELDS'])):
 		$arComponentParameters["PARAMETERS"]["THUMBNAIL_DETAIL_SIZE"] = array(
 			"PARENT" => "VISUAL",
 			"NAME" => GetMessage("MAIN_UL_P_THUMBNAIL_SIZE_LARGE"),
 			"TYPE" => "STRING",
 			"MULTIPLE" => "N",
-			"DEFAULT" => "100",	
+			"DEFAULT" => "100",
 		);
 	endif;
 
@@ -162,8 +163,8 @@ if ($bSocNet && CModule::IncludeModule('socialnetwork')):
 		);
 		$arUserPropsDef = array();
 	}
-	
-	$arComponentParameters["PARAMETERS"]["SHOW_FIELDS"] = array(		
+
+	$arComponentParameters["PARAMETERS"]["SHOW_FIELDS"] = array(
 		"PARENT" => "BASE",
 		"NAME" => GetMessage("MAIN_UL_P_SHOW_FIELDS"),
 		"TYPE" => "LIST",
@@ -172,7 +173,7 @@ if ($bSocNet && CModule::IncludeModule('socialnetwork')):
 		"DEFAULT" => $arUserFieldsDef,
 		"REFRESH" => 'Y'
 	);
-	$arComponentParameters["PARAMETERS"]["USER_PROPERTY"] = array(	
+	$arComponentParameters["PARAMETERS"]["USER_PROPERTY"] = array(
 		"PARENT" => "BASE",
 		"NAME" => GetMessage("MAIN_UL_P_USER_PROPERTY"),
 		"TYPE" => "LIST",
@@ -180,7 +181,7 @@ if ($bSocNet && CModule::IncludeModule('socialnetwork')):
 		"MULTIPLE" => "Y",
 		"DEFAULT" => $arUserPropsDef,
 	);
-	$arComponentParameters["PARAMETERS"]["PATH_TO_SONET_USER_PROFILE"] = array(		
+	$arComponentParameters["PARAMETERS"]["PATH_TO_SONET_USER_PROFILE"] = array(
 		"NAME" => GetMessage("MAIN_UL_P_PATH_TO_SONET_USER_PROFILE"),
 		"TYPE" => "STRING",
 		"MULTIPLE" => "N",
@@ -188,24 +189,24 @@ if ($bSocNet && CModule::IncludeModule('socialnetwork')):
 		"COLS" => 25,
 		"PARENT" => "URL_TEMPLATES",
 	);
-	$arComponentParameters["PARAMETERS"]["PROFILE_URL"] = array(		
+	$arComponentParameters["PARAMETERS"]["PROFILE_URL"] = array(
 		"NAME" => GetMessage("MAIN_UL_P_PROFILE_URL"),
 		"TYPE" => "STRING",
 		"MULTIPLE" => "N",
 		"DEFAULT" => "",
 		"COLS" => 25,
 		"PARENT" => "BASE",
-	);	
-	$arComponentParameters["PARAMETERS"]["DATE_TIME_FORMAT"] = array(		
+	);
+	$arComponentParameters["PARAMETERS"]["DATE_TIME_FORMAT"] = array(
 		"PARENT" => "VISUAL",
 		"NAME" => GetMessage("MAIN_UL_P_DATE_TIME_FORMAT"),
 		"TYPE" => "LIST",
 		"VALUES" => CSocNetTools::GetDateTimeFormat(),
 		"MULTIPLE" => "N",
-		"DEFAULT" => $GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("FULL")),	
+		"DEFAULT" => $GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("FULL")),
 		"ADDITIONAL_VALUES" => "Y",
 	);
-	$arComponentParameters["PARAMETERS"]["SHOW_YEAR"] = array(		
+	$arComponentParameters["PARAMETERS"]["SHOW_YEAR"] = array(
 		"PARENT" => "ADDITIONAL_SETTINGS",
 		"NAME" => GetMessage("MAIN_UL_P_SHOW_YEAR"),
 		"TYPE" => "LIST",
@@ -217,6 +218,6 @@ if ($bSocNet && CModule::IncludeModule('socialnetwork')):
 		"MULTIPLE" => "N",
 		"DEFAULT" => "Y"
 	);
-	
-endif;	
+
+endif;
 ?>

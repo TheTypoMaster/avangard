@@ -16,9 +16,11 @@ class CControllerClient
 	}
 
 	// Controller's authentication
-	function OnExternalLogin($arParams)
+	function OnExternalLogin(&$arParams)
 	{
-		global $USER;
+		global $USER, $APPLICATION;
+		$FORMAT_DATE = false;
+		$FORMAT_DATETIME = false;
 
 		$prefix = COption::GetOptionString("main", "auth_controller_prefix", "controller");
 		if(
@@ -33,48 +35,119 @@ class CControllerClient
 			else
 				$login = substr($arParams["LOGIN"], strlen($prefix)+1);
 			$password = $arParams["PASSWORD"];
-			$arVars = Array("login"=>$login, "password"=>$password);
-			$operation = "check_auth";
+			$arVars = array("login"=>$login, "password"=>$password);
+
+			$oRequest = new CControllerClientRequestTo("check_auth", $arVars);
+			$oResponse = $oRequest->SendWithCheck();
+			if($oResponse == false)
+				return false;
+
+			if(!$oResponse->OK())
+			{
+				$e = new CApplicationException(GetMessage("MAIN_CMEMBER_ERR1").": ".$oResponse->text);
+				$APPLICATION->ThrowException($e);
+				return false;
+			}
+
+			$arUser = $oResponse->arParameters['USER_INFO'];
+
 		}
-		elseif(COption::GetOptionString("main", "auth_controller_sso", "N")=="Y" && strpos($arParams["LOGIN"], "\\")>0)
+		elseif(
+			COption::GetOptionString("main", "auth_controller_sso", "N")=="Y"
+			&& strpos($arParams["LOGIN"], "\\") > 0
+		)
 		{
 			$site = substr($arParams["LOGIN"], 0, strpos($arParams["LOGIN"], "\\"));
 			$login = substr($arParams["LOGIN"], strpos($arParams["LOGIN"], "\\")+1);
 			$password = $arParams["PASSWORD"];
-			$arVars = Array("login"=>$login, "password"=>$password, "site"=>$site);
-			$operation = "remote_auth";
+			$arVars = array("login"=>$login, "password"=>$password, "site"=>$site);
+
+			$oRequest = new CControllerClientRequestTo("remote_auth", $arVars);
+			$oResponse = $oRequest->SendWithCheck();
+			if($oResponse == false)
+				return false;
+
+			if(!$oResponse->OK())
+			{
+				$e = new CApplicationException(GetMessage("MAIN_CMEMBER_ERR1").": ".$oResponse->text);
+				$APPLICATION->ThrowException($e);
+				return false;
+			}
+
+			$arUser = $oResponse->arParameters['USER_INFO'];
+		}
+		elseif(
+			COption::GetOptionString("controller", "auth_controller_enabled", "N") === "Y"
+			&& strpos($arParams["LOGIN"], "\\") > 0
+			&& CModule::IncludeModule("controller")
+		)
+		{
+			$site = substr($arParams["LOGIN"], 0, strpos($arParams["LOGIN"], "\\"));
+			$login = substr($arParams["LOGIN"], strpos($arParams["LOGIN"], "\\")+1);
+			$password = $arParams["PASSWORD"];
+
+			$url = strtolower(trim($site, " \t\r\n./"));
+			if(substr($url, 0, 7) != "http://" && substr($url, 0, 8) != "https://")
+				$url = array("http://".$url, "https://".$url);
+
+			$dbr_mem = CControllerMember::GetList(
+				Array(),
+				Array(
+					"=URL" => $url,
+					"=DISCONNECTED" => "N",
+					"=ACTIVE" => "Y"
+				)
+			);
+			$ar_mem = $dbr_mem->Fetch();
+			if(!$ar_mem)
+				return false;
+
+			$arGroupsMap = unserialize(COption::GetOptionString("controller", "auth_controller", serialize(array())));
+			$res = CControllerMember::CheckUserAuth($ar_mem["ID"], $login, $password, $arGroupsMap);
+
+			if(!is_array($res))
+				return false;
+
+			$arUser = $res['USER_INFO'];
+			if(is_array($arUser))
+				$arUser["CONTROLLER_ADMIN"] = "N";
+			if (isset($res["FORMAT_DATE"]))
+				$FORMAT_DATE = $res["FORMAT_DATE"];
+			if (isset($res["FORMAT_DATETIME"]))
+				$FORMAT_DATETIME = $res["FORMAT_DATETIME"];
 		}
 		else
-			return false;
-
-		$oRequest = new CControllerClientRequestTo($operation, $arVars);
-		if(($oResponse = $oRequest->SendWithCheck())==false)
-			return false;
-
-		if(!$oResponse->OK())
 		{
-			$e = new CApplicationException(GetMessage("MAIN_CMEMBER_ERR1").": ".$oResponse->text);
-			$GLOBALS["APPLICATION"]->ThrowException($e);
 			return false;
 		}
 
-		$arUser = $oResponse->arParameters['USER_INFO'];
-
-		//print_r($arUser);
 		////////////////////////////////////////////////////////
 		/// сравнивать не просто логин, а полностью\логин
 		/////////////////////////
 		if(is_array($arUser) && $arUser['LOGIN'] == $login)
 		{
+			//When user did not fill any inforamtion about
+			//we'll use first part of his e-mail like login
+			if(strlen($arUser["NAME"]) == 0 && strlen($arUser["SECOND_NAME"]) == 0)
+			{
+				if(preg_match("/^(.+)@/", $arUser["LOGIN"], $match))
+					$arUser["NAME"] = $match[1];
+				else
+					$arUser["NAME"] = $arUser["LOGIN"];
+			}
+
 			if($site=='')
 				$arUser['LOGIN'] = $arUser['LOGIN'];
 			else
 				$arUser['LOGIN'] = $site."\\".$arUser['LOGIN'];
 
-			$USER_ID = CControllerClient::UpdateUser($arUser);
-			$USER->Authorize($USER_ID);
+			$USER_ID = CControllerClient::UpdateUser($arUser, $FORMAT_DATE, $FORMAT_DATETIME);
+
 			if($arUser["CONTROLLER_ADMIN"]=="Y")
-				$USER->SetControllerAdmin();
+			{
+				AddEventHandler("main", "OnAfterUserLogin", array("CControllerClient", "OnAfterUserLogin"));
+				$arParams["CONTROLLER_ADMIN"] = "Y";
+			}
 
 			$arParams["REMEMBER"] = "N";
 
@@ -84,32 +157,70 @@ class CControllerClient
 		return false;
 	}
 
-	function UpdateUser($arFields = Array())
+	function OnAfterUserLogin(&$arParams)
 	{
+		global $USER;
+		if($arParams["CONTROLLER_ADMIN"] === "Y")
+			$USER->SetControllerAdmin();
+	}
+
+	function UpdateUser($arFields = Array(), $FORMAT_DATE = false, $FORMAT_DATETIME = false)
+	{
+		global $DB;
+
 		$arFields["ACTIVE"] = "Y";
 		$arFields["PASSWORD"] = md5(uniqid(rand(), true));
-		if(is_array($arFields["GROUP_ID"]))
-		{
-			$groups = $arFields["GROUP_ID"];
-			$arFields["GROUP_ID"] = Array();
-			foreach($groups as $group_id)
-			{
-				$group_id = CGroup::GetIDByCode($group_id);
-				if($group_id > 0)
-					$arFields["GROUP_ID"][] = $group_id;
-			}
-		}
 
 		$oUser = new CUser;
 		unset($arFields["ID"]);
 		unset($arFields["TIMESTAMP_X"]);
 		unset($arFields["DATE_REGISTER"]);
+		if (
+			isset($arFields["PERSONAL_BIRTHDAY"])
+			&& $arFields["PERSONAL_BIRTHDAY"] != ''
+			&& $FORMAT_DATE !== false
+		)
+		{
+			$arFields["PERSONAL_BIRTHDAY"] = $DB->FormatDate($arFields["PERSONAL_BIRTHDAY"], $FORMAT_DATE, FORMAT_DATE);
+		}
 
 		$dbr_user = CUser::GetList($O, $B, Array("LOGIN_EQUAL_EXACT"=>$arFields["LOGIN"], "EXTERNAL_AUTH_ID"=>"__controller"));
 		if($ar_user = $dbr_user->Fetch())
 		{
 			$arFields['EXTERNAL_AUTH_ID'] = "__controller";
 			$USER_ID = $ar_user["ID"];
+
+			if(is_array($arFields["GROUPS_TO_ADD"]) && is_array($arFields["GROUPS_TO_DELETE"]))
+			{
+				$arFields["GROUP_ID"] = CUser::GetUserGroup($USER_ID);
+				foreach($arFields["GROUPS_TO_DELETE"] as $group_id)
+				{
+					$group_id = CGroup::GetIDByCode($group_id);
+					if($group_id > 0)
+					{
+						$p = array_search($group_id, $arFields["GROUP_ID"]);
+						if($p !== false)
+							unset($arFields["GROUP_ID"][$p]);
+					}
+				}
+				foreach($arFields["GROUPS_TO_ADD"] as $group_id)
+				{
+					$group_id = CGroup::GetIDByCode($group_id);
+					if($group_id > 0)
+						$arFields["GROUP_ID"][] = $group_id;
+				}
+			}
+			elseif(is_array($arFields["GROUP_ID"]))
+			{
+				$groups = $arFields["GROUP_ID"];
+				$arFields["GROUP_ID"] = array();
+				foreach($groups as $group_id)
+				{
+					$group_id = CGroup::GetIDByCode($group_id);
+					if($group_id > 0)
+						$arFields["GROUP_ID"][] = $group_id;
+				}
+			}
 
 			if(!$oUser->Update($USER_ID, $arFields))
 				return false;
@@ -118,6 +229,17 @@ class CControllerClient
 		{
 			$arFields['EXTERNAL_AUTH_ID'] = "__controller";
 			$arFields["LID"] = SITE_ID;
+			if(is_array($arFields["GROUP_ID"]))
+			{
+				$groups = $arFields["GROUP_ID"];
+				$arFields["GROUP_ID"] = array();
+				foreach($groups as $group_id)
+				{
+					$group_id = CGroup::GetIDByCode($group_id);
+					if($group_id > 0)
+						$arFields["GROUP_ID"][] = $group_id;
+				}
+			}
 
 			$USER_ID = $oUser->Add($arFields);
 		}
@@ -176,6 +298,54 @@ class CControllerClient
 		return $arResult;
 	}
 
+	function PrepareUserInfo($arUser)
+	{
+		$arFields = array(
+			"ID",
+			"LOGIN",
+			"NAME",
+			"LAST_NAME",
+			"EMAIL",
+			"PERSONAL_PROFESSION",
+			"PERSONAL_WWW",
+			"PERSONAL_ICQ",
+			"PERSONAL_GENDER",
+			"PERSONAL_BIRTHDAY",
+			"PERSONAL_PHONE",
+			"PERSONAL_FAX",
+			"PERSONAL_MOBILE",
+			"PERSONAL_PAGER",
+			"PERSONAL_STREET",
+			"PERSONAL_MAILBOX",
+			"PERSONAL_CITY",
+			"PERSONAL_STATE",
+			"PERSONAL_ZIP",
+			"PERSONAL_COUNTRY",
+			"PERSONAL_NOTES",
+			"WORK_COMPANY",
+			"WORK_DEPARTMENT",
+			"WORK_POSITION",
+			"WORK_WWW",
+			"WORK_PHONE",
+			"WORK_FAX",
+			"WORK_PAGER",
+			"WORK_STREET",
+			"WORK_MAILBOX",
+			"WORK_CITY",
+			"WORK_STATE",
+			"WORK_ZIP",
+			"WORK_COUNTRY",
+			"WORK_PROFILE",
+			"WORK_NOTES",
+		);
+
+		$arSaveUser = array();
+		foreach ($arFields as $key)
+			$arSaveUser[$key] = $arUser[$key];
+
+		return $arSaveUser;
+	}
+
 	function SendMessage($name, $status = 'Y', $description = '')
 	{
 		// send to controller
@@ -227,15 +397,15 @@ class CControllerClient
 		// send to controller
 		$arVars =
 			Array(
-				"member_secret_id" =>	$member_secret_id,
-				"ticket_id" 	=>	$ticket_id,
-				"admin_login"	=>	$controller_login,
-				"admin_password"=>	$controller_password,
-				"url"			=>	$arMemberParams["URL"],
-				"name"			=>	$arMemberParams["NAME"],
-				"contact_person"=>	$arMemberParams["CONTACT_PERSON"],
-				"email"			=>	$arMemberParams["EMAIL"],
-				"shared_kernel"	=> ($arMemberParams["SHARED_KERNEL"]?"Y":"N"),
+				"member_secret_id" => $member_secret_id,
+				"ticket_id" => $ticket_id,
+				"admin_login" => $controller_login,
+				"admin_password" => $controller_password,
+				"url" => $arMemberParams["URL"],
+				"name" => $arMemberParams["NAME"],
+				"contact_person" => $arMemberParams["CONTACT_PERSON"],
+				"email" => $arMemberParams["EMAIL"],
+				"shared_kernel" => ($arMemberParams["SHARED_KERNEL"]?"Y":"N"),
 				);
 
 		if($arMemberParams["CONTROLLER_GROUP"]>0)
@@ -265,7 +435,7 @@ class CControllerClient
 		$arMemberParams = Array(
 				"URL" => $site_url,
 				"NAME" => $site_name,
-				"SHARED_KERNEL" =>   $bSharedKernel,
+				"SHARED_KERNEL" => $bSharedKernel,
 				"CONTROLLER_GROUP" => $controller_group
 			);
 
@@ -298,6 +468,50 @@ class CControllerClient
 
 		COption::SetOptionString("main", "controller_member", "N");
 		return true;
+	}
+
+	function UpdateCounters()
+	{
+		if(COption::GetOptionString("main", "controller_member", "N") != "Y")
+		{
+			//remove this agent when disconnected from the controller
+			return "";
+		}
+		else
+		{
+			$oRequest = new CControllerClientRequestTo("update_counters");
+			$oResponse = $oRequest->SendWithCheck();
+
+			if($oResponse == false)
+				error_log("CControllerClient::UpdateCounters: unknown error");
+			elseif(!$oResponse->OK())
+				error_log("CControllerClient::UpdateCounters: ".$oResponse->text);
+
+			return "CControllerClient::UpdateCounters();";
+		}
+	}
+
+	function ExecuteEvent($eventName, $arParams = array())
+	{
+		if(COption::GetOptionString("main", "controller_member", "N") != "Y")
+		{
+			return null;
+		}
+		else
+		{
+			$oRequest = new CControllerClientRequestTo("execute_event", array(
+				"event_name" => $eventName,
+				"parameters" => $arParams,
+			));
+			$oResponse = $oRequest->SendWithCheck();
+
+			if($oResponse == false)
+				error_log("CControllerClient::ExecuteEvent: unknown error");
+			elseif(!$oResponse->OK())
+				error_log("CControllerClient::ExecuteEvent: ".$oResponse->text);
+
+			return $oResponse->arParameters['result'];
+		}
 	}
 
 	function Unlink()
@@ -494,18 +708,17 @@ class CControllerClient
 		if(is_array($arSubGroups))
 		{
 			$arSubordGroupID = Array();
-			for($i=0; $i<count($arSubGroups); $i++)
+			foreach($arSubGroups as $sub_group_id)
 			{
-				if(($sub_group_id = CGroup::GetIDByCode($arSubGroups[$i]))<=0)
-					continue;
-
-				$arSubordGroupID[] = $sub_group_id;
+				$sub_group_id = CGroup::GetIDByCode($sub_group_id);
+				if($sub_group_id > 0)
+					$arSubordGroupID[] = $sub_group_id;
 			}
 
- 			if(!is_set($arBackup["security_subord_groups"], $group_code))
- 			{
+			if(!is_set($arBackup["security_subord_groups"], $group_code))
+			{
 				$arBackup["security_subord_groups"][$group_code] = CGroup::GetSubordinateGroups($group_id);
- 			}
+			}
 
 			CGroup::SetSubordinateGroups($group_id, $arSubordGroupID);
 		}
@@ -526,14 +739,14 @@ class CControllerClient
 				if(in_array($group_code, $arExcludeGroups))
 					continue;
 
-		 		if(($group_id = CGroup::GetIDByCode($group_code))>0)
-		 		{
+				if(($group_id = CGroup::GetIDByCode($group_code))>0)
+				{
 					foreach($perms as $module_id=>$level)
 						CGroup::SetModulePermission($group_id, $module_id, $level);
 
 					if(isset($arBackup["security_subord_groups"][$group_code]))
 						CGroup::SetSubordinateGroups($group_id, $arBackup["security_subord_groups"][$group_code]);
-		 		}
+				}
 				unset($arBackup["security"][$group_code]);
 				unset($arBackup["security_subord_groups"][$group_code]);
 			}
@@ -958,7 +1171,7 @@ class __CControllerPacketResponse extends __CControllerPacket
 		global $APPLICATION;
 
 		$ar_result = array();
-		$pairs = explode('&', $result);
+		$pairs = explode('&', trim($result, " \n\r\t"));
 		foreach($pairs as $pair)
 		{
 			list($name, $value) = explode('=', $pair, 2);
@@ -997,7 +1210,7 @@ class __CControllerPacketResponse extends __CControllerPacket
 
 			$this->arParameters = $arParameters;
 		}
-		$this->version =  $ar_result['version'];
+		$this->version = $ar_result['version'];
 
 		if(strlen($this->status)<=0 && strlen($this->text)<=0 && strlen($this->member_id)<=0)
 		{
@@ -1047,6 +1260,7 @@ class __CControllerPacketResponse extends __CControllerPacket
 	function Send()
 	{
 		$this->Debug("We send response back:\r\nPacket:\r\n".print_r($this, true)."\r\n".$this->GetResponseBody()."\r\n");
+		while (@ob_end_flush());
 		echo $this->GetResponseBody();
 	}
 }

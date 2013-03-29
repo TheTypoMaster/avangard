@@ -43,7 +43,7 @@ $arThemes = CGridOptions::GetThemes($this->GetFolder());
 <?if($arResult["ALLOW_EDIT"]):?>
 		<td class="bx-checkbox-col" width="1%"><input type="checkbox" name="" id="<?=$arParams["GRID_ID"]?>_check_all" value="" title="<?echo GetMessage("interface_grid_check_all")?>" onclick="bxGrid_<?=$arParams["GRID_ID"]?>.SelectAllRows(this);"></td>
 <?endif?>
-		<td class="bx-actions-col" width="1%"><a href="javascript:void(0);" 
+		<td class="bx-actions-col" width="1%"><a href="javascript:void(0);"
 			onclick="bxGrid_<?=$arParams["GRID_ID"]?>.menu.ShowMenu(this, bxGrid_<?=$arParams["GRID_ID"]?>.settingsMenu, false, false, bxGrid_<?=$arParams["GRID_ID"]?>.SaveColumns);return false;"
 			title="<?echo GetMessage("interface_grid_settings")?>" class="bx-action"><div class="empty"></div></a></td>
 <?
@@ -66,9 +66,9 @@ if($header["sort"] <> ''):
 	}
 ?>
 		<td class="bx-sortable<?=($header["sort_state"] <> ''? ' bx-sorted':'')?>"
-			onclick="bxGrid_<?=$arParams["GRID_ID"]?>.Sort('<?=CUtil::addslashes($header["sort_url"])?>', '<?=$header["sort_state"]?>', '<?=$header["order"]?>', arguments);" 
+			onclick="bxGrid_<?=$arParams["GRID_ID"]?>.Sort('<?=CUtil::addslashes($header["sort_url"])?>', '<?=$header["sort_state"]?>', '<?=$header["order"]?>', arguments);"
 			oncontextmenu="return [{'TEXT': '<?=CUtil::JSEscape(GetMessage("interface_grid_sort_asc"))?>', 'ONCLICK':'bxGrid_<?=$arParams["GRID_ID"]?>.Sort(\'<?=CUtil::addslashes($header["sort_url"])?>\', \'desc\')', 'ICONCLASS':'grid-sort-asc'}, {'TEXT': '<?=CUtil::JSEscape(GetMessage("interface_grid_sort_desc"))?>', 'ONCLICK':'bxGrid_<?=$arParams["GRID_ID"]?>.Sort(\'<?=CUtil::addslashes($header["sort_url"])?>\', \'asc\')', 'ICONCLASS':'grid-sort-desc'}, {'TEXT': '<?=CUtil::JSEscape(GetMessage("interface_grid_hide_col"))?>', 'ONCLICK':'bxGrid_<?=$arParams["GRID_ID"]?>.HideColumn(\'<?=CUtil::JSEscape($id)?>\')', 'DISABLED':<?=($USER->IsAuthorized()? 'false':'true')?>}]"
-			title="<?=$order_title?>" 
+			title="<?=$order_title?>"
 		>
 			<table cellspacing="0" class="bx-grid-sorting">
 				<tr>
@@ -122,7 +122,7 @@ foreach($arParams["ROWS"] as $index=>$aRow):
 	<?endif?>
 <?endif?>
 	<?if(is_array($aRow["actions"]) && count($aRow["actions"]) > 0):?>
-		<td class="bx-actions-col"><a href="javascript:void(0);" 
+		<td class="bx-actions-col"><a href="javascript:void(0);"
 			onclick="bxGrid_<?=$arParams["GRID_ID"]?>.ShowActionMenu(this, <?=$index?>);"
 			title="<?echo GetMessage("interface_grid_act")?>" class="bx-action"><div class="empty"></div></a></td>
 	<?else:?>
@@ -135,8 +135,8 @@ if($header["align"] <> '')
 elseif($header["type"] == "checkbox")
 	echo ' align="center"';
 		?>><?
-	if($header["type"] == "checkbox" 
-		&& strlen($aRow["data"][$id]) > 0 
+	if($header["type"] == "checkbox"
+		&& strlen($aRow["data"][$id]) > 0
 		&& ($aRow["data"][$id] == 'Y' || $aRow["data"][$id] == 'N')
 	)
 	{
@@ -226,7 +226,7 @@ if(is_array($arParams["ACTIONS"]["list"]) && count($arParams["ACTIONS"]["list"])
 ?>
 	<?
 	if($bNeedSep):
-		$bNeedSep = false;	
+		$bNeedSep = false;
 	?>
 		<td><div class="bx-separator"></div></td>
 	<?endif?>
@@ -234,7 +234,7 @@ if(is_array($arParams["ACTIONS"]["list"]) && count($arParams["ACTIONS"]["list"])
 			<select name="" onchange="this.form.elements['action_button_<?=$arParams["GRID_ID"]?>'].value = this.value;">
 				<option value=""><?=GetMessage("interface_grid_actions_list")?></option>
 	<?foreach($arParams["ACTIONS"]["list"] as $key => $val):?>
-				<option value="<?=htmlspecialchars($key)?>"><?=htmlspecialchars($val)?></option>
+				<option value="<?=htmlspecialcharsbx($key)?>"><?=htmlspecialcharsbx($val)?></option>
 	<?endforeach?>
 			</select>
 		</td>
@@ -322,11 +322,12 @@ if($arParams["~ACTIONS"]["custom_html"] <> ''):
 	<tr>
 		<td align="right"><?echo GetMessage("interface_grid_view_sort_name")?></td>
 		<td><select name="view_sort_by">
+			<option value=""><?=GetMessage("interface_grid_default")?></option>
 <?
 foreach($arParams["HEADERS"] as $header):
 	if($header["sort"] <> ''):
 ?>
-	<option value="<?=$header["sort"]?>"><?=$header["name"]?></option>
+			<option value="<?=$header["sort"]?>"><?=$header["name"]?></option>
 <?
 	endif;
 endforeach;
@@ -336,6 +337,7 @@ endforeach;
 	<tr>
 		<td align="right"><?echo GetMessage("interface_grid_view_sort_order")?></td>
 		<td><select name="view_sort_order">
+			<option value=""><?=GetMessage("interface_grid_default")?></option>
 			<option value="asc"><?echo GetMessage("interface_grid_view_sort_asc")?></option>
 			<option value="desc"><?echo GetMessage("interface_grid_view_sort_desc")?></option>
 		</select></td>
@@ -368,7 +370,7 @@ endforeach;
 <div style="float:left; width:80%">
 <select name="views_list" size="17" style="width:100%; height:250px;" ondblclick="this.form.views_edit.onclick()">
 <?foreach($arResult["OPTIONS"]["views"] as $view_id=>$view):?>
-	<option value="<?=htmlspecialchars($view_id)?>"<?if($view_id == $arResult["OPTIONS"]["current_view"]):?> selected<?endif?>><?=htmlspecialchars(($view["name"] <> ''? $view["name"]:GetMessage("interface_grid_view_noname")))?></option>
+	<option value="<?=htmlspecialcharsbx($view_id)?>"<?if($view_id == $arResult["OPTIONS"]["current_view"]):?> selected<?endif?>><?=htmlspecialcharsbx(($view["name"] <> ''? $view["name"]:GetMessage("interface_grid_view_noname")))?></option>
 <?endforeach?>
 </select>
 </div>
@@ -421,7 +423,7 @@ foreach($arParams["FILTER"] as $field):
 		if($field["params"]["size"] == '')
 			$field["params"]["size"] = "8";
 	}
-	
+
 	$params = '';
 	foreach($field["params"] as $p=>$v)
 		$params .= ' '.$p.'="'.$v.'"';
@@ -448,7 +450,7 @@ foreach($arParams["FILTER"] as $field):
 				endif;
 				foreach($field["items"] as $k=>$v):
 ?>
-	<option value="<?=htmlspecialchars($k)?>"><?=htmlspecialchars($v)?></option>
+	<option value="<?=htmlspecialcharsbx($k)?>"><?=htmlspecialcharsbx($v)?></option>
 <?
 				endforeach;
 ?>
@@ -517,7 +519,7 @@ $APPLICATION->IncludeComponent(
 ?>
 <select name="<?=$field["id"]?>_list">
 <?foreach($field["items"] as $key=>$item):?>
-	<option value="<?=htmlspecialchars($key)?>"><?=htmlspecialchars($item)?></option>
+	<option value="<?=htmlspecialcharsbx($key)?>"><?=htmlspecialcharsbx($item)?></option>
 <?endforeach?>
 </select>
 <?
@@ -525,7 +527,7 @@ $APPLICATION->IncludeComponent(
 			break;
 		case 'number':
 ?>
-<input type="text" name="<?=$field["id"]?>_from" value=""<?=$params?>> ... 
+<input type="text" name="<?=$field["id"]?>_from" value=""<?=$params?>> ...
 <input type="text" name="<?=$field["id"]?>_to" value=""<?=$params?>>
 <?
 			break;
@@ -546,7 +548,7 @@ $APPLICATION->IncludeComponent(
 <div style="float:left; width:80%">
 <select name="filters_list" size="17" style="width:100%; height:250px;" ondblclick="if(this.value) this.form.filters_edit.onclick()">
 <?foreach($arResult["OPTIONS"]["filters"] as $filter_id=>$filter):?>
-	<option value="<?=htmlspecialchars($filter_id)?>"><?=htmlspecialchars(($filter["name"] <> ''? $filter["name"]:GetMessage("interface_grid_view_noname")))?></option>
+	<option value="<?=htmlspecialcharsbx($filter_id)?>"><?=htmlspecialcharsbx(($filter["name"] <> ''? $filter["name"]:GetMessage("interface_grid_view_noname")))?></option>
 <?endforeach?>
 </select>
 </div>
@@ -638,19 +640,19 @@ foreach($arParams["HEADERS"] as $header):
 endforeach;
 ?>
 		{'SEPARATOR': true},
-		{'TEXT': '<?=CUtil::JSEscape(GetMessage("interface_grid_columns_apply"))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("interface_grid_columns_apply_title"))?>', 'ONCLICK':'bxGrid_<?=$arParams["GRID_ID"]?>.SaveColumns()'}
+		{'TEXT': '<?=CUtil::JSEscape(GetMessage("interface_grid_columns_apply"))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("interface_grid_columns_apply_title"))?>', 'ONCLICK':'bxGrid_<?=$arParams["GRID_ID"]?>.ApplySaveColumns()'}
 	], 'DISABLED':<?=($USER->IsAuthorized()? 'false':'true')?>},
 	{'SEPARATOR': true},
 <?
 foreach($arResult["OPTIONS"]["views"] as $view_id=>$view):
 ?>
-	{'TEXT': '<?=htmlspecialchars($view["name"]<>''? CUtil::JSEscape($view["name"]) : GetMessage("interface_grid_view_noname"))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("interface_grid_view_title"))?>'<?if($view_id == $arResult["OPTIONS"]["current_view"]):?>, 'ICONCLASS':'checked'<?endif?>, 'DISABLED':<?=($USER->IsAuthorized()? 'false':'true')?>, 'ONCLICK':'bxGrid_<?=$arParams["GRID_ID"]?>.SetView(\'<?=$view_id?>\')'},
+	{'TEXT': '<?=htmlspecialcharsbx($view["name"]<>''? CUtil::JSEscape($view["name"]) : GetMessage("interface_grid_view_noname"))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("interface_grid_view_title"))?>'<?if($view_id == $arResult["OPTIONS"]["current_view"]):?>, 'ICONCLASS':'checked'<?endif?>, 'DISABLED':<?=($USER->IsAuthorized()? 'false':'true')?>, 'ONCLICK':'bxGrid_<?=$arParams["GRID_ID"]?>.SetView(\'<?=$view_id?>\')'},
 <?
 endforeach;
 ?>
 	{'SEPARATOR': true},
 	{'TEXT': '<?=CUtil::JSEscape(GetMessage("interface_grid_views"))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("interface_grid_views_mnu_title"))?>', 'ONCLICK':'bxGrid_<?=$arParams["GRID_ID"]?>.ShowViews()', 'DISABLED':<?=($USER->IsAuthorized()? 'false':'true')?>, 'ICONCLASS':'grid-views'},
-	{'TEXT': '<?=CUtil::JSEscape(GetMessage("interface_grid_colors"))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("interface_grid_colors_title"))?>', 'MENU':[
+	{'TEXT': '<?=CUtil::JSEscape(GetMessage("interface_grid_colors"))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("interface_grid_colors_title"))?>', 'CLASS': 'bx-grid-themes-menu-item', 'MENU':[
 <?
 $i = 0;
 foreach($arThemes as $theme):
@@ -679,7 +681,7 @@ bxGrid_<?=$arParams["GRID_ID"]?>.filterMenu = [
 <?if(is_array($arResult["OPTIONS"]["filters"]) && !empty($arResult["OPTIONS"]["filters"])):?>
 	{'SEPARATOR': true},
 <?foreach($arResult["OPTIONS"]["filters"] as $filter_id=>$filter):?>
-	{'ID': 'mnu_<?=$arParams["GRID_ID"]?>_<?=$filter_id?>', 'TEXT': '<?=htmlspecialchars(CUtil::JSEscape($filter["name"]))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("interface_grid_filter_apply"))?>', 'ONCLICK':'bxGrid_<?=$arParams["GRID_ID"]?>.ApplyFilter(\'<?=CUtil::JSEscape($filter_id)?>\')'},
+	{'ID': 'mnu_<?=$arParams["GRID_ID"]?>_<?=$filter_id?>', 'TEXT': '<?=htmlspecialcharsbx(CUtil::JSEscape($filter["name"]))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("interface_grid_filter_apply"))?>', 'ONCLICK':'bxGrid_<?=$arParams["GRID_ID"]?>.ApplyFilter(\'<?=CUtil::JSEscape($filter_id)?>\')'},
 <?
 	endforeach;
 endif;
@@ -692,5 +694,5 @@ endif;
 BX.ready(function(){bxGrid_<?=$arParams["GRID_ID"]?>.InitFilter()});
 <?endif?>
 
-phpVars.messLoading = '<?=GetMessage("interface_grid_loading")?>';
+phpVars.messLoading = '<?=GetMessageJS("interface_grid_loading")?>';
 </script>

@@ -1,20 +1,20 @@
 div.photo-action, div.photo-view {}
 div.photo-controls{
-	margin:7px 0px; 
-	clear:both; 
+	margin:7px 0px;
+	clear:both;
 	width:100%;
 	height:20px!important;}
 div.photo-controls a.photo-action, div.photo-controls a.photo-view{
 	float:left;
 	display: block;
-	height:20px; 
+	height:20px;
 	padding-left:20px;
 	background-image: url('images/components/temp.gif');
 	background-position:left center;
 	background-repeat: no-repeat;
 	margin-right:15px;}
 div.photo-controls a.gallery-create-first{
-	height:25px; 
+	height:25px;
 	padding-left:25px;
 	padding-top:5px;
 	background-image: url('images/components/create_first.gif');}
@@ -58,34 +58,34 @@ div.photo-gallery-name{
 div.photo-gallery-description{}
 
 table.photo-gallery{
-	padding: 0px; 
+	padding: 0px;
 	margin: 0px;
 	margin-bottom: 10px;
-	border: 1px solid #CACACA; 
-	background-color: #f6f6f6; 
+	border: 1px solid #CACACA;
+	background-color: #f6f6f6;
 	width: 100%;}
 table.photo-gallery td {
 	padding:5px;
 	text-aling:left;
 	vertical-align:top;}
 div.photo-gallery-img {
-	padding:5px; 
+	padding:5px;
 	margin:0px;}
 div.photo-gallery-img div, div.photo-gallery-img img {
 	padding:0px;
 	margin:0px;}
 div.photo-gallery-img img{
 	border:1px solid #BBBBBB;
-	cursor:hand; 
+	cursor:hand;
 	cursor:pointer;}
 div.photo-gallery-img div.outer {
-	border:1px solid #B2B2B2; 
+	border:1px solid #B2B2B2;
 	background-color:#FFFFFF;
 	position:relative;
 	padding:0px;
 	margin:0px;}
 div.photo-gallery-img div.tool {
-	width:10px; 
+	width:10px;
 	background-image:url('images/components/tool.gif');
 	background-repeat:repeat-y;
 	background-position:left top;
@@ -95,20 +95,20 @@ div.photo-gallery-img div.tool {
 div.photo-gallery-img div.inner {
 	padding:7px 9px 7px 21px;}
 div.gallery-info div.photo-gallery-name {
-	font-weight:bold; 
+	font-weight:bold;
 	margin:5px 0px;}
 div.gallery-info div.photo-gallery-description{}
 div.gallery-info div.gallery-upload{}
 div.gallery-info div.gallery-edit{
-	font-size:90%; 
-	color:#DDDDDD; 
-	cursor:hand; 
+	font-size:90%;
+	color:#DDDDDD;
+	cursor:hand;
 	cursor:pointer;}
 table.gallery-active div.gallery-picture{
 	position:relative;}
 div.gallery-active{
 	width:15px;
-	height:15px; 
+	height:15px;
 	overflow:hidden;
 	background-image:url('images/components/gal_active.gif');
 	background-repeat:no-repeat;
@@ -136,25 +136,25 @@ div.photo-gallery-ascetic{
 /* /Galleries */
 /* Album(s) */
 table.photo-album{
-	padding: 0px; 
+	padding: 0px;
 	margin: 0px;
 	margin-bottom: 10px;
-	border: 1px solid #CACACA; 
-	background-color: #f6f6f6; 
+	border: 1px solid #CACACA;
+	background-color: #f6f6f6;
 	width: 100%;}
 table.photo-album td {
 	padding:5px;
 	text-aling:left;
 	vertical-align:top;}
 div.photo-album-img {
-	padding:5px; 
+	padding:5px;
 	margin:0px;}
 div.photo-album-img div, div.photo-album-img img {
 	padding:0px;
 	margin:0px;}
 div.photo-album-img img{
 	border:1px solid #BBBBBB;
-	cursor:hand; 
+	cursor:hand;
 	cursor:pointer;}
 div.photo-album-img div.outer {
 	border:1px solid #B2B2B2;
@@ -163,7 +163,7 @@ div.photo-album-img div.outer {
 	padding:0px;
 	margin:0px;}
 div.photo-album-img div.tool {
-	width:10px; 
+	width:10px;
 	background-image:url('images/components/tool.gif');
 	background-repeat:repeat-y;
 	background-position:left top;
@@ -176,11 +176,11 @@ div.photo-album-img div.inner {
 	margin:0px;}
 
 div.photo-album-info div.name {
-	font-weight:bold; 
+	font-weight:bold;
 	white-space:nowrap;
 	overflow:hidden;}
 div.photo-album-info div.password {
-	font-size:10px; 
+	font-size:10px;
 	margin:5px 5px 5px 0px;;
 	width:13px;
 	height:13px;
@@ -215,7 +215,7 @@ div.photo-rating {margin:5px 0px;}
 div.photo-rating td {padding:0!important;}
 /* Photo .Default */
 .photo-photo-item{
-	float:left; 
+	float:left;
 	margin:0;
 	padding:0;
 	border:none;}
@@ -226,7 +226,7 @@ div.photo-rating td {padding:0!important;}
 	padding:0px 10px 0px 0px;}
 .photo-photo-item-inner{
 	padding:5px;
-	border:1px solid #CACACA; 
+	border:1px solid #CACACA;
 	background-color:#FFFFFF;}
 .photo-photo-item-edit div.photo-photo-item-inner{
 	position:relative!important;}
@@ -284,8 +284,8 @@ th.result_image table.shadow td.r{
 	text-align:right;}
 th.result_image table.shadow td.l div.empty, th.result_image table.shadow td.r div.empty {
 	border:none;
-	height:6px !important; 
-	width:56px; 	
+	height:6px !important;
+	width:56px;
 	overflow:hidden;
 	background-image: url('images/shadow/ph_02.gif');
 	background-repeat:no-repeat;
@@ -322,24 +322,25 @@ div.photo-photo-list div.photo-title{
 /* /Photo */
 /* Popups */
 div.photo-popup, div.photo-window-edit {
-	background-color:white; 
-	padding:0; 
+	background-color:white;
+	padding:0;
 	margin:0;
-	border:none; 
-	overflow:hidden; 
-	text-align:center; 
+	border:none;
+	/*overflow:hidden;*/
+	text-align:center;
 	color:black;
 	font-size:100%;}
 div.photo-popup{
-	border: 1px solid gray; 
-	width:352px; 
-	height:352px;}
+	border: 1px solid gray;
+	width:352px;
+	/*height:352px;*/
+}
 div.photo-window-edit{
 	border:none;
-	width:350px; 
+	width:350px;
 	height:350px;}
 div.photo-window-edit table{
-	width:100%; 
+	width:100%;
 	border:none;}
 div.photo-window-edit td {
 	border:none;
@@ -350,7 +351,7 @@ table.photo-popup thead{
 div.photo-window-edit div.photo-info-box{
 	padding:5px 10px;}
 div.photo-window-edit div.photo-info-box-inner{
-	overflow:auto; 
+	overflow:auto;
 	text-align:left;
 	position:relative;
 	width:330px;
@@ -371,7 +372,7 @@ div.photo-edit-fields-section-icon {
 	margin-top:7px;}
 div.photo-edit-field-title input, div.photo-edit-field-tags input, div.photo-edit-field textarea {
 	width:100%;}
-div.photo-edit-field-title label, div.photo-edit-field-tags label, div.photo-edit-field-description label, 
+div.photo-edit-field-title label, div.photo-edit-field-tags label, div.photo-edit-field-description label,
 div.photo-edit-field-date label{
 	display:block;
 	margin-bottom:0.2em;}
@@ -379,11 +380,11 @@ div.photo-edit-field-image{
 	position:relative;
 	float:left;
 	padding:0px;
-	margin:0px 5px 5px 0px; 
+	margin:0px 5px 5px 0px;
 	border:none;}
 div.photo-edit-field-image input {
-	position:absolute; 
-	z-index:1000; 
+	position:absolute;
+	z-index:1000;
 	top:0px; left:0px;}
 div.photo-edit-field-image img {
 	cursor:pointer; cursor: hand;}
@@ -466,7 +467,7 @@ td.no-active table.tab-header tr.bottom td.right{
 	background-image:url('images/tabs/white_bottom_right.gif');}
 td.no-active table.tab-header tr.bottom td.center{
 	background-image:url('images/tabs/white_bottom_center.gif');}
-table.tab-header div.empty{ 
+table.tab-header div.empty{
 	width:4px!important; height:4px!important; overflow:hidden;}
 table.tab-header tr.middle td.center{
 	background-color:#F7F7F7; padding:5px 8px; white-space:nowrap; vertical-align:top;}
@@ -544,7 +545,7 @@ td#photo-main-td-middle-left div.search-tags-cloud{
 	text-align:justify;}
 td#photo-main-td-middle-left div.search-tags-cloud a{
 	white-space:nowrap;}
-	
+
 td#photo-main-td-middle-right{
 	padding:40px 0px 0px 40px;}
 div#photo-main-galleries{
@@ -597,7 +598,7 @@ div#photo_go_to_next_disabled{background-image: url("images/nav/_navig_right_dis
 div.photo-controls span.photo-author{font-weight: bold;}
 table.gallery-table-header{margin-bottom:7px;}
 table.gallery-table-header, table.gallery-table-header td{font-size:100%; text-align:left;}
-table.gallery-table-header td{padding:0; vertical-align:top;}	
+table.gallery-table-header td{padding:0; vertical-align:top;}
 table.gallery-table-header td.picture{padding-right:1em;}
 /* /Page Galleries */
 /* Page Detail List */
@@ -605,7 +606,7 @@ div#photo-filter-switcher{
 	background-position:0px 5px;
 	background-repeat:no-repeat;
 	padding:5px 5px 5px 19px;}
-div#photo-filter-footer{ 
+div#photo-filter-footer{
 	background-image:url("images/index/corner.gif");
 	background-position:left bottom;
 	background-repeat:no-repeat;
@@ -627,7 +628,7 @@ div.photo-filter-field-period label, div.photo-filter-field-mode label {
 	display:block;}
 div.photo-filter-field-mode legend {
 	padding:0 1em;}
-div.photo-filter-field-mode fieldset { 
+div.photo-filter-field-mode fieldset {
 	width:25em;}
 /* /Page Detail List */
 /* Page Album edit icon */
@@ -640,36 +641,36 @@ div.photo-popup div.photo-window-edit div.photo-photo{
 /* Page Comments */
 div.blog-line, .blog-post-delete {}
 .blog-post-delete{
-	display:block; 
-	background-repeat:no-repeat; 
+	display:block;
+	background-repeat:no-repeat;
 	align:absmiddle;
-	background-image: url("images/blog/delete.gif"); 
-	width:18px; 
-	height:18px; 
+	background-image: url("images/blog/delete.gif");
+	width:18px;
+	height:18px;
 	float:right;}
 .blog-user {
-	display:block; 
-	background-repeat:no-repeat; 
+	display:block;
+	background-repeat:no-repeat;
 	align:absmiddle;
-	background-image: url("images/blog/icon_user.gif"); 
-	width:16px; 
-	height:16px; 
+	background-image: url("images/blog/icon_user.gif");
+	width:16px;
+	height:16px;
 	float:left;}
 .blog-author, .blog-author a {
 	color:#000000;}
 .blog-post-date, .blog-post-date a{
 	color: #456A74;}
 table.blogquote {
-	font-family: Arial, Helvetica, sans-serif; 
-	color: #000000; 
+	font-family: Arial, Helvetica, sans-serif;
+	color: #000000;
 	border-collapse:collapse;
-	background-color: #FBFBF9; 
+	background-color: #FBFBF9;
 	text-indent: 2pt;}
 table.blogcode {
-	font-family: Arial, Helvetica, sans-serif; 
-	color: #333333; 
+	font-family: Arial, Helvetica, sans-serif;
+	color: #333333;
 	border-collapse:collapse;
-	background-color: #FBFBF9; 
+	background-color: #FBFBF9;
 	text-indent: 2pt; }
 table.blog-table-post-comment{
 	width:100%;
@@ -695,7 +696,7 @@ table.blog-table-post-comment-table th, table.blog-table-post-comment-table td{
 	font-size: 100%;}
 table.blog-comment-form{
 	width:100%;
-	color: #000000; 
+	color: #000000;
 	border-collapse:collapse;
 	background-color:#FFFFFF;}
 table.blog-comment-form th, table.blog-comment-form td{
@@ -704,7 +705,7 @@ table.blog-comment-form th, table.blog-comment-form td{
 	font-size: 100%;}
 table.blog-comment-form-noborder{
 	width:100%;
-	color: #000000; 
+	color: #000000;
 	padding:0px;}
 table.blog-comment-form-noborder th, table.blog-comment-form-noborder td{
 	border:0px;
@@ -749,18 +750,18 @@ div.photo-window-edit form, form.photo-form{padding:0; margin:0;}
 table.photo-table, table.photo-table td{font-size: 100%;}
 font.starrequired{color:red;}
 div.before-comment{clear:both; width:100%; overflow:hidden; height:20px!important}
-div.waitwindow{ 
-	width:170px!important; 
-	padding:10px; 
+div.waitwindow{
+	width:170px!important;
+	padding:10px;
 	display:block;
-	border:1px solid #EACB6B; 
-	text-align:center; 
-	font-size:13px; 
-	background-color:#FCF7D1; 
-	background-image:url("images/wait.gif"); 
-	background-position:10px center; 
+	border:1px solid #EACB6B;
+	text-align:center;
+	font-size:13px;
+	background-color:#FCF7D1;
+	background-image:url("images/wait.gif");
+	background-position:10px center;
 	background-repeat:no-repeat;
-	position:relative; 
+	position:relative;
 	z-index:10000;}
 div#photo_waitwindow{
 	text-align:center;

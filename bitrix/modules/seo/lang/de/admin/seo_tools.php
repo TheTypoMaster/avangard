@@ -43,7 +43,7 @@ $MESS ['SEO_PAGE_CURRENT_TITLE_EDIT'] = "Bearbeiten";
 $MESS ['SEO_PAGE_TITLE_EDIT'] = "Bearbeiten";
 $MESS ['SEO_PAGE_ERROR_NO_STATS'] = "Für diese Funktion ist das Web-Statistik-Modul erforderlich.";
 $MESS ['SEO_PAGE_ERROR_NO_STATS_RIGHTS'] = "Kein Zugriff auf das Web-Stastik-Modul";
-$MESS ['SEO_PAGE_ERROR_NO_SEARCHERS'] = "Um diese Funktion zu verwenden, müssen Sie die Liste der verwendeten Suchmaschinen in den <a href=\"/bitrix/admin/settings.php?mid=seo&tabControl_active_tab=edit3\">Einstellungen des SEO-Moduls</a> angeben.";
+$MESS ['SEO_PAGE_ERROR_NO_SEARCHERS'] = "Um diese Funktion zu verwenden, müssen Sie die Liste der verwendeten Suchmaschinen in den <a href=\"/bitrix/admin/settings.php?mid=seo&tabControl_active_tab=edit3&lang=de\">Einstellungen des SEO-Moduls</a> angeben.";
 $MESS ['SEO_PAGE_STATS_INDEX'] = "Suchmaschinen, die die Seite in den letzten #COUNT# Tagen indexiert haben";
 $MESS ['SEO_PAGE_STATS_ERROR_NO_DATA'] = "Keine Indexierungsdaten für diese Seite in der angegebenen Zeit.";
 $MESS ['SEO_PAGE_STATS_SITE_INDEX'] = "Übersicht der Website-Indexierung";

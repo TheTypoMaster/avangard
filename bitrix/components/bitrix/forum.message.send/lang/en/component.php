@@ -19,4 +19,5 @@ $MESS ['F_MESS_AUTH'] = "Authorized";
 $MESS ['F_MESS_NOAUTH'] = "Unauthorized";
 $MESS ['F_TITLE_ICQ'] = "ICQ Message";
 $MESS ['F_TITLE_MAIL'] = "E-mail";
+$MESS ['F_OK_MESSAGE_SEND'] = "Message was successfully sent";
 ?>

@@ -1,9 +1,12 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+define(BX_FM_MPLAYER,"/bitrix/components/bitrix/player/mediaplayer/player");
+
 $player_type = $arParams['PLAYER_TYPE'];
 $fp = $arParams['PATH'];
 
 if (strlen($fp) > 0 && strpos($fp, '.') !== false)
-$ext = (strlen($fp) > 0 && strpos($fp, '.') !== false) ? strtolower(GetFileExtension($fp)) : '';
+	$ext = (strlen($fp) > 0 && strpos($fp, '.') !== false) ? strtolower(GetFileExtension($fp)) : '';
 
 if ($player_type == 'auto')
 	$player_type = (in_array($ext, array('wmv', 'wma'))) ? 'wmv' : 'flv';
@@ -48,18 +51,70 @@ if (!function_exists(escapeFlashvar))
 
 	function findCorrectFile($path, &$strWarn, $warning = false)
 	{
-		if (strpos($path, '://') !== false)
-			return $path;
-		$DOC_ROOT = $_SERVER["DOCUMENT_ROOT"];
-		$path = Rel2Abs("/", $path);
-		$path_ = $path;
-
-		if (!file_exists($DOC_ROOT.$path))
+		$arUrl = CHTTP::ParseURL($path);
+		if ($arUrl && is_array($arUrl))
 		{
-			if ($warning)
-				$strWarn .= $warning."<br />";
-			$path = $path_;
+			if (isset($arUrl['host'], $arUrl['scheme'])) // abs path
+			{
+				if (strpos($arUrl['host'], 'xn--') !== false) // Cyrilyc url - punycoded
+				{
+					// Do nothing
+				}
+				else
+				{
+					$originalPath = $path;
+					$path = $arUrl['scheme'].'://'.$arUrl['host'];
+
+					$arErrors = array();
+					if(defined("BX_UTF"))
+						$punicodedPath = CBXPunycode::ToUnicode($path, $arErrors);
+					else
+						$punicodedPath = CBXPunycode::ToASCII($path, $arErrors);
+
+					if ($pathPunicoded == $path)
+						return $originalPath;
+					else
+						$path = $punicodedPath;
+
+					if (($arUrl['port'] && ($arUrl['scheme'] != 'http' || $arUrl['port'] != 80) && ($arUrl['scheme'] != 'https' || $arUrl['port'] != 443)))
+						$path .= ':'.$arUrl['port'];
+					$path .= $arUrl['path_query'];
+				}
+			}
+			else // relative path
+			{
+				$DOC_ROOT = $_SERVER["DOCUMENT_ROOT"];
+				$path = Rel2Abs("/", $path);
+				$path_ = $path;
+
+				$io = CBXVirtualIo::GetInstance();
+
+				if (!$io->FileExists($DOC_ROOT.$path))
+				{
+					if(CModule::IncludeModule('clouds'))
+					{
+						$path = CCloudStorage::FindFileURIByURN($path, "component:player");
+						if($path == "")
+						{
+							if ($warning)
+								$strWarn .= $warning."<br />";
+							$path = $path_;
+						}
+					}
+					else
+					{
+						if ($warning)
+							$strWarn .= $warning."<br />";
+						$path = $path_;
+					}
+				}
+				elseif (strpos($_SERVER['HTTP_HOST'], 'xn--') !== false) // It's cyrilyc site
+				{
+					$path = CHTTP::URN2URI($path);
+				}
+			}
 		}
+
 		return $path;
 	}
 }
@@ -83,9 +138,9 @@ if ($arParams['BX_EDITOR_RENDER_MODE'] == 'Y')
 }
 
 if (strlen($arParams['STREAMER']) > 0)
-	$path = $arParams['PATH'];
+	$path = $fp;
 else
-	$path = findCorrectFile($arParams['PATH'], $warning, GetMessage("INCORRECT_FILE"));
+	$path = findCorrectFile($fp, $warning, GetMessage("INCORRECT_FILE"));
 
 $preview = (strlen($arParams['PREVIEW'])) ? findCorrectFile($arParams['PREVIEW'], $w = '') : '';
 $logo = (strlen($arParams['LOGO']) > 0) ? findCorrectFile($arParams['LOGO'], $w = '') : '';
@@ -105,7 +160,7 @@ if ($player_type == 'flv') // FLASH PLAYER
 	$arResult['PATH'] = $path;
 
 	$jwConfig = array(
-		'file' => $path,
+		'file' => $GLOBALS["APPLICATION"]->ConvertCharset($path, LANG_CHARSET, "UTF-8"),
 		'height' => $arResult['HEIGHT'],
 		'width' => $arResult['WIDTH'],
 		'dock' => true,
@@ -115,16 +170,25 @@ if ($player_type == 'flv') // FLASH PLAYER
 
 	if ($arParams["USE_PLAYLIST"] == 'Y')
 	{
-		$jwConfig['players'] = array(array('type' => 'flash', 'src' => '/bitrix/components/bitrix/player/mediaplayer/player.swf'));
+		$jwConfig['players'] = array(
+			array('type' => 'flash','src' => BX_FM_MPLAYER)
+		);
 		addFlashvar($jwConfig, 'playlist', $arParams['PLAYLIST'], 'none');
 		addFlashvar($jwConfig, 'playlistsize', $arParams['PLAYLIST_SIZE'], '180');
 	}
 	else
 	{
-		$jwConfig['players'] = array(
-			array('type' => 'html5'),
-			array('type' => 'flash', 'src' => '/bitrix/components/bitrix/player/mediaplayer/player.swf')
-		);
+		if (strpos($path, "youtu"))
+		{
+			$jwConfig['flashplayer'] = BX_FM_MPLAYER;
+		}
+		else
+		{
+			$jwConfig['players'] = array(
+				array('type' => 'html5'),
+				array('type' => 'flash', 'src' => BX_FM_MPLAYER)
+			);
+		}
 	}
 
 	addFlashvar($jwConfig, 'image', $preview, '');
@@ -145,6 +209,8 @@ if ($player_type == 'flv') // FLASH PLAYER
 	// Skining
 	$skinPath = rtrim($arParams['SKIN_PATH'], "/")."/";
 	$skinExt = strtolower(GetFileExtension($arParams['SKIN']));
+	$skinName = substr($arParams['SKIN'], 0, - strlen($skinExt) - 1);
+
 	if ($arParams['SKIN'] != '' && $arParams['SKIN'] != 'default')
 	{
 		if ($skinExt == 'swf' || $skinExt == 'zip')
@@ -152,6 +218,10 @@ if ($player_type == 'flv') // FLASH PLAYER
 			if (file_exists($_SERVER["DOCUMENT_ROOT"].$skinPath.$arParams['SKIN']))
 			{
 				$skin = $skinPath.$arParams['SKIN'];
+			}
+			elseif (file_exists($_SERVER["DOCUMENT_ROOT"].$skinPath.$skinName.'/'.$arParams['SKIN']))
+			{
+				$skin = $skinPath.$skinName.'/'.$arParams['SKIN'];
 			}
 			else
 			{
@@ -217,7 +287,7 @@ if ($player_type == 'flv') // FLASH PLAYER
 		addFlashvar($jwConfig, $var_[0], $var_[1]);
 	}
 
-	if (strpos($path, "youtube.") !== false)
+	if (strpos($path, "youtube.") !== false || strpos($path, "y2u.be") !== false)
 		$arParams['PROVIDER'] = "youtube";
 
 	addFlashvar($jwConfig, 'provider', $arParams['PROVIDER']);
@@ -328,7 +398,13 @@ if($arParams["USE_PLAYLIST"] == 'Y')
 	}
 }
 
+if(isset($arParams['INIT_PLAYER']))
+	$arResult['INIT_PLAYER'] = $arParams['INIT_PLAYER'];
+else
+	$arResult['INIT_PLAYER'] = "Y";
+
 if (strlen($warning) > 0)
 	return CComponentUtil::__ShowError($warning);
+
 $this->IncludeComponentTemplate();
 ?>

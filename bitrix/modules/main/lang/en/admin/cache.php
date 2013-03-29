@@ -59,47 +59,19 @@ $MESS["cache_admin_note4"] = "<p>HTML caching is recommended for site section th
 $MESS["MAIN_OPTION_CACHE_OK"] = "Cache Files cleaned";
 $MESS["MAIN_OPTION_CACHE_SUCCESS"] = "Type of components caching successfully switched";
 $MESS["MAIN_OPTION_CACHE_ERROR"] = "Type of components caching is already set to this value";
-$MESS["cache_admin_note1"] = "<table width=\"100%\" border=\"0\" cellpadding=\"5\" cellspacing=\"0\">
-		<tr>
-				<td valign=\"top\">Using Autocache mode speeds up your site amazingly!</td>
-		</tr>
-		<tr>
-				<td valign=\"top\"><br />
-				In Autocache mode, information rendered by components is refreshed according to the settings of those components.</td>
-		</tr>
-		<tr>
-				<td valign=\"top\"><br />
-				To refresh the cached objects on the page, you can:</td>
-		</tr>
-</table>
-<table width=\"100%\" border=\"0\" cellpadding=\"5\" cellspacing=\"0\">
-		<tr>
-				<td align=\"center\" valign=\"top\">&nbsp;</td>
-		</tr>
-		<tr>
-				<td valign=\"top\">1. Open the required page and refresh its objects by clicking a special update data button on the administrative toolbar.<br />
-				<img src=\"/bitrix/images/main/page_cache_en.png\" width=\"210\" height=\"152\" vspace=\"5\" /></td>
-		</tr>
-		<tr>
-				<td align=\"center\" valign=\"top\">&nbsp;</td>
-		</tr>
-		<tr>
-				<td valign=\"top\">2. When in Site Edit mode, you can click the clear cache button of a given component. <br />
-				<img src=\"/bitrix/images/main/comp_cache_en.png\" width=\"243\" height=\"133\" vspace=\"5\" /></td>
-		</tr>
-		<tr>
-				<td valign=\"top\">&nbsp;</td>
-		</tr>
-		<tr>
-
-				<td valign=\"top\">3. Go to the component settings and switch the required components to uncached mode.<br>
-				<img src=\"/bitrix/images/main/spisok_en.gif\" width=\"139\" height=\"71\" vspace=\"5\" /></td>
-				</tr>
-</table>
-<br />
-<p>After enabling the caching mode, by default all the components with the Auto cache setting <i>\"Auto\"</i> will be switched to work with cache.<br><br>
-		Components with the cache setting <i>\"Cache\"</i> and with cache time greater than 0 (zero), always work in caching mode.<br><br>
-		Components with the cache setting <i>\"Do not cache\"</i> or with cache time equal to 0 (zero), always work without caching.</p>";
+$MESS["cache_admin_note1"] = "
+<p>Using Autocache mode speeds up your site amazingly!</p>
+<p>In Autocache mode, information rendered by components is refreshed according to the settings of those components.</p>
+<p>To refresh the cached objects on the page, you can:</p>
+<p>1. Open the required page and refresh its objects by clicking a special update data button on the administrative toolbar.</p>
+<img src=\"/bitrix/images/main/page_cache_en.png\" vspace=\"5\" />
+<p>2. When in Site Edit mode, you can click the clear cache button of a given component. </p>
+<img src=\"/bitrix/images/main/comp_cache_en.png\" vspace=\"5\" />
+<p>3. Go to the component settings and switch the required components to uncached mode.</p>
+<img src=\"/bitrix/images/main/spisok_en.png\" vspace=\"5\" />
+<p>After enabling the caching mode, by default all the components with the Auto cache setting <i>\"Auto\"</i> will be switched to work with cache.</p>
+<p>Components with the cache setting <i>\"Cache\"</i> and with cache time greater than 0 (zero), always work in caching mode.</p>
+<p>Components with the cache setting <i>\"Do not cache\"</i> or with cache time equal to 0 (zero), always work without caching.</p>";
 $MESS["cache_admin_note2"] = "After deleting cache files all displayed content will be updated according to new data.
 		New cache files will be created gradually on requesting pages with cached areas.";
 $MESS["main_cache_managed_saved"] = "The managed cache settings has been saved.";

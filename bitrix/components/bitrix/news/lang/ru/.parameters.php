@@ -1,7 +1,7 @@
 <?
-$MESS["BN_P_IBLOCK_TYPE"] = "Тип инфо-блока";
-$MESS["BN_P_IBLOCK"] = "Инфо-блок";
-$MESS["BN_P_CACHE_FILTER"] = "Кэшировать при установленном фильтре";
+$MESS["BN_P_IBLOCK_TYPE"] = "Тип инфоблока";
+$MESS["BN_P_IBLOCK"] = "Инфоблок";
+$MESS["BN_P_CACHE_FILTER"] = "Кешировать при установленном фильтре";
 $MESS["BN_P_SECTION_ID_DESC"] = "Идентификатор раздела";
 $MESS["NEWS_ELEMENT_ID_DESC"] = "Идентификатор новости";
 $MESS["IBLOCK_FIELD"] = "Поля";

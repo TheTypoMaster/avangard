@@ -16,7 +16,7 @@ class CAllForumNew
 	{
 		$FID = intVal($FID);
 		$arUserGroups = (!is_array($arUserGroups) ? array($arUserGroups) : $arUserGroups);
-		if (in_array(1, $arUserGroups) || $GLOBALS["APPLICATION"]->GetGroupRight("forum", $arUserGroups) >= "W"):
+		if ($ExternalPermission === false && (in_array(1, $arUserGroups) || $GLOBALS["APPLICATION"]->GetGroupRight("forum", $arUserGroups) >= "W")):
 			return true;
 		endif;
 		$strPerms = ($ExternalPermission == false ? CForumNew::GetUserPermission($FID, $arUserGroups) : $ExternalPermission);
@@ -40,7 +40,7 @@ class CAllForumNew
 	function CanUserUpdateForum($FID, $arUserGroups, $iUserID = 0, $ExternalPermission = false)
 	{
 		$FID = intVal($FID);
-		if (in_array(1, $arUserGroups) || $GLOBALS["APPLICATION"]->GetGroupRight("forum", $arUserGroups) >= "W"):
+		if ($ExternalPermission === false && (in_array(1, $arUserGroups) || $GLOBALS["APPLICATION"]->GetGroupRight("forum", $arUserGroups) >= "W")):
 			return true;
 		elseif (!CForumUser::IsLocked($iUserID)):
 			$strPerms = ($ExternalPermission == false ? CForumNew::GetUserPermission($FID, $arUserGroups) : $ExternalPermission);
@@ -54,7 +54,7 @@ class CAllForumNew
 	{
 		$FID = intVal($FID);
 		$arUserGroups = (!is_array($arUserGroups) ? array($arUserGroups) : $arUserGroups);
-		if (in_array(1, $arUserGroups) || $GLOBALS["APPLICATION"]->GetGroupRight("forum", $arUserGroups) >= "W"):
+		if ($ExternalPermission === false && (in_array(1, $arUserGroups) || $GLOBALS["APPLICATION"]->GetGroupRight("forum", $arUserGroups) >= "W")):
 			return true;
 		elseif (!CForumUser::IsLocked($iUserID)):
 			$strPerms = ($ExternalPermission == false ? CForumNew::GetUserPermission($FID, $arUserGroups) : $ExternalPermission);
@@ -68,13 +68,14 @@ class CAllForumNew
 	{
 		$FID = intVal($FID);
 		$arUserGroups = (!is_array($arUserGroups) ? array($arUserGroups) : $arUserGroups);
-		if (in_array(1, $arUserGroups) || $GLOBALS["APPLICATION"]->GetGroupRight("forum", $arUserGroups) >= "W"):
+		if ($ExternalPermission === false && (in_array(1, $arUserGroups) || $GLOBALS["APPLICATION"]->GetGroupRight("forum", $arUserGroups) >= "W")):
 			return true;
 		elseif (!CForumUser::IsLocked($iUserID)):
 			$strPerms = ($ExternalPermission == false ? CForumNew::GetUserPermission($FID, $arUserGroups) : $ExternalPermission);
 		else:
 			$strPerms = CForumNew::GetPermissionUserDefault($FID);
 		endif;
+
 		if ($strPerms >= "Y"):
 			return true;
 		endif;
@@ -89,7 +90,7 @@ class CAllForumNew
 	{
 		$FID = intVal($FID);
 		$arUserGroups = (!is_array($arUserGroups) ? array($arUserGroups) : $arUserGroups);
-		if (in_array(1, $arUserGroups) || $GLOBALS["APPLICATION"]->GetGroupRight("forum", $arUserGroups) >= "W"):
+		if ($ExternalPermission === false && (in_array(1, $arUserGroups) || $GLOBALS["APPLICATION"]->GetGroupRight("forum", $arUserGroups) >= "W")):
 			return true;
 		elseif (!CForumUser::IsLocked($iUserID)):
 			$strPerms = ($ExternalPermission == false ? CForumNew::GetUserPermission($FID, $arUserGroups) : $ExternalPermission);
@@ -175,6 +176,7 @@ class CAllForumNew
 
 		if (is_set($arFields, "ACTIVE") || $ACTION=="ADD") {$arFields["ACTIVE"] = ($arFields["ACTIVE"] == "Y" ? "Y" : "N");}
 		if (is_set($arFields, "INDEXATION") || $ACTION=="ADD") {$arFields["INDEXATION"] = ($arFields["INDEXATION"] == "N" ? "N" : "Y");}
+		if (is_set($arFields, "DEDUPLICATION") || $ACTION=="ADD") {$arFields["DEDUPLICATION"] = ($arFields["DEDUPLICATION"] == "N" ? "N" : "Y");}
 		if (is_set($arFields, "MODERATION") || $ACTION=="ADD") {$arFields["MODERATION"] = ($arFields["MODERATION"] == "Y" ? "Y" : "N");}
 
 		if (is_set($arFields, "ALLOW_HTML") || $ACTION=="ADD") {$arFields["ALLOW_HTML"] = ($arFields["ALLOW_HTML"] == "Y" ? "Y" : "N");}
@@ -187,6 +189,7 @@ class CAllForumNew
 		if (is_set($arFields, "ALLOW_CODE") || $ACTION=="ADD") {$arFields["ALLOW_CODE"] = ($arFields["ALLOW_CODE"] == "N" ? "N" : "Y");}
 		if (is_set($arFields, "ALLOW_FONT") || $ACTION=="ADD") {$arFields["ALLOW_FONT"] = ($arFields["ALLOW_FONT"] == "N" ? "N" : "Y");}
 		if (is_set($arFields, "ALLOW_TABLE") || $ACTION=="ADD") {$arFields["ALLOW_TABLE"] = ($arFields["ALLOW_TABLE"] == "N" ? "N" : "Y");}
+		if (is_set($arFields, "ALLOW_ALIGN") || $ACTION=="ADD") {$arFields["ALLOW_ALIGN"] = ($arFields["ALLOW_ALIGN"] == "N" ? "N" : "Y");}
 		if (is_set($arFields, "ALLOW_SMILES") || $ACTION=="ADD") {$arFields["ALLOW_SMILES"] = ($arFields["ALLOW_SMILES"] == "N" ? "N" : "Y");}
 		if (is_set($arFields, "ALLOW_UPLOAD") || $ACTION=="ADD") {$arFields["ALLOW_UPLOAD"] = (in_array($arFields["ALLOW_UPLOAD"], array("Y", "F", "A")) ? $arFields["ALLOW_UPLOAD"] : "N");}
 		if (is_set($arFields, "ALLOW_NL2BR") || $ACTION=="ADD") {$arFields["ALLOW_NL2BR"] = ($arFields["ALLOW_NL2BR"] == "Y" ? "Y" : "N");}
@@ -617,7 +620,7 @@ class CAllForumNew
 		sort($arUserGroups);
 		$key = $ID."_".implode("_", $arUserGroups);
 		$cache_id = "b_forum_perms".$key;
-		if ($ID <= 0):
+		if ($ID <= 0 || empty($arUserGroups)):
 			return $aForumPermissions["reference_id"][0];
 		elseif (in_array(1, $arUserGroups)):
 			return $aForumPermissions["reference_id"][count($aForumPermissions["reference_id"])-1];
@@ -714,6 +717,7 @@ class CAllForumNew
 			$arAddParams["sPrefix"]."SORT" => $arAddParams["sTablePrefix"]."SORT",
 			$arAddParams["sPrefix"]."ACTIVE" => $arAddParams["sTablePrefix"]."ACTIVE",
 			$arAddParams["sPrefix"]."MODERATION" => $arAddParams["sTablePrefix"]."MODERATION",
+			$arAddParams["sPrefix"]."DEDUPLICATION" => $arAddParams["sTablePrefix"]."DEDUPLICATION",
 			$arAddParams["sPrefix"]."INDEXATION" => $arAddParams["sTablePrefix"]."INDEXATION",
 			$arAddParams["sPrefix"]."ALLOW_MOVE_TOPIC" => $arAddParams["sTablePrefix"]."ALLOW_MOVE_TOPIC",
 			$arAddParams["sPrefix"]."TOPICS" => $arAddParams["sTablePrefix"]."TOPICS",
@@ -743,6 +747,7 @@ class CAllForumNew
 			$arAddParams["sPrefix"]."ALLOW_VIDEO" => $arAddParams["sTablePrefix"]."ALLOW_VIDEO",
 			$arAddParams["sPrefix"]."ALLOW_LIST" => $arAddParams["sTablePrefix"]."ALLOW_LIST",
 			$arAddParams["sPrefix"]."ALLOW_TABLE" => $arAddParams["sTablePrefix"]."ALLOW_TABLE",
+			$arAddParams["sPrefix"]."ALLOW_ALIGN" => $arAddParams["sTablePrefix"]."ALLOW_ALIGN",
 			$arAddParams["sPrefix"]."ALLOW_QUOTE" => $arAddParams["sTablePrefix"]."ALLOW_QUOTE",
 			$arAddParams["sPrefix"]."ALLOW_CODE" => $arAddParams["sTablePrefix"]."ALLOW_CODE",
 			$arAddParams["sPrefix"]."ALLOW_FONT" => $arAddParams["sTablePrefix"]."ALLOW_FONT",
@@ -771,10 +776,8 @@ class CAllForumNew
 		return $res;
 	}
 
-
-
 	//---------------> Forum list
-	function GetList($arOrder = Array("SORT"=>"ASC"), $arFilter = Array())
+	function GetList($arOrder = Array("SORT"=>"ASC"), $arFilter = Array(), $arAddParams = array())
 	{
 		global $DB;
 		$arSqlSearch = Array();
@@ -805,6 +808,7 @@ class CAllForumNew
 					}
 					break;
 				case "INDEXATION":
+				case "DEDUPLICATION":
 				case "ACTIVE":
 				case "XML_ID":
 					if (strlen($val)<=0)
@@ -845,7 +849,7 @@ class CAllForumNew
 				case "PERMS":
 					if (is_array($val) && count($val)>1)
 					{
-						$val[1] = strtoupper(substr($val, 0, 1));
+						$val[1] = strtoupper(substr($val[1], 0, 1));
 						if (strpos("AEIMQUY", $val[1]) !== false)
 						{
 							$arSqlSearch[] = "F.ID = FP.FORUM_ID AND FP.GROUP_ID IN (".intval($val[0]).") AND FP.PERMISSION > '".$DB->ForSql($val[1])."' ";
@@ -885,7 +889,7 @@ class CAllForumNew
 			$strSqlOrder = " ORDER BY ".implode(", ", $arSqlOrder);
 
 		$strSql =
-			"SELECT F_FORUM.*, F.NAME, F.DESCRIPTION, F.ACTIVE, F.MODERATION, F.INDEXATION, F.ALLOW_MOVE_TOPIC, '' as LID,
+			"SELECT F_FORUM.*, F.NAME, F.DESCRIPTION, F.ACTIVE, F.MODERATION, F.INDEXATION, F.DEDUPLICATION, F.ALLOW_MOVE_TOPIC, '' as LID,
 				F.TOPICS, F.POSTS, F.LAST_POSTER_ID, F.LAST_POSTER_NAME,
 				".$DB->DateToCharFunction("F.LAST_POST_DATE", "FULL")." as LAST_POST_DATE,
 				F.LAST_MESSAGE_ID, F.LAST_MESSAGE_ID as MID,
@@ -894,7 +898,7 @@ class CAllForumNew
 				F.ABS_LAST_MESSAGE_ID, F.SORT, F.ORDER_BY,
 				F.ORDER_DIRECTION, F.ALLOW_HTML, F.ALLOW_ANCHOR, F.ALLOW_BIU,
 				F.ALLOW_IMG, F.ALLOW_VIDEO, F.ALLOW_TABLE, F.ALLOW_LIST, F.ALLOW_QUOTE, F.ALLOW_CODE,
-				F.ALLOW_FONT, F.ALLOW_SMILES, F.ALLOW_UPLOAD, F.EVENT1, F.EVENT2,
+				F.ALLOW_ALIGN, F.ALLOW_FONT, F.ALLOW_SMILES, F.ALLOW_UPLOAD, F.EVENT1, F.EVENT2,
 				F.EVENT3, F.ALLOW_NL2BR, '' as PATH2FORUM_MESSAGE, F.ALLOW_UPLOAD_EXT, F.ALLOW_TOPIC_TITLED,
 				F.FORUM_GROUP_ID, F.ASK_GUEST_EMAIL, F.USE_CAPTCHA, F.XML_ID
 			FROM
@@ -911,7 +915,7 @@ class CAllForumNew
 		return $db_res;
 	}
 
-	function GetListEx($arOrder = Array("SORT"=>"ASC"), $arFilter = Array())
+	function GetListEx($arOrder = Array("SORT"=>"ASC"), $arFilter = Array(), $bCount = false, $iNum = 0, $arAddParams = array())
 	{
 		global $DB;
 		$arSqlSearch = array();
@@ -945,6 +949,7 @@ class CAllForumNew
 					$arSqlSearch[] = ($strNegative=="Y"?" NOT ":"")."(F2S.SITE_ID ".$strOperation." '".$DB->ForSql($val)."')";
 					break;
 				case "INDEXATION":
+				case "DEDUPLICATION":
 				case "ACTIVE":
 				case "XML_ID":
 				case "ALLOW_MOVE_TOPIC":
@@ -1125,35 +1130,120 @@ class CAllForumNew
 			if ($order!="ASC") $order = "DESC".($DB->type=="ORACLE"?" NULLS LAST":"");
 			else $order = "ASC".($DB->type=="ORACLE"?" NULLS FIRST":"");
 
-			if ($by == "ID") $arSqlOrder[] = " F_FORUM.ID ".$order." ";
-			elseif ($by == "NAME") $arSqlOrder[] = " F.NAME ".$order." ";
-			elseif ($by == "ACTIVE") $arSqlOrder[] = " F.ACTIVE ".$order." ";
-			elseif ($by == "MODERATION") $arSqlOrder[] = " F.MODERATION ".$order." ";
-			elseif ($by == "FORUM_GROUP_ID") $arSqlOrder[] = " F.FORUM_GROUP_ID ".$order." ";
-			elseif ($by == "FORUM_GROUP_SORT") $arSqlOrder[] = " FG.SORT ".$order." ";
-			elseif ($by == "TOPICS") $arSqlOrder[] = " F.TOPICS ".$order." ";
-			elseif ($by == "POSTS") $arSqlOrder[] = " F.POSTS ".$order." ";
-			elseif ($by == "POSTS_UNAPPROVED") $arSqlOrder[] = " F.POSTS_UNAPPROVED ".$order." ";
-			elseif ($by == "LAST_POST_DATE") $arSqlOrder[] = " F.LAST_POST_DATE ".$order." ";
-			elseif ($by == "ABS_LAST_POST_DATE") $arSqlOrder[] = " F.ABS_LAST_POST_DATE ".$order." ";
+			if ($by == "ID") $arSqlOrder["F_FORUM.ID"] = " F_FORUM.ID ".$order." ";
+			elseif ($by == "NAME") $arSqlOrder["F.NAME"] = " F.NAME ".$order." ";
+			elseif ($by == "ACTIVE") $arSqlOrder["F.ACTIVE"] = " F.ACTIVE ".$order." ";
+			elseif ($by == "MODERATION") $arSqlOrder["F.MODERATION"] = " F.MODERATION ".$order." ";
+			elseif ($by == "FORUM_GROUP_ID") $arSqlOrder["F.FORUM_GROUP_ID"] = " F.FORUM_GROUP_ID ".$order." ";
+			elseif ($by == "FORUM_GROUP_SORT") $arSqlOrder["FG.SORT"] = " FG.SORT ".$order." ";
+			elseif ($by == "TOPICS") $arSqlOrder["F.TOPICS"] = " F.TOPICS ".$order." ";
+			elseif ($by == "POSTS") $arSqlOrder["F.POSTS"] = " F.POSTS ".$order." ";
+			elseif ($by == "POSTS_UNAPPROVED") $arSqlOrder["F.POSTS_UNAPPROVED"] = " F.POSTS_UNAPPROVED ".$order." ";
+			elseif ($by == "LAST_POST_DATE") $arSqlOrder["F.LAST_POST_DATE"] = " F.LAST_POST_DATE ".$order." ";
+			elseif ($by == "ABS_LAST_POST_DATE") $arSqlOrder["F.ABS_LAST_POST_DATE"] = " F.ABS_LAST_POST_DATE ".$order." ";
 			else
 			{
-				$arSqlOrder[] = " F.SORT ".$order." ";
+				$arSqlOrder["F.SORT"] = " F.SORT ".$order." ";
 				$by = "SORT";
 			}
 		}
-		DelDuplicateSort($arSqlOrder);
 		if (count($arSqlOrder) > 0)
 			$strSqlOrder = " ORDER BY ".implode(", ", $arSqlOrder);
+
+		if ($bCount || (is_set($arAddParams, "bDescPageNumbering") && intVal($arAddParams["nTopCount"])<=0))
+		{
+			$arCountSqlFrom = $arSqlFrom;
+			if (isset($arSqlFrom['RENEW']) && (strpos($strSqlSearch, "RENEW.") === false))
+				unset($arCountSqlFrom['RENEW']);
+			$strSqlCountFrom = implode(" ", $arCountSqlFrom);
+
+			$strSql =
+				"SELECT COUNT(FORUMCOUNT.ID) as CNT FROM (".
+					"SELECT F.ID ".
+					" FROM b_forum F ".
+					$strSqlCountFrom ." ".
+					" WHERE (1=1 ".$strSqlSearch.") ".
+					$strSqlSearchOR.
+					" GROUP BY F.ID".
+					") FORUMCOUNT";
+
+			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$iCnt = 0;
+			if ($ar_res = $db_res->Fetch())
+			{
+				$iCnt = intVal($ar_res["CNT"]);
+			}
+			if ($bCount)
+				return $iCnt;
+		}
+
+		if (!$iNum && is_set($arAddParams, "bDescPageNumbering") && intVal($arAddParams["nTopCount"]) <= 0 && isset($arAddParams['nav_result']))
+		{
+			if (!$arAddParams['nav_result'])
+			{
+				$strSubSql =
+				"SELECT F_FORUM.* ".
+				"FROM ".
+					"(SELECT F.ID, FG.SORT ".$strSqlSelect. " ".
+					"FROM b_forum F ".
+					$strSqlFrom." ".
+						"LEFT JOIN b_forum_group FG ON F.FORUM_GROUP_ID = FG.ID ".
+					"WHERE (1=1 ".$strSqlSearch.") ".
+						$strSqlSearchOR." ".
+					"GROUP BY F.ID, FG.SORT) F_FORUM ".
+				"INNER JOIN b_forum F ON (F_FORUM.ID = F.ID) ".
+				str_replace("FG.SORT", "F_FORUM.SORT", $strSqlOrder);
+
+				$db_res = new CDBResult();
+				$db_res->NavQuery($strSubSql, $iCnt, $arAddParams);
+					return $db_res;
+			}
+			else
+			{
+				$db_res = $arAddParams['nav_result'];
+			}
+
+			$arForumID = array();
+			while($ar_res = $db_res->Fetch())
+			{
+				$arForumID[] = $ar_res['ID'];
+			}
+			$sForumID = implode(', ', $arForumID);
+			$strSqlSearch = "(".($sForumID != "" ? "F.ID IN (".$sForumID.") " : "1=1 ").$strSqlSearch.")";
+		}
+		else
+		{
+			$strSqlSearch = "(1=1 ".$strSqlSearch.")";
+		}
+
+		$arSQL = array("select" => "", "join" => "");
+		if (!empty($arAddParams["sNameTemplate"]))
+		{
+			$arSQL = array_merge_recursive(
+				CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+					$arAddParams, array(
+					"sUserTablePrefix" => "U_LAST.",
+					"sForumUserTablePrefix" => "FU_LAST.",
+					"sFieldName" => "LAST_POSTER_NAME_FRMT",
+					"sUserIDFieldName" => "F.LAST_POSTER_ID"))),
+				CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+					$arAddParams, array(
+					"sUserTablePrefix" => "U_ABS_LAST.",
+					"sForumUserTablePrefix" => "FU_ABS_LAST.",
+					"sFieldName" => "ABS_LAST_POSTER_NAME_FRMT",
+					"sUserIDFieldName" => "F.ABS_LAST_POSTER_ID"))));
+			$arSQL["select"] = ",\n\t".implode(",\n\t", $arSQL["select"]);
+			$arSQL["join"] = "\n".implode("\n", $arSQL["join"]);
+		}
 
 		$strSql =
 			"SELECT F_FORUM.*, F.FORUM_GROUP_ID, F.NAME, F.DESCRIPTION, F.SORT, F.ACTIVE,
 				F.ALLOW_HTML, F.ALLOW_ANCHOR, F.ALLOW_BIU, F.ALLOW_IMG, F.ALLOW_VIDEO,
 				F.ALLOW_LIST, F.ALLOW_QUOTE, F.ALLOW_CODE, F.ALLOW_FONT, F.ALLOW_SMILES,
-				F.ALLOW_UPLOAD, F.ALLOW_UPLOAD_EXT, F.ALLOW_MOVE_TOPIC,
+				F.ALLOW_ALIGN, F.ALLOW_UPLOAD, F.ALLOW_UPLOAD_EXT, F.ALLOW_MOVE_TOPIC,
 				F.ALLOW_NL2BR, F.ALLOW_TABLE,  F.ALLOW_TOPIC_TITLED, F.ALLOW_KEEP_AMP,
 				'' as PATH2FORUM_MESSAGE,
-				F.ASK_GUEST_EMAIL, F.USE_CAPTCHA, F.MODERATION, F.INDEXATION,
+				F.ASK_GUEST_EMAIL, F.USE_CAPTCHA, F.MODERATION, F.INDEXATION, F.DEDUPLICATION,
 				F.ORDER_BY, F.ORDER_DIRECTION,
 				'' as LID, '' as DIR,
 				F.TOPICS, F.XML_ID,
@@ -1165,27 +1255,135 @@ class CAllForumNew
 				F.ABS_LAST_MESSAGE_ID, FM_ABS.TOPIC_ID as ABS_TID,
 				F.EVENT1, F.EVENT2, F.EVENT3,
 				FT.TITLE, FT_ABS.TITLE as ABS_TITLE,
-				F.HTML, FT.HTML AS TOPIC_HTML, FT_ABS.HTML AS ABS_TOPIC_HTML
+				F.HTML, FT.HTML AS TOPIC_HTML, FT_ABS.HTML AS ABS_TOPIC_HTML".$arSQL["select"]."
 			FROM
 			(
 				SELECT F.ID ".$strSqlSelect."
 				FROM b_forum F
 					".$strSqlFrom."
-				WHERE (1=1 ".$strSqlSearch.")
+				WHERE ".$strSqlSearch."
 					".$strSqlSearchOR."
 				GROUP BY F.ID
 			) F_FORUM
-			INNER JOIN b_forum F ON (F_FORUM.ID = F.ID)
+			INNER JOIN b_forum F ON (F_FORUM.ID = F.ID)".
+			$arSQL["join"]."
 			LEFT JOIN b_forum_group FG ON F.FORUM_GROUP_ID = FG.ID
 			LEFT JOIN b_forum_message FM ON F.LAST_MESSAGE_ID = FM.ID
 			LEFT JOIN b_forum_topic FT ON FM.TOPIC_ID = FT.ID
 			LEFT JOIN b_forum_message FM_ABS ON F.ABS_LAST_MESSAGE_ID = FM_ABS.ID
 			LEFT JOIN b_forum_topic FT_ABS ON FM_ABS.TOPIC_ID = FT_ABS.ID
 			".$strSqlOrder;
+
+		$iNum = intVal($iNum);
+		if ($iNum > 0 || intVal($arAddParams["nTopCount"]) > 0)
+		{
+			$iNum = ($iNum > 0) ? $iNum : intVal($arAddParams["nTopCount"]);
+			$strSql .= " LIMIT 0,".$iNum;
+		}
+
 		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		if (COption::GetOptionString("forum", "FILTER", "Y") == "N")
+
+		if (is_set($arAddParams, 'NoFilter') && $arAddParams['NoFilter'] == true)
 			return $db_res;
-		$db_res = new _CForumDBResult($db_res);
+		return new _CForumDBResult($db_res, $arAddParams);
+	}
+
+	function GetForumRenew($arParams)
+	{
+		global $DB, $USER;
+
+		$userID = false;
+		if (isset($arParams['USER_ID']) && (intval($arParams['USER_ID']) > 0))
+		{
+			$userID = intval($arParams['USER_ID']);
+		}
+		else if ($USER->IsAuthorized())
+		{
+			$userID = $USER->GetID();
+		}
+
+		$arForum = array();
+		if (isset($arParams['FORUM_ID']))
+		{
+			if (!is_array($arParams['FORUM_ID']) && (intval($arParams['FORUM_ID']) > 0))
+				$arParams['FORUM_ID'] = array($arParams['FORUM_ID']);
+
+			if (is_array($arParams['FORUM_ID']))
+			{
+				foreach ($arParams['FORUM_ID'] as $forumID)
+				{
+					$forumID = intval($forumID);
+					if ($forumID > 0)
+						$arForum[] = $forumID;
+				}
+			}
+		}
+
+		if ($userID === false || sizeof($arForum) <= 0)
+		{
+			return false;
+		}
+
+		$sWhere = "(1=1)";
+		if (sizeof($arForum) > 0)
+			$sWhere = '(BF.ID IN ('.implode(" ,",$arForum).'))';
+
+
+		$strSql = "
+			SELECT BF.ID AS FORUM_ID , COUNT(FT_RENEW.ID) TCRENEW
+			FROM b_forum BF
+			LEFT JOIN b_forum_user_forum FUF ON (FUF.USER_ID = ".$userID." AND FUF.FORUM_ID = BF.ID)
+			LEFT JOIN b_forum_user_forum FUF_ALL ON (FUF_ALL.USER_ID =  ".$userID." AND FUF_ALL.FORUM_ID =  0)
+			LEFT JOIN b_forum_topic FT_RENEW ON
+				(
+					BF.ID = FT_RENEW.FORUM_ID AND FT_RENEW.STATE != 'L' AND
+					(FUF_ALL.LAST_VISIT IS NULL OR FT_RENEW.ABS_LAST_POST_DATE >  FUF_ALL.LAST_VISIT)
+				)
+			LEFT JOIN b_forum_user_topic FUT_RENEW ON (
+					FUT_RENEW.FORUM_ID =  BF.ID AND FUT_RENEW.TOPIC_ID =  FT_RENEW.ID AND FUT_RENEW.USER_ID =  ".$userID.")
+			WHERE(
+				".$sWhere."
+				AND
+				(
+					FUT_RENEW.LAST_VISIT IS NULL
+					AND
+					(
+						(FUF_ALL.LAST_VISIT IS NULL AND FUF.LAST_VISIT IS NULL)
+						OR
+						(
+							FUF.LAST_VISIT IS NOT NULL
+							AND
+							(FUF.LAST_VISIT <  FT_RENEW.ABS_LAST_POST_DATE OR FUF.LAST_VISIT <  FT_RENEW.LAST_POST_DATE)
+						)
+						OR
+						(
+							FUF.LAST_VISIT IS NULL
+							AND
+							FUF_ALL.LAST_VISIT IS NOT NULL
+							AND
+							(
+								(
+									FUF_ALL.LAST_VISIT <  FT_RENEW.ABS_LAST_POST_DATE
+									OR
+									FUF_ALL.LAST_VISIT <  FT_RENEW.LAST_POST_DATE
+								)
+							)
+						)
+					)
+				)
+				OR (
+					FUT_RENEW.LAST_VISIT IS NOT NULL
+					AND
+					(
+						FUT_RENEW.LAST_VISIT <  FT_RENEW.ABS_LAST_POST_DATE
+						OR
+						FUT_RENEW.LAST_VISIT <  FT_RENEW.LAST_POST_DATE
+					)
+				)
+			)
+			GROUP BY BF.ID
+		";
+		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		return $db_res;
 	}
 
@@ -1208,7 +1406,8 @@ class CAllForumNew
 			}
 			else
 			{
-				$strSql = "SELECT F.ID, F.NAME, F.DESCRIPTION, F.ACTIVE, F.MODERATION, F.INDEXATION, F.ALLOW_MOVE_TOPIC,
+				$strSql = "SELECT F.ID, F.NAME, F.DESCRIPTION, F.ACTIVE, F.MODERATION, F.INDEXATION,
+						F.ALLOW_MOVE_TOPIC, F.DEDUPLICATION,
 						'' as LID, F.TOPICS, F.POSTS, F.LAST_POSTER_ID, F.LAST_POSTER_NAME,
 						".$DB->DateToCharFunction("F.LAST_POST_DATE", "FULL")." as LAST_POST_DATE,
 						F.LAST_MESSAGE_ID, F.LAST_MESSAGE_ID as MID,
@@ -1217,21 +1416,22 @@ class CAllForumNew
 						F.ABS_LAST_MESSAGE_ID, F.SORT, F.ORDER_BY,
 						F.ORDER_DIRECTION, F.ALLOW_HTML, F.ALLOW_ANCHOR, F.ALLOW_BIU, F.ALLOW_TOPIC_TITLED,
 						F.ALLOW_IMG, F.ALLOW_VIDEO, F.ALLOW_LIST, F.ALLOW_QUOTE, F.ALLOW_CODE, F.ALLOW_TABLE,
-						F.ALLOW_FONT, F.ALLOW_SMILES, F.ALLOW_UPLOAD, F.EVENT1, F.EVENT2,
+						F.ALLOW_ALIGN, F.ALLOW_FONT, F.ALLOW_SMILES, F.ALLOW_UPLOAD, F.EVENT1, F.EVENT2,
 						F.EVENT3, F.ALLOW_NL2BR, '' as PATH2FORUM_MESSAGE, F.ALLOW_UPLOAD_EXT,
 						F.FORUM_GROUP_ID, F.ASK_GUEST_EMAIL, F.USE_CAPTCHA, F.XML_ID
 					FROM b_forum F
 					WHERE F.ID = ".$ID;
 				$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+
 				$GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["MAIN"] = $db_res->GetNext();
-			if (CACHED_b_forum !== false)
-				$CACHE_MANAGER->Set($cache_id, $GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["MAIN"]);
+				if (CACHED_b_forum !== false)
+					$CACHE_MANAGER->Set($cache_id, $GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["MAIN"]);
 			}
 		}
 		return $GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["MAIN"];
 	}
 
-	function GetByIDEx($ID, $SITE_ID = false)
+	function GetByIDEx($ID, $SITE_ID = false, $arAddParams = array())
 	{
 		global $DB, $CACHE_MANAGER;
 		$ID = intVal($ID);
@@ -1252,28 +1452,47 @@ class CAllForumNew
 			}
 			else
 			{
-				$strSql = "SELECT F.ID, F.NAME, F.DESCRIPTION, F.ACTIVE, F.MODERATION, F.INDEXATION,
+				$arSQL = array("select" => "", "join" => "");
+				if (!empty($arAddParams["sNameTemplate"]))
+				{
+					$arSQL = array_merge_recursive(
+						CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+							$arAddParams, array(
+							"sUserTablePrefix" => "U_LAST.",
+							"sForumUserTablePrefix" => "FU_LAST.",
+							"sFieldName" => "LAST_POSTER_NAME_FRMT",
+							"sUserIDFieldName" => "F.LAST_POSTER_ID"))),
+						CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+							$arAddParams, array(
+							"sUserTablePrefix" => "U_ABS_LAST.",
+							"sForumUserTablePrefix" => "FU_ABS_LAST.",
+							"sFieldName" => "ABS_LAST_POSTER_NAME_FRMT",
+							"sUserIDFieldName" => "F.ABS_LAST_POSTER_ID"))));
+					$arSQL["select"] = ",\n\t".implode(",\n\t", $arSQL["select"]);
+					$arSQL["join"] = "\n".implode("\n", $arSQL["join"]);
+				}
+				$strSql = "SELECT F.ID, F.NAME, F.DESCRIPTION, F.ACTIVE, F.MODERATION, F.INDEXATION, F.DEDUPLICATION,
 						F.ALLOW_MOVE_TOPIC, '' as LID, F.TOPICS, F.POSTS, F.LAST_POSTER_ID, F.LAST_POSTER_NAME,
 						".$DB->DateToCharFunction("F.LAST_POST_DATE", "FULL")." as LAST_POST_DATE,
 						F.LAST_MESSAGE_ID, FM.TOPIC_ID as TID, F.LAST_MESSAGE_ID as MID,
 						F.POSTS_UNAPPROVED, F.ABS_LAST_POSTER_ID, F.ABS_LAST_POSTER_NAME,
 						".$DB->DateToCharFunction("F.ABS_LAST_POST_DATE", "FULL")." as ABS_LAST_POST_DATE,
 						F.ABS_LAST_MESSAGE_ID, FT.TITLE, F.SORT, '' as DIR, F.ORDER_BY, F.ORDER_DIRECTION,
-						F.ALLOW_HTML, F.ALLOW_ANCHOR, F.ALLOW_BIU, F.ALLOW_TABLE,
+						F.ALLOW_HTML, F.ALLOW_ANCHOR, F.ALLOW_BIU, F.ALLOW_TABLE, F.ALLOW_ALIGN,
 						F.ALLOW_IMG, F.ALLOW_VIDEO, F.ALLOW_LIST, F.ALLOW_QUOTE, F.ALLOW_CODE, F.ALLOW_TOPIC_TITLED,
 						F.ALLOW_FONT, F.ALLOW_SMILES, F.ALLOW_UPLOAD, F.EVENT1, F.EVENT2,
 						F.EVENT3, F.ALLOW_NL2BR, ".(!$SITE_ID ? "''" : "FS.PATH2FORUM_MESSAGE")." as PATH2FORUM_MESSAGE, F.ALLOW_UPLOAD_EXT,
-						F.FORUM_GROUP_ID, F.ASK_GUEST_EMAIL, F.USE_CAPTCHA, F.HTML, FT.HTML AS TOPIC_HTML, F.XML_ID
+						F.FORUM_GROUP_ID, F.ASK_GUEST_EMAIL, F.USE_CAPTCHA, F.HTML, FT.HTML AS TOPIC_HTML, F.XML_ID".$arSQL["select"]."
 					FROM b_forum F
 						LEFT JOIN b_forum_group FG ON (F.FORUM_GROUP_ID = FG.ID) ".
 						(!$SITE_ID ? "" : "
-						LEFT JOIN b_forum2site FS ON (F.ID = FS.FORUM_ID AND FS.SITE_ID = '".$DB->ForSql($SITE_ID)."') ")."
+						LEFT JOIN b_forum2site FS ON (F.ID = FS.FORUM_ID AND FS.SITE_ID = '".$DB->ForSql($SITE_ID)."') ").
+						$arSQL["join"]."
 						LEFT JOIN b_forum_message FM ON (F.LAST_MESSAGE_ID = FM.ID)
 						LEFT JOIN b_forum_topic FT ON (FM.TOPIC_ID = FT.ID)
 					WHERE (F.ID=".$ID.")";
 				$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-				if ($db_res && COption::GetOptionString("forum", "FILTER", "Y") == "Y")
-					$db_res = new _CForumDBResult($db_res);
+				$db_res = new _CForumDBResult($db_res, $arAddParams);
 				$GLOBALS["FORUM_CACHE"]["FORUM"][$ID][$key] = $db_res->Fetch();
 				if (CACHED_b_forum !== false)
 					$CACHE_MANAGER->Set($cache_id, $GLOBALS["FORUM_CACHE"]["FORUM"][$ID][$key]);
@@ -1364,7 +1583,6 @@ class CAllForumNew
 	{
 		$ID = intVal($ID);
 		$_SESSION["read_forum_".$ID] = "0";
-
 		$strPerms = CForumNew::GetUserPermission($ID, $arUserGroups);
 		$iCurFirstReadForum = 0;
 		if ($strPerms > "Q"):
@@ -1373,10 +1591,8 @@ class CAllForumNew
 				$iCurFirstReadForum = intVal($res["ID"]);
 			endif;
 		endif;
-		if ($iLastPostID <= 0):
-			$res = CForumNew::GetByID($ID);
-			$iCurFirstReadForum = intVal($res["LAST_MESSAGE_ID"]);
-		endif;
+		$res = CForumNew::GetByID($ID);
+		$iCurFirstReadForum = intVal($res["LAST_MESSAGE_ID"]);
 		$_SESSION["first_read_forum_".$ID] = $iCurFirstReadForum;
 
 		$arForumCookie = array();
@@ -2062,7 +2278,7 @@ class CAllForumSmile
 		}
 		elseif (is_set($arFields, "IMAGE"))
 		{
-			$arFile = @getimagesize($_SERVER['DOCUMENT_ROOT'].BX_ROOT."/images/forum/".($arFields["TYPE"] == "I" ? "icon" : "smile")."/".$arFields["IMAGE"]);
+			$arFile = CFile::GetImageSize($_SERVER['DOCUMENT_ROOT'].BX_ROOT."/images/forum/".($arFields["TYPE"] == "I" ? "icon" : "smile")."/".$arFields["IMAGE"]);
 			$arFile = (is_array($arFile) ? $arFile : array());
 			$arFile = array(
 				"name" => $arFields["IMAGE"],
@@ -2397,8 +2613,10 @@ class CAllForumSmile
 
 class _CForumDBResult extends CDBResult
 {
-	function _CForumDBResult($res)
+	var $sNameTemplate = '';
+	function _CForumDBResult($res, $params = array())
 	{
+		$this->sNameTemplate = (!empty($params["sNameTemplate"]) ? $params["sNameTemplate"] : '');
 		parent::CDBResult($res);
 	}
 	function Fetch()
@@ -2406,7 +2624,8 @@ class _CForumDBResult extends CDBResult
 		global $DB;
 		if($res = parent::Fetch())
 		{
-			if (COption::GetOptionString("forum", "FILTER", "Y") == "Y"):
+			if (COption::GetOptionString("forum", "FILTER", "Y") == "Y")
+			{
 				if (strLen(trim($res["HTML"])) >0)
 				{
 					$arr = unserialize($res["HTML"]);
@@ -2431,7 +2650,29 @@ class _CForumDBResult extends CDBResult
 							$res["ABS_LAST_POSTER_NAME"] = $arr["ABS_LAST_POSTER_NAME"];
 					}
 				}
-			endif;
+			}
+
+			if (!empty($this->sNameTemplate))
+			{
+				$arTmp = array();
+				foreach (array("LAST_POSTER_ID" => "LAST_POSTER_NAME", "ABS_LAST_POSTER_ID" => "ABS_LAST_POSTER_NAME") as $id => $name)
+				{
+					$tmp = "";
+					if (!empty($res[$id]))
+					{
+						if (in_array($res[$id], $arTmp))
+						{
+							$tmp = $arTmp[$res[$id]];
+						}
+						else
+						{
+							$arTmp[$res[$id]] = $tmp = (!empty($res[$name."_FRMT"]) ? $res[$name."_FRMT"] :
+								CForumUser::GetFormattedNameByUserID($res[$id], $this->sNameTemplate));
+						}
+					}
+					$res[$name] = (!empty($tmp) ? $tmp : $res[$name]);
+				}
+			}
 		}
 		return $res;
 	}

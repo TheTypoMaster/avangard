@@ -21,6 +21,10 @@ CModule::AddAutoloadClasses(
 		"CPerfAccel" => "classes/general/measure.php",
 		"CPerfCluster" =>  "classes/general/cluster.php",
 		"CPerfomanceSchema" => "classes/general/schema.php",
+		"CPerfomanceIndexSuggest" => "classes/general/index_suggest.php",
+		"CPerfQuery" =>  "classes/general/query.php",
+		"CPerfQueryStat" => "classes/general/query_stat.php",
+		"CPerfomanceIndexComplete" => "classes/general/index_complete.php",
 	)
 );
 ?>

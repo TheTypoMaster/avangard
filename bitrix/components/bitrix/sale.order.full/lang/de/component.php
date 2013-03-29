@@ -1,0 +1,37 @@
+<?
+$MESS["STOF_AUTH"] = "Anmeldung";
+$MESS["STOF_ERROR_REG"] = "Bei der Registrierung eines neuen Nutzers ist ein Fehler aufgetreten";
+$MESS["STOF_ERROR_REG_PASS"] = "Bei der Registrierung eines neuen Nutzers ist ein Fehler aufgetreten: die Passwortbestätigung stimmt nicht mit dem Passwort überein";
+$MESS["STOF_ERROR_REG_FLAG1"] = "Bei der Registrierung eines neuen Nutzers ist ein Fehler aufgetreten: geben Sie ein Passwort ein oder lassen Sie sich eins vom System generieren";
+$MESS["STOF_ERROR_REG_EMAIL"] = "Bei der Registrierung eines neuen Nutzers ist ein Fehler aufgetreten: geben Sie Ihre E-Mail Adresse ein";
+$MESS["STOF_ERROR_REG_FLAG"] = "Bei der Registrierung eines neuen Nutzers ist ein Fehler aufgetreten: geben Sie Ihren Loginnamen ein oder lassen Sie sich eins vom System generieren";
+$MESS["STOF_ERROR_REG_LASTNAME"] = "Bei der Registrierung eines neuen Nutzers ist ein Fehler aufgetreten: geben Sie Ihren Nachnamen an";
+$MESS["STOF_ERROR_REG_NAME"] = "Bei der Registrierung eines neuen Nutzers ist ein Fehler aufgetreten: geben Sie Ihren Vornamen an";
+$MESS["STOF_ERROR_REG_BAD_EMAIL"] = "Bei der Registrierung eines neuen Nutzers ist ein Fehler aufgetreten: überprüfen Sie Ihre E-Mail Adresse";
+$MESS["SALE_ERROR_ADD_ORDER"] = "Beim Speichern der Bestellung ist ein Fehler aufgetreten";
+$MESS["STOF_MAKING_ORDER"] = "Bestellen";
+$MESS["SALE_TO"] = "bis";
+$MESS["SALE_EMPTY_FIELD"] = "Das Feld wurde nicht ausgefüllt";
+$MESS["SALE_MODULE_NOT_INSTALL"] = "Das Modul \"Onlineshop\" wurde nicht installiert.";
+$MESS["SALE_PERS_TYPE_NOT_FOUND"] = "Die Kundengruppe wurde nicht gefunden.";
+$MESS["SALE_DELIVERY_NOT_FOUND"] = "Die Versandart wurde nicht gefunden.";
+$MESS["SALE_PAY_SYS_NOT_FOUND"] = "Die Zahlungsmethode wurde nicht gefunden.";
+$MESS["SALE_NO_PERS_TYPE"] = "Es wurde keine Kundengruppe ausgewählt.";
+$MESS["SALE_NO_PAY_SYS"] = "Es wurde keine Zahlungsmethode ausgewählt.";
+$MESS["STOF_ERROR_AUTH"] = "Fehler bei der Anmeldung";
+$MESS["STOF_ERROR_AUTH_LOGIN"] = "Fehler bei der Anmeldung: geben Sie Ihren Loginnamen ein";
+$MESS["SALE_BASKET_EMPTY"] = "Ihr Warenkorb ist leer";
+$MESS["INFO_REQ"] = "Ihre Registrierung war erfolgreich.";
+$MESS["SALE_TAX_INPRICE"] = "ist im Preis enthalten";
+$MESS["SALE_YES"] = "Ja";
+$MESS["SALE_DELIV_PERIOD"] = "Lieferzeit";
+$MESS["SALE_PER_MONTH"] = "Monate";
+$MESS["STOF_VAT"] = "MwSt.";
+$MESS["SALE_NO"] = "Nein";
+$MESS["SALE_PROFILE_NAME"] = "Profil";
+$MESS["STOF_ERROR_REG_CONFIRM"] = "Sie wurden erfolgreich auf dieser Seite registriert. Das Kontrollwort, um die Registrierung zu bestätigen, wurde Ihnen per E-Mail zugeschickt.";
+$MESS["SALE_QUANTITY_UNIT"] = "Stk.";
+$MESS["SALE_PER_HOUR"] = "Stunden";
+$MESS["SALE_PER_DAY"] = "Tage";
+$MESS["SALE_FROM"] = "von";
+?>

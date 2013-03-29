@@ -64,4 +64,7 @@ $MESS["FEN_DELETE_FORUM_CONFIRM"] = "Are you sure you want to delete the forum? 
 $MESS["FE_ROOT_GROUP"] = "Top Level";
 $MESS["REQUIRE_REINDEX"] = "You may need to <a href=\"#LINK#\">re-index</a> the forum if the value is changed.";
 $MESS["ALLOW_TABLE_TITLE"] = "allow tables";
+$MESS["ALLOW_ALIGN_TITLE"] = "enable alignment";
+$MESS["DEDUPLICATION"] = "Duplicate topics";
+$MESS["DEDUPLICATION_TITLE"] = "never";
 ?>

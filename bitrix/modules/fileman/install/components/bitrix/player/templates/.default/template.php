@@ -61,7 +61,7 @@ var arFiles = [
 	};
 	BX.loadCSS('/bitrix/components/bitrix/player/templates/.default/wmvplaylist.css');
 	arFiles.push('/bitrix/components/bitrix/player/templates/.default/wmvscript_playlist.js');
-<?else:?>
+<?elseif ($arResult["INIT_PLAYER"] == "Y"):?>
 	arFiles.push('/bitrix/components/bitrix/player/wmvplayer/wmvscript.js');
 <?endif;?>
 

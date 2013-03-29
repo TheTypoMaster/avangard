@@ -19,7 +19,7 @@ foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	if (empty($arParams[strToUpper($URL)."_URL"]))
 		$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "sessid", "edit", "order"));
 	$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-	$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+	$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 }
 
 $arRes = array();
@@ -211,7 +211,7 @@ if ($arParams["PERMISSION"] >= "U" || $arParams["SHOW_TAGS"] == "Y" || !empty($a
 		"USE_COMMENTS" => $arParams["USE_COMMENTS"],
 		"COMMENTS_TYPE" => $arParams["COMMENTS_TYPE"],
 
- 		"COMMENTS_COUNT" => $arParams["COMMENTS_COUNT"],
+		"COMMENTS_COUNT" => $arParams["COMMENTS_COUNT"],
 		"PATH_TO_SMILE" => $arParams["PATH_TO_SMILE"],
 		"FORUM_ID" => $arParams["FORUM_ID"],
 		"USE_CAPTCHA" => $arParams["USE_CAPTCHA"],

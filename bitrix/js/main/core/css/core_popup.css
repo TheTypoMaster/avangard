@@ -20,6 +20,10 @@
 .popup-window-hr { background: #ebebeb url(../images/controls-sprite.png) no-repeat 0 -396px; display:block; font-size:1px; height:1px; line-height:1px; margin:0; overflow:hidden; padding:0;}
 .popup-window-hr i { background: url(../images/controls-sprite.png) no-repeat right -398px; display:block; font-size:1px; height:1px; line-height:1px; margin:0; overflow:hidden; padding:0; }
 
+.popup-window-delimiter { background: #ebebeb url(../images/controls-sprite.png) no-repeat 0 -396px; display:block; font-size:1px; height:1px; line-height:1px; margin:0; overflow:hidden; padding:0;}
+.popup-window-delimiter i { background: url(../images/controls-sprite.png) no-repeat right -398px; display:block; font-size:1px; height:1px; line-height:1px; margin:0; overflow:hidden; padding:0; }
+
+
 .popup-window-bottom-row .popup-window-left-column { background: url(../images/popup/popup-sprite.2.png) no-repeat 0 -9px; }
 .popup-window-bottom-row .popup-window-center-column { background: url(../images/popup/popup-sprite.2.png) repeat-x 0 -18px; height:8px;}
 .popup-window-bottom-row .popup-window-right-column { background: url(../images/popup/popup-sprite.2.png) no-repeat -7px -9px;}
@@ -99,7 +103,7 @@
 .popup-window-light-angly-bottom { display:block; width: 20px; height: 12px; background-position:-6px -76px; margin-left: 7px; margin-top: -6px; }
 .popup-window-light-angly-left { display:block; width:10px; height: 18px; background-position:-31px -71px; left: -9px; top: 2px;}
 
-
+.popup-window-overlay { position: absolute; top: 0; left: 0; display: none; background: #333; filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50); -moz-opacity: 0.5; -khtml-opacity: 0.5; opacity: 0.5;}
 
 /* Menu Popup */
 .menu-popup { margin: -4px 4px 0 -2px;}
@@ -112,9 +116,9 @@
 .menu-popup-item-icon { width: 19px; height: 16px; }
 .menu-popup-item-text { font:normal normal normal 12px/23px Arial, Helvetica, sans-serif; color:#494949; text-decoration:none;  margin: 0 5px 0 7px;  }
 .menu-popup-item-right { position:absolute; top:0; right:0;}
-.menu-popup-item:hover { background: #f0f0f0 !important;}
-.menu-popup-item:hover .menu-popup-item-left { background: transparent url(../images/popup/popup-menu-sprite.2.png) no-repeat -28px -420px !important; }
-.menu-popup-item:hover .menu-popup-item-right { background: transparent url(../images/popup/popup-menu-sprite.2.png) no-repeat -35px -420px !important; }
+.menu-popup-item:hover, .bx-admin-submenu-opened { background: #f0f0f0 !important;}
+.menu-popup-item:hover .menu-popup-item-left, .bx-admin-submenu-opened .menu-popup-item-left { background: transparent url(../images/popup/popup-menu-sprite.2.png) no-repeat -28px -420px !important; }
+.menu-popup-item:hover .menu-popup-item-right, .bx-admin-submenu-opened .menu-popup-item-right { background: transparent url(../images/popup/popup-menu-sprite.2.png) no-repeat -35px -420px !important; }
 
 .menu-popup-item-view .menu-popup-item-icon { background: url(../images/popup/popup-menu-sprite.2.png) no-repeat scroll -45px -271px transparent; }
 .menu-popup-item-edit .menu-popup-item-icon { background: url(../images/popup/popup-menu-sprite.2.png) no-repeat scroll -43px -291px transparent; }

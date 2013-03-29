@@ -27,6 +27,7 @@ class CBitrixComponentTemplate
 	var $__component_epilog = false;
 
 	var $__bInited = False;
+	private $__view = array();
 
 	function CBitrixComponentTemplate()
 	{
@@ -118,7 +119,7 @@ class CBitrixComponentTemplate
 
 				//Check if parent component exists and plug css it to it's "collection"
 				if($this->__component && $this->__component->__parent)
-					$this->__component->__parent->__children_css[] = $this->__folder."/style.css";
+					$this->__component->__parent->addChildCSS($this->__folder."/style.css");
 			}
 		}
 	}
@@ -165,7 +166,7 @@ class CBitrixComponentTemplate
 		if (!$arBXRuntimeTemplateEngines)
 			$this->InitTemplateEngines();
 
-		if (StrToLower(get_class($component)) != "cbitrixcomponent")
+		if (!($component instanceof cbitrixcomponent))
 			return False;
 
 		$this->__component = &$component;
@@ -208,8 +209,8 @@ class CBitrixComponentTemplate
 		if (!$arBXRuntimeTemplateEngines)
 			$this->InitTemplateEngines();
 
-		if (file_exists($_SERVER["DOCUMENT_ROOT"].$path."/".$fileName.".php")
-			&& is_file($_SERVER["DOCUMENT_ROOT"].$path."/".$fileName.".php"))
+		$fname = $_SERVER["DOCUMENT_ROOT"].$path."/".$fileName.".php";
+		if (file_exists($fname) && is_file($fname))
 		{
 			return $fileName.".php";
 		}
@@ -290,29 +291,30 @@ class CBitrixComponentTemplate
 			return (strlen($this->__file) > 0);
 		}
 
-		for ($i = 0, $cnt = count($arFolders); $i < $cnt; $i++)
+		foreach ($arFolders as $folder)
 		{
-			if (file_exists($_SERVER["DOCUMENT_ROOT"].$arFolders[$i]."/".$this->__name))
+			$fname = $folder."/".$this->__name;
+			if (file_exists($_SERVER["DOCUMENT_ROOT"].$fname))
 			{
-				if (is_dir($_SERVER["DOCUMENT_ROOT"].$arFolders[$i]."/".$this->__name))
+				if (is_dir($_SERVER["DOCUMENT_ROOT"].$fname))
 				{
-					if ($templatePageFile = $this->__SearchTemplateFile($arFolders[$i]."/".$this->__name, $this->__page))
+					if ($templatePageFile = $this->__SearchTemplateFile($fname, $this->__page))
 					{
-						$this->__file = $arFolders[$i]."/".$this->__name."/".$templatePageFile;
-						$this->__folder = $arFolders[$i]."/".$this->__name;
+						$this->__file = $fname."/".$templatePageFile;
+						$this->__folder = $fname;
 					}
 				}
-				elseif (is_file($_SERVER["DOCUMENT_ROOT"].$arFolders[$i]."/".$this->__name))
+				elseif (is_file($_SERVER["DOCUMENT_ROOT"].$fname))
 				{
-					$this->__file = $arFolders[$i]."/".$this->__name;
+					$this->__file = $fname;
 					if (StrPos($this->__name, "/") !== False)
-						$this->__folder = $arFolders[$i]."/".SubStr($this->__name, 0, bxstrrpos($this->__name, "/"));
+						$this->__folder = $folder."/".SubStr($this->__name, 0, bxstrrpos($this->__name, "/"));
 				}
 			}
 			else
 			{
-				if ($templatePageFile = $this->__SearchTemplateFile($arFolders[$i], $this->__name))
-					$this->__file = $arFolders[$i]."/".$templatePageFile;
+				if ($templatePageFile = $this->__SearchTemplateFile($folder, $this->__name))
+					$this->__file = $folder."/".$templatePageFile;
 			}
 
 			if (StrLen($this->__file) > 0)
@@ -388,17 +390,17 @@ class CBitrixComponentTemplate
 
 		if($this->__folder <> '')
 		{
+			$arLangMessages = $this->IncludeLangFile();
 			$this->__IncludeMutatorFile($arResult, $arParams);
 			$this->__IncludeCSSFile();
 			$this->__IncludeJSFile();
-			$arLangMessages = $this->IncludeLangFile();
 		}
 
 		$parentTemplateFolder = "";
-		$parentComponent = & $this->__component->GetParent();
+		$parentComponent = $this->__component->GetParent();
 		if ($parentComponent)
 		{
-			$parentTemplate = & $parentComponent->GetTemplate();
+			$parentTemplate = $parentComponent->GetTemplate();
 			$parentTemplateFolder = $parentTemplate->GetFolder();
 		}
 
@@ -426,27 +428,34 @@ class CBitrixComponentTemplate
 
 	function __IncludeLangFile($path)
 	{
-		$MESS1 = __IncludeLang($path, true);
+		static $messCache = array();
+		if (!isset($messCache[$path]))
+			$messCache[$path] = __IncludeLang($path, true);
 
 		global $MESS;
-		$MESS = $MESS1 + $MESS;
+		$MESS = $messCache[$path] + $MESS;
 
-		return $MESS1;
+		return $messCache[$path];
 	}
 
-	function IncludeLangFile()
+	function IncludeLangFile($relativePath = "", $lang = false)
 	{
 		$arLangMessages = array();
 
 		if($this->__folder <> '')
 		{
-			if(preg_match("#/([^/]*?\\.php)\$#", $this->__file, $match))
-			{
-				if (LANGUAGE_ID != "en" && LANGUAGE_ID != "ru")
-					$arLangMessages = $this->__IncludeLangFile($_SERVER["DOCUMENT_ROOT"].$this->__folder."/lang/".LangSubst(LANGUAGE_ID)."/".$match[1]);
+			$absPath = $_SERVER["DOCUMENT_ROOT"].$this->__folder."/lang/";
 
-				$arLangMessages = $this->__IncludeLangFile($_SERVER["DOCUMENT_ROOT"].$this->__folder."/lang/".LANGUAGE_ID."/".$match[1]) + $arLangMessages;
-			}
+			if ($lang === false)
+				$lang = LANGUAGE_ID;
+
+			if ($relativePath == "")
+				$relativePath = bx_basename($this->__file);
+
+			if ($lang != "en" && $lang != "ru")
+				$arLangMessages = $this->__IncludeLangFile($absPath.LangSubst($lang)."/".$relativePath);
+
+			$arLangMessages = $this->__IncludeLangFile($absPath.$lang."/".$relativePath) + $arLangMessages;
 		}
 
 		return $arLangMessages;
@@ -473,17 +482,23 @@ class CBitrixComponentTemplate
 
 			//Check if parent component exists and plug css it to it's "collection"
 			if($this->__component && $this->__component->__parent)
-				$this->__component->__parent->__children_css[] = $this->__folder."/style.css";
+				$this->__component->__parent->addChildCSS($this->__folder."/style.css");
 		}
 	}
 
 	function __IncludeJSFile()
 	{
+		global $APPLICATION;
 		if($this->__folder <> '')
 		{
 			$fname = $_SERVER["DOCUMENT_ROOT"].$this->__folder."/script.js";
 			if (file_exists($fname))
-				echo "<script src=\"".$this->__folder."/script.js".'?'.filemtime($fname)."\" type=\"text/javascript\"></script>";
+			{
+				if($GLOBALS['APPLICATION']->IsJSOptimized() && ($GLOBALS['APPLICATION']->bShowHeadString || $GLOBALS['APPLICATION']->bShowHeadScript))
+					$APPLICATION->AddHeadScript($this->__folder."/script.js");
+				else
+					echo "<script src=\"".$this->__folder."/script.js".'?'.filemtime($fname)."\" type=\"text/javascript\"></script>";
+			}
 		}
 	}
 
@@ -513,7 +528,7 @@ class CBitrixComponentTemplate
 	function SetViewTarget($target, $pos = 500)
 	{
 		$this->EndViewTarget();
-		$view = &$this->__component->__view;
+		$view = &$this->__view;
 
 		if(!isset($view[$target]))
 			$view[$target] = array();
@@ -524,7 +539,7 @@ class CBitrixComponentTemplate
 
 	function EndViewTarget()
 	{
-		$view = &$this->__component->__view;
+		$view = &$this->__view;
 		if(!empty($view))
 		{
 			//Get the key to last started view target
@@ -541,6 +556,7 @@ class CBitrixComponentTemplate
 			{
 				$sub_target[0] = ob_get_contents();
 				$GLOBALS["APPLICATION"]->AddViewContent($target_key, $sub_target[0], $sub_target[1]);
+				$this->__component->addViewTarget($target_key, $sub_target[0], $sub_target[1]);
 				ob_end_clean();
 			}
 		}
@@ -576,7 +592,7 @@ $this->GetEditAreaId with the same id MUST be used for marking entry contaner or
 
 	function AddEditAction($entryId, $editLink, $editTitle = false, $arParams = array())
 	{
-		$this->__component->__editButtons[] = array('AddEditAction', $entryId, $editLink, $editTitle, $arParams);
+		$this->__component->addEditButton(array('AddEditAction', $entryId, $editLink, $editTitle, $arParams));
 	}
 
 	/*
@@ -586,7 +602,7 @@ no $arParams['CONFIRM'] at all - confirm with default text
 */
 	function AddDeleteAction($entryId, $deleteLink, $deleteTitle = false, $arParams = array())
 	{
-		$this->__component->__editButtons[] = array('AddDeleteAction', $entryId, $deleteLink, $deleteTitle, $arParams);
+		$this->__component->addEditButton(array('AddDeleteAction', $entryId, $deleteLink, $deleteTitle, $arParams));
 	}
 }
 ?>

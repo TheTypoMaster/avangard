@@ -5,10 +5,11 @@
 	Array(
 		"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
-		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"CACHE_GROUPS" => $arParams["CACHE_GROUPS"],
+		"COUNT_ELEMENTS" => $arParams["SECTION_COUNT_ELEMENTS"],
+		"TOP_DEPTH" => $arParams["SECTION_TOP_DEPTH"],
 		"SECTION_URL" => $arResult["FOLDER"].$arResult["URL_TEMPLATES"]["section"]
 	),
 	$component
@@ -30,8 +31,6 @@
 );?>
 <br />
 <?endif?>
-
-
 <?if($arParams["SHOW_TOP_ELEMENTS"]!="N"):?>
 <hr />
 <?$APPLICATION->IncludeComponent(
@@ -48,6 +47,7 @@
 		"ACTION_VARIABLE" => $arParams["ACTION_VARIABLE"],
 		"PRODUCT_ID_VARIABLE" => $arParams["PRODUCT_ID_VARIABLE"],
 		"SECTION_ID_VARIABLE" => $arParams["SECTION_ID_VARIABLE"],
+		"PRODUCT_QUANTITY_VARIABLE" => $arParams["PRODUCT_QUANTITY_VARIABLE"],
 		"DISPLAY_COMPARE" => $arParams["USE_COMPARE"],
 		"ELEMENT_COUNT" => $arParams["TOP_ELEMENT_COUNT"],
 		"LINE_ELEMENT_COUNT" => $arParams["TOP_LINE_ELEMENT_COUNT"],
@@ -57,6 +57,7 @@
 		"SHOW_PRICE_COUNT" => $arParams["SHOW_PRICE_COUNT"],
 		"PRICE_VAT_INCLUDE" => $arParams["PRICE_VAT_INCLUDE"],
 		"PRICE_VAT_SHOW_VALUE" => $arParams["PRICE_VAT_SHOW_VALUE"],
+		"USE_PRODUCT_QUANTITY" => $arParams['USE_PRODUCT_QUANTITY'],
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"CACHE_GROUPS" => $arParams["CACHE_GROUPS"],
@@ -66,6 +67,8 @@
 		"OFFERS_SORT_FIELD" => $arParams["OFFERS_SORT_FIELD"],
 		"OFFERS_SORT_ORDER" => $arParams["OFFERS_SORT_ORDER"],
 		"OFFERS_LIMIT" => $arParams["TOP_OFFERS_LIMIT"],
+		'CONVERT_CURRENCY' => $arParams['CONVERT_CURRENCY'],
+		'CURRENCY_ID' => $arParams['CURRENCY_ID'],
 	),
 $component
 );?>

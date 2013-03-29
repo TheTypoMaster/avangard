@@ -11,11 +11,11 @@
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
 /*******************************************************************/
 	$db_Forum = CForumNew::GetListEx(array("SORT"=>"ASC", "NAME"=>"ASC"));
-	
-	$arr = array();	
+
+	$arr = array();
 	$arr["reference_id"][] = "";
 	$arr["reference"][] = "";
-	$arrForum = array(); 
+	$arrForum = array();
 	$arrSelect = "";
 	while($dbForum = $db_Forum->Fetch())
 	{
@@ -29,20 +29,20 @@
 	$oSort = new CAdminSorting($sTableID, "ID", "asc");
 	$lAdmin = new CAdminList($sTableID, $oSort);
 	$lAdmin->InitFilter(array(
-		"FORUM_ID", "TITLE", "DESCRIPTION", "USER_START_ID", 
-		"ACTIVE", "PINNED", "OPENED", 
-		"DATE_FROM", "DATE_TO", 
+		"FORUM_ID", "TITLE", "DESCRIPTION", "USER_START_ID",
+		"ACTIVE", "PINNED", "OPENED",
+		"DATE_FROM", "DATE_TO",
 		"CREATE_DATE_FROM", "CREATE_DATE_TO"));
 /*******************************************************************/
-	$arMsg = array();	
+	$arMsg = array();
 	$err = false;
-	
+
 	$date1_create_stm = "";
 	$date1_create_stm = "";
 	$date1_stm = "";
 	$date2_stm = "";
-	
-	$CREATE_DATE_FROM = trim($CREATE_DATE_FROM); 
+
+	$CREATE_DATE_FROM = trim($CREATE_DATE_FROM);
 	$CREATE_DATE_TO = trim($CREATE_DATE_TO);
 	$CREATE_DATE_FROM_DAYS_TO_BACK = intVal($CREATE_DATE_FROM_DAYS_TO_BACK);
 	if (strlen($CREATE_DATE_FROM)>0 || strlen($CREATE_DATE_TO)>0 || $CREATE_DATE_FROM_DAYS_TO_BACK>0)
@@ -55,17 +55,17 @@
 			$date1_create_stm = time()-86400*$CREATE_DATE_FROM_DAYS_TO_BACK;
 			$date1_create_stm = GetTime($date1_create_stm);
 		}
-		if (!$date1_create_stm) 
+		if (!$date1_create_stm)
 			$arMsg[] = array("id"=>">=START_DATE", "text"=> GetMessage("FM_WRONG_DATE_CREATE_FROM"));
-	
-		if (!$date2_create_stm && strlen($CREATE_DATE_TO)>0) 
+
+		if (!$date2_create_stm && strlen($CREATE_DATE_TO)>0)
 			$arMsg[] = array("id"=>"<=START_DATE", "text"=> GetMessage("FM_WRONG_DATE_CREATE_FROM"));
 		elseif ($date1_create_stm && $date2_create_stm && ($date2_create_stm <= $date1_create_stm))
 			$arMsg[] = array("id"=>"find_date_create_timestamp2", "text"=> GetMessage("SUP_FROM_TILL_DATE_TIMESTAMP"));
 	}
-	
+
 	// LAST TOPIC
-	$DATE_FROM = trim($DATE_FROM); 
+	$DATE_FROM = trim($DATE_FROM);
 	$DATE_TO = trim($DATE_TO);
 	$DATE_FROM_DAYS_TO_BACK = intVal($DATE_FROM_DAYS_TO_BACK);
 	if (strlen($DATE_FROM)>0 || strlen($DATE_TO)>0 || $DATE_FROM_DAYS_TO_BACK>0)
@@ -78,15 +78,15 @@
 			$date1_stm = time()-86400*$DATE_FROM_DAYS_TO_BACK;
 			$date1_stm = GetTime($date1_stm);
 		}
-		if (!$date1_stm) 
+		if (!$date1_stm)
 			$arMsg[] = array("id"=>">=LAST_POST_DATE", "text"=> GetMessage("FM_WRONG_DATE_CREATE_FROM"));
-	
-		if (!$date2_stm && strlen($DATE_TO)>0) 
+
+		if (!$date2_stm && strlen($DATE_TO)>0)
 			$arMsg[] = array("id"=>"<=LAST_POST_DATE", "text"=> GetMessage("FM_WRONG_DATE_CREATE_FROM"));
 		elseif ($date1_stm && $date2_stm && ($date2_stm <= $date1_stm))
 			$arMsg[] = array("id"=>"find_date_timestamp2", "text"=> GetMessage("SUP_FROM_TILL_DATE_TIMESTAMP"));
 	}
-	
+
 	$arFilter = array();
 	$FORUM_ID = intVal($FORUM_ID);
 	if ($FORUM_ID > 0):
@@ -105,7 +105,7 @@
 		$arFilter["USER_START_ID"] = $USER_START_ID;
 	elseif (trim($_REQUEST["USER_START_ID"]) == "0"):
 		$arFilter["USER_START_ID"] = 0;
-	else: 
+	else:
 		$USER_START_ID = "";
 	endif;
 	if ($APPROVED == "Y" || $APPROVED == "N"):
@@ -123,25 +123,25 @@
 	else:
 		$STATE = "";
 	endif;
-		
+
 	if (strlen($date1_create_stm)>0)
 		$arFilter = array_merge($arFilter, array(">=START_DATE" => $CREATE_DATE_FROM));
 	if (strlen($date2_create_stm)>0)
 		$arFilter = array_merge($arFilter, array("<=START_DATE"	=> $CREATE_DATE_TO));
-	
+
 	if (strlen($date1_stm)>0)
 		$arFilter = array_merge($arFilter, array(">=LAST_POST_DATE" => $DATE_FROM));
 	if (strlen($date2_stm)>0)
 		$arFilter = array_merge($arFilter, array("<=LAST_POST_DATE"	=> $DATE_TO));
 
-	
+
 	if (!empty($arMsg))
 	{
 		$err = new CAdminException($arMsg);
-		$lAdmin->AddFilterError($err->GetString()); 
+		$lAdmin->AddFilterError($err->GetString());
 	}
 
-	
+
 /*******************************************************************/
 if ($lAdmin->EditAction() && $forumModulePermissions >= "R")
 {
@@ -155,9 +155,9 @@ if ($lAdmin->EditAction() && $forumModulePermissions >= "R")
 		elseif (!CForumTopic::CanUserUpdateTopic($ID, $USER->GetUserGroupArray(), $USER->GetID())):
 			continue;
 		endif;
-		
+
 		$res = CForumTopic::GetById($ID, array("NoFilter" => true));
-		
+
 		if (is_set($arFields, "APPROVED")):
 			$arFields["APPROVED"] = ($arFields["APPROVED"] == "N" ? "N" : "Y");
 			if ($res["APPROVED"] != $arFields["APPROVED"]):
@@ -171,7 +171,7 @@ if ($lAdmin->EditAction() && $forumModulePermissions >= "R")
 			endif;
 			unset($arFields["FORUM_ID"]);
 		endif;
-		
+
 		foreach ($arFields as $key => $val):
 			if ($val == $res[$key]):
 				unset($arFields[$key]);
@@ -180,7 +180,7 @@ if ($lAdmin->EditAction() && $forumModulePermissions >= "R")
 		if (empty($arFields)):
 			continue;
 		endif;
-		
+
 		if (!CForumTopic::Update($ID, $arFields))
 		{
 			if ($ex = $APPLICATION->GetException())
@@ -188,24 +188,24 @@ if ($lAdmin->EditAction() && $forumModulePermissions >= "R")
 			else
 				$lAdmin->AddUpdateError(GetMessage("FM_WRONG_UPDATE"), $ID);
 		}
-		else 
+		else
 		{
 			if (is_set($arFields, "STATE") && $arFields["STATE"] != $res["STATE"])
 			{
 				$res = serialize($res);
-				if ($arFields["STATE"] == "Y"): 
+				if ($arFields["STATE"] == "Y"):
 					CForumEventLog::Log("topic", "open", $ID, $res);
-				else: 
+				else:
 					CForumEventLog::Log("topic", "close", $ID, $res);
 				endif;
 				unset($arFields["STATE"]);
 			}
 			if (is_set($arFields, "SORT") && $arFields["SORT"] != $res["SORT"])
 			{
-				$res = serialize($res);  
-				if (intVal($arFields["SORT"]) == 100): 
+				$res = serialize($res);
+				if (intVal($arFields["SORT"]) == 100):
 					CForumEventLog::Log("topic", "stick", $res["ID"], $res);
-				else: 
+				else:
 					CForumEventLog::Log("topic", "unstick", $res["ID"], $res);
 				endif;
 				unset($arFields["SORT"]);
@@ -218,7 +218,6 @@ if ($lAdmin->EditAction() && $forumModulePermissions >= "R")
 						$res_log["before".$key] =  $arTopic[$key];
 					endif;
 				endforeach;
-            
 				if (!empty($res_log)):
 					$arTopic = CForumTopic::GetByID($TID);
 					$res_log['FORUM_ID'] = $arTopic['FORUM_ID'];
@@ -234,7 +233,7 @@ if($arID = $lAdmin->GroupAction())
 	$sError = ""; $sOk = "";
 	if (!check_bitrix_sessid())
 	{
-		
+
 	}
 	elseif ($_REQUEST['action'] == "move" && intVal($_REQUEST['move_to']) <= 0)
 	{
@@ -259,16 +258,16 @@ if($arID = $lAdmin->GroupAction())
 
 		if (empty($arID))
 		{
-			
+
 		}
-		else 
+		else
 		{
 			switch($_REQUEST['action'])
 			{
-				case "delete": 
+				case "delete":
 					ForumDeleteTopic($arID, $sError, $sOk);
 					break;
-				case "move": 
+				case "move":
 					if (!CForumTopic::MoveTopic2Forum($arID, intVal($_REQUEST['move_to']))):
 						$ex = $APPLICATION->GetException();
 						if ($ex && $err = $ex->GetString()):
@@ -286,12 +285,12 @@ if($arID = $lAdmin->GroupAction())
 		$lAdmin->AddFilterError($sError);
 	}
 }
-	
+
 	$rsData = CForumTopic::GetListEx(array($by => $order), $arFilter, false, 0, array("NoFilter" => true));
 	$rsData = new CAdminResult($rsData, $sTableID);
 	$rsData->NavStart();
 	$lAdmin->NavText($rsData->GetNavPrint(GetMessage("FM_TOPICS")));
-	
+
 /*******************************************************************/
 	$lAdmin->AddHeaders(array(
 		array("id"=>"ID", "content"=>"ID", "sort"=>"ID", "default"=>true),
@@ -314,7 +313,7 @@ while ($res = $rsData->NavNext(true, "t_"))
 	$bCanUpdateForum = CForumTopic::CanUserUpdateTopic($t_ID, $USER->GetUserGroupArray(), $USER->GetID());
 	$bCanDeleteForum = CForumTopic::CanUserDeleteTopic($t_ID, $USER->GetUserGroupArray(), $USER->GetID());
 	$row->bReadOnly = (!$bCanUpdateForum || !$bCanDeleteForum ? true : false);
-	
+
 	$row->AddField("ID", $t_ID);
 	$row->AddInputField("TITLE", array("size" => "35"));
 	$row->AddInputField("DESCRIPTION", array("size" => "35"));
@@ -348,14 +347,14 @@ while ($res = $rsData->NavNext(true, "t_"))
 				"value" => "&nbsp;"),
 			"move_to" => array(
 				"type" => "html",
-				"value" => 
+				"value" =>
 					"<select name=\"move_to\" id=\"move_to\" disabled>".$arrSelect."</select>".
 					"<input type=\"hidden\" name=\"copy_to_site\" value=\"\">"
 			)
 		),
 		array("select_onchange"=>"this.form.move_to.disabled=this.form.action.value=='move'? false : true;")
 	);
-	
+
 		$lAdmin->AddAdminContextMenu();
 
 /*******************************************************************/
@@ -366,14 +365,14 @@ while ($res = $rsData->NavNext(true, "t_"))
 	$oFilter = new CAdminFilter(
 		$sTableID."_filter",
 		array(
-			GetMessage("FM_TITLE_NAME"), 
+			GetMessage("FM_TITLE_NAME"),
 			GetMessage("FM_TITLE_DESCRIPTION"),
-			GetMessage("FM_TITLE_APPROVED"), 
-			GetMessage("FM_TITLE_SORT"), 
-			GetMessage("FM_TITLE_STATE"), 
-			
+			GetMessage("FM_TITLE_APPROVED"),
+			GetMessage("FM_TITLE_SORT"),
+			GetMessage("FM_TITLE_STATE"),
+
 			GetMessage("FM_TITLE_DATE_CREATE"),
-			GetMessage("FM_TITLE_DATE_LAST_POST"), 
+			GetMessage("FM_TITLE_DATE_LAST_POST"),
 			GetMessage("FM_TITLE_USER_START_ID")
 		)
 	);
@@ -418,18 +417,18 @@ while ($res = $rsData->NavNext(true, "t_"))
 			</select></td>
 	</tr>
 	<tr valign="center">
-		<td><?echo GetMessage("FM_TITLE_DATE_CREATE")." (".CLang::GetDateFormat("SHORT")."):"?></td>
+		<td><?echo GetMessage("FM_TITLE_DATE_CREATE").":"?></td>
 		<td><?echo CalendarPeriod("CREATE_DATE_FROM", $CREATE_DATE_FROM, "CREATE_DATE_TO", $CREATE_DATE_TO, "form1","Y")?></td>
 	</tr>
 	<tr valign="center">
-		<td><?echo GetMessage("FM_TITLE_DATE_LAST_POST")." (".CLang::GetDateFormat("SHORT")."):"?></td>
+		<td><?echo GetMessage("FM_TITLE_DATE_LAST_POST").":"?></td>
 		<td><?echo CalendarPeriod("DATE_FROM", $DATE_FROM, "DATE_TO", $DATE_TO, "form1","Y")?></td>
 	</tr>
 	<tr valign="center">
 		<td><?=GetMessage("FM_TITLE_USER_START_ID")?>:</td>
 		<td><input type="text" name="USER_START_ID" value="<?=$USER_START_ID?>" /></td>
 	</tr>
-	
+
 	<?
 	$oFilter->Buttons(array("table_id" => $sTableID,"url" => $APPLICATION->GetCurPage(),"form" => "find_form"));
 	$oFilter->End();
@@ -441,7 +440,7 @@ while ($res = $rsData->NavNext(true, "t_"))
 			var form = document.getElementById('form_tbl_topic');
 			if (form.action == 'move')
 				form.move_to.disabled = false;
-			else 
+			else
 				form.move_to.disabled = true;
 			return;
 		}

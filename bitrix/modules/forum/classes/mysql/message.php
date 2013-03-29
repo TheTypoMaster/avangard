@@ -18,37 +18,13 @@ class CForumMessage extends CAllForumMessage
 
 		$POST_MESSAGE = $arFields["POST_MESSAGE"];
 		$parser = new forumTextParser(LANGUAGE_ID);
-		$allow = array(
-				"HTML" => $arForum["ALLOW_HTML"],
-				"ANCHOR" => $arForum["ALLOW_ANCHOR"],
-				"BIU" => $arForum["ALLOW_BIU"],
-				"IMG" => $arForum["ALLOW_IMG"],
-				"VIDEO" => $arForum["ALLOW_VIDEO"],
-				"LIST" => $arForum["ALLOW_LIST"],
-				"QUOTE" => $arForum["ALLOW_QUOTE"],
-				"CODE" => $arForum["ALLOW_CODE"],
-				"FONT" => $arForum["ALLOW_FONT"],
-				"SMILES" => ($arFields["USE_SMILES"]!="Y") ? "N" : $arForum["ALLOW_SMILES"],
-				"UPLOAD" => $arForum["ALLOW_UPLOAD"],
-				"NL2BR" => $arForum["ALLOW_NL2BR"],
-				"TABLE" => $arForum["TABLE"]
-		);
+		$allow = forumTextParser::GetFeatures($arForum);
+		$allow['SMILES'] = (($arFields["USE_SMILES"] != "Y") ? 'N' : $allow['SMILES']);
 		if (COption::GetOptionString("forum", "FILTER", "Y") == "Y")
 		{
 			$POST_MESSAGE = CFilterUnquotableWords::Filter($POST_MESSAGE);
 			$arFields["POST_MESSAGE_FILTER"] = (empty($POST_MESSAGE) ? "*" : $POST_MESSAGE);
 		}
-		if (COption::GetOptionString("forum", "MESSAGE_HTML", "N") == "Y")
-			$POST_MESSAGE = $parser->convert($POST_MESSAGE, $allow);
-		$arFields["POST_MESSAGE_HTML"] = $POST_MESSAGE;
-/***************** Event onBeforeMessageAdd ************************/
-		$events = GetModuleEvents("forum", "onBeforeMessageAdd");
-		while ($arEvent = $events->Fetch())
-		{
-			if (ExecuteModuleEventEx($arEvent, array(&$arFields, &$strUploadDir)) === false)
-				return false;
-		}
-/***************** /Event ******************************************/
 /***************** Attach ******************************************/
 		$arFiles = array();
 		if (is_array($arFields["ATTACH_IMG"]))
@@ -68,6 +44,17 @@ class CForumMessage extends CAllForumMessage
 			unset($arFields["FILES"]);
 		}
 /***************** Attach/******************************************/
+		if (COption::GetOptionString("forum", "MESSAGE_HTML", "N") == "Y")
+			$POST_MESSAGE = $parser->convert($POST_MESSAGE, $allow, "html", $arFiles);
+		$arFields["POST_MESSAGE_HTML"] = $POST_MESSAGE;
+/***************** Event onBeforeMessageAdd ************************/
+		$events = GetModuleEvents("forum", "onBeforeMessageAdd");
+		while ($arEvent = $events->Fetch())
+		{
+			if (ExecuteModuleEventEx($arEvent, array(&$arFields, &$strUploadDir)) === false)
+				return false;
+		}
+/***************** /Event ******************************************/
 		if (empty($arFields))
 			return false;
 		$arInsert = $DB->PrepareInsert("b_forum_message", $arFields, $strUploadDir);
@@ -291,6 +278,8 @@ class CForumMessage extends CAllForumMessage
 			{
 				$strSql =
 					"SELECT COUNT(FM.ID) as CNT, MAX(FM.ID) AS ABS_LAST_MESSAGE_ID,
+						MIN(FM.ID) AS ABS_FIRST_MESSAGE_ID,
+						MIN(CASE WHEN FM.NEW_TOPIC='Y' THEN FM.ID ELSE NULL END) AS FIRST_MESSAGE_ID,
 						SUM(CASE WHEN FM.APPROVED!='Y' THEN 1 ELSE 0 END) as CNT_NOT_APPROVED,
 						MAX(CASE WHEN FM.APPROVED='Y' THEN FM.ID ELSE 0 END) AS LAST_MESSAGE_ID
 					FROM b_forum_message FM
@@ -350,8 +339,17 @@ class CForumMessage extends CAllForumMessage
 				FM.APPROVED, FM.SOURCE_ID, FM.POST_MESSAGE_CHECK, FM.GUEST_ID, FM.AUTHOR_REAL_IP, FM.ATTACH_IMG, FM.XML_ID,
 				".$DB->DateToCharFunction("FM.POST_DATE", "FULL")." as POST_DATE,
 				FM.EDITOR_ID, FM.EDITOR_NAME, FM.EDITOR_EMAIL, FM.EDIT_REASON,
-				".$DB->DateToCharFunction("FM.EDIT_DATE", "FULL")." as EDIT_DATE, FM.PARAM1, FM.PARAM2, FM.HTML, FM.MAIL_HEADER
+				FU.SHOW_NAME, U.LOGIN, U.NAME, U.SECOND_NAME, U.LAST_NAME,
+				".$DB->DateToCharFunction("FM.EDIT_DATE", "FULL")." as EDIT_DATE, FM.PARAM1, FM.PARAM2, FM.HTML, FM.MAIL_HEADER".
+				(!empty($arAddParams["sNameTemplate"]) ?
+					",\n\t".CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+						$arAddParams, array(
+						"sUserTablePrefix" => "U.",
+						"sForumUserTablePrefix" => "FU.",
+						"sFieldName" => "AUTHOR_NAME_FRMT")), false) : "")."
 			FROM b_forum_message FM
+				LEFT JOIN b_forum_user FU ON (FM.AUTHOR_ID = FU.USER_ID)
+				LEFT JOIN b_user U ON (FM.AUTHOR_ID = U.ID)
 			WHERE 1 = 1
 			".$strSqlSearch."
 			".$strSqlOrder;
@@ -372,10 +370,7 @@ class CForumMessage extends CAllForumMessage
 			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
 
-		if ((COption::GetOptionString("forum", "MESSAGE_HTML", "N") == "N") && (COption::GetOptionString("forum", "FILTER", "Y") == "N"))
-			return $db_res;
-		$db_res = new _CMessageDBResult($db_res);
-		return $db_res;
+		return new _CMessageDBResult($db_res, $arAddParams);
 	}
 
 	function GetListEx($arOrder = Array("ID"=>"ASC"), $arFilter = Array(), $bCount = false, $iNum = 0, $arAddParams = array())
@@ -464,7 +459,7 @@ class CForumMessage extends CAllForumMessage
 					if(intVal($val) > 0)
 					{
 						$arSqlFrom["FUT"] = "
-						 LEFT JOIN b_forum_user_topic FUT ON (FT.ID = FUT.TOPIC_ID AND FUT.USER_ID=".intVal($val).")";
+							LEFT JOIN b_forum_user_topic FUT ON (FT.ID = FUT.TOPIC_ID AND FUT.USER_ID=".intVal($val).")";
 					}
 					break;
 				case "NEW_MESSAGE":
@@ -494,19 +489,19 @@ class CForumMessage extends CAllForumMessage
 				break;
 				case "TOPIC_SOCNET_GROUP_ID":
 						$arSqlFrom["FT"] = "
-							 LEFT JOIN b_forum_topic FT ON (FT.ID = FM.TOPIC_ID)";
+							LEFT JOIN b_forum_topic FT ON (FT.ID = FM.TOPIC_ID)";
 						$arSqlSearch[] = "FT.SOCNET_GROUP_ID = ".IntVal($val);
 						$arSqlSelect[] = "FT.SOCNET_GROUP_ID as TOPIC_SOCNET_GROUP_ID";
 					break;
 				case "TOPIC_OWNER_ID":
 						$arSqlFrom["FT"] = "
-							 LEFT JOIN b_forum_topic FT ON (FT.ID = FM.TOPIC_ID)";
+							LEFT JOIN b_forum_topic FT ON (FT.ID = FM.TOPIC_ID)";
 						$arSqlSearch[] = "FT.OWNER_ID = ".IntVal($val);
 						$arSqlSelect[] = "FT.OWNER_ID as TOPIC_OWNER_ID";
 					break;
 				case "TOPIC":
 						$arSqlFrom["FT"] = "
-							 LEFT JOIN b_forum_topic FT ON (FT.ID = FM.TOPIC_ID)";
+							LEFT JOIN b_forum_topic FT ON (FT.ID = FM.TOPIC_ID)";
 						$arSqlSelect[] = "FT.TITLE";
 						$arSqlSelect[] = "FT.DESCRIPTION AS TOPIC_DESCRIPTION";
 						$arSqlSelect[] = $DB->DateToCharFunction("FT.START_DATE", "FULL")." as START_DATE";
@@ -516,7 +511,7 @@ class CForumMessage extends CAllForumMessage
 				case "TOPIC_TITLE":
 				case "TITLE":
 					$arSqlFrom["FT"] = "
-						 LEFT JOIN b_forum_topic FT ON (FT.ID = FM.TOPIC_ID)";
+						LEFT JOIN b_forum_topic FT ON (FT.ID = FM.TOPIC_ID)";
 					$key = "TITLE";
 					if ($strOperation == "LIKE")
 						$val = "%".$val."%";
@@ -554,9 +549,9 @@ class CForumMessage extends CAllForumMessage
 		if (count($arSqlSearch) > 0)
 			$strSqlSearch = " AND (".implode(") AND (", $arSqlSearch).") ";
 		if (count($arSqlSelect) > 0)
-			$strSqlSelect = ", ".implode(", ", $arSqlSelect);
+			$strSqlSelect = ",\n\t".implode(", ", $arSqlSelect);
 		if (count($arSqlFrom) > 0)
-			$strSqlFrom .= implode(" ", $arSqlFrom);
+			$strSqlFrom .= "\n\t".implode("\n\t", $arSqlFrom);
 		if ($UseGroup)
 		{
 			foreach ($arSqlSelect as $key => $val)
@@ -600,64 +595,78 @@ class CForumMessage extends CAllForumMessage
 
 		if ($UseGroup)
 		{
-			$strSql = "SELECT F_M.*, FM.FORUM_ID, FM.TOPIC_ID, FM.USE_SMILES, FM.NEW_TOPIC,
-					FM.APPROVED, FM.SOURCE_ID,
-					".$DB->DateToCharFunction("FM.POST_DATE", "FULL")." as POST_DATE,
-					FM.POST_MESSAGE, FM.POST_MESSAGE_HTML, FM.POST_MESSAGE_FILTER,
-					FM.ATTACH_IMG, FM.XML_ID, FM.PARAM1, FM.PARAM2,
-					FM.AUTHOR_ID, FM.AUTHOR_NAME, FM.AUTHOR_EMAIL,
-					FM.AUTHOR_IP, FM.AUTHOR_REAL_IP, FM.GUEST_ID,
-					FM.EDITOR_ID, FM.EDITOR_NAME, FM.EDITOR_EMAIL, FM.EDIT_REASON,
-					".$DB->DateToCharFunction("FM.EDIT_DATE", "FULL")." as EDIT_DATE,
-					FM.HTML, FM.MAIL_HEADER,
-					FU.SHOW_NAME, FU.DESCRIPTION, FU.NUM_POSTS, FU.POINTS as NUM_POINTS, FU.SIGNATURE, FU.AVATAR,
-					".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG,
-					U.LOGIN, FU.RANK_ID, U.PERSONAL_WWW, U.PERSONAL_GENDER,
-					U.EMAIL, U.PERSONAL_ICQ, U.PERSONAL_CITY, U.PERSONAL_COUNTRY
-				FROM (
-						SELECT FM.ID".$strSqlSelect."
-						FROM b_forum_message FM
-							LEFT JOIN b_forum_user FU ON FM.AUTHOR_ID = FU.USER_ID
-							LEFT JOIN b_user U ON FM.AUTHOR_ID = U.ID
-							".$strSqlFrom."
-						WHERE (1=1 ".$strSqlSearch.")
-						GROUP BY FM.ID".$strSqlGroup."
-					) F_M
-					INNER JOIN b_forum_message FM ON (F_M.ID = FM.ID)
-					LEFT JOIN b_forum_user FU ON FM.AUTHOR_ID = FU.USER_ID
-					LEFT JOIN b_user U ON FM.AUTHOR_ID = U.ID
-				".$strSqlOrder;
+			$strSql =
+				"SELECT F_M.*, FM.FORUM_ID, FM.TOPIC_ID, FM.USE_SMILES, FM.NEW_TOPIC, \n".
+				"	FM.APPROVED, FM.SOURCE_ID, \n".
+				"	".$DB->DateToCharFunction("FM.POST_DATE", "FULL")." as POST_DATE, \n".
+				"	FM.POST_MESSAGE, FM.POST_MESSAGE_HTML, FM.POST_MESSAGE_FILTER, \n".
+				"	FM.ATTACH_IMG, FM.XML_ID, FM.PARAM1, FM.PARAM2, \n".
+				"	FM.AUTHOR_ID, FM.AUTHOR_NAME, FM.AUTHOR_EMAIL, \n".
+				"	FM.AUTHOR_IP, FM.AUTHOR_REAL_IP, FM.GUEST_ID, \n".
+				"	FM.EDITOR_ID, FM.EDITOR_NAME, FM.EDITOR_EMAIL, FM.EDIT_REASON, \n".
+				"	".$DB->DateToCharFunction("FM.EDIT_DATE", "FULL")." as EDIT_DATE, \n".
+				"	FM.HTML, FM.MAIL_HEADER, \n".
+				"	FU.SHOW_NAME, FU.DESCRIPTION, FU.NUM_POSTS, FU.POINTS as NUM_POINTS, FU.SIGNATURE, FU.AVATAR, \n".
+				"	".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG, \n".
+				"	U.LOGIN, U.NAME, U.SECOND_NAME, U.LAST_NAME, FU.RANK_ID, U.PERSONAL_WWW, U.PERSONAL_GENDER, \n".
+				"	U.EMAIL, U.PERSONAL_ICQ, U.PERSONAL_CITY, U.PERSONAL_COUNTRY".
+				(!empty($arAddParams["sNameTemplate"]) ?
+					",\n\t".CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+						$arAddParams, array(
+						"sUserTablePrefix" => "U.",
+						"sForumUserTablePrefix" => "FU.",
+						"sFieldName" => "AUTHOR_NAME_FRMT")), false) : "")." \n".
+				"FROM ( \n".
+				"		SELECT FM.ID".$strSqlSelect." \n".
+				"		FROM b_forum_message FM \n".
+				"			LEFT JOIN b_forum_user FU ON FM.AUTHOR_ID = FU.USER_ID \n".
+				"			LEFT JOIN b_user U ON FM.AUTHOR_ID = U.ID \n".
+				"			".$strSqlFrom." \n".
+				"		WHERE (1=1 ".$strSqlSearch.") \n".
+				"		GROUP BY FM.ID".$strSqlGroup." \n".
+				"	) F_M \n".
+				"	INNER JOIN b_forum_message FM ON (F_M.ID = FM.ID) \n".
+				"	LEFT JOIN b_forum_user FU ON (FM.AUTHOR_ID = FU.USER_ID) \n".
+				"	LEFT JOIN b_user U ON (FM.AUTHOR_ID = U.ID) \n".
+				$strSqlOrder;
 		}
 		else
 		{
-			$strSql = "SELECT FM.ID, FM.FORUM_ID, FM.TOPIC_ID, FM.USE_SMILES, FM.NEW_TOPIC,
-					FM.APPROVED, FM.SOURCE_ID,
-					".$DB->DateToCharFunction("FM.POST_DATE", "FULL")." as POST_DATE,
-					FM.POST_MESSAGE, FM.POST_MESSAGE_HTML, FM.POST_MESSAGE_FILTER,
-					FM.ATTACH_IMG, FM.XML_ID, FM.PARAM1, FM.PARAM2,
-					FM.AUTHOR_ID, FM.AUTHOR_NAME, FM.AUTHOR_EMAIL,
-					FM.AUTHOR_IP, FM.AUTHOR_REAL_IP, FM.GUEST_ID,
-					FM.EDITOR_ID, FM.EDITOR_NAME, FM.EDITOR_EMAIL, FM.EDIT_REASON,
-					".$DB->DateToCharFunction("FM.EDIT_DATE", "FULL")." as EDIT_DATE,
-					FM.HTML, FM.MAIL_HEADER,
-					FU.SHOW_NAME, FU.DESCRIPTION, FU.NUM_POSTS, FU.POINTS as NUM_POINTS, FU.SIGNATURE, FU.AVATAR,
-					".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG,
-					U.LOGIN, FU.RANK_ID, U.PERSONAL_WWW, U.PERSONAL_GENDER,
-					U.EMAIL, U.PERSONAL_ICQ, U.PERSONAL_CITY, U.PERSONAL_COUNTRY".$strSqlSelect."
-				FROM b_forum_message FM
-					LEFT JOIN b_forum_user FU ON FM.AUTHOR_ID = FU.USER_ID
-					LEFT JOIN b_user U ON FM.AUTHOR_ID = U.ID
-					".$strSqlFrom."
-				WHERE 1 = 1
-				".$strSqlSearch."
-				".$strSqlOrder;
+			$strSql =
+				"SELECT FM.ID, FM.FORUM_ID, FM.TOPIC_ID, FM.USE_SMILES, FM.NEW_TOPIC, \n".
+				"	FM.APPROVED, FM.SOURCE_ID, \n".
+				"	".$DB->DateToCharFunction("FM.POST_DATE", "FULL")." as POST_DATE, \n".
+				"	FM.POST_MESSAGE, FM.POST_MESSAGE_HTML, FM.POST_MESSAGE_FILTER, \n".
+				"	FM.ATTACH_IMG, FM.XML_ID, FM.PARAM1, FM.PARAM2, \n".
+				"	FM.AUTHOR_ID, FM.AUTHOR_NAME, FM.AUTHOR_EMAIL, \n".
+				"	FM.AUTHOR_IP, FM.AUTHOR_REAL_IP, FM.GUEST_ID, \n".
+				"	FM.EDITOR_ID, FM.EDITOR_NAME, FM.EDITOR_EMAIL, FM.EDIT_REASON, \n".
+				"	".$DB->DateToCharFunction("FM.EDIT_DATE", "FULL")." as EDIT_DATE, \n".
+				"	FM.HTML, FM.MAIL_HEADER, \n".
+				"	FU.SHOW_NAME, FU.DESCRIPTION, FU.NUM_POSTS, FU.POINTS as NUM_POINTS, FU.SIGNATURE, FU.AVATAR, \n".
+				"	".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG, \n".
+				"	U.LOGIN, U.NAME, U.SECOND_NAME, U.LAST_NAME, FU.RANK_ID, U.PERSONAL_WWW, U.PERSONAL_GENDER, \n".
+				"	U.EMAIL, U.PERSONAL_ICQ, U.PERSONAL_CITY, U.PERSONAL_COUNTRY".
+				(!empty($arAddParams["sNameTemplate"]) ?
+					",\n\t".CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+						$arAddParams, array(
+						"sUserTablePrefix" => "U.",
+						"sForumUserTablePrefix" => "FU.",
+						"sFieldName" => "AUTHOR_NAME_FRMT")), false)."\n" : "").$strSqlSelect."\n".
+				"FROM b_forum_message FM \n".
+				"	LEFT JOIN b_forum_user FU ON (FM.AUTHOR_ID = FU.USER_ID) \n".
+				"	LEFT JOIN b_user U ON (FM.AUTHOR_ID = U.ID) \n".
+				"	".$strSqlFrom." \n".
+				"WHERE 1 = 1 ".$strSqlSearch." \n".
+				$strSqlOrder;
 		}
 
 		$iNum = intVal($iNum);
 		if ($iNum > 0 || intVal($arAddParams["nTopCount"]) > 0):
 			$iNum = ($iNum > 0) ? $iNum : intVal($arAddParams["nTopCount"]);
-			$strSql .= " LIMIT 0,".$iNum;
+			$strSql .= "\nLIMIT 0,".$iNum;
 		endif;
+
 		if (!$iNum && is_array($arAddParams) && is_set($arAddParams, "bDescPageNumbering") && (intVal($arAddParams["nTopCount"])<=0))
 		{
 			$db_res =  new CDBResult();
@@ -667,10 +676,7 @@ class CForumMessage extends CAllForumMessage
 		{
 			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
-		if ((COption::GetOptionString("forum", "MESSAGE_HTML", "N") == "N") && (COption::GetOptionString("forum", "FILTER", "Y") == "N"))
-			return $db_res;
-		$db_res = new _CMessageDBResult($db_res);
-		return $db_res;
+		return new _CMessageDBResult($db_res, $arAddParams);
 	}
 
 	function QueryFirstUnread($arFilter) // out-of-date function
@@ -895,7 +901,7 @@ class CForumFiles extends CAllForumFiles
 		{
 			do
 			{
-				$DB->Query("DELETE FROM b_forum_file WHERE FILE_ID=".$res["FILE_ID"], false, "FILE: ".__FILE__." LINE:".__LINE__);
+//				$DB->Query("DELETE FROM b_forum_file WHERE FILE_ID=".$res["FILE_ID"], false, "FILE: ".__FILE__." LINE:".__LINE__);
 				CFile::Delete($res["FILE_ID"]);
 			} while ($res = $db_res->Fetch());
 		}

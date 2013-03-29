@@ -54,8 +54,10 @@ if (!function_exists("__array_merge"))
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
+/***************** ADDITIONAL **************************************/
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 /***************** STANDART ****************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
@@ -80,7 +82,6 @@ elseif (empty($topics)):
 	return false;
 endif;
 
-ForumSetLastVisit($arParams["FID"]);
 /********************************************************************
 				Default values
 ********************************************************************/
@@ -191,7 +192,7 @@ $arForums = false;
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
 	$res = $cache->GetVars();
-	$arForums = $res["arForums"];
+	$arForums = CForumCacheManager::Expand($res["arForums"]);
 }
 $arForums = (is_array($arForums) ? $arForums : array());
 if (empty($arForums))
@@ -206,7 +207,7 @@ if (empty($arForums))
 	}
 	if ($arParams["CACHE_TIME"] > 0):
 		$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
-		$cache->EndDataCache(array("arForums" => $arForums));
+		$cache->EndDataCache(array("arForums" => CForumCacheManager::Compress($arForums)));
 	endif;
 }
 $arResult["FORUMS"] = $arForums;

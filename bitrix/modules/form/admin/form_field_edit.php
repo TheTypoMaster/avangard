@@ -1,4 +1,4 @@
-<? 
+<?
 /*
 ##############################################
 # Bitrix: SiteManager                        #
@@ -57,7 +57,7 @@ $copy_id = intval($_REQUEST['copy_id']);
 
 $arForm = CForm::GetByID_admin($WEB_FORM_ID);
 
-if (false === $arForm) 
+if (false === $arForm)
 {
 	require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	echo "<a href='form_list.php?lang=".LANGUAGE_ID."' >".GetMessage("FORM_FORM_LIST")."</a>";
@@ -66,14 +66,14 @@ if (false === $arForm)
 	die();
 }
 
-$txt = "(".htmlspecialchars($arForm['SID']).")&nbsp;".htmlspecialchars($arForm['NAME']);
+$txt = "(".htmlspecialcharsbx($arForm['SID']).")&nbsp;".htmlspecialcharsbx($arForm['NAME']);
 $link = "form_edit.php?lang=".LANGUAGE_ID."&ID=".$WEB_FORM_ID;
 $adminChain->AddItem(array("TEXT"=>$txt, "LINK"=>$link));
 
 $F_RIGHT = CForm::GetPermission($WEB_FORM_ID);
 if($F_RIGHT<25) $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-if ($copy_id > 0 && $F_RIGHT >= 30 && check_bitrix_sessid()) 
+if ($copy_id > 0 && $F_RIGHT >= 30 && check_bitrix_sessid())
 {
 	$new_id = CFormField::Copy($copy_id);
 	if (strlen($strError)<=0 && intval($new_id)>0)
@@ -87,7 +87,7 @@ if ((strlen($_REQUEST['save']) > 0 || strlen($_REQUEST['apply']) > 0) && $_SERVE
 	$arIMAGE = $_FILES["IMAGE_ID"];
 	$arIMAGE["MODULE_ID"] = "form";
 	$arIMAGE["del"] = $_REQUEST['IMAGE_ID_del'];
-	
+
 	$ACTIVE 	= $_REQUEST['ACTIVE'];
 	$TITLE 		= $_REQUEST['TITLE'];
 	$TITLE_TYPE = $_REQUEST['TITLE_TYPE'];
@@ -100,7 +100,7 @@ if ((strlen($_REQUEST['save']) > 0 || strlen($_REQUEST['apply']) > 0) && $_SERVE
 	$IN_RESULTS_TABLE 	= $_REQUEST['IN_RESULTS_TABLE'];
 	$FILTER_TITLE 		= $_REQUEST['FILTER_TITLE'];
 	$RESULTS_TABLE_TITLE = $_REQUEST['RESULTS_TABLE_TITLE'];
-	
+
 	$arFields = array(
 		"FORM_ID"				=> $WEB_FORM_ID,
 		"ACTIVE"				=> $ACTIVE,
@@ -121,16 +121,16 @@ if ((strlen($_REQUEST['save']) > 0 || strlen($_REQUEST['apply']) > 0) && $_SERVE
 
 	$arFields["arANSWER"] = array();
 	$ANSWER = $_REQUEST['ANSWER'];
-	
+
 	$bHasAnswers = false;
 	if (is_array($ANSWER))
 	{
 		foreach ($ANSWER as $pid)
 		{
 			$pid = intval($pid);
-			
+
 			if ($pid<=0) continue;
-			
+
 			$arrA = array();
 			$arrA["ID"] 		= $_REQUEST["ANSWER_ID_".$pid];
 			$arrA["DELETE"] 	= $_REQUEST["del_".$pid];
@@ -145,11 +145,11 @@ if ((strlen($_REQUEST['save']) > 0 || strlen($_REQUEST['apply']) > 0) && $_SERVE
 
 			if ($arrA['MESSAGE'] != '' && $arrA['DELETE'] !== 'Y')
 				$bHasAnswers = true;
-			
+
 			$arFields["arANSWER"][] = $arrA;
 		}
 	}
-	
+
 	if (!$bHasAnswers && $additional != 'Y')
 	{
 		$strError = GetMessage('FORM_NO_ANSWERS');
@@ -165,14 +165,14 @@ if ((strlen($_REQUEST['save']) > 0 || strlen($_REQUEST['apply']) > 0) && $_SERVE
 	{
 		$arFields["arFILTER_FIELD"] = $_REQUEST['arFILTER_FIELD'];
 	}
-	
+
 	/*
-	print "<pre>";	
+	print "<pre>";
 	print_r($arFields);
 	print "</pre>";
 	die();
 	*/
-	
+
 	if (strlen($strError) <= 0)
 	{
 		$res = intval(CFormField::Set($arFields, $ID));
@@ -180,9 +180,9 @@ if ((strlen($_REQUEST['save']) > 0 || strlen($_REQUEST['apply']) > 0) && $_SERVE
 		{
 			if (intval($ID) > 0)
 				CFormValidator::Clear($ID);
-		
+
 			$ID = $res;
-			
+
 			// process field validators
 			if ($additional != "Y")
 			{
@@ -196,16 +196,16 @@ if ((strlen($_REQUEST['save']) > 0 || strlen($_REQUEST['apply']) > 0) && $_SERVE
 					}
 				}
 			}
-			
+
 			if (strlen($strError)<=0)
 			{
-				if (strlen($_REQUEST['save'])>0) 
-					LocalRedirect("form_field_list.php?WEB_FORM_ID=".$WEB_FORM_ID."&additional=". $additional."&lang=".LANGUAGE_ID); 
-				else 
+				if (strlen($_REQUEST['save'])>0)
+					LocalRedirect("form_field_list.php?WEB_FORM_ID=".$WEB_FORM_ID."&additional=". $additional."&lang=".LANGUAGE_ID);
+				else
 					LocalRedirect("form_field_edit.php?ID=".$ID."&WEB_FORM_ID=".$WEB_FORM_ID."&additional=". $additional."&lang=".LANGUAGE_ID."&".$tabControl->ActiveTabParam());
 			}
 		}
-		
+
 		$DB->PrepareFields("b_form_field");
 	}
 }
@@ -213,7 +213,7 @@ if ((strlen($_REQUEST['save']) > 0 || strlen($_REQUEST['apply']) > 0) && $_SERVE
 $rsField = CFormField::GetByID($ID);
 if (!$rsField || !$rsField->ExtractFields())
 {
-	$ID=0; 
+	$ID=0;
 	$str_ACTIVE = "Y";
 	$str_C_SORT = CFormField::GetNextSort($WEB_FORM_ID);
 	$str_TITLE_TYPE = "text";
@@ -262,7 +262,7 @@ $context = new CAdminContextMenu($arForm['ADMIN_MENU']);
 $context->Show();
 
 echo BeginNote('width="100%"');?>
-<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialchars($arForm["SID"])?>)&nbsp;<?=htmlspecialchars($arForm["NAME"])?>
+<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialcharsbx($arForm["SID"])?>)&nbsp;<?=htmlspecialcharsbx($arForm["NAME"])?>
 <?echo EndNote();
 
 $aMenu = array();
@@ -341,7 +341,7 @@ if ($F_RIGHT>=30 && $ID>0)
 			"WARNING"=>"Y"
 			);
 	}
-	
+
 	$context = new CAdminContextMenu($aMenu);
 	$context->Show();
 }
@@ -379,11 +379,11 @@ $aMenu[] = array(
 	"TEXT"			=> GetMessage("FORM_RESULTS")." [".CFormResult::GetCount($WEB_FORM_ID)."]",
 	"LINK"			=> "/bitrix/admin/form_result_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID,
 	"TEXT_PARAM"	=> ($old_module_version=="Y" || $F_RIGHT<10) ? "" : " [<a title='".GetMessage("FORM_ADD_RESULT")."' href='/bitrix/admin/form_view.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID."'>+</a>]",
-	"TITLE"	=> htmlspecialchars(str_replace("#NAME#", $arForm["NAME"], GetMessage("FORM_RESULTS_ALT")))
+	"TITLE"	=> htmlspecialcharsbx(str_replace("#NAME#", $arForm["NAME"], GetMessage("FORM_RESULTS_ALT")))
 	);
 */
 
-if($strError) 
+if($strError)
 {
 	$aMsg=array();
 	$arrErr = explode("<br>",$strError);
@@ -454,8 +454,8 @@ $tabControl->BeginNextTab();
 		<td><?=GetMessage("FORM_C_SORT")?></td>
 		<td><input type="text" name="C_SORT" size="5" maxlength="18" value="<?=$str_C_SORT?>" /></td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span><?=GetMessage("FORM_SID")?></td>
+	<tr class="adm-detail-required-field">
+		<td><?=GetMessage("FORM_SID")?></td>
 		<td><input type="text" name="SID" size="30" maxlength="50" value="<?=$str_SID?>" /></td>
 	</tr>
 	<?if ($additional!="Y"):?>
@@ -520,7 +520,7 @@ $tabControl->BeginNextTab();
 function addAnswer()
 {
 	var obTable = document.getElementById('answers_table');
-	
+
 	var rows_count = obTable.tBodies[0].rows.length;
 	var obLastRow = obTable.tBodies[0].rows[rows_count-1];
 	var obRow = obLastRow.cloneNode(true);
@@ -530,28 +530,28 @@ function addAnswer()
 	for (var i=0; i<colInputs.length; i++) arInputs[i] = colInputs[i];
 	colInputs = null;
 	var cnt = arInputs.length;
-	
+
 	arInputs[cnt++] = obRow.getElementsByTagName('SELECT')[0];
-	
+
 	for (var i = 0; i<cnt; i++)
 	{
 		var new_name = arInputs[i].name.replace('' + rows_count, '' + (rows_count + 1));
-		
+
 		if (jsUtils.IsIE())
 		{
 			var strInput = arInputs[i].outerHTML;
 			strInput = strInput.replace(arInputs[i].name, new_name);
 			if (arInputs[i].id) strInput = strInput.replace(arInputs[i].name, new_name);
-			
+
 			var obInput = document.createElement(strInput);
-			
+
 			if (arInputs[i].tagName == 'SELECT')
 			{
 				obInput.innerHTML = '';
 				for (var j=0; j<arInputs[i].options.length; j++)
 					obInput.appendChild(arInputs[i].options[j].cloneNode(true));
 			}
-			
+
 			arInputs[i].parentNode.appendChild(obInput);
 			arInputs[i].parentNode.removeChild(arInputs[i]);
 			arInputs[i] = null;
@@ -562,18 +562,18 @@ function addAnswer()
 		//alert(new_name);
 			arInputs[i].name = new_name;
 
-			if (arInputs[i].id) 
+			if (arInputs[i].id)
 				arInputs[i].id = new_name;
 		}
-		
+
 		//alert(arInputs[i].name + ' - ' + arInputs[i].id);
 		//alert(arInputs[i].outerHTML);
 
-		if (arInputs[i].name == 'C_SORT_' + (rows_count+1)) 
+		if (arInputs[i].name == 'C_SORT_' + (rows_count+1))
 		{
 			arInputs[i].value = '' + (parseInt(arInputs[i].value) + 100);
 		}
-		else if (arInputs[i].tagName == 'INPUT') 
+		else if (arInputs[i].tagName == 'INPUT')
 		{
 			if (arInputs[i].type == 'checkbox')
 				arInputs[i].defaultChecked = true;
@@ -586,8 +586,8 @@ function addAnswer()
 			//arInputs[i].onchange = eval('function() {FIELD_TYPE_CHANGE(\'' + (rows_count+1) + '\'); jsFormValidatorSettings.UpdateAll();}');
 			arInputs[i].onchange = new Function('FIELD_TYPE_CHANGE(\'' + (rows_count+1) + '\'); jsFormValidatorSettings.UpdateAll();');
 		}
-		
-		if (new_name == 'MESSAGE_' + (rows_count+1)) 
+
+		if (new_name == 'MESSAGE_' + (rows_count+1))
 		{
 			arInputs[i].onchange = jsFormValidatorSettings.UpdateAll;
 		}
@@ -672,21 +672,21 @@ BX.ready(function() {
 					echo InputType("checkbox", "ACTIVE_".$i,"Y", $p_ACTIVE,false);?></td>
 					<td nowrap="nowrap"><input type="checkbox" name="del_<?=$i?>" value="Y" /></td>
 				</tr>
-				<? 
+				<?
 				$i++;
-				endwhile; 
+				endwhile;
 				//$count = $i+10;
 				$count = $i;
 				$s = intval(max($arSort))+100;
 				while ($i<=$count) :
 					if (strlen($strError)>0)
 					{
-						$message = htmlspecialchars(${"MESSAGE_".$i});
-						$value = htmlspecialchars(${"VALUE_".$i});
-						$ftype = htmlspecialchars(${"FIELD_TYPE_".$i});
-						$width = htmlspecialchars(${"FIELD_WIDTH_".$i});
-						$height = htmlspecialchars(${"FIELD_HEIGHT_".$i});
-						$param = htmlspecialchars(${"FIELD_PARAM_".$i});
+						$message = htmlspecialcharsbx(${"MESSAGE_".$i});
+						$value = htmlspecialcharsbx(${"VALUE_".$i});
+						$ftype = htmlspecialcharsbx(${"FIELD_TYPE_".$i});
+						$width = htmlspecialcharsbx(${"FIELD_WIDTH_".$i});
+						$height = htmlspecialcharsbx(${"FIELD_HEIGHT_".$i});
+						$param = htmlspecialcharsbx(${"FIELD_PARAM_".$i});
 					}
 					if (strlen($ftype)<=0) $ftype = $p_FIELD_TYPE;
 					if (strlen($ftype)<=0) $ftype = "text";
@@ -703,15 +703,15 @@ BX.ready(function() {
 					<td nowrap="nowrap"><input <?if ($ftype!="text" && $ftype!="textarea" && $ftype!="image" && $ftype!="date" && $ftype != 'email') echo "disabled"?> type="text" id="FIELD_WIDTH_<?=$i?>" name="FIELD_WIDTH_<?=$i?>" value="<?=$width?>" size="3" /></td>
 					<td nowrap="nowrap"><input <?if ($ftype!="textarea" && $ftype!="multiselect") echo "disabled"?> type="text" id="FIELD_HEIGHT_<?=$i?>" name="FIELD_HEIGHT_<?=$i?>" value="<?=$height?>" size="3" /></td>
 					<td nowrap="nowrap"><input type="text" name="FIELD_PARAM_<?=$i?>" value="<?=$param?>" size="8" /></td>
-					<td nowrap="nowrap"><input type="text" name="C_SORT_<?=$i?>" value="<?echo (strlen(${"C_SORT_".$i})>0 && strlen($message)>0) ? htmlspecialchars(${"C_SORT_".$i}) : $s?>" size="3" /></td>
+					<td nowrap="nowrap"><input type="text" name="C_SORT_<?=$i?>" value="<?echo (strlen(${"C_SORT_".$i})>0 && strlen($message)>0) ? htmlspecialcharsbx(${"C_SORT_".$i}) : $s?>" size="3" /></td>
 					<td><?
 					echo InputType("checkbox", "ACTIVE_".$i, "Y", "Y", false);?></td>
 					<td>&nbsp;</td>
 				</tr>
-				<? 
+				<?
 				$i++;
 				$s = $s + 100;
-				endwhile; 
+				endwhile;
 				?>
 				</tbody>
 				<tfoot>
@@ -743,19 +743,19 @@ BX.ready(function() {
 			if ($arValidatorInfo["TYPES"] == 0) continue;
 			$arValidatorInfo["TYPES"] = array($arValidatorInfo["TYPES"]);
 		}
-		
+
 		?>
 
 	arValidators['<?=CUtil::JSEscape($arValidatorInfo["NAME"])?>'] = {NAME:'<?=CUtil::JSEscape($arValidatorInfo["NAME"])?>', DESCRIPTION:'<?=CUtil::JSEscape($arValidatorInfo["DESCRIPTION"])?>', HAS_SETTINGS:'<?=is_callable($arValidatorInfo['SETTINGS']) > 0 ? "Y" : "N"?>'};
 <?
-		
+
 		foreach ($arValidatorInfo["TYPES"] as $type)
 		{
 			$type = CUtil::JSEscape($type);
 ?>
 	if (!arValidatorsType['<?=$type?>']) arValidatorsType['<?=$type?>'] = [];
 	arValidatorsType['<?=$type?>'][arValidatorsType['<?=$type?>'].length] = '<?=CUtil::JSEscape($arValidatorInfo["NAME"])?>';
-<?	
+<?
 		}
 	}
 ?>
@@ -767,10 +767,10 @@ if (is_array($arCurrentValidators) && count($arCurrentValidators) > 0)
 {
 	foreach ($arCurrentValidators as $arVal)
 	{
-?>	
+?>
 	arCurrentValidators[arCurrentValidators.length] = {
 		NAME:'<?=CUtil::JSEscape($arVal["NAME"])?>'
-		
+
 <?
 		if (is_array($arVal["PARAMS"]) && count($arVal["PARAMS"]) > 0)
 		{
@@ -786,7 +786,7 @@ if (is_array($arCurrentValidators) && count($arCurrentValidators) > 0)
 ?>
 
 		]
-<?		
+<?
 		}
 ?>
 	}
@@ -868,7 +868,7 @@ $tabControl->BeginNextTab();
 	{
 		$arrFilter = array();
 		$z = CFormField::GetFilterList($WEB_FORM_ID, Array("FIELD_ID" => $ID, "FIELD_ID_EXACT_MATCH" => "Y"));
-		while ($zr = $z->Fetch()) 
+		while ($zr = $z->Fetch())
 			$arrFilter[$zr["PARAMETER_NAME"]][] = $zr["FILTER_TYPE"];
 	}
 	if ($additional!="Y"):
@@ -916,7 +916,15 @@ $tabControl->Buttons(array("disabled"=>(!($F_RIGHT>=30 || CForm::IsAdmin())), "b
 $tabControl->End();
 ?>
 </form>
-<?echo BeginNote();?>
-<span class="required"><sup>1</sup></span> -  <?=GetMessage("FORM_MESSAGE_SPACE")?><br><span class="required">*</span> - <?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote();?>
+<?
+if(!$additional):
+	echo BeginNote();
+?>
+<span class="required"><sup>1</sup></span> -  <?=GetMessage("FORM_MESSAGE_SPACE")?>
+<?
+	echo EndNote();
+endif;
+?>
+
+
 <? require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php"); ?>

@@ -4,30 +4,33 @@ if (!window.BX_YMapAddPlacemark)
 	{
 		if (null == map)
 			return false;
-		
+
 		if(!arPlacemark.LAT || !arPlacemark.LON)
 			return false;
-		
-		var obPlacemark = new map.bx_context.YMaps.Placemark(new map.bx_context.YMaps.GeoPoint(arPlacemark.LON, arPlacemark.LAT));
-		
+
+		var props = {};
 		if (null != arPlacemark.TEXT && arPlacemark.TEXT.length > 0)
 		{
-			obPlacemark.setBalloonContent(arPlacemark.TEXT.replace(/\n/g, '<br />'));
-
 			var value_view = '';
+
 			if (arPlacemark.TEXT.length > 0)
 			{
 				var rnpos = arPlacemark.TEXT.indexOf("\n");
 				value_view = rnpos <= 0 ? arPlacemark.TEXT : arPlacemark.TEXT.substring(0, rnpos);
-				//value_view = value_view.replace(/>/g, '&gt;');
-				//value_view = value_view.replace(/</g, '&lt;');
 			}
-			
-			obPlacemark.setIconContent(value_view);
+
+			props.balloonContent = arPlacemark.TEXT.replace(/\n/g, '<br />');
+			props.hintContent = value_view;
 		}
 
-		map.addOverlay(obPlacemark);
-		
+		var obPlacemark = new ymaps.Placemark(
+			[arPlacemark.LAT, arPlacemark.LON],
+			props,
+			{balloonCloseButton: true}
+		);
+
+		map.geoObjects.add(obPlacemark);
+
 		return obPlacemark;
 	}
 }
@@ -38,40 +41,32 @@ if (!window.BX_YMapAddPolyline)
 	{
 		if (null == map)
 			return false;
-		
+
 		if (null != arPolyline.POINTS && arPolyline.POINTS.length > 1)
 		{
 			var arPoints = [];
 			for (var i = 0, len = arPolyline.POINTS.length; i < len; i++)
 			{
-				arPoints[i] = new map.bx_context.YMaps.GeoPoint(arPolyline.POINTS[i].LON, arPolyline.POINTS[i].LAT);
+				arPoints.push([arPolyline.POINTS[i].LAT, arPolyline.POINTS[i].LON]);
 			}
 		}
 		else
 		{
 			return false;
 		}
-		
+
+		var obParams = {clickable: true};
 		if (null != arPolyline.STYLE)
 		{
-			var obStyle = new map.bx_context.YMaps.Style();
-			obStyle.lineStyle = new map.bx_context.YMaps.LineStyle();
-			obStyle.lineStyle.strokeColor = arPolyline.STYLE.lineStyle.strokeColor;
-			obStyle.lineStyle.strokeWidth = arPolyline.STYLE.lineStyle.strokeWidth;
-			
-			var style_id = "bitrix#line_" + Math.random();
-			
-			map.bx_context.YMaps.Styles.add(style_id, obStyle);
+			obParams.strokeColor = arPolyline.STYLE.strokeColor;
+			obParams.strokeWidth = arPolyline.STYLE.strokeWidth;
 		}
-		
-		var obPolyline = new map.bx_context.YMaps.Polyline(
-			arPoints,
-			{style: style_id, clickable: true}
+		var obPolyline = new ymaps.Polyline(
+			arPoints, {balloonContent: arPolyline.TITLE}, obParams
 		);
-		obPolyline.setBalloonContent(arPolyline.TITLE);
-		
-		map.addOverlay(obPolyline);
-		
+
+		map.geoObjects.add(obPolyline);
+
 		return obPolyline;
 	}
 }

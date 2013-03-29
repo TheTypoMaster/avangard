@@ -1,0 +1,37 @@
+<?
+$MESS["EDIT_LANG_TITLE"] = "Regionaleinstellungen bearbeiten";
+$MESS["NEW_LANG_TITLE"] = "Neue Regionaleinstellungen";
+$MESS["RECORD_LIST"] = "Liste";
+$MESS["NAME"] = "Name:";
+$MESS["FORMAT_DATE"] = "Datumformat:<br><small>(z.B.: DD.MM.YYYY)</small>";
+$MESS["FORMAT_DATETIME"] = "Datum- und Uhrzeitformat:<br><small>(z.B.: DD.MM.YYYY HH:MI:SS)</small>";
+$MESS["FORMAT_NAME"] = "Namenformat::";
+$MESS["CHARSET"] = "Zeichencodierung:";
+$MESS["SAVE"] = "Änderungen speichern";
+$MESS["ADD"] = "Eine neue Sprache hinzufügen";
+$MESS["RESET"] = "Zurücksetzen";
+$MESS["MAIN_NEW_RECORD"] = "Hinzufügen";
+$MESS["MAIN_DELETE_RECORD"] = "Löschen";
+$MESS["MAIN_DELETE_RECORD_CONF"] = "Möchten Sie Regionaleinstellungen wirklich löschen?";
+$MESS["MAIN_DELETE_RECORD_TITLE"] = "Aktuelle Einstellungen löschen";
+$MESS["MAIN_NEW_RECORD_TITLE"] = "Neue Regionaleinstellungen hinzufügen";
+$MESS["RECORD_LIST_TITLE"] = "Liste anzeigen";
+$MESS["MAIN_COPY_RECORD_TITLE"] = "Regionaleinstellungen kopieren";
+$MESS["MAIN_COPY_RECORD"] = "Kopie hinzufügen";
+$MESS["DIRECTION"] = "Textausrichtung:";
+$MESS["DIRECTION_LTR"] = "Von links nach rechts";
+$MESS["DIRECTION_RTL"] = "Von rechts nach links";
+$MESS["LANG_EDIT_WEEK_START"] = "Erster Wochentag:";
+$MESS["LANG_EDIT_WEEK_START_DEFAULT"] = "1";
+$MESS["MAIN_PARAM"] = "Parameter";
+$MESS["MAIN_PARAM_TITLE"] = "Regionaleinstellungen";
+$MESS["DAY_OF_WEEK_0"] = "Sonntag";
+$MESS["DAY_OF_WEEK_1"] = "Montag";
+$MESS["DAY_OF_WEEK_2"] = "Dienstag";
+$MESS["DAY_OF_WEEK_3"] = "Mittwoch";
+$MESS["DAY_OF_WEEK_4"] = "Donnerstag";
+$MESS["DAY_OF_WEEK_5"] = "Freitag";
+$MESS["DAY_OF_WEEK_6"] = "Samstag";
+$MESS["culture_code"] = "Symbolischer Code";
+$MESS["culture_id"] = "ID:";
+?>

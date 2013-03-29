@@ -22,7 +22,7 @@ $arParams["SORT_BY1"] = trim($arParams["SORT_BY1"]);
 if(strlen($arParams["SORT_BY1"])<=0)
 	$arParams["SORT_BY1"] = 'SORT';
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER1"]))
-	 $arParams["SORT_ORDER1"]='DESC';
+	$arParams["SORT_ORDER1"]='DESC';
 
 if($arParams["IBLOCK_ID"]<=0 || $arParams["PATH_TO_FILE"]<=0)
 	return false;
@@ -89,7 +89,7 @@ if(!class_exists("__ciblocktv"))
 	{
 		function Prepare($Value)
 		{
-			return str_replace(array("\r\n", "\r", "\n"), array("<br>", "<br>", "<br>"), CUtil::addslashes(htmlspecialchars($Value)));
+			return str_replace(array("\r\n", "\r", "\n"), array("<br>", "<br>", "<br>"), CUtil::addslashes(htmlspecialcharsbx($Value)));
 		}
 	}
 }
@@ -213,6 +213,21 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 			else
 				$FileType = "flv";
 		}
+		elseif(
+			CModule::IncludeModule("clouds")
+			&& ($uri = CCloudStorage::FindFileURIByURN($PathToFile, "component:iblock.tv, iblock:".$arParams["IBLOCK_ID"].", element: ".$arItem["ID"])) !== ""
+		)
+		{
+			$PathToFile = $uri;
+
+			$FileSize = "";
+
+			$ext = strtolower(substr($PathToFile, -4));
+			if($ext == ".wmv" || $ext == "wma")
+				$FileType = "wmv";
+			else
+				$FileType = "flv";
+		}
 		else
 		{
 			$FileSize = "";
@@ -223,6 +238,12 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 			$arResult['FIRST_FLV_ITEM'] = $PathToFile;
 		if (!$arResult['FIRST_WMV_ITEM'] && $FileType == 'wmv')
 			$arResult['FIRST_WMV_ITEM'] = $PathToFile;
+
+		if (strpos($_SERVER['HTTP_HOST'], 'xn--') !== false) // It's cyrilyc site
+		{
+			$PathToFile = CHTTP::URN2URI($PathToFile);
+		}
+
 
 		$arResult["SECTIONS"][$SectionId]["ELEMENTS"][$arItem["ID"]] = array(
 			"NAME" => $arItem["NAME"],
@@ -304,6 +325,7 @@ if(
 		&& $arParams["INTRANET_TOOLBAR"]!=="N"
 	)
 	{
+		$APPLICATION->AddHeadScript('/bitrix/js/main/utils.js');
 		foreach($arButtons["intranet"] as $arButton)
 			$GLOBALS["INTRANET_TOOLBAR"]->AddButton($arButton);
 	}

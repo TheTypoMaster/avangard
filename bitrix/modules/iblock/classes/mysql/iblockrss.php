@@ -74,9 +74,9 @@ class CIBlockRSS extends CAllIBlockRSS
 		}
 
 		$strRes .= "<channel>\n";
-		$strRes .= "<title>".htmlspecialchars($arIBLOCK["NAME"])."</title>\n";
+		$strRes .= "<title>".htmlspecialcharsbx($arIBLOCK["NAME"])."</title>\n";
 		$strRes .= "<link>http://".$serverName."</link>\n";
-		$strRes .= "<description>".htmlspecialchars($arIBLOCK["DESCRIPTION"])."</description>\n";
+		$strRes .= "<description>".htmlspecialcharsbx($arIBLOCK["DESCRIPTION"])."</description>\n";
 		$strRes .= "<lastBuildDate>".date("r")."</lastBuildDate>\n";
 		$strRes .= "<ttl>".$arIBLOCK["RSS_TTL"]."</ttl>\n";
 
@@ -89,7 +89,7 @@ class CIBlockRSS extends CAllIBlockRSS
 				$strImage = $db_img_arr["SRC"];
 
 			$strRes .= "<image>\n";
-			$strRes .= "<title>".htmlspecialchars($arIBLOCK["NAME"])."</title>\n";
+			$strRes .= "<title>".htmlspecialcharsbx($arIBLOCK["NAME"])."</title>\n";
 			$strRes .= "<url>".$strImage."</url>\n";
 			$strRes .= "<link>http://".$serverName."</link>\n";
 			$strRes .= "<width>".$db_img_arr["WIDTH"]."</width>\n";
@@ -142,9 +142,9 @@ class CIBlockRSS extends CAllIBlockRSS
 			while ($arProp = $props->Fetch())
 			{
 				if (strlen($arProp["CODE"])>0)
-					$arProps[$arProp["CODE"]] = Array("NAME"=>htmlspecialchars($arProp["NAME"]), "VALUE"=>htmlspecialcharsex($arProp["VALUE"]));
+					$arProps[$arProp["CODE"]] = Array("NAME"=>htmlspecialcharsbx($arProp["NAME"]), "VALUE"=>htmlspecialcharsex($arProp["VALUE"]));
 				else
-					$arProps[$arProp["ID"]] = Array("NAME"=>htmlspecialchars($arProp["NAME"]), "VALUE"=>htmlspecialcharsex($arProp["VALUE"]));
+					$arProps[$arProp["ID"]] = Array("NAME"=>htmlspecialcharsbx($arProp["NAME"]), "VALUE"=>htmlspecialcharsex($arProp["VALUE"]));
 			}
 
 			$arLinkProp = $arProps["DOC_LINK"];
@@ -152,11 +152,11 @@ class CIBlockRSS extends CAllIBlockRSS
 			$strRes .= "<item>\n";
 			if (strlen($arNodes["title"])>0)
 			{
-				$strRes .= "<title>".htmlspecialchars(CIBlockRSS::ExtractProperties($arNodes["title"], $arProps, $arItem))."</title>\n";
+				$strRes .= "<title>".htmlspecialcharsbx(CIBlockRSS::ExtractProperties($arNodes["title"], $arProps, $arItem))."</title>\n";
 			}
 			else
 			{
-				$strRes .= "<title>".htmlspecialchars($arItem["~NAME"])."</title>\n";
+				$strRes .= "<title>".htmlspecialcharsbx($arItem["~NAME"])."</title>\n";
 			}
 			if (strlen($arNodes["link"])>0)
 			{
@@ -168,15 +168,15 @@ class CIBlockRSS extends CAllIBlockRSS
 			}
 			if (strlen($arNodes["description"])>0)
 			{
-				$strRes .= "<description>".htmlspecialchars(CIBlockRSS::ExtractProperties($arNodes["description"], $arProps, $arItem))."</description>\n";
+				$strRes .= "<description>".htmlspecialcharsbx(CIBlockRSS::ExtractProperties($arNodes["description"], $arProps, $arItem))."</description>\n";
 			}
 			else
 			{
-				$strRes .= "<description>".(($arItem["PREVIEW_TEXT"] || $yandex) ? htmlspecialchars($arItem["PREVIEW_TEXT"]) : htmlspecialchars($arItem["DETAIL_TEXT"]))."</description>\n";
+				$strRes .= "<description>".(($arItem["PREVIEW_TEXT"] || $yandex) ? htmlspecialcharsbx($arItem["PREVIEW_TEXT"]) : htmlspecialcharsbx($arItem["DETAIL_TEXT"]))."</description>\n";
 			}
 			if (strlen($arNodes["enclosure"])>0)
 			{
-				$strRes .= "<enclosure url=\"".htmlspecialchars(CIBlockRSS::ExtractProperties($arNodes["enclosure"], $arProps, $arItem))."\" length=\"".htmlspecialchars(CIBlockRSS::ExtractProperties($arNodes["enclosure_length"], $arProps, $arItem))."\" type=\"".htmlspecialchars(CIBlockRSS::ExtractProperties($arNodes["enclosure_type"], $arProps, $arItem))."\"/>\n";
+				$strRes .= "<enclosure url=\"".htmlspecialcharsbx(CIBlockRSS::ExtractProperties($arNodes["enclosure"], $arProps, $arItem))."\" length=\"".htmlspecialcharsbx(CIBlockRSS::ExtractProperties($arNodes["enclosure_length"], $arProps, $arItem))."\" type=\"".htmlspecialcharsbx(CIBlockRSS::ExtractProperties($arNodes["enclosure_type"], $arProps, $arItem))."\"/>\n";
 			}
 			else
 			{
@@ -193,7 +193,7 @@ class CIBlockRSS extends CAllIBlockRSS
 			}
 			if (strlen($arNodes["category"])>0)
 			{
-				$strRes .= "<category>".htmlspecialchars(CIBlockRSS::ExtractProperties($arNodes["category"], $arProps, $arItem))."</category>\n";
+				$strRes .= "<category>".htmlspecialcharsbx(CIBlockRSS::ExtractProperties($arNodes["category"], $arProps, $arItem))."</category>\n";
 			}
 			else
 			{
@@ -205,16 +205,16 @@ class CIBlockRSS extends CAllIBlockRSS
 				}
 				if (strlen($strPath)>0)
 				{
-					$strRes .= "<category>".htmlspecialchars($strPath)."</category>\n";
+					$strRes .= "<category>".htmlspecialcharsbx($strPath)."</category>\n";
 				}
 			}
 			if ($yandex)
 			{
-				$strRes .= "<yandex:full-text>".htmlspecialchars($arItem["DETAIL_TEXT"])."</yandex:full-text>\n";
+				$strRes .= "<yandex:full-text>".htmlspecialcharsbx($arItem["DETAIL_TEXT"])."</yandex:full-text>\n";
 			}
 			if (strlen($arNodes["pubDate"])>0)
 			{
-				$strRes .= "<pubDate>".htmlspecialchars(CIBlockRSS::ExtractProperties($arNodes["pubDate"], $arProps, $arItem))."</pubDate>\n";
+				$strRes .= "<pubDate>".htmlspecialcharsbx(CIBlockRSS::ExtractProperties($arNodes["pubDate"], $arProps, $arItem))."</pubDate>\n";
 			}
 			else
 			{

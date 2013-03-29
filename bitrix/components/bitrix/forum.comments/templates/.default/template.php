@@ -86,7 +86,7 @@ foreach ($arResult["MESSAGES"] as $res)
 			<?=$APPLICATION->GetViewContent(implode('_', array($tplID, 'ID', $res['ID'], 'AFTER')));?>
 		</div>
 		<div class="comment-actions">
-<? 			 if ($arResult["SHOW_POST_FORM"] == "Y") { ?>
+<?			if ($arResult["SHOW_POST_FORM"] == "Y") { ?>
 				<div class="comments-post-reply-buttons"><noindex>
 					<?=$APPLICATION->GetViewContent(implode('_', array($tplID, 'ID', $res['ID'], 'BEFORE_ACTIONS')));?>
 					<a href="#review_anchor" style='margin-left:0;' title="<?=GetMessage("F_NAME")?>"  class="comments-button-small" <?
@@ -96,21 +96,21 @@ foreach ($arResult["MESSAGES"] as $res)
 						<a href="#review_anchor" title="<?=GetMessage("F_QUOTE_HINT")?>" class="comments-button-small" <?
 						?>onMouseDown="quoteMessageEx('<?=$res["FOR_JS"]["AUTHOR_NAME"]?>', 'message_text_<?=$res["ID"]?>'<? if ($arParams['SHOW_WYSIWYG_EDITOR'] != 'Y') { ?>, this<?}?>)"><?
 							?><?=GetMessage("F_QUOTE_FULL")?></a>
-<?				 	} ?>
+<?					}?>
 <?					if ($arResult["SHOW_PANEL"] == "Y") 
 					{
 						if ($arResult["PANELS"]["MODERATE"] == "Y") { ?>
 							<span class="separator"></span>
 							<a rel="nofollow" href="<?=$res["URL"]["MODERATE"]?>" class="comments-button-small"><?=GetMessage((($res["APPROVED"] == 'Y') ? "F_HIDE" : "F_SHOW"))?></a>
-<?			  			} ?>
+<?						}?>
 <?						if ($arResult["PANELS"]["DELETE"] == "Y") { ?>
 							<span class="separator"></span>
 							<a rel="nofollow" href="<?=$res["URL"]["DELETE"]?>" class="comments-button-small"><?=GetMessage("F_DELETE")?></a>
-<?				  		} 
+<?						}
 					} ?>
 					<?=$APPLICATION->GetViewContent(implode('_', array($tplID, 'ID', $res['ID'], 'AFTER_ACTIONS')));?>
 				</noindex></div>
-<? 			 } ?>
+<?			} ?>
 		</div>
 	</div>
 <?
@@ -479,7 +479,7 @@ function replyForumFormOpen()
 
 function reply2author(name, link)
 {
-    name = name.replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&quot;/gi, "\"");
+	name = name.replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&quot;/gi, "\"");
 
 	var input = null;
 	if (!!link)

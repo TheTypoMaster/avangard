@@ -1,14 +1,14 @@
 <?
-$MESS ['SEO_OPT_PROP_WINDOW_TITLE'] = "Browser window caption";
-$MESS ['SEO_OPT_PROP_DESCRIPTION'] = "Page Description";
-$MESS ['SEO_OPT_PROP_KEYWORDS'] = "Page Keywords";
+$MESS ['SEO_OPT_PROP_WINDOW_TITLE'] = "Browser window title property";
+$MESS ['SEO_OPT_PROP_DESCRIPTION'] = "Web page description property";
+$MESS ['SEO_OPT_PROP_KEYWORDS'] = "Web page keywords property";
 $MESS ['SEO_OPT_PROP_INTERNAL_KEYWORDS'] = "Promotion Keywords";
 $MESS ['SEO_OPT_TAB_PROP'] = "Page properties";
-$MESS ['SEO_OPT_TAB_PROP_TITLE'] = "Page property codes";
+$MESS ['SEO_OPT_TAB_PROP_TITLE'] = "Web Page Property Codes";
 $MESS ['SEO_OPT_TAB_SEARCHERS'] = "Tools";
-$MESS ['SEO_OPT_TAB_SEARCHERS_TITLE'] = "SEO tools settings";
-$MESS ['SEO_OPT_COUNTERS'] = "Displayed counters";
-$MESS ['SEO_OPT_SEARCHERS'] = "Search Engines used in analysis";
+$MESS ['SEO_OPT_TAB_SEARCHERS_TITLE'] = "SEO Tools Preferences";
+$MESS ['SEO_OPT_COUNTERS'] = "Use counters (HTML code)";
+$MESS ['SEO_OPT_SEARCHERS'] = "Use search engines for analysis";
 $MESS ['SEO_OPT_SEARCHERS_SELECTED'] = "Current list";
 $MESS ['SEO_OPT_ERR_NO_STATS'] = "This feature is not available without Web Analytics module installed";
 ?>

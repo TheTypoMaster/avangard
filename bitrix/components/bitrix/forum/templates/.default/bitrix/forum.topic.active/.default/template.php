@@ -37,8 +37,9 @@ endif;
 <div class="forum-info-box forum-filter">
 	<div class="forum-info-box-inner">
 <?
-$APPLICATION->IncludeComponent("bitrix:forum.interface", "filter_simple", 
+$APPLICATION->IncludeComponent("bitrix:forum.interface", "filter_simple",
 	array(
+		"FORM_METHOD_GET" => 'Y',
 		"HEADER" => array(
 			"TITLE" => GetMessage("F_TITLE")),
 		"FIELDS" => array(
@@ -113,14 +114,14 @@ if ($arResult["SHOW_RESULT"] == "Y"):
 		$arTopics[] = $res["ID"];
 		$iCount++;
 ?>
- 				<tr class="<?=($iCount == 1 ? "forum-row-first " : (
- 					$iCount == count($arResult["TOPICS"]) ? "forum-row-last " : ""))?><?
- 					?><?=($iCount%2 == 1 ? "forum-row-odd " : "forum-row-even ")?><?
- 					?><?=(intVal($res["SORT"]) != 150 ? "forum-row-sticky " : "")?><?
- 					?><?=($res["STATE"] != "Y" && $res["STATE"] != "L" ? "forum-row-closed " : "")?><?
- 					?><?=($res["TopicStatus"] == "MOVED" ? "forum-row-moved " : "")?><?
- 					?><?=($res["APPROVED"] != "Y" ? " forum-row-hidden ": "")?><?
- 					?>">
+				<tr class="<?=($iCount == 1 ? "forum-row-first " : (
+					$iCount == count($arResult["TOPICS"]) ? "forum-row-last " : ""))?><?
+					?><?=($iCount%2 == 1 ? "forum-row-odd " : "forum-row-even ")?><?
+					?><?=(intVal($res["SORT"]) != 150 ? "forum-row-sticky " : "")?><?
+					?><?=($res["STATE"] != "Y" && $res["STATE"] != "L" ? "forum-row-closed " : "")?><?
+					?><?=($res["TopicStatus"] == "MOVED" ? "forum-row-moved " : "")?><?
+					?><?=($res["APPROVED"] != "Y" ? " forum-row-hidden ": "")?><?
+					?>">
 					<td class="forum-column-icon">
 						<div class="forum-icon-container">
 							<div class="forum-icon <?
@@ -148,13 +149,14 @@ if ($arResult["SHOW_RESULT"] == "Y"):
 						<div class="forum-item-info">
 							<div class="forum-item-name"><?
 						if ($res["TopicStatus"] == "MOVED"):
-								?><span class="forum-status-moved"><?=GetMessage("F_MOVED")?></span>:&nbsp;<?
+								?><span class="forum-status-moved-block"><span class="forum-status-moved"><?=GetMessage("F_MOVED")?></span>:&nbsp;</span><?
 						elseif (intVal($res["SORT"]) != 150 && ($res["STATE"]!="Y") && ($res["STATE"]!="L")):
-								?><span class="forum-status-sticky"><?=GetMessage("F_PINNED")?></span>, <span class="forum-status-closed"><?=GetMessage("F_CLOSED")?></span>:&nbsp;<?
+								?><span class="forum-status-sticky-block"><span class="forum-status-sticky"><?=GetMessage("F_PINNED")?></span>, </span><?
+								?><span class="forum-status-closed-block"><span class="forum-status-closed"><?=GetMessage("F_CLOSED")?></span>:&nbsp;</span><?
 						elseif (intVal($res["SORT"]) != 150):
-								?><span class="forum-status-sticky"><?=GetMessage("F_PINNED")?></span>:&nbsp;<?
+								?><span class="forum-status-sticky-block"><span class="forum-status-sticky"><?=GetMessage("F_PINNED")?></span>:&nbsp;</span><?
 						elseif (($res["STATE"]!="Y") && ($res["STATE"]!="L")):
-								?><span class="forum-status-closed"><?=GetMessage("F_CLOSED")?></span>:&nbsp;<?
+								?><span class="forum-status-closed-block"><span class="forum-status-closed"><?=GetMessage("F_CLOSED")?></span>:&nbsp;</span><?
 						endif;
 								?><span class="forum-item-title"><?
 						if (false && strLen($res["IMAGE"]) > 0):
@@ -214,16 +216,15 @@ if ($arResult["SHOW_RESULT"] == "Y"):
 	endforeach;
 else:
 ?>
- 				<tr class="forum-row-first forum-row-odd">
+				<tr class="forum-row-first forum-row-odd">
 					<td class="forum-column-icon" colspan="5">
 						<div class="forum-item-info">
 							<?=GetMessage("F_TOPICS_LIST_IS_EMPTY")?>
 						</div>
 					</td>
 				</tr>
-<?	
+<?
 endif;
-
 ?>
 				</tbody>
 			<tfoot>
@@ -263,7 +264,7 @@ endif;
 						</div>
 					</td>
 				</tr>
-			</tfoot>				
+			</tfoot>
 			</table>
 		</div>
 	</div>

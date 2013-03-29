@@ -1,5 +1,4 @@
 <?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/classes/general/filter_dictionary.php");
-
 class CFilterDictionary extends CAllFilterDictionary
 {
 	function GetList($arOrder = array("ID"=>"ASC"), $arFilter = array(), $bCount = false)

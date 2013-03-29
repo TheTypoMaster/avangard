@@ -269,7 +269,7 @@ BXTaskbarSet.prototype =
 		}
 
 		this.bShowing = !!bDisplay && this.arTaskbars.length > 0;
-			
+
 		var dispStr = bDisplay ? '' : 'none';
 
 		if (bDisplay)
@@ -1113,8 +1113,8 @@ function BXPropertiesTaskbar()
 		this.pHeaderTable.setAttribute("__bxtagname", "_taskbar_properties");
 		BX.addClass(obj.pWnd, "bx-props-taskbar")
 		this.pMainObj.oPropertiesTaskbar = this;
-		this.icon_class = 'tb_icon_properties';
-		this.iconDiv.className = 'tb_icon ' + this.icon_class;
+		this.icon = 'properties';
+		this.iconDiv.className = 'tb_icon bxed-taskbar-icon-' + this.icon;
 		var table = this.pMainObj.pDocument.createElement("TABLE");
 		table.style.width = "100%";
 		this.pCellPath = table.insertRow(-1).insertCell(-1);
@@ -1139,7 +1139,7 @@ function BXPropertiesTaskbar()
 
 	BXPropertiesTaskbar.prototype.OnSelectionChange = function (sReloadControl, pElement)
 	{
-		//try{ // In split mode in IE fast view mode changing occurs Permission denied ERROR
+		try{ // In split mode in IE fast view mode changing occurs Permission denied ERROR
 		if (!obj.bActivated || !obj.pTaskbarSet.bShowing)
 			return;
 
@@ -1161,10 +1161,9 @@ function BXPropertiesTaskbar()
 		if(sReloadControl == "always" || !obj.oOldSelected || !BXElementEqual(oSelected, obj.oOldSelected))
 		{
 			obj.oOldSelected = oSelected;
-			while(obj.pCellPath.childNodes.length > 0)
-				obj.pCellPath.removeChild(obj.pCellPath.childNodes[0]);
+			BX.cleanNode(obj.pCellPath);
 
-			var tPath = obj.pMainObj.pDocument.createElement("TABLE");
+			var tPath = BX.create("TABLE");
 			tPath.className = "bxproptagspathinl";
 			tPath.cellSpacing = 0;
 			tPath.cellPadding = 1;
@@ -1234,6 +1233,11 @@ function BXPropertiesTaskbar()
 				pElement = pElementTemp;
 			}
 
+			// temp hack...
+			var cPathLast = rPath.insertCell(-1);
+			cPathLast.style.width = '100%';
+			cPathLast.innerHTML = "&nbsp;";
+
 			var bDefault = false;
 			obj.pCellPath.appendChild(tPath);
 			if(!fPropertyPanel)
@@ -1249,7 +1253,7 @@ function BXPropertiesTaskbar()
 			if(fPropertyPanelElement && fPropertyPanelElement.tagName && (!(obj.oOldPropertyPanelElement && BXElementEqual(fPropertyPanelElement, obj.oOldPropertyPanelElement)) || sReloadControl == "always"))
 			{
 				var sRealTag = fPropertyPanelElement.tagName.toLowerCase();
-				var bxTag = obj.pMainObj.GetBxTag(fPropertyPanelElement);
+				bxTag = obj.pMainObj.GetBxTag(fPropertyPanelElement);
 
 				if (bxTag.tag)
 					sRealTag = bxTag.tag;
@@ -1268,7 +1272,8 @@ function BXPropertiesTaskbar()
 				if(fPropertyPanel)
 					fPropertyPanel(bNew, obj, fPropertyPanelElement);
 
-				obj.pTaskbarSet.pDataColumn.style.width = (parseInt(obj.pTaskbarSet.pDataColumn.parentNode.offsetWidth) - 2) + 'px';
+				var w = (parseInt(obj.pTaskbarSet.pDataColumn.parentNode.offsetWidth) - 2);
+				obj.pTaskbarSet.pDataColumn.style.width = (w > 0 ? w : 0) + 'px';
 				obj.pMainObj.OnEvent("OnPropertybarChanged");
 				ar_PROP_ELEMENTS.push(obj);
 				obj.bDefault = bDefault;
@@ -1278,7 +1283,7 @@ function BXPropertiesTaskbar()
 		pElement = null;
 		oSelected = null;
 
-		//}catch(e){}
+		}catch(e){}
 		return true;
 	}
 }
@@ -1402,20 +1407,16 @@ function BXCreateTaskbars(pMainObj)
 function BXTaskTabs(pMainObj)
 {
 	this.pMainObj = pMainObj;
-	this.cellCreated = false;
+	this.bRendered = false;
 };
 
 BXTaskTabs.prototype = {
 	Draw: function()
 	{
-		var tbs, i, j, l, k, tb, c, r, t, ac = [], _this = this, cn, id;
+		var tbs, i, j, l, k, tb, pTab, _this = this, id;
 		this.arTabs = [];
 		this.arTabIndex = {};
-
-		// Don't  replace it by cleanNode!!!
-		if (this.tabsRow)
-			while(this.tabsRow.cells[0])
-				this.tabsRow.deleteCell(0);
+		BX.cleanNode(this.pTabsCont);
 
 		for(i in this.pMainObj.arTaskbarSet)
 		{
@@ -1425,18 +1426,19 @@ BXTaskTabs.prototype = {
 
 			for(j = 0, k = tbs.arTaskbars.length; j < k; j++)
 			{
-				if (!this.cellCreated)
+				if (!this.bRendered)
 				{
-					this.tabsRow = this.pMainObj.pTaskTabs.appendChild(BX.create("TABLE", {props: {unselectable : "on"}, style: {margin: "2px 0px 2px 0px"}})).insertRow(-1);
-					this.cellCreated = true;
+					this.pTabsCont = this.pMainObj.pTaskTabs.appendChild(BX.create("DIV", {props: {className: 'bxed-tasktab-cnt', unselectable : "on"}}));
+					this.bRendered = true;
 				}
 
 				tb = tbs.arTaskbars[j];
 				id = "tab_" + tb.id;
-				t = BX.create("TABLE", {
+
+				pTab = BX.create("SPAN", {
 					props: {
 						id: id,
-						className: "tasktab",
+						className: "bxed-tasktab",
 						title: tb.title,
 						unselectable: "on"
 					},
@@ -1444,12 +1446,13 @@ BXTaskTabs.prototype = {
 						click: function(){_this.OnClick(this)},
 						mouseover:  function(){_this.OnMouseOver(this)},
 						mouseout:  function(){_this.OnMouseOut(this)}
-					}
+					},
+					html: '<i class="tasktab-left"></i><span class="tasktab-center"><span class="tasktab-icon bxed-taskbar-icon-' + tb.icon + '" unselectable="on"></span><span class="tasktab-text" unselectable="on">' + tb.title + '</span></span><i class="tasktab-right"></i>'
 				});
 
 				this.arTabs.push({
 					id: id,
-					table: t,
+					cont: pTab,
 					tb: tb,
 					tbs: tbs,
 					bPushed: tbs.sActiveTaskbar == tb.id
@@ -1457,15 +1460,9 @@ BXTaskTabs.prototype = {
 				this.arTabIndex[id] = this.arTabs.length - 1;
 
 				if (tbs.sActiveTaskbar == tb.id && tbs.bShowing)
-					BX.addClass(t, "tasktab-pushed");
+					BX.addClass(pTab, "bxed-tasktab-pushed");
 
-				r = t.insertRow(-1);
-
-				BX.adjust(r.insertCell(-1), {props: {className: "tasktab_left"}});
-				BX.adjust(r.insertCell(-1), {props: {className: "def tasktab_center"}, style: {width: "20px"}}).appendChild(BX.create("DIV", {props: {className: 'tb_icon ' + tb.icon_class}}));
-				BX.adjust(r.insertCell(-1), {props: {unselectable: "on", className: "tasktab_center", title: tb.title}, text: tb.title});
-				BX.adjust(r.insertCell(-1), {props: {className: "tasktab_right"}});
-				this.tabsRow.insertCell(-1).appendChild(t);
+				this.pTabsCont.appendChild(pTab);
 			}
 		}
 	},
@@ -1483,9 +1480,9 @@ BXTaskTabs.prototype = {
 
 			tab.bPushed = bAct;
 			if (bAct)
-				BX.addClass(tab.table, "tasktab-pushed");
+				BX.addClass(tab.cont, "bxed-tasktab-pushed");
 			else
-				BX.removeClass(tab.table, "tasktab-pushed");
+				BX.removeClass(tab.cont, "bxed-tasktab-pushed");
 		}
 	},
 
@@ -1495,13 +1492,13 @@ BXTaskTabs.prototype = {
 		if (oTab.bPushed)
 		{
 			oTab.bPushed = false;
-			BX.removeClass(pObj, "tasktab-pushed");
+			BX.removeClass(pObj, "bxed-tasktab-pushed");
 			oTab.tbs.Hide();
 		}
 		else
 		{
 			oTab.bPushed = true;
-			BX.addClass(pObj, "tasktab-pushed");
+			BX.addClass(pObj, "bxed-tasktab-pushed");
 			if (!oTab.tbs.bShowing)
 				oTab.tbs.Show();
 			oTab.tbs.ActivateTaskbar(oTab.tb.id);
@@ -1512,12 +1509,12 @@ BXTaskTabs.prototype = {
 
 	OnMouseOver: function(pObj)
 	{
-		BX.addClass(pObj.rows[0], "tasktab-over");
+		BX.addClass(pObj, "bxed-tasktab-over");
 	},
 
 	OnMouseOut: function(pObj)
 	{
-		BX.removeClass(pObj.rows[0], "tasktab-over");
+		BX.removeClass(pObj, "bxed-tasktab-over");
 	},
 
 	GetVPos: function()
@@ -1545,7 +1542,7 @@ BXVisualMinimize.prototype.Show = function(par)
 
 	var
 		_this = this,
-		i = 0, s,
+		i = 0,
 		dt = Math.round((par.ePos.t - par.sPos.t) / par.num),
 		dl = Math.round((par.ePos.l - par.sPos.l) / par.num),
 		dw = Math.round((par.ePos.w - par.sPos.w) / par.num),

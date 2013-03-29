@@ -1,6 +1,6 @@
 <?
-$MESS["CP_BCSL_IBLOCK_TYPE"] = "Тип инфо-блока";
-$MESS["CP_BCSL_IBLOCK_ID"] = "Инфо-блок";
+$MESS["CP_BCSL_IBLOCK_TYPE"] = "Тип инфоблока";
+$MESS["CP_BCSL_IBLOCK_ID"] = "Инфоблок";
 $MESS["CP_BCSL_SECTION_URL"] = "URL, ведущий на страницу с содержимым раздела";
 $MESS["CP_BCSL_SECTION_ID"] = "ID раздела";
 $MESS["CP_BCSL_SECTION_CODE"] = "Код раздела";

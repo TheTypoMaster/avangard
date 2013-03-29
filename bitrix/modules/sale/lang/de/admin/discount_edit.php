@@ -1,0 +1,33 @@
+<?
+$MESS["SDEN_CANCEL"] = "Abbrechen";
+$MESS["SDEN_ACTIVE"] = "Aktivität";
+$MESS["SDEN_APPLY"] = "Anwenden";
+$MESS["SDEN_ERROR_SAVING_DISCOUNT"] = "Beim Speichern des Rabatts ist ein Fehler aufgetreten";
+$MESS["SDEN_ERROR"] = "Beim Speichern ist ein Fehler aufgetreten!";
+$MESS["SDEN_PRICE_TO"] = "bis";
+$MESS["SDEN_NO_DISCOUNT"] = "Rabatt Nr. #ID# wurde nicht gefunden";
+$MESS["SDEN_PERIOD"] = "Dauer der Aktivität";
+$MESS["SDEN_TYPE_FIX"] = "Festbetrag";
+$MESS["SDEN_PRICE"] = "Für die Bestellsumme";
+$MESS["SDEN_SAVE_ADD"] = "Hinzufügen";
+$MESS["SDEN_TYPE_PERCENT"] = "In Prozent";
+$MESS["SDEN_TIMESTAMP"] = "Letzte Änderung:";
+$MESS["SDEN_NEW_DISCOUNT"] = "Neuen Rabatt erstellen";
+$MESS["SDEN_ADDING"] = "Neuer Rabatt";
+$MESS["SDEN_TAB_DISCOUNT"] = "Rabatt";
+$MESS["SDEN_DELETE_DISCOUNT"] = "Rabatt löschen";
+$MESS["SDEN_TO_LIST"] = "Rabatte";
+$MESS["SDEN_2FLIST"] = "Rabatte";
+$MESS["SDEN_TAB_DISCOUNT_DESCR"] = "Rabatt-Parameter";
+$MESS["SDEN_UPDATING"] = "Rabatt-Parameter bearbeiten";
+$MESS["SDEN_DISCOUNT_VALUE"] = "Rabatthöhe";
+$MESS["SDEN_SITE"] = "Website";
+$MESS["SDEN_NO_PERMS2ADD"] = "Sie haben keine Berechtigung, den Rabatt hinzuzufügen";
+$MESS["SDEN_SORT"] = "Sortierindex";
+$MESS["SDEN_SAVE"] = "Speichern";
+$MESS["SDEN_PRICE_FROM"] = "von";
+$MESS["SDEN_DELETE_DISCOUNT_CONFIRM"] = "Sind Sie sicher, dass  Sie diesen Rabatt  löschen wollen?";
+$MESS["SDEN_TAB_DISCOUNT_GROUPS"] = "Einschränkungen";
+$MESS["SDEN_TAB_DISCOUNT_GROUPS_DESCR"] = "Rabatteinschränkungen";
+$MESS["SDEN_USER_GROUPS"] = "Nutzergruppen, für die dieser Rabatt verfügbar ist";
+?>

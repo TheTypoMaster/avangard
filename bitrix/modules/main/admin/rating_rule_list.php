@@ -49,8 +49,8 @@ if($lAdmin->EditAction())
 	foreach($FIELDS as $ID=>$arFields)
 	{
 		$ID = IntVal($ID);
-	   	if($ID <= 0)
-	   		continue;
+		if($ID <= 0)
+			continue;
 
 		$arUpdate['NAME'] = $arFields['NAME'];
 		$arUpdate['ACTIVE'] = $arFields['ACTIVE'] == 'Y' ? 'Y' : 'N';
@@ -73,9 +73,9 @@ if(($arID = $lAdmin->GroupAction()))
 
 	foreach($arID as $ID)
 	{
-	   	$ID = IntVal($ID);
-	   	if($ID <= 0)
-	   		continue;
+		$ID = IntVal($ID);
+		if($ID <= 0)
+			continue;
 		switch($_REQUEST['action'])
 		{
 			case "reapply":
@@ -176,7 +176,7 @@ $oFilter = new CAdminFilter(
 <?$oFilter->Begin();?>
 	<tr>
 		<td><?echo GetMessage("RATING_RULE_LIST_FLT_NAME")?></td>
-		<td><input type="text" name="find_name" size="40" value="<?echo htmlspecialchars($find_name)?>"><?=ShowFilterLogicHelp()?></td>
+		<td><input type="text" name="find_name" size="40" value="<?echo htmlspecialcharsbx($find_name)?>"><?=ShowFilterLogicHelp()?></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("RATING_RULE_LIST_FLT_ACTIVE")?></td>
@@ -189,11 +189,11 @@ $oFilter = new CAdminFilter(
 	</tr>
 	<tr>
 		<td><?echo GetMessage("RATING_RULE_LIST_FLT_ID")?></td>
-		<td><input type="text" name="find_id" size="13" value="<?echo htmlspecialchars($find_id)?>"></td>
+		<td><input type="text" name="find_id" size="13" value="<?echo htmlspecialcharsbx($find_id)?>"></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("RATING_RULE_LIST_FLT_ENTITY_TYPE_ID")?></td>
-		<td><input type="text" name="find_entity_type_id" value="<?echo htmlspecialchars($find_entity_type_id)?>" size="40"><?=ShowFilterLogicHelp()?></td>
+		<td><input type="text" name="find_entity_type_id" value="<?echo htmlspecialcharsbx($find_entity_type_id)?>" size="40"><?=ShowFilterLogicHelp()?></td>
 	</tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID,"url"=>$APPLICATION->GetCurPage(),"form"=>"form1"));

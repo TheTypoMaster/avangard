@@ -21,7 +21,7 @@ elseif($type == "image")
 	$ext = "gif,jpg,jpeg,bmp,png";
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
 
-if(!$USER->CanDoFileOperation('fm_download_file', $arPath) || in_array(CFileman::GetFileExtension($path), CFileMan::GetScriptFileExt())):
+if(!$USER->CanDoFileOperation('fm_download_file', $arPath) || HasScriptExtension($path)):
 	ShowError($arParsedPath["HTML"].'<br><br><img src="/bitrix/images/fileman/deny.gif" width="28" height="28" border="0" align="left" alt="">'.GetMessage("ACCESS_DENIED"));
 else:
 	CFileMan::GetDirList(Array($site, $path), $arDirs, $arFiles, Array("EXTENSIONS"=>$ext, "MIN_PERMISSION"=>"R"), Array("name"=>"asc"));
@@ -116,8 +116,8 @@ if($db_DirContent->IsNavPrint())
 		<td class="tablebody1">
 			<table cellpadding="0" cellspacing="0" border="0">
 			<tr>
-				<td align="left"><a href="javascript:OpenFile('<?=AddSlashes(htmlspecialcharsex($File["NAME"]))?>','<?=AddSlashes(htmlspecialcharsex($path))?>')"><IMG SRC="/bitrix/images/fileman/file.gif" width="15" height="18"></a></td>
-				<td align="left"><font class="tablebodytext"><a href="javascript:OpenFile('<?=AddSlashes(htmlspecialcharsex($File["NAME"]))?>','<?=AddSlashes(htmlspecialcharsex($path))?>')"><?=htmlspecialcharsex($File["NAME"])?></a></font></td>
+				<td align="left"><a onclick="OpenFile('<?=AddSlashes(htmlspecialcharsex($File["NAME"]))?>','<?=AddSlashes(htmlspecialcharsex($path))?>'); return false;" href="javascript:void(0)"><IMG SRC="/bitrix/images/fileman/file.gif" width="15" height="18"></a></td>
+				<td align="left"><font class="tablebodytext"><a onclick="OpenFile('<?=AddSlashes(htmlspecialcharsex($File["NAME"]))?>','<?=AddSlashes(htmlspecialcharsex($path))?>'); return false;" href="javascript:void(0)"><?=htmlspecialcharsex($File["NAME"])?></a></font></td>
 			</tr>
 			</table>
 		</td>

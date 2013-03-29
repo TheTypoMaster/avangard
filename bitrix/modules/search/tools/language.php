@@ -375,7 +375,7 @@ class CSearchLanguage
 			$i++;
 		}
 		uasort($arDetectionFrom, array("CSearchLanguage", "cmp"));
-		//echo "<pre>",print_r($arDetectionFrom,1),"<pre>";
+//echo "<pre>";foreach($arDetectionFrom as $i=>$ar){var_dump($i); print_r(array($ar[0],$ar[1],$ar[3],$ar[4],));}echo "<pre>";
 
 		//Now try the best to detect the language
 		$arDetection = array();
@@ -406,6 +406,7 @@ class CSearchLanguage
 				$alt_text = CSearchLanguage::ConvertKeyboardLayout($text, $lang_from, $lang);
 				$arDetection[$lang_from_to][] = $alt_text !== $text;
 				$arDetection[$lang_from_to][] = $i;
+				$arDetection[$lang_from_to][] = $lang_from_to;
 				$i++;
 			}
 		}
@@ -413,7 +414,7 @@ class CSearchLanguage
 		uasort($arDetection, array("CSearchLanguage", "cmp"));
 		$language_from_to = key($arDetection);
 		list($language_from, $language_to) = explode("=>", $language_from_to);
-		//echo "<pre>",print_r($arDetection,1),"<pre>";
+//echo "<pre>";foreach($arDetection as $i=>$ar){var_dump($i); print_r(array($ar[0],$ar[1],$ar[3],$ar[4],$ar[5],));}echo "<pre>";
 		$alt_text = CSearchLanguage::ConvertKeyboardLayout($text, $language_from, $language_to);
 		if($alt_text === $text)
 			return false;
@@ -440,14 +441,22 @@ class CSearchLanguage
 					{
 						$deviation = $a[2]->GetDeviation($a[3]);
 						$a[2] = $deviation[1];
-						$a[3] = intval($deviation[0]*100);
+						if(count($a[3]) > 3)
+							$a[3] = intval($deviation[0]*100);
+						else
+							$a[3] = 100;
 					}
 					if(is_object($b[2]))
 					{
 						$deviation = $b[2]->GetDeviation($b[3]);
 						$b[2] = $deviation[1];
-						$b[3] = intval($deviation[0]*100);
+						if(count($b[3]) > 3)
+							$b[3] = intval($deviation[0]*100);
+						else
+							$b[3] = 100;
 					}
+//echo "<pre>";print_r($a);echo "<pre>";
+//echo "<pre>";print_r($b);echo "<pre>";
 				}
 
 				if($a[$i] < $b[$i])
@@ -479,16 +488,12 @@ class CSearchLanguage
 		{
 			if(!isset($lang_bigrams[$key]))
 			{
-//debug code
-//$GLOBALS["proto2"][$this->_lang_id][
-//$this->ConvertFromScancode(array($arScanCodes[$i], $arScanCodes[$i+1], $arScanCodes[$i+2]))
-//$key
-//]++;
 				$zeroes++;
 				$deviation += $value/$count;
 			}
 			else
 			{
+//echo $this->ConvertFromScancode(explode(" ", $key)),"=",$lang_bigrams[$key]/$lang_count,"<br>";
 				$deviation += abs($value/$count - $lang_bigrams[$key]/$lang_count);
 			}
 		}

@@ -758,7 +758,7 @@ class CWizard
 				if (!array_key_exists($module, $arModules))
 				{
 					$this->SetError(
-						str_replace("#MODULE#", htmlspecialchars($module), GetMessage("MAIN_WIZARD_ERROR_MODULE_REQUIRED"))
+						str_replace("#MODULE#", htmlspecialcharsbx($module), GetMessage("MAIN_WIZARD_ERROR_MODULE_REQUIRED"))
 					);
 					$success = false;
 				}
@@ -773,7 +773,7 @@ class CWizard
 				{
 					$this->SetError(
 						str_replace(Array("#MODULE#", "#VERSION#"),
-										Array($arModules[$module]["MODULE_NAME"], htmlspecialchars($version)),
+										Array($arModules[$module]["MODULE_NAME"], htmlspecialcharsbx($version)),
 										GetMessage("MAIN_WIZARD_ERROR_MODULE_REQUIRED2"))
 					);
 					$success = false;

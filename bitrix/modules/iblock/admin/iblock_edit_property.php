@@ -7,14 +7,17 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/iblock.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
 IncludeModuleLangFile(__FILE__);
 
-if ('GET' == $_SERVER['REQUEST_METHOD'])
-{
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-	die();
-}
+$bFullForm = isset($_REQUEST["IBLOCK_ID"]) && isset($_REQUEST["ID"]);
+$bSectionPopup = isset($_REQUEST["return_url"]) && ($_REQUEST["return_url"] === "section_edit");
+$bReload = isset($_REQUEST["action"]) && $_REQUEST["action"] === "reload";
 
-if (('POST' == $_SERVER['REQUEST_METHOD']) && (false == isset($_REQUEST['saveresult'])))
+if (
+	('POST' == $_SERVER['REQUEST_METHOD'])
+	&& (false == isset($_REQUEST['saveresult']))
+	&& (false == isset($_REQUEST['IBLOCK_ID']))
+)
+	CUtil::JSPostUnescape();
+elseif ($bSectionPopup)
 	CUtil::JSPostUnescape();
 
 global $DB;
@@ -41,12 +44,12 @@ function __AddListValueIDCell($intPropID,$arPropInfo)
 
 function __AddListValueXmlIDCell($intPropID,$arPropInfo)
 {
-	return '<input type="text" name="PROPERTY_VALUES['.$intPropID.'][XML_ID]" id="PROPERTY_VALUES_XML_'.$intPropID.'" value="'.htmlspecialchars($arPropInfo['XML_ID']).'" size="15" maxlength="200">';
+	return '<input type="text" name="PROPERTY_VALUES['.$intPropID.'][XML_ID]" id="PROPERTY_VALUES_XML_'.$intPropID.'" value="'.htmlspecialcharsbx($arPropInfo['XML_ID']).'" size="15" maxlength="200" style="width:90%">';
 }
 
 function __AddListValueValueCell($intPropID,$arPropInfo)
 {
-	return '<input type="text" name="PROPERTY_VALUES['.$intPropID.'][VALUE]" id="PROPERTY_VALUES_XML_'.$intPropID.'" value="'.htmlspecialchars($arPropInfo['VALUE']).'" size="35" maxlength="255">';
+	return '<input type="text" name="PROPERTY_VALUES['.$intPropID.'][VALUE]" id="PROPERTY_VALUES_XML_'.$intPropID.'" value="'.htmlspecialcharsbx($arPropInfo['VALUE']).'" size="35" maxlength="255" style="width:90%">';
 }
 
 function __AddListValueSortCell($intPropID,$arPropInfo)
@@ -61,11 +64,11 @@ function __AddListValueDefCell($intPropID,$arPropInfo)
 
 function __AddListValueRow($intPropID,$arPropInfo)
 {
-	return '<tr><td>'.__AddListValueIDCell($intPropID,$arPropInfo).'</td>
+	return '<tr><td class="bx-digit-cell">'.__AddListValueIDCell($intPropID,$arPropInfo).'</td>
 	<td>'.__AddListValueXmlIDCell($intPropID,$arPropInfo).'</td>
 	<td>'.__AddListValueValueCell($intPropID,$arPropInfo).'</td>
-	<td>'.__AddListValueSortCell($intPropID,$arPropInfo).'</td>
-	<td>'.__AddListValueDefCell($intPropID,$arPropInfo).'</td></tr>';
+	<td style="text-align:center">'.__AddListValueSortCell($intPropID,$arPropInfo).'</td>
+	<td style="text-align:center">'.__AddListValueDefCell($intPropID,$arPropInfo).'</td></tr>';
 }
 
 $arDisabledPropFields = array(
@@ -103,6 +106,7 @@ $arDefPropInfo = array(
 	'XML_ID' => '',
 	'PROPERTY_TYPE' => 'S',
 	'NAME' => '',
+	'HINT' => '',
 	'USER_TYPE' => '',
 	'MULTIPLE' => 'N',
 	'IS_REQUIRED' => 'N',
@@ -110,6 +114,8 @@ $arDefPropInfo = array(
 	'CODE' => '',
 	'SHOW_DEL' => 'N',
 	'VALUES' => false,
+	'SECTION_PROPERTY' => $bSectionPopup? "N": "Y",
+	'SMART_FILTER' => 'N',
 );
 
 $arHiddenPropFields = array(
@@ -125,43 +131,43 @@ $arHiddenPropFields = array(
 	'SEARCHABLE',
 	'FILTRABLE',
 	'MULTIPLE_CNT',
+	'HINT',
 	'XML_ID',
 	'VALUES',
+	'SECTION_PROPERTY',
+	'SMART_FILTER',
 );
 
-if (!check_bitrix_sessid())
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !check_bitrix_sessid())
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
-if ((!isset($_REQUEST["PARAMS"]['IBLOCK_ID'])) || (0 == strlen($_REQUEST["PARAMS"]['IBLOCK_ID'])))
-{
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-	echo ShowError(GetMessage("BT_ADM_IEP_IBLOCK_ID_IS_ABSENT"));
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-	die();
-}
-$intIBlockID = $_REQUEST["PARAMS"]['IBLOCK_ID'];
-$intIBlockIDCheck = intval($intIBlockID);
-if ($intIBlockIDCheck.'|' != $intIBlockID.'|' || $intIBlockIDCheck < 0)
+
+if(isset($_REQUEST["PARAMS"]['IBLOCK_ID']))
+	$intIBlockID = intval($_REQUEST["PARAMS"]['IBLOCK_ID']);
+elseif(isset($_REQUEST["IBLOCK_ID"]))
+	$intIBlockID = intval($_REQUEST["IBLOCK_ID"]);
+else
+	$intIBlockID = false;
+
+if ($intIBlockID < 0 || $intIBlockID === false)
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	echo ShowError(GetMessage("BT_ADM_IEP_IBLOCK_ID_IS_INVALID"));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
-else
+elseif ($intIBlockID > 0)
 {
-	$intIBlockID = $intIBlockIDCheck;
-	unset($intIBlockIDCheck);
-}
-
-if (0 < $intIBlockID)
-{
-	$rsIBlocks = CIBlock::GetList(array(), array("ID" => $intIBlockID, "CHECK_PERMISSIONS" => "N"));
-	if (($arIBlock = $rsIBlocks->Fetch()))
+	$rsIBlocks = CIBlock::GetList(array(), array(
+		"ID" => $intIBlockID,
+		"CHECK_PERMISSIONS" => "N",
+	));
+	$arIBlock = $rsIBlocks->Fetch();
+	if ($arIBlock)
 	{
 		if (!CIBlockRights::UserHasRightTo($intIBlockID, $intIBlockID, "iblock_edit"))
 		{
@@ -179,18 +185,15 @@ if (0 < $intIBlockID)
 		die();
 	}
 }
-else
-{
-	if (!$USER->IsAdmin())
-	{
-		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-		$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
-		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-		die();
-	}
-}
 
-if ((!isset($_REQUEST["PARAMS"]['ID'])) || (0 == strlen($_REQUEST["PARAMS"]['ID'])))
+if(isset($_REQUEST["PARAMS"]['ID']))
+	$str_PROPERTY_ID = htmlspecialcharsbx($_REQUEST["PARAMS"]['ID']);
+elseif(isset($_REQUEST['ID']))
+	$str_PROPERTY_ID = htmlspecialcharsbx($_REQUEST['ID']);
+else
+	$str_PROPERTY_ID = "";
+
+if (!strlen($str_PROPERTY_ID))
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	echo ShowError(GetMessage("BT_ADM_IEP_PROPERTY_ID_IS_ABSENT"));
@@ -198,7 +201,39 @@ if ((!isset($_REQUEST["PARAMS"]['ID'])) || (0 == strlen($_REQUEST["PARAMS"]['ID'
 	die();
 }
 
-$str_PROPERTY_ID = htmlspecialchars($_REQUEST["PARAMS"]['ID']);
+$arListValues = array();
+if (isset($_POST['PROPERTY_VALUES']) && is_array($_POST['PROPERTY_VALUES']))
+{
+	$boolDefCheck = false;
+	if ('Y' == $_POST['PROPERTY_MULTIPLE'])
+	{
+		$boolDefCheck = (isset($_POST['PROPERTY_VALUES_DEF']) && is_array($_POST['PROPERTY_VALUES_DEF']));
+	}
+	else
+	{
+		$boolDefCheck = isset($_POST['PROPERTY_VALUES_DEF']);
+	}
+	$intNewKey = 0;
+	foreach ($_POST['PROPERTY_VALUES'] as $key => $arValue)
+	{
+		if (!is_array($arValue) || !isset($arValue['VALUE']) || '' == trim($arValue['VALUE']))
+			continue;
+		$arListValues[(0 < intval($key) ? $key : 'n'.$intNewKey)] = array(
+			'ID' => (0 < intval($key) ? $key : 'n'.$intNewKey),
+			'VALUE' => strval($arValue['VALUE']),
+			'XML_ID' => (isset($arValue['XML_ID']) ? strval($arValue['XML_ID']) : ''),
+			'SORT' => (isset($arValue['SORT']) ? intval($arValue['SORT']) : 500),
+			'DEF' => ($boolDefCheck ?
+						('Y' == $_POST['PROPERTY_MULTIPLE'] ?
+							(in_array($key, $_POST['PROPERTY_VALUES_DEF']) ? 'Y' : 'N') :
+							($key == $_POST['PROPERTY_VALUES_DEF'] ? 'Y' : 'N')) :
+						'N'),
+		);
+		if (0 >= intval($key))
+			$intNewKey++;
+	}
+}
+
 if (1 != preg_match('/^n\d+$/',$str_PROPERTY_ID))
 {
 	$str_PROPERTY_IDCheck = intval($str_PROPERTY_ID);
@@ -213,7 +248,7 @@ if (1 != preg_match('/^n\d+$/',$str_PROPERTY_ID))
 	{
 		$str_PROPERTY_ID = $str_PROPERTY_IDCheck;
 		unset($str_PROPERTY_IDCheck);
-		$rsProps = CIBlockProperty::GetByID($str_PROPERTY_ID,$intIBlockID);
+		$rsProps = CIBlockProperty::GetByID($str_PROPERTY_ID, $intIBlockID);
 		if (!($arPropCheck = $rsProps->Fetch()))
 		{
 			require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -224,10 +259,138 @@ if (1 != preg_match('/^n\d+$/',$str_PROPERTY_ID))
 	}
 }
 
+$bVarsFromForm = $bReload;
+$message = false;
+$strWarning = "";
+
+if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["action"]) && $_POST["action"] === "delete")
+{
+	CIBlockProperty::Delete($str_PROPERTY_ID);
+	if(strlen($return_url)>0)
+		LocalRedirect($return_url);
+	else
+		LocalRedirect('iblock_property_admin.php?lang='.LANGUAGE_ID.'&IBLOCK_ID='.$intIBlockID.($_REQUEST["admin"]=="Y"? "&admin=Y": "&admin=N"));
+}
+elseif(!$bReload && $_SERVER["REQUEST_METHOD"] == "POST" && (isset($_POST["save"]) || isset($_POST["apply"])))
+{
+	$arFields = array(
+		"ACTIVE" => $_POST["PROPERTY_ACTIVE"],
+		"IBLOCK_ID" => $_POST["IBLOCK_ID"],
+		"LINK_IBLOCK_ID" => $_POST["PROPERTY_LINK_IBLOCK_ID"],
+		"NAME" => $_POST["PROPERTY_NAME"],
+		"SORT" => $_POST["PROPERTY_SORT"],
+		"CODE" => $_POST["PROPERTY_CODE"],
+		"MULTIPLE" => $_POST["PROPERTY_MULTIPLE"],
+		"IS_REQUIRED" => $_POST["PROPERTY_IS_REQUIRED"],
+		"SEARCHABLE" => $_POST["PROPERTY_SEARCHABLE"],
+		"FILTRABLE" => $_POST["PROPERTY_FILTRABLE"],
+		"WITH_DESCRIPTION" => $_POST["PROPERTY_WITH_DESCRIPTION"],
+		"MULTIPLE_CNT" => $_POST["PROPERTY_MULTIPLE_CNT"],
+		"HINT" => $_POST["PROPERTY_HINT"],
+		"ROW_COUNT" => $_POST["PROPERTY_ROW_COUNT"],
+		"COL_COUNT" => $_POST["PROPERTY_COL_COUNT"],
+		"DEFAULT_VALUE" => $_POST["PROPERTY_DEFAULT_VALUE"],
+		"LIST_TYPE" => $_POST["PROPERTY_LIST_TYPE"],
+	);
+
+	if(isset($_POST["PROPERTY_SMART_FILTER"]))
+		$arFields["SMART_FILTER"] = $_POST["PROPERTY_SMART_FILTER"];
+
+	if(isset($_POST["PROPERTY_SECTION_PROPERTY"]))
+		$arFields["SECTION_PROPERTY"] = $_POST["PROPERTY_SECTION_PROPERTY"];
+	elseif($bSectionPopup)
+		$arFields["SECTION_PROPERTY"] = "N";
+
+	if (isset($_POST["PROPERTY_PROPERTY_TYPE"]))
+	{
+		if (strpos($_POST["PROPERTY_PROPERTY_TYPE"], ":"))
+		{
+			list($arFields["PROPERTY_TYPE"], $arFields["USER_TYPE"]) = explode(':', $_POST["PROPERTY_PROPERTY_TYPE"], 2);
+		}
+		else
+		{
+			$arFields["PROPERTY_TYPE"] = $_POST["PROPERTY_PROPERTY_TYPE"];
+		}
+	}
+
+	if(!empty($arListValues))
+		$arFields["VALUES"] = $arListValues;
+
+	if (COption::GetOptionString("iblock", "show_xml_id", "N")=="Y")
+		$arFields["XML_ID"] = $_POST["PROPERTY_XML_ID"];
+
+	if(CIBlock::GetArrayByID($arFields["IBLOCK_ID"], "SECTION_PROPERTY") === "N")
+	{
+		if($arFields["SECTION_PROPERTY"] === "N" || $arFields["SMART_FILTER"] === "Y")
+		{
+			$ib = new CIBlock;
+			$ib->Update($arFields["IBLOCK_ID"], array("SECTION_PROPERTY" => "Y"));
+		}
+	}
+
+	$ibp = new CIBlockProperty;
+	if($str_PROPERTY_ID > 0)
+	{
+		$res = $ibp->Update($str_PROPERTY_ID, $arFields);
+	}
+	else
+	{
+		$str_PROPERTY_ID = $ibp->Add($arFields);
+		$res = ($str_PROPERTY_ID > 0);
+	}
+
+	if(!$res)
+	{
+		$strWarning .= $ibp->LAST_ERROR;
+		$bVarsFromForm = true;
+		if($e = $APPLICATION->GetException())
+			$message = new CAdminMessage(GetMessage("admin_lib_error"), $e);
+	}
+	else
+	{
+		if(strlen($apply)<=0)
+		{
+			if($bSectionPopup)
+			{
+				if($arFields['PROPERTY_TYPE'] == "S" && !$arFields['USER_TYPE'])
+					$type = GetMessage("IBLOCK_PROP_S");
+				elseif($arFields['PROPERTY_TYPE'] == "N" && !$arFields['USER_TYPE'])
+					$type = GetMessage("IBLOCK_PROP_N");
+				elseif($arFields['PROPERTY_TYPE'] == "L" && !$arFields['USER_TYPE'])
+					$type = GetMessage("IBLOCK_PROP_L");
+				elseif($arFields['PROPERTY_TYPE'] == "F" && !$arFields['USER_TYPE'])
+					$type = GetMessage("IBLOCK_PROP_F");
+				elseif($arFields['PROPERTY_TYPE'] == "G" && !$arFields['USER_TYPE'])
+					$type = GetMessage("IBLOCK_PROP_G");
+				elseif($arFields['PROPERTY_TYPE'] == "E" && !$arFields['USER_TYPE'])
+					$type = GetMessage("IBLOCK_PROP_E");
+				elseif($arFields['USER_TYPE'] && is_array($ar = CIBlockProperty::GetUserType($arFields['USER_TYPE'])))
+					$type = htmlspecialcharsex($ar["DESCRIPTION"]);
+				else
+					$type = GetMessage("IBSEC_E_PROP_TYPE_S");
+
+				echo '<script>
+						top.createSectionProperty('.intval($str_PROPERTY_ID).', \''.CUtil::JSEscape($arFields["NAME"]).'\', \''.CUtil::JSEscape($type).'\');
+						top.BX.closeWait();
+						top.BX.WindowManager.Get().AllowClose();
+						top.BX.WindowManager.Get().Close();
+					</script>';
+				die();
+			}
+
+			if(strlen($return_url)>0)
+				LocalRedirect($return_url);
+			else
+				LocalRedirect('iblock_property_admin.php?lang='.LANGUAGE_ID.'&IBLOCK_ID='.$intIBlockID.($_REQUEST["admin"]=="Y"? "&admin=Y": "&admin=N"));
+		}
+		LocalRedirect("iblock_edit_property.php?lang=".LANGUAGE_ID."&IBLOCK_ID=".$IBLOCK_ID."&find_section_section=".intval($find_section_section).'&ID='.intval($str_PROPERTY_ID).(strlen($return_url)>0?"&return_url=".UrlEncode($return_url):"").($_REQUEST["admin"]=="Y"? "&admin=Y": "&admin=N"));
+	}
+}
+
 $strReceiver = '';
 
 if (isset($_REQUEST["PARAMS"]['RECEIVER']))
-	$strReceiver = preg_replace("/[^a-zA-Z0-9_:]/", "", htmlspecialchars(($_REQUEST["PARAMS"]['RECEIVER'])));
+	$strReceiver = preg_replace("/[^a-zA-Z0-9_:]/", "", htmlspecialcharsbx(($_REQUEST["PARAMS"]['RECEIVER'])));
 
 if (isset($_REQUEST['saveresult']))
 {
@@ -253,48 +416,30 @@ if (isset($_REQUEST['saveresult']))
 		}
 	}
 
+	if (isset($_POST['PROPERTY_SECTION_PROPERTY']))
+		$arProperty['SECTION_PROPERTY'] = $_POST['PROPERTY_SECTION_PROPERTY'];
+	else
+		$arProperty['SECTION_PROPERTY'] = $arDefPropInfo['SECTION_PROPERTY'];
+
+	if (isset($_POST['PROPERTY_SMART_FILTER']))
+		$arProperty['SMART_FILTER'] = $_POST['PROPERTY_SMART_FILTER'];
+	else
+		$arProperty['SMART_FILTER'] = $arDefPropInfo['SMART_FILTER'];
+
 	$arProperty['MULTIPLE'] = ('Y' == $arProperty['MULTIPLE'] ? 'Y' : 'N');
 	$arProperty['IS_REQUIRED'] = ('Y' == $arProperty['IS_REQUIRED'] ? 'Y' : 'N');
 	$arProperty['FILTRABLE'] = ('Y' == $arProperty['FILTRABLE'] ? 'Y' : 'N');
 	$arProperty['SEARCHABLE'] = ('Y' == $arProperty['SEARCHABLE'] ? 'Y' : 'N');
 	$arProperty['ACTIVE'] = ('Y' == $arProperty['ACTIVE'] ? 'Y' : 'N');
+	$arProperty['SECTION_PROPERTY'] = ('N' == $arProperty['SECTION_PROPERTY'] ? 'N' : 'Y');
+	$arProperty['SMART_FILTER'] = ('Y' == $arProperty['SMART_FILTER'] ? 'Y' : 'N');
 	$arProperty['MULTIPLE_CNT'] = intval($arProperty['MULTIPLE_CNT']);
 	if (0 >= $arProperty['MULTIPLE_CNT'])
 		$arProperty['MULTIPLE_CNT'] = DEF_LIST_VALUE_COUNT;
 	$arProperty['WITH_DESCRIPTION'] = ('Y' == $arProperty['WITH_DESCRIPTION'] ? 'Y' : 'N');
 
-	if (isset($_POST['PROPERTY_VALUES']) && is_array($_POST['PROPERTY_VALUES']))
-	{
-		$arProperty['VALUES'] = array();
-		$boolDefCheck = false;
-		if ('Y' == $arProperty['MULTIPLE'])
-		{
-			$boolDefCheck = (isset($_POST['PROPERTY_VALUES_DEF']) && is_array($_POST['PROPERTY_VALUES_DEF']));
-		}
-		else
-		{
-			$boolDefCheck = isset($_POST['PROPERTY_VALUES_DEF']);
-		}
-		$intNewKey = 0;
-		foreach ($_POST['PROPERTY_VALUES'] as $key => $arValue)
-		{
-			if (!is_array($arValue) || !isset($arValue['VALUE']) || '' == trim($arValue['VALUE']))
-				continue;
-			$arProperty['VALUES'][(0 < intval($key) ? $key : 'n'.$intNewKey)] = array(
-				'ID' => (0 < intval($key) ? $key : 'n'.$intNewKey),
-				'VALUE' => strval($arValue['VALUE']),
-				'XML_ID' => (isset($arValue['XML_ID']) ? strval($arValue['XML_ID']) : ''),
-				'SORT' => (isset($arValue['SORT']) ? intval($arValue['SORT']) : 500),
-				'DEF' => ($boolDefCheck ?
-							('Y' == $arProperty['MULTIPLE'] ?
-								(in_array($key, $_POST['PROPERTY_VALUES_DEF']) ? 'Y' : 'N') :
-								($key == $_POST['PROPERTY_VALUES_DEF'] ? 'Y' : 'N')) :
-							'N'),
-			);
-			if (0 >= intval($key))
-				$intNewKey++;
-		}
-	}
+	if(!empty($arListValues))
+		$arProperty["VALUES"] = $arListValues;
 
 	$arHidden = array();
 	foreach ($arHiddenPropFields as &$strPropField)
@@ -315,10 +460,15 @@ if (isset($_REQUEST['saveresult']))
 		top.<? echo $strReceiver; ?>.SetPropInfo('<? echo $PARAMS['ID']; ?>',arResult,'<? echo bitrix_sessid(); ?>');
 	}
 	top.BX.closeWait(); top.BX.WindowManager.Get().AllowClose(); top.BX.WindowManager.Get().Close();
-</script><?
+	</script><?
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
+	die();
 }
-else
+
+$aTabs = array();
+$tabControl = null;
+
+if(!$bFullForm)
 {
 	$arProperty = array();
 	$PROPERTY = $_POST['PROP'];
@@ -328,8 +478,6 @@ else
 	{
 		$APPLICATION->SetTitle($PARAMS['TITLE']);
 	}
-
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
 	$arFieldsList = $DB->GetTableFieldsList("b_iblock_property");
 	foreach ($arFieldsList as $strFieldName)
@@ -356,6 +504,8 @@ else
 	$arProperty['FILTRABLE'] = ('Y' == $arProperty['FILTRABLE'] ? 'Y' : 'N');
 	$arProperty['SEARCHABLE'] = ('Y' == $arProperty['SEARCHABLE'] ? 'Y' : 'N');
 	$arProperty['ACTIVE'] = ('Y' == $arProperty['ACTIVE'] ? 'Y' : 'N');
+	$arProperty['SECTION_PROPERTY'] = ('N' == $arProperty['SECTION_PROPERTY'] ? 'N' : 'Y');
+	$arProperty['SMART_FILTER'] = ('Y' == $arProperty['SMART_FILTER'] ? 'Y' : 'N');
 	$arProperty['MULTIPLE_CNT'] = intval($arProperty['MULTIPLE_CNT']);
 	if (0 >= $arProperty['MULTIPLE_CNT'])
 		$arProperty['MULTIPLE_CNT'] = DEF_LIST_VALUE_COUNT;
@@ -367,6 +517,109 @@ else
 		list($arProperty['PROPERTY_TYPE'],$arProperty['USER_TYPE']) = explode(':', $arProperty['PROPERTY_TYPE'], 2);
 	}
 
+	$arProperty["ID"] = $PARAMS['ID'];
+}
+else
+{
+	if($bVarsFromForm)
+	{
+		$arProperty = array(
+			"ID" => $str_PROPERTY_ID,
+			"ACTIVE" => $_POST["PROPERTY_ACTIVE"],
+			"IBLOCK_ID" => $_POST["IBLOCK_ID"],
+			"NAME" => $_POST["PROPERTY_NAME"],
+			"SORT" => $_POST["PROPERTY_SORT"],
+			"CODE" => $_POST["PROPERTY_CODE"],
+			"MULTIPLE" => $_POST["PROPERTY_MULTIPLE"],
+			"IS_REQUIRED" => $_POST["PROPERTY_IS_REQUIRED"],
+			"SEARCHABLE" => $_POST["PROPERTY_SEARCHABLE"],
+			"FILTRABLE" => $_POST["PROPERTY_FILTRABLE"],
+			"WITH_DESCRIPTION" => $_POST["PROPERTY_WITH_DESCRIPTION"],
+			"MULTIPLE_CNT" => $_POST["PROPERTY_MULTIPLE_CNT"],
+			"HINT" => $_POST["PROPERTY_HINT"],
+			"SECTION_PROPERTY" => $_POST["PROPERTY_SECTION_PROPERTY"],
+			"SMART_FILTER" => $_POST["PROPERTY_SMART_FILTER"],
+			"ROW_COUNT" => $_POST["PROPERTY_ROW_COUNT"],
+			"COL_COUNT" => $_POST["PROPERTY_COL_COUNT"],
+			"DEFAULT_VALUE" => $_POST["PROPERTY_DEFAULT_VALUE"],
+		);
+
+		if (isset($_POST["PROPERTY_PROPERTY_TYPE"]))
+		{
+			if (strpos($_POST["PROPERTY_PROPERTY_TYPE"], ":"))
+			{
+				list($arProperty["PROPERTY_TYPE"], $arProperty["USER_TYPE"]) = explode(':', $_POST["PROPERTY_PROPERTY_TYPE"], 2);
+			}
+			else
+			{
+				$arProperty["PROPERTY_TYPE"] = $_POST["PROPERTY_PROPERTY_TYPE"];
+			}
+		}
+
+		if(!empty($arListValues))
+			$arProperty["VALUES"] = $arListValues;
+	}
+	elseif(is_array($arPropCheck))
+	{
+		$arProperty = $arPropCheck;
+		if ($arProperty['PROPERTY_TYPE'] == "L")
+		{
+			$arProperty['VALUES'] = array();
+			$rsLists = CIBlockProperty::GetPropertyEnum($arProperty['ID'],array('SORT' => 'ASC','ID' => 'ASC'));
+			while($res = $rsLists->Fetch())
+			{
+				$arProperty['VALUES'][$res["ID"]] = array(
+					'ID' => $res["ID"],
+					'VALUE' => $res["VALUE"],
+					'SORT' => $res['SORT'],
+					'XML_ID' => $res["XML_ID"],
+					'DEF' => $res['DEF'],
+				);
+			}
+		}
+		$arPropLink = CIBlockSectionPropertyLink::GetArray($intIBlockID, 0);
+		if(isset($arPropLink[$arProperty["ID"]]))
+		{
+			$arProperty["SECTION_PROPERTY"] = "Y";
+			$arProperty["SMART_FILTER"] = $arPropLink[$arProperty["ID"]]["SMART_FILTER"];
+		}
+		else
+		{
+			$arProperty["SECTION_PROPERTY"] = "N";
+			$arProperty["SMART_FILTER"] = "N";
+		}
+	}
+	else
+	{
+		$arProperty = $arDefPropInfo;
+		$arProperty["IBLOCK_ID"] = $intIBlockID;
+	}
+
+	if (!$bSectionPopup)
+	{
+		$aTabs = array(
+			array(
+				"DIV" => "edit1",
+				"TAB" => GetMessage("BT_ADM_IEP_TAB"),
+				"ICON" => "iblock",
+				"TITLE" => GetMessage("BT_ADM_IEP_TAB_TITLE"),
+			),
+		);
+
+		$tabControl = new CAdminTabControl("tabControl", $aTabs);
+
+		if($ID > 0)
+			$APPLICATION->SetTitle(GetMessage("BT_ADM_IEP_PROPERTY_EDIT", array("#NAME#" => htmlspecialcharsbx($arProperty["NAME"]))));
+		else
+			$APPLICATION->SetTitle(GetMessage("BT_ADM_IEP_PROPERTY_NEW"));
+	}
+}
+
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+
+	if ('L' == $arProperty['PROPERTY_TYPE'])
+		$arDefPropInfo['MULTIPLE'] = $arProperty['MULTIPLE'];
+
 	$arTypesList = array(
 		"S" => GetMessage("BT_ADM_IEP_PROP_TYPE_S"),
 		"N" => GetMessage("BT_ADM_IEP_PROP_TYPE_N"),
@@ -376,57 +629,175 @@ else
 		"E" => GetMessage("BT_ADM_IEP_PROP_TYPE_E"),
 	);
 
-	?><form method="POST" name="frm_prop" id="frm_prop" action="<? echo $APPLICATION->GetCurPageParam(); ?>" enctype="multipart/form-data">
-	<? echo bitrix_sessid_post(); ?>
-	<input type="hidden" name="saveresult" value="Y">
-	<input type="hidden" name="propedit" value="<? echo $str_PROPERTY_ID; ?>">
-	<input type="hidden" name="receiver" value="<? echo $strReceiver; ?>">
-	<?
-	foreach ($PARAMS as $key => $value)
+	$aMenu = array(
+		array(
+			"TEXT" => GetMessage("BT_ADM_IEP_LIST") ,
+			"LINK" => 'iblock_property_admin.php?lang='.LANGUAGE_ID.'&IBLOCK_ID='.$intIBlockID.($_REQUEST["admin"]=="Y"? "&admin=Y": "&admin=N"),
+			"ICON" => "btn_list",
+		),
+	);
+
+	if($str_PROPERTY_ID > 0)
 	{
-		if ('TITLE' != $key)
+		$aMenu[] = array("SEPARATOR"=>"Y");
+		$aMenu[] = array(
+			"TEXT" => GetMessage("BT_ADM_IEP_DELETE") ,
+			"LINK"=>"javascript:jsDelete('frm_prop', '".GetMessage("BT_ADM_IEP_CONFIRM_DEL_MESSAGE")."')",
+			"ICON"=>"btn_delete",
+		);
+	}
+
+	if(!$bReload)
+	{
+		$context = new CAdminContextMenu($aMenu);
+		$context->Show();
+	}
+
+	if($strWarning)
+		CAdminMessage::ShowOldStyleError($strWarning."<br>");
+	elseif($message)
+		echo $message->Show();
+
+	?>
+	<script type="text/javascript">
+	function jsDelete(form_id, message)
+	{
+		var _form = document.getElementById(form_id);
+		var _flag = document.getElementById('action');
+		if(_form && _flag)
 		{
-			?><input type="hidden" name="PARAMS[<? echo htmlspecialchars($key); ?>]" value="<? echo htmlspecialchars($value); ?>"><?
+			if(confirm(message))
+			{
+				_flag.value = 'delete';
+				_form.submit();
+			}
 		}
 	}
-	?>
-	<table class="edit-table" width="100%"><tbody><?
-	$arProperty["ID"] = $PARAMS['ID'];
-	$arProperty['USER_TYPE'] = trim($arProperty['USER_TYPE']);
-	$arUserType = ('' != $arProperty['USER_TYPE'] ? CIBlockProperty::GetUserType($arProperty['USER_TYPE']) : array());
+	function reloadForm()
+	{
+		var _form = document.getElementById('frm_prop');
+		var _flag = document.getElementById('action');
+		if(_form && _flag)
+		{
+			_flag.value = 'reload';
+			<?if($bSectionPopup):?>
+				BX.WindowManager.Get().PostParameters();
+			<?else:?>
+				_form.submit();
+			<?endif?>
+		}
+	}
+	</script>
+	<form method="POST" name="frm_prop" id="frm_prop" action="<?echo $APPLICATION->GetCurPageParam(); ?>" enctype="multipart/form-data">
+	<div id="form_content">
+	<?echo bitrix_sessid_post();?>
+	<?if($bSectionPopup):?>
+		<input type="hidden" name="bxpublic" value="Y">
+		<input type="hidden" name="save" value="Y">
+	<?endif;?>
+	<?if(is_object($tabControl) || $bSectionPopup):
 
-	$arPropertyFields = array();
-	$USER_TYPE_SETTINGS_HTML = "";
-	if(array_key_exists("GetSettingsHTML", $arUserType))
-		$USER_TYPE_SETTINGS_HTML = call_user_func_array($arUserType["GetSettingsHTML"],
-			array(
-				$arProperty,
+		if(is_object($tabControl))
+		{
+			$tabControl->Begin();
+			$tabControl->BeginNextTab();
+		}
+		?>
+		<input type="hidden" name="ID" value="<?echo $str_PROPERTY_ID?>">
+		<input type="hidden" name="IBLOCK_ID" value="<?echo $intIBlockID?>">
+		<input type="hidden" name="action" id="action" value="">
+		<?
+		$arProperty['USER_TYPE'] = trim($arProperty['USER_TYPE']);
+		$arUserType = ('' != $arProperty['USER_TYPE'] ? CIBlockProperty::GetUserType($arProperty['USER_TYPE']) : array());
+
+		$arPropertyFields = array();
+		$USER_TYPE_SETTINGS_HTML = "";
+		if(array_key_exists("GetSettingsHTML", $arUserType))
+			$USER_TYPE_SETTINGS_HTML = call_user_func_array($arUserType["GetSettingsHTML"],
 				array(
-					"NAME"=>"PROPERTY_USER_TYPE_SETTINGS",
-				),
-				&$arPropertyFields,
-			)
-		);
-	?><input type="hidden" id="PROPERTY_PROPERTY_TYPE" name="PROPERTY_PROPERTY_TYPE" value="<?echo htmlspecialchars($arProperty['PROPERTY_TYPE'].($arProperty['USER_TYPE']? ':'.$arProperty['USER_TYPE']: '')); ?>">
-<tr>
-	<td width="40%">ID:</td>
-	<td width="60%"><? echo (0 < intval($arProperty['ID']) ? $arProperty['ID'] : GetMessage("BT_ADM_IEP_PROP_NEW"))?></td>
-</tr>
-<tr>
-	<td width="40%"><? echo GetMessage('BT_ADM_IEP_PROPERTY_TYPE'); ?></td>
-	<td width="60%"><?
-	$strDescr = '';
-	if (isset($arUserType['DESCRIPTION']))
-	{
-		$strDescr = $arUserType['DESCRIPTION'];
-	}
-	elseif (isset($arTypesList[$arProperty['PROPERTY_TYPE']]))
-	{
-		$strDescr = $arTypesList[$arProperty['PROPERTY_TYPE']];
-	}
-	echo $strDescr;
-	?></td>
-</tr>
+					$arProperty,
+					array(
+						"NAME"=>"PROPERTY_USER_TYPE_SETTINGS",
+					),
+					&$arPropertyFields,
+				)
+			);
+
+		$PROPERTY_TYPE = $arProperty['PROPERTY_TYPE'].($arProperty['USER_TYPE']? ':'.$arProperty['USER_TYPE']: '');
+		?><input type="hidden" id="PROPERTY_PROPERTY_TYPE" name="PROPERTY_PROPERTY_TYPE" value="<?echo htmlspecialcharsbx($PROPERTY_TYPE); ?>">
+		<?if($bSectionPopup):?>
+		<table class="edit-table" width="100%"><tbody>
+		<?endif;?>
+		<tr>
+			<td width="40%">ID:</td>
+			<td width="60%"><? echo (0 < intval($arProperty['ID']) ? $arProperty['ID'] : GetMessage("BT_ADM_IEP_PROP_NEW"))?></td>
+		</tr>
+		<tr>
+			<td width="40%"><? echo GetMessage('BT_ADM_IEP_PROPERTY_TYPE'); ?></td>
+			<td width="60%">
+			<select name="PROPERTY_PROPERTY_TYPE" onchange="reloadForm();">
+				<option value="S" <?if($PROPERTY_TYPE=="S")echo " selected"?>><?echo GetMessage("IBLOCK_PROP_S")?></option>
+				<option value="N" <?if($PROPERTY_TYPE=="N")echo " selected"?>><?echo GetMessage("IBLOCK_PROP_N")?></option>
+				<option value="L" <?if($PROPERTY_TYPE=="L")echo " selected"?>><?echo GetMessage("IBLOCK_PROP_L")?></option>
+				<option value="F" <?if($PROPERTY_TYPE=="F")echo " selected"?>><?echo GetMessage("IBLOCK_PROP_F")?></option>
+				<option value="G" <?if($PROPERTY_TYPE=="G")echo " selected"?>><?echo GetMessage("IBLOCK_PROP_G")?></option>
+				<option value="E" <?if($PROPERTY_TYPE=="E")echo " selected"?>><?echo GetMessage("IBLOCK_PROP_E")?></option>
+				<?foreach(CIBlockProperty::GetUserType() as  $ar):?>
+				<option value="<?=htmlspecialcharsbx($ar["PROPERTY_TYPE"].":".$ar["USER_TYPE"])?>" <?if($PROPERTY_TYPE==$ar["PROPERTY_TYPE"].":".$ar["USER_TYPE"])echo " selected"?>><?=htmlspecialcharsbx($ar["DESCRIPTION"])?></option>
+				<?endforeach;?>
+			</select><?
+			?></td>
+		</tr>
+	<?else:?>
+		<input type="hidden" name="saveresult" value="Y">
+		<input type="hidden" name="propedit" value="<? echo $str_PROPERTY_ID; ?>">
+		<input type="hidden" name="receiver" value="<? echo $strReceiver; ?>">
+		<?
+		foreach ($PARAMS as $key => $value)
+		{
+			if ('TITLE' != $key)
+			{
+				?><input type="hidden" name="PARAMS[<? echo htmlspecialcharsbx($key); ?>]" value="<? echo htmlspecialcharsbx($value); ?>"><?
+			}
+		}
+		?>
+		<table class="edit-table" width="100%"><tbody><?
+		$arProperty['USER_TYPE'] = trim($arProperty['USER_TYPE']);
+		$arUserType = ('' != $arProperty['USER_TYPE'] ? CIBlockProperty::GetUserType($arProperty['USER_TYPE']) : array());
+
+		$arPropertyFields = array();
+		$USER_TYPE_SETTINGS_HTML = "";
+		if(array_key_exists("GetSettingsHTML", $arUserType))
+			$USER_TYPE_SETTINGS_HTML = call_user_func_array($arUserType["GetSettingsHTML"],
+				array(
+					$arProperty,
+					array(
+						"NAME"=>"PROPERTY_USER_TYPE_SETTINGS",
+					),
+					&$arPropertyFields,
+				)
+			);
+		?><input type="hidden" id="PROPERTY_PROPERTY_TYPE" name="PROPERTY_PROPERTY_TYPE" value="<?echo htmlspecialcharsbx($arProperty['PROPERTY_TYPE'].($arProperty['USER_TYPE']? ':'.$arProperty['USER_TYPE']: '')); ?>">
+		<tr>
+			<td width="40%">ID:</td>
+			<td width="60%"><? echo (0 < intval($arProperty['ID']) ? $arProperty['ID'] : GetMessage("BT_ADM_IEP_PROP_NEW"))?></td>
+		</tr>
+		<tr>
+			<td width="40%"><? echo GetMessage('BT_ADM_IEP_PROPERTY_TYPE'); ?></td>
+			<td width="60%"><?
+			$strDescr = '';
+			if (isset($arUserType['DESCRIPTION']))
+			{
+				$strDescr = $arUserType['DESCRIPTION'];
+			}
+			elseif (isset($arTypesList[$arProperty['PROPERTY_TYPE']]))
+			{
+				$strDescr = $arTypesList[$arProperty['PROPERTY_TYPE']];
+			}
+			echo $strDescr;
+			?></td>
+		</tr>
+	<?endif?>
 <tr>
 	<td width="40%"><label for="PROPERTY_ACTIVE_Y"><?echo GetMessage("BT_ADM_IEP_PROP_ACT")?></label></td>
 	<td width="60%"><input type="hidden" id="PROPERTY_ACTIVE_N" name="PROPERTY_ACTIVE" value="N">
@@ -436,19 +807,19 @@ else
 	<td width="40%"><?echo GetMessage("BT_ADM_IEP_PROP_SORT_DET")?></td>
 	<td><input type="text" size="3" maxlength="10" id="PROPERTY_SORT" name="PROPERTY_SORT" value="<? echo intval($arProperty['SORT']); ?>"></td>
 </tr>
-<tr>
+<tr class="adm-detail-required-field">
 	<td width="40%"><?echo GetMessage("BT_ADM_IEP_PROP_NAME_DET")?></td>
-	<td ><input type="text" size="30" maxlength="100" id="PROPERTY_NAME" name="PROPERTY_NAME" value="<? echo htmlspecialchars($arProperty['NAME']);?>"></td>
+	<td ><input type="text" size="30" maxlength="255" id="PROPERTY_NAME" name="PROPERTY_NAME" value="<? echo htmlspecialcharsbx($arProperty['NAME']);?>"></td>
 </tr>
 <tr>
 	<td width="40%"><?echo GetMessage("BT_ADM_IEP_PROP_CODE_DET")?></td>
-	<td><input type="text" size="30" maxlength="50" id="PROPERTY_CODE" name="PROPERTY_CODE" value="<? echo htmlspecialchars($arProperty['CODE'])?>"></td>
+	<td><input type="text" size="30" maxlength="50" id="PROPERTY_CODE" name="PROPERTY_CODE" value="<? echo htmlspecialcharsbx($arProperty['CODE'])?>"></td>
 </tr>
 <?
 	if (COption::GetOptionString("iblock", "show_xml_id", "N")=="Y")
 	{?><tr>
 		<td width="40%"><?echo GetMessage("BT_ADM_IEP_PROP_EXTERNAL_CODE")?></td>
-		<td><input type="text" size="30" maxlength="50" id="PROPERTY_XML_ID" name="PROPERTY_XML_ID" value="<? echo htmlspecialchars($arProperty['XML_ID'])?>"></td>
+		<td><input type="text" size="30" maxlength="50" id="PROPERTY_XML_ID" name="PROPERTY_XML_ID" value="<? echo htmlspecialcharsbx($arProperty['XML_ID'])?>"></td>
 		</tr><?
 	}?>
 <tr>
@@ -476,7 +847,7 @@ else
 
 	if ($bShow)
 	{?><tr>
-		<td width="40%"><label id="PROPERTY_SEARCHABLE_Y"><?echo GetMessage("BT_ADM_IEP_PROP_SEARCHABLE")?></label></td>
+		<td width="40%"><label for="PROPERTY_SEARCHABLE_Y"><?echo GetMessage("BT_ADM_IEP_PROP_SEARCHABLE")?></label></td>
 		<td>
 			<input type="hidden" id="PROPERTY_SEARCHABLE_N" name="PROPERTY_SEARCHABLE" value="N">
 			<input type="checkbox" id="PROPERTY_SEARCHABLE_Y" name="PROPERTY_SEARCHABLE" value="Y" <?if('Y' == $arProperty['SEARCHABLE'])echo ' checked="checked"';?>>
@@ -485,7 +856,7 @@ else
 	} elseif(
 		is_array($arPropertyFields["SET"]) && array_key_exists("SEARCHABLE", $arPropertyFields["SET"])
 	){
-		?><input type="hidden" id="PROPERTY_SEARCHABLE_Y" name="PROPERTY_SEARCHABLE" value="<?echo htmlspecialchars($arPropertyFields["SET"]["SEARCHABLE"])?>"><?
+		?><input type="hidden" id="PROPERTY_SEARCHABLE_Y" name="PROPERTY_SEARCHABLE" value="<?echo htmlspecialcharsbx($arPropertyFields["SET"]["SEARCHABLE"])?>"><?
 	}
 	$bShow = true;
 	if(is_array($arPropertyFields["SHOW"]) && in_array("FILTRABLE", $arPropertyFields["SHOW"]))
@@ -506,7 +877,7 @@ else
 	} elseif(
 		is_array($arPropertyFields["SET"]) && array_key_exists("FILTRABLE", $arPropertyFields["SET"])
 	){?>
-		<input type="hidden" id="PROPERTY_FILTRABLE_Y" name="PROPERTY_FILTRABLE" value="<?echo htmlspecialchars($arPropertyFields["SET"]["FILTRABLE"])?>">
+		<input type="hidden" id="PROPERTY_FILTRABLE_Y" name="PROPERTY_FILTRABLE" value="<?echo htmlspecialcharsbx($arPropertyFields["SET"]["FILTRABLE"])?>">
 	<?}
 	$bShow = true;
 	if (is_array($arPropertyFields["SHOW"]) && in_array("WITH_DESCRIPTION", $arPropertyFields["SHOW"]))
@@ -527,7 +898,7 @@ else
 	} elseif(
 		is_array($arPropertyFields["SET"]) && array_key_exists("WITH_DESCRIPTION", $arPropertyFields["SET"])
 	){?>
-		<input type="hidden" id="PROPERTY_WITH_DESCRIPTION_Y" name="PROPERTY_WITH_DESCRIPTION" value="<?echo htmlspecialchars($arPropertyFields["SET"]["WITH_DESCRIPTION"])?>">
+		<input type="hidden" id="PROPERTY_WITH_DESCRIPTION_Y" name="PROPERTY_WITH_DESCRIPTION" value="<?echo htmlspecialcharsbx($arPropertyFields["SET"]["WITH_DESCRIPTION"])?>">
 	<?
 	}
 	$bShow = true;
@@ -536,6 +907,8 @@ else
 	elseif (is_array($arPropertyFields["HIDE"]) && in_array("MULTIPLE_CNT", $arPropertyFields["HIDE"]))
 		$bShow = false;
 	elseif ('L' == $arProperty['PROPERTY_TYPE'])
+		$bShow = false;
+	elseif ('F' == $arProperty['PROPERTY_TYPE'])
 		$bShow = false;
 
 	if ($bShow)
@@ -546,9 +919,34 @@ else
 	} elseif(
 		is_array($arPropertyFields["SET"]) && array_key_exists("MULTIPLE_CNT", $arPropertyFields["SET"])
 	){?>
-		<input type="hidden" id="PROPERTY_MULTIPLE_CNT" name="PROPERTY_MULTIPLE_CNT" value="<?echo htmlspecialchars($arPropertyFields["SET"]["MULTIPLE_CNT"])?>">
+		<input type="hidden" id="PROPERTY_MULTIPLE_CNT" name="PROPERTY_MULTIPLE_CNT" value="<?echo htmlspecialcharsbx($arPropertyFields["SET"]["MULTIPLE_CNT"])?>">
 	<?
 	}
+
+	?>
+	<tr>
+		<td width="40%"><?echo GetMessage("BT_ADM_IEP_PROP_HINT_DET")?></td>
+		<td ><input type="text" size="30" maxlength="100" id="PROPERTY_HINT" name="PROPERTY_HINT" value="<?echo htmlspecialcharsbx($arProperty['HINT']);?>"></td>
+	</tr>
+	<?if(!$bSectionPopup):?>
+	<tr>
+		<td width="40%"><label for="PROPERTY_SECTION_PROPERTY_Y"><?echo GetMessage("BT_ADM_IEP_PROP_SECTION_PROPERTY")?></label></td>
+		<td>
+			<input type="hidden" id="PROPERTY_SECTION_PROPERTY_N" name="PROPERTY_SECTION_PROPERTY" value="N">
+			<input type="checkbox" id="PROPERTY_SECTION_PROPERTY_Y" name="PROPERTY_SECTION_PROPERTY" value="Y" <?if('N' != $arProperty['SECTION_PROPERTY'])echo ' checked="checked"';?>>
+		</td>
+	</tr>
+	<tr>
+		<td width="40%"><label for="PROPERTY_SMART_FILTER_Y"><?echo GetMessage("BT_ADM_IEP_PROP_SMART_FILTER")?></label></td>
+		<td>
+			<input type="hidden" id="PROPERTY_SMART_FILTER_N" name="PROPERTY_SMART_FILTER" value="N">
+			<input type="checkbox" id="PROPERTY_SMART_FILTER_Y" name="PROPERTY_SMART_FILTER" value="Y" <?if('N' != $arProperty['SMART_FILTER'])echo ' checked="checked"';?>>
+		</td>
+	</tr>
+	<?endif;?>
+	<?
+
+
 // PROPERTY_TYPE specific properties
 	if ('L' == $arProperty['PROPERTY_TYPE'])
 	{?><tr>
@@ -575,13 +973,13 @@ else
 		} elseif(
 			is_array($arPropertyFields["SET"]) && array_key_exists("ROW_COUNT", $arPropertyFields["SET"])
 		){?>
-			<input type="hidden" id="PROPERTY_ROW_COUNT" name="PROPERTY_ROW_COUNT" value="<?echo htmlspecialchars($arPropertyFields["SET"]["ROW_COUNT"])?>">
+			<input type="hidden" id="PROPERTY_ROW_COUNT" name="PROPERTY_ROW_COUNT" value="<?echo htmlspecialcharsbx($arPropertyFields["SET"]["ROW_COUNT"])?>">
 		<?}
-?><tr class="heading"><td valign="top" colspan="2"><?echo GetMessage("BT_ADM_IEP_PROP_LIST_VALUES")?></td></tr>
+?><tr class="heading"><td colspan="2"><?echo GetMessage("BT_ADM_IEP_PROP_LIST_VALUES")?></td></tr>
 <tr>
 	<td colspan="2" align="center">
-	<table cellpadding="1" cellspacing="0" border="0" id="list-tbl">
-		<tr>
+	<table cellpadding="1" cellspacing="0" border="0" class="internal" id="list-tbl">
+		<tr class="heading">
 			<td><?echo GetMessage("BT_ADM_IEP_PROP_LIST_ID")?></td>
 			<td><?echo GetMessage("BT_ADM_IEP_PROP_LIST_XML_ID")?></td>
 			<td><?echo GetMessage("BT_ADM_IEP_PROP_LIST_VALUE")?></td>
@@ -608,7 +1006,7 @@ else
 		<td>&nbsp;</td>
 		<td>&nbsp;</td>
 		<td colspan="2"><?echo GetMessage("BT_ADM_IEP_PROP_LIST_DEFAULT_NO")?></td>
-		<td><input type="radio" name="PROPERTY_VALUES_DEF" value="0" <?if ($boolDef) echo " checked"; ?>> </td>
+		<td style="text-align:center"><input type="radio" name="PROPERTY_VALUES_DEF" value="0" <?if ($boolDef) echo " checked"; ?>> </td>
 		</tr>
 		<?
 		}
@@ -644,9 +1042,9 @@ else
 			echo __AddListValueRow($intKey,$arPropInfo);
 		}
 		?>
-		</table>
+		</table><br>
 		<input type="hidden" name="PROPERTY_CNT" id="PROPERTY_CNT" value="<?echo ($MAX_NEW_ID+DEF_LIST_VALUE_COUNT)?>">
-		<input type="button"  name="propedit_add" value="<?echo GetMessage("BT_ADM_IEP_PROP_LIST_MORE")?>" onclick="add_list_row()">
+		<input type="button" id="propedit_add_btn" name="propedit_add" value="<?echo GetMessage("BT_ADM_IEP_PROP_LIST_MORE")?>">
 		</td>
 </tr><?
 	}
@@ -666,18 +1064,18 @@ else
 		} elseif(
 			is_array($arPropertyFields["SET"]) && array_key_exists("COL_COUNT", $arPropertyFields["SET"])
 		){?>
-		<input type="hidden" name="PROPERTY_COL_COUNT" value="<?echo htmlspecialchars($arPropertyFields["SET"]["COL_COUNT"])?>">
+		<input type="hidden" name="PROPERTY_COL_COUNT" value="<?echo htmlspecialcharsbx($arPropertyFields["SET"]["COL_COUNT"])?>">
 		<?}?>
 <tr>
 	<td width="40%"><?echo GetMessage("BT_ADM_IEP_PROP_FILE_TYPES")?></td>
 	<td>
-		<input type="text"  size="30" maxlength="255" name="PROPERTY_FILE_TYPE" value="<?echo htmlspecialchars($arProperty['FILE_TYPE']); ?>" id="CURRENT_PROPERTY_FILE_TYPE">
+		<input type="text"  size="30" maxlength="255" name="PROPERTY_FILE_TYPE" value="<?echo htmlspecialcharsbx($arProperty['FILE_TYPE']); ?>" id="CURRENT_PROPERTY_FILE_TYPE">
 		<select  onchange="if(this.selectedIndex!=0) document.getElementById('CURRENT_PROPERTY_FILE_TYPE').value=this[this.selectedIndex].value">
 			<option value="-"></option>
 			<option value=""<?if('' == $arProperty['FILE_TYPE'])echo " selected"?>><?echo GetMessage("BT_ADM_IEP_PROP_FILE_TYPES_ANY")?></option>
 			<option value="jpg, gif, bmp, png, jpeg"<?if("jpg, gif, bmp, png, jpeg" == $arProperty['FILE_TYPE'])echo " selected"?>><?echo GetMessage("BT_ADM_IEP_PROP_FILE_TYPES_PIC")?></option>
 			<option value="mp3, wav, midi, snd, au, wma"<?if("mp3, wav, midi, snd, au, wma" == $arProperty['FILE_TYPE'])echo " selected"?>><?echo GetMessage("BT_ADM_IEP_PROP_FILE_TYPES_SOUND")?></option>
-			<option value="mpg, avi, wmv, mpeg, mpe"<?if("mpg, avi, wmv, mpeg, mpe" == $arProperty['FILE_TYPE'])echo " selected"?>><?echo GetMessage("BT_ADM_IEP_PROP_FILE_TYPES_VIDEO")?></option>
+			<option value="mpg, avi, wmv, mpeg, mpe, flv"<?if("mpg, avi, wmv, mpeg, mpe, flv" == $arProperty['FILE_TYPE'])echo " selected"?>><?echo GetMessage("BT_ADM_IEP_PROP_FILE_TYPES_VIDEO")?></option>
 			<option value="doc, txt, rtf"<?if("doc, txt, rtf" == $arProperty['FILE_TYPE'])echo " selected"?>><?echo GetMessage("BT_ADM_IEP_PROP_FILE_TYPES_DOCS")?></option>
 		</select>
 	</td>
@@ -698,18 +1096,20 @@ else
 		} elseif(
 			is_array($arPropertyFields["SET"]) && array_key_exists("COL_COUNT", $arPropertyFields["SET"])
 		){?>
-			<input type="hidden" name="PROPERTY_COL_COUNT" value="<?echo htmlspecialchars($arPropertyFields["SET"]["COL_COUNT"])?>">
+			<input type="hidden" name="PROPERTY_COL_COUNT" value="<?echo htmlspecialcharsbx($arPropertyFields["SET"]["COL_COUNT"])?>">
 		<?}?>
 	<tr>
 		<td width="40%"><?echo GetMessage("BT_ADM_IEP_PROP_LINK_IBLOCK")?></td>
 		<td>
 		<?
-		$b_f = ($arProperty['PROPERTY_TYPE']=="G" ? array("!ID"=>$intIBlockID) : array());
+		$b_f = ($arProperty['PROPERTY_TYPE']=="G" || ($arProperty['PROPERTY_TYPE'] == 'E' && $arProperty['USER_TYPE'] == BT_UT_SKU_CODE) ? array("!ID"=>$intIBlockID) : array());
 		echo GetIBlockDropDownList(
 			$arProperty['LINK_IBLOCK_ID'],
 			"PROPERTY_LINK_IBLOCK_TYPE_ID",
 			"PROPERTY_LINK_IBLOCK_ID",
-			$b_f
+			$b_f,
+			'class="adm-detail-iblock-types"',
+			'class="adm-detail-iblock-list"'
 		);
 		?>
 		</td>
@@ -732,12 +1132,12 @@ else
 		</tr>
 		<?} else {
 			if (is_array($arPropertyFields["SET"]) && array_key_exists("ROW_COUNT", $arPropertyFields["SET"]))
-			{?><input type="hidden" name="PROPERTY_ROW_COUNT" value="<?echo htmlspecialchars($arPropertyFields["SET"]["ROW_COUNT"])?>"><?}
+			{?><input type="hidden" name="PROPERTY_ROW_COUNT" value="<?echo htmlspecialcharsbx($arPropertyFields["SET"]["ROW_COUNT"])?>"><?}
 			else
 			{?><input type="hidden" name="PROPERTY_ROW_COUNT" value="<?echo intval($arProperty['ROW_COUNT'])?>"><?}
 
 			if(is_array($arPropertyFields["SET"]) && array_key_exists("COL_COUNT", $arPropertyFields["SET"]))
-			{?><input type="hidden" name="PROPERTY_COL_COUNT" value="<?echo htmlspecialchars($arPropertyFields["SET"]["COL_COUNT"])?>"><? }
+			{?><input type="hidden" name="PROPERTY_COL_COUNT" value="<?echo htmlspecialcharsbx($arPropertyFields["SET"]["COL_COUNT"])?>"><? }
 			else
 			{ ?><input type="hidden" name="PROPERTY_COL_COUNT" value="<?echo intval($arProperty['COL_COUNT']); ?>"><? }
 		}
@@ -767,7 +1167,7 @@ else
 						),
 					));
 			} else {
-				?><input type="text"  size="40" maxlength="2000" name="PROPERTY_DEFAULT_VALUE" value="<?echo htmlspecialchars($arProperty['DEFAULT_VALUE']);?>"><?
+				?><input type="text"  size="40" maxlength="2000" name="PROPERTY_DEFAULT_VALUE" value="<?echo htmlspecialcharsbx($arProperty['DEFAULT_VALUE']);?>"><?
 			}
 		?></td>
 	</tr><?
@@ -779,21 +1179,36 @@ else
 		?></td></tr><?
 		echo $USER_TYPE_SETTINGS_HTML;
 	}
-?></tbody></table></form>
-<?
+
+	if(is_object($tabControl))
+	{
+		if (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1):
+			$tabControl->Buttons(array(
+				"disabled"=>false,
+				"back_url"=>'iblock_property_admin.php?lang='.LANGUAGE_ID.'&IBLOCK_ID='.$intIBlockID.($_REQUEST["admin"]=="Y"? "&admin=Y": "&admin=N"),
+			));
+		else:
+			$tabControl->ButtonsPublic(array(
+				'.btnSave',
+				'.btnCancel'
+			));
+		endif;
+		$tabControl->End();
+	}
+	else
+	{
+		?></tbody></table><?
+	}
+	?></div></form>
+<script type="text/javascript"><?
 	if('L' == $arProperty['PROPERTY_TYPE'])
 	{
-?><script type="text/javascript">
-BX.ready(
-	function(){
-			setTimeout(function(){
-				window.oPropSet = {
-					pTypeTbl: BX("list-tbl"),
-					curCount: <? echo ($MAX_NEW_ID+5); ?>,
-					intCounter: BX("PROPERTY_CNT")
-				};
-			},50);
-		});
+?>
+window.oPropSet = {
+		pTypeTbl: BX("list-tbl"),
+		curCount: <? echo ($MAX_NEW_ID+5); ?>,
+		intCounter: BX("PROPERTY_CNT")
+	};
 
 function add_list_row()
 {
@@ -821,15 +1236,46 @@ function add_list_row()
 	var strContent = '<? echo CUtil::JSEscape(__AddListValueDefCell('ntmp_xxx',$arDefPropInfo)); ?>';
 	strContent = strContent.replace(/tmp_xxx/ig, id);
 	oCell.innerHTML = strContent;
+	oCell.setAttribute('align','center');
+	BX.style(oCell, 'textAlign', 'center');
+	BX.adminFormTools.modifyFormElements('frm_prop');
 }
-</script>
+
+var obListBtn = BX('propedit_add_btn');
+
+if (!!obListBtn && !!window.oPropSet)
+	BX.bind(obListBtn, 'click', add_list_row);
 <?
 	}
+if($bReload && $bSectionPopup)
+{
 ?>
-<script type="text/javascript">
-	BX.WindowManager.Get().adjustSizeEx();
-</script>
+setTimeout(function(){
+	BX.WindowManager.Get().SetButtons([BX.CDialog.btnSave, BX.CDialog.btnCancel]);
+}, 10);
 <?
-	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 }
+?>
+(function(){
+
+	var tbl = BX.findChild(BX("frm_prop"), {tag: 'table', className: 'edit-table'}, true, false);
+	if (!tbl)
+		return;
+
+	var n = tbl.tBodies[0].rows.length;
+	for(var i=0; i<n; i++)
+	{
+		if(tbl.tBodies[0].rows[i].cells.length > 1)
+		{
+			BX.addClass(tbl.rows[i].cells[0], 'adm-detail-content-cell-l');
+			BX.addClass(tbl.rows[i].cells[1], 'adm-detail-content-cell-r');
+		}
+	}
+
+	BX.adminFormTools.modifyFormElements('frm_prop');
+
+})();
+
+</script><?
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 ?>

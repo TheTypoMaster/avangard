@@ -9,41 +9,19 @@ endif;
 
 if(!function_exists("GetUserName"))
 {
-	function GetUserName($USER_ID)
+	function GetUserName($USER_ID, $sNameTemplate = "")
 	{
-		$ar_res = false;
-		if (IntVal($USER_ID)>0)
-		{
-			$db_res = CUser::GetByID(IntVal($USER_ID));
-			$ar_res = $db_res->Fetch();
-		}
-
-		if (!$ar_res)
+		$sNameTemplate = str_replace(array("#NOBR#","#/NOBR#"), "", (!empty($sNameTemplate) ? $sNameTemplate : CSite::GetDefaultNameFormat()));
+		if (intval($USER_ID) <= 0)
 		{
 			$db_res = CUser::GetByLogin($USER_ID);
 			$ar_res = $db_res->Fetch();
+			$USER_ID = $ar_res["ID"];
 		}
-
-		$USER_ID = IntVal($ar_res["ID"]);
-		$f_LOGIN = htmlspecialcharsex($ar_res["LOGIN"]);
-
-		$forum_user = CForumUser::GetByUSER_ID($USER_ID);
-		if (($forum_user["SHOW_NAME"]=="Y") && (strlen(trim($ar_res["NAME"]))>0 || strlen(trim($ar_res["LAST_NAME"]))>0))
-		{
-			return trim(htmlspecialcharsex($ar_res["NAME"])." ". htmlspecialcharsex($ar_res["LAST_NAME"]));
-		}
-		else
-			return $f_LOGIN;
+		return CForumUser::GetFormattedNameByUserID($USER_ID, $sNameTemplate);
 	}
 }
 
-	InitSorting();
-	global $by, $order;
-	if (empty($by))
-	{
-		$by = "post_date";
-		$order = "desc";
-	}
 /********************************************************************
 				Input params
 ********************************************************************/
@@ -55,6 +33,14 @@ if(!function_exists("GetUserName"))
 	if ($arParams["pm_version"] == 2 && ($arParams["FID"] > 1 && $arParams["FID"] < 4))
 		$arParams["FID"] = 3;
 	$arParams["UID"] = intVal($USER->GetId());
+/***************** Sorting *****************************************/
+	InitSorting($GLOBALS["APPLICATION"]->GetCurPage()."?PAGE_NAME=pm_list&FID=".$arParams["FID"]);
+	global $by, $order;
+	if (empty($by))
+	{
+		$by = "post_date";
+		$order = "desc";
+	}
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 		"pm_list" => "PAGE_NAME=pm_list&FID=#FID#",
@@ -72,7 +58,7 @@ if(!function_exists("GetUserName"))
 			$arParams["~URL_TEMPLATES_".strToUpper($URL)] = ForumAddPageParams($arParams["URL_TEMPLATES_".strToUpper($URL)], 
 				array("by" => $by, "order" => $order), false, false);
 		}
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
@@ -80,9 +66,10 @@ if(!function_exists("GetUserName"))
 	$arParams["PM_PER_PAGE"] = intVal($arParams["PM_PER_PAGE"] > 0 ? $arParams["PM_PER_PAGE"] : 20);
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+	$arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "",
+		(!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : CSite::GetDefaultNameFormat()));
 /***************** STANDART ****************************************/
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
-	// $arParams["DISPLAY_PANEL"] = ($arParams["DISPLAY_PANEL"] == "Y" ? "Y" : "N");
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 	else
@@ -91,8 +78,6 @@ if(!function_exists("GetUserName"))
 /********************************************************************
 				/Input params
 ********************************************************************/
-
-ForumSetLastVisit();
 
 /********************************************************************
 				Default values
@@ -190,7 +175,7 @@ if (!empty($arResult["action"]))
 		}
 	endif;
 	BXClearCache(true, "/bitrix/forum/user/".intVal($USER->GetID())."/");
-	$arComponentPath = array("bitrix:forum", "bitrix:forum.menu");
+	$arComponentPath = array("bitrix:forum");
 	foreach ($arComponentPath as $path)
 	{
 		$componentRelativePath = CComponentEngine::MakeComponentPath($path);
@@ -260,8 +245,10 @@ if($dbrMessages && $arMsg = $dbrMessages->GetNext())
 {
 	do
 	{
+
 		$arMsg["POST_SUBJ"] = wordwrap($arMsg["POST_SUBJ"], 100, " ", 1);
-		$arMsg["SHOW_NAME"] = GetUserName($arMsg[$arResult["InputOutput"]]);
+		$arMsg["~SHOW_NAME"] = GetUserName($arMsg[$arResult["InputOutput"]], $arParams["NAME_TEMPLATE"]);
+		$arMsg["SHOW_NAME"] = htmlspecialcharsEx($arMsg["~SHOW_NAME"]);
 		$arMsg["URL"] = array(
 			"MESSAGE" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_READ"], 
 				array("FID" => $arParams["FID"], "MID" => $arMsg["ID"])), 
@@ -309,15 +296,7 @@ else
 {
 	$title = GetMessage("PM_FOLDER_ID_".$arParams["FID"]);
 }
-	
-if ($arParams["SET_NAVIGATION"] != "N")
-{
-	$APPLICATION->AddChainItem(GetMessage("PM_TITLE_NAV"), CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_FOLDER"], array()));
-	$APPLICATION->AddChainItem($title);
-}
-/*******************************************************************/
-if ($arParams["SET_TITLE"] != "N")
-	$APPLICATION->SetTitle(str_replace("#TITLE#", $title, GetMessage("PM_TITLE")));
+
 // if($arParams["DISPLAY_PANEL"] == "Y" && $USER->IsAuthorized())
 	// CForumNew::ShowPanel(0, 0, false);
 // GetMessage("PM_FOLDER_ID_1");
@@ -326,4 +305,13 @@ if ($arParams["SET_TITLE"] != "N")
 // GetMessage("PM_FOLDER_ID_4");
 /*******************************************************************/
 $this->IncludeComponentTemplate();
+/*******************************************************************/
+if ($arParams["SET_NAVIGATION"] != "N")
+{
+	$APPLICATION->AddChainItem(GetMessage("PM_TITLE_NAV"), CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PM_FOLDER"], array()));
+	$APPLICATION->AddChainItem($title);
+}
+/*******************************************************************/
+if ($arParams["SET_TITLE"] != "N")
+	$APPLICATION->SetTitle(str_replace("#TITLE#", $title, GetMessage("PM_TITLE")));
 ?>

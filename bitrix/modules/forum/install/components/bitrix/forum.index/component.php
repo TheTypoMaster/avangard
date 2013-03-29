@@ -1,4 +1,12 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+/**
+ * @global CMain $APPLICATION
+ * @global CUser $USER
+ * @param array $arParams
+ * @param array $arResult
+ * @param string $componentName
+ * @param CBitrixComponent $this
+ */
 if (!CModule::IncludeModule("forum")):
 	ShowError(GetMessage("F_NO_MODULE"));
 	return 0;
@@ -23,15 +31,18 @@ endif;
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["FORUMS_PER_PAGE"] = intVal(intVal($arParams["FORUMS_PER_PAGE"]) > 0 ? $arParams["FORUMS_PER_PAGE"] : COption::GetOptionString("forum", "FORUMS_PER_PAGE", "10"));
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
+	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 	$arParams["FID_RANGE"] = (is_array($arParams["FID"]) && !empty($arParams["FID"]) ? $arParams["FID"] : array());
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
+	$arParams["USE_DESC_PAGE"] = ($arParams["USE_DESC_PAGE"] != "Y" ? "N" : "Y");
 	
 	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 	$arParams["SHOW_FORUMS_LIST"] = ($arParams["SHOW_FORUMS_LIST"] == "Y" ? "Y" : "N");
@@ -62,8 +73,8 @@ $arResult["USER"] = array(
 	"HIDDEN_FORUMS" => array());
 	
 $arResult["URL"] = array(
-	"INDEX" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_INDEX"], array()), 
-	"~INDEX" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_INDEX"], array()), 
+	"INDEX" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_FORUMS"], array()),
+	"~INDEX" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_FORUMS"], array()),
 	"RSS" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_RSS"], 
 				array("TYPE" => "default", "MODE" => "forum", "IID" => "all")), 
 	"~RSS" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_RSS"], 
@@ -94,11 +105,17 @@ foreach ($arParams["FID_RANGE"] as $key => $val)
 }
 $arParams["FID_RANGE"] = $res;
 $cache = new CPHPCache();
-$cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/");
+global $NavNum;
+$PAGEN_NAME="PAGEN_".($NavNum+1);
+global $$PAGEN_NAME;
+$PAGEN = $$PAGEN_NAME;
+
+global $CACHE_MANAGER;
+$cache_path = $CACHE_MANAGER->GetCompCachePath(CComponentEngine::MakeComponentPath($this->__name));
 /********************************************************************
 				/Default values
 ********************************************************************/
-ForumSetLastVisit(0);
+
 /********************************************************************
 				Data
 ********************************************************************/
@@ -162,57 +179,116 @@ endif;
 ********************************************************************/
 /************** Forums data ****************************************/
 				
-	CPageOption::SetOptionString("main", "nav_page_in_session", "N");
+	CPageOption::SetOptionString("main", "nav_page_in_session", "N"); // reduce cache size
 	$arFilterForum = $arFilter;
 	if ($arParams["MINIMIZE_SQL"] == "Y" && $GLOBALS["USER"]->IsAuthorized()):
 		$arFilterForum["RENEW"] = $GLOBALS["USER"]->GetID();
 	endif;
-	$dbForum = CForumNew::GetListEx(array("FORUM_GROUP_SORT"=>"ASC", "FORUM_GROUP_ID"=>"ASC", "SORT"=>"ASC", "NAME"=>"ASC"), $arFilterForum);
-	$dbForum->NavStart($arParams["FORUMS_PER_PAGE"], false);
-	$arResult["NAV_RESULT"] = $dbForum;
-	$arResult["NAV_STRING"] = $dbForum->GetPageNavStringEx($navComponentObject, GetMessage("F_FORUM"), $arParams["PAGE_NAVIGATION_TEMPLATE"]);
+
+	$arForumOrder = array(
+		"FORUM_GROUP_SORT"=>"ASC",
+		"FORUM_GROUP_ID"=>"ASC",
+		"SORT"=>"ASC",
+		"NAME"=>"ASC"
+	);
+	$arForumAddParams = array(
+		'bDescPageNumbering' => ($arParams["USE_DESC_PAGE"] == "Y"),
+		'nPageSize' => $arParams["FORUMS_PER_PAGE"],
+		'bShowAll' => false,
+		'sNameTemplate' => $arParams["NAME_TEMPLATE"]
+	);
+
+	if (!function_exists('__forumIndexGetPermissions'))
+	{
+		function __forumIndexGetPermissions(&$arRes, &$arNewMessage = null)
+		{
+			static $arNew = null;
+			$result = false;
+
+			if ($arNew === null && $arNewMessage !== null)
+			{
+				$arNew = $arNewMessage;
+			}
+
+			$arForums = array();
+			if (isset($arRes['FORUMS']) && is_array($arRes['FORUMS']))
+				$arForums =& $arRes['FORUMS'];
+			elseif (isset($arRes['FORUM']) && is_array($arRes['FORUM']))
+				$arForums =& $arRes['FORUM'];
+
+			foreach ($arForums as &$res)
+			{
+				$res["PERMISSION"] = ForumCurrUserPermissions($res["ID"]);
+				if ($res["PERMISSION"] >= "Q")
+				{
+					foreach(array("POSTER_ID", "POST_DATE", "POSTER_NAME", "MESSAGE_ID") as $key):
+						$res["~LAST_".$key] = $res["~ABS_LAST_".$key];
+						$res["LAST_".$key] = $res["ABS_LAST_".$key];
+					endforeach;
+					$res["TID"] = $res["ABS_TID"];
+					$res["TITLE"] = $res["ABS_TITLE"];
+					$result = true;
+				}
+
+				$res["~NewMessage"] = ((isset($arNew[$res['ID']])) ? intval($arNew[$res['ID']]) : 0);
+				$res["NewMessage"] = ($res["~NewMessage"] > 0 ? "Y" : "N");
+			}
+
+			if (isset($arRes['GROUPS']) && is_array($arRes['GROUPS']))
+				foreach($arRes['GROUPS'] as &$res1):
+					$result = (__forumIndexGetPermissions($res1) || $result);
+				endforeach;
+			return $result;
+		}
+	}
+
+	$arNavParams = array(
+		"nPageSize" => $arParams["FORUMS_PER_PAGE"],
+		"bShowAll" => false
+	);
+	$arNavigation = CDBResult::GetNavParams($arNavParams);
+
+if ($this->StartResultCache($arParams["CACHE_TIME"], array($arFilterForum, $arForumAddParams, $arNavigation)))
+{
+	$arForumAddParams['nav_result'] = false;
+	$dbForumNav = CForumNew::GetListEx(
+		$arForumOrder,
+		$arFilterForum,
+		false,
+		false,
+		$arForumAddParams
+	);
+	$arForumAddParams['nav_result'] = $dbForumNav;
+	$dbForum = CForumNew::GetListEx(
+		$arForumOrder,
+		$arFilterForum,
+		false,
+		false,
+		$arForumAddParams
+	);
+
+	$arResult["NAV_RESULT"] = $dbForumNav;
+	$arResult["NAV_STRING"] = $dbForumNav->GetPageNavStringEx($navComponentObject, GetMessage("F_FORUM"), $arParams["PAGE_NAVIGATION_TEMPLATE"]);
+	$arResult["NAV_PAGE"] = $dbForumNav->NavNum.':'.$dbForumNav->NavPageNomer;
+
 	$arForums = array();
 	while ($res = $dbForum->GetNext())
 	{
-		$res["PERMISSION"] = ForumCurrUserPermissions($res["ID"]);
 		$res["MODERATE"] = array("TOPICS" => 0, "POSTS" => intVal($res["POSTS_UNAPPROVED"]));
 		$res["mCnt"] = $res["MODERATE"]["POSTS"];
-		
-		$arResult["USER"]["CAN_MODERATE"] = ($arResult["USER"]["CAN_MODERATE"] == "Y" || $res["PERMISSION"] >= "Q" ? "Y" : "N");
-		if ($res["PERMISSION"] >= "Q"):
-			$res["~LAST_POSTER_ID"] = $res["~ABS_LAST_POSTER_ID"];
-			$res["~LAST_POST_DATE"] = $res["~ABS_LAST_POST_DATE"];
-			$res["~LAST_POSTER_NAME"] = $res["~ABS_LAST_POSTER_NAME"];
-			$res["~LAST_MESSAGE_ID"] = $res["~ABS_LAST_MESSAGE_ID"];
-			$res["LAST_POSTER_ID"] = $res["ABS_LAST_POSTER_ID"];
-			$res["LAST_POST_DATE"] = $res["ABS_LAST_POST_DATE"];
-			$res["LAST_POSTER_NAME"] = $res["ABS_LAST_POSTER_NAME"];
-			$res["LAST_MESSAGE_ID"] = $res["ABS_LAST_MESSAGE_ID"];
-			$res["TID"] = $res["ABS_TID"];
-			$res["TITLE"] = $res["ABS_TITLE"];
-		endif;
-		if (intVal($arFilterForum["RENEW"]) <= 0):
-			$res["~NewMessage"] = NewMessageForum($res["ID"], $res["LAST_POST_DATE"]);
-			$res["NewMessage"] = ($res["~NewMessage"] ? "Y" : "N");
-		else:
-			$res["~NewMessage"] = intVal($res["TCRENEW"]);
-			$res["NewMessage"] = ($res["~NewMessage"] > 0 ? "Y" : "N");
-		endif;
-			
+
 		$res["TITLE"] = $parser->wrap_long_words($res["TITLE"]);
 		$res["LAST_POSTER_NAME"] = $parser->wrap_long_words($res["LAST_POSTER_NAME"]);
-		$res["LAST_POST_DATE"] = (intval($res["LAST_MESSAGE_ID"]) > 0 ? 
-			CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["LAST_POST_DATE"], CSite::GetDateFormat())) 
-			: 
-			"");
-		
+		$res["LAST_POST_DATE"] = (intval($res["LAST_MESSAGE_ID"]) > 0 ?
+			CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["LAST_POST_DATE"], CSite::GetDateFormat())) : "");
+
 		$res["URL"] = array(
-			"MODERATE_MESSAGE" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE_APPR"], 
-				array("FID" => $res["ID"], "TID" => "s")), 
-			"TOPICS" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_LIST"], array("FID" => $res["ID"])), 
-			"MESSAGE" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"], 
+			"MODERATE_MESSAGE" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE_APPR"],
+				array("FID" => $res["ID"], "TID" => "s")),
+			"TOPICS" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_LIST"], array("FID" => $res["ID"])),
+			"MESSAGE" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
 				array("FID" => $res["ID"], "TID" => $res["TID"], "MID" => $res["LAST_MESSAGE_ID"]))."#message".$res["LAST_MESSAGE_ID"], 
-			"AUTHOR" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], 
+			"AUTHOR" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"],
 				array("UID" => $res["LAST_POSTER_ID"]))	);
 /************** For custom template ********************************/
 		$res["topic_list"] = $res["URL"]["TOPICS"];
@@ -223,6 +299,7 @@ endif;
 		$res["FORUM_GROUP_ID"] = intVal($res["FORUM_GROUP_ID"]);
 		$arGroupForum[$res["FORUM_GROUP_ID"]]["FORUM"][] = $res;
 		$arResult["FORUMS_LIST"][$res["ID"]] = $res["ID"];
+		CForumCacheManager::SetTag($this->GetCachePath(), "forum_msg_count".$res["ID"]);
 	}
 
 	$arGroups = array();
@@ -247,26 +324,26 @@ endif;
 			return $arResult;
 		}
 	}
-	
+
 	foreach ($arGroupForum as $PARENT_ID => $res)
 	{
 		$bResult = true;
 		$res = array("FORUMS" => $res["FORUM"]);
 
-		$count = 0; 
+		$count = 0;
 		while (
-			intval($PARENT_ID) > 0 
-			&& 
+			intval($PARENT_ID) > 0
+			&&
 			(
-				$arParams["GID"] <= 0 
-					|| 
+				$arParams["GID"] <= 0
+					||
 				(
-					intVal($arResult["GROUPS"][$arParams["GID"]]["LEFT_MARGIN"]) <= intVal($arResult["GROUPS"][$PARENT_ID]["LEFT_MARGIN"]) 
-						&& 
+					intVal($arResult["GROUPS"][$arParams["GID"]]["LEFT_MARGIN"]) <= intVal($arResult["GROUPS"][$PARENT_ID]["LEFT_MARGIN"])
+						&&
 					intVal($arResult["GROUPS"][$PARENT_ID]["RIGHT_MARGIN"]) <= intVal($arResult["GROUPS"][$arParams["GID"]]["RIGHT_MARGIN"])
 				)
 			)
-		) 
+		)
 		{
 			if (!array_key_exists("GROUP_".$PARENT_ID, $arResult["URL"]))
 			{
@@ -283,7 +360,7 @@ endif;
 			}
 			$res = array($PARENT_ID => __array_merge($arResult["GROUPS"][$PARENT_ID], $res));
 			$PARENT_ID = $arResult["GROUPS"][$PARENT_ID]["PARENT_ID"];
-			
+
 			$res = array("GROUPS" => $res);
 			if ($PARENT_ID > $arParams["GID"])
 				$res = __array_merge($arResult["GROUPS"][$PARENT_ID], $res);
@@ -291,16 +368,53 @@ endif;
 		if ($bResult == true)
 			$arGroups = __array_merge($arGroups, $res);
 	}
-	
+
 	foreach ($arGroupForum as $key => $val)
 	{
 		$key = intVal($key);
 		if (array_key_exists($key, $arResult["GROUPS"]))
 			$arGroupForum[$key] = array_merge($arResult["GROUPS"][$key], $val);
 	}
-	
+
 	$arResult["FORUM"] = $arGroupForum; // out of date
 	$arResult["FORUMS"] = $arGroups;
+
+	$this->EndResultCache();
+}
+
+$arNew = array();
+$dbNew = CForumNew::GetForumRenew(array(
+	'FORUM_ID' => $arResult["FORUMS_LIST"]
+));
+if ($dbNew)
+{
+	while($arN = $dbNew->Fetch())
+	{
+		$arNew[$arN['FORUM_ID']] = $arN['TCRENEW'];
+	}
+}
+
+$bCanModerate = ($arResult["USER"]["CAN_MODERATE"] == "Y");
+$bCanModerate = ($bCanModerate || __forumIndexGetPermissions($arResult['FORUMS'], $arNew));
+
+if (is_array($arResult["FORUMS"]['GROUPS']))
+{
+	foreach ($arResult["FORUMS"]['GROUPS'] as $groupID => $arGroup)
+	{
+		$bCanModerate = ($bCanModerate || __forumIndexGetPermissions($arResult["FORUMS"]['GROUPS'][$groupID]));
+	}
+}
+
+if (is_array($arResult["FORUM"]))
+{
+	foreach ($arResult["FORUM"] as $groupID => $arGroup)
+	{
+		$bCanModerate = ($bCanModerate || __forumIndexGetPermissions($arResult["FORUM"][$groupID]));
+	}
+}
+
+$arResult["USER"]["CAN_MODERATE"] = ($bCanModerate ? "Y" : "N");
+
 /************** Navigation *****************************************/
 	if ($arParams["GID"] > 0):
 		$PARENT_ID = intVal($arResult["GROUP"]["PARENT_ID"]);
@@ -327,7 +441,6 @@ $arFilter["LID"] = SITE_ID;
 $cache_id = "forums_for_guest_".serialize(array($arFilter));
 if(($tzOffset = CTimeZone::GetOffset()) <> 0)
 	$cache_id .= "_".$tzOffset;
-$cache_path = $cache_path_main."forums";
 $arForums = array();
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
@@ -338,18 +451,37 @@ if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $c
 if (!is_array($arForums) || count($arForums) <= 0)
 {
 	$db_res = CForumNew::GetListEx(array("FORUM_GROUP_SORT"=>"ASC", "FORUM_GROUP_ID"=>"ASC", "SORT"=>"ASC", "NAME"=>"ASC"), $arFilter);
-	while ($res = $db_res->GetNext())
-		$arForums[$res["ID"]] = $res;
-		
+	if (!defined('forum_index_11_5_0'))
+	{
+		if ($res = $db_res->GetNext())
+			$arForums[$res["ID"]] = $res;
+	}
+	else
+	{
+		while ($res = $db_res->GetNext())
+			$arForums[$res["ID"]] = $res;
+	}
+
 	if ($arParams["CACHE_TIME"] > 0):
 		$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
-		$cache->EndDataCache(array("arForums" => $arForums));
+		$cache->EndDataCache(array(
+			"arForums" => $arForums,
+		));
 	endif;
 }
 $arResult["FORUMS_FOR_GUEST"] = (is_array($arForums) ? $arForums : array());
 /********************************************************************
 				/Data
 ********************************************************************/
+
+/************** For custom template ********************************/
+$arResult["index"] = $arResult["URL"]["INDEX"]; 
+$arResult["DrawAddColumn"] = ($arResult["USER"]["CAN_MODERATE"] == "Y" ? "Y" : "N");
+/************** For custom template/********************************/
+
+/*******************************************************************/
+$this->IncludeComponentTemplate();
+/*******************************************************************/
 
 if ($arParams["SET_TITLE"] != "N"):
 	$sTitle = ($arParams["GID"] <= 0 ? GetMessage("F_TITLE") : $arResult["GROUP"]["NAME"]);
@@ -363,17 +495,6 @@ if ($arParams["SET_NAVIGATION"] != "N" && $arParams["GID"] > 0):
 	$APPLICATION->AddChainItem($arResult["GROUP"]["NAME"]);
 endif;
 
-// if($arParams["DISPLAY_PANEL"] == "Y" && $USER->IsAuthorized())
-	// CForumNew::ShowPanel(0, 0, false);
-
-/************** For custom template ********************************/
-$arResult["index"] = $arResult["URL"]["INDEX"]; 
-$arResult["DrawAddColumn"] = ($arResult["USER"]["CAN_MODERATE"] == "Y" ? "Y" : "N");
-/************** For custom template/********************************/
-
-/*******************************************************************/
-$this->IncludeComponentTemplate();
-/*******************************************************************/
 
 return $arResult["FORUMS_LIST"];
 ?>

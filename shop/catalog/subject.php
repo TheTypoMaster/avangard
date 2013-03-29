@@ -74,4 +74,6 @@ while($ar=$rs->GetNext()) {
 //$res = CIBlockElement::GetByID($_GET["ELEMENT_ID"]);
 //$ar_res = $res->Fetch();
 //$APPLICATION->AddChainItem($ar_res["NAME"]);
-?> <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
+?>
+
+ <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

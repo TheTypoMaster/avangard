@@ -179,19 +179,6 @@ else
 				"TITLE"	=> GetMessage("MAIN_DELETE_RECORD_TITLE"),
 				"ICON"	=> "btn_delete"
 			),
-			array("NEWBAR"=>true),
-			array(
-				"TEXT"	=> GetMessage("TEMPLATE_LIST"),
-				"LINK"	=> "/bitrix/admin/message_admin.php?find_event_type=".urlencode($arParams["EVENT_NAME"])."&amp;lang=".LANGUAGE_ID,
-				"TITLE"	=> GetMessage("TEMPLATE_LIST_TITLE"),
-				"ICON"	=> "btn_list"
-			),
-			array(
-				"TEXT"	=> GetMessage("MAIN_NEW_TEMPLATE"),
-				"LINK"	=> "/bitrix/admin/message_edit.php?EVENT_NAME=".urlencode($arParams["EVENT_NAME"])."&type=this&lang=".LANGUAGE_ID,
-				"TITLE"	=> GetMessage("MAIN_NEW_TEMPLATE_TITLE"),
-				"ICON"	=> "btn_new"
-			),
 		)
 	);
 }
@@ -210,8 +197,8 @@ $arParams["EVENT_NAME"] = htmlspecialcharsEx($arParams["EVENT_NAME"]);
 <?=bitrix_sessid_post()?>
 <?=$tabControl->Begin();?>
 <?=$tabControl->BeginNextTab();?>
-<tr>
-	<td width="40%"><span class="required">*</span> <label for="EVENT_NAME"><?=GetMessage('EVENT_NAME')?>:</label></td>
+<tr class="adm-detail-required-field">
+	<td width="40%"><?=GetMessage('EVENT_NAME')?>:</td>
 	<td width="0%">
 	<?if ($arParams["ACTION"] == "ADD"):?>
 		<input type="text" name="EVENT_NAME" value="<?=$arParams["EVENT_NAME"]?>">
@@ -221,47 +208,47 @@ $arParams["EVENT_NAME"] = htmlspecialcharsEx($arParams["EVENT_NAME"]);
 	<?endif;?>
 	</td>
 </tr>
-<?foreach ($arParams["LANGUAGE"] as $idLang => $arLang):
-	$strTbodyClass = empty($arParams["DATA"][$idLang]) ? "hidden" : "visible";?>
+<?
+foreach ($arParams["LANGUAGE"] as $idLang => $arLang):
+?>
 <tr class="heading">
-	<td style="text-align:right;"><label for="<?=$idLang?>" >[<?=$arLang["ID"]?>] <?=$arLang["NAME"]?></label></td>
-	<td style="text-align:left;"><input type="checkbox" id="<?=$idLang?>" name="<?=$idLang?>" onclick="checkThisTBody(this, '<?=CUtil::addslashes($idLang)?>')"<?=($strTbodyClass == "visible" ? " checked" : "")?> value="Y"><input type="hidden" name="LID"></td>
+	<td colspan="2">
+		<input type="checkbox" id="box_<?=$idLang?>" name="<?=$idLang?>" <?=($arParams["DATA"][$idLang] <> ''? " checked" : "")?> value="Y"><input type="hidden" name="LID">
+		<label for="box_<?=$idLang?>" >[<?=$arLang["ID"]?>] <?=$arLang["NAME"]?></label></td>
 </tr>
-<tbody id="lang<?=$idLang?>" class="<?=$strTbodyClass?>">
 <?if ($arParams["DATA"][$arLang["ID"]]["ID"] > 0):?>
-<tr valign="top"><td>ID:</td><td>
+<tr><td>ID:</td><td>
 <?=htmlspecialcharsEx($arParams["DATA"][$arLang["ID"]]["ID"])?>
 <input type="hidden" name="FIELDS[<?=$arLang["ID"]?>][ID]" value="<?=htmlspecialcharsEx($arParams["DATA"][$arLang["ID"]]["ID"])?>">
 </td></tr>
 <?endif;?>
-<tr valign="top">
+<tr>
 	<td><?=GetMessage("EVENT_SORT_LANG")?>:</td>
 	<td>
 		<input type="hidden" name="FIELDS_OLD[<?=$arLang["ID"]?>][SORT]" value="<?=htmlspecialcharsEx($arParams["DATA_OLD"][$arLang["ID"]]["SORT"])?>">
 		<input type="text" name="FIELDS[<?=$arLang["ID"]?>][SORT]" value="<?=(intVal($arParams["DATA"][$arLang["ID"]]["SORT"]) ? $arParams["DATA"][$arLang["ID"]]["SORT"] : "150")?>">
 	</td>
 </tr>
-<tr valign="top">
+<tr>
 	<td><?=GetMessage("EVENT_NAME_LANG")?>:</td>
 	<td>
 		<input type="hidden" name="FIELDS_OLD[<?=$arLang["ID"]?>][NAME]" value="<?=htmlspecialcharsEx($arParams["DATA_OLD"][$arLang["ID"]]["NAME"])?>">
 		<input type="text" name="FIELDS[<?=$arLang["ID"]?>][NAME]" value="<?=htmlspecialcharsEx($arParams["DATA"][$arLang["ID"]]["NAME"])?>" style="width:100%;">
 	</td>
 </tr>
-<tr valign="top">
-	<td><?=GetMessage("EVENT_DESCR_LANG")?>:</td>
+<tr>
+	<td class="adm-detail-valign-top"><?=GetMessage("EVENT_DESCR_LANG")?>:</td>
 	<td>
 		<input type="hidden" name="FIELDS_OLD[<?=$arLang["ID"]?>][DESCRIPTION]" value="<?=htmlspecialcharsEx($arParams["DATA_OLD"][$arLang["ID"]]["DESCRIPTION"])?>">
 		<textarea name="FIELDS[<?=$arLang["ID"]?>][DESCRIPTION]" style="width:100%;" rows="10"><?=htmlspecialcharsEx($arParams["DATA"][$arLang["ID"]]["DESCRIPTION"])?></textarea>
 	</td>
 </tr>
-</tbody>
 <?endforeach;?>
 <?$tabControl->BeginNextTab();
 if (is_array($arParams["DATA"]["TEMPLATES"])):
 	foreach ($arParams["DATA"]["TEMPLATES"] as $k => $v):
-?><tr valign="top" valign="top">
-	<td width="40%">[<a href="/bitrix/admin/message_edit.php?ID=<?=$v["ID"]?>"><?=$v["ID"]?></a>]<?=(strLen(trim($v["SUBJECT"])) > 0 ? " " : "").htmlspecialcharsEx($v["SUBJECT"])?>:</td>
+?><tr>
+	<td width="40%" class="adm-detail-valign-top">[<a href="/bitrix/admin/message_edit.php?ID=<?=$v["ID"]?>"><?=$v["ID"]?></a>]<?=(strLen(trim($v["SUBJECT"])) > 0 ? " " : "").htmlspecialcharsEx($v["SUBJECT"])?>:</td>
 	<td width="60%"><?
 	$arLID = Array();
 	$db_LID = CEventMessage::GetLang($v["ID"]);
@@ -286,18 +273,6 @@ if (result)
 		result[i].disabled = "disabled";
 	}
 }
-
-function checkThisTBody(checkBox, id)
-{
-	if (checkBox && id)
-	{
-		 if (checkBox.checked)
-		 	document.getElementById('lang'+id).className = "visible";
-		 else
-	 		document.getElementById('lang'+id).className = "hidden";
-	}
-	return;
-}
 </script>
 <?
 $tabControl->ShowWarnings(
@@ -307,10 +282,12 @@ $tabControl->ShowWarnings(
 		"LID_EMPTY" => "LID",
 		"EVENT_NAME_EXIST" => "EVENT_NAME", 
 		"EVENT_ID_EMPTY" => "EVENT_NAME", 
-		"EVENT_NAME_EXIST" => "EVENT_NAME"));
+	)
+);
 ?>
+
 <?echo BeginNote();?>
-<span class="required">*</span> - <?=GetMessage("REQUIRED_FIELDS")?><br />
 <?=GetMessage("LANG_FIELDS")?><br />
 <?echo EndNote();?>
+
 <?require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");?>

@@ -25,9 +25,8 @@ IncludeTemplateLangFile(__FILE__);
 	"USE_EXT" => "N"
 		)
 );?>
- <div class="footer_copyr_td"><table width="700"><tr><td width="450" nowrap  valign="middle" align="right"><right>© 2009-2010 Мебельная фабрика Авангард <br><a title="создание сайтов, разработка сайтов на 1С-Битрикс, поддержка сайтов" href="http://www.cava.su" target="_blank">Разработка и поддержка сайта - студия
-«CA VA»</a></right></td><td nowrap align="right" valign="middle" style="padding-left:15px; padding-right: 30px;">
-
+<div class="footer_copyr_td"><table width="700"><tr><td width="450" nowrap  valign="middle" align="right"><right>© 2009-2012 Мебельная фабрика Авангард <br></right></td>
+<td nowrap align="right" valign="middle" style="padding-left:15px; padding-right: 30px;">
 </td></tr></table></div>
 
 </td></tr></table>

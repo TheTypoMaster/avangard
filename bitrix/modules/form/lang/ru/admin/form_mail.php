@@ -27,4 +27,9 @@ $MESS ['FORM_NOT_REGISTERED'] = "не зарегистрирован";
 $MESS ['FORM_AUTHORIZED'] = "авторизован";
 $MESS ['FORM_NOT_AUTHORIZED'] = "не авторизован";
 $MESS ['FORM_WEB_FORMS'] = "[веб-формы]";
+$MESS ['FILE_SIZE_b'] = 'Б';
+$MESS ['FILE_SIZE_Kb'] = 'КБ';
+$MESS ['FILE_SIZE_Mb'] = 'МБ';
+$MESS ['FILE_SIZE_Gb'] = 'ГБ';
+$MESS ['FILE_SIZE_Tb'] = 'ТБ';
 ?>

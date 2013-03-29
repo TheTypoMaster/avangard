@@ -27,7 +27,7 @@
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "sessid", "edit", "order"));
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 /********************************************************************
 				/Input params
@@ -53,7 +53,7 @@ elseif ($arParams["USE_COMMENTS"] == "Y"):
 	if ($arParams["COMMENTS_TYPE"] == "FORUM"):
 		$arFilterBest[">PROPERTY_FORUM_MESSAGE_CNT"] = "0";
 		$sSortField = "PROPERTY_FORUM_MESSAGE_CNT";
-	else: 
+	else:
 		$arFilterBest[">PROPERTY_BLOG_COMMENTS_CNT"] = "0";
 		$sSortField = "PROPERTY_BLOG_COMMENTS_CNT";
 	endif;
@@ -75,18 +75,18 @@ $bSearch = ($arParams["SHOW_TAGS"] == "Y" && IsModuleInstalled("search"));
 if ($arParams["PERMISSION"] >= "U"):
 	$bNeedModerate =  false; $bNeedPublic = false;
 	$arNavParams = array("nTopCount" => 1, "bDescPageNumbering" => "N");
-	CModule::IncludeModule("iblock"); 
+	CModule::IncludeModule("iblock");
 	$db_res = CIBlockElement::GetList(array(), array(
-		"IBLOCK_ID" => $arParams["IBLOCK_ID"], 
+		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"!ACTIVE" => "Y"), false, $arNavParams, array("ID", "IBLOCK_ID", "ACTIVE"));
 	if ($db_res && $res = $db_res->Fetch()):
 		$bNeedModerate =  true;
 	endif;
-	
+
 	if ($arParams["MODERATE"] == "Y"):
 		$db_res = CIBlockElement::GetList(array(), array(
-			"IBLOCK_ID" => $arParams["IBLOCK_ID"], 
-			"PROPERTY_PUBLIC_ELEMENT" => "Y", 
+			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+			"PROPERTY_PUBLIC_ELEMENT" => "Y",
 			"PROPERTY_APPROVE_ELEMENT" => "X"), false, $arNavParams, array("ID"));
 		if ($db_res && $res = $db_res->Fetch()):
 			$bNeedPublic = true;
@@ -127,8 +127,8 @@ if ($arParams["SHOW_BEST_ELEMENT"] == "Y"):
 			<td id="photo-main-td-left">
 				<div id="photo-main-div-best">
 					<?$element_id = $APPLICATION->IncludeComponent(
-						"bitrix:photogallery.detail.list", 
-						"simple", 
+						"bitrix:photogallery.detail.list",
+						"simple",
 						Array(
 							"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 							"IBLOCK_ID" => $arParams["IBLOCK_ID"],
@@ -140,45 +140,43 @@ if ($arParams["SHOW_BEST_ELEMENT"] == "Y"):
 
 							"ELEMENTS_LAST_COUNT" => "",
 							"ELEMENT_LAST_TIME" => "",
-							"ELEMENTS_LAST_TIME_FROM" => "", 
-							"ELEMENTS_LAST_TIME_TO" => "", 
+							"ELEMENTS_LAST_TIME_FROM" => "",
+							"ELEMENTS_LAST_TIME_TO" => "",
 							"ELEMENT_SORT_FIELD"	=>	"created_date",
 							"ELEMENT_SORT_ORDER"	=>	"desc",
 							"ELEMENT_SORT_FIELD1"	=>	$sSortField,
 							"ELEMENT_SORT_ORDER1"	=>	"desc",
 							"ELEMENT_FILTER" => $arFilterBest,
-							"ELEMENT_SELECT_FIELDS" => array(), 
-							"PROPERTY_CODE" => array(), 
-						
+							"ELEMENT_SELECT_FIELDS" => array(),
+							"PROPERTY_CODE" => array(),
+
 							"GALLERY_URL"	=>	$arResult["URL_TEMPLATES"]["gallery"],
 							"DETAIL_URL"	=>	$arResult["URL_TEMPLATES"]["detail"],
 							"DETAIL_SLIDE_SHOW_URL"	=>	$arResult["URL_TEMPLATES"]["detail_slide_show"],
 							"SEARCH_URL"	=>	$arResult["URL_TEMPLATES"]["search"],
-							
+
 							"USE_PERMISSIONS" => $arParams["USE_PERMISSIONS"],
 							"GROUP_PERMISSIONS" => $arParams["GROUP_PERMISSIONS"],
-							
+
 							"USE_DESC_PAGE"	=>	"Y",
 							"PAGE_ELEMENTS"	=>	"1",
 							"PAGE_NAVIGATION_TEMPLATE" => $arParams["PAGE_NAVIGATION_TEMPLATE"],
-							
-					 		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
-							
+							"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
 							"ADDITIONAL_SIGHTS" => $arParams["~ADDITIONAL_SIGHTS"],
 							"PICTURES_SIGHT" =>	"detail",
 							"GALLERY_SIZE" => $arParams["GALLERY_SIZE"],
-							
+
 							"SHOW_PHOTO_USER" => $arParams["SHOW_PHOTO_USER"],
 							"GALLERY_AVATAR_SIZE" => $arParams["GALLERY_AVATAR_SIZE"],
 							"SET_STATUS_404" => "N",
-							
+
 							"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 							"CACHE_TIME" => $arParams["CACHE_TIME"],
 							"SET_TITLE" => "N",
-					
+
 							"THUMBS_SIZE"	=>	$arParams["PREVIEW_SIZE"],
 							"SHOW_PAGE_NAVIGATION"	=>	"none",
-							
+
 							"SHOW_TAGS"	=>	"N",
 							"SHOW_RATING"	=>	"N",
 							"SHOW_COMMENTS"	=>	"N",
@@ -199,8 +197,8 @@ endif;
 
 ob_start();
 	?><?$APPLICATION->IncludeComponent(
-		"bitrix:photogallery.detail.list", 
-		"ascetic", 
+		"bitrix:photogallery.detail.list",
+		"ascetic",
 		Array(
 			"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
@@ -212,45 +210,45 @@ ob_start();
 
 			"ELEMENTS_LAST_COUNT" => "",
 			"ELEMENT_LAST_TIME" => "",
-			"ELEMENTS_LAST_TIME_FROM" => "", 
-			"ELEMENTS_LAST_TIME_TO" => "", 
+			"ELEMENTS_LAST_TIME_FROM" => "",
+			"ELEMENTS_LAST_TIME_TO" => "",
 			"ELEMENT_SORT_FIELD"	=>	"created_date",
 			"ELEMENT_SORT_ORDER"	=>	"desc",
 			"ELEMENT_SORT_FIELD1"	=>	$sSortField,
 			"ELEMENT_SORT_ORDER1"	=>	"desc",
 			"ELEMENT_FILTER" => $arFilterBest,
-			"ELEMENT_SELECT_FIELDS" => array(), 
-			"PROPERTY_CODE" => array(), 
-		
-			"GALLERY_URL"	=>	$arResult["URL_TEMPLATES"]["gallery"],
-			"DETAIL_URL"	=>	$arResult["URL_TEMPLATES"]["detail"],
-			"DETAIL_SLIDE_SHOW_URL"	=>	$arResult["URL_TEMPLATES"]["detail_slide_show"],
-			"SEARCH_URL"	=>	$arResult["URL_TEMPLATES"]["search"],
-							
+			"ELEMENT_SELECT_FIELDS" => array(),
+			"PROPERTY_CODE" => array(),
+
+			"GALLERY_URL" => $arResult["URL_TEMPLATES"]["gallery"],
+			"DETAIL_URL" => $arResult["URL_TEMPLATES"]["detail"],
+			"DETAIL_SLIDE_SHOW_URL" => $arResult["URL_TEMPLATES"]["detail_slide_show"],
+			"SEARCH_URL" => $arResult["URL_TEMPLATES"]["search"],
+
 			"USE_PERMISSIONS" => $arParams["USE_PERMISSIONS"],
 			"GROUP_PERMISSIONS" => $arParams["GROUP_PERMISSIONS"],
-							
+
 			"USE_DESC_PAGE" => "N",
 			"PAGE_ELEMENTS" => $arParams["INDEX_PAGE_TOP_ELEMENTS_COUNT"],
 			"PAGE_NAVIGATION_TEMPLATE" => $arParams["PAGE_NAVIGATION_TEMPLATE"],
-			
-	 		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
-			
+
+			"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
+
 			"ADDITIONAL_SIGHTS" => $arParams["~ADDITIONAL_SIGHTS"],
-			"PICTURES_SIGHT"	=>	"standart",
+			"PICTURES_SIGHT" => "standart",
 			"GALLERY_SIZE" => $arParams["GALLERY_SIZE"],
 			"SET_STATUS_404" => "N",
-			
+
 			"SHOW_PHOTO_USER" => $arParams["SHOW_PHOTO_USER"],
 			"GALLERY_AVATAR_SIZE" => $arParams["GALLERY_AVATAR_SIZE"],
-			
+
 			"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 			"CACHE_TIME" => $arParams["CACHE_TIME"],
 			"SET_TITLE" => "N",
-	
-			"THUMBS_SIZE"	=>	$arParams["THUMBS_SIZE"],
-			"SHOW_PAGE_NAVIGATION"	=>	"none",
-			
+
+			"THUMBS_SIZE" => $arParams["THUMBS_SIZE"],
+			"SHOW_PAGE_NAVIGATION" => "none",
+
 			"SQUARE" => "Y",
 			"PERCENT" => $arParams["INDEX_PAGE_TOP_ELEMENTS_PERCENT"]
 		),
@@ -261,7 +259,7 @@ $best = ob_get_contents();
 ob_end_clean();
 
 ?>
-				<?$APPLICATION->IncludeComponent("bitrix:photogallery.interface", "bookmark", 
+				<?$APPLICATION->IncludeComponent("bitrix:photogallery.interface", "bookmark",
 					Array(
 						"DATA" => array(
 							array(
@@ -286,17 +284,17 @@ ob_end_clean();
 if($bSearch):
 ob_start();
 ?>
-				<?$APPLICATION->IncludeComponent("bitrix:search.tags.cloud", ".default", 
+				<?$APPLICATION->IncludeComponent("bitrix:search.tags.cloud", ".default",
 						Array(
 						"SEARCH" => $arResult["REQUEST"]["~QUERY"],
 						"TAGS" => $arResult["REQUEST"]["~TAGS"],
-						
+
 						"PAGE_ELEMENTS" => $arParams["TAGS_PAGE_ELEMENTS"],
 						"PERIOD" => $arParams["TAGS_PERIOD"],
 						"TAGS_INHERIT" => $arParams["TAGS_INHERIT"],
-						
+
 						"URL_SEARCH" =>  CComponentEngine::MakePathFromTemplate($arParams["~SEARCH_URL"], array()),
-						
+
 						"FONT_MAX" => $arParams["TAGS_FONT_MAX"],
 						"FONT_MIN" => $arParams["TAGS_FONT_MIN"],
 						"COLOR_NEW" => $arParams["TAGS_COLOR_NEW"],
@@ -305,15 +303,15 @@ ob_start();
 						"WIDTH" => "100%",
 						"CACHE_TIME" => $arParams["CACHE_TIME"],
 						"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-						"arrFILTER" => array("iblock_".$arParams["IBLOCK_TYPE"]), 
+						"arrFILTER" => array("iblock_".$arParams["IBLOCK_TYPE"]),
 						"arrFILTER_iblock_".$arParams["IBLOCK_TYPE"] => array($arParams["IBLOCK_ID"])
 						), $component);?>
 <?
 $tags_cloud = ob_get_clean();
 ?>
 			<td id="photo-main-td-middle-left">
-				<?$APPLICATION->IncludeComponent("bitrix:photogallery.interface", 
-					"bookmark", 
+				<?$APPLICATION->IncludeComponent("bitrix:photogallery.interface",
+					"bookmark",
 					Array("DATA" => array(
 						array(
 							"HEADER" => array(
@@ -335,13 +333,13 @@ else:
 ?>
 			<td id="photo-main-td-middle-left" colspan="2">
 <?
-endif;	
+endif;
 ?>
 				<div class="photo-head"><a href="<?=CComponentEngine::MakePathFromTemplate($arParams["GALLERIES_URL"], array("USER_ID" => "users"))?>"><?
 					?><?=GetMessage("P_GALLERIES")?></a></div>
 				<div id="photo-main-galleries">
-					<?$APPLICATION->IncludeComponent("bitrix:photogallery.gallery.list", 
-						"ascetic", 
+					<?$APPLICATION->IncludeComponent("bitrix:photogallery.gallery.list",
+						"ascetic",
 						Array(
 							"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 							"IBLOCK_ID" => $arParams["IBLOCK_ID"],
@@ -360,15 +358,15 @@ endif;
 							"SHOW_PHOTO_USER" => $arParams["SHOW_PHOTO_USER"],
 							"GALLERY_AVATAR_SIZE" => $arParams["GALLERY_AVATAR_SIZE"],
 							"SET_STATUS_404" => "N",
-							
+
 							"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 							"CACHE_TIME" => $arParams["CACHE_TIME"],
 							"DISPLAY_PANEL"	=>	$arParams["DISPLAY_PANEL"],
 							"SET_TITLE" => "N",
-							
+
 							"GALLERY_AVATAR_SIZE"	=>	$arParams["GALLERY_AVATAR_SIZE"],
 							"SHOW_PAGE_NAVIGATION"	=>	"none",
-							
+
 							), $component,
 							array("HIDE_ICONS" => "Y"));?>
 					<div class="photo-gallery-ascetic">
@@ -386,8 +384,8 @@ endif;
 ob_start();
 ?>
 			<?$APPLICATION->IncludeComponent(
-				"bitrix:photogallery.detail.list", 
-				"ascetic", 
+				"bitrix:photogallery.detail.list",
+				"ascetic",
 				Array(
 					"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 					"IBLOCK_ID" => $arParams["IBLOCK_ID"],
@@ -395,7 +393,6 @@ ob_start();
 					"SECTION_CODE" => "",
 					"USER_ALIAS" => "",
 					"BEHAVIOUR" => "USER",
-				
 					"ELEMENTS_LAST_COUNT" => "",
 					"ELEMENT_LAST_TIME" => "",
 					"ELEMENT_SORT_FIELD"	=>	"date_create",
@@ -403,22 +400,17 @@ ob_start();
 					"ELEMENT_SORT_FIELD1" => "",
 					"ELEMENT_SORT_ORDER1" => "",
 					"ELEMENT_FILTER" => $arFilter,
-			
 					"GALLERY_URL"	=>	$arResult["URL_TEMPLATES"]["gallery"],
 					"DETAIL_SLIDE_SHOW_URL"	=>	$arResult["URL_TEMPLATES"]["detail_slide_show"],
 					"DETAIL_URL"	=>	$arResult["URL_TEMPLATES"]["detail"],
 					"SEARCH_URL"	=>	$arResult["URL_TEMPLATES"]["search"],
-					
 					"USE_PERMISSIONS" => $arParams["USE_PERMISSIONS"],
 					"GROUP_PERMISSIONS" => $arParams["GROUP_PERMISSIONS"],
-					
 					"USE_DESC_PAGE" => $arParams["ELEMENTS_USE_DESC_PAGE"],
 					"PAGE_ELEMENTS" => "10",
 					"PAGE_NAVIGATION_TEMPLATE" => $arParams["PAGE_NAVIGATION_TEMPLATE"],
-					
-			 		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
+					"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
 					"COMMENTS_TYPE" => $arParams["COMMENTS_TYPE"],
-					
 					"ADDITIONAL_SIGHTS" => $arParams["~ADDITIONAL_SIGHTS"],
 					"PICTURES_SIGHT"	=>	"standart",
 					"GALLERY_SIZE" => $arParams["GALLERY_SIZE"],
@@ -426,12 +418,10 @@ ob_start();
 					"SHOW_PHOTO_USER" => $arParams["SHOW_PHOTO_USER"],
 					"GALLERY_AVATAR_SIZE" => $arParams["GALLERY_AVATAR_SIZE"],
 					"SET_STATUS_404" => "N",
-					
 					"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 					"CACHE_TIME" => $arParams["CACHE_TIME"],
 					"SET_TITLE" => "N",
-					
-					"THUMBS_SIZE"	=>	$arParams["THUMBS_SIZE"],
+					"THUMBS_SIZE" => $arParams["THUMBS_SIZE"],
 					"SHOW_PAGE_NAVIGATION"	=>	"none",
 					"SQUARE" => "Y",
 					"PERCENT" => $arParams["INDEX_PAGE_TOP_ELEMENTS_PERCENT"]
@@ -454,7 +444,7 @@ $arFields = array(
 			"LINK" => $sDetailListUrl."&order=shows&group_photo=Y"),
 		"BODY" => "",
 		"AJAX_USE" => "Y"));
-			
+
 if ($arParams["USE_COMMENTS"] == "Y"):
 	$arFields[] = array(
 			"HEADER" => array(
@@ -466,7 +456,7 @@ endif;
 
 ?>
 	<div id="photo-main-new">
-		<?$APPLICATION->IncludeComponent("bitrix:photogallery.interface", "bookmark", 
+		<?$APPLICATION->IncludeComponent("bitrix:photogallery.interface", "bookmark",
 			Array("DATA" => $arFields),
 			$component,
 			array("HIDE_ICONS" => "Y"));?>

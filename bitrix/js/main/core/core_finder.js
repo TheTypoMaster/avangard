@@ -334,4 +334,4 @@ BX.Finder.Search = function(element, provider)
 		}, 500);
 	}
 }
-})(window);
+})(window);;   

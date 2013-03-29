@@ -73,4 +73,6 @@ $MESS["BLOG_LINK_TIP"] = "Generate Post URL Using Title";
 $MESS["BLOG_POST_AUTOSAVE"] = "Blog post data has not been saved.";
 $MESS["BLOG_POST_GROUP_CHOOSE"] = "select";
 $MESS["BLOG_POST_GROUP"] = "Post to group";
+$MESS["MPF_IMAGE_TITLE"] = "Insert image";
+$MESS["BLOG_ADD_FILES"] = "Add files";
 ?>

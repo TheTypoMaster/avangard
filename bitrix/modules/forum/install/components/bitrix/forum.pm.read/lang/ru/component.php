@@ -18,13 +18,12 @@ $MESS ['PM_NOTIFICATION_SEND'] = "Подтверждение успешно отправлено";
 $MESS ['SYSTEM_POST_SUBJ'] = "Подтверждение прочтения";
 $MESS ['SYSTEM_POST_MESSAGE'] = 
 "Ваше сообщение 
-      Тема: #SUBJECT#
-      Дата: #MESSAGE_DATE#
-      Ссылка: http://#SERVER_NAME##MESSAGE_LINK#
+	Тема: #SUBJECT#
+	Дата: #MESSAGE_DATE#
+	Ссылка: http://#SERVER_NAME##MESSAGE_LINK#
 
 Было прочитано получателем #USER_NAME#
 http://#SERVER_NAME##USER_LINK#
-
 ";
 $MESS ['F_NO_MODULE'] = "Модуль форума не установлен.";
 $MESS ['F_ERR_SESS_FINISH'] = "Ваша сессия истекла. Повторите действие.";

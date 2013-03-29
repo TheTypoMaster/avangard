@@ -207,7 +207,7 @@ $oFilter->Begin();
 	</tr>
 	<tr>
 		<td><?echo GetMessage("BLG_GROUP_NAME")?>:</td>
-		<td><input type="text" name="filter_name" value="<?echo htmlspecialchars($filter_name)?>" size="40"><?=ShowFilterLogicHelp()?></td>
+		<td><input type="text" name="filter_name" value="<?echo htmlspecialcharsbx($filter_name)?>" size="40"><?=ShowFilterLogicHelp()?></td>
 	</tr>
 
 <?

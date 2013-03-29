@@ -30,15 +30,13 @@ if (intval($arCurrentValues["VOTE_ID"])>0)
 		$QUESTION = ($arQuestion["QUESTION_TYPE"]=="html") ? strip_tags($arQuestion["QUESTION"]) : $arQuestion["QUESTION"];
 		$QUESTION = TruncateText($QUESTION, 30);
 		$arrQuestions["QUESTION_DIAGRAM_".$arQuestion["ID"]] = array(
-			"NAME"				=> str_replace("#QUESTION#",$QUESTION,GetMessage("VOTE_TEMPLATE_FOR_QUESTION")),
-			"TYPE"				=> "LIST",
-			"ADDITIONAL_VALUES"	=> "N",
-			"VALUES"			=> $arDiagramType
+			"NAME" => str_replace("#QUESTION#",$QUESTION,GetMessage("VOTE_TEMPLATE_FOR_QUESTION")),
+			"TYPE" => "LIST",
+			"ADDITIONAL_VALUES" => "N",
+			"VALUES" => $arDiagramType
 		);
 	}
 }
-
-
 
 $arComponentParameters = array(
 	"PARAMETERS" => array(
@@ -50,14 +48,12 @@ $arComponentParameters = array(
 			"REFRESH" => "Y",
 			"PARENT" => "BASE",
 			"MULTIPLE"=>"N",
-			"ADDITIONAL_VALUES"=>"Y",
-		),
-        "VOTE_ALL_RESULTS" => array(
+			"ADDITIONAL_VALUES"=>"Y"),
+		"VOTE_ALL_RESULTS" => array(
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("VOTE_ALL_RESULTS"), 
 			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "N",
-        ),
+			"DEFAULT" => "N"),
 		"CACHE_TIME" => Array("DEFAULT" => 1200),
 	)
 );

@@ -13,4 +13,5 @@ $MESS["F_ERR_EMPTY_TOPIC_ID"] = "Das Thema wurde nicht angegeben.";
 $MESS["F_ATTACHED_FILES"] = "Angehängte Dateien:";
 $MESS["F_SONET_MESSAGE_TITLE"] = "hat einen Beitrag zum Thema \"#TITLE#\" hinzugefügt";
 $MESS["F_SONET_TOPIC_TITLE"] = "hat ein Thema im Forum \"#TITLE#\" erstellt";
+$MESS["F_ERR_INVALID_FORUM_ID"] = "Ungültige Forums-ID.";
 ?>

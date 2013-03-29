@@ -1,7 +1,7 @@
 <?
 $MESS["IBLOCK_PRICES"] = "Prices";
-$MESS["IBLOCK_TYPE"] = "Info-block type";
-$MESS["IBLOCK_IBLOCK"] = "Info-block";
+$MESS["IBLOCK_TYPE"] = "Infoblock type";
+$MESS["IBLOCK_IBLOCK"] = "Infoblock";
 $MESS["IBLOCK_PROPERTY"] = "Properties";
 $MESS["IBLOCK_SORT_SHOWS"] = "average shows";
 $MESS["IBLOCK_SORT_SORT"] = "sorting index";
@@ -40,4 +40,6 @@ $MESS["CP_BCST_USE_PRODUCT_QUANTITY"] = "Enable Product Quantity Field";
 $MESS["CP_BCST_PRODUCT_PROPERTIES"] = "Product Properties";
 $MESS["CP_BCST_SECTION_FIELDS"] = "Section Fields";
 $MESS["CP_BCST_SECTION_USER_FIELDS"] = "Section Properties";
+$MESS["CP_BCST_CONVERT_CURRENCY"] = "Use only one currency to show prices";
+$MESS["CP_BCST_CURRENCY_ID"] = "Convert all prices to currency";
 ?>

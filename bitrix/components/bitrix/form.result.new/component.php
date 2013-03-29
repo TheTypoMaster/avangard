@@ -181,6 +181,7 @@ if (CModule::IncludeModule("form"))
 						$arResult["FORM_RESULT"] = 'addok';
 
 						// send email notifications
+						CFormCRM::onResultAdded($arParams["WEB_FORM_ID"], $RESULT_ID);
 						CFormResult::SetEvent($RESULT_ID);
 						CFormResult::Mail($RESULT_ID);
 
@@ -361,7 +362,7 @@ if (CModule::IncludeModule("form"))
 
 
 				$FORM->InitializeTemplate($arParams, $arResult);
-				//echo '<pre>',htmlspecialchars(print_r($arParams, true)),htmlspecialchars(print_r($arResult, true)),htmlspecialchars(print_r($FORM, true)),'</pre>';
+				//echo '<pre>',htmlspecialcharsbx(print_r($arParams, true)),htmlspecialcharsbx(print_r($arResult, true)),htmlspecialcharsbx(print_r($FORM, true)),'</pre>';
 
 				// cache image files paths
 				$FORM->ShowFormImage();
@@ -488,12 +489,12 @@ if (CModule::IncludeModule("form"))
 					$arResult["arForm"]["SID"], POST_FORM_ACTION_URI, "POST"
 				).$res .= bitrix_sessid_post().'<input type="hidden" name="WEB_FORM_ID" value="'.$arParams['WEB_FORM_ID'].'" />',
 
-				"FORM_TITLE"			=> trim(htmlspecialchars($arResult["arForm"]["NAME"])), // form title
+				"FORM_TITLE"			=> trim(htmlspecialcharsbx($arResult["arForm"]["NAME"])), // form title
 
 				"FORM_DESCRIPTION" => // form description
 					$arResult["arForm"]["DESCRIPTION_TYPE"] == "html" ?
 					trim($arResult["arForm"]["DESCRIPTION"]) :
-					nl2br(htmlspecialchars(trim($arResult["arForm"]["DESCRIPTION"]))),
+					nl2br(htmlspecialcharsbx(trim($arResult["arForm"]["DESCRIPTION"]))),
 
 				"isFormTitle"			=> strlen($arResult["arForm"]["NAME"]) > 0 ? "Y" : "N", // flag "does form have title"
 				"isFormDescription"		=> strlen($arResult["arForm"]["DESCRIPTION"]) > 0 ? "Y" : "N", // flag "does form have description"
@@ -526,12 +527,16 @@ if (CModule::IncludeModule("form"))
 			// check image file existance and assign image data
 			if (substr($arImage["SRC"], 0, 1) == "/")
 			{
-				list(
-					$arResult["FORM_IMAGE"]["WIDTH"],
-					$arResult["FORM_IMAGE"]["HEIGHT"],
-					$arResult["FORM_IMAGE"]["TYPE"],
-					$arResult["FORM_IMAGE"]["ATTR"]
-				) = @getimagesize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
+				$arSize = CFile::GetImageSize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
+				if (is_array($arSize))
+				{
+					list(
+						$arResult["FORM_IMAGE"]["WIDTH"],
+						$arResult["FORM_IMAGE"]["HEIGHT"],
+						$arResult["FORM_IMAGE"]["TYPE"],
+						$arResult["FORM_IMAGE"]["ATTR"]
+					) = $arSize;
+				}
 			}
 			else
 			{
@@ -555,7 +560,7 @@ if (CModule::IncludeModule("form"))
 				"CAPTION" => // field caption
 					$arResult["arQuestions"][$FIELD_SID]["TITLE_TYPE"] == "html" ?
 					$arResult["arQuestions"][$FIELD_SID]["TITLE"] :
-					nl2br(htmlspecialchars($arResult["arQuestions"][$FIELD_SID]["TITLE"])),
+					nl2br(htmlspecialcharsbx($arResult["arQuestions"][$FIELD_SID]["TITLE"])),
 
 				"IS_HTML_CAPTION"			=> $arResult["arQuestions"][$FIELD_SID]["TITLE_TYPE"] == "html" ? "Y" : "N",
 				"REQUIRED"					=> $arResult["arQuestions"][$FIELD_SID]["REQUIRED"] == "Y" ? "Y" : "N",
@@ -914,12 +919,16 @@ if (CModule::IncludeModule("form"))
 				// check image file existance and assign image data
 				if (substr($arImage["SRC"], 0, 1) == "/")
 				{
-					list(
-						$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["WIDTH"],
-						$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["HEIGHT"],
-						$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["TYPE"],
-						$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["ATTR"]
-					) = @getimagesize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
+					$arSize = CFile::GetImageSize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
+					if (is_array($arSize))
+					{
+						list(
+							$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["WIDTH"],
+							$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["HEIGHT"],
+							$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["TYPE"],
+							$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["ATTR"]
+						) = $arSize;
+					}
 				}
 				else
 				{
@@ -957,7 +966,7 @@ if (CModule::IncludeModule("form"))
 		$arResult["APPLY_BUTTON"] = "<input type=\"hidden\" name=\"web_form_apply\" value=\"Y\" /><input type=\"submit\" name=\"web_form_apply\" value=\"".GetMessage("FORM_APPLY")."\" />";
 		$arResult["RESET_BUTTON"] = "<input type=\"reset\" value=\"".GetMessage("FORM_RESET")."\" />";
 		$arResult["REQUIRED_STAR"] = $arResult["REQUIRED_SIGN"];
-		$arResult["CAPTCHA_IMAGE"] = "<input type=\"hidden\" name=\"captcha_sid\" value=\"".htmlspecialchars($arResult["CAPTCHACode"])."\" /><img src=\"/bitrix/tools/captcha.php?captcha_sid=".htmlspecialchars($arResult["CAPTCHACode"])."\" width=\"180\" height=\"40\" />";
+		$arResult["CAPTCHA_IMAGE"] = "<input type=\"hidden\" name=\"captcha_sid\" value=\"".htmlspecialcharsbx($arResult["CAPTCHACode"])."\" /><img src=\"/bitrix/tools/captcha.php?captcha_sid=".htmlspecialcharsbx($arResult["CAPTCHACode"])."\" width=\"180\" height=\"40\" />";
 		$arResult["CAPTCHA_FIELD"] = "<input type=\"text\" name=\"captcha_word\" size=\"30\" maxlength=\"50\" value=\"\" class=\"inputtext\" />";
 		$arResult["CAPTCHA"] = $arResult["CAPTCHA_IMAGE"]."<br />".$arResult["CAPTCHA_FIELD"];
 

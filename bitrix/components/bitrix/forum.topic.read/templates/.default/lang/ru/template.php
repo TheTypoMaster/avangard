@@ -1,9 +1,10 @@
 <?
+$MESS["F_UNSUBSCRIBE"] = "Отписаться";
+$MESS["F_UNSUBSCRIBE_TITLE"] = "Не получать уведомления о новых сообщениях по E-mail";
 $MESS["F_REPLY"] = "Ответить";
 $MESS["F_SUBSCRIBE"] = "Подписаться";
 $MESS["F_SUBSCRIBE_TITLE"] = "Получать уведомления о новых сообщениях по E-mail";
 $MESS["F_CLOSED"] = "Закрыто";
-$MESS["F_ANCHOR_TITLE"] = "Скопируйте в буфер обмена адрес ссылки на это сообщение";
 $MESS["F_EDIT_TOPIC"] = "Изменить тему";
 $MESS["F_DELETE_TOPIC"] = "Удалить тему";
 $MESS["F_CLOSE_TOPIC"] = "Закрыть тему";
@@ -22,8 +23,6 @@ $MESS["F_SHOW_MESSAGES"] = "Показать сообщения";
 $MESS["F_HIDE_MESSAGES"] = "Скрыть сообщения";
 $MESS["F_MOVE_MESSAGES"] = "Перенести сообщения";
 $MESS["F_DELETE_MESSAGES"] = "Удалить сообщения";
-$MESS["F_ATTACH_FILES"] = "Прикрепленные файлы";
-$MESS["F_VIEW"] = "Просмотр сообщения";
 $MESS["JQOUTE_AUTHOR_WRITES"] = "пишет";
 $MESS["JS_NO_MESSAGES"] = "Не указан список сообщений. Выберите сообщения.";
 $MESS["JS_NO_ACTION"] = "Не выбрано действие. Выберите действие.";

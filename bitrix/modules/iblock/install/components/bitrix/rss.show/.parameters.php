@@ -4,33 +4,35 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 if(!CModule::IncludeModule("iblock"))
 	return;
 
+if(strlen($arCurrentValues["SITE"]) > 0)
+{
+	$url_default = "http://".$arCurrentValues["SITE"];
+
+	$port = intval($arCurrentValues["PORT"]);
+	if($port > 0 && $port != 80)
+		$url_default .= ":".$port;
+
+	if(strlen($arCurrentValues["PATH"]) > 0)
+		$url_default .= "/".ltrim($arCurrentValues["PATH"], "/");
+
+	if(strlen($arCurrentValues["QUERY_STR"]) > 0)
+		$url_default .= "?".ltrim($arCurrentValues["QUERY_STR"], "?");
+}
+else
+{
+	$url_default = "";
+}
+
+
 $arComponentParameters = array(
 	"GROUPS" => array(
 	),
 	"PARAMETERS" => array(
-		"SITE" => Array(
+		"URL" => Array(
 			"PARENT" => "BASE",
-			"NAME" => GetMessage("T_IBLOCK_DESC_RSS_SITE"),
+			"NAME" => GetMessage("CP_BRS_URL"),
 			"TYPE" => "STRING",
-			"DEFAULT" => 'www.1c-bitrix.ru',
-		),
-		"PORT" => Array(
-			"PARENT" => "BASE",
-			"NAME" => GetMessage("T_IBLOCK_DESC_RSS_PORT"),
-			"TYPE" => "STRING",
-			"DEFAULT" => '80',
-		),
-		"PATH" => Array(
-			"PARENT" => "BASE",
-			"NAME" => GetMessage("T_IBLOCK_DESC_RSS_PATH"),
-			"TYPE" => "STRING",
-			"DEFAULT" => '/bitrix/rss.php',
-		),
-		"QUERY_STR" => Array(
-			"PARENT" => "BASE",
-			"NAME" => GetMessage("T_IBLOCK_DESC_RSS_QUERY_STR"),
-			"TYPE" => "STRING",
-			"DEFAULT" => 'ID=news_sm&LANG=ru&TYPE=news&LIMIT=5',
+			"DEFAULT" => $url_default,
 		),
 		"OUT_CHANNEL" => Array(
 			"PARENT" => "BASE",

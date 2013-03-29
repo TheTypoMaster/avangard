@@ -155,8 +155,6 @@ class BXInstallServices
 	function GetWizardsList($moduleName = "")
 	{
 		$arWizardsList = array();
-		$arWizardsListD = array();
-
 		if (strlen($moduleName) <= 0)
 		{
 			$path = $_SERVER["DOCUMENT_ROOT"]."/bitrix/wizards";
@@ -185,8 +183,7 @@ class BXInstallServices
 
 							if ($wizardData = BXInstallServices::LoadWizardData($f1.":".$f2))
 							{
-								$arWizardsListD[] = $f1.":".$f2;
-								$arWizardsList[] = $wizardData;
+								$arWizardsList[$f1.":".$f2] = $wizardData;
 							}
 						}
 						closedir($h2);
@@ -230,14 +227,14 @@ class BXInstallServices
 								if (!is_dir($path."/".$f1."/install/wizards/".$f2."/".$f3))
 									continue;
 
-								if (in_array($f2.":".$f3, $arWizardsListD))
+								if (array_key_exists($f2.":".$f3, $arWizardsList))
 									continue;
 
 								if (!file_exists($path."/".$f1."/install/wizards/".$f2."/".$f3."/.description.php"))
 									continue;
 
 								if ($wizardData = BXInstallServices::LoadWizardData($f1.":".$f2.":".$f3))
-									$arWizardsList[] = $wizardData;
+									$arWizardsList[$f2.":".$f3] = $wizardData;
 							}
 							closedir($h3);
 						}
@@ -248,12 +245,12 @@ class BXInstallServices
 			closedir($h1);
 		}
 
-		if(LANGUAGE_ID != 'ru' && $arWizardsListD[0] == 'bitrix:demo')
-		{
-			//$arWizardsList[] = $arWizardsList[0];
-			array_shift($arWizardsList);
-		}
-		return $arWizardsList;
+		if(LANGUAGE_ID != 'ru')
+			unset($arWizardsList['bitrix:demo']);
+
+		ksort($arWizardsList);
+
+		return array_values($arWizardsList);
 	}
 
 	function CopyDirFiles($path_from, $path_to, $rewrite = true, $dirPermission = 0755, $filePermission = 0644)
@@ -669,7 +666,7 @@ class BXInstallServices
 			}
 
 			if (strlen($databaseStep->createDBType) > 0)
-				$DB->Query("SET table_type = '".$databaseStep->createDBType."'", false);
+				$DB->Query("SET storage_engine = '".$databaseStep->createDBType."'", false);
 
 			//SQL mode
 			$dbResult = $DB->Query("SELECT @@sql_mode", true);
@@ -752,15 +749,15 @@ class BXInstallServices
 	function IsUTFString($string)
 	{
 		return preg_match('%^(?:
-			 [\x09\x0A\x0D\x20-\x7E]            # ASCII
-		   | [\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
-		   |  \xE0[\xA0-\xBF][\x80-\xBF]        # excluding overlongs
-		   | [\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}  # straight 3-byte
-		   |  \xED[\x80-\x9F][\x80-\xBF]        # excluding surrogates
-		   |  \xF0[\x90-\xBF][\x80-\xBF]{2}     # planes 1-3
-		   | [\xF1-\xF3][\x80-\xBF]{3}          # planes 4-15
-		   |  \xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
-	   )*$%xs', $string);
+			[\x09\x0A\x0D\x20-\x7E]             # ASCII
+			|[\xC2-\xDF][\x80-\xBF]             # non-overlong 2-byte
+			| \xE0[\xA0-\xBF][\x80-\xBF]        # excluding overlongs
+			|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}  # straight 3-byte
+			| \xED[\x80-\x9F][\x80-\xBF]        # excluding surrogates
+			| \xF0[\x90-\xBF][\x80-\xBF]{2}     # planes 1-3
+			|[\xF1-\xF3][\x80-\xBF]{3}          # planes 4-15
+			| \xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
+		)*$%xs', $string);
 	}
 
 	function EncodeFile($filePath, $charsetFrom)
@@ -768,15 +765,25 @@ class BXInstallServices
 		$position = strrpos($filePath, ".");
 		$extension = strtolower(substr($filePath, $position + 1, strlen($filePath) - $position));
 
-		if ($extension != "php" && $extension != "sql" && $extension != "js" && $extension != "csv" && $extension != "snp" && $extension != "html")
+		if ($extension != "php" && $extension != "sql" && $extension != "js" && $extension != "csv" && $extension != "snp" && $extension != "html" && $extension != "xml")
 			return;
 
 		$fileContent = file_get_contents($filePath);
 		if ($fileContent === false)
 			return;
-
-		$fileContent = mb_convert_encoding($fileContent, "utf-8", $charsetFrom);
-		file_put_contents($filePath, $fileContent);
+		if($extension == "xml")
+		{
+			if(substr($fileContent, 0, 5) === "<?xml" && strpos(substr($fileContent, 0, 100), "encoding") === false)
+			{
+				$fileContent = mb_convert_encoding($fileContent, "utf-8", $charsetFrom);
+				file_put_contents($filePath, $fileContent);
+			}
+		}
+		else
+		{
+			$fileContent = mb_convert_encoding($fileContent, "utf-8", $charsetFrom);
+			file_put_contents($filePath, $fileContent);
+		}
 	}
 
 	function EncodeDir($dirPath, $charsetFrom, $encodeALL = false)

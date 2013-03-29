@@ -62,12 +62,6 @@ $arComponentParameters = Array(
 			"NAME" => GetMessage("F_SET_NAVIGATION"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "Y"),
-		// "DISPLAY_PANEL" => Array(
-			// "PARENT" => "ADDITIONAL_SETTINGS",
-			// "NAME" => GetMessage("F_DISPLAY_PANEL"),
-			// "TYPE" => "CHECKBOX",
-			// "DEFAULT" => "N"),
-		
 		"SET_TITLE" => Array(),
 	)
 );

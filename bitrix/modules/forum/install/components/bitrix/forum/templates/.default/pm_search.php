@@ -11,6 +11,8 @@ $APPLICATION->IncludeComponent(
 		"URL_TEMPLATES_PM_SEARCH" => $arResult["URL_TEMPLATES_PM_SEARCH"],
 		"PAGE_NAVIGATION_TEMPLATE" => $arParams["PAGE_NAVIGATION_TEMPLATE"],
 		"PAGE_NAVIGATION_WINDOW" =>  $arParams["PAGE_NAVIGATION_WINDOW"],
+		"NAME_TEMPLATE"	=> $arParams["NAME_TEMPLATE"],
+		"SEO_USER" => $arParams["SEO_USER"]
 	),
 	$component
 );

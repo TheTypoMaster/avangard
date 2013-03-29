@@ -56,7 +56,7 @@ if($USER->IsAdmin() && $lAdmin->EditAction()) // Save button was pressed
 		$res = $obBlocktype->Update($ID, $arFields);
 		if(!$res)
 		{
-			$lAdmin->AddUpdateError(GetMessage("IBLOCK_TYPE_ADMIN_ERR_SAVE")." (&quot;".htmlspecialchars($ID)."&quot;): ".$obBlocktype->LAST_ERROR, $ID);
+			$lAdmin->AddUpdateError(GetMessage("IBLOCK_TYPE_ADMIN_ERR_SAVE")." (&quot;".htmlspecialcharsbx($ID)."&quot;): ".$obBlocktype->LAST_ERROR, $ID);
 			$DB->Rollback();
 		}
 		$DB->Commit();
@@ -83,7 +83,7 @@ if($USER->IsAdmin() && ($arID = $lAdmin->GroupAction()))
 			if(!CIBlockType::Delete($ID))
 			{
 				$DB->Rollback();
-				$lAdmin->AddGroupError(GetMessage("IBLOCK_TYPE_ADMIN_ERR_DEL")." (&quot;".htmlspecialchars($ID)."&quot;)", $ID);
+				$lAdmin->AddGroupError(GetMessage("IBLOCK_TYPE_ADMIN_ERR_DEL")." (&quot;".htmlspecialcharsbx($ID)."&quot;)", $ID);
 			}
 			$DB->Commit();
 			break;
@@ -100,14 +100,46 @@ $rsData->NavStart();
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("IBLOCK_TYPE_ADMIN_NAV")));
 
 // List headers/columns
+
 $lAdmin->AddHeaders(array(
-	array("id"=>"ID", "content"=>"ID", "sort"=>"id", "default"=>true),
-	array("id"=>"NAME", "content"=>GetMessage("IBLOCK_TYPE_ADMIN_COL_NAME"), "default"=>true),
-	array("id"=>"SORT", "content"=>GetMessage("IBLOCK_TYPE_ADMIN_COL_SORT"), "sort"=>"sort", "default"=>true, "align"=>"right"),
-	array("id"=>"SECTIONS", "content"=>GetMessage("IBLOCK_TYPE_ADMIN_COL_SECT"), "default"=>true, "align"=>"center"),
-	array("id"=>"IN_RSS", "content"=>GetMessage("IBLOCK_TYPE_ADMIN_COL_RSS"), "default"=>true, "align"=>"center"),
-	array("id"=>"EDIT_FILE_BEFORE", "content"=>GetMessage("IBLOCK_TYPE_ADMIN_COL_EDIT_BEF")),
-	array("id"=>"EDIT_FILE_AFTER", "content"=>GetMessage("IBLOCK_TYPE_ADMIN_COL_EDIT_AFT")),
+	array(
+		"id" => "ID",
+		"content" => "ID",
+		"sort" => "id",
+		"default" => true,
+	),
+	array(
+		"id" => "NAME",
+		"content" => GetMessage("IBLOCK_TYPE_ADMIN_COL_NAME"),
+		"default" => true,
+	),
+	array(
+		"id" => "SORT",
+		"content" => GetMessage("IBLOCK_TYPE_ADMIN_COL_SORT"),
+		"sort" => "sort",
+		"default" => true,
+		"align" => "right",
+	),
+	array(
+		"id" => "SECTIONS",
+		"content" => GetMessage("IBLOCK_TYPE_ADMIN_COL_SECT"),
+		"default" => true,
+		"align" => "center",
+	),
+	array(
+		"id" => "IN_RSS",
+		"content" => GetMessage("IBLOCK_TYPE_ADMIN_COL_RSS"),
+		"default" => true,
+		"align" => "center",
+	),
+	array(
+		"id" => "EDIT_FILE_BEFORE",
+		"content" => GetMessage("IBLOCK_TYPE_ADMIN_COL_EDIT_BEF"),
+	),
+	array(
+		"id" => "EDIT_FILE_AFTER",
+		"content" => GetMessage("IBLOCK_TYPE_ADMIN_COL_EDIT_AFT"),
+	),
 ));
 
 // Build elements list
@@ -138,7 +170,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$arActions[] = array(
 		"ICON"=>"list",
 		"TEXT"=>GetMessage("IBLOCK_TYPE_ADMIN_IB"),
-		"ACTION"=>$lAdmin->ActionRedirect('iblock_admin.php?lang='.LANG.'&amp;type='.$f_ID.'&amp;admin=Y'),
+		"ACTION"=>$lAdmin->ActionRedirect('iblock_admin.php?lang='.LANG.'&type='.$f_ID.'&admin=Y'),
 	);
 	if($USER->IsAdmin())
 	{
@@ -146,13 +178,13 @@ while($arRes = $rsData->NavNext(true, "f_"))
 		$arActions[] = array(
 			"ICON"=>"edit",
 			"TEXT"=>GetMessage("MAIN_ADMIN_MENU_EDIT"),
-			"ACTION"=>$lAdmin->ActionRedirect('iblock_type_edit.php?lang='.LANG.'&amp;ID='.$f_ID),
+			"ACTION"=>$lAdmin->ActionRedirect('iblock_type_edit.php?lang='.LANG.'&ID='.$f_ID),
 			"DEFAULT"=>true,
 		);
 		$arActions[] = array(
 			"ICON"=>"delete",
 			"TEXT"=>GetMessage("MAIN_ADMIN_MENU_DELETE"),
-			"ACTION"=>"if(confirm('".GetMessage("IBLOCK_TYPE_ADMIN_DEL_CONF")."')) ".$lAdmin->ActionDoGroup($f_ID, "delete"),
+			"ACTION"=>"if(confirm('".GetMessageJS("IBLOCK_TYPE_ADMIN_DEL_CONF")."')) ".$lAdmin->ActionDoGroup($f_ID, "delete"),
 		);
 	}
 	$row->AddActions($arActions);
@@ -174,12 +206,16 @@ $lAdmin->AddGroupActionTable($arGroupActions);
 
 // Add context menu
 $aContext = array();
-if($USER->IsAdmin())
+if ($USER->IsAdmin())
+{
 	$aContext[] = array(
-		"TEXT"=>GetMessage("IBLOCK_TYPE_ADMIN_ADD"),
-		"LINK"=>"iblock_type_edit.php?lang=".LANG,
-		"TITLE"=>GetMessage("IBLOCK_TYPE_ADMIN_ADD_HINT")
+		"TEXT" => GetMessage("IBLOCK_TYPE_ADMIN_ADD"),
+		"LINK" => "iblock_type_edit.php?lang=".LANG,
+		"TITLE" => GetMessage("IBLOCK_TYPE_ADMIN_ADD_HINT"),
+		"ICON" => "btn_new",
 	);
+}
+
 $lAdmin->AddAdminContextMenu($aContext);
 
 // Check if list will be output (in this case, rest of the script will be skipped)
@@ -206,12 +242,12 @@ $oFilter->Begin();
 <tr>
 	<td><b><?echo GetMessage("IBLOCK_TYPE_ADMIN_COL_NAME")?>:</b></td>
 	<td nowrap>
-		<input type="text" size="25" name="find_name" value="<?echo htmlspecialchars($find_name)?>" title="<?=GetMessage("MAIN_ADMIN_LIST_FILTER_1ST")?>">
+		<input type="text" size="25" name="find_name" value="<?echo htmlspecialcharsbx($find_name)?>" title="<?=GetMessage("MAIN_ADMIN_LIST_FILTER_1ST")?>">
 	</td>
 </tr>
 <tr>
 	<td><?echo GetMessage("IBLOCK_TYPE_ADMIN_FILTER_ID")?>:</td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>"></td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage(), "form"=>"filter_form"));

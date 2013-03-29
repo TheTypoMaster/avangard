@@ -196,14 +196,32 @@ class CAllDatabase
 	}
 
 	// унифицированный формат в PHP формат
-	function DateFormatToPHP($f)
+	function DateFormatToPHP($format)
 	{
-		$f = str_replace("YYYY", "Y", $f);	// 1999
-		$f = str_replace("MM", "m", $f);	// 01 - 12
-		$f = str_replace("DD", "d", $f);	// 01 - 31
-		$f = str_replace("HH", "H", $f);	// 00 - 24
-		$f = str_replace("MI", "i", $f);	// 00 - 59
-		return str_replace("SS", "s", $f);	// 00 - 59
+		static $cache = array();
+		if (!isset($cache[$format]))
+		{
+			$f = str_replace("YYYY", "Y", $format);		// 1999
+			$f = str_replace("MMMM", "F", $f);		// January - December
+			$f = str_replace("MM", "m", $f);		// 01 - 12
+	//		$f = str_replace("M", "M", $f);			// Jan - Dec
+			$old_f = $f = str_replace("DD", "d", $f);	// 01 - 31
+			$f = str_replace("HH", "H", $f);		// 00 - 24
+			if ($old_f === $f)
+			{
+				$f = str_replace("H", "h", $f);		// 01 - 12
+			}
+			$f = str_replace("TT", "A", $f);		// AM - PM
+			$old_f = $f = str_replace("T", "a", $f);	// am - pm
+			$f = str_replace("GG", "G", $f);		// 0 - 24
+			if ($old_f === $f)
+			{
+				$f = str_replace("G", "g", $f);		// 1 - 12
+			}
+			$f = str_replace("MI", "i", $f);		// 00 - 59
+			$cache[$format] = str_replace("SS", "s", $f);		// 00 - 59
+		}
+		return $cache[$format];
 	}
 
 	function FormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="DD.MM.YYYY HH:MI:SS")
@@ -211,22 +229,93 @@ class CAllDatabase
 		$strDate = trim($strDate);
 
 		$new_format = str_replace("MI","I", strtoupper($new_format));
-		$new_format = preg_replace("/([DMYIHS])\\1+/is", "\\1", $new_format);
+		$new_format = preg_replace("/([DMYIHGST])\\1+/is", "\\1", $new_format);
 		$arFormat = preg_split('/[^0-9A-Za-z]/', strtoupper($format));
-		$arDate = preg_split('/[^0-9]/', $strDate);
-		$arParsedDate=Array();
-		$bound = min(count($arFormat), count($arDate));
+		$arParsedDate = ParseDateTime($strDate, $format);
 
-		for($i=0; $i<$bound; $i++)
+		if (!$arParsedDate) return false;
+
+		foreach ($arParsedDate as $k=>$v)
 		{
-			//if ($intval) $r = IntVal($arDate[$i]); else
-			if(preg_match("/[^0-9]/", $arDate[$i]))
-				$r = CDatabase::ForSql($arDate[$i], 4);
+			if(preg_match("/[^0-9]/", $v))
+				$arParsedDate[$k] = CDatabase::ForSql($v, 10);
 			else
-				$r = IntVal($arDate[$i]);
-
-			$arParsedDate[substr($arFormat[$i], 0, 2)] = $r;
+				$arParsedDate[$k] = IntVal($v);
 		}
+
+		/*time hacks*/
+		if (isset($arParsedDate["H"]))
+		{
+			$arParsedDate['HH'] = intval($arParsedDate["H"]);
+			unset($arParsedDate["H"]);
+		}
+		elseif (isset($arParsedDate["GG"]))
+		{
+			$arParsedDate['HH'] = intval($arParsedDate["GG"]);
+			unset($arParsedDate["GG"]);
+		}
+		elseif (isset($arParsedDate["G"]))
+		{
+			$arParsedDate['HH'] = intval($arParsedDate["G"]);
+			unset($arParsedDate["G"]);
+		}
+		if (isset($arParsedDate['TT']) || isset($arParsedDate['T']))
+		{
+			$middletime = $arParsedDate['TT'] ? $arParsedDate['TT'] : $arParsedDate['T'];
+			if (strcasecmp($middletime, 'pm')===0)
+			{
+				if ($arParsedDate['HH'] < 12)
+					$arParsedDate['HH'] += 12;
+			}
+			else
+			{
+				if ($arParsedDate['HH'] == 12)
+					$arParsedDate['HH'] = 0;
+			}
+
+			if (isset($arParsedDate['TT']))
+			{
+				unset($arParsedDate['TT']);
+			}
+			else
+			{
+				unset($arParsedDate['T']);
+			}
+		}
+
+		if (isset($arParsedDate["MMMM"]))
+		{
+			if (is_numeric($arParsedDate["MMMM"]))
+			{
+				$arParsedDate['MM'] = intval($arParsedDate["MMMM"]);
+			}
+			else
+			{
+				$arParsedDate['MM'] = GetNumMonth($arParsedDate["MMMM"]);
+				if (!$arParsedDate['MM'])
+					$arParsedDate['MM'] = intval(date('m', strtotime($arParsedDate["MMMM"])));
+			}
+		}
+		elseif (isset($arParsedDate["MM"]))
+		{
+			$arParsedDate['MM'] = intval($arParsedDate["MM"]);
+		}
+		elseif (isset($arParsedDate["M"]))
+		{
+			if (is_numeric($arParsedDate["M"]))
+			{
+				$arParsedDate['MM'] = intval($arParsedDate["M"]);
+			}
+			else
+			{
+				$arParsedDate['MM'] = GetNumMonth($arParsedDate["M"], true);
+				if (!$arParsedDate['MM'])
+					$arParsedDate['MM'] = intval(date('m', strtotime($arParsedDate["M"])));
+			}
+		}
+
+		if (isset($arParsedDate["YYYY"]))
+			$arParsedDate["YY"] = $arParsedDate["YYYY"];
 
 		if (intval($arParsedDate["DD"])<=0 || intval($arParsedDate["MM"])<=0 || intval($arParsedDate["YY"])<=0) return false;
 
@@ -250,8 +339,10 @@ class CAllDatabase
 				elseif ($ch=="M") $strResult .= date("m", $ux_time);
 				elseif ($ch=="Y") $strResult .= date("Y", $ux_time);
 				elseif ($ch=="H") $strResult .= date("H", $ux_time);
+				elseif ($ch=="G") $strResult .= date("h", $ux_time);
 				elseif ($ch=="I") $strResult .= date("i", $ux_time);
 				elseif ($ch=="S") $strResult .= date("s", $ux_time);
+				elseif ($ch=="T") $strResult .= date("a", $ux_time);
 				else $strResult .= $ch;
 			}
 		}
@@ -506,7 +597,7 @@ class CAllDBResult
 	var $bFromArray = false;
 	var $bFromLimited = false;
 	var $sSessInitAdd = "";
-	var $nPageWindow = 11;
+	var $nPageWindow = 5;
 	var $nSelectedCount = false;
 	var $arGetNextCache = false;
 	var $bDescPageNumbering = false;
@@ -547,9 +638,47 @@ class CAllDBResult
 			$this->result = $res;
 	}
 
-	//После запроса делает выборку значений полей в массив
+	public function __sleep()
+	{
+		return array(
+			'result',
+			'arResult',
+			'arReplacedAliases',
+			'arResultAdd',
+			'bNavStart',
+			'bShowAll',
+			'NavNum',
+			'NavPageCount',
+			'NavPageNomer',
+			'NavPageSize',
+			'NavShowAll',
+			'NavRecordCount',
+			'bFirstPrintNav',
+			'PAGEN',
+			'SIZEN',
+			'add_anchor',
+			'bPostNavigation',
+			'bFromArray',
+			'bFromLimited',
+			'sSessInitAdd',
+			'nPageWindow',
+			'nSelectedCount',
+			'arGetNextCache',
+			'bDescPageNumbering',
+			'arUserMultyFields',
+			//'SqlTraceIndex',
+			//'DB',
+		);
+	}
+
+	/**
+	 * После запроса делает выборку значений полей в массив
+	 *
+	 * @return array
+	 */
 	function Fetch()
 	{
+		return array();
 	}
 
 	function SelectedRowsCount()
@@ -581,7 +710,7 @@ class CAllDBResult
 
 	function IsNavPrint()
 	{
-   	if ($this->NavRecordCount == 0 || ($this->NavPageCount == 1 && $this->NavShowAll == false))
+		if ($this->NavRecordCount == 0 || ($this->NavPageCount == 1 && $this->NavShowAll == false))
 			return false;
 
 		return true;
@@ -621,7 +750,7 @@ class CAllDBResult
 			$arDel = array_merge($arDel, $arDeleteParam);
 		$strNavQueryString = DeleteParam($arDel);
 		if($strNavQueryString <> "")
-			$strNavQueryString = htmlspecialchars("&".$strNavQueryString);
+			$strNavQueryString = htmlspecialcharsbx("&".$strNavQueryString);
 
 		if($template_path!==false && !file_exists($template_path) && file_exists($_SERVER["DOCUMENT_ROOT"].$template_path))
 			$template_path = $_SERVER["DOCUMENT_ROOT"].$template_path;
@@ -673,7 +802,7 @@ class CAllDBResult
 
 		if($template_path!==false && file_exists($template_path))
 		{
-			/*
+/*
 			$this->bFirstPrintNav - вызов в первый раз
 			$this->NavPageNomer - номер текущей страницы
 			$this->NavPageCount - всего страниц
@@ -692,7 +821,7 @@ class CAllDBResult
 
 			Url for link to the page #PAGE_NUMBER#:
 			$sUrlPath.'?PAGEN_'.$this->NavNum.'='.#PAGE_NUMBER#.$strNavQueryString.'#nav_start"'.$add_anchor
-            */
+*/
 
 			ob_start();
 			include($template_path);
@@ -704,11 +833,11 @@ class CAllDBResult
 
 		if($this->bFirstPrintNav)
 		{
-			$res .=  '<a name="nav_start'.$add_anchor.'"></a>';
+			$res .= '<a name="nav_start'.$add_anchor.'"></a>';
 			$this->bFirstPrintNav = false;
 		}
 
-		$res .=  '<font class="'.$StyleText.'">'.$title.' ';
+		$res .= '<font class="'.$StyleText.'">'.$title.' ';
 		if($this->bDescPageNumbering === true)
 		{
 			$makeweight = ($this->NavRecordCount % $this->NavPageSize);
@@ -723,78 +852,78 @@ class CAllDBResult
 			else
 				$NavLastRecordShow = $makeweight + ($this->NavPageCount - $this->NavPageNomer + 1) * $this->NavPageSize;
 
-			$res .=  $NavFirstRecordShow;
-			$res .=  ' - '.$NavLastRecordShow;
-			$res .=  ' '.GetMessage("nav_of").' ';
-			$res .=  $this->NavRecordCount;
-			$res .=  "\n<br>\n</font>";
+			$res .= $NavFirstRecordShow;
+			$res .= ' - '.$NavLastRecordShow;
+			$res .= ' '.GetMessage("nav_of").' ';
+			$res .= $this->NavRecordCount;
+			$res .= "\n<br>\n</font>";
 
-			$res .=  '<font class="'.$StyleText.'">';
+			$res .= '<font class="'.$StyleText.'">';
 
 			if($this->NavPageNomer < $this->NavPageCount)
-				$res .=  '<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.$this->NavPageCount.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sBegin.'</a>&nbsp;|&nbsp;<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.($this->NavPageNomer+1).$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sPrev.'</a>';
+				$res .= '<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.$this->NavPageCount.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sBegin.'</a>&nbsp;|&nbsp;<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.($this->NavPageNomer+1).$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sPrev.'</a>';
 			else
-				$res .=  $sBegin.'&nbsp;|&nbsp;'.$sPrev;
+				$res .= $sBegin.'&nbsp;|&nbsp;'.$sPrev;
 
-			$res .=  '&nbsp;|&nbsp;';
+			$res .= '&nbsp;|&nbsp;';
 
 			$NavRecordGroup = $nStartPage;
 			while($NavRecordGroup >= $nEndPage)
 			{
 				$NavRecordGroupPrint = $this->NavPageCount - $NavRecordGroup + 1;
 				if($NavRecordGroup == $this->NavPageNomer)
-					$res .=  '<b>'.$NavRecordGroupPrint.'</b>&nbsp';
+					$res .= '<b>'.$NavRecordGroupPrint.'</b>&nbsp';
 				else
-					$res .=  '<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.$NavRecordGroup.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$NavRecordGroupPrint.'</a>&nbsp;';
+					$res .= '<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.$NavRecordGroup.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$NavRecordGroupPrint.'</a>&nbsp;';
 				$NavRecordGroup--;
 			}
-			$res .=  '|&nbsp;';
+			$res .= '|&nbsp;';
 			if($this->NavPageNomer > 1)
-				$res .=  '<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.($this->NavPageNomer-1).$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sNext.'</a>&nbsp;|&nbsp;<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'=1'.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sEnd.'</a>&nbsp;';
+				$res .= '<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.($this->NavPageNomer-1).$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sNext.'</a>&nbsp;|&nbsp;<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'=1'.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sEnd.'</a>&nbsp;';
 			else
-				$res .=  $sNext.'&nbsp;|&nbsp;'.$sEnd.'&nbsp;';
+				$res .= $sNext.'&nbsp;|&nbsp;'.$sEnd.'&nbsp;';
 		}
 		else
 		{
-			$res .=  ($this->NavPageNomer-1)*$this->NavPageSize+1;
-			$res .=  ' - ';
+			$res .= ($this->NavPageNomer-1)*$this->NavPageSize+1;
+			$res .= ' - ';
 			if($this->NavPageNomer != $this->NavPageCount)
-				$res .=  $this->NavPageNomer * $this->NavPageSize;
+				$res .= $this->NavPageNomer * $this->NavPageSize;
 			else
-				$res .=  $this->NavRecordCount;
-			$res .=  ' '.GetMessage("nav_of").' ';
-			$res .=  $this->NavRecordCount;
-			$res .=  "\n<br>\n</font>";
+				$res .= $this->NavRecordCount;
+			$res .= ' '.GetMessage("nav_of").' ';
+			$res .= $this->NavRecordCount;
+			$res .= "\n<br>\n</font>";
 
-			$res .=  '<font class="'.$StyleText.'">';
+			$res .= '<font class="'.$StyleText.'">';
 
 			if($this->NavPageNomer > 1)
-				$res .=  '<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'=1'.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sBegin.'</a>&nbsp;|&nbsp;<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.($this->NavPageNomer-1).$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sPrev.'</a>';
+				$res .= '<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'=1'.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sBegin.'</a>&nbsp;|&nbsp;<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.($this->NavPageNomer-1).$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sPrev.'</a>';
 			else
-				$res .=  $sBegin.'&nbsp;|&nbsp;'.$sPrev;
+				$res .= $sBegin.'&nbsp;|&nbsp;'.$sPrev;
 
-			$res .=  '&nbsp;|&nbsp;';
+			$res .= '&nbsp;|&nbsp;';
 
 			$NavRecordGroup = $nStartPage;
 			while($NavRecordGroup <= $nEndPage)
 			{
 				if($NavRecordGroup == $this->NavPageNomer)
-					$res .=  '<b>'.$NavRecordGroup.'</b>&nbsp';
+					$res .= '<b>'.$NavRecordGroup.'</b>&nbsp';
 				else
-					$res .=  '<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.$NavRecordGroup.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$NavRecordGroup.'</a>&nbsp;';
+					$res .= '<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.$NavRecordGroup.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$NavRecordGroup.'</a>&nbsp;';
 				$NavRecordGroup++;
 			}
-			$res .=  '|&nbsp;';
+			$res .= '|&nbsp;';
 			if($this->NavPageNomer < $this->NavPageCount)
-				$res .=  '<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.($this->NavPageNomer+1).$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sNext.'</a>&nbsp;|&nbsp;<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.$this->NavPageCount.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sEnd.'</a>&nbsp;';
+				$res .= '<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.($this->NavPageNomer+1).$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sNext.'</a>&nbsp;|&nbsp;<a href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.$this->NavPageCount.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sEnd.'</a>&nbsp;';
 			else
-				$res .=  $sNext.'&nbsp;|&nbsp;'.$sEnd.'&nbsp;';
+				$res .= $sNext.'&nbsp;|&nbsp;'.$sEnd.'&nbsp;';
 		}
 
 		if($this->bShowAll)
-			$res .=  $this->NavShowAll? '|&nbsp;<a href="'.$sUrlPath.'?SHOWALL_'.$this->NavNum.'=0'.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sPaged.'</a>&nbsp;' : '|&nbsp;<a href="'.$sUrlPath.'?SHOWALL_'.$this->NavNum.'=1'.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sAll.'</a>&nbsp;';
+			$res .= $this->NavShowAll? '|&nbsp;<a href="'.$sUrlPath.'?SHOWALL_'.$this->NavNum.'=0'.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sPaged.'</a>&nbsp;' : '|&nbsp;<a href="'.$sUrlPath.'?SHOWALL_'.$this->NavNum.'=1'.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$sAll.'</a>&nbsp;';
 
-		$res .=  '</font>';
+		$res .= '</font>';
 		return $res;
 	}
 
@@ -812,12 +941,12 @@ class CAllDBResult
 	{
 		if($arRes = $this->Fetch())
 		{
- 			if($this->arGetNextCache==false)
- 			{
- 				$this->arGetNextCache = array();
- 				foreach($arRes as $FName=>$arFValue)
- 					$this->arGetNextCache[$FName] = array_key_exists($FName."_TYPE", $arRes);
- 			}
+			if($this->arGetNextCache==false)
+			{
+				$this->arGetNextCache = array();
+				foreach($arRes as $FName=>$arFValue)
+					$this->arGetNextCache[$FName] = array_key_exists($FName."_TYPE", $arRes);
+			}
 			if($use_tilda)
 			{
 				$arTilda = array();
@@ -984,8 +1113,8 @@ class CAllDBResult
 				($this->PAGEN < 1 || $this->PAGEN > $this->NavPageCount
 				?
 					(CPageOption::GetOptionString("main", "nav_page_in_session", "Y")!="Y"
-					 || $_SESSION[$this->SESS_PAGEN] < 1
-					 || $_SESSION[$this->SESS_PAGEN] > $this->NavPageCount
+						|| $_SESSION[$this->SESS_PAGEN] < 1
+						|| $_SESSION[$this->SESS_PAGEN] > $this->NavPageCount
 					?
 						1
 					:
@@ -1029,7 +1158,7 @@ class CAllDBResult
 					if($bSkipEntities)
 						$$varname = htmlspecialcharsEx($val);
 					else
-						$$varname = htmlspecialchars($val);
+						$$varname = htmlspecialcharsbx($val);
 				}
 				else
 				{

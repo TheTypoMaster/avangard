@@ -15,8 +15,8 @@ else
 }
 
 	$arResult["HEADER"] = array(
-		"TITLE"	=> htmlspecialchars($arParams["HEADER"]["TITLE"]),
-		"DESCRIPTION" => htmlspecialchars($arParams["HEADER"]["DESCRIPTION"]));
+		"TITLE"	=> htmlspecialcharsbx($arParams["HEADER"]["TITLE"]),
+		"DESCRIPTION" => htmlspecialcharsbx($arParams["HEADER"]["DESCRIPTION"]));
 	$arResult["FIELDS"] = array();
 	$arResult["BUTTONS"] = array();
 	
@@ -29,16 +29,16 @@ else
 	foreach ($arParams["FIELDS"] as $res)
 	{
 		$result = array(
-			"NAME" => htmlspecialchars($res["NAME"].""),
-			"NAME_TO" => htmlspecialchars($res["NAME_TO"].""),
-			"VALUE" => htmlspecialchars($res["VALUE"].""),
-			"VALUE_TO" => htmlspecialchars($res["VALUE_TO"].""),
+			"NAME" => htmlspecialcharsbx($res["NAME"].""),
+			"NAME_TO" => htmlspecialcharsbx($res["NAME_TO"].""),
+			"VALUE" => htmlspecialcharsbx($res["VALUE"].""),
+			"VALUE_TO" => htmlspecialcharsbx($res["VALUE_TO"].""),
 			"TYPE" => (in_array($res["TYPE"], array("TEXT", "HIDDEN", "DATE", "SELECT", "PERIOD", "CHECKBOX")) ? $res["TYPE"] : "TEXT"),
 			"MULTIPLE" => ($res["MULTIPLE"] == "Y" ? "Y" : "N"), 
 			"ACTIVE" => $res["ACTIVE"],
 			"CLASS" => $res["CLASS"],
-			"TITLE" => htmlspecialchars($res["TITLE"]), 
-			"LABEL" => htmlspecialchars($res["LABEL"]));
+			"TITLE" => htmlspecialcharsbx($res["TITLE"]),
+			"LABEL" => htmlspecialcharsbx($res["LABEL"]));
 
 		if ($result["TYPE"] == "SELECT" )
 		{
@@ -50,9 +50,9 @@ else
 				{
 					$val = (is_array($val) ? $val : array("NAME" => $val));
 					$val["TYPE"] = ($val["TYPE"] == "OPTGROUP" ? "OPTGROUP" : "OPTION");
-					$val["NAME"] = htmlspecialchars($val["NAME"]."");
-					$val["CLASS"] = htmlspecialchars($val["CLASS"]."");
-					$res1[htmlspecialchars($key."")] = $val;
+					$val["NAME"] = htmlspecialcharsbx($val["NAME"]."");
+					$val["CLASS"] = htmlspecialcharsbx($val["CLASS"]."");
+					$res1[htmlspecialcharsbx($key."")] = $val;
 				}
 			}
 			$result["VALUE"] = $res1;
@@ -65,9 +65,9 @@ else
 		foreach ($arParams["BUTTONS"] as $res)
 		{
 			$res = array(
-				"NAME" => htmlspecialchars($res["NAME"].""),
-				"TITLE" => htmlspecialchars($res["TITLE"].""), 
-				"VALUE" => htmlspecialchars($res["VALUE"].""));
+				"NAME" => htmlspecialcharsbx($res["NAME"].""),
+				"TITLE" => htmlspecialcharsbx($res["TITLE"].""),
+				"VALUE" => htmlspecialcharsbx($res["VALUE"].""));
 			$arResult["BUTTONS"][] = $res;
 		}
 	}

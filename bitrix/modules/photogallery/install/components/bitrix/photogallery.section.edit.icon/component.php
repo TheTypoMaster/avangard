@@ -147,7 +147,7 @@ if (empty($arParams["INDEX_URL"]) && !empty($arParams["SECTIONS_TOP_URL"]))
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 //***************** ADDITIONAL **************************************/
 	$arParams["ALBUM_PHOTO"] = array(
@@ -174,15 +174,6 @@ if (empty($arParams["INDEX_URL"]) && !empty($arParams["SECTIONS_TOP_URL"]))
 				/Input params
 ********************************************************************/
 
-/********************************************************************
-				Default values
-********************************************************************/
-$cache = new CPHPCache;
-$cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]."/");
-/********************************************************************
-				/Default values
-********************************************************************/
-
 if ($arParams["AJAX_CALL"] == "Y")
 	$GLOBALS['APPLICATION']->RestartBuffer();
 
@@ -197,8 +188,6 @@ $oPhoto = new CPGalleryInterface(
 	),
 	array(
 		"cache_time" => $arParams["CACHE_TIME"],
-		"cache_path" => $cache_path_main,
-		"show_error" => "Y",
 		"set_404" => $arParams["SET_STATUS_404"]
 	)
 );
@@ -268,7 +257,7 @@ foreach ($arResult["SECTION"]["PATH"] as $key => $arPath)
 {
 	$arPath["~SECTION_PAGE_URL"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"],
 		array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arPath["ID"]));
-	$arPath["SECTION_PAGE_URL"] = htmlSpecialChars($arPath["~SECTION_PAGE_URL"]);
+	$arPath["SECTION_PAGE_URL"] = htmlspecialcharsbx($arPath["~SECTION_PAGE_URL"]);
 	$arResult["SECTION"]["PATH"][$key] = $arPath;
 }
 /********************************************************************
@@ -333,8 +322,6 @@ if ($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 					$arImages[] = $arImage;
 			} while ($arItem = $db_res->Fetch());
 		}
-
-
 
 		if (empty($arImages))
 		{
@@ -491,13 +478,7 @@ if ($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 			}
 			else
 			{
-				PClearComponentCache(
-					array(
-						"photogallery.section",
-						"photogallery.section.edit",
-						"photogallery.section.list",
-						"photogallery.section.list.ex"
-					));
+				PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0, $arResult["SECTION"]["ID"]));
 				if ($arParams["AJAX_CALL"] == "Y")
 				{
 					$rsSection = CIBlockSection::GetList(Array(), array("ID" => $arResult["SECTION"]["ID"]));

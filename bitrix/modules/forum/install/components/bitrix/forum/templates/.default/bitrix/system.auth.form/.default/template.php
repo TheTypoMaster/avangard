@@ -12,14 +12,13 @@ $arParamsToDelete = array(
 
 $arResult["AUTH_URL"] = $APPLICATION->GetCurPageParam("login=yes", array_merge($arParamsToDelete, array("logout_butt", "backurl")), $get_index_page=false);
 
-$GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/js/main/utils.js"></script>', true);
+$GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/main/utils.js");
+?><noindex><?
 if ($arResult["FORM_TYPE"] == "login"):
 ?>
-
-<noindex>
 <div id="forum-login-form-window">
 
-<a href="" onclick="return ForumCloseLoginForm()" style="float:right;"><?=GetMessage("AUTH_CLOSE_WINDOW")?></a>
+<a href="" onclick="return ForumCloseLoginForm()" rel="nofollow" style="float:right;"><?=GetMessage("AUTH_CLOSE_WINDOW")?></a>
 
 <form method="post" target="_top" action="<?=POST_FORM_ACTION_URI?>">
 	<?
@@ -96,14 +95,14 @@ if ($arResult["FORM_TYPE"] == "login"):
 </form>
 </div>
 <a href="<?=$arResult["AUTH_URL"]?>" onclick="return ForumShowLoginForm(this);" target="_self" rel="nofollow"><span><?=GetMessage("AUTH_LOGIN_BUTTON")?></span></a>
-</noindex>
 <?
 else:
 ?>
 <a href="<?
-	?><?=htmlspecialchars($APPLICATION->GetCurPageParam("logout=yes", 
+	?><?=htmlspecialcharsbx($APPLICATION->GetCurPageParam("logout=yes",
 	array("login", "logout", "register", "forgot_password", "change_password", BX_AJAX_PARAM_ID)))?><?
-	?>"><span><?=GetMessage("AUTH_LOGOUT_BUTTON")?></span></a>
+	?>" rel="nofollow"><span><?=GetMessage("AUTH_LOGOUT_BUTTON")?></span></a>
 <?
 endif;
 ?>
+</noindex>

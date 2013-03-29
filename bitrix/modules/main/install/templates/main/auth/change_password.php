@@ -32,19 +32,19 @@ ShowMessage($arAuthResult);
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap width="1%" class="tablebody"><font class="starrequired">*</font><font class="tablebodytext"><?=GetMessage("AUTH_LOGIN")?></font></td>
-					<td align="left" width="99%" class="tablebody"><input type="text" name="USER_LOGIN" size="30" maxlength="50" value="<?echo (strlen($USER_LOGIN)>0) ? htmlspecialchars($USER_LOGIN) : htmlspecialchars($last_login)?>" class="inputtext"></td>
+					<td align="left" width="99%" class="tablebody"><input type="text" name="USER_LOGIN" size="30" maxlength="50" value="<?echo (strlen($USER_LOGIN)>0) ? htmlspecialcharsbx($USER_LOGIN) : htmlspecialcharsbx($last_login)?>" class="inputtext"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap width="1%" class="tablebody"><font class="starrequired">*</font><font class="tablebodytext"><?=GetMessage("AUTH_CHECKWORD")?></font></td>
-					<td align="left" nowrap width="99%" class="tablebody"><input type="text" name="USER_CHECKWORD" size="30" maxlength="50" value="<?echo htmlspecialchars($USER_CHECKWORD)?>" class="inputtext"></td>
+					<td align="left" nowrap width="99%" class="tablebody"><input type="text" name="USER_CHECKWORD" size="30" maxlength="50" value="<?echo htmlspecialcharsbx($USER_CHECKWORD)?>" class="inputtext"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap width="1%" class="tablebody"><font class="starrequired">*</font><font class="tablebodytext"><?=GetMessage("AUTH_NEW_PASSWORD")?></font></td>
-					<td align="left" nowrap width="99%" class="tablebody"><input type="password" name="USER_PASSWORD" size="30" maxlength="50" value="<?echo htmlspecialchars($USER_PASSWORD)?>" class="inputtext"></td>
+					<td align="left" nowrap width="99%" class="tablebody"><input type="password" name="USER_PASSWORD" size="30" maxlength="50" value="<?echo htmlspecialcharsbx($USER_PASSWORD)?>" class="inputtext"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap width="1%" class="tablebody"><font class="starrequired">*</font><font  class="tablebodytext"><?=GetMessage("AUTH_NEW_PASSWORD_CONFIRM")?></font></td>
-					<td align="left" nowrap width="99%"  class="tablebody"><input type="password" name="USER_CONFIRM_PASSWORD" size="30" maxlength="50" value="<?echo htmlspecialchars($USER_CONFIRM_PASSWORD)?>" class="inputtext"></td>
+					<td align="left" nowrap width="99%"  class="tablebody"><input type="password" name="USER_CONFIRM_PASSWORD" size="30" maxlength="50" value="<?echo htmlspecialcharsbx($USER_CONFIRM_PASSWORD)?>" class="inputtext"></td>
 				</tr>
 				<tr> 
 					<td nowrap align="right" class="tablebody"><font  class="tablebodytext">&nbsp;</font></td>

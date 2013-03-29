@@ -1,6 +1,32 @@
-/*Menu icon*/
-#clouds_menu_icon {background-image:url(icons/clouds/mnu_clouds.gif);}
-#clouds_page_icon {background-image:url(icons/clouds/title.gif);}
-
-div.clouds_menu_icon_folder {background-image:url(/bitrix/images/fileman/types/folder.gif); width: 17px; height: 17px; float:left;}
-div.clouds_menu_icon_folder_up {background-image:url(/bitrix/images/fileman/types/folder_up.gif); width: 17px; height: 17px; float:left;}
+.clouds-directory-icon
+{
+	padding-left: 25px;
+	display: inline-block;
+	position: relative;
+}
+.clouds-directory-icon:before
+{
+	position: absolute;
+	left: 0;
+	top: 0;
+	content: '';
+	width: 21px;
+	height: 15px;
+	background: url("/bitrix/panel/main/images/icons-sprite-2.png") no-repeat 0 -118px;
+}
+.clouds-up-icon
+{
+	padding-left: 25px;
+	display: inline-block;
+	position: relative;
+}
+.clouds-up-icon:before
+{
+	position: absolute;
+	left: 0;
+	top: 0;
+	content: '';
+	width: 21px;
+	height: 15px;
+	background: url("/bitrix/panel/main/images/icons-sprite-2.png") no-repeat 0 -1574px;
+}

@@ -36,14 +36,14 @@ foreach ($arResult["SECTIONS"] as $res):
 					<div class="tool" style="height:<?=$arParams["ALBUM_PHOTO_THUMBS_SIZE"]?>px;"></div>
 					<div class="inner">
 						<a href="<?=$res["LINK"]?>" <?
-							?>title="<?=htmlspecialChars($res["~NAME"])?><?=
-							htmlspecialChars(!empty($res["DESCRIPTION"]) ? ", ".$res["DESCRIPTION"] : "")?>">
+							?>title="<?=htmlspecialcharsbx($res["~NAME"])?><?=
+							htmlspecialcharsbx(!empty($res["DESCRIPTION"]) ? ", ".$res["DESCRIPTION"] : "")?>">
 							<div class="photo-album-cover" id="photo_album_cover_<?=$res["ID"]?>" <?
 								?>style="width:<?=$arParams["ALBUM_PHOTO_THUMBS_SIZE"]?>px; height:<?=$arParams["ALBUM_PHOTO_THUMBS_SIZE"]?>px;<?
 							if (!empty($res["PICTURE"]["SRC"])):
 								?>background-image:url('<?=$res["PICTURE"]["SRC"]?>');<?
 							endif;
-								?>" title="<?=htmlspecialchars($res["~NAME"])?>"></div>
+								?>" title="<?=htmlspecialcharsbx($res["~NAME"])?>"></div>
 						</a>
 					</div>
 				</div>
@@ -54,9 +54,9 @@ foreach ($arResult["SECTIONS"] as $res):
 	</div>
 	<div class="photo-album-info">
 		<div class="photo-album-info-name name" id="photo_album_name_<?=$res["ID"]?>" style="width:<?=($arParams["ALBUM_PHOTO_THUMBS_SIZE"] + 38)?>px;">
-			<a href="<?=$res["LINK"]?>" title="<?=htmlspecialChars(empty($res["~DESCRIPTION"]) ? $res["~NAME"] : $res["~DESCRIPTION"])?>" <?
+			<a href="<?=$res["LINK"]?>" title="<?=htmlspecialcharsbx(empty($res["~DESCRIPTION"]) ? $res["~NAME"] : $res["~DESCRIPTION"])?>" <?
 				?>class="photo-album-info-name" style="width:<?=($arParams["ALBUM_PHOTO_THUMBS_SIZE"])?>px;">
-				<?=(strLen($res["NAME"]) > $arParams["WORD_LENGTH"] ? htmlspecialChars(subStr($res["~NAME"], 0, ($arParams["WORD_LENGTH"]-3)))."..." : $res["NAME"])?>
+				<?=(strLen($res["NAME"]) > $arParams["WORD_LENGTH"] ? htmlspecialcharsbx(subStr($res["~NAME"], 0, ($arParams["WORD_LENGTH"]-3)))."..." : $res["NAME"])?>
 			</a>
 		</div>
 		<?
@@ -66,13 +66,13 @@ foreach ($arResult["SECTIONS"] as $res):
 			<?=GetMessage("P_PHOTOS_CNT")?>: <a href="<?=$res["LINK"]?>"><?=$res["ELEMENTS_CNT"]?></a>
 		</div>
 <?
-	
+
 	elseif ($ELEMENTS_CNT || $SECTIONS_CNT):
 
 ?>
 		<div class="photo-album-info-cnt-values">
 <?
-		
+
 		if ($SECTIONS_ELEMENTS_CNT):
 		?>
 			<div class="photo-album-info-cnt-value photo-album-info-cnt-photo"><?=GetMessage("P_PHOTOS_CNT")?>: <a href="<?=$res["LINK"]?>"><?=$res["ELEMENTS_CNT"]?></a></div>

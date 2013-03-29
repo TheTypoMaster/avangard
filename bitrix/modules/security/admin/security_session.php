@@ -68,10 +68,50 @@ if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="" || $db_session_on!="" |
 	LocalRedirect("/bitrix/admin/security_session.php?lang=".LANGUAGE_ID.($return_url? "&return_url=".urlencode($_GET["return_url"]): "")."&".$tabControl->ActiveTabParam());
 }
 
+$messageEquals = false;
+if(COption::GetOptionString("security", "session") == "Y")
+{
+	$messageType[0] = "OK";
+	$messageText[0] = GetMessage("SEC_SESSION_ADMIN_DB_ON");
+	if(COption::GetOptionInt("main", "use_session_id_ttl") == "Y")
+	{
+		$messageText[0] .= "<br>";
+		$messageText[0] .= GetMessage("SEC_SESSION_ADMIN_SESSID_ON");
+		$messageEquals = true;	
+	}
+} else
+{
+	$messageType[0] = "ERROR";
+	$messageText[0] = GetMessage("SEC_SESSION_ADMIN_DB_OFF");
+	if(COption::GetOptionInt("main", "use_session_id_ttl") != "Y")
+	{
+		$messageText[0] .= "<br>";
+		$messageText[0] .= GetMessage("SEC_SESSION_ADMIN_SESSID_OFF");
+		$messageEquals = true;
+	}
+}
+
+if(!$messageEquals)
+	if(COption::GetOptionInt("main", "use_session_id_ttl") == "Y")
+	{
+		$messageType[1] = "OK";
+		$messageText[1] = GetMessage("SEC_SESSION_ADMIN_SESSID_ON");
+	} else
+	{
+		$messageType[1] = "ERROR";
+		$messageText[1] = GetMessage("SEC_SESSION_ADMIN_SESSID_OFF");
+	}
+
 $APPLICATION->SetTitle(GetMessage("SEC_SESSION_ADMIN_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
+for($i =0, $count = count($messageType); $i < $count; $i++)
+	CAdminMessage::ShowMessage(array(
+				"MESSAGE"=>$messageText[$i],
+				"TYPE"=>$messageType[$i],
+				"HTML"=>true
+			));
 ?>
 
 <form method="POST" action="security_session.php?lang=<?echo LANGUAGE_ID?><?echo $_GET["return_url"]? "&amp;return_url=".urlencode($_GET["return_url"]): ""?>"  enctype="multipart/form-data" name="editform">
@@ -81,31 +121,27 @@ $tabControl->BeginNextTab();
 ?>
 <?if(COption::GetOptionString("security", "session") == "Y"):?>
 	<tr>
-		<td valign="top" colspan="2" align="left">
-			<span style="color:green;"><b><?echo GetMessage("SEC_SESSION_ADMIN_DB_ON")?></b></span>
-		</td>
-	</tr>
-	<tr>
-		<td valign="top" colspan="2" align="left">
+		<td colspan="2" align="left">
 			<input type="submit" name="db_session_off" value="<?echo GetMessage("SEC_SESSION_ADMIN_DB_BUTTON_OFF")?>"<?if(!$RIGHT_W) echo " disabled"?>>
 		</td>
 	</tr>
 <?else:?>
-	<tr>
-		<td valign="top" colspan="2" align="left">
-			<span style="color:red;"><b><?echo GetMessage("SEC_SESSION_ADMIN_DB_OFF")?></b></span>
-		</td>
-	</tr>
 	<?if(CSecuritySession::CheckSessionId(session_id())):?>
 	<tr>
-		<td valign="top" colspan="2" align="left">
-			<input type="submit" name="db_session_on" value="<?echo GetMessage("SEC_SESSION_ADMIN_DB_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?>>
+		<td colspan="2" align="left">
+			<input type="submit" name="db_session_on" value="<?echo GetMessage("SEC_SESSION_ADMIN_DB_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?> class="adm-btn-save">
 		</td>
 	</tr>
 	<?else:?>
 	<tr>
-		<td valign="top" colspan="2" align="left">
-			<span style="color:red;"><b><?echo GetMessage("SEC_SESSION_ADMIN_SESSID_WARNING")?></b></span>
+		<td colspan="2" align="left">
+			<?
+				CAdminMessage::ShowMessage(array(
+						"TYPE"=>"ERROR",
+						"DETAILS"=>GetMessage("SEC_SESSION_ADMIN_SESSID_WARNING"),
+						"HTML"=>true
+					));
+			?>
 		</td>
 	</tr>
 	<?endif;?>
@@ -126,25 +162,14 @@ $tabControl->BeginNextTab();
 $tabControl->BeginNextTab();
 ?>
 <?if(COption::GetOptionInt("main", "use_session_id_ttl") == "Y"):?>
-	<tr>
-		<td valign="top" colspan="2" align="left">
-			<span style="color:green;"><b><?echo GetMessage("SEC_SESSION_ADMIN_SESSID_ON")?></b></span>
-		</td>
-	</tr>
-	<tr>
-		<td valign="top" colspan="2" align="left">
+		<td colspan="2" align="left">
 			<input type="submit" name="sessid_ttl_off" value="<?echo GetMessage("SEC_SESSION_ADMIN_SESSID_BUTTON_OFF")?>"<?if(!$RIGHT_W) echo " disabled"?>>
 		</td>
 	</tr>
 <?else:?>
 	<tr>
-		<td valign="top" colspan="2" align="left">
-			<span style="color:red;"><b><?echo GetMessage("SEC_SESSION_ADMIN_SESSID_OFF")?></b></span>
-		</td>
-	</tr>
-	<tr>
-		<td valign="top" colspan="2" align="left">
-			<input type="submit" name="sessid_ttl_on" value="<?echo GetMessage("SEC_SESSION_ADMIN_SESSID_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?>>
+		<td colspan="2" align="left">
+			<input type="submit" name="sessid_ttl_on" value="<?echo GetMessage("SEC_SESSION_ADMIN_SESSID_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?> class="adm-btn-save">
 		</td>
 	</tr>
 <?endif;?>

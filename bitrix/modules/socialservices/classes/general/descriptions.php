@@ -5,7 +5,6 @@ class CSocServDescription
 {
 	public function GetDescription()
 	{
-		$liveid_disabled = !WindowsLiveLogin::IsAvailable();
 		$tw_disabled = !function_exists("hash_hmac");
 
 		return array(
@@ -14,13 +13,6 @@ class CSocServDescription
 				"CLASS" => "CSocServFacebook",
 				"NAME" => "Facebook",
 				"ICON" => "facebook",
-			),
-			array(
-				"ID" => "LiveID",
-				"CLASS" => "CSocServLiveID",
-				"NAME" => "LiveID",
-				"ICON" => "liveid",
-				"DISABLED" => $liveid_disabled,
 			),
 			array(
 				"ID" => "MyMailRu",
@@ -65,12 +57,6 @@ class CSocServDescription
 				"ICON" => "blogger",
 			),
 			array(
-				"ID" => "Rambler",
-				"CLASS" => "CSocServRambler",
-				"NAME" => "Rambler",
-				"ICON" => "rambler",
-			),
-			array(
 				"ID" => "Twitter",
 				"CLASS" => "CSocServTwitter",
 				"NAME" => "Twitter",
@@ -88,6 +74,18 @@ class CSocServDescription
 				"CLASS" => "CSocServGoogleOAuth",
 				"NAME" => "Google",
 				"ICON" => "google",
+			),
+			array(
+				"ID" => "LiveIDOAuth",
+				"CLASS" => "CSocServLiveIDOAuth",
+				"NAME" => "LiveID",
+				"ICON" => "liveid",
+			),
+			array(
+				"ID" => "Odnoklassniki",
+				"CLASS" => "CSocServOdnoklassniki",
+				"NAME" => GetMessage("socserv_odnoklassniki_name"),
+				"ICON" => "odnoklassniki",
 			),
 		);
 	}

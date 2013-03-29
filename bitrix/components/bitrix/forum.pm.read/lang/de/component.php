@@ -17,10 +17,10 @@ $MESS ['PM_FOLDER_ID_4'] = "Papierkorb";
 $MESS ['PM_ERR_MOVE_NO_FOLDER'] = "Der Zielordner zum Verschieben (Kopieren) wurde nicht angegeben.";
 $MESS ['PM_ERR_DELETE'] = "Der Beitrag #MID# wurde nicht gelöscht.";
 $MESS ['PM_AUTH'] = "Sie müssen sich anmelden, um diese Seite anzuzeigen.";
-$MESS ['SYSTEM_POST_MESSAGE'] = "Ihre Nachricht 
-     Thema: #SUBJECT# 
-     Datum: #MESSAGE_DATE#
-     Link: http://#SERVER_NAME##MESSAGE_LINK#
+$MESS ['SYSTEM_POST_MESSAGE'] = "Ihre Nachricht
+	Thema: #SUBJECT#
+	Datum: #MESSAGE_DATE#
+	Link: http://#SERVER_NAME##MESSAGE_LINK#
 
 Wurde vom Empfänger #USER_NAME# gelesen
 http://#SERVER_NAME##USER_LINK#";

@@ -547,3 +547,93 @@ div.blog-post-group-selector-text
 	background: url("images/arrow.png") no-repeat 5px 5px;
 	display: inline-block;
 }
+
+.feed-com-files {padding-top:10px;}
+.feed-com-files-title {color:#5c6470; font-size:12px; font-weight:bold; float:left; min-width:50px;}
+.feed-com-files-cont {overflow:hidden; padding:1px 0 1px 10px; zoom:1;}
+.feed-com-file-wrap {cursor:pointer; display:inline-block; font-size:12px; line-height:14px; margin:0 12px 12px 0; vertical-align:middle;}
+.feed-com-file-wrap:hover .feed-com-file-name {text-decoration:underline;}
+.feed-con-file-icon {background:url("images/live_feed_sprite.png") no-repeat -55px -220px; display:inline-block; margin-right:5px; height:16px; vertical-align:middle; width:16px;}
+.feed-com-file-name {color:#2067b0; display:inline-block; font-weight:bold; margin-right:4px; max-width:120px; vertical-align:top; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.feed-com-file-size {color:#5c6470; display:inline-block; font-size:12px; vertical-align:top;}
+.feed-com-files-photo {
+    border:1px solid #eeeeee;
+    border-radius:1px;
+    box-shadow: 0 0 1px #eee, inset 0 0 1px #eee;
+    display:inline-block;
+    height:48px;
+    margin:0 8px 8px 0;
+    padding:3px;
+    width:48px;
+}
+
+.feed-com-files-cont .feed-com-files-photo {height:69px; width:69px;}
+.feed-file-icon-bmp {background:url(images/icons/files/files-sprite.png) no-repeat 0 -128px !important;}
+.feed-file-icon-css {background:url(images/icons/files/files-sprite.png) no-repeat 0 -32px !important;}
+.feed-file-icon-csv {background:url(images/icons/files/files-sprite.png) no-repeat 0 -224px !important;}
+.feed-file-icon-dib {background:url(images/icons/files/files-sprite.png) no-repeat 0 -32px !important;}
+.feed-file-icon-doc {background:url(images/icons/files/files-sprite.png) no-repeat 0 -288px !important;}
+.feed-file-icon-docp {background:url(images/icons/files/files-sprite.png) no-repeat 0 -288px !important;}
+.feed-file-icon-docx {background:url(images/icons/files/files-sprite.png) no-repeat 0 -288px !important;}
+.feed-file-icon-gif {background:url(images/icons/files/files-sprite.png) no-repeat 0 -128px !important;}
+.feed-file-icon-htm {background:url(images/icons/files/files-sprite.png) no-repeat 0 -32px !important;}
+.feed-file-icon-html {background:url(images/icons/files/files-sprite.png) no-repeat 0 -32px !important;}
+.feed-file-icon-jfif {background:url(images/icons/files/files-sprite.png) no-repeat 0 -128px !important;}
+.feed-file-icon-jpe {background:url(images/icons/files/files-sprite.png) no-repeat 0 -128px !important;}
+.feed-file-icon-jpeg {background:url(images/icons/files/files-sprite.png) no-repeat 0 -128px !important;}
+.feed-file-icon-jpg {background:url(images/icons/files/files-sprite.png) no-repeat 0 -128px !important;}
+.feed-file-icon-js {background:url(images/icons/files/files-sprite.png) no-repeat 0 -32px !important;}
+.feed-file-icon-pdf {background:url(images/icons/files/files-sprite.png) no-repeat 0 -415px !important;}
+.feed-file-icon-php {background:url(images/icons/files/files-sprite.png) no-repeat 0 -32px !important;}
+.feed-file-icon-png {background:url(images/icons/files/files-sprite.png) no-repeat 0 -128px !important;}
+.feed-file-icon-ppt {background:url(images/icons/files/files-sprite.png) no-repeat 0 -256px !important;}
+.feed-file-icon-pptp {background:url(images/icons/files/files-sprite.png) no-repeat 0 -256px !important;}
+.feed-file-icon-pptx {background:url(images/icons/files/files-sprite.png) no-repeat 0 -256px !important;}
+.feed-file-icon-rar {background:url(images/icons/files/files-sprite.png) no-repeat 0 -96px !important;}
+.feed-file-icon-rtf {background:url(images/icons/files/files-sprite.png) no-repeat 0 -288px !important;}
+.feed-file-icon-swf {background:url(images/icons/files/files-sprite.png) no-repeat 0 -32px !important;}
+.feed-file-icon-tif {background:url(images/icons/files/files-sprite.png) no-repeat 0 -128px !important;}
+.feed-file-icon-tiff {background:url(images/icons/files/files-sprite.png) no-repeat 0 -128px !important;}
+.feed-file-icon-txt {background:url(images/icons/files/files-sprite.png) no-repeat 0 -192px !important;}
+.feed-file-icon-xls {background:url(images/icons/files/files-sprite.png) no-repeat 0 -224px !important;}
+.feed-file-icon-xlsp {background:url(images/icons/files/files-sprite.png) no-repeat 0 -224px !important;}
+.feed-file-icon-xlsx {background:url(images/icons/files/files-sprite.png) no-repeat 0 -224px !important;}
+.feed-file-icon-xml {background:url(images/icons/files/files-sprite.png) no-repeat 0 -32px !important;}
+.feed-file-icon-zip {background:url(images/icons/files/files-sprite.png) no-repeat 0 -96px !important;}
+
+.feed-add-photo-block-wrap {margin-top:-17px;}
+.feed-add-photo-block {display:inline-block; margin:17px 17px 0 0; min-height:92px; width:102px; padding-right:21px; position:relative; vertical-align:top;}
+.feed-add-photo-block .feed-add-post-del-but {background-position:6px -19px; background-color:#fff; height:22px; top:1px; z-index:0;}
+.feed-add-img-wrap {
+    background:#fff;
+    border:1px solid #e2e6e6;
+    -moz-box-shadow: 0 0 2px rgba(0,0,0,0.3);
+    -webkit-box-shadow: 0 0 2px rgba(0,0,0,0.3);
+    box-shadow: 0 0 2px rgba(137,137,137,0.3);
+    display:block;
+    text-align:center;
+    padding:4px;
+    position:relative;
+    z-index:2;
+}
+.feed-add-img-title {color:#2067b0; display:block; font-weight:bold; font-size:12px; margin-top:3px; overflow: hidden;}
+.feed-add-photo-block .feed-add-close-icon {background-color:#fff; background-position:8px -19px; height:22px; top:1px; right:1px; width:22px;}
+.feed-add-photo-block .feed-add-close-icon:hover {background-position:-57px -60px;}
+.feed-add-post-del-but {
+	background: url("images/live_feed_sprite.png") no-repeat;
+	cursor: pointer;
+	right: 0;
+	top: 0;
+	height: 20px;
+	position: absolute;
+	width: 20px;
+}
+.feed-add-photo-block .feed-add-post-del-but {
+background-position: 6px -19px;
+background-color: white;
+height: 22px;
+top: 1px;
+z-index: 0;
+}
+
+#blog-upload-file {color: #2067B0; border-bottom: dashed 1px #2067B0; text-decoration: none;}

@@ -11,7 +11,6 @@ $MESS["F_DEFAULT_PATH_TO_ICON"] = "Pfad zum Ordner mit Themen-Icons relativ zum 
 $MESS["F_VOTE_CHANNEL_ID"] = "Umfragengruppe";
 $MESS["F_VOTE_SETTINGS"] = "Umfrageneinstellungen";
 $MESS["F_SHOW_VOTE"] = "Umfragen anzeigen";
-$MESS["F_SMILE_TABLE_COLS"] = "Smileys pro Zeile";
 $MESS["F_DEFAULT_TID"] = "Themen ID";
 $MESS["F_LIST_TEMPLATE"] = "Seite mit Themen";
 $MESS["F_VOTE_GROUP_ID"] = "Benutzergruppen, die Umfragen erstellen können";

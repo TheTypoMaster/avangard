@@ -218,21 +218,29 @@ JCIBlockProperty.prototype.addPropRow = function()
 	for (i = 0; i < this.CELL_CENT.length; i++)
 	{
 		var needCell = newRow.cells[this.CELL_CENT[i]-1];
-		if (needCell)
+		if (!!needCell)
 		{
-			needCell.setAttribute('align','center');
+			BX.adjust(needCell, { style: {'textAlign': 'center', 'verticalAlign' : 'middle'} });
 		}
 	}
+	var needCell = newRow.cells[0];
+	if (!!needCell)
+	{
+		BX.adjust(needCell, { style: {'verticalAlign' : 'middle'} });
+	}
+
 	if (newRow.cells[this.CELL_IND])
 	{
 		var needCell = newRow.cells[this.CELL_IND];
 		var clButtons = BX.findChildren(needCell, {'tag': 'input','attribute': { 'type':'button'}}, true);
-		if (clButtons)
+		if (!!clButtons)
 		{
 			for (var i = 0; i < clButtons.length; i++)
 				BX.bind(clButtons[i], 'click', BX.proxy(function(e){this.ShowPropertyDialog(e);}, this));
 		}
 	}
+
+	BX.adminFormTools.modifyFormElements(this.FORM_ID);
 
 	setTimeout(function() {
 		var r = BX.findChildren(newRow.parentNode, {tag: /^(input|select|textarea)$/i}, true);
@@ -302,6 +310,8 @@ JCIBlockAccess.prototype.InsertRights = function(obSelected)
 			row.insertCell(-1);
 			row.insertCell(-1);
 			row.cells[0].align = 'right';
+			row.cells[0].style.textAlign = 'right';
+			row.cells[0].style.verticalAlign = 'middle';
 			row.cells[0].innerHTML = BX.Access.GetProviderName(provider)+' '+obSelected[provider][id].name+':'+'<input type="hidden" name="'+this.variable_name+'[][RIGHT_ID]" value=""><input type="hidden" name="'+this.variable_name+'[][GROUP_CODE]" value="'+id+'">';
 			row.cells[1].align = 'left';
 			row.cells[1].innerHTML = this.sSelect + ' ' + '<a href="javascript:void(0);" onclick="JCIBlockAccess.DeleteRow(this, \''+id+'\', \''+this.variable_name+'\')" class="access-delete"></a><span title="'+BX.message('langApplyTitle')+'" id="overwrite_'+id+'"></span>';
@@ -346,6 +356,8 @@ JCIBlockAccess.prototype.InsertRights = function(obSelected)
 			}
 		);
 	}
+
+	BX.onCustomEvent('onAdminTabsChange');
 }
 
 JCIBlockAccess.prototype.ShowInfo = function()
@@ -387,7 +399,7 @@ JCIBlockAccess.prototype.ShowInfo = function()
 	if (null == this.iblock_info_obDialog)
 	{
 		this.iblock_info_obDialog = new BX.CDialog({
-			content: '<table cellspacing="0" cellpadding="0" border="0" width="100%"><tr valign="top"><td width="50%" align="right">User ID:</td><td width="50%" align="left"><input type="text" size="6" id="prompt_user_id" value=""></td></tr><tr><td colspan="2" id="info_result"></td></tr></table>',
+			content: '<table cellspacing="0" cellpadding="0" border="0" width="100%"><tr><td width="50%" align="right">User ID:</td><td width="50%" align="left"><input type="text" size="6" id="prompt_user_id" value=""></td></tr><tr><td colspan="2" id="info_result"></td></tr></table>',
 			buttons: [btnOK, BX.CDialog.btnCancel],
 			width: 420,
 			height: 200
@@ -410,6 +422,7 @@ JCIBlockAccess.DeleteRow = function(ob, id, variable_name)
 	for(var i = 0; i < parents.length; i++)
 		parents[i].className = variable_name + '_row_for_' + id;
 	row.parentNode.removeChild(row);
+	BX.onCustomEvent('onAdminTabsChange');
 	BX.Access.DeleteSelected(id, variable_name);
 }
 
@@ -494,6 +507,9 @@ function addNewRow(tableID, row_to_clone)
 		}
 	}
 
+	BX.adminPanel.modifyFormElements(oRow);
+	BX.onCustomEvent('onAdminTabsChange');
+
 	setTimeout(function() {
 		var r = BX.findChildren(oCell, {tag: /^(input|select|textarea)$/i});
 		if (r && r.length > 0)
@@ -508,3 +524,171 @@ function addNewRow(tableID, row_to_clone)
 		}
 	}, 10);
 }
+
+function JCIBlockGroupField(form, groupSection_id, ajaxURL)
+{
+	this.form = form;
+	this.groupSection = BX(groupSection_id);
+	this.ajaxURL = ajaxURL;
+}
+
+JCIBlockGroupField.prototype.reload = function()
+{
+	var post_data = this.preparePost();
+}
+
+JCIBlockGroupField.prototype.preparePost = function()
+{
+	var values = new Array;
+	values[values.length] = {name : 'ajax_action', value : 'section_property'};
+	this.gatherInputsValues(values, document.getElementsByName('IBLOCK_SECTION[]'));
+
+	var toReload = BX.findChildren(this.form, {'tag' : 'tr', 'class' : 'bx-in-group'}, true);
+	if(toReload)
+		for(var i = 0; i < toReload.length; i++)
+			this.gatherInputsValues(values, BX.findChildren(toReload[i], null, true));
+
+	var formHiddens = BX.findChildren(this.form, {'tag' : 'span', 'class' : 'bx-fields-hidden'}, true);
+	if(formHiddens)
+		for(var i = 0; i < formHiddens.length; i++)
+			this.gatherInputsValues(values, BX.findChildren(formHiddens[i], null, true));
+
+	BX.ajax.post(
+		this.ajaxURL,
+		this.values2post(values),
+		BX.delegate(this.postHandler, this)
+	);
+}
+
+JCIBlockGroupField.prototype.postHandler = function (result)
+{
+	if(this.form)
+	{
+		var toDelete = BX.findChildren(this.form, {'tag' : 'tr', 'class' : 'bx-in-group'}, true);
+		if(toDelete)
+		{
+			for(var i = 0; i < toDelete.length; i++)
+				this.groupSection.parentNode.removeChild(toDelete[i]);
+		}
+
+		var responseDOM = document.createElement('DIV');
+		responseDOM.innerHTML = result;
+
+		var toInsert = BX.findChildren(responseDOM, {'tag' : 'tr', 'class' : 'bx-in-group'}, true);
+		if(toInsert)
+		{
+			var sibling = this.groupSection.nextSibling;
+			for(var i = 0; i < toInsert.length; i++)
+			{
+				var toMove = toInsert[i];
+				toMove.parentNode.removeChild(toMove);
+				this.groupSection.parentNode.insertBefore(toMove, sibling);
+			}
+		}
+
+		var formHiddens;
+		formHiddens = BX.findChildren(this.form, {'tag' : 'span', 'class' : 'bx-fields-hidden'}, true);
+		if(formHiddens)
+			for(var i = 0; i < formHiddens.length; i++)
+				formHiddens[i].parentNode.removeChild(formHiddens[i]);
+
+		formHiddens = BX.findChildren(responseDOM, {'tag' : 'span', 'class' : 'bx-fields-hidden'}, true);
+		if(formHiddens)
+		{
+			for(var i = 0; i < formHiddens.length; i++)
+			{
+				var span = formHiddens[i];
+				span.parentNode.removeChild(span);
+				this.form.appendChild(span);
+			}
+		}
+
+		BX.onCustomEvent('onAdminTabsChange');
+		BX.adminPanel.modifyFormElements(this.form);
+//document.removeChild(responseDOM);
+	}
+}
+
+JCIBlockGroupField.prototype.gatherInputsValues = function (values, elements)
+{
+	if(elements)
+	{
+		for(var i = 0; i < elements.length; i++)
+		{
+			var el = elements[i];
+			if (el.disabled || !el.type)
+				continue;
+
+			switch(el.type.toLowerCase())
+			{
+				case 'text':
+				case 'textarea':
+				case 'password':
+				case 'hidden':
+				case 'select-one':
+					values[values.length] = {name : el.name, value : el.value};
+					break;
+				case 'radio':
+				case 'checkbox':
+					if(el.checked)
+						values[values.length] = {name : el.name, value : el.value};
+					break;
+				case 'select-multiple':
+					for (var j = 0; j < el.options.length; j++)
+					{
+						if (el.options[j].selected)
+							values[values.length] = {name : el.name, value : el.options[j].value};
+					}
+					break;
+				default:
+					break;
+			}
+		}
+	}
+}
+
+JCIBlockGroupField.prototype.values2post = function (values)
+{
+	var post = new Array;
+	var current = post;
+	var i = 0;
+	while(i < values.length)
+	{
+		var p = values[i].name.indexOf('[');
+		if(p == -1)
+		{
+			current[values[i].name] = values[i].value;
+			current = post;
+			i++;
+		}
+		else
+		{
+			var name = values[i].name.substring(0, p);
+			var rest = values[i].name.substring(p+1);
+			if(!current[name])
+				current[name] = new Array;
+
+			var pp = rest.indexOf(']');
+			if(pp == -1)
+			{
+				//Error - not balanced brackets
+				current = post;
+				i++;
+			}
+			else if(pp == 0)
+			{
+				//No index specified - so take the next integer
+				current = current[name];
+				values[i].name = '' + current.length;
+			}
+			else
+			{
+				//Now index name becomes and name and we go deeper into the array
+				current = current[name];
+				values[i].name = rest.substring(0, pp) + rest.substring(pp+1);
+			}
+		}
+	}
+	return post;
+}
+  

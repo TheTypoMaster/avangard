@@ -9,6 +9,6 @@ $MESS["GD_INFO_product_name_bitrix"] = " ";
 $MESS["GD_INFO_product_name_bitrix_portal"] = " ";
 $MESS["GD_INFO_LASTUPDATE"] = "Последнее обновление: #VALUE#";
 $MESS["GD_INFO_PERFMON"] = "Текущая оценка производительности: #VALUE#";
-$MESS["GD_PERFMON_NO_RESULT"] = "не проводилась";
+$MESS["GD_INFO_PERFMON_NO_RESULT"] = "не проводилась";
 $MESS["GD_INFO_USERS"] = "Количество пользователей: #VALUE#";
 ?>

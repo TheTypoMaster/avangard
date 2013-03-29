@@ -37,7 +37,7 @@ $arResult["AUTH_AUTH_URL"] = $APPLICATION->GetCurPageParam("login=yes", $arParam
 
 foreach ($arResult as $key => $value)
 {
-	if (!is_array($value)) $arResult[$key] = htmlspecialchars($value);
+	if (!is_array($value)) $arResult[$key] = htmlspecialcharsbx($value);
 }
 
 $arRequestParams = array(
@@ -51,7 +51,7 @@ $arRequestParams = array(
 foreach ($arRequestParams as $param)
 {
 	$arResult[$param] = strlen($_REQUEST[$param]) > 0 ? $_REQUEST[$param] : "";
-	$arResult[$param] = htmlspecialchars($arResult[$param]);
+	$arResult[$param] = htmlspecialcharsbx($arResult[$param]);
 }
 // ********************* User properties ***************************************************
 $arResult["USER_PROPERTIES"] = array("SHOW" => "N");
@@ -72,13 +72,13 @@ if (!empty($arResult["USER_PROPERTIES"]["DATA"]))
 	$arResult["USER_PROPERTIES"]["SHOW"] = "Y";
 $arResult["bVarsFromForm"] = (is_array($arParams['AUTH_RESULT']) || strlen($arParams["AUTH_RESULT"]) <= 0) ? false : true;
 // ******************** /User properties ***************************************************
-$arResult["USER_EMAIL"] = htmlspecialchars(strlen($_REQUEST["sf_EMAIL"])>0 ? $_REQUEST["sf_EMAIL"] : $_REQUEST["USER_EMAIL"]);
+$arResult["USER_EMAIL"] = htmlspecialcharsbx(strlen($_REQUEST["sf_EMAIL"])>0 ? $_REQUEST["sf_EMAIL"] : $_REQUEST["USER_EMAIL"]);
 
 $arResult["USE_CAPTCHA"] = COption::GetOptionString("main", "captcha_registration", "N") == "Y" ? "Y" : "N";
 
 if ($arResult["USE_CAPTCHA"])
 {
-	$arResult["CAPTCHA_CODE"] = htmlspecialchars($GLOBALS["APPLICATION"]->CaptchaGetCode());
+	$arResult["CAPTCHA_CODE"] = htmlspecialcharsbx($GLOBALS["APPLICATION"]->CaptchaGetCode());
 }
 
 $arResult["USE_EMAIL_CONFIRMATION"] = COption::GetOptionString("main", "new_user_registration_email_confirmation", "N") == "Y" ? "Y" : "N";

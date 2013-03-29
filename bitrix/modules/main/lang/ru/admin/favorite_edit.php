@@ -4,7 +4,7 @@ $MESS ['MAIN_F_ID'] = "ID:";
 $MESS ['MAIN_F_SET_FILTER'] = "Фильтр";
 $MESS ['MAIN_F_DEL_FILTER'] = "Отмена";
 $MESS ['MAIN_ACTION'] = "Действие";
-$MESS ['MAIN_USER_PROFILE'] = "Профайл пользователя";
+$MESS ['MAIN_USER_PROFILE'] = "Профиль пользователя";
 $MESS ['MAIN_DELETE'] = "Удалить";
 $MESS ['MAIN_SAVE'] = "Сохранить";
 $MESS ['MAIN_RESET'] = "Сбросить";
@@ -46,4 +46,5 @@ $MESS ['fav_edit_common'] = "Ссылка общая для всех пользователей:";
 $MESS ['fav_edit_user'] = "Принадлежит пользователю:";
 $MESS ['fav_edit_modules'] = "Доступна при наличии прав на модуль:";
 $MESS ['fav_edit_modules_not'] = "(не проверять)";
+$MESS ['MAIN_MENU_ID'] = "Идентификатор меню:";
 ?>

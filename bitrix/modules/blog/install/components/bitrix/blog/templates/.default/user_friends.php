@@ -66,6 +66,7 @@ $APPLICATION->IncludeComponent(
 				"IMAGE_MAX_HEIGHT" => $arParams["IMAGE_MAX_HEIGHT"],
 				"ALLOW_POST_CODE" => $arParams["ALLOW_POST_CODE"],
 				"RATING_TYPE" => $arParams["RATING_TYPE"],
+				"POST_PROPERTY_LIST"	=> $arParams["POST_PROPERTY_LIST"],
 			),
 		$component 
 	);

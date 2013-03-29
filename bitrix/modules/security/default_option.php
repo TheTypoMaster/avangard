@@ -1,4 +1,4 @@
-<?
+<?php
 $security_default_option = array(
 	"ipcheck_allow_self_block" => "N",
 	"ipcheck_disable_file" => "",
@@ -19,9 +19,15 @@ $security_default_option = array(
 	"checker_region_root" => "Y",
 	"checker_region_personal_root" => "Y",
 	"checker_region_public" => "Y",
-	"checker_exts" => "php,js",
+	"checker_exts" => "php,js,htaccess",
 	"checker_time" => 30,
 	"antivirus_timeout" => 10,
 	"antivirus_action" => "notify_only",
+	"security_event_db_active" => "Y",
+	"security_event_syslog_active" => "N",
+	"security_event_syslog_facility" => LOG_SYSLOG,
+	"security_event_syslog_priority" => LOG_WARNING,
+	"security_event_file_active" => "N",
+	"security_event_file_path" => "",
+	"security_event_collect_user_info" => "N"
 );
-?>

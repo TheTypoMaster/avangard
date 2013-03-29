@@ -7,11 +7,11 @@
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"SECTION_ID" => $arResult["VARIABLES"]["SECTION_ID"],
 		"SECTION_CODE" => $arResult["VARIABLES"]["SECTION_CODE"],
-		"DISPLAY_PANEL" => "N",
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"CACHE_GROUPS" => $arParams["CACHE_GROUPS"],
-
+		"COUNT_ELEMENTS" => $arParams["SECTION_COUNT_ELEMENTS"],
+		"TOP_DEPTH" => $arParams["SECTION_TOP_DEPTH"],
 		"SECTION_URL" => $arResult["FOLDER"].$arResult["URL_TEMPLATES"]["section"],
 	),
 	$component
@@ -26,8 +26,10 @@
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"FILTER_NAME" => $arParams["FILTER_NAME"],
 		"FIELD_CODE" => $arParams["FILTER_FIELD_CODE"],
- 		"PROPERTY_CODE" => $arParams["FILTER_PROPERTY_CODE"],
+		"PROPERTY_CODE" => $arParams["FILTER_PROPERTY_CODE"],
 		"PRICE_CODE" => $arParams["FILTER_PRICE_CODE"],
+		"OFFERS_FIELD_CODE" => $arParams["FILTER_OFFERS_FIELD_CODE"],
+		"OFFERS_PROPERTY_CODE" => $arParams["FILTER_OFFERS_PROPERTY_CODE"],
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"CACHE_GROUPS" => $arParams["CACHE_GROUPS"],
@@ -69,8 +71,8 @@
 		"ACTION_VARIABLE" => $arParams["ACTION_VARIABLE"],
 		"PRODUCT_ID_VARIABLE" => $arParams["PRODUCT_ID_VARIABLE"],
 		"SECTION_ID_VARIABLE" => $arParams["SECTION_ID_VARIABLE"],
+		"PRODUCT_QUANTITY_VARIABLE" => $arParams["PRODUCT_QUANTITY_VARIABLE"],
 		"FILTER_NAME" => $arParams["FILTER_NAME"],
-		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"CACHE_FILTER" => $arParams["CACHE_FILTER"],
@@ -85,6 +87,7 @@
 		"SHOW_PRICE_COUNT" => $arParams["SHOW_PRICE_COUNT"],
 		"PRICE_VAT_INCLUDE" => $arParams["PRICE_VAT_INCLUDE"],
 		"PRICE_VAT_SHOW_VALUE" => $arParams["PRICE_VAT_SHOW_VALUE"],
+		"USE_PRODUCT_QUANTITY" => $arParams['USE_PRODUCT_QUANTITY'],
 		"DISPLAY_TOP_PAGER" => $arParams["DISPLAY_TOP_PAGER"],
 		"DISPLAY_BOTTOM_PAGER" => $arParams["DISPLAY_BOTTOM_PAGER"],
 		"PAGER_TITLE" => $arParams["PAGER_TITLE"],
@@ -101,6 +104,8 @@
 		//Template parameters
 		"LINK_IBLOCK_ID" => $arParams["LINK_IBLOCK_ID"],
 		"LINK_PROPERTY_SID" => $arParams["LINK_PROPERTY_SID"],
+		'CONVERT_CURRENCY' => $arParams['CONVERT_CURRENCY'],
+		'CURRENCY_ID' => $arParams['CURRENCY_ID'],
 	),
 	$component
 );

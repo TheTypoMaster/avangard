@@ -1555,3 +1555,4 @@ pPropertybarHandlers['default'] = function (bNew, pTaskbar, pElement)
 	//pTaskbar.arElements['bgcolor'];
 	//pTaskbar.arElements['style'];
 }
+;   

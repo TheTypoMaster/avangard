@@ -43,19 +43,21 @@ class CUserTypeFile
 			if(strlen($v)>0)
 				$ar[$v] = true;
 		}
+
 		return array(
 			"SIZE" =>  ($size <= 1? 20: ($size > 255? 225: $size)),
 			"LIST_WIDTH" => intval($arUserField["SETTINGS"]["LIST_WIDTH"]),
 			"LIST_HEIGHT" => intval($arUserField["SETTINGS"]["LIST_HEIGHT"]),
 			"MAX_SHOW_SIZE" => intval($arUserField["SETTINGS"]["MAX_SHOW_SIZE"]),
 			"MAX_ALLOWED_SIZE" => intval($arUserField["SETTINGS"]["MAX_ALLOWED_SIZE"]),
-			"EXTENSIONS" => $ar,
+			"EXTENSIONS" => $ar
 		);
 	}
 
 	function GetSettingsHTML($arUserField = false, $arHtmlControl, $bVarsFromForm)
 	{
 		$result = '';
+
 		if($bVarsFromForm)
 			$value = intval($GLOBALS[$arHtmlControl["NAME"]]["SIZE"]);
 		elseif(is_array($arUserField))
@@ -63,7 +65,7 @@ class CUserTypeFile
 		else
 			$value = 20;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_FILE_SIZE").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[SIZE]" size="20"  maxlength="20" value="'.$value.'">
@@ -83,7 +85,7 @@ class CUserTypeFile
 		else
 			$height = 0;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_FILE_WIDTH_AND_HEIGHT").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[LIST_WIDTH]" size="7"  maxlength="20" value="'.$width.'">
@@ -99,7 +101,7 @@ class CUserTypeFile
 		else
 			$value = 0;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_FILE_MAX_SHOW_SIZE").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[MAX_SHOW_SIZE]" size="20"  maxlength="20" value="'.$value.'">
@@ -113,7 +115,7 @@ class CUserTypeFile
 		else
 			$value = 0;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_FILE_MAX_ALLOWED_SIZE").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[MAX_ALLOWED_SIZE]" size="20"  maxlength="20" value="'.$value.'">
@@ -122,9 +124,9 @@ class CUserTypeFile
 		';
 		if($bVarsFromForm)
 		{
-			$value = htmlspecialchars($GLOBALS[$arHtmlControl["NAME"]]["EXTENSIONS"]);
+			$value = htmlspecialcharsbx($GLOBALS[$arHtmlControl["NAME"]]["EXTENSIONS"]);
 			$result .= '
-			<tr valign="top">
+			<tr>
 				<td>'.GetMessage("USER_TYPE_FILE_EXTENSIONS").':</td>
 				<td>
 					<input type="text" size="20" name="'.$arHtmlControl["NAME"].'[EXTENSIONS]" value="'.$value.'">
@@ -141,9 +143,9 @@ class CUserTypeFile
 			$value = array();
 			if(is_array($arExt))
 				foreach($arExt as $ext=>$flag)
-					$value[] = htmlspecialchars($ext);
+					$value[] = htmlspecialcharsbx($ext);
 			$result .= '
-			<tr valign="top">
+			<tr>
 				<td>'.GetMessage("USER_TYPE_FILE_EXTENSIONS").':</td>
 				<td>
 					<input type="text" size="20" name="'.$arHtmlControl["NAME"].'[EXTENSIONS]" value="'.implode(", ", $value).'">
@@ -156,14 +158,68 @@ class CUserTypeFile
 
 	function GetEditFormHTML($arUserField, $arHtmlControl)
 	{
+		CModule::IncludeModule("fileman");
+
+		$arHtmlControl["VALIGN"] = "middle";
+		$arHtmlControl["ROWCLASS"] = "adm-detail-file-row";
+
 		if(($p=strpos($arHtmlControl["NAME"], "["))>0)
 			$strOldIdName = substr($arHtmlControl["NAME"], 0, $p)."_old_id".substr($arHtmlControl["NAME"], $p);
 		else
 			$strOldIdName = $arHtmlControl["NAME"]."_old_id";
-		return '<input type="hidden" name="'.$strOldIdName.'" value="'.$arHtmlControl["VALUE"].'">'.
-			CFile::InputFile($arHtmlControl["NAME"], $arUserField["SETTINGS"]["SIZE"], $arHtmlControl["VALUE"], false, 0, "", ($arUserField["EDIT_IN_LIST"]!="Y"? ' disabled="disabled" ': ''), 0, "", 'value="'.$arHtmlControl["VALUE"].'"').
-			'<br>'.
-			CFile::ShowImage($arHtmlControl["VALUE"]);
+
+		return CFileInput::Show($arHtmlControl["NAME"], $arHtmlControl["VALUE"], array(
+				"IMAGE" => "Y",
+				"PATH" => "Y",
+				"FILE_SIZE" => "Y",
+				"DIMENSIONS" => "Y",
+				"IMAGE_POPUP" => "Y",
+				"MAX_SIZE" => array("W" => 200, "H"=>200)
+			),
+			array(
+				'upload' => $arUserField["EDIT_IN_LIST"] == "Y",
+				'medialib' => false,
+				'file_dialog' => false,
+				'cloud' => false,
+				'del' => true,
+				'description' => false
+			)
+		).'<input type="hidden" name="'.$strOldIdName.'" value="'.$arHtmlControl["VALUE"].'">';
+	}
+
+	function GetEditFormHTMLMulty($arUserField, $arHtmlControl)
+	{
+		$arHtmlControl["ROWCLASS"] = "adm-detail-file-row";
+
+		CModule::IncludeModule("fileman");
+
+		$values = array();
+		$fieldName = substr($arHtmlControl["NAME"], 0, -2);
+		$result = "";
+		foreach ($arHtmlControl["VALUE"] as $key => $fileId)
+		{
+			$result .= '<input type="hidden" name="'.$fieldName.'_old_id['.$key.']" value="'.$fileId.'">';
+			$values[$fieldName."[".$key."]"] = $fileId;
+		}
+
+		return CFileInput::ShowMultiple($values, $fieldName."[n#IND#]", array(
+				"IMAGE" => "Y",
+				"PATH" => "Y",
+				"FILE_SIZE" => "Y",
+				"DIMENSIONS" => "Y",
+				"IMAGE_POPUP" => "Y",
+				"MAX_SIZE" => array("W" => 200, "H"=>200)
+			),
+			false,
+			array(
+				'upload' => $arUserField["EDIT_IN_LIST"] == "Y",
+				'medialib' => false,
+				'file_dialog' => false,
+				'cloud' => false,
+				'del' => true,
+				'description' => false
+			)
+		).$result;
 	}
 
 	function GetFilterHTML($arUserField, $arHtmlControl)
@@ -339,5 +395,4 @@ class CUserTypeFile
 
 
 }
-AddEventHandler("main", "OnUserTypeBuildList", array("CUserTypeFile", "GetUserTypeDescription"));
 ?>

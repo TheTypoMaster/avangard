@@ -1,6 +1,6 @@
 <?
 /***************************************
-			Веб-форма
+			Web-form
 ***************************************/
 
 class CForm extends CAllForm
@@ -31,8 +31,16 @@ class CForm extends CAllForm
 			{
 				$key = $filter_keys[$i];
 				$val = $arFilter[$filter_keys[$i]];
-				if (strlen($val)<=0 || "$val"=="NOT_REF") continue;
-				if (is_array($val) && count($val)<=0) continue;
+				if(is_array($val))
+				{
+					if(count($val) <= 0)
+						continue;
+				}
+				else
+				{
+				if( (strlen($val) <= 0) || ($val === "NOT_REF") )
+					continue;
+				}
 				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
 				$key = strtoupper($key);
 				switch($key)
@@ -178,7 +186,7 @@ class CForm extends CAllForm
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 		return $res;
 	}
-	
+
 	function GetFormTemplateByID($ID, $GET_BY_SID="N")
 	{
 		$err_mess = (CForm::err_mess())."<br>Function: GetFormTemplateByID<br>Line: ";

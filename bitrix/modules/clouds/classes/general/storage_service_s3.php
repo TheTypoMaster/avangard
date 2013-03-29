@@ -4,10 +4,16 @@ IncludeModuleLangFile(__FILE__);
 class CCloudStorageService_AmazonS3
 {
 	protected $status = 0;
+	protected $verb = '';
+	protected $host = '';
+	protected $url = '';
+	protected $headers = array();
+	protected $set_headers = array();
 	protected $errno = 0;
 	protected $errstr = '';
 	protected $result = '';
 	protected $new_end_point;
+	protected $_public = true;
 
 	function GetLastRequestStatus()
 	{
@@ -50,16 +56,16 @@ class CCloudStorageService_AmazonS3
 		if(!is_array($arSettings))
 			$arSettings = array("ACCESS_KEY" => "", "SECRET_KEY" => "");
 
-		$htmlID = htmlspecialchars($this->GetID());
+		$htmlID = htmlspecialcharsbx($this->GetID());
 
 		$result = '
-		<tr id="SETTINGS_0_'.$htmlID.'" style="display:'.($cur_SERVICE_ID == $this->GetID() || !$bServiceSet? '': 'none').'" class="settings-tr">
-			<td><span class="required">*</span>'.GetMessage("CLO_STORAGE_S3_EDIT_ACCESS_KEY").':</td>
-			<td><input type="hidden" name="SETTINGS['.$htmlID.'][ACCESS_KEY]" id="'.$htmlID.'ACCESS_KEY" value="'.htmlspecialchars($arSettings['ACCESS_KEY']).'"><input type="text" size="55" name="'.$htmlID.'INP_ACCESS_KEY" id="'.$htmlID.'INP_ACCESS_KEY" value="'.htmlspecialchars($arSettings['ACCESS_KEY']).'" '.($arBucket['READ_ONLY'] == 'Y'? '"disabled"': '').' onchange="BX(\''.$htmlID.'ACCESS_KEY\').value = this.value"></td>
+		<tr id="SETTINGS_0_'.$htmlID.'" style="display:'.($cur_SERVICE_ID == $this->GetID() || !$bServiceSet? '': 'none').'" class="settings-tr adm-detail-required-field">
+			<td>'.GetMessage("CLO_STORAGE_S3_EDIT_ACCESS_KEY").':</td>
+			<td><input type="hidden" name="SETTINGS['.$htmlID.'][ACCESS_KEY]" id="'.$htmlID.'ACCESS_KEY" value="'.htmlspecialcharsbx($arSettings['ACCESS_KEY']).'"><input type="text" size="55" name="'.$htmlID.'INP_ACCESS_KEY" id="'.$htmlID.'INP_ACCESS_KEY" value="'.htmlspecialcharsbx($arSettings['ACCESS_KEY']).'" '.($arBucket['READ_ONLY'] == 'Y'? '"disabled"': '').' onchange="BX(\''.$htmlID.'ACCESS_KEY\').value = this.value"></td>
 		</tr>
-		<tr id="SETTINGS_1_'.$htmlID.'" style="display:'.($cur_SERVICE_ID == $this->GetID() || !$bServiceSet? '': 'none').'" class="settings-tr">
-			<td><span class="required">*</span>'.GetMessage("CLO_STORAGE_S3_EDIT_SECRET_KEY").':</td>
-			<td><input type="hidden" name="SETTINGS['.$htmlID.'][SECRET_KEY]" id="'.$htmlID.'SECRET_KEY" value="'.htmlspecialchars($arSettings['SECRET_KEY']).'"><input type="text" size="55" name="'.$htmlID.'INP_SECRET_KEY" id="'.$htmlID.'INP_SECRET_KEY" value="'.htmlspecialchars($arSettings['SECRET_KEY']).'" autocomplete="off" '.($arBucket['READ_ONLY'] == 'Y'? '"disabled"': '').' onchange="BX(\''.$htmlID.'SECRET_KEY\').value = this.value"></td>
+		<tr id="SETTINGS_1_'.$htmlID.'" style="display:'.($cur_SERVICE_ID == $this->GetID() || !$bServiceSet? '': 'none').'" class="settings-tr adm-detail-required-field">
+			<td>'.GetMessage("CLO_STORAGE_S3_EDIT_SECRET_KEY").':</td>
+			<td><input type="hidden" name="SETTINGS['.$htmlID.'][SECRET_KEY]" id="'.$htmlID.'SECRET_KEY" value="'.htmlspecialcharsbx($arSettings['SECRET_KEY']).'"><input type="text" size="55" name="'.$htmlID.'INP_SECRET_KEY" id="'.$htmlID.'INP_SECRET_KEY" value="'.htmlspecialcharsbx($arSettings['SECRET_KEY']).'" autocomplete="off" '.($arBucket['READ_ONLY'] == 'Y'? '"disabled"': '').' onchange="BX(\''.$htmlID.'SECRET_KEY\').value = this.value"></td>
 		</tr>
 		<tr id="SETTINGS_2_'.$htmlID.'" style="display:'.($cur_SERVICE_ID == $this->GetID() || !$bServiceSet? '': 'none').'" class="settings-tr">
 			<td>&nbsp;</td>
@@ -78,6 +84,8 @@ class CCloudStorageService_AmazonS3
 			"ACCESS_KEY" => is_array($arSettings)? trim($arSettings["ACCESS_KEY"]): '',
 			"SECRET_KEY" => is_array($arSettings)? trim($arSettings["SECRET_KEY"]): '',
 		);
+		if(is_array($arSettings) && array_key_exists("SESSION_TOKEN", $arSettings))
+			$result["SESSION_TOKEN"] = trim($arSettings["SESSION_TOKEN"]);
 
 		if($arBucket["READ_ONLY"] !== "Y" && !strlen($result["ACCESS_KEY"]))
 			$aMsg[] = array("id" => $this->GetID()."INP_ACCESS_KEY", "text" => GetMessage("CLO_STORAGE_S3_EMPTY_ACCESS_KEY"));
@@ -116,8 +124,7 @@ class CCloudStorageService_AmazonS3
 			$content = '';
 
 		$response = $this->SendRequest(
-			$arBucket["SETTINGS"]["ACCESS_KEY"],
-			$arBucket["SETTINGS"]["SECRET_KEY"],
+			$arBucket["SETTINGS"],
 			'PUT',
 			$arBucket["BUCKET"],
 			'/',
@@ -151,13 +158,16 @@ class CCloudStorageService_AmazonS3
 		}
 
 		$response = $this->SendRequest(
-			$arBucket["SETTINGS"]["ACCESS_KEY"],
-			$arBucket["SETTINGS"]["SECRET_KEY"],
+			$arBucket["SETTINGS"],
 			'DELETE',
 			$arBucket["BUCKET"]
 		);
 
-		if($this->status == 204/*No content*/ || $this->status == 404/*Not exists*/)
+		if(
+			$this->status == 204/*No content*/
+			|| $this->status == 404/*Not exists*/
+			|| $this->status == 403/*Access denied*/
+		)
 		{
 			$APPLICATION->ResetException();
 			return true;
@@ -173,15 +183,14 @@ class CCloudStorageService_AmazonS3
 		global $APPLICATION;
 
 		$response = $this->SendRequest(
-			$arBucket["SETTINGS"]["ACCESS_KEY"],
-			$arBucket["SETTINGS"]["SECRET_KEY"],
+			$arBucket["SETTINGS"],
 			'GET',
 			$arBucket["BUCKET"],
 			'/',
 			'?max-keys=1'.($arBucket["PREFIX"]? '&prefix='.$arBucket["PREFIX"].'/': '')
 		);
 
-		if($this->status == 404)
+		if($this->status == 404 || $this->status == 403)
 		{
 			$APPLICATION->ResetException();
 			return true;
@@ -232,15 +241,20 @@ class CCloudStorageService_AmazonS3
 			}
 		}
 
-		$URI = $arBucket["PREFIX"]? $arBucket["PREFIX"].'/': '';
 		if(is_array($arFile))
-			$URI .= ltrim($arFile["SUBDIR"]."/".$arFile["FILE_NAME"], "/");
+			$URI = ltrim($arFile["SUBDIR"]."/".$arFile["FILE_NAME"], "/");
 		else
-			$URI .= ltrim($arFile, "/");
+			$URI = ltrim($arFile, "/");
+
+		if($arBucket["PREFIX"])
+		{
+			if(substr($URI, 0, strlen($arBucket["PREFIX"])+1) !== $arBucket["PREFIX"]."/")
+				$URI = $arBucket["PREFIX"]."/".$URI;
+		}
 
 		$proto = $APPLICATION->IsHTTPS()? "https": "http";
 
-		return $proto."://$host/".CCloudUtil::URLEncode($URI, LANG_CHARSET);
+		return $proto."://$host/".CCloudUtil::URLEncode($URI, "UTF-8");
 	}
 
 	function FileExists($arBucket, $filePath)
@@ -252,10 +266,10 @@ class CCloudStorageService_AmazonS3
 			if(substr($filePath, 0, strlen($arBucket["PREFIX"])+2) != "/".$arBucket["PREFIX"]."/")
 				$filePath = "/".$arBucket["PREFIX"]."/".ltrim($filePath, "/");
 		}
+		$filePath = CCloudUtil::URLEncode($filePath, "UTF-8");
 
 		$response = $this->SendRequest(
-			$arBucket["SETTINGS"]["ACCESS_KEY"],
-			$arBucket["SETTINGS"]["SECRET_KEY"],
+			$arBucket["SETTINGS"],
 			'HEAD',
 			$arBucket["BUCKET"],
 			$filePath
@@ -263,7 +277,10 @@ class CCloudStorageService_AmazonS3
 
 		if($this->status == 200)
 		{
-			return true;
+			if (isset($this->headers["Content-Length"]) && $this->headers["Content-Length"] > 0)
+				return $this->headers["Content-Length"];
+			else
+				return true;
 		}
 		elseif($this->status == 206)
 		{
@@ -286,20 +303,22 @@ class CCloudStorageService_AmazonS3
 			if(substr($filePath, 0, strlen($arBucket["PREFIX"])+2) != "/".$arBucket["PREFIX"]."/")
 				$filePath = "/".$arBucket["PREFIX"]."/".ltrim($filePath, "/");
 		}
+		$filePath = CCloudUtil::URLEncode($filePath, "UTF-8");
+
+		$additional_headers = array();
+		if($this->_public)
+			$additional_headers["x-amz-acl"] = "public-read";
+		$additional_headers["x-amz-copy-source"] = CCloudUtil::URLEncode("/".$arBucket["BUCKET"]."/".($arBucket["PREFIX"]? $arBucket["PREFIX"]."/": "").$arFile["SUBDIR"]."/".$arFile["FILE_NAME"], "UTF-8");
+		$additional_headers["Content-Type"] = $arFile["CONTENT_TYPE"];
 
 		$response = $this->SendRequest(
-			$arBucket["SETTINGS"]["ACCESS_KEY"],
-			$arBucket["SETTINGS"]["SECRET_KEY"],
+			$arBucket["SETTINGS"],
 			'PUT',
 			$arBucket["BUCKET"],
 			$filePath,
 			'',
 			'',
-			array(
-				"x-amz-acl"=>"public-read",
-				"x-amz-copy-source"=>"/".$arBucket["BUCKET"]."/".($arBucket["PREFIX"]? $arBucket["PREFIX"]."/": "").$arFile["SUBDIR"]."/".$arFile["FILE_NAME"],
-				"Content-Type"=>$arFile["CONTENT_TYPE"]
-			)
+			$additional_headers
 		);
 
 		if($this->status == 200)
@@ -315,9 +334,10 @@ class CCloudStorageService_AmazonS3
 
 	function DownloadToFile($arBucket, $arFile, $filePath)
 	{
+		$io = CBXVirtualIo::GetInstance();
 		$obRequest = new CHTTP;
 		$obRequest->follow_redirect = true;
-		return $obRequest->Download($this->GetFileSRC($arBucket, $arFile), $filePath);
+		return $obRequest->Download($this->GetFileSRC($arBucket, $arFile), $io->GetPhysicalName($filePath));
 	}
 
 	function DeleteFile($arBucket, $filePath)
@@ -329,10 +349,10 @@ class CCloudStorageService_AmazonS3
 			if(substr($filePath, 0, strlen($arBucket["PREFIX"])+2) != "/".$arBucket["PREFIX"]."/")
 				$filePath = "/".$arBucket["PREFIX"]."/".ltrim($filePath, "/");
 		}
+		$filePath = CCloudUtil::URLEncode($filePath, "UTF-8");
 
 		$response = $this->SendRequest(
-			$arBucket["SETTINGS"]["ACCESS_KEY"],
-			$arBucket["SETTINGS"]["SECRET_KEY"],
+			$arBucket["SETTINGS"],
 			'DELETE',
 			$arBucket["BUCKET"],
 			$filePath
@@ -359,28 +379,31 @@ class CCloudStorageService_AmazonS3
 			if(substr($filePath, 0, strlen($arBucket["PREFIX"])+2) != "/".$arBucket["PREFIX"]."/")
 				$filePath = "/".$arBucket["PREFIX"]."/".ltrim($filePath, "/");
 		}
+		$filePath = CCloudUtil::URLEncode($filePath, "UTF-8");
+
+		$additional_headers = array();
+		if($this->_public)
+			$additional_headers["x-amz-acl"] = "public-read";
+		$additional_headers["Content-Type"] = $arFile["type"];
+		$additional_headers["Content-Length"] = (array_key_exists("content", $arFile)? CUtil::BinStrlen($arFile["content"]): filesize($arFile["tmp_name"]));
 
 		$response = $this->SendRequest(
-			$arBucket["SETTINGS"]["ACCESS_KEY"],
-			$arBucket["SETTINGS"]["SECRET_KEY"],
+			$arBucket["SETTINGS"],
 			'PUT',
 			$arBucket["BUCKET"],
 			$filePath,
 			'',
-			(
-				array_key_exists("content", $arFile)
-				?$arFile["content"]
-				:file_get_contents($arFile["tmp_name"])
-			),
-			array(
-				"x-amz-acl"=>"public-read",
-				"Content-Type"=>$arFile["type"]
-			)
+			(array_key_exists("content", $arFile)? $arFile["content"]: fopen($arFile["tmp_name"], "rb")),
+			$additional_headers
 		);
 
 		if($this->status == 200)
 		{
 			return true;
+		}
+		elseif($this->status == 403)
+		{
+			return false;
 		}
 		else
 		{
@@ -408,13 +431,13 @@ class CCloudStorageService_AmazonS3
 			if(substr($filePath, 0, strlen($arBucket["PREFIX"])+2) != "/".$arBucket["PREFIX"]."/")
 				$filePath = $arBucket["PREFIX"]."/".ltrim($filePath, "/");
 		}
+		$filePath = $APPLICATION->ConvertCharset($filePath, LANG_CHARSET, "UTF-8");
 
 		$marker = '';
 		while(true)
 		{
 			$response = $this->SendRequest(
-				$arBucket["SETTINGS"]["ACCESS_KEY"],
-				$arBucket["SETTINGS"]["SECRET_KEY"],
+				$arBucket["SETTINGS"],
 				'GET',
 				$arBucket["BUCKET"],
 				'/',
@@ -438,7 +461,7 @@ class CCloudStorageService_AmazonS3
 					foreach($response["ListBucketResult"]["#"]["CommonPrefixes"] as $a)
 					{
 						$dir_name = substr(rtrim($a["#"]["Prefix"][0]["#"], "/"), strlen($filePath));
-						$result["dir"][] = urldecode($dir_name);
+						$result["dir"][] = $APPLICATION->ConvertCharset(urldecode($dir_name), "UTF-8", LANG_CHARSET);
 					}
 				}
 
@@ -450,7 +473,7 @@ class CCloudStorageService_AmazonS3
 					foreach($response["ListBucketResult"]["#"]["Contents"] as $a)
 					{
 						$file_name = substr($a["#"]["Key"][0]["#"], strlen($filePath));
-						$result["file"][] = urldecode($file_name);
+						$result["file"][] = $APPLICATION->ConvertCharset($file_name, "UTF-8", LANG_CHARSET);
 						$result["file_size"][] = $a["#"]["Size"][0]["#"];
 					}
 				}
@@ -472,7 +495,6 @@ class CCloudStorageService_AmazonS3
 			}
 			else
 			{
-				$APPLICATION->ResetException();
 				return false;
 			}
 		}
@@ -480,25 +502,127 @@ class CCloudStorageService_AmazonS3
 		return $result;
 	}
 
-	function SendRequest($access_key, $secret_key, $verb, $bucket, $file_name='/', $params='', $content='', $additional_headers=array())
+	function InitiateMultipartUpload($arBucket, &$NS, $filePath, $fileSize, $ContentType)
 	{
-		global $APPLICATION;
-		$this->status = 0;
-
-		$Content = $content;
-		if(isset($additional_headers["Content-Type"]))
+		$filePath = '/'.trim($filePath, '/');
+		if($arBucket["PREFIX"])
 		{
-			$ContentType = $additional_headers["Content-Type"];
-			unset($additional_headers["Content-Type"]);
+			if(substr($filePath, 0, strlen($arBucket["PREFIX"])+2) != "/".$arBucket["PREFIX"]."/")
+				$filePath = "/".$arBucket["PREFIX"].$filePath;
+		}
+		$filePathU = CCloudUtil::URLEncode($filePath, "UTF-8");
+
+		$additional_headers = array();
+		if($this->_public)
+			$additional_headers["x-amz-acl"] = "public-read";
+		$additional_headers["Content-Type"] = $ContentType;
+
+		$response = $this->SendRequest(
+			$arBucket["SETTINGS"],
+			'POST',
+			$arBucket["BUCKET"],
+			$filePathU.'?uploads',
+			'',
+			'',
+			$additional_headers
+		);
+
+		if(
+			$this->status == 200
+			&& is_array($response)
+			&& isset($response["InitiateMultipartUploadResult"])
+			&& is_array($response["InitiateMultipartUploadResult"])
+			&& isset($response["InitiateMultipartUploadResult"]["#"])
+			&& is_array($response["InitiateMultipartUploadResult"]["#"])
+			&& isset($response["InitiateMultipartUploadResult"]["#"]["UploadId"])
+			&& is_array($response["InitiateMultipartUploadResult"]["#"]["UploadId"])
+			&& isset($response["InitiateMultipartUploadResult"]["#"]["UploadId"][0])
+			&& is_array($response["InitiateMultipartUploadResult"]["#"]["UploadId"][0])
+			&& isset($response["InitiateMultipartUploadResult"]["#"]["UploadId"][0]["#"])
+			&& is_string($response["InitiateMultipartUploadResult"]["#"]["UploadId"][0]["#"])
+		)
+		{
+			$NS = array(
+				"filePath" => $filePath,
+				"UploadId" => $response["InitiateMultipartUploadResult"]["#"]["UploadId"][0]["#"],
+				"Parts" => array(),
+			);
+			return true;
 		}
 		else
 		{
-			$ContentType = $content? 'text/plain': '';
+			return false;
 		}
+	}
+
+	function GetMinUploadPartSize()
+	{
+		return 5*1024*1024; //5MB
+	}
+
+	function UploadPart($arBucket, &$NS, $data)
+	{
+		$filePath = '/'.trim($NS["filePath"], '/');
+		if($arBucket["PREFIX"])
+		{
+			if(substr($filePath, 0, strlen($arBucket["PREFIX"])+2) != "/".$arBucket["PREFIX"]."/")
+				$filePath = "/".$arBucket["PREFIX"].$filePath;
+		}
+		$filePath = CCloudUtil::URLEncode($filePath, "UTF-8");
+
+		$response = $this->SendRequest(
+			$arBucket["SETTINGS"],
+			'PUT',
+			$arBucket["BUCKET"],
+			$filePath.'?partNumber='.(count($NS["Parts"])+1).'&uploadId='.urlencode($NS["UploadId"]),
+			'',
+			$data
+		);
+
+		if($this->status == 200 && is_array($this->headers) && isset($this->headers["ETag"]))
+		{
+			$NS["Parts"][] = $this->headers["ETag"];
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	function CompleteMultipartUpload($arBucket, &$NS)
+	{
+		$filePath = '/'.trim($NS["filePath"], '/');
+		if($arBucket["PREFIX"])
+		{
+			if(substr($filePath, 0, strlen($arBucket["PREFIX"])+2) != "/".$arBucket["PREFIX"]."/")
+				$filePath = "/".$arBucket["PREFIX"].$filePath;
+		}
+		$filePath = CCloudUtil::URLEncode($filePath, "UTF-8");
+
+		$data = "";
+		foreach($NS["Parts"] as $PartNumber => $ETag)
+			$data .= "<Part><PartNumber>".($PartNumber+1)."</PartNumber><ETag>".$ETag."</ETag></Part>\n";
+
+		$response = $this->SendRequest(
+			$arBucket["SETTINGS"],
+			'POST',
+			$arBucket["BUCKET"],
+			$filePath.'?uploadId='.urlencode($NS["UploadId"]),
+			'',
+			"<CompleteMultipartUpload>".$data."</CompleteMultipartUpload>"
+		);
+
+		return $this->status == 200;
+	}
+
+	function SignRequest($arSettings, $verb, $bucket, $file_name, $ContentType, $additional_headers)
+	{
+		$result = array();
 
 		$RequestMethod = $verb;
-		$RequestURI = CCloudUtil::URLEncode($file_name, LANG_CHARSET);
-		$RequestDATE = gmdate('D, d M Y H:i:s', time()).' GMT';
+		$RequestURI = $file_name;
+		$result["Date"] = $RequestDATE = gmdate('D, d M Y H:i:s', time()).' GMT';
 
 		//Prepare Signature
 		$CanonicalizedAmzHeaders = "";
@@ -509,16 +633,48 @@ class CCloudStorageService_AmazonS3
 		$CanonicalizedResource = "/".$bucket.$RequestURI;
 
 		$StringToSign = "$RequestMethod\n\n$ContentType\n$RequestDATE\n$CanonicalizedAmzHeaders$CanonicalizedResource";
-		//$utf = $APPLICATION->ConvertCharset($StringToSign, LANG_CHARSET, "UTF-8");
-		$Signature = base64_encode($this->hmacsha1($StringToSign, $secret_key));
-		$Authorization = "AWS ".$access_key.":".$Signature;
+
+		$Signature = base64_encode($this->hmacsha1($StringToSign, $arSettings["SECRET_KEY"]));
+		$result["Authorization"] = $Authorization = "AWS ".$arSettings["ACCESS_KEY"].":".$Signature;
+
+		return array(
+			"Date" => $RequestDATE,
+			"Authorization" => $Authorization,
+		);
+	}
+
+	function SendRequest($arSettings, $verb, $bucket, $file_name='/', $params='', $content='', $additional_headers=array())
+	{
+		global $APPLICATION;
+		$this->status = 0;
+
+		if(isset($additional_headers["Content-Type"]))
+		{
+			$ContentType = $additional_headers["Content-Type"];
+			unset($additional_headers["Content-Type"]);
+		}
+		else
+		{
+			$ContentType = $content? 'text/plain': '';
+		}
+
+		foreach($this->set_headers as $key => $value)
+			$additional_headers[$key] = $value;
+
+		if(array_key_exists("SESSION_TOKEN", $arSettings))
+			$additional_headers["x-amz-security-token"] = $arSettings["SESSION_TOKEN"];
+		ksort($additional_headers);
+
+		$RequestURI = $file_name;
 
 		$obRequest = new CHTTP;
-		$obRequest->additional_headers["Date"] = $RequestDATE;
-		$obRequest->additional_headers["Authorization"] = $Authorization;
+
+		foreach($this->SignRequest($arSettings, $verb, $bucket, $file_name, $ContentType, $additional_headers) as $key => $value)
+			$obRequest->additional_headers[$key] = $value;
+
 		foreach($additional_headers as $key => $value)
 			if(!preg_match("/^option-/", $key))
-			$obRequest->additional_headers[$key] = $value;
+				$obRequest->additional_headers[$key] = $value;
 
 		if(
 			$this->new_end_point
@@ -534,8 +690,12 @@ class CCloudStorageService_AmazonS3
 		$was_end_point = $this->new_end_point;
 		$this->new_end_point = '';
 
-		$obRequest->Query($RequestMethod, $host, 80, $RequestURI.$params, $Content, '', $ContentType);
+		$obRequest->Query($verb, $host, 80, $RequestURI.$params, $content, '', $ContentType);
 		$this->status = $obRequest->status;
+		$this->host = $host;
+		$this->verb = $verb;
+		$this->url =  $RequestURI.$params;
+		$this->headers = $obRequest->headers;
 		$this->errno = $obRequest->errno;
 		$this->errstr = $obRequest->errstr;
 		$this->result = $obRequest->result;
@@ -576,13 +736,13 @@ class CCloudStorageService_AmazonS3
 		{
 			$this->new_end_point = $obRequest->headers["Location"];
 			return $this->SendRequest(
-				$access_key,
-				$secret_key,
+				$arSettings,
 				$verb,
 				$bucket,
 				$file_name,
 				$params,
-				$content
+				$content,
+				$additional_headers
 			);
 		}
 		elseif($obRequest->status > 0)
@@ -619,6 +779,26 @@ class CCloudStorageService_AmazonS3
 		$opad = str_repeat(chr(0x5c), 64);
 		$hmac = pack('H*', sha1(($key^$opad).pack('H*', sha1(($key^$ipad).$data))));
 		return $hmac;
+	}
+
+	function setPublic($state = true)
+	{
+		$this->_public = $state !== false;
+	}
+
+	function setHeader($key, $value)
+	{
+		$this->set_headers[$key] = $value;
+	}
+
+	function unsetHeader($key)
+	{
+		unset($this->set_headers[$key]);
+	}
+
+	function getHeaders()
+	{
+		return $this->headers;
 	}
 }
 ?>

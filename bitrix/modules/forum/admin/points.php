@@ -130,7 +130,7 @@ while ($arForum = $dbResultList->NavNext(true, "f_"))
 	if (in_array("NAME", $arVisibleColumns))
 	{
 		$arPointsLang = CForumPoints::GetLangByID($f_ID, LANG);
-		$fieldShow = htmlspecialchars($arPointsLang["NAME"]);
+		$fieldShow = htmlspecialcharsbx($arPointsLang["NAME"]);
 		$row->AddViewField("NAME", '<a title="'.GetMessage("FORUM_P_EDIT_DESC").'" href="'."forum_points_edit.php?ID=".$f_ID."&lang=".LANG."&".GetFilterParams("filter_").'">'.$fieldShow.'</a>');
 	}
 

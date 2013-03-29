@@ -7,7 +7,6 @@ if($APPLICATION->GetGroupRight("form")>"D")
 		"parent_menu" => "global_menu_services",
 		"section" => "form",
 		"sort" => 100,
-		"url" => "form_index.php?lang=".LANGUAGE_ID,
 		"text" => GetMessage("FORM_MENU_MAIN"),
 		"title" => GetMessage("FORM_MENU_MAIN_TITLE"),
 		"icon" => "form_menu_icon",
@@ -21,17 +20,16 @@ if($APPLICATION->GetGroupRight("form")>"D")
 	if (method_exists($this, "IsSectionActive") && $this->IsSectionActive("menu_webforms_list") || defined('BX_ADMIN_FORM_MENU_OPEN') && BX_ADMIN_FORM_MENU_OPEN == 1)
 	{
 		CModule::IncludeModule('form');
-		
+
 		$z = CForm::GetMenuList(array("LID"=>LANGUAGE_ID));
 		while ($zr=$z->GetNext())
 		{
 			if (strlen($zr["MENU"])>0)
 			{
-				$alt = str_replace("#NAME#",$zr["NAME"],htmlspecialchars(GetMessage("FORM_RESULTS_ALT")));
+				$alt = str_replace("#NAME#",$zr["NAME"],htmlspecialcharsbx(GetMessage("FORM_RESULTS_ALT")));
 				$arFormsList[] = array(
 					"text" => $zr["MENU"],
 					"url" => "form_result_list.php?lang=".LANGUAGE_ID."&amp;WEB_FORM_ID=".$zr["ID"],
-					"icon" => "form_menu_icon",
 					"page_icon" => "form_page_icon",
 					"more_url" => array(
 						"form_view.php?WEB_FORM_ID=".$zr["ID"],
@@ -48,14 +46,13 @@ if($APPLICATION->GetGroupRight("form")>"D")
 
 	$aMenu["items"][] = array(
 		"text" => GetMessage("FORM_RESULTS_ALL"),
-		"url" => "form_result_list.php?lang=".LANGUAGE_ID,
 		"dynamic" => true,
 		"module_id" => "form",
 		"title" => GetMessage("FORM_RESULTS_ALL_ALT"),
 		"items_id" => "menu_webforms_list",
 		"items" => $arFormsList,
 	);
-	
+
 	$aMenu["items"][] = array(
 		"text" => GetMessage("FORM_MENU_FORMS"),
 		"url" => "form_list.php?lang=".LANGUAGE_ID,

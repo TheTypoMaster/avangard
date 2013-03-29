@@ -13,10 +13,24 @@ if(!CModule::IncludeModule("iblock"))
 if(!isset($arParams["CACHE_TIME"]))
 	$arParams["CACHE_TIME"] = 3600;
 
-$arParams["SITE"] = trim($arParams["SITE"]);
-$arParams["PORT"] = intval($arParams["PORT"]);
-$arParams["PATH"] = trim($arParams["PATH"]);
-$arParams["QUERY_STR"] = trim($arParams["QUERY_STR"]);
+if(isset($arParams["URL"]))
+{
+	$ar = parse_url($arParams["URL"]);
+	if(is_array($ar))
+	{
+		$arParams["SITE"] = $ar["host"];
+		$arParams["PORT"] = $ar["port"] > 0? intval($ar["port"]): 80;
+		$arParams["PATH"] = $ar["path"];
+		$arParams["QUERY_STR"] = $ar["query"];
+	}
+}
+else
+{
+	$arParams["SITE"] = trim($arParams["SITE"]);
+	$arParams["PORT"] = intval($arParams["PORT"]);
+	$arParams["PATH"] = trim($arParams["PATH"]);
+	$arParams["QUERY_STR"] = trim($arParams["QUERY_STR"]);
+}
 $arParams["OUT_CHANNEL"] = $arParams["OUT_CHANNEL"]=="Y";
 $arParams["NUM_NEWS"] = intval($arParams["NUM_NEWS"]);
 if($arParams["PROCESS"] != "QUOTE" && $arParams["PROCESS"] != "TEXT")

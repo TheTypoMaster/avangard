@@ -49,6 +49,11 @@ class CTableSchema
 						"b_rating_vote_group" => "GROUP_ID",
 					)
 				),
+				"b_module" => array(
+					"ID" => array(
+						"b_admin_notify" => "MODULE_ID",
+					)
+				),
 			),
 		);
 	}

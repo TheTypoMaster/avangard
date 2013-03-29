@@ -6,6 +6,7 @@ DROP TABLE if exists b_iblock_fields;
 DROP TABLE if exists b_iblock_element_right;
 DROP TABLE if exists b_iblock_section_right;
 DROP TABLE if exists b_iblock_right;
+DROP TABLE if exists b_iblock_section_property;
 DROP TABLE if exists b_iblock;
 DROP TABLE if exists b_iblock_property;
 DROP TABLE if exists b_iblock_messages;

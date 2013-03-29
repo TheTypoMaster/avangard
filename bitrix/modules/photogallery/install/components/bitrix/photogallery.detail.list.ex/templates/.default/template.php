@@ -8,11 +8,10 @@ if (!$this->__component->__parent || strpos($this->__component->__parent->__name
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/photogallery/templates/.default/themes/gray/style.css');
 }
 
-$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/main.calendar/templates/.default/style.css');
 // Javascript for iblock.vote component which used for rating
 // file script1.js was special renamed from script.js for prevent auto-including this file to the body of the ajax requests
-if ($arParams["USE_RATING"] == "Y")
-	$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/components/bitrix/photogallery.detail.list.ex/templates/.default/bitrix/iblock.vote/ajax/script1.js');
+if ($arParams["USE_RATING"] == "Y" && $arParams["DISPLAY_AS_RATING"] != "rating_main")
+	$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/components/bitrix/iblock.vote/templates/ajax_photo/script1.js');
 
 /********************************************************************
 				Input params
@@ -158,10 +157,6 @@ if ($_REQUEST["return_array"] == "Y" && $_REQUEST["UCID"] == $arParams["~UNIQUE_
 	die();
 }
 
-// echo "<pre>";
-// print_r($arResult);
-// echo "</pre><hr>";
-
 $ucid = CUtil::JSEscape($arParams["~UNIQUE_COMPONENT_ID"]);
 ?>
 <script>
@@ -198,6 +193,7 @@ BX.ready(function(){
 		id: '<?= $arParams["~JSID"]?>',
 		userSettings: <?= CUtil::PhpToJSObject($arParams["USER_SETTINGS"])?>,
 		actionUrl: '<?= CUtil::JSEscape($arParams["ACTION_URL"])?>',
+		responderUrl: '/bitrix/components/bitrix/photogallery.detail.list.ex/responder.php',
 		actionPostUrl: <?= ($arParams['CHECK_ACTION_URL'] == 'Y' ? 'false' : 'true')?>,
 		sections: <?= CUtil::PhpToJSObject(array(array(
 				"ID" => $arResult['SECTION']["ID"],
@@ -220,8 +216,8 @@ BX.ready(function(){
 				view: '<?= $arParams["PERMISSION"] >= 'R'?>',
 				edit:  '<?= $arParams["PERMISSION"] >= 'U'?>',
 				moderate:  '<?= $arParams["PERMISSION"] >= 'X'?>',
-				viewComment: true,
-				addComment: true // TODO check access to the forum or to the blog
+				viewComment: <?= $arParams["COMMENTS_PERM_VIEW"] == "Y" ? 'true' : 'false'?>,
+				addComment: <?= $arParams["COMMENTS_PERM_ADD"] == "Y" ? 'true' : 'false'?>
 			},
 		userUrl: '<?= $arParams["PATH_TO_USER"]?>',
 		showTooltipOnUser: 'N',
@@ -229,44 +225,47 @@ BX.ready(function(){
 		moderation: '<?= $arParams['MODERATION']?>',
 		commentsType: '<?= $arParams["COMMENTS_TYPE"]?>',
 		cacheRaitingReq: <?= ($arParams["DISPLAY_AS_RATING"] == "rating_main" ? 'true' : 'false')?>,
+		sign: '<?= $arResult["SIGN"]?>',
+		reqParams: <?= CUtil::PhpToJSObject($arResult["REQ_PARAMS"])?>,
+		checkParams: <?= CUtil::PhpToJSObject($arResult["CHECK_PARAMS"])?>,
 		MESS: {
-			from: '<?= GetMessage("P_SLIDER_FROM")?>',
-			slider: '<?= GetMessage("P_SLIDER_SLIDER")?>',
-			slideshow: '<?= GetMessage("P_SLIDER_SLIDESHOW")?>',
-			slideshowTitle: '<?= GetMessage("P_SLIDER_SLIDESHOW_TITLE")?>',
-			addDesc: '<?= GetMessage("P_SLIDER_ADD_DESC")?>',
-			addComment: '<?= GetMessage("P_SLIDER_ADD_COMMENT")?>',
-			commentTitle: '<?= GetMessage("P_SLIDER_COMMENT_TITLE")?>',
-			save: '<?= GetMessage("P_SLIDER_SAVE")?>',
-			cancel: '<?= GetMessage("P_SLIDER_CANCEL")?>',
-			commentsCount: '<?= GetMessage("P_SLIDER_COM_COUNT")?>',
-			moreCom: '<?= GetMessage("P_SLIDER_MORE_COM")?>',
-			moreCom2: '<?= GetMessage("P_SLIDER_MORE_COM2")?>',
-			album: '<?= GetMessage("P_SLIDER_ALBUM")?>',
-			author: '<?= GetMessage("P_SLIDER_AUTHOR")?>',
-			added: '<?= GetMessage("P_SLIDER_ADDED")?>',
-			edit: '<?= GetMessage("P_SLIDER_EDIT")?>',
-			del: '<?= GetMessage("P_SLIDER_DEL")?>',
-			bigPhoto: '<?= GetMessage("P_SLIDER_BIG_PHOTO")?>',
-			smallPhoto: '<?= GetMessage("P_SLIDER_SMALL_PHOTO")?>',
-			rotate: '<?= GetMessage("P_SLIDER_ROTATE")?>',
-			saveDetailTitle: '<?= GetMessage("P_SLIDER_SAVE_DETAIL_TITLE")?>',
-			DarkBG: '<?= GetMessage("P_SLIDER_DARK_BG")?>',
-			LightBG: '<?= GetMessage("P_SLIDER_LIGHT_BG")?>',
-			delItemConfirm: '<?= GetMessage("P_DELETE_ITEM_CONFIRM")?>',
-			shortComError: '<?= GetMessage("P_SHORT_COMMENT_ERROR")?>',
-			photoEditDialogTitle: '<?= GetMessage("P_EDIT_DIALOG_TITLE")?>',
-			unknownError: '<?= GetMessage("P_UNKNOWN_ERROR")?>',
-			sourceImage: '<?= GetMessage("P_SOURCE_IMAGE")?>',
-			created: '<?= GetMessage("P_CREATED")?>',
-			tags: '<?= GetMessage("P_SLIDER_TAGS")?>',
-			clickToClose: '<?= GetMessage("P_SLIDER_CLICK_TO_CLOSE")?>',
-			comAccessDenied: '<?= GetMessage("P_SLIDER_COMMENTS_ACCESS_DENIED")?>',
-			views: '<?= GetMessage("P_SLIDER_VIEWS")?>',
-			notModerated: '<?= GetMessage("P_NOT_MODERATED")?>',
-			activateNow: '<?= GetMessage("P_ACTIVATE")?>',
-			deleteNow: '<?= GetMessage("P_DELETE")?>',
-			bigPhotoDisabled: '<?= GetMessage("P_SLIDER_BIG_PHOTO_DIS")?>'
+			from: '<?= GetMessageJS("P_SLIDER_FROM")?>',
+			slider: '<?= GetMessageJS("P_SLIDER_SLIDER")?>',
+			slideshow: '<?= GetMessageJS("P_SLIDER_SLIDESHOW")?>',
+			slideshowTitle: '<?= GetMessageJS("P_SLIDER_SLIDESHOW_TITLE")?>',
+			addDesc: '<?= GetMessageJS("P_SLIDER_ADD_DESC")?>',
+			addComment: '<?= GetMessageJS("P_SLIDER_ADD_COMMENT")?>',
+			commentTitle: '<?= GetMessageJS("P_SLIDER_COMMENT_TITLE")?>',
+			save: '<?= GetMessageJS("P_SLIDER_SAVE")?>',
+			cancel: '<?= GetMessageJS("P_SLIDER_CANCEL")?>',
+			commentsCount: '<?= GetMessageJS("P_SLIDER_COM_COUNT")?>',
+			moreCom: '<?= GetMessageJS("P_SLIDER_MORE_COM")?>',
+			moreCom2: '<?= GetMessageJS("P_SLIDER_MORE_COM2")?>',
+			album: '<?= GetMessageJS("P_SLIDER_ALBUM")?>',
+			author: '<?= GetMessageJS("P_SLIDER_AUTHOR")?>',
+			added: '<?= GetMessageJS("P_SLIDER_ADDED")?>',
+			edit: '<?= GetMessageJS("P_SLIDER_EDIT")?>',
+			del: '<?= GetMessageJS("P_SLIDER_DEL")?>',
+			bigPhoto: '<?= GetMessageJS("P_SLIDER_BIG_PHOTO")?>',
+			smallPhoto: '<?= GetMessageJS("P_SLIDER_SMALL_PHOTO")?>',
+			rotate: '<?= GetMessageJS("P_SLIDER_ROTATE")?>',
+			saveDetailTitle: '<?= GetMessageJS("P_SLIDER_SAVE_DETAIL_TITLE")?>',
+			DarkBG: '<?= GetMessageJS("P_SLIDER_DARK_BG")?>',
+			LightBG: '<?= GetMessageJS("P_SLIDER_LIGHT_BG")?>',
+			delItemConfirm: '<?= GetMessageJS("P_DELETE_ITEM_CONFIRM")?>',
+			shortComError: '<?= GetMessageJS("P_SHORT_COMMENT_ERROR")?>',
+			photoEditDialogTitle: '<?= GetMessageJS("P_EDIT_DIALOG_TITLE")?>',
+			unknownError: '<?= GetMessageJS("P_UNKNOWN_ERROR")?>',
+			sourceImage: '<?= GetMessageJS("P_SOURCE_IMAGE")?>',
+			created: '<?= GetMessageJS("P_CREATED")?>',
+			tags: '<?= GetMessageJS("P_SLIDER_TAGS")?>',
+			clickToClose: '<?= GetMessageJS("P_SLIDER_CLICK_TO_CLOSE")?>',
+			comAccessDenied: '<?= GetMessageJS("P_SLIDER_COMMENTS_ACCESS_DENIED")?>',
+			views: '<?= GetMessageJS("P_SLIDER_VIEWS")?>',
+			notModerated: '<?= GetMessageJS("P_NOT_MODERATED")?>',
+			activateNow: '<?= GetMessageJS("P_ACTIVATE")?>',
+			deleteNow: '<?= GetMessageJS("P_DELETE")?>',
+			bigPhotoDisabled: '<?= GetMessageJS("P_SLIDER_BIG_PHOTO_DIS")?>'
 		}
 	});
 });

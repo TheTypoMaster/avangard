@@ -99,10 +99,10 @@ function Del<?=$rnd?>(id)
 <?foreach($arGadget["USERDATA"]["LINKS"] as $i=>$linkParam):?>
 	<div class="gdfavlink">
 <?
-	if(!preg_match("'^(http://|https://|ftp://)'i", $linkParam["URL"]))
+	if(!preg_match("'^(http://|https://|ftp://|/)'i", $linkParam["URL"]))
 		$linkParam["URL"] = 'http://'.$linkParam["URL"];
 ?>
-		<span class="gdfavlinka">&raquo; <a href="<?=htmlspecialchars($linkParam["URL"])?>"><?=htmlspecialchars(($linkParam["NAME"]!=''?$linkParam["NAME"]:$linkParam["URL"]))?></a> </span>
+		<span class="gdfavlinka">&raquo; <a href="<?=htmlspecialcharsbx($linkParam["URL"])?>"><?=htmlspecialcharsbx(($linkParam["NAME"]!=''?$linkParam["NAME"]:$linkParam["URL"]))?></a> </span>
 		<a class="gdfavdellink" href="javascript:void(0)" onclick="return Del<?=$rnd?>('<?=$i?>')"><?echo GetMessage("GD_FAVORITES_DEL")?></a><br>
 	</div>
 <?endforeach?>
@@ -114,7 +114,7 @@ function Del<?=$rnd?>(id)
 
 <div id="gdfavoriteslink2<?=$rnd?>" style="display: none;" class="gdfavaddlink"><a href="javascript:void(0)" onclick="return EditMode<?=$rnd?>(false);"><?echo GetMessage("GD_FAVORITES_CH_EXIT")?></a> </div>
 
-<div id="gdfavoritesform<?=$rnd?>" style="display: none;">
+<div id="gdfavoritesform<?=$rnd?>" style="display: none;" class="gdfavoritesform">
 <form action="<?=$arParams["UPD_URL"]?>" method="post">
 	<?=bitrix_sessid_post()?>
 	<input type="hidden" name="gdfavorites" value="Y">
@@ -139,7 +139,7 @@ else
 	if(!preg_match("'^(http://|https://|ftp://)'i", $linkParam["URL"]))
 		$linkParam["URL"] = 'http://'.$linkParam["URL"];
 ?>
-		<span class="gdfavlinka">&raquo; <a href="<?=htmlspecialchars($linkParam["URL"])?>"><?=htmlspecialchars(($linkParam["NAME"]!=''?$linkParam["NAME"]:$linkParam["URL"]))?></a> </span><br>
+		<span class="gdfavlinka">&raquo; <a href="<?=htmlspecialcharsbx($linkParam["URL"])?>"><?=htmlspecialcharsbx(($linkParam["NAME"]!=''?$linkParam["NAME"]:$linkParam["URL"]))?></a> </span><br>
 	</div>
 <?endforeach?>
 </div>

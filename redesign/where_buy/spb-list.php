@@ -8,26 +8,16 @@ $APPLICATION->SetTitle("Салоны Санкт-Петербурга");
  <?
  $sect = 38;
  ?> 
-<div style="position: relative; top: -13px; width: 100%; height: 40px; border-top-style: solid; border-right-style: solid; border-bottom-style: solid; border-left-style: solid; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-top-color: rgb(225, 225, 225); border-right-color: rgb(225, 225, 225); border-bottom-color: rgb(225, 225, 225); border-left-color: rgb(225, 225, 225); border-image: initial; "> 
-	<table class="zakladki" width="100%" cellpadding="0" cellspacing="0" height="40"> 
-		<tbody> 
-			<tr>
-				<td style="vertical-align: middle; text-align: center; width: 34%; border-image: initial; "> 
-					<b><font style="font-size: 14px; ">Санкт-Петербург</font></b> 
-					<br />
-					<a href="/redesign/where_buy/map.php?id=38" target="_new" >посмотреть на карте</a> 
-				</td> 
-				<td style="vertical-align: middle; text-align: center; width: 33%; border-image: initial; " bgcolor="#e1e1e1"> 
-					&nbsp;
-				</td> 
-				<td bgcolor="#e1e1e1" style="vertical-align: middle; text-align: center; width: 33%; border-image: initial; ">
-					&nbsp;
-				</td>
-			</tr>
-		</tbody>
-	</table>
-</div>
-
+<div style="position: relative; top: -13px; width: 100%; height: 40px; border: 1px solid rgb(225, 225, 225); "> 	
+  <table class="zakladki" width="100%" cellpadding="0" cellspacing="0" height="40"> 		
+    <tbody> 			
+      <tr> 				<td style="vertical-align: middle; text-align: center; width: 34%;"> 					<b><font style="font-size: 14px; ">Санкт-Петербург</font></b> 					
+          <br />
+         					<a href="/redesign/where_buy/map.php?id=38" target="_new" >посмотреть на карте</a> 				</td> 				<td style="vertical-align: middle; text-align: center; width: 33%;" bgcolor="#e1e1e1"> 					&nbsp; 				</td> 				<td bgcolor="#e1e1e1" style="vertical-align: middle; text-align: center; width: 33%;"> 					&nbsp; 				</td> 			</tr>
+     		</tbody>
+   	</table>
+ </div>
+ 
 <div class="cityname" style="margin-bottom: 5px; "> <img src="/wharetobuy/maps/podium.gif" style="border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-top-style: none; border-right-style: none; border-bottom-style: none; border-left-style: none; border-color: initial; " width="25" border="0" height="20"  /> 		 Фирменные подиумы</div>
  
 <p> 	 <?$arrFilterType = Array( "PROPERTY_SALON_TYPE_2_VALUE" => "Фирменный Подиум");?> <?$APPLICATION->IncludeComponent(
@@ -70,35 +60,85 @@ $APPLICATION->SetTitle("Салоны Санкт-Петербурга");
  
 <br />
  
-<div class="gray_line_small"> </div> 
-<p style="font-size:10pt;line-height:1.2;"><img height="77" src="/8days/image/mmSPB_1.gif"  />&nbsp;<img height="77" src="/8days/image/mmFoto_1.png"  />
-<br /><br /><b style="color: rgb(0, 0, 255);">Выезд менеджера в удобное для Вас время (в пределах Санкт-Петербурга)</b>
-<br /></p>
+<div class="gray_line_small"> </div>
  
-<ul style="font-size:10pt;line-height:1.2;"> 
+<p style="font-size: 10pt; line-height: 1.2; "><img height="77" src="/8days/image/mmSPB_1.gif"  />&nbsp;<img height="77" src="/8days/image/mmFoto_1.png"  /> 
+  <br />
+
+  <br />
+<b style="color: rgb(0, 0, 255); ">Выезд менеджера в удобное для Вас время (в пределах Санкт-Петербурга)</b> 
+  <br />
+</p>
+ 
+<ul style="font-size: 10pt; line-height: 1.2; "> 
   <li>Консультация по модельному ряду (габариты, механизмы и др.)</li>
-  <li> Предложения по обивочным материалам (ткани, кожа)</li>
-</ul>
-<p style="font-size:10pt;line-height:1.2;">тел.: <b>+7-921-418-15-84</b></p> 
-
-<div class="gray_line_small"> </div>
-<p style="font-size:10pt;line-height:1.2;"><b style="color: rgb(0, 0, 255);">Служба Сервиса</b>
-<br />По вопросам гарантийного и послегарантийного обслуживания просьба обращаться по тел.<b>+7-921-418-15-84</b></p>
-
-<div class="gray_line_small"> </div>
-<p style="font-size:10pt;line-height:1.2;"><strong style="color: rgb(0, 0, 255);">«Модель недели» - скидка 20%:</strong><br />
-<br />С 8 по 14 октября 2012 – «Чикаго»
-<br />С 15 по 21 октября 2012 – «Ричмонд»
-<br />С 23 по 31 октября 2012 – «Орегон» 
-<br /><br />Скидка предоставляется на заказ в ткани выше 4 категории, в коже выше 7 категории.
-<br />При приобретении товара в рассрочку данная скидка не распространяется.</p>
  
-<div class="gray_line_small"></div> 
-<p style="font-size:10pt;line-height:1.2;"><img height="115" src="/8days/image/skidi_SPB_188x115_6.gif" />
-<br /><br /><b style="color: rgb(0, 0, 255); "> Скидки от 30% до 70% на выставочные образцы в салоне Мебель Сити 2</b> </p> 
+  <li> Предложения по обивочным материалам (ткани, кожа)</li>
+ </ul>
+ 
+<p style="font-size: 10pt; line-height: 1.2; ">тел.: <b>+7-921-418-15-84</b></p>
+ 
+<div class="gray_line_small"> </div>
+ 
+<p style="font-size: 10pt; line-height: 1.2; "><b style="color: rgb(0, 0, 255); ">Служба Сервиса</b> 
+  <br />
+По вопросам гарантийного и послегарантийного обслуживания просьба обращаться по тел.<b>+7-921-418-15-84</b></p>
+ 
+<div class="gray_line_small"> </div>
+<?php
+/*
+ 
+<p style="font-size: 10pt; line-height: 1.2; "><strong style="color: rgb(0, 0, 255); ">&laquo;Модель недели&raquo;:</strong>
+  <br />
+ 
+  <br />
+1-10 декабря: - «Чикаго» -15%, «Lemon» -10% 
+  <br />
+11-20 декабря: - «Ричмонд» -15%, «Mango» -10% 
+  <br />
+21-30 декабря: - «Орегон» -15%, «Orange» -10% 
+  <br />
+
+  <br />
+Скидка предоставляется на заказ в ткани выше 4 категории, в коже выше 7 категории. 
+  <br />
+При приобретении товара в рассрочку данная скидка не распространяется.</p>
+ 
+<div class="gray_line_small"></div>
+
+ 
+<table class="s" width="100%" cellspacing="1" cellpadding="1" border="0" align="Left"> 
+  <tbody> 
+    <tr><td style="vertical-align: top;"><img width="230" src="/upload/medialibrary/4a7/banner_230x115_spb.png"  /></td> 	<td width="60px">&nbsp;</td> 	<td> 		 
+        <p style="font-size: 12px; line-height: 1.5; "><span style="color: rgb(102, 102, 102); font-weight: 700; ">«Магическое число 13»</span> 
+          <br />
+         </p>
+      
+        <p style="line-height: 1.5; "><span style="font-size: 12px; ">В честь наступления <b>20<font color="#ff0000">13</font></b> года с 1 по <b><font color="#ff0000">13</font></b> января скидка</span><font size="4"> <b><font color="#ff0000"> 13%</font></b></font><span style="font-size: 12px; "> на весь модельный ряд! </span>
+          <br />
+        <span style="font-size: 12px; "> 		Скидка предоставляется на заказ в ткани выше 4 категории, в коже выше 7 категории.</span></p>
+       		 	</td> </tr>
+   </tbody>
+ </table>
+ 
+<div style="clear: both; ">&nbsp;</div>
+
+<div class="gray_line_small"></div>
+*/
+?> 
+ 
+<p style="font-size: 10pt; line-height: 1.2; "><img height="115" src="/8days/image/skidi_SPB_188x115_6.gif"  /> 
+  <br />
+
+  <br />
+<b style="color: rgb(0, 0, 255); "> Скидки от 30% до 70% на выставочные образцы</b> </p>
+ 
 <p>&nbsp;</p>
-<br /> 
-<br /> 
+ 
+<br />
+ 
+<br />
+ 
 <br />
  
 <br />

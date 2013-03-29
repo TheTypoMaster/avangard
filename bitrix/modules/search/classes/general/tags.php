@@ -79,6 +79,25 @@ class CSearchTags
 				$arQueryWhere[] = "sc.".$key." ='".$DB->ForSql($value)."'";
 				$bJoinSearchContent = true;
 				break;
+			case "PARAMS":
+				if(is_array($value))
+				{
+					foreach($value as $p_key => $p_val)
+					{
+						if(is_array($p_val))
+						{
+							foreach($p_val as $i=>$val2)
+								$p_val[$i] = $DB->ForSQL($val2);
+							$p_where = " in ('".implode("', '", $p_val)."')";
+						}
+						else
+						{
+							$p_where = " = '".$DB->ForSQL($p_val)."'";
+						}
+						$arQueryWhere[] = "EXISTS (SELECT * FROM b_search_content_param WHERE SEARCH_CONTENT_ID = stags.SEARCH_CONTENT_ID AND PARAM_NAME = '".$DB->ForSQL($p_key)."' AND PARAM_VALUE ".$p_where.")";
+					}
+				}
+				break;
 			default:
 				if(!is_array($arFilterEvents))
 				{

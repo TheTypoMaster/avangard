@@ -46,7 +46,7 @@
 		<option value=""><?echo GetMessage("SEARCH_MAIN_DATABASE")?></option><?
 		$rsDBNodes = CClusterDBNode::GetListForModuleInstall();
 		while($arDBNode = $rsDBNodes->Fetch()):
-		?><option value="<?echo $arDBNode["ID"]?>"><?echo htmlspecialchars($arDBNode["NAME"])?></option><?
+		?><option value="<?echo $arDBNode["ID"]?>"><?echo htmlspecialcharsbx($arDBNode["NAME"])?></option><?
 		endwhile;
 		?></select></p>
 	<br>

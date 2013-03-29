@@ -54,7 +54,7 @@ $reset_id = intval($reset_id);
 if ($FORM_RIGHT=="W" && $reset_id>0 && check_bitrix_sessid()) CForm::Reset($reset_id);
 
 $copy_id = intval($makecopy_id);
-if ($FORM_RIGHT=="W" && $copy_id>0 && check_bitrix_sessid()) 
+if ($FORM_RIGHT=="W" && $copy_id>0 && check_bitrix_sessid())
 {
 	CForm::Copy($copy_id);
 	LocalRedirect("form_list.php?lang=".LANGUAGE_ID);
@@ -92,7 +92,7 @@ if ($lAdmin->EditAction() && $FORM_RIGHT>="W" && check_bitrix_sessid())
 				"TIMESTAMP_X"	=> $DB->GetNowFunction(),
 				"C_SORT"		=> "'".intval($arFields[C_SORT])."'"
 				);
-						
+
 			if (!$DB->Update("b_form",$arFieldsStore,"WHERE ID='".$ID."'",$err_mess.__LINE__))
 			{
 				$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".GetMessage("FORM_SAVE_ERROR"), $ID);
@@ -177,7 +177,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 {
 	//echo "<pre>"; print_r($arRes); echo "</pre>";
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
-	
+
 	//$F_RIGHT = CForm::GetPermission($f_ID);
 	$F_RIGHT = $f_F_RIGHT;
 
@@ -188,7 +188,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	if (is_array($arrSITE))
 	{
 		foreach($arrSITE as $sid)
-			$txt.= "<a href='/bitrix/admin/site_edit.php?LID=".htmlspecialchars($sid, ENT_QUOTES)."&lang=".LANGUAGE_ID."'>".htmlspecialchars($sid)."</a>,";
+			$txt.= "<a href='/bitrix/admin/site_edit.php?LID=".htmlspecialcharsbx($sid, ENT_QUOTES)."&lang=".LANGUAGE_ID."'>".htmlspecialcharsbx($sid)."</a>,";
 	}
 	else
 		$txt="&nbsp;";
@@ -209,10 +209,10 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 	$txt="<a title=\"".GetMessage("FORM_STATUSES_ALT")."\" href=\"form_status_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=$f_ID\">$f_STATUSES</a>&nbsp;[<a title=\"".GetMessage("FORM_ADD_STATUS")."\" href=\"form_status_edit.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=$f_ID\">+</a>]";
 	$row->AddViewField("STATUSES",$txt);
-	
+
 	$txt="<a title=\"".str_replace("\"#NAME#\"", "", GetMessage("FORM_RESULTS_ALT"))."\" href=\"form_result_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=$f_ID\">".(CFormResult::GetCount($f_ID))."</a>&nbsp;[<a title=\"".GetMessage("FORM_ADD_RESULT")."\" href=\"form_result_edit.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=$f_ID\">+</a>]";
 	$row->AddViewField("RESULTS",$txt);
-	
+
 	if ($FORM_RIGHT=="W") $row->AddInputField("C_SORT");
 
 
@@ -262,7 +262,7 @@ if ($FORM_RIGHT=="W")
 		"LINK"=>"form_edit.php?lang=".LANG,
 		"ICON" => "btn_new"
 	);
-	
+
 	$aContext = $aMenu;
 	$lAdmin->AddAdminContextMenu($aContext);
 }
@@ -299,12 +299,12 @@ $oFilter->Begin();
 
 <tr>
 	<td><b><?echo GetMessage("FORM_F_NAME")?></b></td>
-	<td><input type="text" name="find_name" size="47" value="<?echo htmlspecialchars($find_name)?>"><?=InputType("checkbox", "find_name_exact_match", "Y", $find_name_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_name" size="47" value="<?echo htmlspecialcharsbx($find_name)?>"><?=InputType("checkbox", "find_name_exact_match", "Y", $find_name_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 
 <tr>
 	<td><?echo GetMessage("FORM_F_ID")?></td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>"><?=InputType("checkbox", "find_id_exact_match", "Y", $find_id_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"><?=InputType("checkbox", "find_id_exact_match", "Y", $find_id_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?=GetMessage("FORM_F_SITE")?><br><img src="/bitrix/images/form/mouse.gif" width="44" height="21" border=0 alt=""></td>
@@ -322,11 +322,11 @@ $oFilter->Begin();
 </tr>
 <tr>
 	<td><?echo GetMessage("FORM_F_SID")?></td>
-	<td><input type="text" name="find_sid" size="47" value="<?echo htmlspecialchars($find_sid)?>"><?=InputType("checkbox", "find_sid_exact_match", "Y", $find_sid_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_sid" size="47" value="<?echo htmlspecialcharsbx($find_sid)?>"><?=InputType("checkbox", "find_sid_exact_match", "Y", $find_sid_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("FORM_F_DESCRIPTION")?></td>
-	<td><input type="text" name="find_description" size="47" value="<?echo htmlspecialchars($find_description)?>"><?=InputType("checkbox", "find_description_exact_match", "Y", $find_description_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_description" size="47" value="<?echo htmlspecialcharsbx($find_description)?>"><?=InputType("checkbox", "find_description_exact_match", "Y", $find_description_exact_match, false, "", "title='".GetMessage("FORM_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 
 

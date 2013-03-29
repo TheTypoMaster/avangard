@@ -83,7 +83,7 @@ function antitranslit ($str) {
     $fromin = array_flip(array(  
         "й" => "jj", "е" => "e", "ж" => "zh", "х" => "kh", "ч" => "ch",  
         "ш" => "sh", "щ" => "shh", "э" => "je", "ю" => "yu", "я" => "ya", 
-        "ъ" => "tv", "ь" => "mgz",));
+        "ъ" => "tv", "ь" => "mgz"));
          							
      //замена strtolower
      $str = strtr($str, $fromin);
@@ -99,6 +99,7 @@ if (isset($_REQUEST["t"]))
    $city = $_REQUEST["t"]; 
    // if ($city == "nizhnijj_novgorod" || $city == "chelyabinsk" || $city == "sankt-peterburg") include_once( $_SERVER['DOCUMENT_ROOT']. '/8days/action20_regions.php' );
    if ($city == "nizhnijj_novgorod") include_once( $_SERVER['DOCUMENT_ROOT']. '/8days/act_nizhnijj.php' );
+   //if ($city == "novosibirsk") include_once( $_SERVER['DOCUMENT_ROOT']. '/8days/act_novosibirsk.php' );
    include_once( $_SERVER['DOCUMENT_ROOT']. '/8days/action20_regions.php' ); 
  }
 ?> 

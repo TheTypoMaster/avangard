@@ -117,7 +117,7 @@ if (($arID = $lAdmin->GroupAction()) && $blogModulePermissions >= "W")
 			array($by => $order),
 			$arFilter,
 			false,
-			array("nPageSize"=>CAdminResult::GetNavSize($sTableID)),
+			false,
 			array("ID")
 		);
 		while ($arResult = $dbResultList->Fetch())
@@ -193,6 +193,7 @@ if (($arID = $lAdmin->GroupAction()) && $blogModulePermissions >= "W")
 					BXClearCache(True, "/".$site."/blog/".$blogUrl."/first_page/");
 					BXClearCache(True, "/".$site."/blog/".$blogUrl."/comment/".$postID."/");
 					BXClearCache(True, "/".$site."/blog/".$blogUrl."/rss_out/".$postID."/C/");
+					BXClearCache(True, "/blog/comment/".$postID."/");
 				}
 			}
 			BXClearCache(True, "/".$site."/blog/last_comments/");
@@ -357,7 +358,7 @@ $oFilter->Begin();
 ?>
 	<tr>
 		<td>ID:</td>
-		<td><input type="text" name="filter_id" value="<?echo htmlspecialchars($filter_id)?>" size="20"></td>
+		<td><input type="text" name="filter_id" value="<?echo htmlspecialcharsbx($filter_id)?>" size="20"></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("BLB_DATE_CREATE");?>:</td>
@@ -373,11 +374,11 @@ $oFilter->Begin();
 	</tr>	
 	<tr>
 		<td><?echo GetMessage("BLB_AUTHOR_NAME")?>:</td>
-		<td><input type="text" name="filter_author_name" value="<?echo htmlspecialchars($filter_author_name)?>" size="40"><?=ShowFilterLogicHelp()?></td>
+		<td><input type="text" name="filter_author_name" value="<?echo htmlspecialcharsbx($filter_author_name)?>" size="40"><?=ShowFilterLogicHelp()?></td>
 	</tr>	
 	<tr>
 		<td><?echo GetMessage("BLB_AUTHOR_EMAIL")?>:</td>
-		<td><input type="text" name="filter_author_email" value="<?echo htmlspecialchars($filter_author_email)?>" size="40"><?=ShowFilterLogicHelp()?></td>
+		<td><input type="text" name="filter_author_email" value="<?echo htmlspecialcharsbx($filter_author_email)?>" size="40"><?=ShowFilterLogicHelp()?></td>
 	</tr>	
 	<tr>
 		<td><?echo GetMessage("BLB_AUTHOR_ANONYM")?>:</td>
@@ -392,15 +393,15 @@ $oFilter->Begin();
 
 	<tr>
 		<td><?echo GetMessage("BLB_POST_TEXT")?>:</td>
-		<td><input type="text" name="filter_post_text" value="<?echo htmlspecialchars($filter_post_text)?>" size="40"><?=ShowFilterLogicHelp()?></td>
+		<td><input type="text" name="filter_post_text" value="<?echo htmlspecialcharsbx($filter_post_text)?>" size="40"><?=ShowFilterLogicHelp()?></td>
 	</tr>	
 	<tr>
 		<td><?echo GetMessage("BLB_AUTHOR_IP")?>:</td>
-		<td><input type="text" name="filter_author_ip" value="<?echo htmlspecialchars($filter_author_ip)?>" size="40"><?=ShowFilterLogicHelp()?></td>
+		<td><input type="text" name="filter_author_ip" value="<?echo htmlspecialcharsbx($filter_author_ip)?>" size="40"><?=ShowFilterLogicHelp()?></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("BLB_AUTHOR_IP1")?>:</td>
-		<td><input type="text" name="filter_author_ip1" value="<?echo htmlspecialchars($filter_author_ip1)?>" size="40"><?=ShowFilterLogicHelp()?></td>
+		<td><input type="text" name="filter_author_ip1" value="<?echo htmlspecialcharsbx($filter_author_ip1)?>" size="40"><?=ShowFilterLogicHelp()?></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("BLB_PUBLISH_STATUS")?>:</td>
@@ -414,11 +415,11 @@ $oFilter->Begin();
 	</tr>
 	<tr>
 		<td><?echo GetMessage("BLB_BLOG_ID")?>:</td>
-		<td><input type="text" name="filter_blog_id" value="<?echo htmlspecialchars($filter_blog_id)?>" size="20"></td>
+		<td><input type="text" name="filter_blog_id" value="<?echo htmlspecialcharsbx($filter_blog_id)?>" size="20"></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("BLB_POST_ID")?>:</td>
-		<td><input type="text" name="filter_post_id" value="<?echo htmlspecialchars($filter_post_id)?>" size="20"></td>
+		<td><input type="text" name="filter_post_id" value="<?echo htmlspecialcharsbx($filter_post_id)?>" size="20"></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("BLB_BLOG_OWNER_ID");?>:</td>
@@ -428,7 +429,7 @@ $oFilter->Begin();
 	</tr>	
 	<tr>
 		<td><?echo GetMessage("BLB_BLOG_SOCNET_GROUP_ID")?>:</td>
-		<td><input type="text" name="filter_socnet_group_id" value="<?echo htmlspecialchars($filter_socnet_group_id)?>" size="20"></td>
+		<td><input type="text" name="filter_socnet_group_id" value="<?echo htmlspecialcharsbx($filter_socnet_group_id)?>" size="20"></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("BLB_BLOG_ACTIVE")?>:</td>

@@ -14,6 +14,9 @@ class CAdminFileDialog
 {
 	function ShowScript($arConfig)
 	{
+		global $USER;
+		$bCloudsBrowse = is_object($USER) && $USER->CanDoOperation("clouds_browse") && $arConfig["operation"] === "O";
+
 		CUtil::InitJSCore(array('ajax', 'window'));
 
 		if(CModule::IncludeModule("fileman"))
@@ -154,7 +157,7 @@ class CAdminFileDialog
 				if (!window.BXFileDialog)
 				{
 					if (bLoadJS !== false)
-						jsUtils.loadJSFile("/bitrix/js/main/file_dialog.js?v=<?=@filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/js/main/file_dialog.js')?>");
+						BX.loadScript("/bitrix/js/main/file_dialog.js?v=<?=@filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/js/main/file_dialog.js')?>");
 					return setTimeout(function(){window['<?= CUtil::JSEscape($arConfig['event'])?>'](false, Params)}, 50);
 				}
 
@@ -195,6 +198,21 @@ class CAdminFileDialog
 			};
 			window.<?= CUtil::JSEscape($arConfig['event'])?>Result = function(filename, path, site, title, menu)
 			{
+<?
+$arBuckets = array();
+if($bCloudsBrowse && CModule::IncludeModule('clouds'))
+{
+	foreach(CCloudStorageBucket::GetAllBuckets() as $arBucket)
+	{
+		if($arBucket["ACTIVE"] == "Y")
+		{
+			$obBucket = new CCloudStorageBucket($arBucket["ID"]);
+			if($obBucket->Init())
+				$arBuckets[$arBucket["BUCKET"]] = rtrim($obBucket->GetFileSRC("/"), "/");
+		}
+	}
+}
+?>
 				path = jsUtils.trim(path);
 				path = path.replace(/\\/ig,"/");
 				path = path.replace(/\/\//ig,"/");
@@ -204,6 +222,13 @@ class CAdminFileDialog
 				if (path == '')
 					path = '/';
 
+				var arBuckets = <?echo CUtil::PhpToJSObject($arBuckets)?>;
+				if(arBuckets[site])
+				{
+					full = arBuckets[site] + filename;
+					path = arBuckets[site] + path;
+				}
+
 				if ('<?= CUtil::JSEscape($arConfig['select'])?>' == 'D')
 					name = full;
 
@@ -211,8 +236,10 @@ class CAdminFileDialog
 					<?= CUtil::JSEscape($arConfig['arResultDest']["FUNCTION_NAME"])?>(filename, path, site, title || '', menu || '');
 				<?elseif($resultDest == "FORM"): ?>
 					document.<?= CUtil::JSEscape($arConfig['arResultDest']["FORM_NAME"])?>.<?= CUtil::JSEscape($arConfig['arResultDest']["FORM_ELEMENT_NAME"])?>.value = full;
+					BX.fireEvent(document.<?= CUtil::JSEscape($arConfig['arResultDest']["FORM_NAME"])?>.<?= CUtil::JSEscape($arConfig['arResultDest']["FORM_ELEMENT_NAME"])?>, 'change');
 				<?elseif($resultDest == "ID"): ?>
 					BX('<?= CUtil::JSEscape($arConfig['arResultDest']["ELEMENT_ID"])?>').value = full;
+					BX.fireEvent(BX('<?= CUtil::JSEscape($arConfig['arResultDest']["ELEMENT_ID"])?>'), 'change');
 				<?endif;?>
 			};
 			<?self::AttachJSScripts();?>
@@ -221,7 +248,7 @@ class CAdminFileDialog
 		}
 		else
 		{
-			echo "<font color=\"#FF0000\">".htmlspecialchars($functionError)."</font>";
+			echo "<font color=\"#FF0000\">".htmlspecialcharsbx($functionError)."</font>";
 		}
 	}
 
@@ -241,6 +268,9 @@ if (window.jsUtils)
 
 	function Start($Params)
 	{
+		global $USER;
+		$bCloudsBrowse = is_object($USER) && $USER->CanDoOperation('clouds_browse') && $Params["operation"] === "O";
+
 		$arSites = Array();
 		$dbSitesList = CSite::GetList($b = "SORT", $o = "asc");
 		$arSitesPP = Array();
@@ -255,10 +285,28 @@ if (window.jsUtils)
 			);
 		}
 
+		if($bCloudsBrowse && CModule::IncludeModule('clouds'))
+		{
+			foreach(CCloudStorageBucket::GetAllBuckets() as $arBucket)
+			{
+				if($arBucket["ACTIVE"] == "Y")
+				{
+					$id = $arBucket["BUCKET"];
+					$arSites[$id] = $arBucket["BUCKET"];
+					$arSitesPP[] = array(
+						"ID" => $id,
+						"TEXT" => $arBucket["BUCKET"],
+						"ONCLICK" => "oBXDialogControls.SiteSelectorOnChange('".$id."')",
+						"ICON" => ($id == $Params['site']) ? 'checked' : ''
+					);
+				}
+			}
+		}
+
 		$Params['arSites'] = $arSites;
 		$Params['arSitesPP'] = $arSitesPP;
 		$Params['site'] = ($Params['site'] && isset($arSites[$Params['site']])) ? $Params['site'] : key($arSites); // Secure site var
-		
+
 		if (!in_array(strtolower($Params['lang']), array('en', 'ru'))) // Secure lang var
 		{
 			$res = CLanguage::GetByID($Params['lang']);
@@ -289,9 +337,23 @@ if (window.jsUtils)
 			self::GetMenuTypes($Params['site'], $Params['path'], true);
 
 		if ($Params['loadRecursively'])
-			self::GetItemsRecursively(array('path' => $Params['path'], 'site' => $Params['site'], 'bCheckEmpty' => true, 'getFiles' => $Params['getFiles'], 'loadRoot' => $Params['loadRoot'], 'bThrowException' => true));
+			self::GetItemsRecursively(array(
+				'path' => $Params['path'],
+				'site' => $Params['site'],
+				'bCheckEmpty' => true,
+				'getFiles' => $Params['getFiles'],
+				'loadRoot' => $Params['loadRoot'],
+				'bThrowException' => true,
+				'operation' => $Params['operation'],
+			));
 		else
-			self::GetItems(array('path' => $Params['path'], 'site' => $Params['site'], 'bCheckEmpty' => true, 'getFiles' => $Params['getFiles']));
+			self::GetItems(array(
+				'path' => $Params['path'],
+				'site' => $Params['site'],
+				'bCheckEmpty' => true,
+				'getFiles' => $Params['getFiles'],
+				'operation' => $Params['operation'],
+			));
 
 		if ($e = $APPLICATION->GetException())
 			echo 'window.action_warning = "'.addslashes($e->GetString()).'";';
@@ -306,7 +368,7 @@ if (window.jsUtils)
 		$arSites = $Params['arSites'];
 		if (count($arSites) > 1) // Site selector
 		{
-			$u = new CAdminPopup("fd_site_list", "fd_site_list", $Params['arSitesPP'], array('zIndex' => 2500, 'dxShadow' => 0));
+			$u = new CAdminPopup("fd_site_list", "fd_site_list", $Params['arSitesPP'], array('zIndex' => 3500, 'dxShadow' => 0));
 			$u->Show();
 		}
 		?>
@@ -318,14 +380,14 @@ if (window.jsUtils)
 			<table class="bx-fd-top-contr-tbl">
 				<tr>
 					<?if (count($arSites) > 1):?>
-						<td style="width:26px !important; padding: 0px 4px 0px 5px !important;">
-						<div id="__bx_site_selector" bxvalue='<?= CUtil::JSEscape($Params['site'])?>' onclick="oBXDialogControls.SiteSelectorOnClick(this);" class="fd_iconkit site_selector_div"><span><?= strtoupper(CUtil::JSEscape($Params['site']))?></span></div>
+						<td style="width:22px!important; padding: 0px 4px 0px 5px !important;">
+						<div id="__bx_site_selector" bxvalue='<?= CUtil::JSEscape($Params['site'])?>' onclick="oBXDialogControls.SiteSelectorOnClick(this);" class="site_selector_div"><span><?= CUtil::JSEscape($Params['site'])?></span><span class="fd_iconkit site_selector_div_arrow">&nbsp;&nbsp;</span></div>
 						</td>
 					<?endif;?>
-					<td style="width:320px !important; padding: 0px 2px 0px 2px !important;">
+					<td style="padding: 0px 2px 0px 2px !important;">
 						<input class="fd_input" type="text" id="__bx_dir_path_bar"></input>
 					</td>
-					<td style="width:170px !important; padding: 0px 2px 0px 2px !important;">
+					<td nowrap style="width:170px !important; padding: 0px 2px 0px 2px !important;">
 						<img src="/bitrix/images/1.gif" class="fd_iconkit go_button" id="__bx_dir_path_go" title="<?=GetMessage("FD_GO_TO")?>"/>
 						<img src="/bitrix/images/1.gif" __bx_disable="Y" class="fd_iconkit path_back_dis" title="<?=GetMessage("FD_GO_BACK")?>" id="__bx_dir_path_back"/>
 						<img src="/bitrix/images/1.gif" __bx_disable="Y" class="fd_iconkit path_forward_dis" title="<?=GetMessage("FD_GO_FORWARD")?>" id="__bx_dir_path_forward"/>
@@ -345,7 +407,7 @@ if (window.jsUtils)
 						?>
 						<img onclick="oBXDialogControls.ViewSelector.OnClick();" src="/bitrix/images/1.gif" id="__bx_view_selector" class="fd_iconkit view_selector"  title="<?=GetMessage("FD_SELECT_VIEW")?>"/>
 					</td>
-					<td style="width:180px !important; padding: 0px 6px 0px 3px !important; text-align:right !important;" align="right">
+					<td nowrap style="width:180px !important; padding: 0px 6px 0px 3px !important; text-align:right !important;" align="right">
 						<?=GetMessage("FD_SORT_BY")?>:
 						<select class="fd_select" id="__bx_sort_selector" title="<?=GetMessage("FD_SORT_BY")?>" style="font-size:11px !important;">
 							<option value="name"><?=GetMessage("FD_SORT_BY_NAME")?></option>
@@ -536,7 +598,16 @@ if (!window.arFDMenuTypes)
 		if ($Params['arMenuTypesScript'])
 			echo $Params['arMenuTypesScript'];
 
-		self::GetItemsRecursively(array('path' => $Params['path'], 'site' => $Params['site'], 'bCheckEmpty' => true, 'getFiles' => $Params['getFiles'], 'loadRoot' => true, 'bFindCorrectPath' => true, 'bThrowException' => false));
+		self::GetItemsRecursively(array(
+			'path' => $Params['path'],
+			'site' => $Params['site'],
+			'bCheckEmpty' => true,
+			'getFiles' => $Params['getFiles'],
+			'loadRoot' => true,
+			'bFindCorrectPath' => true,
+			'bThrowException' => false,
+			'operation' => $Params['operation'],
+		));
 
 		if ($e = $APPLICATION->GetException())
 			echo 'alert("'.CUtil::JSEscape($e->GetString()).'");';
@@ -578,6 +649,8 @@ function OnLoad()
 
 	oBXDialogTree.Append();
 	oBXFileDialog.SubmitFileDialog = SubmitFileDialog;
+
+	BX.onCustomEvent(window, 'onFileDialogLoaded');
 }
 
 // Append CSS
@@ -585,10 +658,10 @@ if (!window.fd_styles_link || !window.fd_styles_link.parentNode)
 	window.fd_styles_link = jsUtils.loadCSSFile("<?=$fd_css_src.'?v='.@filemtime($_SERVER['DOCUMENT_ROOT'].$fd_css_src)?>");
 
 // Append file with File Dialog engine
-if (!window.BXDialogTree)
-	jsUtils.loadJSFile("<?=$fd_engine_js_src.'?v='.@filemtime($_SERVER['DOCUMENT_ROOT'].$fd_engine_js_src)?>", OnLoad);
-else
+if (window.BXDialogTree)
 	OnLoad();
+else
+	BX.loadScript("<?=$fd_engine_js_src.'?v='.@filemtime($_SERVER['DOCUMENT_ROOT'].$fd_engine_js_src)?>", OnLoad);
 
 </script>
 <?
@@ -602,41 +675,41 @@ else
 		?>
 var FD_MESS =
 {
-	FD_SAVE_TAB_TITLE : '<?=GetMessage('FD_SAVE_TAB_TITLE')?>',
-	FD_OPEN_DIR : '<?=GetMessage('FD_OPEN_DIR')?>',
-	FD_OPEN_TAB_TITLE : '<?=GetMessage('FD_OPEN_TAB_TITLE')?>',
-	FD_CLOSE : '<?=GetMessage('FD_CLOSE')?>',
-	FD_SORT_SIZE : '<?=GetMessage('FD_SORT_SIZE')?>',
-	FD_SORT_DATE : '<?=GetMessage('FD_SORT_DATE')?>',
-	FD_SORT_NAME : '<?=GetMessage('FD_SORT_NAME')?>',
-	FD_SORT_TYPE : '<?=GetMessage('FD_SORT_TYPE')?>',
-	FD_BUT_OPEN : '<?=GetMessage('FD_BUT_OPEN')?>',
-	FD_BUT_SAVE : '<?=GetMessage('FD_BUT_SAVE')?>',
-	FD_ALL_FILES : '<?=GetMessage('FD_ALL_FILES')?>',
-	FD_ALL_IMAGES : '<?=GetMessage('FD_ALL_IMAGES')?>',
-	FD_BYTE : '<?=GetMessage('FD_BYTE')?>',
-	FD_EMPTY_FILENAME : '<?=GetMessage('FD_EMPTY_FILENAME')?>',
-	FD_INPUT_NEW_PUNKT_NAME : '<?=GetMessage('FD_INPUT_NEW_PUNKT_NAME')?>',
-	FD_LAST_POINT : '<?=GetMessage('FD_LAST_POINT')?>',
-	FD_NEWFOLDER_EXISTS : '<?=GetMessage('FD_NEWFOLDER_EXISTS')?>',
-	FD_NEWFILE_EXISTS : '<?=GetMessage('FD_NEWFILE_EXISTS')?>',
-	FD_RENAME : '<?=GetMessage('FD_RENAME')?>',
-	FD_DELETE : '<?=GetMessage('FD_DELETE')?>',
-	FD_RENAME_TITLE : '<?=GetMessage('FD_RENAME_TITLE')?>',
-	FD_DELETE_TITLE : '<?=GetMessage('FD_DELETE_TITLE')?>',
-	FD_CONFIRM_DEL_DIR : '<?=GetMessage('FD_CONFIRM_DEL_DIR')?>',
-	FD_CONFIRM_DEL_FILE : '<?=GetMessage('FD_CONFIRM_DEL_FILE')?>',
-	FD_EMPTY_NAME : '<?=GetMessage('FD_EMPTY_NAME')?>',
-	FD_INCORRECT_NAME : '<?=GetMessage('FD_INCORRECT_NAME')?>',
-	FD_LOADIND : '<?=GetMessage('FD_LOADING')?>...',
-	FD_EMPTY_NAME : '<?=GetMessage('FD_EMPTY_NAME')?>',
-	FD_INCORRECT_EXT : '<?=GetMessage('FD_INCORRECT_EXT')?>',
-	FD_LOAD_EXIST_CONFIRM : '<?=GetMessage('FD_LOAD_EXIST_CONFIRM')?>',
-	FD_SESS_EXPIRED : '<?=GetMessage('BX_FD_ERROR').': '.GetMessage('BX_FD_SESS_EXPIRED')?>',
-	FD_ERROR : '<?=GetMessage('BX_FD_ERROR')?>',
-	FD_FILE : '<?=GetMessage('FD_FILE')?>',
-	FD_FOLDER : '<?=GetMessage('FD_FOLDER')?>',
-	FD_IMAGE : '<?=GetMessage('FD_IMAGE')?>'
+	FD_SAVE_TAB_TITLE : '<?=GetMessageJS('FD_SAVE_TAB_TITLE')?>',
+	FD_OPEN_DIR : '<?=GetMessageJS('FD_OPEN_DIR')?>',
+	FD_OPEN_TAB_TITLE : '<?=GetMessageJS('FD_OPEN_TAB_TITLE')?>',
+	FD_CLOSE : '<?=GetMessageJS('FD_CLOSE')?>',
+	FD_SORT_SIZE : '<?=GetMessageJS('FD_SORT_SIZE')?>',
+	FD_SORT_DATE : '<?=GetMessageJS('FD_SORT_DATE')?>',
+	FD_SORT_NAME : '<?=GetMessageJS('FD_SORT_NAME')?>',
+	FD_SORT_TYPE : '<?=GetMessageJS('FD_SORT_TYPE')?>',
+	FD_BUT_OPEN : '<?=GetMessageJS('FD_BUT_OPEN')?>',
+	FD_BUT_SAVE : '<?=GetMessageJS('FD_BUT_SAVE')?>',
+	FD_ALL_FILES : '<?=GetMessageJS('FD_ALL_FILES')?>',
+	FD_ALL_IMAGES : '<?=GetMessageJS('FD_ALL_IMAGES')?>',
+	FD_BYTE : '<?=GetMessageJS('FD_BYTE')?>',
+	FD_EMPTY_FILENAME : '<?=GetMessageJS('FD_EMPTY_FILENAME')?>',
+	FD_INPUT_NEW_PUNKT_NAME : '<?=GetMessageJS('FD_INPUT_NEW_PUNKT_NAME')?>',
+	FD_LAST_POINT : '<?=GetMessageJS('FD_LAST_POINT')?>',
+	FD_NEWFOLDER_EXISTS : '<?=GetMessageJS('FD_NEWFOLDER_EXISTS')?>',
+	FD_NEWFILE_EXISTS : '<?=GetMessageJS('FD_NEWFILE_EXISTS')?>',
+	FD_RENAME : '<?=GetMessageJS('FD_RENAME')?>',
+	FD_DELETE : '<?=GetMessageJS('FD_DELETE')?>',
+	FD_RENAME_TITLE : '<?=GetMessageJS('FD_RENAME_TITLE')?>',
+	FD_DELETE_TITLE : '<?=GetMessageJS('FD_DELETE_TITLE')?>',
+	FD_CONFIRM_DEL_DIR : '<?=GetMessageJS('FD_CONFIRM_DEL_DIR')?>',
+	FD_CONFIRM_DEL_FILE : '<?=GetMessageJS('FD_CONFIRM_DEL_FILE')?>',
+	FD_EMPTY_NAME : '<?=GetMessageJS('FD_EMPTY_NAME')?>',
+	FD_INCORRECT_NAME : '<?=GetMessageJS('FD_INCORRECT_NAME')?>',
+	FD_LOADIND : '<?=GetMessageJS('FD_LOADING')?>...',
+	FD_EMPTY_NAME : '<?=GetMessageJS('FD_EMPTY_NAME')?>',
+	FD_INCORRECT_EXT : '<?=GetMessageJS('FD_INCORRECT_EXT')?>',
+	FD_LOAD_EXIST_CONFIRM : '<?=GetMessageJS('FD_LOAD_EXIST_CONFIRM')?>',
+	FD_SESS_EXPIRED : '<?=GetMessageJS('BX_FD_ERROR').': '.GetMessageJS('BX_FD_SESS_EXPIRED')?>',
+	FD_ERROR : '<?=GetMessageJS('BX_FD_ERROR')?>',
+	FD_FILE : '<?=GetMessageJS('FD_FILE')?>',
+	FD_FOLDER : '<?=GetMessageJS('FD_FOLDER')?>',
+	FD_IMAGE : '<?=GetMessageJS('FD_IMAGE')?>'
 };
 <?
 	}
@@ -673,7 +746,7 @@ var FD_MESS =
 			for($j=0; $j<count($aMenuLinksTmp); $j++)
 			{
 				$aMenuLinksItem = $aMenuLinksTmp[$j];
-				$arItems[] = htmlspecialchars($aMenuLinksItem[0]);
+				$arItems[] = htmlspecialcharsbx($aMenuLinksItem[0]);
 			}
 			$arAllItems[$key] = $arItems;
 			if($strSelected == "")
@@ -712,13 +785,93 @@ var FD_MESS =
 
 	function GetItems($Params)
 	{
-		global $APPLICATION,$USER;
+		global $APPLICATION, $USER;
 		static $checkChildren, $genTmb;
 
 		if (!isset($checkChildren, $genTmb))
 		{
 			$checkChildren = COption::GetOptionString("fileman", "file_dialog_check_children", "Y") == 'Y';
 			$genTmb = COption::GetOptionString("fileman", "file_dialog_gen_thumb", "Y") == 'Y';
+		}
+
+		if(strlen($Params["site"]) > 2)
+		{
+			if (!$USER->CanDoOperation('clouds_browse'))
+				return $APPLICATION->ThrowException(GetMessage('BX_FD_ERROR').': '.GetMessage('BX_FD_ACCESS_DENIED'), 'access_denied');
+
+			if($Params['operation'] !== 'O')
+				return $APPLICATION->ThrowException(GetMessage('BX_FD_ERROR').': '.GetMessage('BX_FD_PATH_CORRUPT').' [clouds 04]', 'path_corrupt');
+
+			if(!CModule::IncludeModule('clouds'))
+				return $APPLICATION->ThrowException(GetMessage('BX_FD_ERROR').': '.GetMessage('BX_FD_PATH_CORRUPT').' [clouds 01]', 'path_corrupt');
+
+			$obBucket = null;
+			foreach(CCloudStorageBucket::GetAllBuckets() as $arBucket)
+			{
+				if($arBucket["ACTIVE"] == "Y" && $arBucket["BUCKET"] === $Params["site"])
+					$obBucket = new CCloudStorageBucket($arBucket["ID"]);
+			}
+
+			if(!$obBucket)
+				return $APPLICATION->ThrowException(GetMessage('BX_FD_ERROR').': '.GetMessage('BX_FD_PATH_CORRUPT').' [clouds 02]', 'path_corrupt');
+
+			if(!$obBucket->Init())
+				return $APPLICATION->ThrowException(GetMessage('BX_FD_ERROR').': '.GetMessage('BX_FD_PATH_CORRUPT').' [clouds 03]', 'path_corrupt');
+
+			$path = preg_replace("#[\\\\\\/]+#", "/", "/".$APPLICATION->UnJSEscape($Params['path']));
+			$path_js = $path == "" ? "/" : addslashes(htmlspecialcharsex($path));
+			$path_js = str_replace("//", "/", $path_js);
+
+			$arFiles = $obBucket->ListFiles($path);
+			if(!is_array($arFiles))
+				return $APPLICATION->ThrowException(GetMessage('BX_FD_ERROR').': '.GetMessage('BX_FD_PATH_CORRUPT').' [clouds 05]', 'path_corrupt');
+?>
+arFDDirs['<?=$path_js?>'] = [];
+arFDFiles['<?=$path_js?>'] = [];
+<?
+			foreach ($arFiles["dir"] as $ind => $dir)
+			{
+?>
+arFDDirs['<?=$path_js?>'][<?=$ind?>] =
+{
+	name : '<?=CUtil::JSEscape($dir)?>',
+	path : '<?=CUtil::JSEscape(preg_replace("#[\\\\\\/]+#", "/", $path."/".$dir));?>',
+	empty: false,
+	permission : {del : false, ren : false},
+	date : '',
+	timestamp : '',
+	size : 0
+};
+<?
+			}
+
+
+			if ($Params['getFiles'])
+			{
+				foreach ($arFiles['file'] as $ind => $file)
+				{
+?>
+arFDFiles['<?=$path_js?>'][<?=$ind?>] =
+{
+	name : '<?=CUtil::JSEscape($file)?>',
+	path : '<?=CUtil::JSEscape($obBucket->GetFileSRC($path."/".$file))?>',
+	permission : {del : false, ren : false},
+	date : '',
+	timestamp : '',
+	size : '<?=$arFiles["file_size"][$ind];?>'
+};
+<?
+				}
+			}
+
+		?>
+arFDPermission['<?=$path_js?>'] = {
+	new_folder : false,
+	upload : false
+};
+<?
+
+			return;
 		}
 
 		$io = CBXVirtualIo::GetInstance();
@@ -739,7 +892,6 @@ var FD_MESS =
 
 		$arDirs = array(); $arFiles = array();
 		GetDirList(array($site, $path), $arDirs, $arFiles, array(), array("name" => "asc"), "DF", false, true);
-
 ?>
 arFDDirs['<?=$path_js?>'] = [];
 arFDFiles['<?=$path_js?>'] = [];
@@ -827,8 +979,8 @@ arFDFiles['<?=$path_js?>'][<?=$ind?>] =
 	name : '<?=$name?>',
 	path : '<?=$path_i?>',
 	permission : {del : <?=$perm_del?>, ren : <?=$perm_ren?>},
-	date : '<?=$Dir["DATE"];?>',
-	timestamp : '<?=$Dir["TIMESTAMP"];?>',
+	date : '<?=$File["DATE"];?>',
+	timestamp : '<?=$File["TIMESTAMP"];?>',
 	size : '<?=$File["SIZE"];?>'<?=$imageAddProps?>
 };
 <?
@@ -838,8 +990,8 @@ arFDFiles['<?=$path_js?>'][<?=$ind?>] =
 		$arPath = array($site, $path);
 		?>
 arFDPermission['<?=$path_js?>'] = {
-	new_folder : <?echo ($USER->CanDoFileOperation('fm_create_new_folder',$arPath) ? 'true' : 'false');?>,
-	upload : <?echo ($USER->CanDoFileOperation('fm_upload_file',$arPath) ? 'true' : 'false');?>
+	new_folder : <?= ($USER->CanDoFileOperation('fm_create_new_folder',$arPath) ? 'true' : 'false');?>,
+	upload : <?= ($USER->CanDoFileOperation('fm_upload_file',$arPath) ? 'true' : 'false');?>
 };
 <?
 	}
@@ -902,7 +1054,7 @@ arFDPermission['<?=$path_js?>'] = {
 			if (!$USER->CanDoFileOperation('fm_create_new_folder', $arPath))
 				$strWarning = GetMessage("ACCESS_DENIED");
 			else if(!$io->DirectoryExists($abs_path))
-				$strWarning = GetMessage("FD_FOLDER_NOT_FOUND", array('#PATH#' => addslashes(htmlspecialchars($path))));
+				$strWarning = GetMessage("FD_FOLDER_NOT_FOUND", array('#PATH#' => addslashes(htmlspecialcharsbx($path))));
 			else
 			{
 				if (strlen($dirname) > 0 && ($mess = self::CheckFileName($dirname)) !== true)
@@ -934,7 +1086,7 @@ arFDPermission['<?=$path_js?>'] = {
 	{
 		if(CModule::IncludeModule("fileman"))
 		{
-			global $USER;
+			global $USER, $APPLICATION;
 
 			$io = CBXVirtualIo::GetInstance();
 			$path = Rel2Abs("/", $APPLICATION->UnJSEscape($Params['path']));
@@ -954,7 +1106,7 @@ arFDPermission['<?=$path_js?>'] = {
 
 			//Check access to folder or file
 			if (!$type) // Not found
-				$strWarning = GetMessage("FD_ELEMENT_NOT_FOUND", array('#PATH#' => addslashes(htmlspecialchars($path))));
+				$strWarning = GetMessage("FD_ELEMENT_NOT_FOUND", array('#PATH#' => addslashes(htmlspecialcharsbx($path))));
 			elseif (!$USER->CanDoFileOperation('fm_delete_'.$type, $arPath)) // Access denied
 				$strWarning = GetMessage("ACCESS_DENIED");
 			else // Ok, delete it!
@@ -1006,10 +1158,6 @@ arFDPermission['<?=$path_js?>'] = {
 			if ($io->FileExists($oldAbsPath))
 				$type = 'file';
 
-			$ext1 = GetFileExtension($oldName);
-			$ext2 = GetFileExtension($name);
-			$ScriptExt = GetScriptFileExt();
-
 			if (
 				$type == 'file' &&
 				!$USER->CanDoOperation('edit_php') &&
@@ -1019,13 +1167,13 @@ arFDPermission['<?=$path_js?>'] = {
 					substr($name, 0, 1) == "."
 					||
 					(
-						in_array($ext1, $ScriptExt) &&
-						!in_array($ext2, $ScriptExt)
+						HasScriptExtension($oldName) &&
+						!HasScriptExtension($name)
 					)
 					||
 					(
-						in_array($ext2, $ScriptExt) &&
-						!in_array($ext1, $ScriptExt)
+						HasScriptExtension($name) &&
+						!HasScriptExtension($oldName)
 					)
 				)
 			)
@@ -1033,7 +1181,7 @@ arFDPermission['<?=$path_js?>'] = {
 				$strWarning = GetMessage("ACCESS_DENIED");
 			}
 			elseif (!$type)
-				$strWarning = GetMessage("FD_ELEMENT_NOT_FOUND", array('#PATH#' => addslashes(htmlspecialchars($path))));
+				$strWarning = GetMessage("FD_ELEMENT_NOT_FOUND", array('#PATH#' => addslashes(htmlspecialcharsbx($path))));
 			elseif (!$USER->CanDoFileOperation('fm_rename_'.$type,$arPath1) || !$USER->CanDoFileOperation('fm_rename_'.$type,$arPath2))
 				$strWarning = GetMessage("ACCESS_DENIED");
 			else
@@ -1139,6 +1287,7 @@ arFDPermission['<?=$path_js?>'] = {
 <HEAD><?=$res?></HEAD>
 <BODY style="margin:0px !important; background-color:#F4F4F4; font-family:Verdana;">
 <form name="frmLoad" action="file_dialog.php?action=uploader&lang=<?=$lang?>&site=<?=$site?>&<?=bitrix_sessid_get()?>" onsubmit="return parent.oBXDialogControls.Uploader.OnSubmit();" method="post" enctype="multipart/form-data">
+	<input id="__bx_fd_server_site" type="hidden" name="cur_site" value="<?=$site?>" />
 	<table style="width: 540px; height: 123px; font-size:70%">
 		<tr height="0%">
 			<td style="width:40%;" align="left">
@@ -1198,60 +1347,60 @@ arFDPermission['<?=$path_js?>'] = {
 			$path = $Params['path'];
 			$site = $Params['site'];
 			$upload_and_open = $Params['upload_and_open'];
-			$rewrite = $Params['rewrite'];
 			$rootPath = CSite::GetSiteDocRoot($site);
 
-			if(strlen($filename) == 0)
+			if($filename == '')
 				$filename = $F["name"];
 
 			$pathto = Rel2Abs($path, $filename);
-			$pathto = urldecode($pathto);
 
 			if (strlen($filename) > 0 && ($mess = self::CheckFileName($filename)) !== true)
 				$strWarning = $mess;
 
-			$fn = $io->ExtractNameFromPath($pathto);
-			if($APPLICATION->GetFileAccessPermission(array($site, $pathto)) > "R" &&
-				($USER->IsAdmin() || (!in_array(GetFileExtension($fn), GetScriptFileExt()) && substr($fn, 0, 1) != ".")) &&
-				strlen($strWarning) == 0
-			)
+			if($strWarning == '')
 			{
-				if(!$io->FileExists($rootPath.$pathto) || $_REQUEST["rewrite"] == "Y")
+				$fn = $io->ExtractNameFromPath($pathto);
+				if($APPLICATION->GetFileAccessPermission(array($site, $pathto)) > "R" &&
+					($USER->IsAdmin() || (!HasScriptExtension($fn) && substr($fn, 0, 1) != "." && $io->ValidateFilenameString($fn)))
+				)
 				{
-					//************************** Quota **************************//
-					$bQuota = true;
-					if(COption::GetOptionInt("main", "disk_space") > 0)
+					if(!$io->FileExists($rootPath.$pathto) || $_REQUEST["rewrite"] == "Y")
 					{
-						$bQuota = false;
-						$quota = new CDiskQuota();
-						if ($quota->checkDiskQuota(array("FILE_SIZE"=>filesize($F["tmp_name"]))))
-							$bQuota = true;
-					}
-					//************************** Quota **************************//
-					if ($bQuota)
-					{
-						$io->Copy($F["tmp_name"], $rootPath.$pathto);
-						$flTmp = $io->GetFile($rootPath.$pathto);
-						$flTmp->MarkWritable();
-
+						//************************** Quota **************************//
+						$bQuota = true;
 						if(COption::GetOptionInt("main", "disk_space") > 0)
-							CDiskQuota::updateDiskQuota("file", $flTmp->GetFileSize(), "copy");
+						{
+							$bQuota = false;
+							$quota = new CDiskQuota();
+							if ($quota->checkDiskQuota(array("FILE_SIZE"=>filesize($F["tmp_name"]))))
+								$bQuota = true;
+						}
+						//************************** Quota **************************//
+						if ($bQuota)
+						{
+							$io->Copy($F["tmp_name"], $rootPath.$pathto);
+							$flTmp = $io->GetFile($rootPath.$pathto);
+							$flTmp->MarkWritable();
 
-						$buffer = 'setTimeout(function(){parent.oBXDialogControls.Uploader.OnAfterUpload("'.$filename.'", '.($upload_and_open == "Y" ? 'true' : 'false').');}, 50);';
+							if(COption::GetOptionInt("main", "disk_space") > 0)
+								CDiskQuota::updateDiskQuota("file", $flTmp->GetFileSize(), "copy");
+
+							$buffer = 'setTimeout(function(){parent.oBXDialogControls.Uploader.OnAfterUpload("'.$filename.'", '.($upload_and_open == "Y" ? 'true' : 'false').');}, 50);';
+						}
+						else
+						{
+							$strWarning = $quota->LAST_ERROR;
+						}
 					}
 					else
 					{
-						$strWarning = $quota->LAST_ERROR;
+						$strWarning = GetMessage("FD_LOAD_EXIST_ALERT");
 					}
 				}
 				else
 				{
-					$strWarning = GetMessage("FD_LOAD_EXIST_ALERT");
+					$strWarning = GetMessage("FD_LOAD_DENY_ALERT");
 				}
-			}
-			elseif(strlen($strWarning) == 0)
-			{
-				$strWarning = GetMessage("FD_LOAD_DENY_ALERT");
 			}
 		}
 		else
@@ -1259,7 +1408,7 @@ arFDPermission['<?=$path_js?>'] = {
 			$strWarning = GetMessage("FD_LOAD_ERROR_ALERT");
 		}
 
-		if (strlen($strWarning) > 0)
+		if ($strWarning <> '')
 			$buffer = 'alert("'.addslashes(htmlspecialcharsex($strWarning)).'");';
 
 		return '<script>'.$buffer.'</script>';

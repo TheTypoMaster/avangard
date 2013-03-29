@@ -131,4 +131,7 @@ $MESS["FD_YEARS_DIFF_10_20"] = "#VALUE# years";
 $MESS["FD_YEARS_DIFF_MOD_1"] = "#VALUE# years";
 $MESS["FD_YEARS_DIFF_MOD_2_4"] = "#VALUE# years";
 $MESS["FD_YEARS_DIFF_MOD_OTHER"] = "#VALUE# years";
+$MESS["CAL_BUTTON"] = "Select";
+$MESS["CAL_TIME_SET"] = "Set time";
+$MESS["CAL_TIME"] = "Time";
 ?>

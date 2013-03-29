@@ -42,19 +42,21 @@ $FilterArr = Array(
 	"find_active",
 	"find_visible",
 	"find_auto",
-	);
+	"find_code",
+);
 
 $lAdmin->InitFilter($FilterArr);
 
 if (CheckFilter())
 {
 	$arFilter = Array(
-		"ID"		=> ($find!="" && $find_type == "id"? $find:$find_id),
-		"NAME"		=> ($find!="" && $find_type == "name"? $find:$find_name),
-		"LID"		=> $find_lid,
-		"ACTIVE"	=> $find_active,
-		"VISIBLE"	=> $find_visible,
-		"AUTO"		=> $find_auto,
+		"ID" => ($find!="" && $find_type == "id"? $find:$find_id),
+		"NAME" => ($find!="" && $find_type == "name"? $find:$find_name),
+		"LID" => $find_lid,
+		"ACTIVE" => $find_active,
+		"VISIBLE" => $find_visible,
+		"AUTO" => $find_auto,
+		"CODE" => $find_code,
 	);
 }
 
@@ -100,7 +102,7 @@ if(($arID = $lAdmin->GroupAction()) && $POST_RIGHT=="W")
 	{
 		if(strlen($ID)<=0)
 			continue;
-	   	$ID = IntVal($ID);
+		$ID = IntVal($ID);
 		switch($_REQUEST['action'])
 		{
 		case "delete":
@@ -159,6 +161,11 @@ $lAdmin->AddHeaders(array(
 		"align"		=>"right",
 		"default"	=>true,
 	),
+	array(	"id"		=>"CODE",
+		"content"	=>GetMessage("rub_code"),
+		"sort"		=>"name",
+		"default"	=>false,
+	),
 	array(	"id"		=>"ACTIVE",
 		"content"	=>GetMessage("rub_act"),
 		"sort"		=>"act",
@@ -187,7 +194,8 @@ while($arRes = $rsData->NavNext(true, "f_")):
 	$row->AddInputField("NAME", array("size"=>20));
 	$row->AddViewField("NAME", '<a href="rubric_edit.php?ID='.$f_ID.'&amp;lang='.LANG.'">'.$f_NAME.'</a>');
 	$row->AddEditField("LID", CLang::SelectBox("FIELDS[".$f_ID."][LID]", $f_LID));
-	$row->AddInputField("SORT", array("size"=>20));
+	$row->AddInputField("SORT", array("size"=>6));
+	$row->AddInputField("CODE", array("size"=>20));
 	$row->AddCheckField("ACTIVE");
 	$row->AddCheckField("VISIBLE");
 	$row->AddViewField("AUTO", $f_AUTO=="Y"?GetMessage("POST_U_YES"):GetMessage("POST_U_NO"));
@@ -258,6 +266,7 @@ $oFilter = new CAdminFilter(
 		GetMessage("rub_f_active"),
 		GetMessage("rub_f_public"),
 		GetMessage("rub_f_auto"),
+		GetMessage("rub_f_code"),
 	)
 );
 ?>
@@ -266,7 +275,7 @@ $oFilter = new CAdminFilter(
 <tr>
 	<td><b><?=GetMessage("rub_f_find")?>:</b></td>
 	<td>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("rub_f_find_title")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("rub_f_find_title")?>">
 		<?
 		$arr = array(
 			"reference" => array(
@@ -285,13 +294,13 @@ $oFilter = new CAdminFilter(
 <tr>
 	<td><?="ID"?>:</td>
 	<td>
-		<input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>">
+		<input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>">
 	</td>
 </tr>
 <tr>
 	<td><?=GetMessage("rub_f_name")?>:</td>
 	<td>
-		<input type="text" name="find_name" size="47" value="<?echo htmlspecialchars($find_name)?>">
+		<input type="text" name="find_name" size="47" value="<?echo htmlspecialcharsbx($find_name)?>">
 	</td>
 </tr>
 <tr>
@@ -302,7 +311,7 @@ $oFilter = new CAdminFilter(
 		$dbSites = CSite::GetList($b="NAME", $o="asc");
 		while ($arSites = $dbSites->Fetch())
 		{
-			?><option value="<?echo htmlspecialchars($arSites["ID"]) ?>"<?echo ($find_lid == $arSites["ID"] ? ' selected' : '') ?>>(<?echo htmlspecialchars($arSites["ID"]) ?>) <?echo htmlspecialchars($arSites["NAME"]) ?></option><?
+			?><option value="<?echo htmlspecialcharsbx($arSites["ID"]) ?>"<?echo ($find_lid == $arSites["ID"] ? ' selected' : '') ?>>(<?echo htmlspecialcharsbx($arSites["ID"]) ?>) <?echo htmlspecialcharsbx($arSites["NAME"]) ?></option><?
 		}
 		?>
 	</select></td>
@@ -332,6 +341,12 @@ $oFilter = new CAdminFilter(
 <tr>
 	<td><?=GetMessage("rub_f_auto")?>:</td>
 	<td><?echo SelectBoxFromArray("find_auto", $arr, $find_auto, GetMessage("MAIN_ALL"), "");?></td>
+</tr>
+<tr>
+	<td><?=GetMessage("rub_f_code")?>:</td>
+	<td>
+		<input type="text" name="find_code" size="47" value="<?echo htmlspecialcharsbx($find_code)?>">
+	</td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID,"url"=>$APPLICATION->GetCurPage(),"form"=>"find_form"));

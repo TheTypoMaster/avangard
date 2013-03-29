@@ -10,9 +10,9 @@ $aTabs = array(
 		"ICON" => "search_settings",
 		"TITLE" => GetMessage("SEARCH_OPTIONS_TAB_TITLE_INDEX_2"),
 		"OPTIONS" => Array(
-			"max_file_size" => Array(GetMessage("SEARCH_OPTIONS_REINDEX_MAX_SIZE"), Array("text", "")),
+			"max_file_size" => Array(GetMessage("SEARCH_OPTIONS_REINDEX_MAX_SIZE"), Array("text", 6)),
 			"include_mask" => Array(GetMessage("SEARCH_OPTIONS_MASK_INC"), Array("text", 60)),
-			"exclude_mask" => Array(GetMessage("SEARCH_OPTIONS_MASK_EXC"), Array("textarea", 5, 60)),
+			"exclude_mask" => Array(GetMessage("SEARCH_OPTIONS_MASK_EXC"), Array("textarea", 5, 56)),
 			"page_tag_property" => Array(GetMessage("SEARCH_OPTIONS_PAGE_PROPERTY"), Array("text", "tags")),
 		)
 	),
@@ -23,7 +23,7 @@ $aTabs = array(
 		"TITLE" => GetMessage("SEARCH_OPTIONS_TAB_TITLE_STEMMING"),
 		"OPTIONS" => Array(
 			"use_stemming" => Array(GetMessage("SEARCH_OPTIONS_USE_STEMMING"), Array("checkbox", "N")),
-			"letters" => Array(GetMessage("SEARCH_OPTIONS_LETTERS"), Array("text", 60)),
+			"letters" => Array(GetMessage("SEARCH_OPTIONS_LETTERS"), Array("text", 45)),
 		)
 	),
 	array(
@@ -32,7 +32,7 @@ $aTabs = array(
 		"ICON" => "search_settings",
 		"TITLE" => GetMessage("SEARCH_OPTIONS_TAB_TITLE_SEARCH"),
 		"OPTIONS" => Array(
-			"max_result_size" => Array(GetMessage("SEARCH_OPTIONS_MAX_RESULT_SIZE"), Array("text", 60)),
+			"max_result_size" => Array(GetMessage("SEARCH_OPTIONS_MAX_RESULT_SIZE"), Array("text", 6)),
 			"use_tf_cache" => Array(GetMessage("SEARCH_OPTIONS_USE_TF_CACHE"), Array("checkbox", "N")),
 			"use_word_distance" => Array(
 				GetMessage("SEARCH_OPTIONS_USE_WORD_DISTANCE"),
@@ -135,18 +135,16 @@ foreach($aTabs as $aTab):
 
 	?>
 		<tr>
-			<td valign="top" width="50%"><?if($type[0]=="checkbox")
-							echo "<label for=\"".htmlspecialchars($name)."\">".$arOption[0]."</label>";
-						else
-							echo $arOption[0];?></td>
-			<td valign="top" width="50%">
+			<td width="40%" nowrap <?if($type[0]=="textarea") echo 'class="adm-detail-valign-top"'?>>
+				<label for="<?echo htmlspecialcharsbx($name)?>"><?echo $arOption[0]?></label>
+			<td width="60%">
 					<?if($type[0]=="checkbox"):?>
-						<input type="checkbox" name="<?echo htmlspecialchars($name)?>" id="<?echo htmlspecialchars($name)?>" value="Y"<?if($val=="Y")echo" checked";?><?if($disabled)echo' disabled="disabled"';?>><?if($disabled) echo '<br>'.$disabled;?>
+						<input type="checkbox" name="<?echo htmlspecialcharsbx($name)?>" id="<?echo htmlspecialcharsbx($name)?>" value="Y"<?if($val=="Y")echo" checked";?><?if($disabled)echo' disabled="disabled"';?>><?if($disabled) echo '<br>'.$disabled;?>
 					<?elseif($type[0]=="text"):?>
-						<input type="text" size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlspecialchars($val)?>" name="<?echo htmlspecialchars($name)?>">
+						<input type="text" size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlspecialcharsbx($val)?>" name="<?echo htmlspecialcharsbx($name)?>">
 					<?elseif($type[0]=="textarea"):?>
-						<textarea rows="<?echo $type[1]?>" cols="<?echo $type[2]?> " name="<?echo htmlspecialchars($name)?>" style=
-						"width:100%"><?echo htmlspecialchars($val)?></textarea>
+						<textarea rows="<?echo $type[1]?>" cols="<?echo $type[2]?> " name="<?echo htmlspecialcharsbx($name)?>" style=
+						"width:100%"><?echo htmlspecialcharsbx($val)?></textarea>
 					<?endif?>
 			</td>
 		</tr>
@@ -154,11 +152,11 @@ foreach($aTabs as $aTab):
 endforeach;?>
 
 <?$tabControl->Buttons();?>
-	<input type="submit" name="Update" value="<?=GetMessage("MAIN_SAVE")?>" title="<?=GetMessage("MAIN_OPT_SAVE_TITLE")?>">
+	<input type="submit" name="Update" value="<?=GetMessage("MAIN_SAVE")?>" title="<?=GetMessage("MAIN_OPT_SAVE_TITLE")?>" class="adm-btn-save">
 	<input type="submit" name="Apply" value="<?=GetMessage("MAIN_OPT_APPLY")?>" title="<?=GetMessage("MAIN_OPT_APPLY_TITLE")?>">
 	<?if(strlen($_REQUEST["back_url_settings"])>0):?>
-		<input type="button" name="Cancel" value="<?=GetMessage("MAIN_OPT_CANCEL")?>" title="<?=GetMessage("MAIN_OPT_CANCEL_TITLE")?>" onclick="window.location='<?echo htmlspecialchars(CUtil::addslashes($_REQUEST["back_url_settings"]))?>'">
-		<input type="hidden" name="back_url_settings" value="<?=htmlspecialchars($_REQUEST["back_url_settings"])?>">
+		<input type="button" name="Cancel" value="<?=GetMessage("MAIN_OPT_CANCEL")?>" title="<?=GetMessage("MAIN_OPT_CANCEL_TITLE")?>" onclick="window.location='<?echo htmlspecialcharsbx(CUtil::addslashes($_REQUEST["back_url_settings"]))?>'">
+		<input type="hidden" name="back_url_settings" value="<?=htmlspecialcharsbx($_REQUEST["back_url_settings"])?>">
 	<?endif?>
 	<input type="submit" name="RestoreDefaults" title="<?echo GetMessage("MAIN_HINT_RESTORE_DEFAULTS")?>" OnClick="return confirm('<?echo AddSlashes(GetMessage("MAIN_HINT_RESTORE_DEFAULTS_WARNING"))?>')" value="<?echo GetMessage("MAIN_RESTORE_DEFAULTS")?>">
 	<?=bitrix_sessid_post();?>

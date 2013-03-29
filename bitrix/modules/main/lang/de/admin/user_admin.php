@@ -73,4 +73,6 @@ $MESS["MAIN_ADMIN_LIST_REM_GROUP"] = "Aus der Gruppe entfernen";
 $MESS["MAIN_ADMIN_LIST_GROUP"] = "(Wählen Sie eine Gruppe aus)";
 $MESS["MAIN_ADMIN_LIST_ADD_STRUCT"] = "Zur Unternehmensstruktur hinzufügen";
 $MESS["MAIN_ADMIN_LIST_REM_STRUCT"] = "Aus der Unternehmensstruktur entfernen";
+$MESS["MAIN_ADMIN_AUTH"] = "Anmelden";
+$MESS["MAIN_ADMIN_AUTH_TITLE"] = "Sich unter dem bestimmten Nutzer anmelden";
 ?>

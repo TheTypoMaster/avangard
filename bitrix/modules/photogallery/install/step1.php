@@ -11,10 +11,10 @@
 	<?if ($GLOBALS["APPLICATION"]->GetGroupRight("iblock") >= "W"):?>
 	<tr class="head"><td colspan="2"><input type="checkbox" name="iblock" id="iblock" value="Y" onclick="CheckCreate(this);" <?=($_REQUEST["iblock"] == "Y" ? " checked='checked'" : "")?>/> <label for="iblock"><?=GetMessage("P_CREATE_NEW_IBLOCK")?></label></td></tr>
 	<tbody id="iblock_create" <?=($_REQUEST["iblock"] == "Y" ? "" : "style=\"display:none;\"")?>>
-	<tr><td><span class="required">*</span><?=GetMessage("P_CREATE_NEW_IBLOCK_NAME")?>: </td><td><input type="text" name="iblock_name" value="<?=htmlspecialchars($_REQUEST["iblock_name"])?>" /></td></tr>
-	<tr><td><span class="required">*</span><?=GetMessage("P_CREATE_NEW_IBLOCK_TYPE")?>: </td><td>
-		<input onclick="ChangeStatus(this)" type="radio" name="create_iblock_type" id="create_iblock_type_n" value="N" <?=($_REQUEST["create_iblock_type"] != "Y" ? " checked=\"checked\"" : "")?> /> 
-		<label for="create_iblock_type_n"><?=GetMessage("P_SELECT")?>: </label> 
+	<tr class="adm-detail-required-field"><td><?=GetMessage("P_CREATE_NEW_IBLOCK_NAME")?>: </td><td><input type="text" name="iblock_name" value="<?=htmlspecialcharsbx($_REQUEST["iblock_name"])?>" /></td></tr>
+	<tr class="adm-detail-required-field"><td><?=GetMessage("P_CREATE_NEW_IBLOCK_TYPE")?>: </td><td>
+		<input onclick="ChangeStatus(this)" type="radio" name="create_iblock_type" id="create_iblock_type_n" value="N" <?=($_REQUEST["create_iblock_type"] != "Y" ? " checked=\"checked\"" : "")?> />
+		<label for="create_iblock_type_n"><?=GetMessage("P_SELECT")?>: </label>
 		<select name="iblock_type_id" <?=($_REQUEST["create_iblock_type"] == "Y" ? "disabled='disabled'" : "")?>><?
 			$arIBlockType = array();
 			$rsIBlockType = CIBlockType::GetList(array("sort"=>"asc"), array("ACTIVE"=>"Y"));
@@ -26,22 +26,22 @@
 				}
 			}
 			?></select><br />
-		<input onclick="ChangeStatus(this)" type="radio" name="create_iblock_type" id="create_iblock_type_y" value="Y" <?=($_REQUEST["create_iblock_type"] == "Y" ? " checked=\"checked\"" : "")?> /> 
-		<label for="create_iblock_type_y"><?=GetMessage("P_CREATE")?>: </label> 
-		<span class="required">*</span><?=GetMessage("P_ID")?> (ID): 
-			<input type="text" name="iblock_type_name" value="<?=htmlspecialchars($_REQUEST["iblock_type_name"])?>" <?=($_REQUEST["create_iblock_type"] != "Y" ? "disabled='disabled'" : "")?>/><br />
+		<input onclick="ChangeStatus(this)" type="radio" name="create_iblock_type" id="create_iblock_type_y" value="Y" <?=($_REQUEST["create_iblock_type"] == "Y" ? " checked=\"checked\"" : "")?> />
+		<label for="create_iblock_type_y"><?=GetMessage("P_CREATE")?>: </label>
+		<strong><?=GetMessage("P_ID")?> (ID):</strong>
+			<input type="text" name="iblock_type_name" value="<?=htmlspecialcharsbx($_REQUEST["iblock_type_name"])?>" <?=($_REQUEST["create_iblock_type"] != "Y" ? "disabled='disabled'" : "")?>/><br />
 		</td></tr>
 	</tbody><?
 	endif;
 	if (IsModuleInstalled("blog") && CModule::IncludeModule("blog") && $GLOBALS["APPLICATION"]->GetGroupRight("blog") >= "W"):
 	?><tr class="head"><td colspan="2"><input type="checkbox" name="blog" id="blog" value="Y" onclick="CheckCreate(this);" <?=($_REQUEST["blog"] == "Y" ? " checked='checked'" : "")?>/> <label for="blog"><?=GetMessage("P_CREATE_NEW_BLOG")?></label></td></tr>
 	<tbody id="blog_create" <?=($_REQUEST["blog"] == "Y" ? "" : "style=\"display:none;\"")?>>
-	<tr><td><span class="required">*</span><?=GetMessage("P_NAME")?>:</td><td><input type="text" name="blog_name" value="<?=htmlspecialchars($_REQUEST["blog_name"])?>" /></td></tr>
-	<tr><td><?=GetMessage("P_DESCRIPTION")?>:</td><td><input type="text" name="blog_description" value="<?=htmlspecialchars($_REQUEST["blog_description"])?>" /></td></tr>
-	<tr><td><span class="required">*</span><?=GetMessage("P_NAME_LATIN")?>:</td><td><input type="text" name="blog_url" value="<?=htmlspecialchars($_REQUEST["blog_url"])?>" /></td></tr>
-	<tr><td><span class="required">*</span><?=GetMessage("P_GROUP_BLOG")?>:</td><td>
-		<input onclick="ChangeStatus(this)" type="radio" name="create_blog_group" id="create_blog_group_n" value="N" <?=($_REQUEST["create_blog_group"] != "Y" ? " checked=\"checked\"" : "")?> /> 
-		<label for="create_blog_group_n"><?=GetMessage("P_SELECT")?>: </label> 
+	<tr class="adm-detail-required-field"><td><?=GetMessage("P_NAME")?>:</td><td><input type="text" name="blog_name" value="<?=htmlspecialcharsbx($_REQUEST["blog_name"])?>" /></td></tr>
+	<tr><td><?=GetMessage("P_DESCRIPTION")?>:</td><td><input type="text" name="blog_description" value="<?=htmlspecialcharsbx($_REQUEST["blog_description"])?>" /></td></tr>
+	<tr class="adm-detail-required-field"><td><?=GetMessage("P_NAME_LATIN")?>:</td><td><input type="text" name="blog_url" value="<?=htmlspecialcharsbx($_REQUEST["blog_url"])?>" /></td></tr>
+	<tr class="adm-detail-required-field"><td><?=GetMessage("P_GROUP_BLOG")?>:</td><td>
+		<input onclick="ChangeStatus(this)" type="radio" name="create_blog_group" id="create_blog_group_n" value="N" <?=($_REQUEST["create_blog_group"] != "Y" ? " checked=\"checked\"" : "")?> />
+		<label for="create_blog_group_n"><?=GetMessage("P_SELECT")?>: </label>
 		<select name="blog_group_id" <?=($_REQUEST["create_blog_group"] == "Y" ? "disabled=\"disabled\"" : "")?>>
 				<?
 				$dbBlogGroup = CBlogGroup::GetList(
@@ -50,18 +50,18 @@
 				);
 				while ($arBlogGroup = $dbBlogGroup->Fetch())
 				{
-					?><option value="<?=$arBlogGroup["ID"]?>" <?=($_REQUEST["blog_group_id"] == $arBlogGroup["ID"] ? " selected" : "")?>>[<?= htmlspecialchars($arBlogGroup["SITE_ID"]) ?>] <?= htmlspecialchars($arBlogGroup["NAME"]) ?></option><?
+					?><option value="<?=$arBlogGroup["ID"]?>" <?=($_REQUEST["blog_group_id"] == $arBlogGroup["ID"] ? " selected" : "")?>>[<?= htmlspecialcharsbx($arBlogGroup["SITE_ID"]) ?>] <?= htmlspecialcharsbx($arBlogGroup["NAME"]) ?></option><?
 				}
 				?>
 			</select><br />
-		<input  onclick="ChangeStatus(this)" type="radio" name="create_blog_group" id="create_blog_group_y" value="Y" <?=($_REQUEST["create_blog_group"] == "Y" ? " checked=\"checked\"" : "")?> /> 
-		<label for="create_blog_group_y"><?=GetMessage("P_CREATE")?>: </label> 
-		<input type="text" name="blog_group_name" value="<?=htmlspecialchars($_REQUEST["blog_group_name"])?>" <?=($_REQUEST["create_blog_group"] != "Y" ? "disabled=\"disabled\"" : "")?>/>
-		
+		<input  onclick="ChangeStatus(this)" type="radio" name="create_blog_group" id="create_blog_group_y" value="Y" <?=($_REQUEST["create_blog_group"] == "Y" ? " checked=\"checked\"" : "")?> />
+		<label for="create_blog_group_y"><?=GetMessage("P_CREATE")?>: </label>
+		<input type="text" name="blog_group_name" value="<?=htmlspecialcharsbx($_REQUEST["blog_group_name"])?>" <?=($_REQUEST["create_blog_group"] != "Y" ? "disabled=\"disabled\"" : "")?>/>
+
 		</td></tr>
 	</tbody>
-				
-	
+
+
 <?
 	endif;
 

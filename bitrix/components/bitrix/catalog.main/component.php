@@ -47,7 +47,7 @@ if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 			strlen($arParams["IBLOCK_URL"])? trim($arParams["~IBLOCK_URL"]): $arIBlock["~LIST_PAGE_URL"]
 		);
 		$arIBlock["~LIST_PAGE_URL"] = preg_replace("'/+'s", "/", $arIBlock["~LIST_PAGE_URL"]);
-		$arIBlock["LIST_PAGE_URL"] = htmlspecialchars($arIBlock["~LIST_PAGE_URL"]);
+		$arIBlock["LIST_PAGE_URL"] = htmlspecialcharsbx($arIBlock["~LIST_PAGE_URL"]);
 
 		$arResult["ITEMS"][]=$arIBlock;
 	}

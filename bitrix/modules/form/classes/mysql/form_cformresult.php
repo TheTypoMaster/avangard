@@ -150,6 +150,9 @@ class CFormResult extends CAllFormResult
 						$match = ($arFilter[$key."_EXACT_MATCH"]=="N" && $match_value_set) ? "Y" : "N";
 						$arSqlSearch[] = GetFilterQuery("R.STAT_SESSION_ID", $val, $match);
 						break;
+					case "SENT_TO_CRM":
+						$arSqlSearch[] = GetFilterQuery("R.SENT_TO_CRM", $val, "Y");
+						break;
 					default:
 						if (is_array($arrFORM_FILTER))
 						{
@@ -254,6 +257,7 @@ class CFormResult extends CAllFormResult
 		elseif ($by == "s_guest_id")	$strSqlOrder = "ORDER BY R.STAT_GUEST_ID";
 		elseif ($by == "s_session_id")	$strSqlOrder = "ORDER BY R.STAT_SESSION_ID";
 		elseif ($by == "s_status")		$strSqlOrder = "ORDER BY R.STATUS_ID";
+		elseif ($by == "s_sent_to_crm")	$strSqlOrder = "ORDER BY R.SENT_TO_CRM";
 		else
 		{
 			$by = "s_timestamp";
@@ -291,7 +295,7 @@ class CFormResult extends CAllFormResult
 		{
 			$strSql = "
 				SELECT
-					R.ID, R.USER_ID, R.USER_AUTH, R.STAT_GUEST_ID, R.STAT_SESSION_ID, R.STATUS_ID,
+					R.ID, R.USER_ID, R.USER_AUTH, R.STAT_GUEST_ID, R.STAT_SESSION_ID, R.STATUS_ID, R.SENT_TO_CRM,
 					".$DB->DateToCharFunction("R.DATE_CREATE")."	DATE_CREATE,
 					".$DB->DateToCharFunction("R.TIMESTAMP_X")."	TIMESTAMP_X,
 					S.TITLE				STATUS_TITLE,
@@ -306,7 +310,7 @@ class CFormResult extends CAllFormResult
 				and R.FORM_ID = '$WEB_FORM_ID'
 				and S.ID = R.STATUS_ID
 				GROUP BY
-					R.ID, R.USER_ID, R.USER_AUTH, R.STAT_GUEST_ID, R.STAT_SESSION_ID, R.DATE_CREATE, R.STATUS_ID
+					R.ID, R.USER_ID, R.USER_AUTH, R.STAT_GUEST_ID, R.STAT_SESSION_ID, R.DATE_CREATE, R.STATUS_ID, R.SENT_TO_CRM
 				$strSqlOrder
 				$records_limit
 				";
@@ -322,7 +326,7 @@ class CFormResult extends CAllFormResult
 
 			$strSql = "
 				SELECT
-					R.ID, R.USER_ID, R.USER_AUTH, R.STAT_GUEST_ID, R.STAT_SESSION_ID, R.STATUS_ID,
+					R.ID, R.USER_ID, R.USER_AUTH, R.STAT_GUEST_ID, R.STAT_SESSION_ID, R.STATUS_ID, R.SENT_TO_CRM,
 					".$DB->DateToCharFunction("R.DATE_CREATE")."	DATE_CREATE,
 					".$DB->DateToCharFunction("R.TIMESTAMP_X")."	TIMESTAMP_X,
 					S.TITLE				STATUS_TITLE,
@@ -345,7 +349,7 @@ class CFormResult extends CAllFormResult
 				and G.PERMISSION in ('VIEW', 'EDIT', 'DELETE')
 				GROUP BY
 					R.ID, R.USER_ID, R.USER_AUTH, R.STAT_GUEST_ID,
-					R.STAT_SESSION_ID, R.DATE_CREATE, R.STATUS_ID
+					R.STAT_SESSION_ID, R.SENT_TO_CRM, R.DATE_CREATE, R.STATUS_ID, R.SENT_TO_CRM
 				$strSqlOrder
 				$records_limit
 				";

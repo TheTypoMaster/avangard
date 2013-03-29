@@ -7,6 +7,10 @@ if(!$USER->CanDoOperation('view_other_settings'))
 
 IncludeModuleLangFile(__FILE__);
 
+$back_url = $_REQUEST["back_url"];
+if(substr($back_url, 0, 1) <> '/')
+	$back_url = '';
+
 $sTableID = "tbl_user_type";
 $oSort = new CAdminSorting($sTableID, "ID", "desc");
 $lAdmin = new CAdminList($sTableID, $oSort);
@@ -44,7 +48,7 @@ $arFilter = array(
 
 if($lAdmin->EditAction())
 {
-	$obUserField  = new CUserTypeEntity;
+	$obUserField = new CUserTypeEntity;
 	foreach($FIELDS as $ID=>$arFields)
 	{
 		if(!$lAdmin->IsUpdated($ID))
@@ -74,12 +78,12 @@ if($arID = $lAdmin->GroupAction())
 			$arID[] = $arRes['ID'];
 	}
 
-	$obUserField  = new CUserTypeEntity;
+	$obUserField = new CUserTypeEntity;
 	foreach($arID as $ID)
 	{
 		if(strlen($ID)<=0)
 			continue;
-	   	$ID = IntVal($ID);
+		$ID = IntVal($ID);
 		//Rights check
 		if($USER_FIELD_MANAGER->GetRights(false, $ID) < "W")
 			continue;
@@ -185,7 +189,7 @@ while($arRes = $rsData->NavNext(true, "f_")):
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
 
 	$arUserType = $USER_FIELD_MANAGER->GetUserType($f_USER_TYPE_ID);
-	$row->AddViewField("USER_TYPE_ID", htmlspecialchars($arUserType["DESCRIPTION"]));
+	$row->AddViewField("USER_TYPE_ID", htmlspecialcharsbx($arUserType["DESCRIPTION"]));
 	$row->AddInputField("SORT", array("size"=>5));
 	$row->AddViewField("MULTIPLE", $f_MULTIPLE=="Y"?GetMessage("MAIN_YES"):GetMessage("MAIN_NO"));
 	$row->AddCheckField("MANDATORY");
@@ -210,7 +214,7 @@ while($arRes = $rsData->NavNext(true, "f_")):
 	$arActions[] = array(
 		"ICON"=>"delete",
 		"TEXT"=>GetMessage("MAIN_DELETE"),
-		"ACTION"=>"if(confirm('".GetMessage('USERTYPE_DELETE_CONF')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete")
+		"ACTION"=>"if(confirm('".GetMessage('USERTYPE_DELETE_CONF')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete", 'back_url='.urlencode($back_url).'&list_url='.urlencode($list_url))
 	);
 
 	$row->AddActions($arActions);
@@ -226,14 +230,40 @@ $lAdmin->AddGroupActionTable(Array(
 	"delete"=>GetMessage("MAIN_ADMIN_LIST_DELETE"),
 ));
 
-$aContext = array(
-	array(
-		"TEXT"=>GetMessage("MAIN_ADD"),
-		"LINK"=>"userfield_edit.php?lang=".LANG,
-		"TITLE"=>GetMessage("USERTYPE_ADD_TITLE"),
-		"ICON"=>"btn_new",
-	),
+$aContext = array();
+
+// backurl button
+if ($back_url <> '')
+{
+	//$aContext[] = array("SEPARATOR" => true);
+	$aContext[] = array(
+		"TEXT"=>GetMessage('USERTYPE_BACK_URL_BUTTON'),
+		"LINK"=>$back_url,
+		"TITLE"=>GetMessage('USERTYPE_BACK_URL_BUTTON'),
+		"ICON"=>"btn_list"
+	);
+}
+
+// add button
+$add_url =  "userfield_edit.php?lang=".LANG;
+
+if ($find_type === 'ENTITY_ID' && !empty($find))
+{
+	$add_url .= '&ENTITY_ID='.urlencode($find);
+
+	if ($back_url <> '')
+	{
+		$add_url .= '&back_url='.urlencode($APPLICATION->GetCurPageParam()).'&list_url='.urlencode($APPLICATION->GetCurPageParam());
+	}
+}
+
+$aContext[] = array(
+	"TEXT"=>GetMessage("MAIN_ADD"),
+	"LINK"=>$add_url,
+	"TITLE"=>GetMessage("USERTYPE_ADD_TITLE"),
+	"ICON"=>"btn_new"
 );
+
 $lAdmin->AddAdminContextMenu($aContext);
 $lAdmin->CheckListMode();
 
@@ -267,7 +297,7 @@ $arrYN = array(
 <tr>
 	<td><b><?=GetMessage("USERTYPE_F_FIND")?>:</b></td>
 	<td>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>">
 		<?
 		$arr = array(
 			"reference" => array(
@@ -286,16 +316,16 @@ $arrYN = array(
 <tr>
 	<td><?="ID"?>:</td>
 	<td>
-		<input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>">
+		<input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>">
 	</td>
 </tr>
 <tr>
 	<td><?=GetMessage("USERTYPE_ENTITY_ID").":"?></td>
-	<td><input type="text" name="find_entity_id" size="47" value="<?echo htmlspecialchars($find_entity_id)?>"></td>
+	<td><input type="text" name="find_entity_id" size="47" value="<?echo htmlspecialcharsbx($find_entity_id)?>"></td>
 </tr>
 <tr>
 	<td><?=GetMessage("USERTYPE_FIELD_NAME").":"?></td>
-	<td><input type="text" name="find_field_name" size="47" value="<?echo htmlspecialchars($find_field_name)?>"></td>
+	<td><input type="text" name="find_field_name" size="47" value="<?echo htmlspecialcharsbx($find_field_name)?>"></td>
 </tr>
 <tr>
 	<td><?=GetMessage("USERTYPE_USER_TYPE_ID")?>:</td>
@@ -314,7 +344,7 @@ $arrYN = array(
 </tr>
 <tr>
 	<td><?=GetMessage("USERTYPE_XML_ID").":"?></td>
-	<td><input type="text" name="find_xml_id" size="47" value="<?echo htmlspecialchars($find_xml_id)?>"></td>
+	<td><input type="text" name="find_xml_id" size="47" value="<?echo htmlspecialcharsbx($find_xml_id)?>"></td>
 </tr>
 <tr>
 	<td><?=GetMessage("USERTYPE_MULTIPLE")?>:</td>

@@ -1,35 +1,14 @@
-function AttachFile(iNumber, iCount, sIndex, oObj)
-{
-	var element = null;
-	var bFined = false;
-	iNumber = parseInt(iNumber);
-	iCount = parseInt(iCount);
-
-	document.getElementById('upload_files_info_' + sIndex).style.display = 'block';
-	for (var ii = iNumber; ii < (iNumber + iCount); ii++)
-	{
-		element = document.getElementById('upload_files_' + ii + '_' + sIndex);
-		if (!element || typeof(element) == null)
-			break;
-		if (element.style.display == 'none')
-		{
-			bFined = true;
-			element.style.display = 'block';
-			break;
-		}
-	}
-	var bHide = (!bFined ? true : (ii >= (iNumber + iCount - 1)));
-	if (bHide == true)
-		oObj.style.display = 'none';
-}
-
 function AddTags(a)
 {
-	if (a != null)
+	if (a && a.parentNode)
 	{
-		var div = a.parentNode.previousSibling;
-		div.style.display = "block";
-		a.parentNode.style.display = "none";
+		var
+			div = a.parentNode.parentNode.previousSibling,
+			switcher = a.parentNode.parentNode;
+		BX.show(div);
+		BX.remove(a.parentNode);
+		if (switcher.innerHTML == '')
+			BX.remove(switcher);
 
 		var inputs = div.getElementsByTagName("INPUT");
 		for (var i = 0 ; i < inputs.length ; i++ )
@@ -41,20 +20,14 @@ function AddTags(a)
 				break;
 			}
 		}
-		if (a.parentNode.lastChild && a.parentNode.lastChild.name == 'from_tag'){
-			a.parentNode.lastChild.style.display = 'none';
-			if (document.getElementById('vote_switcher')) {
-				document.getElementById('vote_switcher').style.display = '';}
-		}
 	}
 	return false;
 }
 
-
 function CorrectTags(oObj)
 {
-	if (document.getElementById('TAGS_div_frame'))
-		document.getElementById('TAGS_div_frame').id = oObj.id + "_div_frame";
+	if (BX('TAGS_div_frame'))
+		BX('TAGS_div_frame').id = oObj.id + "_div_frame";
 }
 
 function fTextToNode(text)
@@ -106,7 +79,6 @@ function PostFormAjaxStatus(status)
 		}
 	}
 }
-
 
 function PostFormAjaxNavigation(navString, pageNumber)
 {
@@ -164,14 +136,15 @@ function PostFormAjaxResponse(response, postform)
 {
 	postform['BXFormSubmit_save'] = null;
 	var result = window.forumAjaxPostTmp;
-	if (typeof result == 'undefined') 
+	if (typeof result == 'undefined')
 	{
 		BX.reload();
 		return;
 	}
 
 	var arForumlist = BX.findChildren(document, {className: 'forum-block-inner'}, true);
-	if (! arForumlist || arForumlist.length <1) BX.reload();
+	if (! arForumlist || arForumlist.length <1)
+		BX.reload();
 	var forumlist = arForumlist[arForumlist.length-1];
 	if (formlist = BX.findChild(forumlist, {tagName: 'form', className: 'forum-form'}, true))
 		forumlist = formlist;
@@ -180,12 +153,11 @@ function PostFormAjaxResponse(response, postform)
 	{
 		if (!!result.allMessages)
 		{
-			var messagesNode = fTextToNode(result.message);
-			if (! messagesNode) return;
+			if (! result.message) return;
 
 			var listparent = forumlist.parentNode;
 			BX.remove(forumlist);
-			listparent.appendChild(messagesNode);
+			listparent.innerHTML += result.message;
 
 			if (!!result.navigation && !!result.pageNumber)
 			{
@@ -201,10 +173,10 @@ function PostFormAjaxResponse(response, postform)
 			{
 				var lastMessage = allMessages[allMessages.length - 1];
 				var footerActions = BX.findChild(lastMessage, { tagName : 'tfoot' }, true);
-				if (footerActions) BX.remove(footerActions);
+				if (footerActions)
+					BX.remove(footerActions);
 			}
-			if (msgNode = fTextToNode(result.message))
-				forumlist.appendChild(msgNode);
+			forumlist.innerHTML += result.message;
 			ClearForumPostForm(postform);
 			fRunScripts(result.message);
 		}
@@ -240,41 +212,43 @@ function PostFormAjaxResponse(response, postform)
 
 function ClearForumPostForm(form)
 {
-	if (window.oLHE)
+	var oLHE = window[form['jsObjName'].value];
+	if (oLHE)
 	{
-		if (window.oLHE.sEditorMode == 'code')
-			window.oLHE.SetContent('');
-		else
-		window.oLHE.SetEditorContent('');
-	}
+		oLHE.ReInit('');
+		if (oLHE.fAutosave)
+			BX.bind(oLHE.pEditorDocument, 'keydown',
+				BX.proxy(oLHE.fAutosave.Init, oLHE.fAutosave));
 
-	if (window.oLHE.fAutosave)
-		BX.bind(window.oLHE.pEditorDocument, 'keydown', 
-			BX.proxy(window.oLHE.fAutosave.Init, window.oLHE.fAutosave));
+		for (var i = 0; i < oLHE.arFiles.length; i++)
+		{
+			if (fileINPUT = BX('file-doc'+oLHE.arFiles[i]))
+			{
+				BX.remove(fileINPUT);
+				BX.hide(BX('wd-doc'+oLHE.arFiles[i]));
+				if (fileINPUT = BX('filetoupload' + oLHE.arFiles[i]))
+					BX.remove(fileINPUT);
+
+			}
+		}
+	}
 
 	if (!BX.type.isDomNode(form)) return;
 
 	if (previewDIV = BX.findChild(document, {'className' : 'forum-preview'}, true))
 		BX.remove(previewDIV);
 
-	var i = 0;
-	while (fileDIV = BX('upload_files_'+(i++)+'_'))
-	{
-		if (fileINPUT = BX.findChild(fileDIV, {'tag':'input'}))
-			fileINPUT.value = '';
-		BX.hide(fileDIV);
-	}
-	var attachLink = BX.findChild(form, {'className':"forum-upload-file-attach"}, true);
-	if (attachLink)
-		BX.show(attachLink);
-	var attachNote = BX.findChild(form, {'className':"forum-upload-info"}, true);
-	if (attachNote)
-		BX.hide(attachNote);
+	var attachNodes = BX.findChild(form, {'tagName' : 'TR', 'className':"error-load"}, true, true),
+		attachNode = null;
+	if (attachNodes)
+		while (attachNode = attachNodes.pop())
+			BX.hide(attachNode);
 
 	captchaIMAGE = null;
 	captchaHIDDEN = BX.findChild(form, {attr : {'name': 'captcha_code'}}, true);
 	captchaINPUT = BX.findChild(form, {attr: {'name':'captcha_word'}}, true);
 	captchaDIV = BX.findChild(form, {'className':'forum-reply-field-captcha-image'}, true);
+
 	if (captchaDIV)
 		captchaIMAGE = BX.findChild(captchaDIV, {'tag':'img'});
 	if (captchaHIDDEN && captchaINPUT && captchaIMAGE)
@@ -290,21 +264,22 @@ function ClearForumPostForm(form)
 function ValidateForm(form, ajax_type, ajax_post)
 {
 	if (form['BXFormSubmit_save']) return true; // ValidateForm may be run by BX.submit one more time
-	if (typeof form != "object" || typeof form.POST_MESSAGE != "object")
+	var oLHE = window[form['jsObjName'].value];
+	if (typeof form != "object" || !form.POST_MESSAGE || !oLHE)
 		return false;
 	if (typeof oForum == 'undefined')
 		oForum = {};
-	MessageMax = 64000;
-
-	var errors = "";
-	var MessageLength = form.POST_MESSAGE.value.length;
-
-	if (form.TITLE && (form.TITLE.value.length < 2))
+	oLHE.SaveContent();
+	var
+		errors = "",
+		Message = oLHE.GetContent(),
+		MessageLength = Message.length,
+		MessageMax = 64000;
+	if (form.TITLE && (form.TITLE.value.length <= 0 ))
 		errors += oErrors['no_topic_name'];
-
-	if (MessageLength < 2)
+	if (MessageLength <= 0)
 		errors += oErrors['no_message'];
-    else if ((MessageMax != 0) && (MessageLength > MessageMax))
+	else if (MessageLength > MessageMax)
 		errors += oErrors['max_len'].replace(/\#MAX_LENGTH\#/gi, MessageMax).replace(/\#LENGTH\#/gi, MessageLength);
 
 	if (errors != "")
@@ -312,18 +287,36 @@ function ValidateForm(form, ajax_type, ajax_post)
 		alert(errors);
 		return false;
 	}
-	
+
+	if (form['FILES[]'])
+	{
+		var
+			oEls = [],
+			oEl = BX.type.isDomNode(form['FILES[]']) ? form['FILES[]'] : form['FILES[]'][0],
+			ii = BX.type.isDomNode(form['FILES[]']) ? false : 0;
+		do
+		{
+			if (! BX('filetoupload' + oEl.value))
+			{
+				oEls.push(
+					BX.adjust(
+						BX.clone(oEl),
+						{attrs : {name : 'FILES_TO_UPLOAD[]', id : ('filetoupload' + oEl.value)}}
+					)
+				);
+			}
+			oEl = (ii === false ? false : (ii <  form['FILES[]'].length ? form['FILES[]'][ii++] : false));
+		} while (!!oEl);
+		while (oEls.length > 0) {
+			form.appendChild(oEls.pop());};
+	}
+
 	var arr = form.getElementsByTagName("input");
 	for (var i=0; i < arr.length; i++)
 	{
 		var butt = arr[i];
 		if (butt.getAttribute("type") == "submit")
 			butt.disabled = true;
-	}
-		
-	if (ajax_type == 'Y' && window['ForumPostMessage'])
-	{
-		ForumPostMessage(form);
 	}
 
 	if (ajax_post == 'Y')
@@ -349,135 +342,85 @@ function ValidateForm(form, ajax_type, ajax_post)
 
 function ShowLastEditReason(checked, div)
 {
-	if (div)
-	{
-		if (checked)
-			div.style.display = 'block';
-		else
-			div.style.display = 'none';
-	}
+	if (div && checked)
+		BX.show(div);
+	else if (div)
+		BX.hide(div);
 }
 function ShowVote(oObj)
 {
-	if (oObj)
+	var switcher = oObj.parentNode.parentNode;
+	BX.remove(oObj.parentNode);
+	if (switcher.innerHTML == '')
+		BX.remove(switcher);
+	BX.show(BX('vote_params'));
+	return false;
+}
+
+function vote_remove_answer(obj)
+{
+	if (typeof obj != "object" || obj == null)
+		return false;
+	vote_add_answer(obj.parentNode.parentNode.parentNode, true);
+	var
+		answer = obj.parentNode.parentNode.firstChild,
+		regexp = /ANS_(\d+)__(\d+)_/i,
+		number = regexp.exec(answer.parentNode.id),
+		q = parseInt(number[1]),
+		a = parseInt(number[2]);
+	if (answer.value != '' && !confirm(oText['vote_drop_answer_confirm']))
+		return false;
+
+	if (answer.form['ANSWER_DEL[' + q + '][' + a+ ']'])
+		answer.form['ANSWER_DEL[' + q + '][' + a+ ']'].value = "Y";
+
+	answer.parentNode.parentNode.removeChild(answer.parentNode);
+	return false;
+}
+
+function vote_add_answer(obj, bFromRemoveAnswerFunction)
+{
+	if (!obj || typeof obj != "object")
+		return false;
+	var
+		ol = (bFromRemoveAnswerFunction !== true ? obj.parentNode.parentNode : obj),
+		regexp = ol.lastChild.previousSibling ? /ANS_(\d+)__(\d+)_/i : /addA(\d+)/i,
+		number = regexp.exec(ol.lastChild.previousSibling ? ol.lastChild.previousSibling.id : obj.name);    
+		q = parseInt(number[1]),
+		a = parseInt(number[2]);
+	if (!window["__fqan" + q])
+		window["__fqan" + q] = a + 1;
+	if (bFromRemoveAnswerFunction !== true)
 	{
-		if (oObj.name == 'from_tag')
-		{
-			oObj.parentNode.removeChild(oObj);
-			document.getElementById('vote_switcher').parentNode.removeChild(document.getElementById('vote_switcher'));
-		}
-		else
-		{
-			oObj.parentNode.parentNode.removeChild(oObj.parentNode);
-		}
-		document.getElementById('vote_params').style.display = '';
+		a = window["__fqan" + q]++;
+		var answer = BX.create('DIV', {'html' : arVoteParams['template_answer'].replace(/\#Q\#/g, q).replace(/\#A\#/g, a)});
+		ol.insertBefore(answer.firstChild, ol.lastChild);
 	}
 	return false;
 }
 
-function vote_remove_answer(anchor, iQuestion, permanent)
+function vote_remove_question(anchor)
 {
 	if (typeof anchor != "object" || anchor == null)
 		return false;
-	else if (!confirm(oText['vote_drop_answer_confirm']))
+	var
+		question = anchor.parentNode.previousSibling,
+		q = parseInt(question.id.replace("QUESTION_", ""));
+	if (question.value != '' && !confirm(oText['vote_drop_question_confirm']))
 		return false;
-	iQuestion = parseInt(iQuestion);
-	vote_init_question(iQuestion);
-	arVoteParams[iQuestion]['count_a']--;
-	if (arVoteParams[iQuestion]['count_a'] < arVoteParams['count_max_a'])
-	{
-		anchor.parentNode.parentNode.parentNode.lastChild.style.display = '';
-	}
-	permanent = (permanent == "Y" ? "Y" : "N");
-	if (permanent == "Y")
-	{
-		anchor.parentNode.parentNode.parentNode.removeChild(anchor.parentNode.parentNode);
-	}
-	else
-	{
-		anchor.parentNode.previousSibling.value = 'Y';
-		anchor.parentNode.parentNode.style.display = 'none';
-	}
+	if (question.form['QUESTION_DEL[' + q + ']'])
+		question.form['QUESTION_DEL[' + q + ']'].value = "Y";
+	question.parentNode.parentNode.parentNode.removeChild(question.parentNode.parentNode);
 	return false;
 }
+function vote_add_question(oObj, iQuestion)
+{
+	if (!window["__fqn"])
+		window["__fqn"] = parseInt(iQuestion) + 1;
+	iQuestion = window["__fqn"]++;
 
-function vote_add_answer(oLi, iQuestion, iAnswer)
-{
-	iQuestion = parseInt(iQuestion);
-	iAnswer = parseInt(iAnswer);
-	vote_init_question(iQuestion);
-	
-	iAnswer = (arVoteParams[iQuestion]['max_a'] > iAnswer ? arVoteParams[iQuestion]['max_a'] : iAnswer);
-	iAnswer++;
-	arVoteParams[iQuestion]['max_a'] = iAnswer;
-	arVoteParams[iQuestion]['count_a']++;
-	
-	var answer = document.createElement('LI');
-	
-	answer.innerHTML = arVoteParams['template_answer'].replace(/\#Q\#/g, iQuestion).replace(/\#A\#/g, iAnswer);
-	oLi.parentNode.insertBefore(answer, oLi);
-	
-	if (arVoteParams[iQuestion]['count_a'] >= arVoteParams['count_max_a'])
-	{
-		oLi.style.display = 'none';
-	}
-	return false;
-}
-function vote_init_question(iQuestion, oData)
-{
-	if (typeof arVoteParams[iQuestion] == "object" && arVoteParams[iQuestion] != null) {
-		return true; }
-	else if (typeof oData == "object" && oData != null) {
-		arVoteParams[iQuestion] = oData;
-		return true;}
-	arVoteParams[iQuestion] = {'count_a' : 0, 'max_a' : 0};
-	try
-	{
-		arVoteParams[iQuestion]['count_a'] = document.getElementById('MULTI_' + iQuestion).parentNode.nextSibling.getElementsByTagName('li').length;
-		arVoteParams[iQuestion]['count_a']--;
-	}
-	catch(e){}
-	return true;
-}
-function vote_remove_question(anchor, permanent)
-{
-	if (typeof anchor != "object" || anchor == null)
-		return false;
-	else if (!confirm(oText['vote_drop_question_confirm']))
-		return false;
-	permanent = (permanent == "Y" ? "Y" : "N");
-/*	var input = jsUtils.CreateElement("INPUT", {'type': 'hidden', 'name': anchor.parentNode.previousSibling.id + '_DEL', 'value': 'Y'});*/
-	if (permanent == "Y")
-	{
-		anchor.parentNode.parentNode.parentNode.parentNode.removeChild(anchor.parentNode.parentNode.parentNode);
-	}
-	else
-	{
-		anchor.parentNode.previousSibling.value = 'Y';
-		anchor.parentNode.parentNode.parentNode.style.display = 'none';
-	}
-	arVoteParams['count_q']--;
-	if (arVoteParams['count_q'] < arVoteParams['coun_max_q'])
-	{
-		document.getElementById("vote_question_add").style.display = 'block';
-	}
-	return false;
-}
-function vote_add_question(iQuestion, oObj)
-{
-	iQuestion = parseInt(iQuestion);
-	iQuestion = (arVoteParams['max_q'] > iQuestion ? arVoteParams['max_q'] : iQuestion);
-	iQuestion++;
-	arVoteParams['max_q'] = iQuestion;
-	var question = BX.create("DIV", {attrs:{"class": "forum-reply-field-vote-question"}});
-	//var question = jsUtils.CreateElement("DIV", {"class": "forum-reply-field-vote-question"});
-	question.innerHTML = arVoteParams['template_question'].replace(/\#Q\#/g, iQuestion);
-	oObj.parentNode.insertBefore(question, oObj);
-	arVoteParams['count_q']++;
-	if (arVoteParams['count_q'] >= arVoteParams['coun_max_q'])
-	{
-		document.getElementById("vote_question_add").style.display = 'none';
-	}
+	var question = BX.create('DIV', {'html' : arVoteParams['template_question'].replace(/\#Q\#/g, iQuestion)});
+	oObj.parentNode.insertBefore(question.firstChild, oObj);
 	return false;
 }
 
@@ -567,7 +510,6 @@ function quoteMessageEx(author, mid)
 		{
 			selection = selection.replace(/\002([^\002\003]*)\003/gi, "[CODE]$1[/CODE]").replace(/\001([^\001\003]*)\003/gi, "[QUOTE]$1[/QUOTE]");
 		}
-
 
 		function regexReplaceTableTag(s, tag, replacement)
 		{

@@ -21,9 +21,12 @@
 		"PAGE_NAVIGATION_TEMPLATE" => $arParams["PAGE_NAVIGATION_TEMPLATE"],
 		"PATH_TO_SMILE" => $arParams["PATH_TO_SMILE"],
 		"WORD_LENGTH" => $arParams["WORD_LENGTH"],
-		"IMAGE_SIZE" => $arParams["IMAGE_SIZE"], 
+		"IMAGE_SIZE" => $arParams["IMAGE_SIZE"],
+		"ATTACH_MODE" => $arParams["ATTACH_MODE"],
+		"ATTACH_SIZE" => $arParams["ATTACH_SIZE"],
 		"DATE_FORMAT" =>  $arResult["DATE_FORMAT"],
 		"DATE_TIME_FORMAT" =>  $arResult["DATE_TIME_FORMAT"],
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 		
 		"SET_NAVIGATION" => $arResult["SET_NAVIGATION"],
 		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
@@ -33,6 +36,7 @@
 		
 		"SEND_MAIL" => $arParams["SEND_MAIL"],
 		"SEND_ICQ" => "A",
+		"SEO_USER" => $arParams["SEO_USER"],
 		"HIDE_USER_ACTION" => $arParams["HIDE_USER_ACTION"]
 	),
 	$component

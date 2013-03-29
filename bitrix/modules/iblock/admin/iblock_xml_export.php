@@ -117,7 +117,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Export"]=="Y")
 							$_SESSION["BX_CML2_EXPORT"]["SECTION_MAP"],
 							$start_time,
 							$INTERVAL,
-							$NS["SECTIONS_FILTER"]
+							$NS["SECTIONS_FILTER"],
+							$_SESSION["BX_CML2_EXPORT"]["PROPERTY_MAP"]
 						);
 						if($result)
 						{
@@ -185,43 +186,54 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Export"]=="Y")
 	foreach($arMessages as $strMessage)
 		CAdminMessage::ShowMessage(array("MESSAGE"=>$strMessage,"TYPE"=>"OK"));
 
-	if(count($arErrors)==0):?>
-		<?if($NS["STEP"] < 4):?>
-			<p><ul>
-			<li><?
-				echo GetMessage("IBLOCK_CML2_METADATA_DONE");
-			?></li>
-			<li><?
-				if($NS["STEP"] < 2)
-					echo GetMessage("IBLOCK_CML2_SECTIONS");
-				elseif($NS["STEP"] < 3)
-					echo "<b>".GetMessage("IBLOCK_CML2_SECTIONS_PROGRESS", array("#COUNT#"=>intval($NS["SECTIONS"])))."</b>";
-				else
-					echo GetMessage("IBLOCK_CML2_SECTIONS_PROGRESS", array("#COUNT#"=>intval($NS["SECTIONS"])));
-			?></li>
-			<li><?
-				if($NS["STEP"] < 3)
-					echo GetMessage("IBLOCK_CML2_ELEMENTS");
-				elseif($NS["STEP"] < 4)
-					echo "<b>".GetMessage("IBLOCK_CML2_ELEMENTS_PROGRESS", array("#COUNT#"=>intval($NS["ELEMENTS"])))."</b>";
-				else
-					echo GetMessage("IBLOCK_CML2_ELEMENTS_PROGRESS", array("#COUNT#"=>intval($NS["ELEMENTS"])));
-			?></li>
-			</ul></p>
-			<?if($NS["STEP"]>0):?>
-				<script>
-					DoNext(<?echo CUtil::PhpToJSObject(array("NS"=>$NS))?>);
-				</script>
-			<?endif?>
-		<?else:?>
-			<p><b><?echo GetMessage("IBLOCK_CML2_DONE")?></b><br>
-			<?echo GetMessage("IBLOCK_CML2_DONE_SECTIONS", array("#COUNT#"=>intval($NS["SECTIONS"])))?><br>
-			<?echo GetMessage("IBLOCK_CML2_DONE_ELEMENTS", array("#COUNT#"=>intval($NS["ELEMENTS"])))?><br>
-			<script>
-				EndExport();
-			</script>
-		<?endif;?>
-	<?endif;
+	if(count($arErrors) == 0)
+	{
+		if($NS["STEP"] < 4)
+		{
+			$progressItems = array(
+				GetMessage("IBLOCK_CML2_METADATA_DONE"),
+			);
+
+			if($NS["STEP"] < 2)
+				$progressItems[] = GetMessage("IBLOCK_CML2_SECTIONS");
+			elseif($NS["STEP"] < 3)
+				$progressItems[] = "<b>".GetMessage("IBLOCK_CML2_SECTIONS_PROGRESS", array("#COUNT#"=>intval($NS["SECTIONS"])))."</b>";
+			else
+				$progressItems[] = GetMessage("IBLOCK_CML2_SECTIONS_PROGRESS", array("#COUNT#"=>intval($NS["SECTIONS"])));
+
+			if($NS["STEP"] < 3)
+				$progressItems[] = GetMessage("IBLOCK_CML2_ELEMENTS");
+			elseif($NS["STEP"] < 4)
+				$progressItems[] = "<b>".GetMessage("IBLOCK_CML2_ELEMENTS_PROGRESS", array("#COUNT#"=>intval($NS["ELEMENTS"])))."</b>";
+			else
+				$progressItems[] = GetMessage("IBLOCK_CML2_ELEMENTS_PROGRESS", array("#COUNT#"=>intval($NS["ELEMENTS"])));
+
+			CAdminMessage::ShowMessage(array(
+				"DETAILS" => "<p>".implode("</p><p>", $progressItems)."</p>",
+				"HTML" => true,
+				"TYPE" => "PROGRESS",
+			));
+
+			if($NS["STEP"] > 0)
+				echo '<script>DoNext('.CUtil::PhpToJSObject(array("NS"=>$NS)).');</script>';
+		}
+		else
+		{
+			$progressItems = array(
+				GetMessage("IBLOCK_CML2_DONE_SECTIONS", array("#COUNT#"=>intval($NS["SECTIONS"]))),
+				GetMessage("IBLOCK_CML2_DONE_ELEMENTS", array("#COUNT#"=>intval($NS["ELEMENTS"]))),
+			);
+
+			CAdminMessage::ShowMessage(array(
+				"MESSAGE" => GetMessage("IBLOCK_CML2_DONE"),
+				"DETAILS" => "<p>".implode("</p><p>", $progressItems)."</p>",
+				"HTML" => true,
+				"TYPE" => "PROGRESS",
+			));
+
+			echo '<script>EndExport();</script>';
+		}
+	}
 	require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin_js.php");
 }
 
@@ -287,15 +299,15 @@ function EndExport()
 }
 </script>
 
-<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?echo htmlspecialchars(LANG)?>" name="form1" id="form1">
+<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?echo htmlspecialcharsbx(LANG)?>" name="form1" id="form1">
 <?
 $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
-	<tr valign="top">
+	<tr>
 		<td width="40%"><?echo GetMessage("IBLOCK_CML2_URL_DATA_FILE")?>:</td>
 		<td width="60%">
-			<input type="text" id="URL_DATA_FILE" name="URL_DATA_FILE" size="30" value="<?=htmlspecialchars($URL_DATA_FILE)?>">
+			<input type="text" id="URL_DATA_FILE" name="URL_DATA_FILE" size="30" value="<?=htmlspecialcharsbx($URL_DATA_FILE)?>">
 			<input type="button" value="<?echo GetMessage("IBLOCK_CML2_OPEN")?>" OnClick="BtnClick()">
 			<?
 			CAdminFileDialog::ShowScript
@@ -316,32 +328,32 @@ $tabControl->BeginNextTab();
 			?>
 		</td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("IBLOCK_CML2_IBLOCK_ID")?>:</td>
 		<td>
-			<?echo GetIBlockDropDownList($IBLOCK_ID, 'IBLOCK_TYPE_ID', 'IBLOCK_ID');?>
+			<?echo GetIBlockDropDownList($IBLOCK_ID, 'IBLOCK_TYPE_ID', 'IBLOCK_ID', false, 'class="adm-detail-iblock-types"', 'class="adm-detail-iblock-list"');?>
 		</td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("IBLOCK_CML2_INTERVAL")?>:</td>
 		<td>
 			<input type="text" id="INTERVAL" name="INTERVAL" size="5" value="<?echo intval($INTERVAL)?>">
 		</td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("IBLOCK_CML2_SECTIONS_FILTER")?>:</td>
 		<td>
-			<select id="SECTIONS_FILTER" name="SECTIONS_FILTER" size="1">
+			<select id="SECTIONS_FILTER" name="SECTIONS_FILTER">
 				<option value="active"><?echo GetMessage("IBLOCK_CML2_FILTER_ACTIVE")?></option>
 				<option value="all"><?echo GetMessage("IBLOCK_CML2_FILTER_ALL")?></option>
 				<option value="none"><?echo GetMessage("IBLOCK_CML2_FILTER_NONE")?></option>
 			</select>
 		</td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("IBLOCK_CML2_ELEMENTS_FILTER")?>:</td>
 		<td>
-			<select id="ELEMENTS_FILTER" name="ELEMENTS_FILTER" size="1">
+			<select id="ELEMENTS_FILTER" name="ELEMENTS_FILTER">
 				<option value="active"><?echo GetMessage("IBLOCK_CML2_FILTER_ACTIVE")?></option>
 				<option value="all"><?echo GetMessage("IBLOCK_CML2_FILTER_ALL")?></option>
 				<option value="none"><?echo GetMessage("IBLOCK_CML2_FILTER_NONE")?></option>
@@ -357,7 +369,7 @@ $tabControl->BeginNextTab();
 			$bHaveClouds = true;
 	}
 	if($bHaveClouds):?>
-	<tr valign="top">
+	<tr>
 		<td><label for="CK_DOWNLOAD_CLOUD_FILES"><?echo GetMessage("IBLOCK_CML2_DOWNLOAD_CLOUD_FILES")?>:</label></td>
 		<td>
 			<input name="DOWNLOAD_CLOUD_FILES" type="hidden" value="N">
@@ -366,7 +378,7 @@ $tabControl->BeginNextTab();
 	</tr>
 	<?endif;?>
 <?$tabControl->Buttons();?>
-	<input type="button" id="start_button" value="<?echo GetMessage("IBLOCK_CML2_START_EXPORT")?>" OnClick="StartExport();">
+	<input type="button" id="start_button" value="<?echo GetMessage("IBLOCK_CML2_START_EXPORT")?>" OnClick="StartExport();" class="adm-btn-save">
 	<input type="button" id="stop_button" value="<?echo GetMessage("IBLOCK_CML2_STOP_EXPORT")?>" OnClick="EndExport();">
 <?$tabControl->End();?>
 </form>

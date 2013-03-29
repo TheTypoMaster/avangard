@@ -34,7 +34,7 @@ if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<
 		$arFields["ACTION_NAME"] = $_POST['ACTION_NAME'];
 		$arFields["ACTION_CONFIG"] = $_POST['ACTION_CONFIG'];
 	}
-	
+
 	if($ID>0)
 		$res = CRatingRule::Update($ID, $arFields);
 	else
@@ -61,11 +61,11 @@ if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<
 }
 
 // default value
-$str_NAME 			= isset($_REQUEST["NAME"]) ? htmlspecialchars($_REQUEST["NAME"]) : GetMessage("RATING_RULE_DEF_NAME");
-$str_ENTITY_TYPE_ID = isset($_REQUEST["ENTITY_TYPE_ID"]) ? htmlspecialchars($_REQUEST["ENTITY_TYPE_ID"]) : 'USER';
+$str_NAME 			= isset($_REQUEST["NAME"]) ? htmlspecialcharsbx($_REQUEST["NAME"]) : GetMessage("RATING_RULE_DEF_NAME");
+$str_ENTITY_TYPE_ID = isset($_REQUEST["ENTITY_TYPE_ID"]) ? htmlspecialcharsbx($_REQUEST["ENTITY_TYPE_ID"]) : 'USER';
 $str_ACTIVE 		= isset($_REQUEST["ACTIVE"]) && $_REQUEST["ACTIVE"] == 'Y' ? 'Y' : 'N';
-$str_CONDITION_NAME = isset($_REQUEST["CONDITION_NAME"]) ? htmlspecialchars($_REQUEST["CONDITION_NAME"]) : 'RATING';
-$str_ACTION_NAME	= isset($_REQUEST["ACTION_NAME"]) ? htmlspecialchars($_REQUEST["ACTION_NAME"]) : 'ADD_TO_GROUP';
+$str_CONDITION_NAME = isset($_REQUEST["CONDITION_NAME"]) ? htmlspecialcharsbx($_REQUEST["CONDITION_NAME"]) : 'RATING';
+$str_ACTION_NAME	= isset($_REQUEST["ACTION_NAME"]) ? htmlspecialcharsbx($_REQUEST["ACTION_NAME"]) : 'ADD_TO_GROUP';
 $bTypeChange 		= isset($_POST["action"]) && $_POST["action"] == 'type_changed' ? true : false;
 
 //when creating a new rule, default check on
@@ -126,7 +126,7 @@ $aTabs = array(
 	array("DIV" => "edit1", "TAB" => GetMessage("RATING_RULE_EDIT_TAB_MAIN"), "TITLE"=>GetMessage("RATING_RULE_EDIT_TAB_MAIN_TITLE")),
 );
 
-$tabControl = new CAdminForm("rating_rule", $aTabs);
+$tabControl = new CAdminForm("rating_rule", $aTabs, true, true);
 $tabControl->BeginEpilogContent();
 ?>
 <?=bitrix_sessid_post()?>
@@ -134,7 +134,7 @@ $tabControl->BeginEpilogContent();
 	<input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
 	<input type="hidden" name="action" value="" id="action">
 <?if($_REQUEST["addurl"]<>""):?>
-	<input type="hidden" name="addurl" value="<?echo htmlspecialchars($_REQUEST["addurl"])?>">
+	<input type="hidden" name="addurl" value="<?echo htmlspecialcharsbx($_REQUEST["addurl"])?>">
 <?endif;?>
 <?
 $tabControl->EndEpilogContent();
@@ -157,8 +157,8 @@ $tabControl->EndCustomField("ACTIVE");
 $tabControl->BeginCustomField("ENTITY_TYPE_ID", GetMessage('RATING_RULE_EDIT_FRM_TYPE_ID'), true);
 $arObjects = CRatingRule::GetRatingRuleObjects();
 ?>
-	<tr style="<?=(count($arObjects)>1? '': 'display:none')?>">
-		<td><span class="required">*</span><?=GetMessage("RATING_RULE_EDIT_FRM_TYPE_ID")?></td>
+	<tr style="<?=(count($arObjects)>1? '': 'display:none')?>" class="adm-detail-required-field">
+		<td><?=GetMessage("RATING_RULE_EDIT_FRM_TYPE_ID")?></td>
 		<td><?=SelectBoxFromArray("ENTITY_TYPE_ID", array('reference_id' => $arObjects, 'reference' => $arObjects), $str_ENTITY_TYPE_ID, "", "onChange=\"jsTypeChanged('rating_rule_form')\"");?></td>
 	</tr>
 <?
@@ -179,17 +179,17 @@ $conditionCount = count($arCurrentCondition['FIELDS']);
 ?>
 	<tr>
 		<td colspan="2">
-			<table cellpadding="0" cellspacing="0" border="0" width="100%" class="edit-table">
-			<tr valign="top" style="">
-				<td class="field-name" width="40%" style="vertical-align:middle">
-					<span class="required">*</span><?=GetMessage("RATING_RULE_EDIT_FRM_CONDITION_NAME")?>:
+			<table cellpadding="2" cellspacing="0" border="0" width="100%" class="edit-table">
+			<tr valign="top" style="" class="adm-detail-required-field">
+				<td class="field-name" style="vertical-align:middle;" width="40%">
+					<?=GetMessage("RATING_RULE_EDIT_FRM_CONDITION_NAME")?>:
 				</td>
-				<td width="25%">
+				<td>
 					<?=SelectBoxFromArray("CONDITION_NAME", $arConditionName, $str_CONDITION_NAME, "", "onChange=\"jsTypeChanged('rating_rule_form')\"");?>
 				</td>
-				<td style="font-size:1em;"  rowspan="<?=$conditionCount+1?>">
+				<td style="font-size:1em; padding-left: 15px" width="200" rowspan="<?=$conditionCount+1?>">
 				<? if(isset($arCurrentCondition['DESC'])): ?>
-					<p><?=$arCurrentCondition['DESC']?></p>
+					<p style="margin-top:0"><?=$arCurrentCondition['DESC']?></p>
 				<? endif; ?>
 				</td>
 			</tr>
@@ -213,7 +213,7 @@ $conditionCount = count($arCurrentCondition['FIELDS']);
 						$res = call_user_func_array(array($arCurrentCondition['FIELDS'][$i]['CLASS'], $arCurrentCondition['FIELDS'][$i]['METHOD']), $arFieldParams);
 						while ($row = $res->Fetch())
 						{
-												
+
 							$arSelect['reference'][] = '['.$row[$arCurrentCondition['FIELDS'][$i]["FIELD_ID"]].'] '.$row[$arCurrentCondition['FIELDS'][$i]["FIELD_VALUE"]];
 							$arSelect['reference_id'][] = $row[$arCurrentCondition['FIELDS'][$i]["FIELD_ID"]];
 						}
@@ -311,8 +311,8 @@ $conditionCount = count($arCurrentCondition['FIELDS']);
 						<?
 					}
 				}
-		    ?>
-		    </table>
+			?>
+			</table>
 		</td>
 	</tr>
 <?
@@ -334,19 +334,19 @@ if (!isset($arCurrentCondition['HIDE_ACTION']) || !$arCurrentCondition['HIDE_ACT
 	?>
 		<tr>
 			<td colspan="2">
-				<table cellpadding="0" cellspacing="0" border="0" width="100%" class="edit-table">
-				<tr valign="top" style="">
-					<td class="field-name" style="vertical-align:middle" width="40%">
-						<span class="required">*</span><?=GetMessage("RATING_RULE_EDIT_FRM_ACTION_NAME")?>:
+				<table cellpadding="2" cellspacing="0" border="0" width="100%" class="edit-table">
+				<tr valign="top" style="" class="adm-detail-required-field">
+					<td class="field-name" style="vertical-align:middle; text-align:right" width="40%">
+						<?=GetMessage("RATING_RULE_EDIT_FRM_ACTION_NAME")?>:
 					</td>
-					<td width="25%">
+					<td>
 						<?=SelectBoxFromArray("ACTION_NAME", $arActionName, $str_ACTION_NAME, "", "style=\"width: 300px\" onChange=\"jsTypeChanged('rating_rule_form')\"");?>
 					</td>
-					<td style="font-size:1em;"  rowspan="<?=$actionCount+1?>">
+					<td style="font-size:1em; padding-left: 15px" rowspan="<?=$actionCount+1?>">
 					<? if(isset($arCurrentAction['DESC'])): ?>
-						<p><?=$arCurrentAction['DESC']?></p>
+						<p style="margin-top:0"><?=$arCurrentAction['DESC']?></p>
 					<? else: ?>
-						<p><?=GetMessage("RATING_RULE_EDIT_FRM_ACTION_DESC")?></p>
+						<p style="margin-top:0"><?=GetMessage("RATING_RULE_EDIT_FRM_ACTION_DESC")?></p>
 					<? endif; ?>
 					</td>
 				</tr>
@@ -380,7 +380,7 @@ if (!isset($arCurrentCondition['HIDE_ACTION']) || !$arCurrentCondition['HIDE_ACT
 							<?
 						}
 						else if (isset($arCurrentAction['FIELDS'][$i]['TYPE']) && $arCurrentAction['FIELDS'][$i]['TYPE'] == 'SELECT_CLASS_ARRAY')
-						{						
+						{
 							$arSelect = array();
 							$arFieldParams = array();
 							foreach($arCurrentAction['FIELDS'][$i]['PARAMS'] as $key => $value)
@@ -460,19 +460,19 @@ if (!isset($arCurrentCondition['HIDE_ACTION']) || !$arCurrentCondition['HIDE_ACT
 					}
 
 				// define a default value
-				$strFieldValue  = isset($_REQUEST["ACTIVATE"]) && $_REQUEST["ACTIVATE"] == 'Y' ? 'Y' : (isset($str_ACTIVATE) ? $str_ACTIVATE : 'N');
+				$strFieldValue = isset($_REQUEST["ACTIVATE"]) && $_REQUEST["ACTIVATE"] == 'Y' ? 'Y' : (isset($str_ACTIVATE) ? $str_ACTIVATE : 'N');
 				if ($ID == 0 && empty($_POST))
 					$strFieldValue = $arCurrentAction['ACTIVATE_DEFAULT'];
-				 ?>
+				?>
 
 				<?
 				// define a default value
-				$strFieldValue  = isset($_REQUEST["DEACTIVATE"]) && $_REQUEST["DEACTIVATE"] == 'Y' ? 'Y' : (isset($str_DEACTIVATE) ? $str_DEACTIVATE : 'N');
+				$strFieldValue = isset($_REQUEST["DEACTIVATE"]) && $_REQUEST["DEACTIVATE"] == 'Y' ? 'Y' : (isset($str_DEACTIVATE) ? $str_DEACTIVATE : 'N');
 				if ($ID == 0 && empty($_POST))
 					$strFieldValue = $arCurrentAction['DEACTIVATE_DEFAULT'];
 				?>
 
-				 </table>
+				</table>
 			</td>
 		</tr>
 	<?
@@ -496,11 +496,9 @@ function jsTypeChanged(form_id)
 		_flag.value = 'type_changed';
 		_form.submit();
 	}
-} 
+}
 </script>
-<?echo BeginNote();?>
-<span class="required">*</span> <?echo GetMessage("REQUIRED_FIELDS")?><br>
-<?echo EndNote();?>
+<style type="text/css">.field-name { text-align:right; padding-top: 10px; vertical-align: top!important }</style>
 <?
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php"); 
+require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
 ?>

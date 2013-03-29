@@ -1,5 +1,4 @@
 <?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-
 $forumPermissions = $APPLICATION->GetGroupRight("forum");
 if ($forumPermissions == "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -59,6 +58,7 @@ if ($REQUEST_METHOD == "POST" && $forumPermissions >= "W" && strlen($Update) > 0
 			"ACTIVE" => ($_REQUEST["ACTIVE"] == "Y" ? "Y" : "N"),
 			"MODERATION" => ($_REQUEST["MODERATION"] == "Y" ? "Y" : "N"),
 			"INDEXATION" => ($_REQUEST["INDEXATION"] == "Y" ? "Y" : "N"),
+			"DEDUPLICATION" => ($_REQUEST["DEDUPLICATION"] == "Y" ? "Y" : "N"),
 			
 			"SORT" => (intVal($_REQUEST["SORT"]) <= 0 ? 150 : $_REQUEST["SORT"]),
 			"ORDER_BY" => $_REQUEST["ORDER_BY"],
@@ -76,6 +76,7 @@ if ($REQUEST_METHOD == "POST" && $forumPermissions >= "W" && strlen($Update) > 0
 			"ALLOW_QUOTE" => ($_REQUEST["ALLOW_QUOTE"] == "Y" ? "Y" : "N"),
 			"ALLOW_CODE" => ($_REQUEST["ALLOW_CODE"] == "Y" ? "Y" : "N"),
 			"ALLOW_TABLE" => ($_REQUEST["ALLOW_TABLE"] == "Y" ? "Y" : "N"),
+			"ALLOW_ALIGN" => ($_REQUEST["ALLOW_ALIGN"] == "N" ? "N" : "Y"),
 			"ALLOW_FONT" => ($_REQUEST["ALLOW_FONT"] == "Y" ? "Y" : "N"),
 			"ALLOW_SMILES" => ($_REQUEST["ALLOW_SMILES"] == "Y" ? "Y" : "N"),
 			"ALLOW_UPLOAD" => (in_array($_REQUEST["ALLOW_UPLOAD"], array("Y", "A", "F")) ? $_REQUEST["ALLOW_UPLOAD"] : "N"), 
@@ -116,8 +117,7 @@ if ($REQUEST_METHOD == "POST" && $forumPermissions >= "W" && strlen($Update) > 0
 	$nameSpace = "bitrix";
 	$arComponentPath = array(
 		$nameSpace.":forum.index", 
-		$nameSpace.":forum.menu", 
-		$nameSpace.":forum.rss", 
+		$nameSpace.":forum.rss",
 		$nameSpace.":forum.search", 
 		$nameSpace.":forum.statistic", 
 		$nameSpace.":forum.topic.active", 
@@ -178,6 +178,7 @@ $arForum = array(
 	"MODERATION" => "N",
 	"ACTIVE" => "Y", 
 	"INDEXATION" => "Y", 
+	"DEDUPLICATION" => "Y", 
 
 	"SORT" => 150, 
 	"ORDER_BY" => "P",
@@ -195,6 +196,7 @@ $arForum = array(
 	"ALLOW_QUOTE" => "Y",
 	"ALLOW_CODE" => "Y",
 	"ALLOW_TABLE" => "Y",
+	"ALLOW_ALIGN" => "Y",
 	"ALLOW_FONT" => "Y",
 	"ALLOW_SMILES" => "Y",
 	"ALLOW_UPLOAD" => "N",
@@ -217,18 +219,18 @@ if ($bVarsFromForm)
 {
 	$arForum = $arFields;
 }
-if (!function_exists("__recursive_htmlspecialchars"))
+if (!function_exists("__recursive_htmlspecialcharsbx"))
 {
-	function __recursive_htmlspecialchars(&$res)
+	function __recursive_htmlspecialcharsbx(&$res)
 	{
 		if (is_array($res))
 		{
 			foreach ($res as $key => $val)
-				$res[$key] = __recursive_htmlspecialchars($val);
+				$res[$key] = __recursive_htmlspecialcharsbx($val);
 		}
 		elseif (is_string($res))
 		{
-			$res = htmlspecialchars($res);
+			$res = htmlspecialcharsbx($res);
 		}
 		return $res;
 	}
@@ -236,7 +238,7 @@ if (!function_exists("__recursive_htmlspecialchars"))
 $res = $arForum;
 foreach ($res as $key => $val):
 	$arForum["~".$key] = $val;
-	__recursive_htmlspecialchars($arForum[$key]);
+	__recursive_htmlspecialcharsbx($arForum[$key]);
 endforeach;
 
 /********************************************************************
@@ -296,8 +298,8 @@ $tabControl->BeginNextTab();
 
 ?>
 	<tr>
-		<td width="50%"><?=GetMessage("ACTIVE")?><span class="required"><sup>1</sup></span>:</td>
-		<td width="50%">
+		<td width="40%"><?=GetMessage("ACTIVE")?><?if(IsModuleInstalled("search")){?><span class="required"><sup>1</sup></span><?}?>:</td>
+		<td width="60%">
 			<input type="checkbox" name="ACTIVE" id="ACTIVE" value="Y" <?=($arForum["ACTIVE"]=="Y" ? "checked='checked'" : "")?> />
 			<label for="ACTIVE"><?=GetMessage("ACTIVE_TITLE")?></label>
 		</td>
@@ -323,7 +325,7 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<tr>
-		<td><span class="required">*</span><?=GetMessage("NAME")?>:</td>
+		<td><?=GetMessage("NAME")?>:</td>
 		<td>
 			<input type="text" name="NAME" size="40" maxlength="255" value="<?=$arForum["NAME"]?>" />
 		</td>
@@ -336,13 +338,13 @@ $tabControl->BeginNextTab();
 	</tr>
 
 	<tr class="heading">
-		<td colspan="2"><span class="required">*</span><?=GetMessage("FE_SITES_PATHS")?><span class="required"><sup>1</sup></span><input type="hidden" name="SITES" /></td>
+		<td colspan="2"><?=GetMessage("FE_SITES_PATHS")?><span class="required"><sup>1</sup></span><input type="hidden" name="SITES" /></td>
 	</tr>
 	<?
 	foreach ($arSites as $key => $res)
 	{
 		?>
-		<tr>
+		<tr class="adm-detail-required-field">
 			<td>
 				<label for="SITE_<?=$res["LID"]?>_"><?=$res["NAME"]?> [<?=$res["LID"]?>]</label>
 				<input type="checkbox" name="SITE[<?=$res["LID"]?>]" id="SITE_<?=$res["LID"]?>_" value="Y"<?if (array_key_exists($res["LID"], $arForum["SITES"]))echo " checked"?> OnClick="on_site_checkbox_click('<?=$res["LID"]?>', '<?=$res["DIR"]?>')">
@@ -354,11 +356,6 @@ $tabControl->BeginNextTab();
 		<?
 	}
 	?>
-	<tr>
-		<td colspan="2">
-			<?=GetMessage("FE_SAMPLE_SITEPATH")?>: /forum/index.php?PAGE_NAME=message&FID=#FORUM_ID#&TID=#TOPIC_ID#&MID=#MESSAGE_ID#
-		</td>
-	</tr>
 
 <?
 $tabControl->EndTab();
@@ -371,8 +368,8 @@ $tabControl->BeginNextTab();
 if (IsModuleInstalled("search")):
 ?>
 	<tr>
-		<td width="50%"><?=GetMessage("INDEX")?><span class="required"><sup>1</sup></span>:</td>
-		<td width="50%">
+		<td width="40%"><?=GetMessage("INDEX")?><span class="required"><sup>1</sup></span>:</td>
+		<td width="60%">
 			<input type="checkbox" name="INDEXATION" id="INDEXATION" value="Y" <?=($arForum["INDEXATION"]=="Y" ? "checked='checked'" : "")?> />
 			<label for="INDEXATION"><?=GetMessage("INDEX_TITLE")?></label>
 		</td>
@@ -381,12 +378,21 @@ if (IsModuleInstalled("search")):
 endif;
 ?>
 	<tr>
-		<td width="50%">
+		<td width="40%">
 			<?=GetMessage("MODERATION")?>:
 		</td>
-		<td>
+		<td width="60%">
 			<input type="checkbox" name="MODERATION" id="MODERATION" value="Y" <?=($arForum["MODERATION"]=="Y" ? "checked='checked'" : "")?> />
 			<label for="MODERATION"><?=GetMessage("MODERATION_TITLE")?></label>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<?=GetMessage("DEDUPLICATION")?>:
+		</td>
+		<td>
+			<input type="checkbox" name="DEDUPLICATION" id="DEDUPLICATION" value="Y" <?=($arForum["DEDUPLICATION"]=="Y" ? "checked='checked'" : "")?> />
+			<label for="DEDUPLICATION"><?=GetMessage("DEDUPLICATION_TITLE")?></label>
 		</td>
 	</tr>
 	<tr>
@@ -402,7 +408,7 @@ endif;
 		</td>
 	</tr>
 	<tr>
-		<td width="50%">
+		<td>
 			<?=GetMessage("ALLOW_TOPIC_TITLED")?>:
 		</td>
 		<td>
@@ -474,14 +480,20 @@ endif;
 		</td>
 	</tr>
 	<tr>
-		<td width="50%"><?=GetMessage("ALLOW_HTML")?>:</td>
-		<td width="50%">
+		<td><?=GetMessage("ALLOW_HTML")?>:</td>
+		<td>
 			<input type="checkbox" name="ALLOW_HTML" id="ALLOW_HTML" value="Y" <?=($arForum["ALLOW_HTML"]=="Y" ? "checked='checked'" : "")?> <?
 				?>onclick="document.getElementById('forum_allow_nl2br').style.display = (this.checked ? '' : 'none');" />
 			<label for="ALLOW_HTML"><?=GetMessage("ALLOW_HTML_TITLE")?></label>
 		</td>
 	</tr>
-<tbody>
+	<tr id="forum_allow_nl2br" style="<?=(($arForum["ALLOW_HTML"]=="Y") ? "" : "display:none;color:red;")?>">
+		<td></td>
+		<td>
+			<input type="checkbox" name="ALLOW_NL2BR" id="ALLOW_NL2BR" value="Y" <?=($arForum["ALLOW_NL2BR"]=="Y" ? "checked='checked'" : "")?>>
+			<label for="ALLOW_NL2BR"><?=GetMessage("ALLOW_NL2BR_TITLE")?></label>
+		</td>
+	</tr>
 	<tr>
 		<td><?=GetMessage("ADDITIONAL_SETTINGS")?>:</td>
 		<td>
@@ -527,6 +539,13 @@ endif;
 	<tr>
 		<td></td>
 		<td>
+			<input type="checkbox" name="ALLOW_ALIGN" id="ALLOW_ALIGN" value="Y" <?=($arForum["ALLOW_ALIGN"]=="Y" ? "checked='checked'" : "")?>>
+			<label for="ALLOW_ALIGN"><?=GetMessage("ALLOW_ALIGN_TITLE")?></label>
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td>
 			<input type="checkbox" name="ALLOW_QUOTE" id="ALLOW_QUOTE" value="Y" <?=($arForum["ALLOW_QUOTE"]=="Y" ? "checked='checked'" : "")?>>
 			<label for="ALLOW_QUOTE"><?=GetMessage("ALLOW_QUOTE_TITLE")?> <small>(&lt;quote&gt;)</small></label>
 		</td>
@@ -545,16 +564,6 @@ endif;
 			<label for="ALLOW_FONT"><?=GetMessage("ALLOW_FONT_TITLE")?> <small>(&lt;font&nbsp;color=...&gt;)</small></label>
 		</td>
 	</tr>
-</tbody>
-<tbody id="forum_allow_nl2br" style="<?=(($arForum["ALLOW_HTML"]=="Y") ? "" : "display:none;")?>" >
-	<tr>
-		<td></td>
-		<td>
-			<input type="checkbox" name="ALLOW_NL2BR" id="ALLOW_NL2BR" value="Y" <?=($arForum["ALLOW_NL2BR"]=="Y" ? "checked='checked'" : "")?>>
-			<label for="ALLOW_NL2BR"><?=GetMessage("ALLOW_NL2BR_TITLE")?></label>
-		</td>
-	</tr>
-</tbody>
 
 <?
 $tabControl->EndTab();
@@ -574,14 +583,14 @@ $tabControl->BeginNextTab();
 		$strSelected = (!in_array(strtoupper($strSelected), $aForumPermissions["reference_id"]) ? "A" : $strSelected);
 		?>
 		<tr>
-			<td width="50%"><?=$res["NAME"]?>&nbsp;[<a  href="/bitrix/admin/group_edit.php?ID=<?=$res["ID"]?>&lang=<?=LANGUAGE_ID?>"><?=$res["ID"]?></a>]:</td>
-			<td width="50%">
+			<td width="40%"><?=$res["NAME"]?>&nbsp;[<a  href="/bitrix/admin/group_edit.php?ID=<?=$res["ID"]?>&lang=<?=LANGUAGE_ID?>"><?=$res["ID"]?></a>]:</td>
+			<td width="60%">
 				<select name="GROUP[<?=$res["ID"]?>]">
 				<?
 				for ($fi = 0; $fi < count($aForumPermissions["reference_id"]); $fi++)
 				{
 					?><option value="<?=$aForumPermissions["reference_id"][$fi]?>"<?if ($strSelected == $aForumPermissions["reference_id"][$fi]) echo " selected"?>><?
-						?><?=htmlspecialchars($aForumPermissions["reference"][$fi])?></option><?
+						?><?=htmlspecialcharsbx($aForumPermissions["reference"][$fi])?></option><?
 				}
 				?>
 				</select>
@@ -636,13 +645,11 @@ function on_site_checkbox_click(lid, dir)
 }
 //-->
 </script>
-
-<br>
 <?=BeginNote()?>
-<span class="required">*</span><font class="legendtext"> - <?=GetMessage("REQUIRED_FIELDS")?><br />
-<span class="required"><sup>1</sup></span><font class="legendtext"> - <?=GetMessage("REQUIRE_REINDEX",array("#LINK#" => "/bitrix/admin/search_reindex.php"))?>
+<span class="required"><sup>1</sup></span> -
+<?if(IsModuleInstalled("search")){?><?=GetMessage("REQUIRE_REINDEX",array("#LINK#" => "/bitrix/admin/search_reindex.php"))?> <?}?>
+<?=GetMessage("FE_SAMPLE_SITEPATH")?>: /forum/index.php?PAGE_NAME=message&FID=#FORUM_ID#&TID=#TOPIC_ID#&MID=#MESSAGE_ID#
 <?=EndNote(); ?>
-
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 ?>

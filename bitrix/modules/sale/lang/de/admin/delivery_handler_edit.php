@@ -1,0 +1,35 @@
+<?
+$MESS["SALE_DH_HANDLER_ACTIVE"] = "Aktiv:";
+$MESS["SALE_DH_PROFILE_ACTIVE"] = "Aktiv:";
+$MESS["SALE_DH_EDIT_BASECONFIG"] = "Basiskonfiguration";
+$MESS["SALE_DH_EDIT_BASECONFIG_DESCR"] = "Basiskonfiguration für den Versandart";
+$MESS["SALE_DH_HANDLER_DESCRIPTION"] = "Beschreibung:";
+$MESS["SALE_DH_PROFILE_DESCRIPTION"] = "Beschreibung:";
+$MESS["SALE_DH_HANDLER_NAME"] = "Bezeichnung:";
+$MESS["SALE_DH_PROFILE_WEIGHT_RESTRICTIONS_TO"] = "bis";
+$MESS["SALE_DH_PROFILE_SUM_RESTRICTIONS_TO"] = "bis";
+$MESS["SALE_DH_PROFILE_SUM_RESTRICTIONS"] = "Einschränkung nach der Bestellsumme:";
+$MESS["SALE_DH_PROFILE_WEIGHT_RESTRICTIONS"] = "Einschränkung nach Gewicht:";
+$MESS["SALE_DH_WEIGHT_UNIT_DEFAULT"] = "g";
+$MESS["SALE_DH_EDIT_CONFIG"] = "Handler";
+$MESS["SALE_DH_HANDLER_PATH"] = "Handler:";
+$MESS["SALE_DH_USE_DIFF_SITES_SETTINGS"] = "Individuelle Einstellungen für jede Seite benutzen";
+$MESS["SALE_DH_PROFILE_TITLE"] = "Name:";
+$MESS["SALE_DH_EDIT_CONFIG_DESCR"] = "Notwendige Handler-Einstellungen";
+$MESS["SALE_DH_HANDLER_TAX_RATE"] = "Preisaufschlag für die Versandkosten;";
+$MESS["SALE_DH_EDIT_PROFILES"] = "Profile";
+$MESS["SALE_DH_PROFILE_USE_DEFAULT"] = "Profileinstellungen als Standard festlegen";
+$MESS["SALE_DH_SITES"] = "Seite wählen";
+$MESS["SALE_DH_LIST"] = "Services";
+$MESS["SALE_DH_HANDLER_SORT"] = "Sortierung:";
+$MESS["SALE_DH_ERROR_UNRECOGNIZED"] = "Unbekannter Fehler. Versuchen Sie es erneut.";
+$MESS["SALE_DH_TITLE_EDIT"] = "Versandart bearbeiten";
+$MESS["SALE_DH_LIST_ALT"] = "Versandarts";
+$MESS["SALE_DH_TAB_TITLE_EDIT_ALT"] = "Versandart-Parameter";
+$MESS["SALE_DH_TAB_TITLE_EDIT"] = "Versand-Parameter";
+$MESS["SALE_DH_EDIT_PROFILES_DESCR"] = "Versandprofil Einstellungen";
+$MESS["SALE_DH_PROFILE_WEIGHT_RESTRICTIONS_FROM"] = "von";
+$MESS["SALE_DH_PROFILE_SUM_RESTRICTIONS_FROM"] = "von";
+$MESS["SALE_DH_SITES_LIST"] = "Wählen Sie eine Website aus";
+$MESS["SALE_DH_PROFILE_SUM_RESTRICTIONS_CURRENCY"] = "Währung:";
+?>

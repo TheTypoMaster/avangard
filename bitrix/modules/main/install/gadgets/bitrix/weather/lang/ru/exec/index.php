@@ -48,7 +48,7 @@ $t = Intval($node->content);
 <table width="90%">
 <tr>
 <td nowrap="yes" width="20%"><span class="t<?=intval($t/10)?>"><?=$node->content?></span></td>
-<td width="20%"><?$node = $xml->SelectNodes('/info/weather/day/day_part/image');?><img src="<?=$node->content?>" class="gdwico"></td>
+<td width="20%"><?$node = $xml->SelectNodes('/info/weather/day/day_part/image-v3');?><img src="<?=$node->content?>" class="gdwico"></td>
 <td width="60%" nowrap>
 <?$node = $xml->SelectNodes('/info/weather/day/day_part/weather_type');?>
 <span class="gdweather"><?=$node->content?></span><br>
@@ -88,7 +88,7 @@ $t = Intval($node->content);
 <?if($arGadgetParams["SHOW_URL"]=="Y"):?>
 <br />
 <?$node = $xml->SelectNodes('/info/weather/url');?>
-<a href="<?=htmlspecialchars($node->content)?>">Подробнее</a> <a href="<?=htmlspecialchars($node->content)?>"><img width="7" height="7" border="0" src="/bitrix/components/bitrix/desktop/images/arrows.gif" /></a>
+<a href="<?=htmlspecialcharsbx($node->content)?>">Подробнее</a> <a href="<?=htmlspecialcharsbx($node->content)?>"><img width="7" height="7" border="0" src="/bitrix/components/bitrix/desktop/images/arrows.gif" /></a>
 <br />
 <?endif?>
 

@@ -280,7 +280,8 @@ if(strlen($Preview) > 0)
 	$cpt->SetTTFFonts($result["arTTFFiles"]);
 
 	$arChars = array();
-	for($i = 0; $i < strlen($result["letters"]); $i++)
+	$l = strlen($result["letters"]);
+	for($i = 0; $i < $l; $i++)
 		$arChars[] = substr($result["letters"], $i, 1);
 	$cpt->SetCodeChars($arChars);
 
@@ -298,7 +299,7 @@ if(strlen($Preview) > 0)
 $APPLICATION->SetTitle(GetMessage("MAIN_ADM_CAPTCHA_PAGE_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-$CAPTCHA_CODE = htmlspecialchars($APPLICATION->CaptchaGetCode());
+$CAPTCHA_CODE = htmlspecialcharsbx($APPLICATION->CaptchaGetCode());
 
 $tabControl->Begin();
 ?>
@@ -523,9 +524,9 @@ function set_presets()
 <?=bitrix_sessid_post()?>
 <?$tabControl->BeginNextTab();?>
 <tr>
-	<td with="30%"><?echo GetMessage("MAIN_ADM_CAPTCHA_PRESETS")?></td>
-	<td with="40%">
-	<select size="1" id="presets" name="presets" onchange="set_presets()">
+	<td width="40%"><?echo GetMessage("MAIN_ADM_CAPTCHA_PRESETS")?>:</td>
+	<td width="300">
+	<select id="presets" name="presets" onchange="set_presets()">
 		<option value="0" <?if(COption::GetOptionInt("main", "CAPTCHA_presets") == 0) echo "selected"?>><?echo GetMessage("MAIN_ADM_CAPTCHA_PRESET_0")?></option>
 		<option value="1" <?if(COption::GetOptionInt("main", "CAPTCHA_presets") == 1) echo "selected"?>><?echo GetMessage("MAIN_ADM_CAPTCHA_PRESET_1")?></option>
 		<option value="2" <?if(COption::GetOptionInt("main", "CAPTCHA_presets") == 2) echo "selected"?>><?echo GetMessage("MAIN_ADM_CAPTCHA_PRESET_2")?></option>
@@ -535,30 +536,30 @@ function set_presets()
 		<option value="6" <?if(COption::GetOptionInt("main", "CAPTCHA_presets") == 6) echo "selected"?>><?echo GetMessage("MAIN_ADM_CAPTCHA_PRESET_6")?></option>
 	</select>
 	</td>
-	<td  with="30%" rowspan="<?echo count($arSettings)+1?>">
-		<?for($i=0;$i < 10; $i++):?>
-			<img id="CAPTCHA_<?echo $i?>" src="/bitrix/admin/captcha.php?Preview=Y&amp;captcha_sid=<?echo $CAPTCHA_CODE?>&amp;i=<?echo $i?>&amp;j=0" width="180" height="40" alt="CAPTCHA" /><br>
+	<td valign="top" rowspan="<?echo count($arSettings)+1?>">
+		<?for($i=0;$i < 12; $i++):?>
+			<img id="CAPTCHA_<?echo $i?>" src="/bitrix/admin/captcha.php?Preview=Y&amp;captcha_sid=<?echo $CAPTCHA_CODE?>&amp;i=<?echo $i?>&amp;j=0" width="180" height="40" alt="CAPTCHA" /><br><br><br>
 		<?endfor?>
 	</td>
 </tr>
 <?foreach($arSettings as $key => $value):?>
 <tr>
-	<td>
+	<td<?if($value[0] === "list" && count($value[1]) > 1):?> class="adm-detail-valign-top"<?endif?>>
 		<?echo $value[3]?>:
 	</td>
 	<td>
 		<?if($value[0] === "checkbox"):?>
-			<input type="checkbox" id="<?echo $key?>" name="<?echo $key?>" value="<?echo htmlspecialchars($value[1])?>" <?if(COption::GetOptionString("main", "CAPTCHA_".$key, $value[2]) === "Y") echo "checked"?>>
+			<input type="checkbox" id="<?echo $key?>" name="<?echo $key?>" value="<?echo htmlspecialcharsbx($value[1])?>" <?if(COption::GetOptionString("main", "CAPTCHA_".$key, $value[2]) === "Y") echo "checked"?>>
 		<?elseif($value[0] === "list"):
 			$vv = explode(",", COption::GetOptionString("main", "CAPTCHA_".$key, implode(",", $value[2])));
 			?>
 			<select multiple id="<?echo $key?>" name="<?echo $key?>[]" size="<?echo count($value[1])?>">
 			<?foreach($value[1] as $k => $v):?>
-				<option value="<?echo htmlspecialchars($k)?>" <?if(in_array($k, $vv)) echo "selected"?>><?echo htmlspecialchars($v)?></option>
+				<option value="<?echo htmlspecialcharsbx($k)?>" <?if(in_array($k, $vv)) echo "selected"?>><?echo htmlspecialcharsbx($v)?></option>
 			<?endforeach?>
 			</select>
 		<?else:?>
-			<input type="text" size="<?echo $value[1]?>" id="<?echo $key?>" name="<?echo $key?>" value="<?echo htmlspecialchars(COption::GetOptionString("main", "CAPTCHA_".$key, $value[2]))?>">
+			<input type="text" size="<?echo $value[1]?>" id="<?echo $key?>" name="<?echo $key?>" value="<?echo htmlspecialcharsbx(COption::GetOptionString("main", "CAPTCHA_".$key, $value[2]))?>">
 		<?endif?>
 	</td>
 </tr>

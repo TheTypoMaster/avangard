@@ -209,7 +209,7 @@ class CSubscriptionGeneral
 		$subscr_EMAIL = (strlen($_COOKIE[$email_cookie]) > 0? $_COOKIE[$email_cookie] : $USER->GetParam("EMAIL"));
 		if($subscr_EMAIL <> "")
 		{
-			$subscr = CSubscription::GetByEmail($subscr_EMAIL);
+			$subscr = CSubscription::GetByEmail($subscr_EMAIL, intval($USER->GetID()));
 			if(($subscr_arr = $subscr->Fetch()))
 				return $subscr_arr;
 		}
@@ -266,12 +266,13 @@ class CSubscriptionGeneral
 				$aMsg[] = array("id"=>"EMAIL", "text"=>GetMessage("class_subscr_addr"));
 			else
 			{
-				$res = $this->GetByEmail($arFields["EMAIL"]);
+				$res = $this->GetByEmail($arFields["EMAIL"], intval($arFields["USER_ID"]));
 				$ar = $res->Fetch();
 				if($ar && ($ar["ID"] <> intval($ID)))
 					$aMsg[] = array("id"=>"EMAIL", "text"=>GetMessage("class_subscr_addr2"));
 			}
 		}
+
 		if(is_set($arFields, "USER_ID"))
 		{
 			if(intval($arFields["USER_ID"]) > 0)
@@ -361,6 +362,9 @@ class CSubscriptionGeneral
 		if(!$this->CheckFields($arFields, 0))
 			return false;
 
+		if(array_key_exists("USER_ID", $arFields) && (intval($arFields["USER_ID"]) <= 0))
+			$arFields["USER_ID"] = false;
+
 		$arFields["CONFIRM_CODE"] = randString(8);
 		$arFields["~DATE_INSERT"]  = $DB->CurrentTimeFunction();
 		$arFields["~DATE_CONFIRM"] = $DB->CurrentTimeFunction();
@@ -389,6 +393,9 @@ class CSubscriptionGeneral
 
 		if(!$this->CheckFields($arFields, $ID))
 			return false;
+
+		if(array_key_exists("USER_ID", $arFields) && (intval($arFields["USER_ID"]) <= 0))
+			$arFields["USER_ID"] = false;
 
 		//Check whether email changed. If changed, we must to generate new confirm code.
 		$strSql =

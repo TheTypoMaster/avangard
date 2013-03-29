@@ -68,6 +68,15 @@ $arComponentParameters = Array(
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "Y"),
 		"DATE_TIME_FORMAT" => CComponentUtil::GetDateTimeFormatField(GetMessage("F_DATE_TIME_FORMAT"), "ADDITIONAL_SETTINGS"),
+		"NAME_TEMPLATE" => array(
+			"TYPE" => "LIST",
+			"NAME" => GetMessage("F_NAME_TEMPLATE"),
+			"VALUES" => CComponentUtil::GetDefaultNameTemplates(),
+			"MULTIPLE" => "N",
+			"ADDITIONAL_VALUES" => "Y",
+			"DEFAULT" => "",
+			"PARENT" => "ADDITIONAL_SETTINGS",
+		),
 		"PATH_TO_SMILE" => Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_PATH_TO_SMILE"),

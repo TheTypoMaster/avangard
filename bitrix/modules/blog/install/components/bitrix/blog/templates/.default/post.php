@@ -142,6 +142,7 @@ $APPLICATION->IncludeComponent(
 				"NO_URL_IN_COMMENTS" => $arParams["NO_URL_IN_COMMENTS"],
 				"NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["NO_URL_IN_COMMENTS_AUTHORITY"],
 				"AJAX_POST" => $arParams["AJAX_POST"],
+				"COMMENT_PROPERTY" => $arParams["COMMENT_PROPERTY"],
 			),
 		$component 
 	);

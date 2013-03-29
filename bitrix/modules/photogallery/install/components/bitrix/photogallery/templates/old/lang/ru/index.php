@@ -8,4 +8,5 @@ $MESS ['P_PHOTO_SORT_RATING_TITLE'] = "по количеству голосов";
 $MESS ['P_PHOTO_SORT_COMMENTS'] = "Комментируемые";
 $MESS ['P_PHOTO_SORT_COMMENTS_TITLE'] = "по количеству комментариев";
 $MESS ['P_PHOTO'] = "Фотогалерея";
+$MESS["P_ADD_ALBUM"] = "Добавить альбом";
 ?>

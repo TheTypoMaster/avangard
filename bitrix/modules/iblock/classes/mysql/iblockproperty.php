@@ -55,7 +55,7 @@ class CIBlockProperty extends CAllIBlockProperty
 				}
 				$strSql = "
 					ALTER TABLE b_iblock_element_prop_s".$arProperty["IBLOCK_ID"]."
-					CHANGE PROPERTY_".$arProperty["ID"]." PROPERTY_".$arProperty["ID"]." text
+					CHANGE PROPERTY_".$arProperty["ID"]." PROPERTY_".$arProperty["ID"]." longtext
 				";
 				if(!$DB->Query($strSql))
 				{
@@ -86,7 +86,7 @@ class CIBlockProperty extends CAllIBlockProperty
 					ALTER TABLE b_iblock_element_prop_s".$arProperty["IBLOCK_ID"]."
 					CHANGE PROPERTY_".$arProperty["ID"]." PROPERTY_".$arProperty["ID"]." ".$strType."
 				";
-			 	if(!$DB->Query($strSql))
+				if(!$DB->Query($strSql))
 				{
 					$this->LAST_ERROR =  $this->FormatUpdateError($ID, "MY04");
 					return false;
@@ -186,7 +186,7 @@ class CIBlockProperty extends CAllIBlockProperty
 		$err_mess = "FILE: ".__FILE__."<br>LINE: ";
 
 		if($arFields["MULTIPLE"]=="Y")
-			$strType = "text";
+			$strType = "longtext";
 		else
 		{
 			switch($arFields["PROPERTY_TYPE"])
@@ -211,7 +211,7 @@ class CIBlockProperty extends CAllIBlockProperty
 			ALTER TABLE b_iblock_element_prop_s".$arFields["IBLOCK_ID"]."
 			ADD PROPERTY_".$ID." ".$strType.", ADD DESCRIPTION_".$ID." varchar(255)
 		";
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql, true);
 		return $rs;
 	}
 }

@@ -21,6 +21,8 @@ $arParams['INPUT_NAME_SUSPICIOUS'] = preg_match('/^[a-zA-Z0-9_]+$/', $arParams['
 
 $arParams['CONTROL_ID'] = preg_match('/^[a-zA-Z0-9_]+$/', $arParams['CONTROL_ID']) ? $arParams['CONTROL_ID'] : 'ius_'.rand(1, 10000);
 
+$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE']) ? CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), "", $arParams["NAME_TEMPLATE"]);
+
 if (isset($arParams['INPUT_VALUE_STRING']))
 {
 	if (strlen($arParams['INPUT_VALUE_STRING']) > 0)

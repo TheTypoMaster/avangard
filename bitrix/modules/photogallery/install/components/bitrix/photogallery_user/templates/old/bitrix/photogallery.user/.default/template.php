@@ -39,7 +39,7 @@ if ($GLOBALS["USER"]->IsAuthorized() && (!empty($arResult["MY_GALLERY"]) || $arR
 elseif (!$GLOBALS["USER"]->IsAuthorized()):
 ?>
 <div class="photo-controls photo-action">
-	<noindex><a rel="nofollow" href="<?=htmlspecialchars($APPLICATION->GetCurPageParam("auth=yes&backurl=".$arResult["backurl_encode"], 
+	<noindex><a rel="nofollow" href="<?=htmlspecialcharsbx($APPLICATION->GetCurPageParam("auth=yes&backurl=".$arResult["backurl_encode"],
 		array("login", "logout", "register", "forgot_password", "change_password", BX_AJAX_PARAM_ID)));
 		?>" class="photo-action authorize" title="<?=GetMessage("P_LOGIN_TITLE")?>"><?=GetMessage("P_LOGIN")?></a></noindex>
 	<div class="empty-clear"></div>
@@ -62,14 +62,14 @@ if (!empty($arResult["GALLERY"])):
 	if (!empty($arResult["GALLERY"]["DESCRIPTION"])):?>
 		<div class="photo-gallery-description"><?=$arResult["GALLERY"]["DESCRIPTION"]?></div><?
 	endif;
-		
+
 	if ($arParams["GALLERY_SIZE"] > 0):?>
 	</td><td align="right" class="size">
 		<table width="100%" cellpadding="0" cellspacing="0" border="0" class="gallery-size"><tr><td align="right">
 			<div class="out"><div class="in" id="photo_gallery_size_inner" style="width:<?=$arResult["GALLERY"]["UF_GALLERY_SIZE_PERCENT"]?>%">&nbsp;</div></div>
 			<div class="out1"><div class="in1" id="photo_gallery_size_inner1"><?=GetMessage("P_GALLERY_SIZE")." ".$arResult["GALLERY"]["UF_GALLERY_SIZE_PERCENT"]?>%</div></div>
 		</td></tr></table><?
-		
+
 		if ($arParams["PERMISSION"] >= "W" && $arResult["GALLERY"]["ELEMENTS_CNT"] > 0):
 			if ($arResult["GALLERY"]["RECALC_INFO"]["STATUS"] == "CONTINUE"):
 				$res = intVal(intVal($arResult["GALLERY"]["RECALC_INFO"]["FILE_COUNT"])/$arResult["GALLERY"]["ELEMENTS_CNT"]*100);
@@ -83,7 +83,7 @@ if (!empty($arResult["GALLERY"])):
 			<a rel="nofollow" href="<?=$GLOBALS['APPLICATION']->GetCurPageParam("action=recalc&status=continue", array("action", "status", "AJAX_CALL"))
 			?>" class="gallery-recalc-continue" ><?=GetMessage("P_GALLERY_SIZE_RECALC_CONTINUE")?></a>
 		</noindex><?
-			
+
 			else:?>
 			<div id="photo_progress_outer" style="display:none;">
 			<table width="100%" cellpadding="0" cellspacing="0" border="0" class="gallery-progress"><tr><td align="right">

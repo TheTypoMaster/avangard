@@ -145,7 +145,7 @@ if ($arParams["SHOW_DESCRIPTION"] != "N")
 	$i_cnt = 1;
 	foreach ($arResult["ELEMENTS_CURR"] as $res):
 		?><td id="td_<?=$package_id?>_<?=$i_cnt?>" style="width:<?=$cellWidth?>px;"><?
-			?><a href="<?=htmlspecialchars($res["url"])?>" title="<?=$res["title"]?>" <?
+			?><a href="<?=htmlspecialcharsbx($res["url"])?>" title="<?=$res["title"]?>" <?
 				?>style="width:<?=($res["width"] + 12)?>px;"<?
 				?><?=($res["id"] == $arParams["ELEMENT_ID"] ? " class='active'" : "")?>><?
 				?><img src="<?=$res["src"]?>" <?

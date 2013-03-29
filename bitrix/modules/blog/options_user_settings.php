@@ -24,8 +24,8 @@ if (CModule::IncludeModule("blog")):
 	<input type="hidden" name="profile_module_id[]" value="blog">
 	<?if ($USER->IsAdmin()):?>
 		<tr>
-			<td><?=GetMessage("blog_ALLOW_POST")?></td>
-			<td><input type="checkbox" name="blog_ALLOW_POST" value="Y" <?if ($str_blog_ALLOW_POST=="Y") echo "checked";?>></td>
+			<td width="40%"><?=GetMessage("blog_ALLOW_POST")?></td>
+			<td width="60%"><input type="checkbox" name="blog_ALLOW_POST" value="Y" <?if ($str_blog_ALLOW_POST=="Y") echo "checked";?>></td>
 		</tr>
 	<?endif;?>
 	<tr>
@@ -40,13 +40,13 @@ if (CModule::IncludeModule("blog")):
 		<td valign="top"><?=GetMessage('blog_INTERESTS')?></td>
 		<td><textarea class="typearea" name="blog_INTERESTS" rows="3" cols="35"><?echo $str_blog_INTERESTS; ?></textarea></td>
 	</tr>
-	<tr>
-		<td valign="top"><?=GetMessage("blog_AVATAR")?></td>
+	<tr class="adm-detail-file-row">
+		<td><?=GetMessage("blog_AVATAR")?></td>
 		<td><?
 			echo CFile::InputFile("blog_AVATAR", 20, $str_blog_AVATAR);
 			if (IntVal($str_blog_AVATAR)>0):
-				?><br><?
-				echo CFile::ShowImage($str_blog_AVATAR, 150, 150, "border=0", "", true);
+				?><div class="adm-detail-file-image"><?
+				echo CFile::ShowImage($str_blog_AVATAR, 150, 150, "border=0", "", true);?></div><?
 			endif;
 			?></td>
 	</tr>

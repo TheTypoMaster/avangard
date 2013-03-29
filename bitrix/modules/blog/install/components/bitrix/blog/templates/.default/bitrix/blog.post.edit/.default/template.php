@@ -59,7 +59,7 @@ else
 			if (imgTable)
 			{
 				imgTable.innerHTML += '<div class="blog-post-image-item"><div class="blog-post-image-item-border"><?=$arResult["ImageModified"]?></div>' +
-				'<div class="blog-post-image-item-input"><input name=IMAGE_ID_title[<?=$arResult["Image"]["ID"]?>] value="<?=Cutil::JSEscape($arResult["Image"]["TITLE'"])?>"></div>' +
+				'<div class="blog-post-image-item-input"><input name=IMAGE_ID_title[<?=$arResult["Image"]["ID"]?>] value="<?=Cutil::JSEscape($arResult["Image"]["TITLE"])?>"></div>' +
 				'<div><input type=checkbox name=IMAGE_ID_del[<?=$arResult["Image"]["ID"]?>] id=img_del_<?=$arResult["Image"]["ID"]?>> <label for=img_del_<?=$arResult["Image"]["ID"]?>><?=GetMessage("BLOG_DELETE")?></label></div></div>';
 			}
 
@@ -238,51 +238,62 @@ else
 				</div>
 				<div class="blog-clear-float"></div>
 			<?endif;?>
-			<?if(!$arResult["bSoNet"])
-			{
-				?>
-				<div class="blog-post-field blog-post-field-date blog-edit-field blog-edit-field-post-date">
-					<span><input type="hidden" id="DATE_PUBLISH_DEF" name="DATE_PUBLISH_DEF" value="<?=$arResult["PostToShow"]["DATE_PUBLISH"];?>">
-					<div id="date-publ-text">
-						<a href="javascript:changeDate()" title="<?=GetMessage("BLOG_DATE")?>"><?=$arResult["PostToShow"]["DATE_PUBLISH"];?></a>
-					</div>
-					<div id="date-publ" style="display:none;">
-					<?
-						$APPLICATION->IncludeComponent(
-							'bitrix:main.calendar',
-							'',
-							array(
-								'SHOW_INPUT' => 'Y',
-								'FORM_NAME' => 'REPLIER',
-								'INPUT_NAME' => 'DATE_PUBLISH',
-								'INPUT_VALUE' => $arResult["PostToShow"]["DATE_PUBLISH"],
-								'SHOW_TIME' => 'Y'
-							),
-							null,
-							array('HIDE_ICONS' => 'Y')
-						);
-					?>
-					</div></span>
+			<div class="blog-post-field blog-post-field-date blog-edit-field blog-edit-field-post-date">
+				<span><input type="hidden" id="DATE_PUBLISH_DEF" name="DATE_PUBLISH_DEF" value="<?=$arResult["PostToShow"]["DATE_PUBLISH"];?>">
+				<div id="date-publ-text">
+					<a href="javascript:changeDate()" title="<?=GetMessage("BLOG_DATE")?>"><?=$arResult["PostToShow"]["DATE_PUBLISH"];?></a>
 				</div>
-				<div class="blog-clear-float"></div>
+				<div id="date-publ" style="display:none;">
 				<?
-			}?>
+					$APPLICATION->IncludeComponent(
+						'bitrix:main.calendar',
+						'',
+						array(
+							'SHOW_INPUT' => 'Y',
+							'FORM_NAME' => 'REPLIER',
+							'INPUT_NAME' => 'DATE_PUBLISH',
+							'INPUT_VALUE' => $arResult["PostToShow"]["DATE_PUBLISH"],
+							'SHOW_TIME' => 'Y'
+						),
+						null,
+						array('HIDE_ICONS' => 'Y')
+					);
+				?>
+				</div></span>
+			</div>
+			<div class="blog-clear-float"></div>
 		</div>
 
 		<div class="blog-post-message blog-edit-editor-area blog-edit-field-text">
 			<div class="blog-comment-field blog-comment-field-bbcode">
-				<?if($arResult["allow_html"] == "Y" && (($arResult["PostToShow"]["DETAIL_TEXT_TYPE"] == "html" && $_REQUEST["load_editor"] != "N") || $_REQUEST["load_editor"] == "Y"))
-				{
-					?>
-					<input type="radio" id="blg-text-text" name="POST_MESSAGE_TYPE" value="text"<?if($arResult["PostToShow"]["DETAIL_TEXT_TYPE"] != "html" || $_REQUEST["load_editor"] == "N") echo " checked";?> onclick="window.location.href='<?=CUtil::JSEscape($APPLICATION->GetCurPageParam("load_editor=N", Array("load_editor")))?>';"> <label for="blg-text-text">Text</label> / <input type="radio" id="blg-text-html" name="POST_MESSAGE_TYPE" value="html"<?if(($arResult["PostToShow"]["DETAIL_TEXT_TYPE"] == "html" && $_REQUEST["load_editor"] != "N") || $_REQUEST["load_editor"] == "Y") echo " checked";?> onclick="window.location.href='<?=CUtil::JSEscape($APPLICATION->GetCurPageParam("load_editor=Y", Array("load_editor")))?>';"> <label for="blg-text-html">HTML</label>
 				<?
-				}
-				
-				include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/lhe.php");
+				include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/editor.php");
 				?>
 				<div style="width:0; height:0; overflow:hidden;"><input type="text" tabindex="3" onFocus="window.oBlogLHE.SetFocus()" name="hidden_focus"></div>
 			</div>
 			<br />
+			<?if($arResult["POST_PROPERTIES"]["SHOW"] == "Y" && !empty($arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_DOC"])):?>
+				<?
+				$eventHandlerID = false;
+				$eventHandlerID = AddEventHandler('main', 'system.field.edit.file', array('CBlogTools', 'blogUFfileEdit'));
+				?>
+				<a id="blog-upload-file" href="javascript:blogShowFile()"><?=GetMessage("BLOG_ADD_FILES")?></a>
+				<div class="blog-post-field blog-post-field-user-prop blog-edit-field">
+					<div id="blog-post-user-fields-UF_BLOG_POST_DOC">
+						<?$APPLICATION->IncludeComponent(
+							"bitrix:system.field.edit",
+							$arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_DOC"]["USER_TYPE"]["USER_TYPE_ID"],
+							array("arUserField" => $arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_DOC"]), null, array("HIDE_ICONS"=>"Y"));?>
+					</div>
+				</div>
+				<div class="blog-clear-float"></div>
+				<?		
+				if ($eventHandlerID !== false && ( intval($eventHandlerID) > 0 ))
+					RemoveEventHandler('main', 'system.field.edit.file', $eventHandlerID);
+				unset($arResult["POST_PROPERTIES"]["DATA"]["UF_BLOG_POST_DOC"]);
+				?>
+			<?endif;?>
+
 			<div class="blog-post-field blog-post-field-images blog-edit-field" id="blog-post-image">
 			<?
 			if (!empty($arResult["Images"]))
@@ -309,27 +320,6 @@ else
 			</div>
 		</div>
 		<div class="blog-clear-float"></div>
-		<?if($arResult["CAN_POST_SONET_GROUP"])
-		{?>
-			<script>
-			BX.message({SONET_GROUP_BLOG_NO : "<?=GetMessage("BLOG_POST_GROUP_CHOOSE")?>"});
-			</script>
-			<div class="blog-post-field blog-post-sonet-group">
-				<?$APPLICATION->IncludeComponent(
-							"bitrix:socialnetwork.group.selector", ".default", array(
-								"BIND_ELEMENT" => "blog-post-group-selector",
-								"ON_SELECT" => "onGroupBlogSelect",
-								"FEATURES_PERMS" => array("blog", array("premoderate_post", "moderate_post", "write_post", "full_post")),
-								"SELECTED" => IntVal($_POST["SONETGROUP"])
-							), null, array("HIDE_ICONS" => "Y")
-						);
-				?>
-				<div id="blog-post-group-selector"><b><?=GetMessage("BLOG_POST_GROUP")?>:</b><span class="blog-post-group-value"><?=GetMessage("BLOG_POST_GROUP_CHOOSE")?></span></div>
-				<input name="SONETGROUP" id="SONETGROUP" type="hidden" value="">
-			</div>
-			<div class="blog-clear-float"></div>
-			<?
-		}?>
 		<div class="blog-post-field blog-post-field-category blog-edit-field blog-edit-field-tags">
 			<div class="blog-post-field-text">
 			<label for="TAGS" class="blog-edit-field-caption"><?=GetMessage("BLOG_CATEGORY")?></label>
@@ -345,11 +335,6 @@ else
 							"SORT_BY_CNT"	=>	"Y",
 							"TEXT" => 'size="30" tabindex="4"'
 							);
-						if($arResult["bSoNet"] && $arResult["bGroupMode"])
-						{
-							$arSParams["arrFILTER"] = "socialnetwork";
-							$arSParams["arrFILTER_socialnetwork"] = $arParams["SOCNET_GROUP_ID"];
-						}
 						$APPLICATION->IncludeComponent("bitrix:search.tags.input", ".default", $arSParams);
 					}
 					else
@@ -366,108 +351,99 @@ else
 			<div class="blog-post-field-text"><label for="ENABLE_COMMENTS"><?=GetMessage("BLOG_ENABLE_COMMENTS")?></label></div>
 		</div>
 		<div class="blog-clear-float"></div>
-		<?if(!$arResult["bSoNet"])
-		{
-			?>
-			<div class="blog-post-field blog-post-field-favorite blog-edit-field">
-				<span><input name="FAVORITE_SORT" id="FAVORITE_SORT" type="checkbox" value="100"<?if(IntVal($arResult["PostToShow"]["FAVORITE_SORT"]) > 0) echo " checked"?>></span>
-				<div class="blog-post-field-text"><label for="FAVORITE_SORT"><?=GetMessage("BLOG_FAVORITE_SORT")?></label></div>
-			</div>
-			<div class="blog-clear-float"></div>
-			<?
-		}
-		?>
+		<div class="blog-post-field blog-post-field-favorite blog-edit-field">
+			<span><input name="FAVORITE_SORT" id="FAVORITE_SORT" type="checkbox" value="100"<?if(IntVal($arResult["PostToShow"]["FAVORITE_SORT"]) > 0) echo " checked"?>></span>
+			<div class="blog-post-field-text"><label for="FAVORITE_SORT"><?=GetMessage("BLOG_FAVORITE_SORT")?></label></div>
+		</div>
+		<div class="blog-clear-float"></div>
 		<div class="blog-post-params">
-			<?if(!$arResult["bSoNet"])
+			<?
+			function ShowSelectPerms($type, $id, $def, $arr)
 			{
 
-				function ShowSelectPerms($type, $id, $def, $arr)
-				{
-
-					$res = "<select name='perms_".$type."[".$id."]'>";
-					while(list(,$key)=each($arr))
-						if ($id > 1 || ($type=='p' && $key <= BLOG_PERMS_READ) || ($type=='c' && $key <= BLOG_PERMS_WRITE))
-							$res.= "<option value='$key'".($key==$def?' selected':'').">".$GLOBALS["AR_BLOG_PERMS"][$key]."</option>";
-					$res.= "</select>";
-					return $res;
-				}
-
-				?>
-				<div class="blog-post-field blog-post-field-access blog-edit-field">
-					<div class="blog-post-field-access-title"><?=GetMessage("BLOG_ACCESS")?></div>
-					<input name="blog_perms" value="0" onClick="show_special()" id="blog_perms_0" type="radio"<?=$arResult["PostToShow"]["ExtendedPerms"]=="Y" ? "" : " checked"?>> <label for="blog_perms_0"><?=GetMessage("BLOG_DEFAULT_PERMS")?></label>
-					<br />
-					<input name="blog_perms" value="1" onClick="show_special()" id="blog_perms_1" type="radio"<?=$arResult["PostToShow"]["ExtendedPerms"]=="Y" ? " checked" : ""?>> <label for="blog_perms_1"><?=GetMessage("BLOG_SPECIAL_PERMS")?></label>
-
-					<div id="special_perms"<?=($arResult["PostToShow"]["ExtendedPerms"]=="Y" ? "" : "style=\"display:none;\"")?>>
-					<table class="blog-post-perm-table">
-						<tr>
-							<th><?=GetMessage("BLOG_GROUPS")?></th>
-							<th><?=GetMessage("BLOG_POST_MESSAGE")?></th>
-							<th><?=GetMessage("BLOG_COMMENTS")?></th>
-
-						</tr>
-						<tr>
-							<td><?=GetMessage("BLOG_ALL_USERS")?></td>
-							<td><?
-								if(!empty($arResult["ar_post_everyone_rights"]))
-									echo ShowSelectPerms('p', 1, $arResult["PostToShow"]["arUGperms_p"][1], $arResult["ar_post_everyone_rights"]);
-								else
-									echo ShowSelectPerms('p', 1, $arResult["PostToShow"]["arUGperms_p"][1], $arResult["BLOG_POST_PERMS"]);
-							?></td>
-							<td><?
-								if(!empty($arResult["ar_comment_everyone_rights"]))
-									echo ShowSelectPerms('c', 1, $arResult["PostToShow"]["arUGperms_c"][1], $arResult["ar_comment_everyone_rights"]);
-								else
-									echo ShowSelectPerms('c', 1, $arResult["PostToShow"]["arUGperms_c"][1], $arResult["BLOG_COMMENT_PERMS"]);
-							?></td>
-						</tr>
-						<tr>
-							<td><?=GetMessage("BLOG_REG_USERS")?></td>
-							<td><?
-								if(!empty($arResult["ar_post_auth_user_rights"]))
-									echo ShowSelectPerms('p', 2, $arResult["PostToShow"]["arUGperms_p"][2], $arResult["ar_post_auth_user_rights"]);
-								else
-									echo ShowSelectPerms('p', 2, $arResult["PostToShow"]["arUGperms_p"][2], $arResult["BLOG_POST_PERMS"]);
-							?></td>
-							<td><?
-								if(!empty($arResult["ar_comment_auth_user_rights"]))
-									echo ShowSelectPerms('c', 2, $arResult["PostToShow"]["arUGperms_c"][2], $arResult["ar_comment_auth_user_rights"]);
-								else
-									echo ShowSelectPerms('c', 2, $arResult["PostToShow"]["arUGperms_c"][2], $arResult["BLOG_COMMENT_PERMS"]);
-							?></td>
-
-						</tr>
-
-
-						<?
-						foreach($arResult["UserGroups"] as $aUGroup)
-						{
-							?>
-							<tr>
-								<td><?=$aUGroup["NAME"]?></td>
-								<td><?
-									if(!empty($arResult["ar_post_group_user_rights"]))
-										echo ShowSelectPerms('p', $aUGroup["ID"], $arResult["PostToShow"]["arUGperms_p"][$aUGroup["ID"]], $arResult["ar_post_group_user_rights"]);
-									else
-										echo ShowSelectPerms('p', $aUGroup["ID"], $arResult["PostToShow"]["arUGperms_p"][$aUGroup["ID"]], $arResult["BLOG_POST_PERMS"]);
-								?></td>
-								<td><?
-									if(!empty($arResult["ar_comment_group_user_rights"]))
-										echo ShowSelectPerms('c', $aUGroup["ID"], $arResult["PostToShow"]["arUGperms_c"][$aUGroup["ID"]], $arResult["ar_comment_group_user_rights"]);
-									else
-										echo ShowSelectPerms('c', $aUGroup["ID"], $arResult["PostToShow"]["arUGperms_c"][$aUGroup["ID"]], $arResult["BLOG_COMMENT_PERMS"]);
-								?></td>
-
-							</tr>
-							<?
-						}
-						?>
-					</table>
-					</div>
-				</div>
-			<?
+				$res = "<select name='perms_".$type."[".$id."]'>";
+				while(list(,$key)=each($arr))
+					if ($id > 1 || ($type=='p' && $key <= BLOG_PERMS_READ) || ($type=='c' && $key <= BLOG_PERMS_WRITE))
+						$res.= "<option value='$key'".($key==$def?' selected':'').">".$GLOBALS["AR_BLOG_PERMS"][$key]."</option>";
+				$res.= "</select>";
+				return $res;
 			}
+
+			?>
+			<div class="blog-post-field blog-post-field-access blog-edit-field">
+				<div class="blog-post-field-access-title"><?=GetMessage("BLOG_ACCESS")?></div>
+				<input name="blog_perms" value="0" onClick="show_special()" id="blog_perms_0" type="radio"<?=$arResult["PostToShow"]["ExtendedPerms"]=="Y" ? "" : " checked"?>> <label for="blog_perms_0"><?=GetMessage("BLOG_DEFAULT_PERMS")?></label>
+				<br />
+				<input name="blog_perms" value="1" onClick="show_special()" id="blog_perms_1" type="radio"<?=$arResult["PostToShow"]["ExtendedPerms"]=="Y" ? " checked" : ""?>> <label for="blog_perms_1"><?=GetMessage("BLOG_SPECIAL_PERMS")?></label>
+
+				<div id="special_perms"<?=($arResult["PostToShow"]["ExtendedPerms"]=="Y" ? "" : "style=\"display:none;\"")?>>
+				<table class="blog-post-perm-table">
+					<tr>
+						<th><?=GetMessage("BLOG_GROUPS")?></th>
+						<th><?=GetMessage("BLOG_POST_MESSAGE")?></th>
+						<th><?=GetMessage("BLOG_COMMENTS")?></th>
+
+					</tr>
+					<tr>
+						<td><?=GetMessage("BLOG_ALL_USERS")?></td>
+						<td><?
+							if(!empty($arResult["ar_post_everyone_rights"]))
+								echo ShowSelectPerms('p', 1, $arResult["PostToShow"]["arUGperms_p"][1], $arResult["ar_post_everyone_rights"]);
+							else
+								echo ShowSelectPerms('p', 1, $arResult["PostToShow"]["arUGperms_p"][1], $arResult["BLOG_POST_PERMS"]);
+						?></td>
+						<td><?
+							if(!empty($arResult["ar_comment_everyone_rights"]))
+								echo ShowSelectPerms('c', 1, $arResult["PostToShow"]["arUGperms_c"][1], $arResult["ar_comment_everyone_rights"]);
+							else
+								echo ShowSelectPerms('c', 1, $arResult["PostToShow"]["arUGperms_c"][1], $arResult["BLOG_COMMENT_PERMS"]);
+						?></td>
+					</tr>
+					<tr>
+						<td><?=GetMessage("BLOG_REG_USERS")?></td>
+						<td><?
+							if(!empty($arResult["ar_post_auth_user_rights"]))
+								echo ShowSelectPerms('p', 2, $arResult["PostToShow"]["arUGperms_p"][2], $arResult["ar_post_auth_user_rights"]);
+							else
+								echo ShowSelectPerms('p', 2, $arResult["PostToShow"]["arUGperms_p"][2], $arResult["BLOG_POST_PERMS"]);
+						?></td>
+						<td><?
+							if(!empty($arResult["ar_comment_auth_user_rights"]))
+								echo ShowSelectPerms('c', 2, $arResult["PostToShow"]["arUGperms_c"][2], $arResult["ar_comment_auth_user_rights"]);
+							else
+								echo ShowSelectPerms('c', 2, $arResult["PostToShow"]["arUGperms_c"][2], $arResult["BLOG_COMMENT_PERMS"]);
+						?></td>
+
+					</tr>
+
+
+					<?
+					foreach($arResult["UserGroups"] as $aUGroup)
+					{
+						?>
+						<tr>
+							<td><?=$aUGroup["NAME"]?></td>
+							<td><?
+								if(!empty($arResult["ar_post_group_user_rights"]))
+									echo ShowSelectPerms('p', $aUGroup["ID"], $arResult["PostToShow"]["arUGperms_p"][$aUGroup["ID"]], $arResult["ar_post_group_user_rights"]);
+								else
+									echo ShowSelectPerms('p', $aUGroup["ID"], $arResult["PostToShow"]["arUGperms_p"][$aUGroup["ID"]], $arResult["BLOG_POST_PERMS"]);
+							?></td>
+							<td><?
+								if(!empty($arResult["ar_comment_group_user_rights"]))
+									echo ShowSelectPerms('c', $aUGroup["ID"], $arResult["PostToShow"]["arUGperms_c"][$aUGroup["ID"]], $arResult["ar_comment_group_user_rights"]);
+								else
+									echo ShowSelectPerms('c', $aUGroup["ID"], $arResult["PostToShow"]["arUGperms_c"][$aUGroup["ID"]], $arResult["BLOG_COMMENT_PERMS"]);
+							?></td>
+
+						</tr>
+						<?
+					}
+					?>
+				</table>
+				</div>
+			</div>
+			<?
 			if(!empty($arResult["avBlog"]) && IntVal($arParams["ID"]) > 0)
 			{
 				?>
@@ -512,14 +488,14 @@ else
 
 			<div class="blog-clear-float"></div>
 			<?if($arResult["POST_PROPERTIES"]["SHOW"] == "Y"):?>
-				<br />
 				<div class="blog-post-field blog-post-field-user-prop blog-edit-field">
-					<?foreach ($arResult["POST_PROPERTIES"]["DATA"] as $FIELD_NAME => $arPostField):?>
-					<div><?=$arPostField["EDIT_FORM_LABEL"]?>:
-								<?$APPLICATION->IncludeComponent(
-									"bitrix:system.field.edit",
-									$arPostField["USER_TYPE"]["USER_TYPE_ID"],
-									array("arUserField" => $arPostField), null, array("HIDE_ICONS"=>"Y"));?>
+					<?foreach ($arResult["POST_PROPERTIES"]["DATA"] as $FIELD_NAME => $arPostField):
+					?>
+					<div id="blog-post-user-fields-<?=$FIELD_NAME?>"><?=$arPostField["EDIT_FORM_LABEL"].":"?>
+						<?$APPLICATION->IncludeComponent(
+							"bitrix:system.field.edit",
+							$arPostField["USER_TYPE"]["USER_TYPE_ID"],
+							array("arUserField" => $arPostField), null, array("HIDE_ICONS"=>"Y"));?>
 					</div>
 					<?endforeach;?>
 				</div>
@@ -530,6 +506,7 @@ else
 			<input type="hidden" name="save" value="Y">
 			<input tabindex="5" type="submit" name="save" value="<?=GetMessage("BLOG_PUBLISH")?>">
 			<input type="submit" name="apply" value="<?=GetMessage("BLOG_APPLY")?>">
+			<input type="hidden" name="blog_upload_cid" id="upload-cid" value="">
 			<?if($arResult["perms"] >= BLOG_PERMS_WRITE):?>
 				<input type="submit" name="draft" value="<?=GetMessage("BLOG_TO_DRAFT")?>">
 			<?endif;?>

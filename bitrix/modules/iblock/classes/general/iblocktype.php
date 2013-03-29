@@ -227,7 +227,7 @@ class CIBlockType
 
 		if($ID === false)
 		{
-			if(strlen($arFields["ID"]) <= 0)
+			if(!isset($arFields["ID"]) || strlen($arFields["ID"]) <= 0)
 			{
 				$this->LAST_ERROR .= GetMessage("IBLOCK_TYPE_BAD_ID")."<br>";
 			}
@@ -268,37 +268,38 @@ class CIBlockType
 	///////////////////////////////////////////////////////////////////
 	function Add($arFields)
 	{
-		global $DB, $USER;
-		if(CACHED_b_iblock_type!==false) $GLOBALS["CACHE_MANAGER"]->CleanDir("b_iblock_type");
+		global $DB, $CACHE_MANAGER;
 
-		$arFields["SECTIONS"] = ($arFields["SECTIONS"]=="Y"?"Y":"N");
-		$arFields["IN_RSS"] = ($arFields["IN_RSS"]=="Y"?"Y":"N");
+		if (CACHED_b_iblock_type !== false)
+			$CACHE_MANAGER->cleanDir("b_iblock_type");
 
-		if(!$this->CheckFields($arFields))
+		$arFields["SECTIONS"] = isset($arFields["SECTIONS"]) && $arFields["SECTIONS"] === "Y"? "Y": "N";
+		$arFields["IN_RSS"] = isset($arFields["IN_RSS"]) && $arFields["IN_RSS"] === "Y"? "Y": "N";
+
+		if (!$this->CheckFields($arFields))
 			return false;
 
 		$arInsert = $DB->PrepareInsert("b_iblock_type", $arFields);
+		$DB->Query("INSERT INTO b_iblock_type(".$arInsert[0].") VALUES(".$arInsert[1].")");
 
-		$strSql =
-			"INSERT INTO b_iblock_type(".$arInsert[0].") ".
-			"VALUES(".$arInsert[1].")";
-
-		$DB->Query($strSql);
-		$ID = $DB->ForSQL($arFields["ID"]);
-
-		if(is_array($arFields["LANG"]))
+		if (isset($arFields["LANG"]) && is_array($arFields["LANG"]))
 		{
-			$DB->Query("DELETE FROM b_iblock_type_lang WHERE IBLOCK_TYPE_ID='".$ID."'");
-			foreach($arFields["LANG"] as $lid => $arFieldsLang)
+			$DB->Query("DELETE FROM b_iblock_type_lang WHERE IBLOCK_TYPE_ID='".$DB->ForSQL($arFields["ID"])."'");
+			foreach ($arFields["LANG"] as $lid => $arFieldsLang)
 			{
-				if(strlen($arFieldsLang["NAME"])>0 || strlen($arFieldsLang["ELEMENT_NAME"])>0)
+				$NAME = isset($arFieldsLang["NAME"])? trim($arFieldsLang["NAME"]): "";
+				$ELEMENT_NAME = isset($arFieldsLang["ELEMENT_NAME"])? trim($arFieldsLang["ELEMENT_NAME"]): "";
+				$SECTION_NAME = isset($arFieldsLang["SECTION_NAME"])? trim($arFieldsLang["SECTION_NAME"]): "";
+				if ( ($NAME !== "") || ($ELEMENT_NAME !== ""))
 				{
-					$strSql =
-						"INSERT INTO b_iblock_type_lang(IBLOCK_TYPE_ID, LID, NAME, SECTION_NAME, ELEMENT_NAME) ".
-						"SELECT BT.ID, L.LID, '".$DB->ForSql($arFieldsLang["NAME"], 100)."', '".$DB->ForSql($arFieldsLang["SECTION_NAME"], 100)."', '".$DB->ForSql($arFieldsLang["ELEMENT_NAME"], 100)."' ".
-						"FROM b_iblock_type BT, b_language L ".
-						"WHERE BT.ID='".$ID."' AND L.LID='".$DB->ForSQL($lid)."' ";
-					$DB->Query($strSql);
+					$arInsert = $DB->PrepareInsert("b_iblock_type_lang", array(
+						"IBLOCK_TYPE_ID" => $arFields["ID"],
+						"LID" => $lid,
+						"NAME" => $NAME,
+						"SECTION_NAME" => $SECTION_NAME,
+						"ELEMENT_NAME" => $ELEMENT_NAME,
+					));
+					$DB->Query("INSERT INTO b_iblock_type_lang(".$arInsert[0].") VALUES(".$arInsert[1].")");
 				}
 			}
 		}

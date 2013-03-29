@@ -18,9 +18,9 @@ $MESS ['PM_NOTIFICATION_SEND'] = "Read confirmation was successfully sent";
 $MESS ['SYSTEM_POST_SUBJ'] = "Read confirmation";
 $MESS ['SYSTEM_POST_MESSAGE'] = 
 "Your message 
-     Topic: #SUBJECT# 
-     Sent: #MESSAGE_DATE#
-     Message: http://#SERVER_NAME##MESSAGE_LINK#
+	Topic: #SUBJECT#
+	Sent: #MESSAGE_DATE#
+	Message: http://#SERVER_NAME##MESSAGE_LINK#
 
 Has been read by Recipient #USER_NAME#
 http://#SERVER_NAME##USER_LINK#";

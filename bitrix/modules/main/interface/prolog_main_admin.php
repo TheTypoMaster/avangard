@@ -5,233 +5,252 @@ IncludeModuleLangFile(__FILE__);
 
 if(strlen($APPLICATION->GetTitle())<=0)
 	$APPLICATION->SetTitle(GetMessage("MAIN_PROLOG_ADMIN_TITLE"));
-$direction = "";
-$direct = CLanguage::GetByID(LANGUAGE_ID);
-$arDirect = $direct -> Fetch();
-if($arDirect["DIRECTION"] == "N")
-	$direction = ' dir="rtl"';
+
+$aUserOpt = CUserOptions::GetOption("admin_panel", "settings");
+$aUserOptGlobal = CUserOptions::GetOption("global", "settings");
+
+$adminPage->Init();
+$adminMenu->Init($adminPage->aModules);
+
+$bShowAdminMenu = !empty($adminMenu->aGlobalMenu);
+
+if($bShowAdminMenu && class_exists("CUserOptions"))
+{
+	$aOptMenuPos = CUserOptions::GetOption("admin_menu", "pos", array());
+	$bOptMenuMinimized = $aOptMenuPos['ver'] == 'off';
+}
+
+if (!defined('ADMIN_SECTION_LOAD_AUTH') || !ADMIN_SECTION_LOAD_AUTH):
+	$direction = "";
+	$direct = CLanguage::GetByID(LANGUAGE_ID);
+	$arDirect = $direct->Fetch();
+	if($arDirect["DIRECTION"] == "N")
+		$direction = ' dir="rtl"';
+
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html<?=$direction?>>
+<!DOCTYPE html>
+<html<?=$aUserOpt['fix'] == 'on' ? ' class="adm-header-fixed"' : ''?><?=$direction?>>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=<?=htmlspecialchars(LANG_CHARSET)?>">
+<meta http-equiv="Content-Type" content="text/html; charset=<?=htmlspecialcharsbx(LANG_CHARSET)?>">
+<meta name="viewport" content="initial-scale=1.0, width=device-width">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <title><?echo COption::GetOptionString("main","site_name", $_SERVER["SERVER_NAME"])?> - <?echo htmlspecialcharsex($APPLICATION->GetTitle(false, true))?></title>
 <?
+else:
+?>
+<script type="text/javascript">
+<?
+	if ($aUserOpt['fix'] == 'on'):
+?>
+document.documentElement.className = 'adm-header-fixed';
+<?
+	endif;
+?>
+window.document.title = '<?echo CUtil::JSEscape(COption::GetOptionString("main","site_name", $_SERVER["SERVER_NAME"]));?> - <?echo CUtil::JSEscape($APPLICATION->GetTitle(false, true))?>';
+</script>
+<?
+endif;
+
 $APPLICATION->AddBufferContent(array($adminPage, "ShowCSS"));
 echo $adminPage->ShowScript();
 $APPLICATION->ShowHeadScripts();
 $APPLICATION->ShowHeadStrings();
 ?>
-</head>
-
-<?
-$bShowAdminMenu = ($USER->IsAuthorized());
-if($bShowAdminMenu)
-{
-	$adminPage->Init();
-	$adminMenu->Init($adminPage->aModules);
-	if(empty($adminMenu->aGlobalMenu))
-		$bShowAdminMenu = false;
-	if($bShowAdminMenu && class_exists("CUserOptions"))
-		$aOptMenuPos = CUserOptions::GetOption("admin_menu", "pos", array());
-}
-?>
-<body>
-<?
-if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/admin_header.php"))
-	include($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/admin_header.php");
-?>
-<table cellpadding="0" cellspacing="0" border="0" width="100%" style="height:100%">
-	<tr>
-		<td valign="top" style="height:60px;"><?require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/top_panel.php");?></td>
-	</tr>
-	<tr>
-		<td>
-			<table cellpadding="0" cellspacing="0" border="0" width="100%" style="height:100%">
-				<tr>
-					<td class="toppanel-shadow"><div class="empty"></div></td>
-<?if($bShowAdminMenu):?>
-					<td class="vdivider-top-bg" onmousedown="JsAdminMenu.StartDrag();"><div class="empty"></div></td>
-					<td class="toppanel-shadow"><div class="empty"></div></td>
-<?endif;?>
-				</tr>
-				<tr>
-<?if($bShowAdminMenu):?>
-					<td valign="top" width="0%">
-
-<?
-//Left Column
-?>
-						<div id="hiddenmenucontainer" style="display:<?echo ($aOptMenuPos["ver"] == "off"? "block":"none")?>;" onClick="JsAdminMenu.verSplitterToggle();" title="<?echo GetMessage("prolog_main_show_menu")?>">
-						<?echo GetMessage("prolog_main_m_e_n_u")?>
-						</div>
-
-						<div id="menudiv" style="display:<?echo ($aOptMenuPos["ver"] <> "off"? "block":"none")?>;">
-
-						<table cellpadding="0" cellspacing="0" border="0" width="100%">
-							<tr>
-								<td>
-<?
-//Buttons Container
-?>
-<?
-$aActiveSection = $adminMenu->ActiveSection();
-?>
-									<div id="menutitle"><?echo $aActiveSection["text"]?></div>
-
-									<div id="buttonscontainer" style="display:<?echo ($aOptMenuPos["hor"] <> "off"? "block":"none")?>;">
-									<table cellspacing="0" class="buttons">
-<?
-foreach($adminMenu->aGlobalMenu as $menu):
-?>
-										<tr>
-											<td id="btn_<?echo $menu["items_id"]?>" class="button<?if($menu["items_id"] == $aActiveSection["items_id"]) echo " buttonsel";?>"
-											onMouseOver="this.className+=' buttonover';"
-											onMouseOut="this.className = this.className.replace(/\s*buttonover/ig, '');"
-											onClick="JsAdminMenu.ToggleMenu('<?echo $menu["items_id"]?>', '<?echo $menu["text"]?>');" title="<?echo $menu["title"]?>">
-												<table cellspacing="0">
-													<tr>
-														<td class="left"></td>
-														<td class="center"><div id="<?echo $menu["icon"]?>"><?echo $menu["text"]?></div></td>
-														<td class="right"></td>
-													</tr>
-												</table>
-											</td>
-										</tr>
-<?endforeach;?>
-									</table>
-									</div>
-
-									<div id="smbuttonscontainer" style="display:<?echo ($aOptMenuPos["hor"] == "off"? "block":"none")?>;">
-<?foreach($adminMenu->aGlobalMenu as $menu):?>
-										<div id="smbtn_<?echo $menu["items_id"]?>" class="smbutton<?if($menu["items_id"] == $aActiveSection["items_id"]) echo " smbuttonsel";?>"
-										onMouseOver="this.className+=' smbuttonover';"
-										onMouseOut="this.className=this.className.replace(/\s*smbuttonover/ig, '');"
-										onClick="JsAdminMenu.ToggleMenu('<?echo $menu["items_id"]?>', '<?echo $menu["text"]?>');"
-										title="<?echo $menu["text"]?>"><div id="<?echo $menu["icon"]?>"></div></div>
-<?endforeach;?>
-										<div class="empty" style="clear:both"></div>
-									</div>
 <script type="text/javascript">
-var JsAdminMenu = new JCAdminMenu("<?echo (method_exists($adminMenu, "GetOpenedSections")? $adminMenu->GetOpenedSections():"");?>");
-JsAdminMenu.sMenuSelected = "<?echo $aActiveSection["items_id"];?>";
+BX.message({MENU_ENABLE_TOOLTIP: <?=($aUserOptGlobal['start_menu_title'] <> 'N' ? 'true' : 'false')?>});
+BX.InitializeAdmin();
 </script>
 <?
-//End of Buttons Container
+if (!defined('ADMIN_SECTION_LOAD_AUTH') || !ADMIN_SECTION_LOAD_AUTH):
 ?>
-								</td>
-							</tr>
-							<tr>
-
+</head>
+<body id="bx-admin-prefix">
+<!--[if lte IE 7]>
+<style type="text/css">
+#bx-panel {display:none !important;}
+.adm-main-wrap { display:none !important; }
+</style>
+<div id="bx-panel-error">
+<?echo GetMessage("admin_panel_browser")?>
+</div><![endif]-->
 <?
-//Horisontal divider
+endif;
+if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/admin_header.php"))
+	include($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/admin_header.php");
+
 ?>
-								<td>
-									<table cellpadding="0" cellspacing="0" border="0" class="hdivider">
+	<table class="adm-main-wrap">
+		<tr>
+			<td class="adm-header-wrap" colspan="2">
+<?
+
+require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/top_panel.php");
+require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/favorite_menu.php");
+
+?>
+			</td>
+		</tr>
+		<tr>
+<?
+
+	CJSCore::Init(array('admin_interface'));
+	$APPLICATION->AddHeadScript('/bitrix/js/main/dd.js');
+
+	$aActiveSection = $adminMenu->ActiveSection();
+
+	if(isset($GLOBALS["BX_FAVORITE_MENU_ACTIVE_ID"]) && $GLOBALS["BX_FAVORITE_MENU_ACTIVE_ID"])
+		$openedSection ="desktop";
+	else
+		$openedSection = CUtil::JSEscape($aActiveSection["menu_id"]);
+
+	$stick = (array_key_exists("global_menu_desktop", $adminMenu->aActiveSections) || $openedSection =="desktop" ) ? "Y" : "N";
+	CUserOptions::SetOption('favorite', 'favorite_menu', array('stick' => $stick));
+?>
+			<td class="adm-left-side-wrap" id="menu_mirrors_cont">
+
+<script type="text/javascript">
+BX.adminMenu.setMinimizedState(<?=$bOptMenuMinimized ? 'true' : 'false'?>);
+BX.adminMenu.setActiveSection('<?=$openedSection?>');
+BX.adminMenu.setOpenedSections('<?=CUtil::JSEscape($adminMenu->GetOpenedSections());?>');
+</script>
+				<div class="adm-left-side<?=$bOptMenuMinimized ? ' adm-left-side-wrap-close' : ''?>"<?if(intval($aOptMenuPos["width"]) > 0) echo ' style="width:'.($bOptMenuMinimized ? 15 : intval($aOptMenuPos["width"])).'px" data-width="'.intval($aOptMenuPos["width"]).'"'?> id="bx_menu_panel"><div class="adm-menu-wrapper<?=$bOptMenuMinimized ? ' adm-main-menu-close' : ''?>" style="overflow:hidden; min-width:300px;">
+						<div class="adm-main-menu">
+<?
+	$menuScripts = "";
+
+	foreach($adminMenu->aGlobalMenu as $menu):
+
+		$menuClass = "adm-main-menu-item adm-".$menu["menu_id"];
+
+		if(($menu["items_id"] == $aActiveSection["items_id"] && $openedSection !="desktop" )|| $menu["menu_id"] == $openedSection)
+			$menuClass .=' adm-main-menu-item-active';
+
+		if ($menu['url']):
+?>
+						<a href="<?=htmlspecialcharsbx($menu["url"])?>" class="adm-default <?=$menuClass?>" onclick="BX.adminMenu.GlobalMenuClick('<?echo $menu["menu_id"]?>'); return false;" onfocus="this.blur();" id="global_menu_<?echo $menu["menu_id"]?>">
+							<div class="adm-main-menu-item-icon"></div>
+							<div class="adm-main-menu-item-text"><?echo htmlspecialcharsbx($menu["text"])?></div>
+							<div class="adm-main-menu-hover"></div>
+						</a>
+<?
+		else:
+?>
+						<span class="adm-default <?=$menuClass?>" onclick="BX.adminMenu.GlobalMenuClick('<?echo $menu["menu_id"]?>'); return false;" id="global_menu_<?echo $menu["menu_id"]?>">
+							<div class="adm-main-menu-item-icon"></div>
+							<div class="adm-main-menu-item-text"><?echo htmlspecialcharsbx($menu["text"])?></div>
+							<div class="adm-main-menu-hover"></div>
+						</span>
+<?
+		endif;
+	endforeach;
+?>
+					</div>
+					<div class="adm-submenu" id="menucontainer">
+<?
+		foreach($adminMenu->aGlobalMenu as $menu):
+
+			if(
+				(
+					(
+						$menu["menu_id"] == $aActiveSection["menu_id"]
+						|| $menu["items_id"] == $aActiveSection["items_id"]
+
+					)
+					&& $openedSection !="desktop"
+				)
+				|| $menu["menu_id"] == $openedSection
+
+			)
+				$subMenuDisplay = "block";
+			else
+				$subMenuDisplay = "none";
+
+?>
+						<div class="adm-global-submenu<?=($subMenuDisplay == "block" ? " adm-global-submenu-active" : "")?>" id="global_submenu_<?echo $menu["menu_id"]?>">
+<?
+		if ($menu['menu_id'] == 'desktop')
+		{
+			require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/desktop_menu.php");
+
+			$menu["text"] = $favMenuText;
+			$menu["items"] = $favMenuItems;
+		}
+?>
+							<div class="adm-submenu-items-wrap">
+								<div class="adm-submenu-items-stretch-wrap" onscroll="BX.adminMenu.itemsStretchScroll()">
+									<table class="adm-submenu-items-stretch">
 										<tr>
-											<td><div class="empty"></div></td>
-											<td id="hdividercell" class="hdividerknob <?echo ($aOptMenuPos["hor"] <> "off"? "hdividerknobup":"hdividerknobdown")?>" onMouseOver="JsAdminMenu.horSplitter.Highlight(true);" onMouseOut="JsAdminMenu.horSplitter.Highlight(false);" onClick="JsAdminMenu.horSplitterToggle();" title="<?echo ($aOptMenuPos["hor"] <> "off"? GetMessage("prolog_main_less_buttons"):GetMessage("prolog_main_more_buttons"))?>"><div class="empty"></div></td>
-											<td><div class="empty"></div></td>
+											<td class="adm-submenu-items-stretch-cell">
+												<div class="adm-submenu-items-block">
+													<div class="adm-submenu-items-title adm-submenu-title-<?=$menu['menu_id']?>"><?=htmlspecialcharsbx($menu["text"])?></div>
+													<div id='<?="_".$menu['items_id']?>'>
+<?
+		if(!empty($menu["items"]))
+		{
+			foreach($menu["items"] as $submenu)
+			{
+				$menuScripts .= $adminMenu->Show($submenu);
+			}
+		}
+		elseif ($menu['menu_id'] == 'desktop')
+			echo CBXFavAdmMenu::GetEmptyMenuHTML();
+
+		if($menu['menu_id'] == 'desktop')
+			echo CBXFavAdmMenu::GetMenuHintHTML(empty($menu["items"]));
+
+?>
+													</div>
+												</div>
+											</td>
 										</tr>
 									</table>
-								</td>
-<?
-//End of Horisontal divider
-?>
-							</tr>
-							<tr>
-								<td>
-<?
-//Menu Container
-?>
-<div id="menucontainer"<?if(intval($aOptMenuPos["width"]) > 0) echo ' style="width:'.intval($aOptMenuPos["width"]).'px"'?>>
-
-<?
-foreach($adminMenu->aGlobalMenu as $menu):
-?>
-	<div id="<?echo $menu["items_id"]?>" style="display:<?echo ($menu["items_id"] == $aActiveSection["items_id"]? "block":"none")?>;">
-<?
-	foreach($menu["items"] as $submenu)
-		$adminMenu->Show($submenu);
-?>
-	</div>
-<?
-endforeach;
-?>
-
-</div>
-<?
-//End of Menu Container
-?>
-<div class="empty" id="menu_min_width"></div>
-<?
-if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/this_site_logo.php"))
-	include($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/this_site_logo.php");
-?>
-								</td>
-							</tr>
-						</table>
+								</div>
+							</div>
 						</div>
 <?
-//End of Left Column
+	endforeach;
 ?>
-					</td>
-
+						<div class="adm-submenu-separator"></div>
 <?
-//Vertical divider
+	if ($menuScripts != ""):
 ?>
-					<td width="0%" valign="top" class="vdivider-bg" onmousedown="JsAdminMenu.StartDrag();">
-						<table cellpadding="0" cellspacing="0" border="0" class="vdivider">
-							<tr><td class="top"><div class="empty"></div></td></tr>
-							<tr><td class="vdividerknob <?echo ($aOptMenuPos["ver"] <> "off"? "vdividerknobleft":"vdividerknobright")?>" id="vdividercell" onmousedown="JsAdminMenu.toggle=true;" onclick="JsAdminMenu.verSplitterToggle(); JsAdminMenu.toggle=false;" onMouseOver="JsAdminMenu.verSplitter.Highlight(true);" onMouseOut="JsAdminMenu.verSplitter.Highlight(false);" title="<?echo ($aOptMenuPos["ver"] <> "off"? GetMessage("prolog_main_hide_menu"):GetMessage("prolog_main_show_menu"))?>"><div class="empty"></div></td></tr>
-						</table>
-					</td>
+<script type="text/javascript"><?=$menuScripts?></script>
 <?
-//End of Vertical divider
+	endif;
 ?>
-
-<?
-endif; //if($bShowAdminMenu)
-?>
-					<td valign="top" width="100%">
+					</div>
+				</div></div>
+			</td>
+			<td class="adm-workarea-wrap <?=defined('BX_ADMIN_SECTION_404') && BX_ADMIN_SECTION_404 == 'Y' ? 'adm-404-error' : 'adm-workarea-wrap-top'?>">
+				<div class="adm-workarea adm-workarea-page" id="adm-workarea">
 <?
 //Title
 if ($APPLICATION->GetCurPage(true) != "/bitrix/admin/index.php")
 {
-	?>
-	<div class="page-title">
-	<div style="width:100%;">
-	<table cellspacing="0" width="100%">
-		<tr>
-			<td><div class="page-title-icon" id="<?echo ($bShowAdminMenu? $adminMenu->ActiveIcon():"default_page_icon")?>"></div></td>
-			<td width="100%"><h1><?echo htmlspecialcharsex($APPLICATION->GetTitle(false, true))?></h1></td>
-			<td><a id="navchain-link" href="<?echo htmlspecialchars($_SERVER["REQUEST_URI"])?>" title="<?echo GetMessage("MAIN_PR_ADMIN_CUR_LINK")?>"></a></td>
-		</tr>
-	</table>
-	</div>
-	</div>
+	$currentFavId = null;
+	$currentItemsId = '';
+
+	$pageTitle = htmlspecialcharsex($APPLICATION->GetTitle(false, true));
+
+	if (!defined('BX_ADMIN_SECTION_404') || BX_ADMIN_SECTION_404 != 'Y')
+	{
+		$arLastItem = null;
+		//Navigation chain
+		$adminChain->Init();
+		$arLastItem = $adminChain->Show();
+
+		$currentFavId = CFavorites::GetIDByUrl($_SERVER["REQUEST_URI"]);
+		//$currentItemsId = is_array($arLastItem) && isset($arLastItem['ID'])	? $arLastItem['ID'] : '';
+		$currentItemsId = '';
+	}
+?>
+
+		<h1 class="adm-title" id="adm-title"><?=$pageTitle?><?if(!defined('BX_ADMIN_SECTION_404') || BX_ADMIN_SECTION_404 != 'Y'):?><a href="javascript:void(0)" class="adm-fav-link<?=$currentFavId>0?' adm-fav-link-active':''?>" onclick="BX.adminFav.titleLinkClick(this, <?=intval($currentFavId)?>, '<?=$currentItemsId?>')" title="<?= $currentFavId ? GetMessage("MAIN_PR_ADMIN_FAV_DEL") : GetMessage("MAIN_PR_ADMIN_FAV_ADD")?>"></a><?endif;?><a id="navchain-link" href="<?echo htmlspecialcharsbx($_SERVER["REQUEST_URI"])?>" title="<?echo GetMessage("MAIN_PR_ADMIN_CUR_LINK")?>"></a></h1>
 	<?
 }
 
-if($APPLICATION->GetCurPage(true) != "/bitrix/admin/index.php" && $bShowAdminMenu)
-{
-	//Navigation chain
-	$adminChain->Init();
-	$adminChain->Show();
-}
-?>
-
-<?
-//Не думайте, что я с ума сошел. Спасибо IE за эти три DIV.
-?>
-<div <?if(!$USER->IsAuthorized() || $APPLICATION->GetCurPage(true) != "/bitrix/admin/index.php"):?>id="content_container_hor"<?endif;?>>
-<div style="width:100%;">
-<div <?if(!$USER->IsAuthorized() || $APPLICATION->GetCurPage(true) != "/bitrix/admin/index.php"):?>id="content_container_ver"<?endif;?>>
-
-<?
 //Content
-?>
-<?
+
 //wizard customization file
 $bxProductConfig = array();
 if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/.config.php"))
@@ -244,12 +263,12 @@ if($USER->IsAuthorized()):
 		$daysToExpire = ($delta < 0? 0 : ceil($delta/86400));
 		$bSaas = (COption::GetOptionString('main', '~SAAS_MODE', "N") == "Y");
 
-		echo BeginNote('width="100%"');
+		echo BeginNote('style="position: relative; top: -15px;"');
 		if(isset($bxProductConfig["saas"])):
 			if($bSaas)
 			{
 				if($daysToExpire > 0)
-				{ 
+				{
 					if($daysToExpire <= $bxProductConfig["saas"]["days_before_warning"])
 					{
 						$sWarn = $bxProductConfig["saas"]["warning"];
@@ -283,8 +302,8 @@ if($USER->IsAuthorized()):
 <?
 		endif; //saas
 		echo EndNote();
-	
-	elseif($USER->CanDoOperation('install_updates')): 
+
+	elseif($USER->CanDoOperation('install_updates')):
 		//show support ending warning
 		$supportFinishDate = COption::GetOptionString('main', '~support_finish_date', '');
 		if($supportFinishDate <> '' && is_array(($aSupportFinishDate=ParseDate($supportFinishDate, 'ymd'))))
@@ -299,7 +318,7 @@ if($USER->IsAuthorized()):
 				if($supportDateDiff >= 0 && $supportDateDiff <= 30)
 				{
 					$sSupportMess = GetMessage("prolog_main_support1", array(
-						'#FINISH_DATE#'=>GetTime($supportFinishStamp), 
+						'#FINISH_DATE#'=>GetTime($supportFinishStamp),
 						'#DAYS_AGO#'=>($supportDateDiff == 0? GetMessage("prolog_main_today") : GetMessage('prolog_main_support_days', array('#N_DAYS_AGO#'=>$supportDateDiff))),
 						'#LICENSE_KEY#'=>md5(LICENSE_KEY),
 					));
@@ -307,7 +326,7 @@ if($USER->IsAuthorized()):
 				elseif($supportDateDiff < 0 && $supportDateDiff >= -30)
 				{
 					$sSupportMess = GetMessage("prolog_main_support2", array(
-						'#FINISH_DATE#'=>GetTime($supportFinishStamp), 
+						'#FINISH_DATE#'=>GetTime($supportFinishStamp),
 						'#DAYS_AGO#'=>(-$supportDateDiff),
 						'#LICENSE_KEY#'=>md5(LICENSE_KEY),
 					));
@@ -319,10 +338,10 @@ if($USER->IsAuthorized()):
 						'#LICENSE_KEY#'=>md5(LICENSE_KEY),
 					));
 				}
-			
+
 				if($sSupportMess <> '')
 				{
-					echo BeginNote();
+					echo BeginNote('style="position: relative; top: -15px;"');
 					echo $sSupportMess;
 					echo EndNote();
 				}

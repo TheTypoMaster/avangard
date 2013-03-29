@@ -1,6 +1,6 @@
 <?
 $MESS ['BLGE_ERROR_SAVING'] = "Error saving group";
-$MESS ['BLGE_UPDATING'] = "Edit group peremeters";
+$MESS ['BLGE_UPDATING'] = "Edit group parameters";
 $MESS ['BLGE_ADDING'] = "Create new group";
 $MESS ['BLGE_NO_PERMS2ADD'] = "Insufficient permissions to create group";
 $MESS ['BLGE_2FLIST'] = "Group list";

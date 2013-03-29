@@ -129,12 +129,12 @@ $aSize = CFile::GetImageSize($_SERVER["DOCUMENT_ROOT"].$arTemplate["ICON"]);
 $obJSPopup->StartDescription($arTemplate['ICON']);
 ?>
 <?if($arTemplate["NAME"] <> ""):?>
-<p title="<?echo GetMessage("comp_prop_name")?>"><b><?echo htmlspecialchars($arTemplate["NAME"])?></b></p>
+<p title="<?echo GetMessage("comp_prop_name")?>"><b><?echo htmlspecialcharsbx($arTemplate["NAME"])?></b></p>
 <?endif;?>
 <?if($arTemplate["DESCRIPTION"] <> ""):?>
-<p title="<?echo GetMessage("comp_prop_desc")?>"><?echo htmlspecialchars($arTemplate["DESCRIPTION"])?></p>
+<p title="<?echo GetMessage("comp_prop_desc")?>"><?echo htmlspecialcharsbx($arTemplate["DESCRIPTION"])?></p>
 <?endif;?>
-<p class="note" title="<?echo GetMessage("comp_prop_path")?>"><?echo htmlspecialchars($arTemplate["REAL_PATH"]<>""? $arTemplate["REAL_PATH"]:$_GET["path"])?></p>
+<p class="note" title="<?echo GetMessage("comp_prop_path")?>"><?echo htmlspecialcharsbx($arTemplate["REAL_PATH"]<>""? $arTemplate["REAL_PATH"]:$_GET["path"])?></p>
 <?
 if($strWarning <> "")
 	//ShowError($strWarning);
@@ -149,7 +149,7 @@ if(!empty($arTemplate["PARAMS"])):
 foreach($arTemplate["PARAMS"] as $ID=>$prop):
 ?>
 	<tr>
-		<td><?echo htmlspecialchars($prop["NAME"]).":"?></td>
+		<td><?echo htmlspecialcharsbx($prop["NAME"]).":"?></td>
 		<td>
 <?
 if(!array_key_exists($ID, $arValues) && isset($prop["DEFAULT"]))
@@ -202,12 +202,12 @@ switch(strtoupper($prop["TYPE"]))
 		{
 			$key = array_search($v_id, $val);
 			if($key===FALSE || $key===NULL)
-				$tmp .= '<option value="'.htmlspecialchars($v_id).'">'.htmlspecialchars($v_name).'</option>';
+				$tmp .= '<option value="'.htmlspecialcharsbx($v_id).'">'.htmlspecialcharsbx($v_name).'</option>';
 			else
 			{
 				unset($val[$key]);
 				$bFound = true;
-				$tmp .= '<option value="'.htmlspecialchars($v_id).'" selected>'.htmlspecialchars($v_name).'</option>';
+				$tmp .= '<option value="'.htmlspecialcharsbx($v_id).'" selected>'.htmlspecialcharsbx($v_name).'</option>';
 			}
 		}
 		if($prop['ADDITIONAL_VALUES']!=='N')
@@ -223,9 +223,9 @@ switch(strtoupper($prop["TYPE"]))
 				{
 					$res .= '<br>';
 					if($prop['ROWS']>1)
-						$res .= '<textarea name="'.$ID.'[]" cols='.$prop["COLS"].'>'.htmlspecialchars($v).'</textarea>';
+						$res .= '<textarea name="'.$ID.'[]" cols='.$prop["COLS"].'>'.htmlspecialcharsbx($v).'</textarea>';
 					else
-						$res .= '<input type="text" name="'.$ID.'[]" size='.$prop["COLS"].' value="'.htmlspecialchars($v).'">';
+						$res .= '<input type="text" name="'.$ID.'[]" size='.$prop["COLS"].' value="'.htmlspecialcharsbx($v).'">';
 				}
 
 				for($i=0; $i<$prop["CNT"]; $i++)
@@ -249,9 +249,9 @@ switch(strtoupper($prop["TYPE"]))
 			{
 				$res .= '<br>';
 				if($prop['ROWS']>1)
-					$res .= '<textarea name="'.$ID.'_alt" '.($bFound?' disabled ':'').' cols='.$prop["COLS"].'>'.htmlspecialchars(count($val)>0?$val[0]:'').'</textarea>';
+					$res .= '<textarea name="'.$ID.'_alt" '.($bFound?' disabled ':'').' cols='.$prop["COLS"].'>'.htmlspecialcharsbx(count($val)>0?$val[0]:'').'</textarea>';
 				else
-					$res .= '<input type="text" name="'.$ID.'_alt" '.($bFound?' disabled ':'').'size='.$prop["COLS"].' value="'.htmlspecialchars(count($val)>0?$val[0]:'').'">';
+					$res .= '<input type="text" name="'.$ID.'_alt" '.($bFound?' disabled ':'').'size='.$prop["COLS"].' value="'.htmlspecialcharsbx(count($val)>0?$val[0]:'').'">';
 			}
 		}
 		break;
@@ -266,9 +266,9 @@ switch(strtoupper($prop["TYPE"]))
 				else
 					$bBr = true;
 				if($prop['ROWS']>1)
-					$res .= '<textarea name="'.$ID.'[]" cols='.$prop["COLS"].'>'.htmlspecialchars($v).'</textarea>';
+					$res .= '<textarea name="'.$ID.'[]" cols='.$prop["COLS"].'>'.htmlspecialcharsbx($v).'</textarea>';
 				else
-					$res .= '<input type="text" name="'.$ID.'[]" size='.$prop["COLS"].' value="'.htmlspecialchars($v).'">';
+					$res .= '<input type="text" name="'.$ID.'[]" size='.$prop["COLS"].' value="'.htmlspecialcharsbx($v).'">';
 			}
 
 			for($i=0; $i<$prop["CNT"]; $i++)
@@ -295,9 +295,9 @@ switch(strtoupper($prop["TYPE"]))
 		else
 		{
 			if($prop['ROWS']>1)
-				$res .= '<textarea name="'.$ID.'" cols='.$prop["COLS"].'>'.htmlspecialchars($val).'</textarea>';
+				$res .= '<textarea name="'.$ID.'" cols='.$prop["COLS"].'>'.htmlspecialcharsbx($val).'</textarea>';
 			else
-				$res .= '<input name="'.$ID.'" size='.$prop["COLS"].' value="'.htmlspecialchars($val).'" type="text">';
+				$res .= '<input name="'.$ID.'" size='.$prop["COLS"].' value="'.htmlspecialcharsbx($val).'" type="text">';
 		}
 		break;
 }

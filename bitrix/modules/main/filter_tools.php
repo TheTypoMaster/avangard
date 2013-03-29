@@ -20,6 +20,7 @@ function CheckFilterDates($date1, $date2, &$date1_wrong, &$date2_wrong, &$date2_
 
 function InitFilterEx($arName, $varName, $action="set", $session=true, $FilterLogic="FILTER_logic")
 {
+
 	if ($session && is_array($_SESSION["SESS_ADMIN"][$varName]))
 		$FILTER = $_SESSION["SESS_ADMIN"][$varName];
 	else
@@ -34,22 +35,39 @@ function InitFilterEx($arName, $varName, $action="set", $session=true, $FilterLo
 	for($i=0, $n=count($arName); $i < $n; $i++)
 	{
 		$name = $arName[$i];
+		$period = $arName[$i]."_FILTER_PERIOD";
+		$direction = $arName[$i]."_FILTER_DIRECTION";
 		$bdays = $arName[$i]."_DAYS_TO_BACK";
-		global $$name, $$bdays;
+
+		global $$name, $$direction, $$period, $$bdays;
+
 		if ($action=="set")
 		{
 			$FILTER[$name] = $$name;
+			if(isset($$period) || isset($FILTER[$period]))
+				$FILTER[$period] = $$period;
+
+			if(isset($$direction) || isset($FILTER[$direction]))
+				$FILTER[$direction] = $$direction;
+
 			if(isset($$bdays) || isset($FILTER[$bdays]))
 			{
 				$FILTER[$bdays] = $$bdays;
 				if (strlen($$bdays)>0 && $$bdays!="NOT_REF")
 					$$name = GetTime(time()-86400*intval($FILTER[$bdays]));
 			}
+
 		}
 		else
 		{
-			$$name = $FILTER[$name];
-			if (strlen($FILTER[$bdays])>0 && $FILTER[$bdays]!="NOT_REF")
+			$$name = isset($FILTER[$name])? $FILTER[$name]: null;
+			if(isset($$period) || isset($FILTER[$period]))
+				$$period = $FILTER[$period];
+
+			if(isset($$direction) || isset($FILTER[$direction]))
+				$$direction = $FILTER[$direction];
+
+			if (isset($FILTER[$bdays]) && strlen($FILTER[$bdays])>0 && $FILTER[$bdays]!="NOT_REF")
 			{
 				$$bdays = $FILTER[$bdays];
 				$$name = GetTime(time()-86400*intval($FILTER[$bdays]));
@@ -67,16 +85,25 @@ function InitFilterEx($arName, $varName, $action="set", $session=true, $FilterLo
 
 function DelFilterEx($arName, $varName, $session=true, $FilterLogic="FILTER_logic")
 {
-	global $strError, $$FilterLogic;
-	if ($session) unset($_SESSION["SESS_ADMIN"][$varName]);
-	for($i=0; $i<count($arName); $i++)
+	global $$FilterLogic;
+
+	if ($session)
+		unset($_SESSION["SESS_ADMIN"][$varName]);
+
+	foreach ($arName as $name)
 	{
-		$name = $arName[$i];
+		$period = $name."_FILTER_PERIOD";
+		$direction = $name."_FILTER_DIRECTION";
 		$bdays = $name."_DAYS_TO_BACK";
-		global $$name, $$bdays;
+
+		global $$name, $$period, $$direction, $$bdays;
+
 		$$name = "";
+		$$period ="";
+		$$direction = "";
 		$$bdays = "";
 	}
+
 	$$FilterLogic = "and";
 }
 
@@ -84,16 +111,17 @@ function InitFilter($arName)
 {
 	$md5Path = md5(GetPagePath());
 	$FILTER = $_SESSION["SESS_ADMIN"][$md5Path];
-	for($i=0; $i<count($arName); $i++)
+
+	foreach ($arName as $name)
 	{
-		$name = $arName[$i];
 		global $$name;
-		//echo $name." = ".$$name.";<br>";
+
 		if(isset($$name))
 			$FILTER[$name] = $$name;
 		else
 			$$name = $FILTER[$name];
 	}
+
 	$_SESSION["SESS_ADMIN"][$md5Path] = $FILTER;
 }
 
@@ -102,9 +130,8 @@ function DelFilter($arName)
 	$md5Path = md5(GetPagePath());
 	unset($_SESSION["SESS_ADMIN"][$md5Path]);
 
-	for($i=0; $i<count($arName); $i++)
+	foreach ($arName as $name)
 	{
-		$name = $arName[$i];
 		global $$name;
 		$$name = "";
 	}
@@ -119,9 +146,10 @@ function GetFilterHiddens($var = "filter_", $button = array("filter" => "Y", "se
 		$arKeys = @array_merge(array_keys($_GET), array_keys($_POST));
 		if (is_array($arKeys) && count($arKeys)>0)
 		{
-			$arKeys = array_unique($arKeys);
 			$len = strlen($var);
-			for($i=0; $i<count($arKeys); $i++) if(substr($arKeys[$i], 0, $len)==$var) $arrVars[] = $arKeys[$i];
+			foreach (array_unique($arKeys) as $key)
+				if (substr($key, 0, $len) == $var)
+					$arrVars[] = $key;
 		}
 	}
 	else $arrVars = $var;
@@ -141,13 +169,13 @@ function GetFilterHiddens($var = "filter_", $button = array("filter" => "Y", "se
 					reset($value);
 					foreach($value as $v)
 					{
-						$res .= '<input type="hidden" name="'.htmlspecialchars($var_name).'[]" value="'.htmlspecialchars($v).'">';
+						$res .= '<input type="hidden" name="'.htmlspecialcharsbx($var_name).'[]" value="'.htmlspecialcharsbx($v).'">';
 					}
 				}
 			}
 			elseif (strlen($value)>0 && $value!="NOT_REF")
 			{
-				$res .= '<input type="hidden" name="'.htmlspecialchars($var_name).'" value="'.htmlspecialchars($value).'">';
+				$res .= '<input type="hidden" name="'.htmlspecialcharsbx($var_name).'" value="'.htmlspecialcharsbx($value).'">';
 			}
 		}
 	}
@@ -156,7 +184,7 @@ function GetFilterHiddens($var = "filter_", $button = array("filter" => "Y", "se
 	{
 		reset($button); // php bug
 		while(list($key, $value) = each($button))
-			$res.='<input type="hidden" name="'.htmlspecialchars($key).'" value="'.htmlspecialchars($value).'">';
+			$res.='<input type="hidden" name="'.htmlspecialcharsbx($key).'" value="'.htmlspecialcharsbx($value).'">';
 	}
 	else
 		$res .= $button;
@@ -176,9 +204,10 @@ function GetFilterParams($var="filter_", $bDoHtmlEncode=true, $button = array("f
 		$arKeys = @array_merge(array_keys($_GET), array_keys($_POST));
 		if(is_array($arKeys) && count($arKeys)>0)
 		{
-			$arKeys = array_unique($arKeys);
 			$len = strlen($var);
-			for($i=0; $i<count($arKeys); $i++) if(substr($arKeys[$i], 0, $len)==$var) $arrVars[] = $arKeys[$i];
+			foreach (array_unique($arKeys) as $key)
+				if (substr($key, 0, $len) == $var)
+					$arrVars[] = $key;
 		}
 	}
 	else
@@ -218,10 +247,10 @@ function GetFilterParams($var="filter_", $bDoHtmlEncode=true, $button = array("f
 		$res .= $button;
 
 
-	$tmp_phpbug = ($bDoHtmlEncode) ? htmlspecialchars($res) : $res;
+	$tmp_phpbug = ($bDoHtmlEncode) ? htmlspecialcharsbx($res) : $res;
 
 	return $tmp_phpbug;
-	//return ($bDoHtmlEncode) ? htmlspecialchars($res) : $res;
+	//return ($bDoHtmlEncode) ? htmlspecialcharsbx($res) : $res;
 }
 
 // устаревшая функция, оставлена для совместимости
@@ -302,7 +331,7 @@ function ShowFilterLogicHelp()
 	global $LogicHelp;
 	$str = "";
 	if(LANGUAGE_ID == "ru")
-		$help_link = "http://dev.1c-bitrix.ru/user_help/general/filter.php";
+		$help_link = "http://dev.1c-bitrix.ru/user_help/help/filter.php";
 	else
 		$help_link = "http://www.bitrixsoft.com/help/index.html?page=".urlencode("source/main/help/en/filter.php.html");
 	if ($LogicHelp != "Y")
@@ -311,7 +340,7 @@ function ShowFilterLogicHelp()
 		function LogicHelp() { window.open('".$help_link."', '','scrollbars=yes,resizable=yes,width=780,height=500,top='+Math.floor((screen.height - 500)/2-14)+',left='+Math.floor((screen.width - 780)/2-5)); }
 		</script>";
 	}
-	$str .= "<a title='".GetMessage("FILTER_LOGIC_HELP")."' class='tablebodylink' href='javascript:LogicHelp()'><font class='smalltxt'><sup>?</sup></font></a>";
+	$str .= "<a title='".GetMessage("FILTER_LOGIC_HELP")."' class='adm-input-help-icon' href='javascript:LogicHelp()'></a>";
 	$LogicHelp = "Y";
 	return $str;
 }
@@ -360,14 +389,14 @@ function GetFilterSqlSearch($arSqlSearch=array(), $FilterLogic="FILTER_logic")
 		$strSqlSearch = "1=1";
 	if (is_array($arSqlSearch) && count($arSqlSearch)>0)
 	{
-		for($i=0; $i<count($arSqlSearch); $i++)
+		foreach ($arSqlSearch as $condition)
 		{
-			if (strlen($arSqlSearch[$i])>0 && $arSqlSearch[$i]!="0")
+			if (strlen($condition)>0 && $condition!="0")
 			{
 				$strSqlSearch .= "
 					".strtoupper($$FilterLogic)."
 					(
-						".$arSqlSearch[$i]."
+						".$condition."
 					)
 					";
 			}
@@ -540,30 +569,14 @@ function EndFilter($sID="")
 function BeginNote($sParams="")
 {
 	return '
-<div class="notes">
-<table cellspacing="0" cellpadding="0" border="0" class="notes" '.$sParams.'>
-	<tr class="top">
-		<td class="left"><div class="empty"></div></td>
-		<td><div class="empty"></div></td>
-		<td class="right"><div class="empty"></div></td>
-	</tr>
-	<tr>
-		<td class="left"><div class="empty"></div></td>
-		<td class="content">
+<div class="adm-info-message-wrap" '.$sParams.'>
+	<div class="adm-info-message">
 ';
 }
 function EndNote()
 {
 	return '
-		</td>
-		<td class="right"><div class="empty"></div></td>
-	</tr>
-	<tr class="bottom">
-		<td class="left"><div class="empty"></div></td>
-		<td><div class="empty"></div></td>
-		<td class="right"><div class="empty"></div></td>
-	</tr>
-</table>
+	</div>
 </div>
 ';
 }
@@ -680,6 +693,6 @@ function SortingEx($By, $Path = false, $sByVar="by", $sOrderVar="order", $Anchor
 	if($strTest=="&" OR $strTest == "?")
 		$strAdd2URL="";
 
-	return "<nobr><a href=\"".htmlspecialchars($Path.$strAdd2URL.$sByVar."=".$By."&".$sOrderVar."=asc#".$Anchor)."\">".$sImgDown."</a>".
-			"<a href=\"".htmlspecialchars($Path.$strAdd2URL.$sByVar."=".$By."&".$sOrderVar."=desc#".$Anchor)."\">".$sImgUp."</a></nobr>";
+	return "<nobr><a href=\"".htmlspecialcharsbx($Path.$strAdd2URL.$sByVar."=".$By."&".$sOrderVar."=asc#".$Anchor)."\">".$sImgDown."</a>".
+			"<a href=\"".htmlspecialcharsbx($Path.$strAdd2URL.$sByVar."=".$By."&".$sOrderVar."=desc#".$Anchor)."\">".$sImgUp."</a></nobr>";
 }?>

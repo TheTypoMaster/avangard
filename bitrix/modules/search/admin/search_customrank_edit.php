@@ -14,7 +14,7 @@ if($get_select=="Y"):
 if(intval($FIELD_ID)>0)
 	$FIELD_NAME = "FIELDS[".intval($FIELD_ID)."][PARAM1]";
 else
-	$FIELD_NAME = htmlspecialchars($FIELD_ID);
+	$FIELD_NAME = htmlspecialcharsbx($FIELD_ID);
 $arOptions = array();
 $strAttributes="";
 if($PARAM=="1" && $MODULE_ID=="iblock" && CModule::IncludeModule("iblock"))
@@ -59,13 +59,13 @@ switch($strControl)
 		<select name="<?=$FIELD_NAME?>" id="<?=$FIELD_NAME?>" <?=$strAttributes?>>
 		<option value=""><?=GetMessage("customrank_edit_no")?></option>
 		<?foreach($arOptions as $key=>$value):?>
-			<option value="<?=htmlspecialchars($key)?>"<?=$key==$PARAM1?" selected":""?>><?=htmlspecialchars($value)?></option>
+			<option value="<?=htmlspecialcharsbx($key)?>"<?=$key==$PARAM1?" selected":""?>><?=htmlspecialcharsbx($value)?></option>
 		<?endforeach;?>
 		</select>
 		<?
 		break;
 	case "input":
-		?><input type="text" size="15" name="<?=$FIELD_NAME?>" id="<?=$FIELD_NAME?>" value="<?=htmlspecialchars($PARAM2)?>"><?
+		?><input type="text" size="15" name="<?=$FIELD_NAME?>" id="<?=$FIELD_NAME?>" value="<?=htmlspecialcharsbx($PARAM2)?>"><?
 		break;
 	case "hidden":
 		?>&nbsp;<input type="hidden" name="<?=$FIELD_NAME?>" id="<?=$FIELD_NAME?>" value=""><?
@@ -298,7 +298,7 @@ $tabControl->BeginNextTab();
 ?>
 	<tr>
 		<td width="40%"><?=GetMessage("customrank_edit_site")?></td>
-		<td><?echo CLang::SelectBox("SITE_ID", $str_SITE_ID, "", "BoxUpdateNew('param1')", " id=\"SITE_ID\"");?></td>
+		<td width="60%"><?echo CLang::SelectBox("SITE_ID", $str_SITE_ID, "", "BoxUpdateNew('param1')", " id=\"SITE_ID\"");?></td>
 	</tr>
 	<tr>
 		<td><?=GetMessage("customrank_edit_module")?></td>
@@ -306,7 +306,7 @@ $tabControl->BeginNextTab();
 		<select name="MODULE_ID" id="MODULE_ID" OnChange="BoxUpdateNew('param1')">
 		<option value="main"<?=$str_MODULE_ID=="main"?" selected":""?>><?=GetMessage("customrank_edit_files")?></option>
 		<?foreach(CSearchParameters::GetModulesList() as $module_id => $module_name):?>
-			<option value="<?echo $module_id?>"<?=$str_MODULE_ID==$module_id?" selected":""?>><?echo htmlspecialchars($module_name)?></option>
+			<option value="<?echo $module_id?>"<?=$str_MODULE_ID==$module_id?" selected":""?>><?echo htmlspecialcharsbx($module_name)?></option>
 		<?endforeach;?>
 		</select>
 		</td>
@@ -337,7 +337,7 @@ $tabControl->BeginNextTab();
 			{
 				$arForum["ID"]=intval($arForum["ID"]);
 			?>
-				<option value="<?=$arForum["ID"]?>"<?=$arForum["ID"]==$str_PARAM1?" selected":""?>><?="[".$arForum["ID"]."] ".htmlspecialchars($arForum["NAME"])?></option>
+				<option value="<?=$arForum["ID"]?>"<?=$arForum["ID"]==$str_PARAM1?" selected":""?>><?="[".$arForum["ID"]."] ".htmlspecialcharsbx($arForum["NAME"])?></option>
 			<?}
 		?>
 			</select>
@@ -360,7 +360,7 @@ $tabControl->BeginNextTab();
 			{
 				$arIBlock["ID"]=intval($arIBlock["ID"]);
 			?>
-				<option value="<?=$arIBlock["ID"]?>"<?=$arIBlock["ID"]==$str_PARAM2?" selected":""?>><?="[".$arIBlock["ID"]."] ".htmlspecialchars($arIBlock["NAME"])?></option>
+				<option value="<?=$arIBlock["ID"]?>"<?=$arIBlock["ID"]==$str_PARAM2?" selected":""?>><?="[".$arIBlock["ID"]."] ".htmlspecialcharsbx($arIBlock["NAME"])?></option>
 			<?}
 			?>
 			</select>
@@ -425,9 +425,6 @@ $tabControl->End();
 $tabControl->ShowWarnings("post_form", $message);
 ?>
 
-<?echo BeginNote();?>
-<span class="required">*</span><?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote();?>
 <script type="text/javascript">
 	ParamUpdate();
 </script>

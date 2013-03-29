@@ -655,3 +655,4 @@ function BXParseContent(pMainObj, arParams)
 }
 
 pBXEventDispatcher.AddEditorHandler("OnSetEditorContent", BXParseContent);
+;   

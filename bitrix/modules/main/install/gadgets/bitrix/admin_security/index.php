@@ -1,11 +1,8 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-?>
-<style type="text/css">
-.bx-gadgets-security .bx-gadgets-top-title {background:url("/bitrix/gadgets/bitrix/admin_security/images/gadgets-sprite.png") no-repeat 0 -52px; height:25px; margin-left:8px; padding-left:29px;}
-* html .bx-gadgets-security .bx-gadgets-top-title {height:33px;}
-</style>
-<?
+
+$APPLICATION->SetAdditionalCSS('/bitrix/gadgets/bitrix/admin_security/styles.css');
+
 $aGlobalOpt = CUserOptions::GetOption("global", "settings", array());
 $bShowSecurity = (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/install/index.php") && $aGlobalOpt['messages']['security'] <> 'N');
 
@@ -13,37 +10,66 @@ if (!$bShowSecurity)
 	return false;
 
 $bSecModuleInstalled = CModule::IncludeModule("security");
-if($bSecModuleInstalled):
+if($bSecModuleInstalled){
 	$bSecurityFilter = CSecurityFilter::IsActive();
-	if($bSecurityFilter):
+	if($bSecurityFilter){
 		$lamp_class = " bx-gadgets-info";
-		$text1 = GetMessage("GD_SECURITY_ON");
 		$text2_class = "green";
-		$text2 = GetMessage("GD_SECURITY_FILTER_ON");
-		$text3 = GetMessage("GD_SECURITY_LEVEL", array("#LANGUAGE_ID#"=>LANGUAGE_ID));
-	else:
-		$lamp_class = " bx-gadgets-note";	
-		$text1 = GetMessage("GD_SECURITY_CHECK");
+		$securityEventsCount = CSecurityFilter::GetEventsCount();
+		if($securityEventsCount > 0){
+			$text2 = GetMessage("GD_SECURITY_EVENT_COUNT");
+		} else {
+			$text2 = GetMessage("GD_SECURITY_EVENT_COUNT_EMPTY");
+		}
+		if($securityEventsCount > 999){
+			$securityEventsCount = round($securityEventsCount/1000,1).'K';
+		}
+	} else {
+		$lamp_class = " bx-gadgets-note";
 		$text2_class = "red";
-		$text2 = GetMessage("GD_SECURITY_FILTER_OFF");
-		$text3 = '<p>'.GetMessage("GD_SECURITY_FILTER_DESC").'</p><form method="get" action="security_filter.php"><input type="hidden" name="lang" value="'.LANGUAGE_ID.'"><input type="submit" name="" value="'.GetMessage("GD_SECURITY_FILTER_TURN_ON").'"'.($GLOBALS["APPLICATION"]->GetGroupRight("security")<"W" ? " disabled" : "").'></form>';
-	endif;
-else:
+		$text2 = GetMessage("GD_SECURITY_FILTER_OFF_DESC");
+	}
+} else {
 	$lamp_class = "";
-	$text1 = GetMessage("GD_SECURITY_OFF");
 	$text2_class = "red";
 	$text2 = GetMessage("GD_SECURITY_MODULE");
-	$text3 = '<p>'.GetMessage("GD_SECURITY_MODULE_DESC").'</p><form method="get" action="module_admin.php"><input type="hidden" name="lang" value="'.LANGUAGE_ID.'"><input type="hidden" name="id" value="security">'.bitrix_sessid_post().'<input type="submit" name="install" value="'.GetMessage("GD_SECURITY_MODULE_INSTALL").'"'.(!$GLOBALS["USER"]->CanDoOperation('edit_other_settings') ? " disabled" : "").'></form>';
-endif;
-?>
-<div class="bx-gadgets-warning<?=$lamp_class?>">
-	<div class="bx-gadgets-warning-cont-ball"><?=$text1?></div>
-	<div class="bx-gadgets-warning-bord"></div>
-	<div class="bx-gadgets-warning-bord2"></div>
-	<div class="bx-gadgets-warning-text-<?=$text2_class?>">
-		<div class="bx-gadgets-warning-cont"><?=$text2?></div>
-	</div>
-	<div class="bx-gadgets-warning-bord2"></div>
-	<div class="bx-gadgets-warning-bord"></div>
-</div>
-<div class="bx-gadgets-text"><?=$text3?></div>
+}
+
+?><table class="bx-gadgets-content-layout"><?
+	?><tr><?
+		?><td><div class="bx-gadgets-title"><?=GetMessage("GD_SECURITY_TITLE")?></div></td><?
+		?><td><div class="bx-gadgets-title2">Web Application<br>Firewall</div></td><?
+	?></tr><?
+	?><tr class="bx-gadget-bottom-cont<?=((!$bSecModuleInstalled && $GLOBALS["USER"]->CanDoOperation('edit_other_settings')) || ($bSecModuleInstalled && $GLOBALS["APPLICATION"]->GetGroupRight("security") >= "W") ? " bx-gadget-bottom-button-cont" : "")?>"><?
+
+		if (!$bSecModuleInstalled && $GLOBALS["USER"]->CanDoOperation('edit_other_settings'))
+		{
+			?><td class="bx-gadgets-colourful-cell"><?
+				?><a class="bx-gadget-button bx-gadget-button-clickable" href="/bitrix/admin/module_admin.php?id=security&install=Y&lang=<?=LANGUAGE_ID?>&<?=bitrix_sessid_get()?>">
+					<div class="bx-gadget-button-lamp"></div>
+					<div class="bx-gadget-button-text"><?=GetMessage("GD_SECURITY_MODULE_INSTALL")?></div>
+				</a><?
+			?></td><?
+			?><td class="bx-gadgets-colourful-cell"><?
+			?></td><?
+		}
+		elseif ($bSecModuleInstalled && $GLOBALS["APPLICATION"]->GetGroupRight("security") >= "W")
+		{
+			?><td class="bx-gadgets-colourful-cell"><?
+				?><a class="bx-gadget-button bx-gadget-button-clickable<?=($bSecurityFilter ? " bx-gadget-button-active" : "")?>" href="/bitrix/admin/security_filter.php?lang=<?=LANGUAGE_ID?>">
+					<div class="bx-gadget-button-lamp"></div>
+					<div class="bx-gadget-button-text"><?=($bSecurityFilter ? GetMessage("GD_SECURITY_FILTER_ON") : GetMessage("GD_SECURITY_FILTER_OFF"))?></div>
+				</a><?
+			?></td><?
+			?><td class="bx-gadgets-colourful-cell"><?
+				if ($bSecurityFilter && $securityEventsCount > 0)
+				{
+					?><div class="bx-gadget-events"><?=$securityEventsCount?></div><?
+				}
+				?><div class="bx-gadget-desc"><?=$text2?></div><?
+			?></td><?
+	}
+
+?></tr>
+</table>
+<div class="bx-gadget-shield"></div>

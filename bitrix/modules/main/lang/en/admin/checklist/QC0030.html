@@ -1,43 +1,40 @@
-<p>The custom components in your web project should have clear and unambiguous
-parameters that can be configured by administrators without the developer's
-help.</p>
-
-<p>Assume among other 30 components you have created for your website there is
-one to show a list of registered members: "myproject:members.list". What
-parameters would this component have? This depends, of course, on the nature of
-the website and usage scenarios. The most common settings an administrator would
-expect from a component of this intent are:</p>
-
+<p>The components 2.0 you create for your projects should be made easy to use
+and configure without having to call third-party specialists or the original
+developers. Consider an example: thirty components 2.0 were created for use in a
+project internally titled as "myproject". Among these thirty components, there
+is one titled "Registered Users" dubbed in the namespace as "myproject:members.list".
+What parameters a component like this may possibly have? It is a question of the
+nature of the project and possible use. Normally, such components have the
+following parameters:</p>
 <ul>
-<li>Members per page (to set the number of members currently visible on a
-  webpage);</li>
-<li>Short / long name (to set the person name format; two radio buttons or a
-  drop-down list);</li> 
-<li>Maximum description length (to set the maximum number of characters visible);</li> 
-<li>Show e-mail address (checkbox);</li>
-<li>Sort list by (to set the sort column);</li> 
-<li>some other component specific parameters.</li>
- </ul>
-
-<p>However, it is most likely that an administrator (expecting him or her being
-a programmer is a common mistake) will get confused seeing parameters like:</p>
-
-<ul>
-<li>Caching strategy;</li>
-<li>JSON request format;</li> 
-<li>Authorized user groups (meaning to select the user groups that are allowed
-  to view the component output).</li> 
- </ul>
-
-<p>If you think such parameters are still required for some reason, isolate them
-into a group (by the name of "Advanced settings" or something like
-that) and describe in the website specifications.</p>
-
-<ul>
-  <li>Review the settings sheet of each of the custom components in your
-    website's public section. Make sure each of the parameters and options has a
-    clear title and is well documented. The parameter names should give an
-    administrator a quick understanding of the parameter meaning and possible
-    values. It is wise to check each of the parameters to ensure they behave as
-    expected.</li>
+<li>Number of users per page;</li>
+<li>User name format: short or full;</li>
+<li>Maximum number of words in description (the remainder of which is replaced
+  with ellipsis when printed on the screen);</li>
+<li>Scramble e-mail address (for antispam purposes);</li>
+<li>Sort list by: (followed by a combobox with the available columns);</li>
+<li>other possibly useful parameters.</li>
 </ul>
+<p>It is most possible that a project administrator will need to edit these
+settings to fit the component to the project requirements.</p>
+<p>However, consider the following parameters. They are more than confusing and
+generally well understood only by the component developers:</p>
+<ul>
+<li>Data caching algorithm;</li>
+<li>JSON request format;</li>
+<li>User groups allowed to view lists;</li>
+<li>other possibly useful but very obscure parameters.</li>
+</ul>
+<p>If you feel these parameters will be of use in the future, isolate them into
+a special control group and provide a good documentation, including possible
+values, for each of the parameters.</p>
+<p>If you create a &quot;standard&quot;, multipurpose component which will be
+reused in many projects, make every (reasonably) possible parameter configurable
+and describe each of them in the help section. If you don't intend a component
+for future use, there is no need to go to such lengths.</p>
+<p>Examine the parameters of each of the custom component 2.0 in the public
+section. Make sure each of the parameters has a clear, unambiguous name and is
+properly described. A project administrator must have a good understanding of
+the purpose, possible values and data types of each of the parameters. It is
+recommended to verify that each of the parameters intended for administrative
+use works as intended.</p>

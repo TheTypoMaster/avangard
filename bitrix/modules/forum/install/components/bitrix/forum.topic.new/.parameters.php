@@ -62,6 +62,15 @@ $arComponentParameters = Array(
 			"TYPE" => "STRING",
 			"DEFAULT" => "/bitrix/images/forum/icons/"),
 		"DATE_TIME_FORMAT" => CComponentUtil::GetDateTimeFormatField(GetMessage("F_DATE_TIME_FORMAT"), "ADDITIONAL_SETTINGS"),
+		"NAME_TEMPLATE" => array(
+			"TYPE" => "LIST",
+			"NAME" => GetMessage("F_NAME_TEMPLATE"),
+			"VALUES" => CComponentUtil::GetDefaultNameTemplates(),
+			"MULTIPLE" => "N",
+			"ADDITIONAL_VALUES" => "Y",
+			"DEFAULT" => "",
+			"PARENT" => "ADDITIONAL_SETTINGS",
+			),
 		"SET_NAVIGATION" => Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_SET_NAVIGATION"),
@@ -109,32 +118,32 @@ if (IsModuleInstalled("vote"))
 					"VALUES" => $arVoteChannels,
 					"DEFAULT" => "", 
 					"REFRESH" => "Y");
-            reset($arVoteChannels);
-            if (intVal($arCurrentValues["VOTE_CHANNEL_ID"]) > 0)
-                $voteId = intVal($arCurrentValues["VOTE_CHANNEL_ID"]);
-            else
-                $voteId = key($arVoteChannels);
-            if (!empty($voteId))
-            {
-                $arPermissions = CVoteChannel::GetArrayGroupPermission($voteId);
-                $arUGroupsEx = array();
-                $db_res = CGroup::GetList($by = "c_sort", $order = "asc");
-                while($res = $db_res -> Fetch())
-                {
-                    if ((isset($arPermissions[$res["ID"]]) && intVal($arPermissions[$res["ID"]]) >= 2) || intVal($res["ID"]) == 1):
-                        $arUGroupsEx[$res["ID"]] = $res["NAME"]."[".$res["ID"]."]";
-                    endif;
-                }
-                if (!empty($arUGroupsEx)):
-                    $arComponentParameters["PARAMETERS"]["VOTE_GROUP_ID"] = array(
-                        "PARENT" => "VOTE_SETTINGS",
-                        "NAME" => GetMessage("F_VOTE_GROUP_ID"),
-                        "TYPE" => "LIST",
-                        "VALUES" => $arUGroupsEx,
-                        "DEFAULT" => "", 
-                        "MULTIPLE" => "Y");
-                endif;
-            }
+			reset($arVoteChannels);
+			if (intVal($arCurrentValues["VOTE_CHANNEL_ID"]) > 0)
+				$voteId = intVal($arCurrentValues["VOTE_CHANNEL_ID"]);
+			else
+				$voteId = key($arVoteChannels);
+			if (!empty($voteId))
+			{
+				$arPermissions = CVoteChannel::GetArrayGroupPermission($voteId);
+				$arUGroupsEx = array();
+				$db_res = CGroup::GetList($by = "c_sort", $order = "asc");
+				while($res = $db_res -> Fetch())
+				{
+					if ((isset($arPermissions[$res["ID"]]) && intVal($arPermissions[$res["ID"]]) >= 2) || intVal($res["ID"]) == 1):
+						$arUGroupsEx[$res["ID"]] = $res["NAME"]."[".$res["ID"]."]";
+					endif;
+				}
+				if (!empty($arUGroupsEx)):
+					$arComponentParameters["PARAMETERS"]["VOTE_GROUP_ID"] = array(
+						"PARENT" => "VOTE_SETTINGS",
+						"NAME" => GetMessage("F_VOTE_GROUP_ID"),
+						"TYPE" => "LIST",
+						"VALUES" => $arUGroupsEx,
+						"DEFAULT" => "",
+						"MULTIPLE" => "Y");
+				endif;
+			}
 		}
 	}
 }

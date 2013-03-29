@@ -8,4 +8,6 @@ $MESS["LOG_USER_REGISTER"] = "Зарегистрирован новый пользователь #NAME#";
 $MESS["LOG_USER_DELETE"] = "Удален пользователь #NAME#";
 $MESS["LOG_USER_EDIT"] = "Изменены данные пользователя #NAME#";
 $MESS["LOG_USER_GROUP_CHANGED"] = "Изменены группы пользователя #NAME#";
+$MESS["LOG_TYPE_BACKUP_ERROR"] = "Ошибка автоматического создания резервной копии";
+$MESS["LOG_TYPE_BACKUP_SUCCESS"] = "Автоматическая резервная копия создана успешно";
 ?>

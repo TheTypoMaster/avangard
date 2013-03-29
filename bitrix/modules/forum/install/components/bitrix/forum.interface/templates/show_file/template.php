@@ -1,79 +1,43 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-// ************************* Input params***************************************************************
-// ************************* BASE **********************************************************************
+//************************* Input params***************************************************************
+//************************* BASE **********************************************************************
 $arParams["FILE"] = (is_array($arParams["FILE"]) ? $arParams["FILE"] : intVal($arParams["FILE"]));
-// ************************* ADDITIONAL ****************************************************************
+//************************* ADDITIONAL ****************************************************************
+$arParams["SHOW_MODE"] = (in_array($arParams["SHOW_MODE"], array("LINK", "THUMB", "FULL", "RSS")) ? $arParams["SHOW_MODE"] : "FULL");
 $arParams["MAX_FILE_SIZE"] = intVal($arParams["MAX_FILE_SIZE"] > 0 ? $arParams["MAX_FILE_SIZE"] : 100)*1024*1024;
 $arParams["WIDTH"] = (intVal($arParams["WIDTH"]) > 0 ? intVal($arParams["WIDTH"]) : 100);
 $arParams["HEIGHT"] = (intVal($arParams["HEIGHT"]) > 0 ? intVal($arParams["HEIGHT"]) : 100);
 $arParams["CONVERT"] = ($arParams["CONVERT"] == "N" ? "N" : "Y");
 $arParams["FAMILY"] = trim($arParams["FAMILY"]);
 $arParams["FAMILY"] = CUtil::addslashes(empty($arParams["FAMILY"]) ? "FORUM" : $arParams["FAMILY"]);
-$arParams["SINGLE"] = ($arParams["SINGLE"] == "N" ? "N" : "Y");
-$arParams["RETURN"] = ($arParams["RETURN"] == "Y" ? "Y" : "N");
-$arParams["SHOW_LINK"] = ($arParams["SHOW_LINK"] == "Y" ? "Y" : "N");
+$arParams["RETURN"] = ($arParams["RETURN"] == "Y" || $arParams["RETURN"] == "ARRAY" ? $arParams["RETURN"] : "N");
+//$arParams["SHOW_LINK"] = ($arParams["SHOW_LINK"] == "Y" ? "Y" : "N");
 $arParams["ADDITIONAL_URL"] = htmlspecialcharsEx(trim($arParams["ADDITIONAL_URL"]));
+$arParams["SERVER_NAME"] = (defined("SITE_SERVER_NAME") && strLen(SITE_SERVER_NAME) > 0) ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name");
 // *************************/Input params***************************************************************
 
 // ************************* Default params*************************************************************
 $arResult["FILE"] = $arParams["FILE"];
 if (!is_array($arParams["FILE"]) && intVal($arParams["FILE"]) > 0)
-{
 	$arResult["FILE"] = CFile::GetFileArray($arParams["FILE"]);
-}
+$arResult["FILE"]["~SRC"] = $arResult["FILE"]["SRC"];
+if (intVal($arResult["FILE"]["ID"]) > 0)
+	$arResult["FILE"]["SRC"] = "/bitrix/components/bitrix/forum.interface/show_file.php?fid=".
+		htmlspecialcharsbx($arResult["FILE"]["ID"]).
+		(!empty($arParams["ADDITIONAL_URL"]) ? "&".$arParams["ADDITIONAL_URL"] : "");
 
 $arResult["RETURN_DATA"] = "";
+$arResult["RETURN_DATA_ARRAY"] = array();
 // *************************/Default params*************************************************************
-
 if (is_array($arResult["FILE"]) && !empty($arResult["FILE"]["SRC"]))
 {
-	$arResult["FILE"]["FULL_SRC"] = CHTTP::URN2URI($arResult["FILE"]["SRC"]);
-	$ct = strToLower($arResult["FILE"]["CONTENT_TYPE"]);
+	$arResult["FILE"]["FULL_SRC"] = CHTTP::URN2URI($arResult["FILE"]["SRC"], $arParams["SERVER_NAME"]);
 
-	if ($arParams["MAX_FILE_SIZE"] >= $arResult["FILE"]["FILE_SIZE"] && (substr($ct, 0, 6) == "video/" || substr($ct, 0, 6) == "audio/"))
+	$ct = strToLower($arResult["FILE"]["CONTENT_TYPE"]);
+	if ($arParams["SHOW_MODE"] == "LINK")
 	{
-		$arResult["RETURN_DATA"] =
-			'<OBJECT ID="WMP64" WIDTH="'.($arParams["WIDTH"] > 0 ? $arParams["WIDTH"] : '250').'" HEIGHT="'.(substr($ct, 0, 6) == "audio/"?'45':($arParams["HEIGHT"] > 0 ? $arParams["HEIGHT"] : '220')).'" CLASSID="CLSID:22D6f312-B0F6-11D0-94AB-0080C74C7E95" STANDBY="Loading Windows Media Player components..." TYPE="application/x-oleobject"> '.
-			'<PARAM NAME="AutoStart" VALUE="false"> '.
-			'<PARAM NAME="ShowDisplay" VALUE="false">'.
-			'<PARAM NAME="ShowControls" VALUE="true" >'.
-			'<PARAM NAME="ShowStatusBar" VALUE="0">'.
-			'<PARAM NAME="FileName" VALUE="'.$arResult["FILE"]["SRC"].'"> '.
-			'</OBJECT>';
-	}
-	elseif (strToLower(substr($arResult["FILE"]["ORIGINAL_NAME"], -4)) == ".swf" && strpos($arResult["FILE"]["CONTENT_TYPE"], "flash") !== false)
-	{
-		if ($arResult["FILE"]["WIDTH"] > $arParams["WIDTH"] || $arResult["FILE"]["HEIGHT"] > $arParams["HEIGHT"])
-		{
-			$coeff = max($arResult["FILE"]["WIDTH"]/$arParams["WIDTH"], $arResult["FILE"]["HEIGHT"]/$arParams["HEIGHT"]);
-			$arResult["FILE"]["WIDTH"] = $arResult["FILE"]["WIDTH"]/$coeff;
-			$arResult["FILE"]["HEIGHT"] = $arResult["FILE"]["HEIGHT"]/$coeff;
-		}
-		$arResult["RETURN_DATA"] = '
-			<object
-				classid="clsid:D27CDB6E-AE6D-11CF-96B8-444553540000"
-				codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"
-				id="banner"
-				WIDTH="'.$arResult["FILE"]["WIDTH"].'"
-				HEIGHT="'.$arResult["FILE"]["HEIGHT"].'"
-				ALIGN="">
-					<PARAM NAME="movie" VALUE="'.$arResult["FILE"]["SRC"].'" />
-					<PARAM NAME="quality" VALUE="high" />
-					<PARAM NAME="bgcolor" VALUE="#FFFFFF" />
-					<embed
-						src="'.$arResult["FILE"]["SRC"].'"
-						quality="high"
-						bgcolor="#FFFFFF"
-						WIDTH="'.$arResult["FILE"]["WIDTH"].'"
-						HEIGHT="'.$arResult["FILE"]["HEIGHT"].'"
-						NAME="banner"
-						ALIGN=""
-						TYPE="application/x-shockwave-flash"
-						PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer">
-					</embed>
-			</object>
-			';
+		// do nothing
 	}
 	elseif ($arParams["MAX_FILE_SIZE"] >= $arResult["FILE"]["FILE_SIZE"] && substr($ct, 0, 6) == "image/")
 	{
@@ -81,57 +45,51 @@ if (is_array($arResult["FILE"]) && !empty($arResult["FILE"]["SRC"]))
 			"bitrix:forum.interface",
 			"popup_image",
 			Array(
-				"URL" => "/bitrix/components/bitrix/forum.interface/show_file.php?fid=".$arResult["FILE"]["ID"].
-					(!empty($arParams["ADDITIONAL_URL"]) ? "&".$arParams["ADDITIONAL_URL"] : ""),
+				"URL" => ($arParams["SHOW_MODE"] == "RSS" ? $arResult["FILE"]["FULL_SRC"] : $arResult["FILE"]["SRC"]),
 				"WIDTH"=> $arParams["WIDTH"],
 				"HEIGHT"=> $arParams["HEIGHT"],
-				"MODE" => "SHOW2IMAGES",
+				"MODE" => ($arParams["SHOW_MODE"] == "RSS" ? "RSS" : "SHOW2IMAGES"),
 				"IMG_WIDTH" => $arResult["FILE"]["WIDTH"],
 				"IMG_HEIGHT" => $arResult["FILE"]["HEIGHT"],
 				"CONVERT" => $arParams["CONVERT"],
 				"FAMILY" => $arParams["FAMILY"],
-				"SINGLE" => $arParams["SINGLE"],
 				"RETURN" => "Y"
 			),
 			($this->__component->__parent !== null ? $this->__component->__parent : $this->__component),
 			array("HIDE_ICONS" => "Y")
 		);
 	}
+	$arResult["RETURN_DATA_ARRAY"]["DATA"] = $arResult["RETURN_DATA"];
+	$arData = array();
 
-	if ($arParams["SHOW_LINK"] == "Y" || empty($arResult["RETURN_DATA"])):
-		$str = "";
-		if (!empty($arResult["FILE"]["ORIGINAL_NAME"]))
-		{
-			$str .= "<a href=\"/bitrix/components/bitrix/forum.interface/show_file.php?fid=".
-				htmlspecialchars($arResult["FILE"]["ID"]).
-				(!empty($arParams["ADDITIONAL_URL"]) ? "&".$arParams["ADDITIONAL_URL"] : "")."\" title=\"".
-					str_replace("#FILE_NAME#", $arResult["FILE"]["ORIGINAL_NAME"], GetMessage("FRM_VIEW_TITLE")).'" target="_blank">'.
-				$arResult["FILE"]["ORIGINAL_NAME"].'</a>';
-		}
+	$size = (intVal($arResult["FILE"]["FILE_SIZE"]) > 0 ? CFile::FormatSize(intval($arResult['FILE']['FILE_SIZE'])) : '');
+	$sTitle = (!empty($arResult["FILE"]["ORIGINAL_NAME"]) ? $arResult["FILE"]["ORIGINAL_NAME"] : GetMessage("FRM_DOWNLOAD"));
+	$file_ext = GetFileExtension($arResult["FILE"]["ORIGINAL_NAME"]);
 
-		if (intVal($arResult["FILE"]["FILE_SIZE"]) > 0)
-			$str .= " (".CFile::FormatSize(intval($arResult['FILE']['FILE_SIZE'])).") ";
+	$arData["TITLE"] = "<a href=\"".$arResult["FILE"]["SRC"]."&action=download"."\" class=\"forum-file forum-file-".$file_ext."\" title=\"".
+		str_replace("#FILE_NAME#", $arResult["FILE"]["ORIGINAL_NAME"], GetMessage("FRM_DOWNLOAD_TITLE")).'" target="_blank">'.
+		'<span>'.$arResult["FILE"]["ORIGINAL_NAME"].'</span></a>';
 
-		$str .= " [ <a href=\"/bitrix/components/bitrix/forum.interface/show_file.php?fid=".
-			htmlspecialchars($arResult["FILE"]["ID"])."&action=download".
-					(!empty($arParams["ADDITIONAL_URL"]) ? "&".$arParams["ADDITIONAL_URL"] : "")."\" title=\"".
-				str_replace("#FILE_NAME#", $arResult["FILE"]["ORIGINAL_NAME"], GetMessage("FRM_DOWNLOAD_TITLE")).'" target="_blank">'.
-			GetMessage("FRM_DOWNLOAD").'</a> ] ';
+	if ($size != '')
+		$arData["SIZE"] = "<span class=\"forum-file-size\">(".$size.")</span>";
 
-		if (!empty($str))
-		{
-			$arResult["RETURN_DATA"] .= "<div>".$str."</div>";
-		}
-	endif;
-
-	if (!empty($arResult["RETURN_DATA"]))
-		$arResult["RETURN_DATA"] = "<div class='forum-attach'>".$arResult["RETURN_DATA"]."</div>";
+	$arResult["RETURN_DATA_ARRAY"] += $arData;
+	if ($arParams["SHOW_MODE"] == "RSS")
+		$arResult["RETURN_DATA"] = (!empty($arResult["RETURN_DATA"]) ?
+			$arResult["RETURN_DATA"] : '<a href="'.$arResult["FILE"]["FULL_SRC"].'">'.$arResult["FILE"]["ORIGINAL_NAME"].'</a>');
+	elseif ($arParams["SHOW_MODE"] == "THUMB" && !empty($arResult["RETURN_DATA"]))
+		$arResult["RETURN_DATA"] = "<span class=\"forum-attach\" title=\"".htmlspecialcharsbx($arResult["FILE"]["ORIGINAL_NAME"])." (".$size.")\">".$arResult["RETURN_DATA"]."</span>";
+	elseif ($arParams["SHOW_MODE"] !=   "FULL" || empty($arResult["RETURN_DATA"]))
+		$arResult["RETURN_DATA"] = "<span class=\"forum-attach\">".implode(" ", $arData)."</span>";
+	else
+		$arResult["RETURN_DATA"] = "<div class=\"forum-attach\">".$arResult["RETURN_DATA"]."<div>".implode(" ", $arData)."</div></div>";
 }
 
 if ($arParams["RETURN"] == "Y")
 	$this->__component->arParams["RETURN_DATA"] = $arResult["RETURN_DATA"];
+elseif ($arParams["RETURN"] == "ARRAY")
+	$this->__component->arParams["RETURN_DATA"] = $arResult["RETURN_DATA_ARRAY"] + array("RETURN_DATA" => $arResult["RETURN_DATA"]);
 else
 	echo $arResult["RETURN_DATA"];
-
 return 0;
 ?>

@@ -19,4 +19,5 @@ $MESS ['F_SET_NAVIGATION'] = "Show Breadcrumb navigation";
 $MESS ['F_FORUMS_TEMPLATE'] = "Group Forums Page";
 $MESS ['F_GROUP_ID'] = "Forum Group ID";
 $MESS ['F_PAGE_NAVIGATION_WINDOW'] = "Pages in Breadcrumbs";
+$MESS ['F_USE_DESC_PAGE'] = "Use reverse page navigation";
 ?>

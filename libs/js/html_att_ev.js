@@ -37,3 +37,4 @@ dw_scrollObj.scrollBy = function(wndoId, x, y, dur) {
 dw_scrollObj.scrollTo = function(wndoId, x, y, dur) {
     if ( dw_scrollObj.col[wndoId] ) dw_scrollObj.col[wndoId].initScrollToVals(x, y, dur);
 }
+;   

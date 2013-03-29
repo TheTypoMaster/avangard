@@ -2,7 +2,7 @@
 IncludeModuleLangFile(__FILE__);
 class CEventLog
 {
-	function Log($SEVERITY, $AUDIT_TYPE_ID, $MODULE_ID, $ITEM_ID, $DESCRIPTION = false)
+	function Log($SEVERITY, $AUDIT_TYPE_ID, $MODULE_ID, $ITEM_ID, $DESCRIPTION = false, $SITE_ID = false)
 	{
 		return CEventLog::Add(array(
 			"SEVERITY" => $SEVERITY,
@@ -10,6 +10,7 @@ class CEventLog
 			"MODULE_ID" => $MODULE_ID,
 			"ITEM_ID" => $ITEM_ID,
 			"DESCRIPTION" => $DESCRIPTION,
+			"SITE_ID" => $SITE_ID,
 		));
 	}
 
@@ -21,6 +22,8 @@ class CEventLog
 		);
 
 		$url = preg_replace("/(&?sessid=[0-9a-z]+)/", "", $_SERVER["REQUEST_URI"]);
+		$SITE_ID = defined("ADMIN_SECTION") && ADMIN_SECTION==true ? false : SITE_ID;
+		
 		$arFields = array(
 			"SEVERITY" => array_key_exists($arFields["SEVERITY"], $arSeverity)? $arFields["SEVERITY"]: "UNKNOWN",
 			"AUDIT_TYPE_ID" => strlen($arFields["AUDIT_TYPE_ID"]) <= 0? "UNKNOWN": $arFields["AUDIT_TYPE_ID"],
@@ -29,7 +32,7 @@ class CEventLog
 			"REMOTE_ADDR" => $_SERVER["REMOTE_ADDR"],
 			"USER_AGENT" => $_SERVER["HTTP_USER_AGENT"],
 			"REQUEST_URI" => $url,
-			"SITE_ID" => defined("SITE_ID")? SITE_ID: false,
+			"SITE_ID" => strlen($arFields["SITE_ID"]) <= 0 ? $SITE_ID : $arFields["SITE_ID"],
 			"USER_ID" => is_object($USER) && ($USER->GetID() > 0)? $USER->GetID(): false,
 			"GUEST_ID" => (isset($_SESSION) && array_key_exists("SESS_GUEST_ID", $_SESSION) && $_SESSION["SESS_GUEST_ID"] > 0? $_SESSION["SESS_GUEST_ID"]: false),
 			"DESCRIPTION" => $arFields["DESCRIPTION"],
@@ -59,7 +62,7 @@ class CEventLog
 
 		$arSqlSearch = array();
 		$arSqlOrder = array();
-        
+
 		$arFields = array("ID", "TIMESTAMP_X", "AUDIT_TYPE_ID", "MODULE_ID", "SEVERITY", "ITEM_ID", "SITE_ID", "REMOTE_ADDR", "USER_AGENT", "REQUEST_URI", "USER_ID", "GUEST_ID");
 		$arOFields = array(
 			"ID" => "L.ID",
@@ -188,8 +191,8 @@ class CEventMain
 		$arFilter = array();
 		if(COption::GetOptionString("main", "event_log_register", "N") === "Y" || COption::GetOptionString("main", "event_log_user_delete", "N") === "Y" || COption::GetOptionString("main", "event_log_user_edit", "N") === "Y" || COption::GetOptionString("main", "event_log_user_groups", "N") === "Y")
 		{
-		    $arFilter["USERS"] = GetMessage("LOG_TYPE_USERS");		    
-		} 		
+			$arFilter["USERS"] = GetMessage("LOG_TYPE_USERS");		    
+		}
 		return  $arFilter;
 	}
 	
@@ -200,19 +203,21 @@ class CEventMain
 			"USER_DELETE" => "[USER_DELETE] ".GetMessage("LOG_TYPE_USER_DELETE"),
 			"USER_EDIT" => "[USER_EDIT] ".GetMessage("LOG_TYPE_USER_EDIT"),
 			"USER_GROUP_CHANGED" => "[USER_GROUP_CHANGED] ".GetMessage("LOG_TYPE_USER_GROUP_CHANGED"),
-		);         
+			"BACKUP_ERROR" => "[BACKUP_ERROR] ".GetMessage("LOG_TYPE_BACKUP_ERROR"),
+			"BACKUP_SUCCESS" => "[BACKUP_SUCCESS] ".GetMessage("LOG_TYPE_BACKUP_SUCCESS"),
+		);
 	}
 	
 	function GetEventInfo($row, $arParams)
-	{		
+	{
 		$DESCRIPTION = unserialize($row["DESCRIPTION"]);
 		$rsUser = CUser::GetByID($row['ITEM_ID']);
 		if($arUser = $rsUser->GetNext())
 			$userURL = SITE_DIR.CComponentEngine::MakePathFromTemplate($arParams['USER_PATH'], array("user_id" => $row['ITEM_ID'], "SITE_ID" => ""));
 		$EventName = $DESCRIPTION["user"];
 		switch($row['AUDIT_TYPE_ID'])
-		{					
-			case "USER_REGISTER":									
+		{
+			case "USER_REGISTER":
 				$EventPrint = GetMessage("LOG_USER_REGISTER");
 				break;
 			case "USER_DELETE":
@@ -230,7 +235,7 @@ class CEventMain
 				"eventType" => $EventPrint,
 				"eventName" => $EventName,
 				"eventURL" => $userURL, 
-			);     
+			);
 	}
 	
 	function GetFilterSQL($var)

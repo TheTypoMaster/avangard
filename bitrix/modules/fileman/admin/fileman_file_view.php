@@ -43,9 +43,8 @@ if(!$USER->CanDoFileOperation('fm_view_file', $arPath))
 	$strWarning = GetMessage("ACCESS_DENIED");
 else if(!$io->FileExists($abs_path))
 	$strWarning = GetMessage("FILEMAN_FILENOT_FOUND");
-elseif(!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath)) && (in_array(CFileman::GetFileExtension($path), CFileMan::GetScriptFileExt()) || substr(CFileman::GetFileName($path), 0, 1)=="."))
+elseif(!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath)) && (HasScriptExtension($path) || substr(CFileman::GetFileName($path), 0, 1)=="."))
 	$strWarning = GetMessage("FILEMAN_FILEVIEW_PHPERROR");
-
 
 $limit_php_access = ($USER->CanDoFileOperation('fm_lpa',$arPath) && !$USER->CanDoOperation('edit_php'));
 
@@ -87,10 +86,7 @@ $fileTypeParent = $arFilemanPredifinedFileTypes[CFileMan::GetFileTypeEx($path)][
 		}
 	}
 
-	if(($USER->CanDoFileOperation('fm_download_file', $arPath) &&
-	!(in_array(CFileman::GetFileExtension($path), CFileMan::GetScriptFileExt()) ||
-	substr(CFileman::GetFileName($path), 0, 1)==".")) ||
-	$USER->CanDoOperation('edit_php'))
+	if(($USER->CanDoFileOperation('fm_download_file', $arPath) && !(HasScriptExtension($path) || substr(CFileman::GetFileName($path), 0, 1)==".")) || $USER->CanDoOperation('edit_php'))
 	{
 		$aMenu[] = array(
 			"TEXT" => GetMessage("FILEMAN_FILEVIEW_DOWNLOAD"),
@@ -138,7 +134,7 @@ $fileTypeParent = $arFilemanPredifinedFileTypes[CFileMan::GetFileTypeEx($path)][
 	?>
 	<tr>
 		<td><?=GetMessage("FILEMAN_FILEVIEW_NAME")?></td>
-		<td><?=htmlspecialchars($arParsedPath["LAST"])?></td>
+		<td><?=htmlspecialcharsbx($arParsedPath["LAST"])?></td>
 	</tr>
 	<tr>
 		<td><?=GetMessage("FILEMAN_FILEVIEW_TYPE")?></td>
@@ -146,7 +142,7 @@ $fileTypeParent = $arFilemanPredifinedFileTypes[CFileMan::GetFileTypeEx($path)][
 	</tr>
 	<tr>
 		<td><?=GetMessage("FILEMAN_FILEVIEW_SIZE")?></td>
-		<td><?=$flTmp->GetFileSize()?></td>
+		<td><?=CFileMan::GetStrFileSize($flTmp->GetFileSize())?></td>
 	</tr>
 	<?$date_format = CDatabase::DateFormatToPHP(CLang::GetDateFormat("FULL"));?>
 	<tr>
@@ -211,6 +207,14 @@ $fileTypeParent = $arFilemanPredifinedFileTypes[CFileMan::GetFileTypeEx($path)][
 		}
 		?></td></tr>
 	<?elseif($fileTypeParent=="image"):?>
+		<?
+			$rsSite = CSite::GetByID($LID); //http://jabber.bx/view.php?id=7726
+			$arSite = $rsSite->GetNext();
+
+			if(isset($arSite['SITE_URL']))
+				$path = $arSite['SITE_URL'].$path;
+		?>
+
 		<tr class="heading">
 			<td colspan="2"><?= GetMessage('FILEMAN_VIEW_CONT') ?></td>
 		</tr>

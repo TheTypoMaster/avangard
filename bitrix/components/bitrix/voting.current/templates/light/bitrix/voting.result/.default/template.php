@@ -11,7 +11,6 @@ endif;
 				/Input params
 ********************************************************************/
 ?>
-<div class="voting-form-box">
 <ol class="vote-items-list vote-question-list vote-question-list-main-page">
 <?
 
@@ -46,16 +45,3 @@ foreach ($arResult["QUESTIONS"] as $arQuestion):
 endforeach; 
 ?>
 </ol>
-<?
-if ($arParams["CAN_VOTE"] == "Y"):
-?>
-<div class="vote-form-box-buttons vote-vote-footer">
-	<span class="vote-form-box-button vote-form-box-button-first vote-form-box-button-last"><?
-		?><input type="button" name="vote" onclick="window.location='<?
-			?><?=CUtil::JSEscape($APPLICATION->GetCurPageParam("", array("VOTE_ID","VOTING_OK","VOTE_SUCCESSFULL", "view_result")))?>';" <?
-			?>value="<?=GetMessage("VOTE_BACK")?>" /></span>
-</div>
-<?	
-endif;
-?>
-</div>

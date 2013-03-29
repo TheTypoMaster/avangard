@@ -9,3 +9,4 @@ DROP TABLE if exists b_sec_user;
 DROP TABLE if exists b_sec_redirect_url;
 DROP TABLE if exists b_sec_white_list;
 DROP TABLE if exists b_sec_virus;
+DROP TABLE if exists b_sec_frame_mask;

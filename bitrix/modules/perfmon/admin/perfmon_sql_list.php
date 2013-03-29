@@ -11,6 +11,45 @@ $RIGHT = $APPLICATION->GetGroupRight("perfmon");
 if($RIGHT=="D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
+if(
+	$_SERVER["REQUEST_METHOD"] === "GET"
+	&& isset($_GET["ajax_tooltip"]) && $_GET["ajax_tooltip"] === "y"
+	&& isset($_GET["sql_id"])
+	&& check_bitrix_sessid()
+)
+{
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
+
+	$rsData = CPerfomanceSQL::GetBacktraceList($_GET["sql_id"]);
+	$arData = $rsData->Fetch();
+	if($arData)
+	{
+		?><table class="list"><?
+		?><tr>
+			<td align="left"><b><?echo GetMessage("PERFMON_SQL_FILE")?></b></td>
+			<td align="left"><b><?echo GetMessage("PERFMON_SQL_LINE_NUMBER");?></b></td>
+			<td align="left"><b><?echo GetMessage("PERFMON_SQL_FUNCTION");?></b></td>
+		</tr><?
+		do {
+			?><tr>
+				<td align="left">&nbsp;<?echo htmlspecialcharsex($arData["FILE_NAME"])?></td>
+				<td align="right">&nbsp;<?echo htmlspecialcharsex($arData["LINE_NO"])?></td>
+				<?if($arData["CLASS_NAME"]):?>
+					<td align="left">&nbsp;<?echo htmlspecialcharsex($arData["CLASS_NAME"]."::".$arData["FUNCTION_NAME"])?></td>
+				<?else:?>
+					<td align="left">&nbsp;<?echo htmlspecialcharsex($arData["FUNCTION_NAME"])?></td>
+				<?endif;?>
+			</tr><?
+		} while ($arData = $rsData->Fetch());
+		?></table><?
+	}
+	else
+	{
+		?>no backtrace found<?
+	}
+	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
+}
+
 $sTableID = "tbl_perfmon_sql_list";
 $oSort = new CAdminSorting($sTableID, "NN", "asc");
 $lAdmin = new CAdminList($sTableID, $oSort);
@@ -20,6 +59,8 @@ $FilterArr = Array(
 	"find_type",
 	"find_hit_id",
 	"find_component_id",
+	"find_query_time",
+	"find_suggest_id",
 );
 
 $lAdmin->InitFilter($FilterArr);
@@ -27,6 +68,8 @@ $lAdmin->InitFilter($FilterArr);
 $arFilter = Array(
 	"=HIT_ID" => ($find!="" && $find_type == "hit_id"? $find: $find_hit_id),
 	"=COMPONENT_ID" => ($find!="" && $find_type == "component_id"? $find: $find_component_id),
+	">=QUERY_TIME" => floatval($find_query_time),
+	"=SUGGEST_ID" => intval($find_suggest_id),
 );
 foreach($arFilter as $key=>$value)
 	if(!$value)
@@ -90,7 +133,7 @@ if(!is_array($arSelectedFields) || (count($arSelectedFields) < 1))
 	);
 
 $cData = new CPerfomanceSQL;
-$rsData = $cData->GetList($arSelectedFields, $arFilter, array($by => $order), false);
+$rsData = $cData->GetList($arSelectedFields, $arFilter, array($by => $order), false, array("nPageSize"=>CAdminResult::GetNavSize($sTableID)));
 
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
@@ -108,17 +151,23 @@ while($arRes = $rsData->NavNext(true, "f_")):
 	if(class_exists("geshi") && $f_SQL_TEXT)
 	{
 		$obGeSHi = new GeSHi($arRes["SQL_TEXT"], 'sql');
-		$row->AddViewField("SQL_TEXT", $obGeSHi->parse_code());
+		$html = $obGeSHi->parse_code();
 	}
 	else
 	{
-		$row->AddViewField("SQL_TEXT", str_replace(
+		$html = str_replace(
 			array(" ", "\n"),
 			array(" &nbsp;", "<br>"),
-			htmlspecialchars($arRes["SQL_TEXT"])
-		));
+			htmlspecialcharsbx($arRes["SQL_TEXT"])
+		);
 	}
-	$arActions = Array();
+
+	$html = '<span onmouseover="addTimer(this)" onmouseout="removeTimer(this)" id="'.$f_ID.'_sql_backtrace">'.$html.'</span>';
+
+	$row->AddViewField("SQL_TEXT", $html);
+	$row->AddViewField("HIT_ID", '<a href="perfmon_hit_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_id='.$f_HIT_ID.'">'.$f_HIT_ID.'</a>');
+
+	$arActions = array();
 	if($DBType == "mysql" || $DBType == "oracle")
 	{
 		$arActions[] = array(
@@ -153,16 +202,71 @@ $oFilter = new CAdminFilter(
 	array(
 		"find_hit_id" => GetMessage("PERFMON_SQL_HIT_ID"),
 		"find_component_id" => GetMessage("PERFMON_SQL_COMPONENT_ID"),
+		"find_query_time" => GetMessage("PERFMON_SQL_QUERY_TIME"),
 	)
 );
+
+CJSCore::Init(array("ajax", "popup"));
 ?>
+<script>
+var toolTipCache = new Array;
+
+function drawTooltip(result, _this)
+{
+	if(!_this) _this = this;
+
+	if(result != 'no backtrace found')
+	{
+		_this.toolTip = BX.PopupWindowManager.create(
+			'table_tooltip_' + (parseInt(Math.random() * 100000)), _this,
+			{
+				autoHide: true,
+				closeIcon: true,
+				closeByEsc: true,
+				content: result
+			}
+		);
+
+		_this.toolTip.show();
+	}
+
+	toolTipCache[_this.id] = result;
+}
+
+function sendRequest()
+{
+	if(this.toolTip)
+		this.toolTip.show();
+	else if(toolTipCache[this.id])
+		drawTooltip(toolTipCache[this.id], this);
+	else
+		BX.ajax.get(
+			'perfmon_sql_list.php?ajax_tooltip=y' + '&sessid=' + BX.message('bitrix_sessid') + '&sql_id=' + this.id,
+			BX.proxy(drawTooltip, this)
+		);
+}
+
+function addTimer(p_href)
+{
+	p_href.timerID = setTimeout(BX.proxy(sendRequest, p_href), 1000);
+}
+
+function removeTimer(p_href)
+{
+	if(p_href.timerID)
+	{
+		clearTimeout(p_href.timerID);
+		p_href.timerID = null;
+	}
+}
+</script>
 
 <form name="find_form" method="get" action="<?echo $APPLICATION->GetCurPage();?>">
 <?$oFilter->Begin();?>
 <tr>
 	<td><b><?=GetMessage("PERFMON_SQL_FIND")?>:</b></td>
 	<td>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("PERFMON_SQL_FIND")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("PERFMON_SQL_FIND")?>">
 		<?
 		$arr = array(
 			"reference" => array(
@@ -180,11 +284,15 @@ $oFilter = new CAdminFilter(
 </tr>
 <tr>
 	<td><?=GetMessage("PERFMON_SQL_HIT_ID")?></td>
-	<td><input type="text" name="find_hit_id" size="47" value="<?echo htmlspecialchars($find_hit_id)?>"></td>
+	<td><input type="text" name="find_hit_id" size="47" value="<?echo htmlspecialcharsbx($find_hit_id)?>"></td>
 </tr>
 <tr>
 	<td><?=GetMessage("PERFMON_SQL_COMPONENT_ID")?></td>
-	<td><input type="text" name="find_component_id" size="47" value="<?echo htmlspecialchars($find_component_id)?>"></td>
+	<td><input type="text" name="find_component_id" size="47" value="<?echo htmlspecialcharsbx($find_component_id)?>"></td>
+</tr>
+<tr>
+	<td><?=GetMessage("PERFMON_SQL_QUERY_TIME")?></td>
+	<td><input type="text" name="find_query_time" size="7" value="<?echo htmlspecialcharsbx($find_query_time)?>"></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage(), "form"=>"find_form"));

@@ -59,7 +59,7 @@ $strError = "";
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["PAGEN"] = (intVal($arParams["PAGEN"]) <= 0 ? 1 : intVal($arParams["PAGEN"]));
@@ -70,6 +70,7 @@ $strError = "";
 	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
 	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 /***************** STANDART ****************************************/
@@ -83,8 +84,6 @@ $strError = "";
 /********************************************************************
 				/Input params
 ********************************************************************/
-
-ForumSetLastVisit();
 
 /********************************************************************
 				Default values
@@ -145,7 +144,7 @@ if ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "N" || $GLOBALS["APPLICATION"]->GetG
 if (!empty($arParams["FID_RANGE"]))
 	$arFilter["@ID"] = $arParams["FID_RANGE"];
 if ($GLOBALS["APPLICATION"]->GetGroupRight("forum") < "W"):
-	$arFilter["PERMS"] = array($USER->GetGroups(), 'A'); 
+	$arFilter["PERMS"] = array($USER->GetGroups(), 'A');
 	$arFilter["ACTIVE"] = "Y";
 endif;
 
@@ -156,7 +155,7 @@ $cache_path = $cache_path_main."forums";
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
 	$res = $cache->GetVars();
-	$arForums = $res["arForums"];
+	$arForums = CForumCacheManager::Expand($res["arForums"]);
 }
 $arForums = (is_array($arForums) ? $arForums : array());
 if (empty($arForums))
@@ -164,14 +163,14 @@ if (empty($arForums))
 	$db_res = CForumNew::GetListEx(array("FORUM_GROUP_SORT"=>"ASC", "FORUM_GROUP_ID"=>"ASC", "SORT"=>"ASC", "NAME"=>"ASC"), $arFilter);
 	if ($db_res && ($res = $db_res->GetNext()))
 	{
-		do 
+		do
 		{
 			$arForums[$res["ID"]] = $res;
 		} while ($res = $db_res->GetNext());
 	}
 	if ($arParams["CACHE_TIME"] > 0):
 		$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
-		$cache->EndDataCache(array("arForums" => $arForums));
+		$cache->EndDataCache(array("arForums" => CForumCacheManager::Compress($arForums)));
 	endif;
 }
 
@@ -245,9 +244,7 @@ endif;
 if ($_REQUEST["ACTION"] == "SET_BE_READ")
 {
 	if (!$GLOBALS["USER"]->IsAuthorized()):
-	
 	elseif (!check_bitrix_sessid()):
-		
 	elseif ($_REQUEST["FID"] == "all"):
 		ForumSetReadForum(false);
 	elseif (intVal($_REQUEST["FID"]) > 0 && $_REQUEST["FID"] == $find_forum):
@@ -272,12 +269,20 @@ if ($_REQUEST["ACTION"] == "SET_BE_READ")
 				/Action
 ********************************************************************/
 
-
-
 /*******************************************************************/
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 if (!$USER->IsAuthorized()):
-	$rsTopics = CForumTopic::GetListEx(array($by => $order, "POSTS" => "DESC"), $arFilter, false, 500);
+	$rsTopics = CForumTopic::GetListEx(
+		array(
+			$by => $order,
+			"POSTS" => "DESC"),
+		$arFilter,
+		false,
+		500,
+		array(
+			"sNameTemplate" => $arParams["NAME_TEMPLATE"]
+		)
+	);
 	while ($arTopic = $rsTopics->Fetch())
 	{
 		if (!NewMessageTopic($arTopic["FORUM_ID"], $arTopic["ID"], $arTopic["LAST_POST_DATE"], false))
@@ -287,8 +292,20 @@ if (!$USER->IsAuthorized()):
 	$rsTopics = new CDBResult;
 	$rsTopics->InitFromArray($arrTOPICS);
 else:
-	$rsTopics = CForumTopic::GetListEx(array($by => $order, "POSTS" => "DESC"), $arFilter, false, 0, 
-		array("bDescPageNumbering" => false, "nPageSize" => $arParams["TOPICS_PER_PAGE"], "bShowAll" => false));
+	$rsTopics = CForumTopic::GetListEx(
+		array(
+			$by => $order,
+			"POSTS" => "DESC"),
+		$arFilter,
+		false,
+		0,
+		array(
+			"bDescPageNumbering" => false,
+			"nPageSize" => $arParams["TOPICS_PER_PAGE"],
+			"bShowAll" => false,
+			"sNameTemplate" => $arParams["NAME_TEMPLATE"]
+		)
+	);
 endif;
 $rsTopics->nPageWindow = $arParams["PAGE_NAVIGATION_WINDOW"];
 $rsTopics->NavStart($arParams["TOPICS_PER_PAGE"], false);
@@ -298,8 +315,7 @@ while ($res = $rsTopics->GetNext())
 {
 	if (!$USER->IsAuthorized()):
 		$res["PERMISSION"] = ForumCurrUserPermissions($res["FORUM_ID"]);
-	elseif ($res["PERMISSION"] >= "Q"):
-		
+//	elseif ($res["PERMISSION"] >= "Q"):
 	endif;
 /*******************************************************************/
 	$res["URL"] = array(
@@ -376,12 +392,11 @@ $arResult["SHOW_RESULT"] = (empty($arResult["TOPICS"]) ? "N" : "Y");
 /********************************************************************
 				/Data
 ********************************************************************/
+/*******************************************************************/
+	$this->IncludeComponentTemplate();
+/*******************************************************************/
 if ($arParams["SET_NAVIGATION"] != "N")
 	$APPLICATION->AddChainItem(GetMessage("F_TITLE"));
 if ($arParams["SET_TITLE"] != "N")
 	$APPLICATION->SetTitle(GetMessage("F_TITLE"));
-// if($arParams["DISPLAY_PANEL"] == "Y" && $USER->IsAuthorized())
-	// CForumNew::ShowPanel($arParams["FID"], $arParams["TID"], false);
-/*******************************************************************/
-	$this->IncludeComponentTemplate();
 ?>

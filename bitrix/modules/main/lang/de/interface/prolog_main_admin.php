@@ -38,4 +38,8 @@ $MESS["TRIAL_ATTENTION_TEXT5_1c_bitrix_gosportal"] = "Die Vollversion von Bitrix
 $MESS["TRIAL_ATTENTION_TEXT1_1c_bitrix_gossite"] = "Testversion von Bitrix Government Site.";
 $MESS["TRIAL_ATTENTION_TEXT4_1c_bitrix_gossite"] = "Die Testzeit von Bitrix Government Site ist abgelaufen. Dieser Website auf in zwei Wochen nicht mehr funktionieren.";
 $MESS["TRIAL_ATTENTION_TEXT5_1c_bitrix_gossite"] = "Die Vollversion von Bitrix Government Site kann auf der Seite <a href=\"http://www.bitrixsoft.com/buy/\">http://www.bitrixsoft.com/buy/</a> bestellt werden.";
+$MESS["MAIN_PR_ADMIN_FAV_ADD"] = "Zu Lesezeichen hinzufügen";
+$MESS["MAIN_PR_ADMIN_FAV_DEL"] = "Aus Lesezeichen entfernen";
+$MESS["admin_panel_browser"] = "Der administrative Bereich unterstützt nicht Internet Explorer unter Version 8. Installieren Sie einen modernen Browser <a href=\"http://www.firefox.com\">Firefox</a>, <a href=\"http://www.google.com/chrome/\">Chrome</a>, <a href=\"http://www.opera.com\">Opera</a> oder <a href=\"http://www.microsoft.com/windows/internet-explorer/\">Internet Explorer 9</a>.";
+$MESS["MAIN_PR_ADMIN_FAV"] = "Lesezeichen";
 ?>

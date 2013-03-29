@@ -8,4 +8,6 @@ $MESS ['PUBLIC_EDIT_SAVE'] = "Сохранить";
 $MESS ['PUBLIC_EDIT_SAVE_TITLE'] = "Сохранить";
 $MESS ['PUBLIC_EDIT_SAVE_TOOLBAR_TITLE'] = "Кнопка сохранения";
 $MESS ['PUBLIC_EDIT_EXIT_CONFIRM'] = "Внимание, все несохраненные данные будут потеряны! Вы действительно хотите закрыть диалог?";
+$MESS ['PUBLIC_EDIT_EXIT_CONFIRM'] = "Внимание, все несохраненные данные будут потеряны! Вы действительно хотите закрыть диалог?";
+$MESS ['PUBLIC_EDIT_FILE_IMAGE_ERROR'] = "Недопустимый тип файла.";
 ?>

@@ -1,11 +1,8 @@
-<?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetTitle("Диваны больших размеров. Длинные угловые спальные места. ");
-?> <? $_POST['design_tmp']='seo';?> <?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetPageProperty("title", "Длинные угловые диваны со спальным местом большого размера");
-$APPLICATION->SetTitle("Title");
-?><?$APPLICATION->IncludeComponent(
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+$APPLICATION->SetPageProperty("title", "Большие угловые диваны. Мягкая мебель со спальным местом широкого размера.");
+$APPLICATION->SetTitle("Большие угловые диваны. Мягкая мебель со спальным местом широкого размера.");
+
+$APPLICATION->IncludeComponent(
 	"bitrix:catalog.element",
 	"template_statii_det",
 	Array(
@@ -44,24 +41,24 @@ $APPLICATION->SetTitle("Title");
  </div>
  
 <div> 
-  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255); "><span data-mce-style="font-size: 8.0pt; line-height: 115%;" id="mailru-webagent-gen-37" style="font-size: 8pt; line-height: 12px; ">    Создать уютный и, в тоже время, отличающийся уникальностью и отвечающий запросам всех членов семьи, интерьер хотелось бы всем. Самым важным шагом на этом пути станет выбор дивана в гостиную. Большие диваны отличаются особым удобством и функциональностью. Они выглядят очень элегантно и оригинально. Благодаря таким качествам, диван идеально впишется в любой интерьер.</span></p>
+  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" id="mailru-webagent-gen-37" style="font-size: 8pt; line-height: 12px;">    Создать уютный и, в тоже время, отличающийся уникальностью и отвечающий запросам всех членов семьи, интерьер хотелось бы всем. Самым важным шагом на этом пути станет выбор дивана в гостиную. Большие диваны отличаются особым удобством и функциональностью. Они выглядят очень элегантно и оригинально. Благодаря таким качествам, диван идеально впишется в любой интерьер.</span></p>
  
-  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255); "><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px; "> 
+  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;"> 
       <br />
      </span></p>
  
-  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255); "><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px; ">    Роскошный, широкий, с необычными формами, диван отлично смотрится в просторных помещениях, являясь центром мебельной композиции. Округлые формы, плавные изгибы создают умиротворяющую атмосферу. Модульные системы позволяют изменить вид дивана в считанные минуты, создавая множество вариаций, в зависимости от ситуации и поставленных задач.</span></p>
+  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">    Роскошный, широкий, с необычными формами, диван отлично смотрится в просторных помещениях, являясь центром мебельной композиции. Округлые формы, плавные изгибы создают умиротворяющую атмосферу. Модульные системы позволяют изменить вид дивана в считанные минуты, создавая множество вариаций, в зависимости от ситуации и поставленных задач.</span></p>
  
-  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255); "><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px; "> 
+  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;"> 
       <br />
      </span></p>
  
-  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255); "><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px; ">    В небольшой же гостиной большой угловой диван не только создаст уют и комфорт, но и позволит сэкономить драгоценные квадратные метры. Он легко и быстро превращает гостиную в спальню. Механизм трансформации может быть любым: аккордеон, книжка, дельфин, выкатной &ndash; все они надёжные и компактные в сложенном виде, а в разложенном создают ровное мягкое спальное место. Спинка может скрывать в себе встроенный столик, на который можно поставить чашку чая или положить книгу. При необходимости он может стать рабочим местом. Встроенный бельевой ящик поможет решить проблему размещения постельных принадлежностей.</span></p>
+  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">    В небольшой же гостиной большой угловой диван не только создаст уют и комфорт, но и позволит сэкономить драгоценные квадратные метры. Он легко и быстро превращает гостиную в спальню. Механизм трансформации может быть любым: аккордеон, книжка, дельфин, выкатной &ndash; все они надёжные и компактные в сложенном виде, а в разложенном создают ровное мягкое спальное место. Спинка может скрывать в себе встроенный столик, на который можно поставить чашку чая или положить книгу. При необходимости он может стать рабочим местом. Встроенный бельевой ящик поможет решить проблему размещения постельных принадлежностей.</span></p>
  
-  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255); "><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px; "> 
+  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;"> 
       <br />
      </span></p>
  
-  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255); "><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px; ">   Длинный удобный диван уместит на своих мягких подушках всех домочадцев. Он станет местом, где происходит живое общение в кругу семьи, способствуя сплочению, усиливая любовь друг к другу и привязанность к дому.</span></p>
+  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">   Длинный удобный диван уместит на своих мягких подушках всех домочадцев. Он станет местом, где происходит живое общение в кругу семьи, способствуя сплочению, усиливая любовь друг к другу и привязанность к дому.</span></p>
  </div>
  <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

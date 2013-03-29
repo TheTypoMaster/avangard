@@ -50,7 +50,7 @@ function KeyPress()
 		window.close();
 }
 </script>
-<title><?echo htmlspecialchars($title)?></title>
+<title><?echo htmlspecialcharsbx($title)?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=<?echo LANG_CHARSET?>">
 </HEAD>
 <BODY onKeyPress="KeyPress()">

@@ -2,7 +2,7 @@
 define("STOP_STATISTICS", true);
 define("NOT_CHECK_PERMISSIONS", true);
 
-if($_GET["admin_section"]=="Y")
+if(isset($_GET["admin_section"]) && $_GET["admin_section"] == "Y")
 	define("ADMIN_SECTION", true);
 else
 	define("BX_PUBLIC_TOOLS", true);

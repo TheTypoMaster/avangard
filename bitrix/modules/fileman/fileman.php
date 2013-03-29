@@ -74,6 +74,11 @@ $GLOBALS['arFilemanPredifinedFileTypes'] = array(
 		"gtype" => "file",
 		"name" => GetMessage("MAIN_BFSD_FTYPE_SWF")
 	),
+	"archive" => array(
+		"exts" => CBXArchive::GetArchiveExtensions(),
+		"gtype" => "file",
+		"name" => GetMessage("MAIN_BFSD_FTYPE_ARC")
+	),
 	"file" => array(
 		"exts" => array(),
 		"gtype" => "file",
@@ -90,7 +95,7 @@ class CFileMan
 
 	function OnPanelCreate()
 	{
-		global $APPLICATION, $REQUEST_URI, $USER;
+		global $APPLICATION, $REQUEST_URI;
 		if($APPLICATION->GetGroupRight("fileman")<="D")
 			return;
 
@@ -150,7 +155,7 @@ class CFileMan
 		// Edit page
 		if ($page_permission>="W")
 		{
-			$href = "/bitrix/admin/fileman_".$editor_type."_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&templateID=".urlencode(SITE_TEMPLATE_ID).$full_src."&path=".UrlEncode($_SERVER["REAL_FILE_PATH"]<>""? $_SERVER["REAL_FILE_PATH"] : $cur_page)."&back_url=".UrlEncode($REQUEST_URI);
+			$href = "/bitrix/admin/fileman_".$editor_type."_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&templateID=".urlencode(SITE_TEMPLATE_ID).$full_src."&path=".UrlEncode(isset($_SERVER["REAL_FILE_PATH"]) && $_SERVER["REAL_FILE_PATH"]<>""? $_SERVER["REAL_FILE_PATH"] : $cur_page)."&back_url=".UrlEncode($REQUEST_URI);
 			$APPLICATION->AddPanelButtonMenu('edit', array("SEPARATOR"=>true, "SORT"=>99));
 			$APPLICATION->AddPanelButtonMenu('edit', array(
 				"TEXT" => GetMessage("fileman_panel_admin"),
@@ -188,6 +193,7 @@ class CFileMan
 					"ICON" => "",
 					"ACTION" => CSticker::GetScriptStr('add'),
 					"DEFAULT" => true,
+					"HK_ID"=>"FMST_PANEL_STICKER_ADD",
 				);
 				$arMenu[] = array("SEPARATOR" => true);
 			}
@@ -198,30 +204,34 @@ class CFileMan
 				"TEXT" => '<div style="float: left; margin: 0 50px 0 0;">'.GetMessage("FMST_PANEL_STICKERS_SHOW", array("#COUNT#" => $curPageCount)).'</div>'.($useHotKeys ? '<div style="float:right;"><nobr>Ctrl+Shift+X</nobr></div>' : ''),
 				"TITLE" => GetMessage("FMST_PANEL_STICKERS_SHOW_TITLE"),
 				"ICON" => CSticker::GetBShowStickers() ? " checked" : "",
-				"ACTION" => CSticker::GetScriptStr('show')
+				"ACTION" => CSticker::GetScriptStr('show'),
+				"HK_ID"=>"FMST_PANEL_STICKERS_SHOW",
 			);
 			$arMenu[] = array(
 				//"TEXT" => GetMessage("FMST_PANEL_CUR_STICKER_LIST"),
 				"TEXT" => '<div style="float: left; margin: 0 50px 0 0;">'.GetMessage("FMST_PANEL_CUR_STICKER_LIST").'</div>'.($useHotKeys ? '<div style="float: right;"><nobr>Ctrl+Shift+L</nobr></div>' : ''),
 				"TITLE" => GetMessage("FMST_PANEL_CUR_STICKER_LIST_TITLE"),
 				"ICON" => "",
-				"ACTION" => CSticker::GetScriptStr('list_cur')
+				"ACTION" => CSticker::GetScriptStr('list_cur'),
+				"HK_ID"=>"FMST_PANEL_CUR_STICKER_LIST",
 			);
 			$arMenu[] = array(
 				"TEXT" => GetMessage("FMST_PANEL_ALL_STICKER_LIST"),
 				"TITLE" => GetMessage("FMST_PANEL_ALL_STICKER_LIST_TITLE"),
 				"ICON" => "",
-				"ACTION" => CSticker::GetScriptStr('list_all')
+				"ACTION" => CSticker::GetScriptStr('list_all'),
+				"HK_ID"=>"FMST_PANEL_ALL_STICKER_LIST",
 			);
 
 			$APPLICATION->AddPanelButton(array(
 				"HREF" => 'javascript:'.(CSticker::CanDoOperation('sticker_edit') ? CSticker::GetScriptStr('add') : CSticker::GetScriptStr('show')),
-				"TYPE" => "BIG",
-				"ICON" => "bx-panel-stickers-icon",
-				"TEXT" => CSticker::CanDoOperation('sticker_edit') ? GetMessage("FMST_PANEL_STICKERS") : GetMessage("FMST_PANEL_STICKERS_1"),
-				"MAIN_SORT" => "1020",
+				"TYPE" => "SMALL",
+				"ICON" => "bx-panel-small-stickers-icon",
+				"TEXT" => GetMessage("FMST_PANEL_STICKERS_TOOLTIP_TITLE"),
+				"MAIN_SORT" => "1000",
 				"SORT" => 100,
 				"MENU" => $arMenu,
+				"HK_ID"=>"FMST_PANEL_STICKERS",
 				"HINT" => array(
 					"TITLE" => CSticker::CanDoOperation('sticker_edit') ? GetMessage("FMST_PANEL_STICKERS_TOOLTIP_TITLE") : GetMessage("FMST_PANEL_STICKERS_SHOW_1"),
 					"TEXT" => CSticker::CanDoOperation('sticker_edit') ? GetMessage("FMST_PANEL_STICKERS_TOOLTIP").($useHotKeys ? " (Ctrl+Shift+S)" : "") : GetMessage("FMST_PANEL_STICKERS_ALT").($useHotKeys ? " (Ctrl+Shift+X)" : "")
@@ -470,7 +480,14 @@ class CFileMan
 
 		$io = CBXVirtualIo::GetInstance();
 
-		if($io->DirectoryExists($DOC_ROOT.$path))//if delete folder
+		if(is_link($linkPath = CBXVirtualIoFileSystem::ConvertCharset($DOC_ROOT.$path))) //if delete symb. link 	todo: windows, can't delete links on dirs
+		{
+			if(@unlink($linkPath))
+				return;
+			else
+				return GetMessage("FILEMAN_FILEMAN_SYMLINK_DEL_ERROR")." \"".$path."\".\n";
+		}
+		elseif($io->DirectoryExists($DOC_ROOT.$path))//if delete folder
 		{
 			//check rights
 			if(!$USER->CanDoFileOperation('fm_delete_folder', Array($site,$path)))
@@ -481,6 +498,7 @@ class CFileMan
 			return CFileman::DeleteFile(Array($site, $path));
 		}
 
+		$strWarning = "";
 		//get folder content
 		$d = $io->GetDirectory($DOC_ROOT.$path);
 		$arChildren = $d->GetChildren();
@@ -519,6 +537,7 @@ class CFileMan
 
 		CMain::InitPathVars($site_to, $path_to);
 		$DOC_ROOT_TO = CSite::GetSiteDocRoot($site_to);
+		$strWarning = '';
 
 		//check: if we copy to the same directory
 		if(strpos($DOC_ROOT_TO.$path_to."/", $DOC_ROOT_FROM.$path_from."/")===0)
@@ -554,9 +573,7 @@ class CFileMan
 				return GetMessage("FILEMAN_FILEMAN_FILE_READ_DENY")." \"".$path_from."\".\n";
 
 			// Copying php or system file without PHP or LPA access
-			if (!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) ||
-			!(in_array(CFileman::GetFileExtension($f_NAME), CFileMan::GetScriptFileExt()) ||
-			substr($Elem["NAME"], 0, 1)==".")))
+			if (!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', $arPath) || !(HasScriptExtension($Elem["NAME"]) || substr($Elem["NAME"], 0, 1)==".")))
 				return GetMessage("FILEMAN_FILEMAN_FILE_READ_DENY")." \"".$path_from."\".\n";
 
 			// If we can't move source-file
@@ -598,16 +615,15 @@ class CFileMan
 			//************************** Quota **************************//
 
 			// Copy file
-			if(DEBUG_FILE_MAN)echo "copy(".$DOC_ROOT_FROM.$path_from.",".$DOC_ROOT_TO.$path_to.");<br>";
+			if(DEBUG_FILE_MAN)
+				echo "copy(".$DOC_ROOT_FROM.$path_from.",".$DOC_ROOT_TO.$path_to.");<br>";
 
 			if (!$io->Copy($DOC_ROOT_FROM.$path_from, $DOC_ROOT_TO.$path_to))
 				$strWarning .= GetMessage('FILEMAN_COPY_ERROR', array('#PATH_FROM#' => htmlspecialcharsex($path_from), '#PATH_TO#' => htmlspecialcharsex($path_to)));
 
 			//************************** Quota **************************//
 			if(COption::GetOptionInt("main", "disk_space") > 0)
-			{
 				$quota->updateDiskQuota("file", $size, "copy");
-			}
 			//************************** Quota **************************//
 
 			if(CModule::IncludeModule("search"))
@@ -629,27 +645,25 @@ class CFileMan
 		{
 			$fn = $child->GetName();
 
-			if($child->IsDirectory()) //если это "подпапка"
+			if($child->IsDirectory()) //if this is subfolder
 			{
-				//уходим в рекурсию
+				//go to recursion
 				$strWarning .= CFileMan::CopyEx(Array($site_from, $path_from."/".$fn), Array($site_to, $path_to."/".$fn), $bDeleteAfterCopy, $bOverride);
-				//вернулись из рекурсии - внутри нашей подпапки все в порядке
-				//if($bDeleteAfterCopy) //нужно удалить эту подпапку
+				//back from recursion, in this subfolder all right
+				//if($bDeleteAfterCopy) //necessary delete this subfolder
 				//	$strWarning .= CFileMan::DeleteDir($path_from."/".$file);
 			}
-			else //это "подфайл" :-)
+			else //this is "subfile" :-)
 			{
 				if($fn == ".access.php")
 					continue;
-				//проверим можно ли писать "туда"
+				//let's check, if we can to write there
 				if(!$USER->CanDoFileOperation('fm_create_new_file', Array($site_to, $path_to."/".$fn)))
 					$strWarning .= GetMessage("FILEMAN_FILEMAN_FILE_WRITE_DENY")." \"".$path_to."/".$fn."\".\n";
-				//проверим можно ли читать "отсюда"
+				//let's check, if we can read from there
 				elseif(!$USER->CanDoFileOperation('fm_view_file', Array($site_from, $path_from."/".$fn)))
 					$strWarning .= GetMessage("FILEMAN_FILEMAN_FILE_READ_DENY")." \"".$path_from."/".$fn."\".\n";
-				elseif (!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', Array($site_from, $path_from."/".$fn)) ||
-				!(in_array(CFileman::GetFileExtension($fn), CFileMan::GetScriptFileExt()) ||
-				substr($fn, 0, 1)==".")))
+				elseif (!($USER->CanDoOperation('edit_php') || $USER->CanDoFileOperation('fm_lpa', Array($site_from, $path_from."/".$fn)) || !(HasScriptExtension($fn) || substr($fn, 0, 1) == ".")))
 					$strWarning .= GetMessage("FILEMAN_FILEMAN_FILE_READ_DENY")." \"".$path_from."/".$fn."\".\n";
 				else
 				{
@@ -669,7 +683,7 @@ class CFileMan
 
 					if ($strWarning == "")
 					{
-						//если здесь - значит можно копировать
+						//it means we can copy, if we found here
 						$APPLICATION->CopyFileAccessPermission(Array($site_from, $path_from."/".$fn), Array($site_to, $path_to."/".$fn));
 
 						if(DEBUG_FILE_MAN)
@@ -702,7 +716,7 @@ class CFileMan
 			}
 		}
 
-		//первоначальную нашу папочку тоже может быть нужно удалить
+		//we may be need, to delete our initial folder
 		if($bDeleteAfterCopy)
 			$strWarning .= CFileMan::DeleteDir(Array($site_from, $path_from));
 
@@ -740,7 +754,7 @@ class CFileMan
 
 	function __CheckSite($site)
 	{
-		if($site!==false)
+		if($site !== false)
 		{
 			if(strlen($site)>0)
 			{
@@ -771,15 +785,7 @@ class CFileMan
 
 	function GetStrFileSize($size)
 	{
-		if ($size < 1024)
-			return $size.' '.GetMessage('BYTE');
-
-		$size = round($size/1024);
-		if ($size < 1024)
-			return $size.' K'.GetMessage('BYTE');
-
-		$size = round($size/1024);
-		return $size.' M'.GetMessage('BYTE');
+		return CFile::FormatSize($size);
 	}
 
 	function GetFileTypeEx($fileName)
@@ -878,6 +884,8 @@ class CFileMan
 				));
 			}
 		}
+
+		$GLOBALS["CACHE_MANAGER"]->CleanDir("menu");
 	}
 
 	function UndoNewFile($Params, $type)
@@ -930,6 +938,17 @@ class CFileMan
 					CFileMan::SaveMenu(Array($Params['site'], $Params['menu']['menuFile']), $arMenu["aMenuLinks"], $arMenu["sMenuTemplate"]);
 			}
 		}
+
+		if (isset($Params['public']) && $Params['public'] == 'Y')
+		{
+		?>
+			<script type="text/javascript">
+				window.location = '<?= CUtil::JSEscape(CHTTP::URN2URI(GetDirPath($Params['path'])))?>';
+			</script>
+		<?
+		}
+
+		$GLOBALS["CACHE_MANAGER"]->CleanDir("menu");
 	}
 
 	function UndoEditFile($Params, $type)
@@ -939,12 +958,12 @@ class CFileMan
 		// Restore file
 		if (strlen($Params['absPath']) > 0)
 			$APPLICATION->SaveFileContent($Params['absPath'], $Params['content']);
+
+		$GLOBALS["CACHE_MANAGER"]->CleanDir("menu");
 	}
 
 	function UndoNewSection($Params, $type)
 	{
-		global $APPLICATION;
-
 		$io = CBXVirtualIo::GetInstance();
 
 		if (strlen($Params['path']) > 0 && $Params['path'] != "/" && $io->DirectoryExists($Params['absPath']))
@@ -1022,29 +1041,32 @@ class CFileMan
 		if ($textType == 'html')
 		{
 			$curType = CUserOptions::GetOption('fileman', "type_selector_".$name.$key, false);
-			if ($curType && in_array($curType, array('text', 'html', 'editor')))
+			if ($curType && in_array($curType, array('html', 'editor')))
 				$textType = $curType;
 		}
 
 		$ch = "checked=\"checked\"";
 		?>
-		<table class="bx-ed-type-selector">
-			<tr>
+		<script>
+			top.onChangeInputType = window.onChangeInputType = function(editorName)
+			{
+				if (window['changeType_' + editorName] && typeof window['changeType_' + editorName] == 'function')
+					window['changeType_' + editorName]();
+				else
+					return setTimeout(function(){onChangeInputType(editorName);}, 100);
+			}
+		</script>
+		<div class="bx-ed-type-selector">
 			<?if ($showTextType):?>
-				<td><input <? if ($textType == 'text') {echo $ch;}?> onclick="window.changeType_<?= $name?>();"  type="radio" name="<?= $strTextTypeFieldName?>" id="<?= $bxid?>_text" value="text"  /></td>
-				<td><label for="<?= $bxid?>_text"><?= GetMessage('FILEMAN_FILEMAN_TYPE_TEXT')?></label></td>
+			<span class="bx-ed-type-selector-item"><input <? if ($textType == 'text') {echo $ch;}?> onclick="onChangeInputType('<?= $name?>');" type="radio" name="<?= $strTextTypeFieldName?>" id="<?= $bxid?>_text" value="text" /><label for="<?= $bxid?>_text"><?= GetMessage('FILEMAN_FILEMAN_TYPE_TEXT')?></label></span>
 
-				<td><input <? if ($textType == 'html') {echo $ch;}?> onclick="window.changeType_<?= $name?>();"  type="radio" name="<?= $strTextTypeFieldName?>" id="<?= $bxid?>_html" value="html" /></td>
-				<td><label for="<?= $bxid?>_html">HTML</label></td>
+			<span class="bx-ed-type-selector-item"><input <? if ($textType == 'html') {echo $ch;}?> onclick="onChangeInputType('<?= $name?>');"  type="radio" name="<?= $strTextTypeFieldName?>" id="<?= $bxid?>_html" value="html" /><label for="<?= $bxid?>_html">HTML</label></span>
 
-				<td><input <? if ($textType == 'editor') {echo $ch;}?> onclick="window.changeType_<?= $name?>();" type="radio" name="<?= $strTextTypeFieldName?>" id="<?= $bxid?>_editor" value="html"></td>
-				<td><label for="<?= $bxid?>_editor"><?= GetMessage('FILEMAN_FILEMAN_TYPE_HTML_EDITOR')?></label></td>
+			<span class="bx-ed-type-selector-item"><input <? if ($textType == 'editor') {echo $ch;}?> onclick="onChangeInputType('<?= $name?>');" type="radio" name="<?= $strTextTypeFieldName?>" id="<?= $bxid?>_editor" value="html" /><label for="<?= $bxid?>_editor"><?= GetMessage('FILEMAN_FILEMAN_TYPE_HTML_EDITOR')?></label></span>
 			<? else:?>
-				<td><input type="checkbox" id="<?= $bxid?>_editor" name="<?=$strTextFieldName?>" onclick="window.changeType_<?= $name?>();" value="Y" <? if ($textType == 'editor') {echo $ch;}?>></td>
-				<td><label for="<?= $bxid?>_editor"><?= GetMessage("FILEMAN_FILEMAN_USE_HTML_EDITOR");?></label></td>
+			<span class="bx-ed-type-selector-item"><input type="checkbox" id="<?= $bxid?>_editor" name="<?= $strTextTypeFieldName?>" onclick="onChangeInputType('<?= $name?>');" value="Y" <? if ($textType == 'editor') {echo $ch;}?> /><label for="<?= $bxid?>_editor"><?= GetMessage("FILEMAN_FILEMAN_USE_HTML_EDITOR");?></span>
 			<? endif;?>
-			</tr>
-		</table>
+		</div>
 		<script>
 			BX.ready(
 				function()
@@ -1099,6 +1121,29 @@ class CFileMan
 						}
 						<?endif;?>
 					};
+
+
+					var pOptEditor = BX("<?= $bxid?>_editor");
+					if (pOptEditor)
+					{
+						BX.addCustomEvent(pOptEditor.form, 'onAutoSaveRestore', function (ob, data)
+						{
+							var pOptEditor = BX("<?= $bxid?>_editor");
+
+							setTimeout(function()
+							{
+								if (pOptEditor.checked)
+								{
+									var pMainObj = GLOBAL_pMainObj['<?= $name?>'];
+									if (pMainObj && pMainObj.bShowed)
+									{
+										pMainObj.SetContent(data[pMainObj.name]);
+										pMainObj.LoadContent();
+									}
+								}
+							}, 100);
+						});
+					}
 				}
 			);
 		</script>
@@ -1123,6 +1168,10 @@ class CFileMan
 				$arAdditionalParams = Array()
 			)
 	{
+		// We have to avoid of showing HTML-editor with probably unsecure content when loosing the session [mantis:#0007986]
+		if ($_SERVER["REQUEST_METHOD"] == "POST" && !check_bitrix_sessid())
+			return;
+
 		global $htmled, $usehtmled;
 		$strTextFieldName = preg_replace("/[^a-zA-Z0-9_:\.]/is", "", $strTextFieldName);
 
@@ -1131,156 +1180,61 @@ class CFileMan
 		else
 			$iHeight = $arSize;
 
-		$ext_html_editor = COption::GetOptionString("fileman", "ext_html_editor", "");
-		if($ext_html_editor == "always" || ($ext_html_editor == "not_admin" && !$USER->IsAdmin()) || $ext_html_editor == "not_php" || $ext_html_editor == "not_pages")
-		{
-			$strTextValue = htmlspecialcharsback($strTextValue);
-			include_once($_SERVER['DOCUMENT_ROOT']."/bitrix/admin/FCKeditor/fckeditor.php");
+		$strTextValue = htmlspecialcharsback($strTextValue);
+		$dontShowTA = isset($arAdditionalParams['dontshowta']) ? $arAdditionalParams['dontshowta'] : false;
 
-			$oFCKeditor = new FCKeditor($strTextFieldName."_ed") ;
-			$oFCKeditor->Width  = '0px' ;
-			$oFCKeditor->Height = '0px' ;
-			$oFCKeditor->Value = $strTextValue;
-			$oFCKeditor->BasePath = '/bitrix/admin/FCKeditor/';
-			$oFCKeditor->Config['AutoDetectLanguage']	= false ;
-			$oFCKeditor->Config['DefaultLanguage'] = LANG;
-			$oFCKeditor->Config['StylesXmlPath'] = '/bitrix/admin/fileman_fck_styles.php?lang='.LANG.'&template='.$template.'&list=y&site='.(strlen($site)<=0?LANG:$site).'&'.bitrix_sessid_get();
-			$oFCKeditor->Config['EditorAreaCSS'] = '/bitrix/admin/fileman_fck_styles.php?lang='.LANG.'&template='.$template.'&site='.(strlen($site)<=0?LANG:$site).'&'.bitrix_sessid_get();
-			$oFCKeditor->Config['LinkBrowserURL'] = '/bitrix/admin/fileman_fck_browser.php?lang='.LANG.'&site='.$site;
-			$oFCKeditor->Config['LinkBrowserWindowWidth'] = '570';
-			$oFCKeditor->Config['LinkBrowserWindowHeight'] = '480';
-			$oFCKeditor->Config['ImageBrowserURL'] ='/bitrix/admin/fileman_fck_browser.php?lang='.LANG.'&type=image&site='.$site;
-			$oFCKeditor->Config['ImageBrowserWindowWidth'] = '620';
-			$oFCKeditor->Config['ImageBrowserWindowHeight'] = '480';
-			$oFCKeditor->Config['FlashBrowserURL'] = '/bitrix/admin/fileman_fck_browser.php?lang='.LANG.'&type=flash&site='.$site;
-			$oFCKeditor->Config['FlashBrowserWindowWidth'] = '570';
-			$oFCKeditor->Config['FlashBrowserWindowHeight'] = '480';
-			$oFCKeditor->Config['LinkUploadURL'] = '/bitrix/admin/fileman_fck_upload.php?lang='.LANG.'&site='.$site;
-			$oFCKeditor->Config['ImageUploadURL'] = '/bitrix/admin/fileman_fck_upload.php?lang='.LANG.'&type=image&site='.$site;
-			$oFCKeditor->Config['FlashUploadURL'] = '/bitrix/admin/fileman_fck_upload.php?lang='.LANG.'&type=flash&site='.$site;
+		$textType = CFileMan::ShowTypeSelector(array(
+			'name' => $strTextFieldName,
+			'key' => $arAdditionalParams['saveEditorKey'],
+			'strTextTypeFieldName' => $strTextTypeFieldName,
+			'strTextTypeValue' => $strTextTypeValue,
+			'bSave' => $arAdditionalParams['saveEditorState'] !== false
+		));
+		$curHTMLEd = $textType == 'editor';
+		setEditorEventHandlers($strTextFieldName);
+		?>
+		<textarea class="typearea" style="<? echo(($curHTMLEd || $dontShowTA) ? 'display:none;' : '');?>width:100%;height:<?=$iHeight?>px;" name="<?=$strTextFieldName?>" id="bxed_<?=$strTextFieldName?>" wrap="virtual" <?=$textarea_field?>><?= htmlspecialcharsbx($strTextValue)?></textarea>
+		<?
 
-			if ($arAdditionalParams['saveEditorState'] === false && $strTextTypeValue == 'editor')
-				$strTextTypeValue = 'html';
+		if ($bWithoutPHP)
+			$arTaskbars = Array("BXPropertiesTaskbar", "BXSnippetsTaskbar");
+		else if (!$arTaskbars)
+			$arTaskbars = Array("BXPropertiesTaskbar", "BXSnippetsTaskbar", "BXComponents2Taskbar");
 
-			$textType = CFileMan::ShowTypeSelector(array(
-				'name' => $strTextFieldName,
-				'key' => $arAdditionalParams['saveEditorKey'],
-				'strTextTypeFieldName' => $strTextTypeFieldName,
-				'strTextTypeValue' => $strTextTypeValue,
-				'externalFuncName' => "FCKChangeType".$strTextFieldName,
-				'bSave' => $arAdditionalParams['saveEditorState'] !== false
-			));
-			?>
-			<textarea class="typearea" style="width:100%; height:<?= $iHeight?>px;" name="<?= $strTextFieldName?>" id="bxed_<?= $strTextFieldName?>" wrap="virtual" <?$textarea_field?>><? $strTextValue?></textarea>
-			<?$oFCKeditor->Create();?>
-			<script>
-			var prev<?= $strTextFieldName?> = 0;
-			function FCKChangeType<?= $strTextFieldName?>(curType)
-			{
-				var
-					val,
-					nn = BX("<?= $strTextFieldName?>_ed___Frame"),
-					pTA = BX("bxed_<?= $strTextFieldName?>");
+		$arParams = Array(
+			"bUseOnlyDefinedStyles"=>COption::GetOptionString("fileman", "show_untitled_styles", "N")!="Y",
+			"bFromTextarea" => true,
+			"bDisplay" => $curHTMLEd,
+			"bWithoutPHP" => $bWithoutPHP,
+			"arTaskbars" => $arTaskbars,
+			"height" => $iHeight < 450 ? 450 : $iHeight
+		);
 
-				if(curType != 'editor')
-				{
-					if(prev<?= $strTextFieldName?> != 0)
-					{
-						prev<?= $strTextFieldName?> = 0;
-						pTA.value = nn.contentWindow.FCK.GetXHTML();
-						nn.style.width = "0px";
-						nn.style.height = "0px";
-						pTA.style.display = "block";
-					}
-				}
-				else
-				{
-					if(prev<?= $strTextFieldName?> == 0)
-					{
-						prev<?= $strTextFieldName?> = 1;
-						nn.contentWindow.FCK.SetHTML(pTA.value);
-						pTA.style.display = "none";
-						nn.style.width = "100%";
-						nn.style.height = "<?= $iHeight?>px";
-					}
-				}
-			}
+		$arParams['site'] = (strlen($site)<=0?LANG:$site);
+		if(isset($arSize["width"]))
+			$arParams["width"] = $arSize["width"];
 
-			function <?= $strTextFieldName?>load()
-			{
-				var nn = BX("<?= $strTextFieldName?>_ed___Frame");
-				if(!nn.contentWindow.FCK || !nn.contentWindow.FCK.SetHTML)
-					return setTimeout("<?= $strTextFieldName?>load()", 500);
+		if (isset($arAdditionalParams))
+			$arParams["arAdditionalParams"] = $arAdditionalParams;
 
-				var pTA = BX("bxed_<?= $strTextFieldName?>");
-				if (pTA && pTA.form)
-					BX.bind(pTA.form, 'submit',function()
-					{
-						if(prev<?= $strTextFieldName?> != 0)
-							pTA.value = BX("<?= $strTextFieldName?>_ed___Frame").contentWindow.FCK.GetXHTML();
-					});
+		if (isset($arAdditionalParams['limit_php_access']))
+			$arParams['limit_php_access'] = $arAdditionalParams['limit_php_access'];
 
-				FCKChangeType<?= $strTextFieldName?>('<?= $textType?>');
-			}
+		if (isset($arAdditionalParams['toolbarConfig']))
+			$arParams['toolbarConfig'] = $arAdditionalParams['toolbarConfig'];
 
-			BX.ready(<?= $strTextFieldName?>load);
-			</script>
-			<?
-		}
-		else
-		{
-			$strTextValue = htmlspecialcharsback($strTextValue);
-			$dontShowTA = isset($arAdditionalParams['dontshowta']) ? $arAdditionalParams['dontshowta'] : false;
-
-			$textType = CFileMan::ShowTypeSelector(array(
-				'name' => $strTextFieldName,
-				'key' => $arAdditionalParams['saveEditorKey'],
-				'strTextTypeFieldName' => $strTextTypeFieldName,
-				'strTextTypeValue' => $strTextTypeValue,
-				'bSave' => $arAdditionalParams['saveEditorState'] !== false
-			));
-			$curHTMLEd = $textType == 'editor';
-			setEditorEventHandlers($strTextFieldName);
-			?>
-			<textarea class="typearea" style="<? echo(($curHTMLEd || $dontShowTA) ? 'display:none;' : '');?>width:100%;height:<?=$iHeight?>px;" name="<?=$strTextFieldName?>" id="bxed_<?=$strTextFieldName?>" wrap="virtual" <?=$textarea_field?>><?= htmlspecialchars($strTextValue)?></textarea>
-			<?
-
-			if ($bWithoutPHP)
-				$arTaskbars = Array("BXPropertiesTaskbar", "BXSnippetsTaskbar");
-			else if (!$arTaskbars)
-				$arTaskbars = Array("BXPropertiesTaskbar", "BXSnippetsTaskbar", "BXComponents2Taskbar");
-
-			$arParams = Array(
-				"bUseOnlyDefinedStyles"=>COption::GetOptionString("fileman", "show_untitled_styles", "N")!="Y",
-				"bFromTextarea" => true,
-				"bDisplay" => $curHTMLEd,
-				"bWithoutPHP" => $bWithoutPHP,
-				"arTaskbars" => $arTaskbars,
-				"height" => $iHeight < 450 ? 450 : $iHeight
-			);
-
-			$arParams['site'] = (strlen($site)<=0?LANG:$site);
-			if(isset($arSize["width"]))
-				$arParams["width"] = $arSize["width"];
-
-			if (isset($arAdditionalParams))
-				$arParams["arAdditionalParams"] = $arAdditionalParams;
-
-			if (isset($arAdditionalParams['limit_php_access']))
-				$arParams['limit_php_access'] = $arAdditionalParams['limit_php_access'];
-
-			if (isset($arAdditionalParams['toolbarConfig']))
-				$arParams['toolbarConfig'] = $arAdditionalParams['toolbarConfig'];
-
-			CFileman::ShowHTMLEditControl($strTextFieldName, $strTextValue, $arParams);
-		}
+		CFileman::ShowHTMLEditControl($strTextFieldName, $strTextValue, $arParams);
 	}
 
 	function ShowHTMLEditControl($name, $content, $arParams = Array())
 	{
+		// We have to avoid of showing HTML-editor with probably unsecure content when loosing the session [mantis:#0007986]
+		if ($_SERVER["REQUEST_METHOD"] == "POST" && !check_bitrix_sessid())
+			return;
+
 		CUtil::InitJSCore(array('window', 'ajax'));
-		$relPath = (isset($arParams["path"])) ?	$arParams["path"] : "/";
-		$site = (isset($arParams["site"])) ?	$arParams["site"] : "";
+		$relPath = (isset($arParams["path"])) ? $arParams["path"] : "/";
+		$site = (isset($arParams["site"])) ? $arParams["site"] : "";
 		$__path = Rel2Abs("/", $relPath);
 		$site = CFileMan::__CheckSite($site);
 		$name = preg_replace("/[^a-zA-Z0-9_:\.]/is", "", $name);
@@ -1291,7 +1245,6 @@ class CFileMan
 		$arParams["light_mode"] = (defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1) || (isset($arParams["light_mode"]) && $arParams["light_mode"] == 'Y');
 
 		$io = CBXVirtualIo::GetInstance();
-
 		$direction_rtl = false;
 		if($site)
 		{
@@ -1306,8 +1259,21 @@ class CFileMan
 		}
 
 		static $bFirstUsed;
-		$site = $arParams["site"];
 		$template = $arParams["templateID"];
+
+		if (!isset($template) && defined(SITE_TEMPLATE_ID))
+			$template = SITE_TEMPLATE_ID;
+
+		if (!isset($template) && isset($site))
+		{
+			$dbSiteRes = CSite::GetTemplateList($site);
+			$SITE_TEMPLATE = Array();
+			while($arSiteRes = $dbSiteRes->Fetch())
+			{
+				if ($arSiteRes['CONDITION'] == "" || !isset($template))
+					$template = $arSiteRes['TEMPLATE'];
+			}
+		}
 		//Taskbars
 		$arTaskbars = (isset($arParams["arTaskbars"])) ? $arParams["arTaskbars"] : Array();
 		//Toolbars
@@ -1374,6 +1340,7 @@ class CFileMan
 			$db_site_templates = CSiteTemplate::GetList(array(), array(), array());
 			while($ar_site_templates = $db_site_templates->Fetch())
 				$arTemplates[] = Array('value'=>$ar_site_templates['ID'], 'name'=>$ar_site_templates['NAME']);
+
 			?>
 			<script>
 				var
@@ -1384,11 +1351,15 @@ class CFileMan
 					limit_php_access = <?= $arParams["limit_php_access"] ? 'true' : 'false'?>,
 					lca = <?= $lca == 'Y' ? 'true' : 'false'?>,
 					lightMode = <?= $arParams["light_mode"] ? 'true' : 'false'?>,
-					rtlMode = <?= $direction_rtl ? 'true' : 'false'?>,
 					spellcheck_js_v = "<?=@filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/admin/htmleditor2/spellcheck.js')?>",
 					BX_PERSONAL_ROOT = "<?=BX_PERSONAL_ROOT?>";
 
-				window.bxsessid = "<?=bitrix_sessid()?>";
+                window.limit_php_access = top.limit_php_access = limit_php_access;
+                window.lightMode = top.lightMode = lightMode;
+                window.lca = top.lca = lca;
+                window.BXLang = top.BXLang = BXLang;
+                window.BXSite = top.BXSite = BXSite;
+                window.BX_PERSONAL_ROOT = top.BX_PERSONAL_ROOT = BX_PERSONAL_ROOT;
 			</script>
 			<?
 
@@ -1437,7 +1408,7 @@ class CFileMan
 		$db_events = GetModuleEvents("fileman", "OnIncludeHTMLEditorScript");
 		while($arEvent = $db_events->Fetch())
 			ExecuteModuleEventEx($arEvent);
-			$bFirstUsed = true;
+		$bFirstUsed = true;
 		}
 		?>
 			<div class="bxedmain-cont" id="<?= $name.'_object';?>"><table id="<?= $name?>_pFrame" class="bxedmainframe dim100x100" style="display:none;">
@@ -1473,57 +1444,14 @@ class CFileMan
 				</table>
 			</div>
 <script>
-	var
-		styles = '<?= CUtil::JSEscape($GLOBALS['APPLICATION']->GetFileContent($_SERVER['DOCUMENT_ROOT']."/bitrix/admin/htmleditor2/editor.css"))?>',
-		pHeads = document.getElementsByTagName("HEAD");
-
-	if(BX.browser.IsIE())
-	{
-		setTimeout(function()
-		{
-			var ind = document.styleSheets.length - 1;
-			while (ind >= 0)
-			{
-				if (document.styleSheets[ind]['media'] == '' || document.styleSheets[ind]['media'] == 'all')
-				{
-					document.styleSheets[ind].cssText += styles;
-					break;
-				}
-				ind--;
-			}
-		}, 5);
-	}
-	else
-	{
-		var xStyle, xStyles = pHeads[0].getElementsByTagName("STYLE");
-		if (xStyles && xStyles.length > 0)
-		{
-			var ind = xStyles.length - 1;
-			while (ind >= 0)
-			{
-				if (xStyles[ind]['media'] == '' || xStyles[ind]['media'] == 'all')
-				{
-					xStyle = xStyles[ind];
-					break;
-				}
-				ind--;
-			}
-		}
-		else
-			xStyle = pHeads[0].appendChild(document.createElement("STYLE"));
-
-		xStyle.appendChild(document.createTextNode(styles));
-	}
-
+	BX.loadCSS('/bitrix/admin/htmleditor2/editor.css');
 	var bEd = BX("bxed_<?= $name?>_editor");
-	bEd = (bEd==null) ? true : !!bEd.checked;
-
-	if (!bEd)
+	if (bEd && !bEd.checked)
 		BX("<?= $name?>_object").style.display = "none";
 </script>
 		<?
 		if(!$arParams["bFromTextarea"])
-			echo '<input type="hidden" name="'.$name.'" id="bxed_'.$name.'" value="'.htmlspecialchars($content).'">';
+			echo '<input type="hidden" name="'.$name.'" id="bxed_'.$name.'" value="'.htmlspecialcharsbx($content).'">';
 
 		if($arParams["bDisplay"] !== false)
 		{
@@ -1639,20 +1567,19 @@ class CFileMan
 					for ($j = 0; $j < count($matches[0]); $j++)
 					{
 						$str = $matches[0][$j];
-						$url = trim($matches[1][$j], ' "\';');
+						$url = trim(trim($matches[1][$j]), '"\';');
 						$css = "";
 						if (substr($url, -5) != 'print')
 						{
-							$url = trim($url, ' "\';');
+							$url = trim(trim($url), ' "\';');
 							if (substr($url, 0, 4) == 'url(' && substr($url, -1) == ')')
 								$url = trim(substr($url, 4, -1), ' "\'');
-
+							$url = trim(trim($url), '\'";');
 							if (substr($url, 0, 1) != '/' && file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$ar_templ["ID"]."/".$url))
 								$css = "\n".$APPLICATION->GetFileContent($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$ar_templ["ID"]."/".$url)."\n";
 							else if(file_exists($_SERVER["DOCUMENT_ROOT"].$url))
 								$css = "\n".$APPLICATION->GetFileContent($_SERVER["DOCUMENT_ROOT"].$url)."\n";
 						}
-
 						$ar_templ["STYLES"] = str_replace($matches[0][$j], $css, $ar_templ["STYLES"]);
 					}
 				}
@@ -1704,6 +1631,9 @@ class CFileMan
 			$arResult["STYLES"] .= "\r\n".$APPLICATION->GetFileContent($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/".(strlen($site)<=0?LANGUAGE_ID:$site)."/editor.css");
 		elseif(file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/editor.css"))
 			$arResult["STYLES"] .= "\r\n".$APPLICATION->GetFileContent($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/editor.css");
+
+		$arResult["STYLES"] = preg_replace("/\r\n/", " ", $arResult["STYLES"]);
+		$arResult["STYLES"] = preg_replace("/\n/", " ", $arResult["STYLES"]);
 
 		return $arResult;
 	}

@@ -1,5 +1,6 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/admin/task_description.php");
 IncludeModuleLangFile(__FILE__);
@@ -33,11 +34,11 @@ $documentRoot = CSite::GetSiteDocRoot($site);
 
 //Check path permissions
 if (!$io->FileExists($documentRoot.$path) && !$io->DirectoryExists($documentRoot.$path))
-	$popupWindow->ShowError(GetMessage("ACCESS_EDIT_FILE_NOT_FOUND")." (".htmlspecialchars($path).")");
+	$popupWindow->ShowError(GetMessage("ACCESS_EDIT_FILE_NOT_FOUND")." (".htmlspecialcharsbx($path).")");
 elseif (!$USER->CanDoFileOperation('fm_edit_existent_folder', array($site, $path)))
 	$popupWindow->ShowError(GetMessage("FOLDER_EDIT_ACCESS_DENIED"));
 elseif (!$USER->CanDoFileOperation('fm_edit_permission', array($site, $path)))
-	$popupWindow->ShowError(GetMessage("EDIT_ACCESS_TO_DENIED")." \"".htmlspecialchars($path)."\"");
+	$popupWindow->ShowError(GetMessage("EDIT_ACCESS_TO_DENIED")." \"".htmlspecialcharsbx($path)."\"");
 
 //Lang
 if (!isset($_REQUEST["lang"]) || strlen($_REQUEST["lang"]) <= 0)
@@ -116,7 +117,7 @@ if($io->FileExists($documentRoot.$assignFolderName.".access.php"))
 {
 	$PERM = array();
 	include($io->GetPhysicalName($documentRoot.$assignFolderName.".access.php"));
-	
+
 	foreach($PERM as $file => $arPerm)
 		foreach($arPerm as $code => $permission)
 			$currentPermission[$file][(preg_match('/^[0-9]+$/', $code)? "G".$code : $code)] = $permission;
@@ -140,7 +141,7 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 		if($path != "/")
 		{
 			$APPLICATION->RemoveFileAccessPermission(array($site, $path));
-	
+
 			if ($e = $APPLICATION->GetException())
 				$strWarning = $e->msg;
 		}
@@ -151,9 +152,9 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 		{
 			if (isset($currentPermission[$assignFileName]) && is_array($currentPermission[$assignFileName]))
 				$arSavePermission = $currentPermission[$assignFileName];
-	
+
 			$isAdmin = $USER->IsAdmin();
-	
+
 			foreach ($_POST["PERMISSION"] as $groupID => $taskID)
 			{
 				if($groupID !== "*")
@@ -164,7 +165,7 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 				}
 				elseif (!$isAdmin)
 					continue;
-	
+
 				// if not set task - delete permission
 				$taskID = intval($taskID);
 				if ($taskID <= 0)
@@ -172,17 +173,17 @@ elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 					unset($arSavePermission[$groupID]);
 					continue;
 				}
-	
+
 				$obTask = CTask::GetById($taskID);
 				if ( ($arTask = $obTask->Fetch()) && $arTask["LETTER"] && $arTask["SYS"] == "Y")
 					$permLetter = $arTask["LETTER"];
 				else
 					$permLetter = "T_".$taskID;
-	
+
 				$arSavePermission[$groupID] = $permLetter;
 			}
 		}
-	
+
 		$APPLICATION->SetFileAccessPermission(array($site, $path), $arSavePermission);
 
 		if ($e = $APPLICATION->GetException())
@@ -211,7 +212,7 @@ if ($strWarning != "")
 	$popupWindow->ShowValidationError($strWarning);
 ?>
 
-<p><b><?=($isFolder ? GetMessage("EDIT_ACCESS_TO_FOLDER") : GetMessage("EDIT_ACCESS_TO_FILE"))?></b> <?=htmlspecialchars($path);?></p>
+<p><b><?=($isFolder ? GetMessage("EDIT_ACCESS_TO_FOLDER") : GetMessage("EDIT_ACCESS_TO_FILE"))?></b> <?=htmlspecialcharsbx($path);?></p>
 
 <?
 $popupWindow->EndDescription();
@@ -297,7 +298,7 @@ foreach($arNames as $access_code => $dummy):
 				$jsInheritPermID .= ",'".$permissionID."'";
 			?>
 
-				<div id="bx_permission_view_<?=$permissionID?>" style="overflow:hidden;padding:2px 12px 2px 2px; border:1px solid white; width:90%; cursor:text; box-sizing:border-box; -moz-box-sizing:border-box;background-color:transparent; background-position:right; background-repeat:no-repeat;" onclick="BXEditPermission('<?=$permissionID?>')" onmouseover="this.style.borderColor = '#434B50 #ADC0CF #ADC0CF #434B50'" onmouseout="this.style.borderColor = 'white'" class="edit-field">
+				<div id="bx_permission_view_<?=$permissionID?>" onclick="BXEditPermission('<?=$permissionID?>')" class="edit-field" style="width:90%;">
 					<?=GetMessage("EDIT_ACCESS_SET_INHERITED")." &quot;".htmlspecialcharsEx($arPermTypes[$inheritTaskID])."&quot;"?>
 				</div>
 
@@ -373,7 +374,7 @@ window.BXAddNewPermission = function(arRights)
 
 			var pr = BX.Access.GetProviderName(provider);
 			groupTD.innerHTML = (pr? '<b>'+pr+':</b> ':'')+arRights[provider][id].name;
-	
+
 			//Insert Task Select
 			var permissionID = Math.round(Math.random() * 100000);
 			var taskSelect = BXCreateTaskList(permissionID, 0, 0, id);
@@ -485,7 +486,7 @@ window.BXCreateAccessHint = function()
 
 
 	<?=$jsInheritPermID?>
-	
+
 	for (var index = 0; index < jsInheritPermIDs.length; index++)
 		oBXHint = new BXHint("<?=CUtil::JSEscape(GetMessage("EDIT_ACCESS_SET_PERMISSION"))?>", document.getElementById("bx_permission_view_"+ jsInheritPermIDs[index]), {"width":200});
 }

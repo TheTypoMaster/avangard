@@ -21,7 +21,7 @@ foreach ($arResult['FORMS'] as $FORM_ID => $arForm):
 	$i = 0;
 	foreach ($arResult['RESULTS'][$FORM_ID] as $arRes):
 ?>
-			<li class="bx-mylist-row-<?echo ($i++) % 2;?>"><div class="bx-mylist-form-status"><span class="<?=$arRes["STATUS_CSS"]?>"><?=$arRes["STATUS_TITLE"]?></span></div> <div class="bx-mylist-form-data"><span class="bx-mylist-form-date intranet-date"><?echo $arRes['DATE_CREATE']?></span> <a href="<?echo $arRes['__LINK']?>"><?echo GetMessage('FRLM_RESULT').$arRes['ID']?><?echo $arRes['__TITLE'] ? ': '.$arRes['__TITLE'] : ''?></a></div></li>
+			<li class="bx-mylist-row-<?echo ($i++) % 2;?>"><div class="bx-mylist-form-status"><span class="<?=$arRes["STATUS_CSS"]?>"><?=$arRes["STATUS_TITLE"]?></span></div> <div class="bx-mylist-form-data"><span class="bx-mylist-form-date intranet-date"><?echo FormatDateFromDB($arRes['DATE_CREATE'], 'SHORT')?></span> <a href="<?echo $arRes['__LINK']?>"><?echo GetMessage('FRLM_RESULT').$arRes['ID']?><?echo $arRes['__TITLE'] ? ': '.htmlspecialcharsbx($arRes['__TITLE']) : ''?></a></div></li>
 <?
 	endforeach;
 ?>

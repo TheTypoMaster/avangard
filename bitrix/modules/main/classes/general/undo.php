@@ -13,7 +13,7 @@ class CUndo
 {
 	function Add($params = array())
 	{
-		global $DB, $USER;
+		global $USER;
 
 		$ID = '1'.md5(uniqid(rand(), true));
 
@@ -91,7 +91,6 @@ class CUndo
 
 		$err_mess = "CUndo::GetList<br>Line: ";
 		$arSqlSearch = array();
-		$strSqlSearch = "";
 
 		if(is_array($arFilter))
 		{
@@ -178,7 +177,7 @@ window.BXUndoLastChanges = function()
 	if (!confirm(\"".GetMessage("MAIN_UNDO_ESCAPE_CHANGES_CONFIRM")."\"))
 		return;
 
-	BX.ajax.get(\"/bitrix/admin/public_undo.php?undo=".$ID."&".bitrix_sessid_get()."\", false, function(result)
+	BX.ajax.get(\"/bitrix/admin/public_undo.php?undo=".$ID."&".bitrix_sessid_get()."\", null, function(result)
 	{
 		if (result && result.toUpperCase().indexOf(\"ERROR\") != -1)
 			BX.admin.panel.Notify(\"".GetMessage("MAIN_UNDO_ESCAPE_ERROR")."\");
@@ -225,7 +224,7 @@ class CAutoSave
 		if (isset($_REQUEST['autosave_id']) && strlen($_REQUEST['autosave_id']) == 33)
 		{
 			$this->bSkipRestore = true;
-			$this->autosaveId = $_REQUEST['autosave_id'];
+			$this->autosaveId = preg_replace("/[^a-z0-9_]/i", "", $_REQUEST['autosave_id']);
 		}
 		else
 			$this->formId = self::_GetFormID();
@@ -252,7 +251,7 @@ class CAutoSave
 			$DISABLE_STANDARD_NOTIFY = ($admin ? 'false' : 'true');
 
 			if (defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1)
-				echo CJSCore::Init(array('autosave'), true);
+				echo CJSCore::GetHTML(array('autosave'));
 ?>
 <input type="hidden" name="autosave_id" id="autosave_marker_<?=$this->GetID()?>" value="<?=$this->GetID()?>" />
 <script type="text/javascript">window.autosave_<?=$this->GetID()?> = new top.BX.CAutoSave({

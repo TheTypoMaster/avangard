@@ -290,4 +290,4 @@ function CFormMethod(_METHOD, _arParams)
 {
 	this.METHOD = _METHOD;
 	this.params = _arParams;
-}
+};   

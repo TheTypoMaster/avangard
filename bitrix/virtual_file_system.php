@@ -26,7 +26,7 @@ if (!preg_match("#([\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\
 if (!defined("BX_UTF"))
 {
 	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/charset_converter.php");
-	$requestUri = CharsetConverter::ConvertCharset($requestUri, "utf-8", "windows-1251");
+	$requestUri = CharsetConverter::ConvertCharset($requestUri, "utf-8", (defined("BX_DEFAULT_CHARSET")? BX_DEFAULT_CHARSET : "windows-1251"));
 }
 
 if (($pos = strpos($requestUri, "?")) !== false)

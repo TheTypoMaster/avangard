@@ -403,16 +403,19 @@ class CUrlRewriter
 		{
 			if($file == "." || $file == "..") continue;
 
+			$full_path = $path."/".$file;
+
 			if(is_dir($abs_path."/".$file))
 			{
-				if($path."/".$file=="/bitrix")continue;
-				//if($path."/".$file!="/")continue;
+				if($full_path == "/bitrix" || $full_path == "/".COption::GetOptionString("main", "upload_dir", "upload"))
+					continue;
+
 				//this is not first step and we had stopped here, so go on to reindex
-				if($max_execution_time<=0 || StrLen($NS["FLG"])<=0 || (StrLen($NS["FLG"]) > 0 && substr($NS["ID"]."/", 0, strlen($site."|".$path."/".$file."/")) == $site."|".$path."/".$file."/"))
+				if($max_execution_time<=0 || StrLen($NS["FLG"])<=0 || (StrLen($NS["FLG"]) > 0 && substr($NS["ID"]."/", 0, strlen($site."|".$full_path."/")) == $site."|".$full_path."/"))
 				{
 					$prevSTEP_ID = $NS["ID"];
-					$new_site = CSite::GetSiteByFullPath($DOC_ROOT.$path."/".$file);
-					if(CUrlRewriter::RecurseIndex(Array($new_site, $path."/".$file), $max_execution_time, $NS)===false)
+					$new_site = CSite::GetSiteByFullPath($DOC_ROOT.$full_path);
+					if(CUrlRewriter::RecurseIndex(Array($new_site, $full_path), $max_execution_time, $NS)===false)
 						return false;
 				}
 				else //all done
@@ -424,14 +427,14 @@ class CUrlRewriter
 
 				if($max_execution_time>0
 					&& strlen($NS["FLG"])>0
-					&& $NS["ID"] == $site."|".$path."/".$file
+					&& $NS["ID"] == $site."|".$full_path
 					)
 				{
 					$NS["FLG"] = "";
 				}
 				elseif(strlen($NS["FLG"])<=0)
 				{
-					$ID = CUrlRewriter::ReindexFile(Array($site, $path."/".$file), $NS["SESS_ID"], $NS["max_file_size"]);
+					$ID = CUrlRewriter::ReindexFile(Array($site, $full_path), $NS["SESS_ID"], $NS["max_file_size"]);
 					if($ID)
 					{
 						$NS["CNT"] = IntVal($NS["CNT"]) + 1;
@@ -441,7 +444,7 @@ class CUrlRewriter
 				if($max_execution_time>0 && (getmicrotime() - START_EXEC_TIME > $max_execution_time))
 				{
 					$NS["FLG"] = "Y";
-					$NS["ID"] = $site."|".$path."/".$file;
+					$NS["ID"] = $site."|".$full_path;
 					return false;
 				}
 			}

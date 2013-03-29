@@ -11,6 +11,14 @@ IncludeModuleLangFile(__FILE__);
 
 class CCloudStorage
 {
+	const FILE_SKIPPED = 0;
+	const FILE_MOVED = 1;
+	const FILE_PARTLY_UPLOADED = 2;
+	const FILE_UPLOAD_ERROR = 3;
+
+	public static $part_size = 0;
+	public static $part_count = 0;
+
 	private static $_services = /*.(array[string]CCloudStorageService).*/null;
 
 	/**
@@ -176,12 +184,14 @@ class CCloudStorage
 		$callbackData["fileNAME"] = $arFile["FILE_NAME"];
 		$callbackData["fileURL"] = $callbackData["fileDIR"]."/".$callbackData["fileNAME"];
 
-		if($callbackData["cacheOBJ"]->StartDataCache(3600, $callbackData["cacheID"], "clouds"))
+		if($callbackData["cacheOBJ"]->StartDataCache(CACHED_clouds_file_resize, $callbackData["cacheID"], "clouds"))
 		{
 			//Check if it is cache file was deleted, but not the file in the cloud
-			if($obTargetBucket->FileExists($callbackData["fileURL"]))
+			if($fs = $obTargetBucket->FileExists($callbackData["fileURL"]))
 			{
 				$callbackData["cacheSTARTED"] = true;
+				if ($fs > 1)
+					$callbackData["fileSize"] = $fs;
 				$bNeedResize = false;
 				return true;
 			}
@@ -218,6 +228,7 @@ class CCloudStorage
 	function OnAfterResizeImage($arFile, $arResizeParams, &$callbackData, &$cacheImageFile, &$cacheImageFileTmp, &$arImageSize)
 	{
 		global $arCloudImageSizeCache;
+		$io = CBXVirtualIo::GetInstance();
 
 		if(!is_array($callbackData))
 			return false;
@@ -226,13 +237,13 @@ class CCloudStorage
 		{
 			if(isset($callbackData["tmpFile"])) //have to upload to the cloud
 			{
-				$arFileToStore = CFile::MakeFileArray($cacheImageFileTmp);
+				$arFileToStore = CFile::MakeFileArray($io->GetPhysicalName($cacheImageFileTmp));
 				if($callbackData["obTargetBucket"]->SaveFile($callbackData["fileURL"], $arFileToStore))
 				{
 					$cacheImageFile = $callbackData["obTargetBucket"]->GetFileSRC($callbackData["fileURL"]);
 
 					$arImageSize = CFile::GetImageSize($cacheImageFileTmp);
-					$arImageSize[2] = filesize($cacheImageFileTmp);
+					$arImageSize[2] = filesize($io->GetPhysicalName($cacheImageFileTmp));
 					$iFileSize = filesize($arFileToStore["tmp_name"]);
 
 					if(!is_array($arImageSize))
@@ -244,11 +255,9 @@ class CCloudStorage
 						"size"=>$arImageSize[2],
 					));
 
-					unlink($callbackData["tmpFile"]);
-					@rmdir(substr($callbackData["tmpFile"], 0, -strlen(bx_basename($callbackData["tmpFile"]))));
-
-					unlink($cacheImageFileTmp);
-					@rmdir(substr($cacheImageFileTmp, 0, -strlen(bx_basename($cacheImageFileTmp))));
+					$tmpFile = $io->GetPhysicalName($callbackData["tmpFile"]);
+					unlink($tmpFile);
+					@rmdir(substr($tmpFile, 0, -strlen(bx_basename($tmpFile))));
 
 					$arCloudImageSizeCache[$cacheImageFile] = $arImageSize;
 
@@ -258,8 +267,11 @@ class CCloudStorage
 				}
 				else
 				{
-					unlink($callbackData["tmpFile"]);
-					@rmdir(substr($callbackData["tmpFile"], 0, -strlen(bx_basename($callbackData["tmpFile"]))));
+					$callbackData["cacheOBJ"]->AbortDataCache();
+
+					$tmpFile = $io->GetPhysicalName($callbackData["tmpFile"]);
+					unlink($tmpFile);
+					@rmdir(substr($tmpFile, 0, -strlen(bx_basename($tmpFile))));
 
 					unlink($cacheImageFileTmp);
 					@rmdir(substr($cacheImageFileTmp, 0, -strlen(bx_basename($cacheImageFileTmp))));
@@ -267,7 +279,6 @@ class CCloudStorage
 					// $cacheImageFile not clear what to do
 					return false;
 				}
-
 			}
 			else //the file is already in the cloud
 			{
@@ -277,7 +288,7 @@ class CCloudStorage
 				$arImageSize = array(
 					$arDestinationSize["width"],
 					$arDestinationSize["height"],
-					$callbackData["obTargetBucket"]->GetFileSize($callbackData["fileURL"]),
+					isset($callbackData["fileSize"])? $callbackData["fileSize"]: $callbackData["obTargetBucket"]->GetFileSize($callbackData["fileURL"]),
 				);
 				$callbackData["cacheOBJ"]->EndDataCache(array(
 					"cacheImageFile"=>$cacheImageFile,
@@ -322,6 +333,7 @@ class CCloudStorage
 				return false;
 
 			$filePath = substr($file, strlen($bucket->GetFileSRC("/"))-1);
+			$filePath = urldecode($filePath);
 
 			$target = CFile::GetTempName('', bx_basename($filePath));
 			$target = preg_replace("#[\\\\\\/]+#", "/", $target);
@@ -471,68 +483,149 @@ class CCloudStorage
 
 	function MoveFile($arFile, $obTargetBucket)
 	{
+		$io = CBXVirtualIo::GetInstance();
+
 		//Try to find suitable bucket for the file
 		$bucket = CCloudStorage::FindBucketForFile($arFile, $arFile["FILE_NAME"]);
 		if(!is_object($bucket))
-			return false;
+			return CCloudStorage::FILE_SKIPPED;
 
 		if(!$bucket->Init())
-			return false;
+			return CCloudStorage::FILE_SKIPPED;
 
 		//Check if this is same bucket as the target
 		if($bucket->ID != $obTargetBucket->ID)
-			return false;
+			return CCloudStorage::FILE_SKIPPED;
 
 		if($bucket->FileExists($bucket->GetFileSRC($arFile))) //TODO rename file
-			return false;
-
-		if($arFile["HANDLER_ID"])
-		{
-			$ar = array();
-			if(!CCloudStorage::OnMakeFileArray($arFile, $ar))
-				return false;
-			if(!isset($ar["tmp_name"]))
-				return false;
-		}
-		else
-		{
-			$ar = CFile::MakeFileArray($arFile["ID"]);
-			if(!isset($ar["tmp_name"]))
-				return false;
-		}
+			return CCloudStorage::FILE_SKIPPED;
 
 		$filePath = "/".$arFile["SUBDIR"]."/".$arFile["FILE_NAME"];
 		$filePath = preg_replace("#[\\\\\\/]+#", "/", $filePath);
 
-		$res = $bucket->SaveFile($filePath, $ar);
-		if($res)
+		if($arFile["FILE_SIZE"] > $bucket->GetService()->GetMinUploadPartSize())
 		{
-			$bucket->IncFileCounter(filesize($ar["tmp_name"]));
-
-			if(file_exists($ar["tmp_name"]))
+			$obUpload = new CCloudStorageUpload($filePath);
+			if(!$obUpload->isStarted())
 			{
-				unlink($ar["tmp_name"]);
-				@rmdir(substr($ar["tmp_name"], 0, -strlen(bx_basename($ar["tmp_name"]))));
-			}
+				if($arFile["HANDLER_ID"])
+				{
+					$ar = array();
+					if(!CCloudStorage::OnMakeFileArray($arFile, $ar))
+						return CCloudStorage::FILE_SKIPPED;
+					if(!isset($ar["tmp_name"]))
+						return CCloudStorage::FILE_SKIPPED;
+				}
+				else
+				{
+					$ar = CFile::MakeFileArray($arFile["ID"]);
+					if(!isset($ar["tmp_name"]))
+						return CCloudStorage::FILE_SKIPPED;
+				}
 
-			if($arFile["HANDLER_ID"])
-				CCloudStorage::OnFileDelete($arFile);
+				$temp_file = CTempFile::GetDirectoryName(2, "clouds").bx_basename($arFile["FILE_NAME"]);
+				$temp_fileX =  $io->GetPhysicalName($temp_file);
+				CheckDirPath($temp_fileX);
+
+				if(!copy($io->GetPhysicalName($ar["tmp_name"]), $temp_fileX))
+					return CCloudStorage::FILE_SKIPPED;
+
+				if($obUpload->Start($bucket->ID, $arFile["FILE_SIZE"], $arFile["CONTENT_TYPE"], $temp_file))
+					return CCloudStorage::FILE_PARTLY_UPLOADED;
+				else
+					return CCloudStorage::FILE_SKIPPED;
+			}
+			else
+			{
+				$temp_file = $obUpload->getTempFileName();
+				$temp_fileX =  $io->GetPhysicalName($temp_file);
+
+				$fp = fopen($temp_fileX, "rb");
+				if(!is_resource($fp))
+					return CCloudStorage::FILE_SKIPPED;
+
+				$pos = $obUpload->getPos();
+				if($pos > filesize($temp_fileX))
+				{
+					if($obUpload->Finish())
+					{
+						$bucket->IncFileCounter(filesize($temp_fileX));
+
+						if($arFile["HANDLER_ID"])
+							CCloudStorage::OnFileDelete($arFile);
+						else
+						{
+							$ar = CFile::MakeFileArray($arFile["ID"]);
+							$fileNameX = $io->GetPhysicalName($ar["tmp_name"]);
+							unlink($fileNameX);
+							@rmdir(substr($fileNameX, 0, -strlen(bx_basename($fileNameX))));
+						}
+
+						return CCloudStorage::FILE_MOVED;
+					}
+					else
+						return CCloudStorage::FILE_SKIPPED;
+				}
+
+				fseek($fp, $pos);
+				self::$part_count = $obUpload->GetPartCount();
+				self::$part_size = $obUpload->getPartSize();
+				$part = fread($fp, self::$part_size);
+				while($obUpload->hasRetries())
+				{
+					if($obUpload->Next($part))
+						return CCloudStorage::FILE_PARTLY_UPLOADED;
+				}
+				return CCloudStorage::FILE_SKIPPED;
+			}
 		}
 		else
-		{	//delete temporary copy
+		{
 			if($arFile["HANDLER_ID"])
 			{
-				unlink($ar["tmp_name"]);
-				@rmdir(substr($ar["tmp_name"], 0, -strlen(bx_basename($ar["tmp_name"]))));
+				$ar = array();
+				if(!CCloudStorage::OnMakeFileArray($arFile, $ar))
+					return CCloudStorage::FILE_SKIPPED;
+				if(!isset($ar["tmp_name"]))
+					return CCloudStorage::FILE_SKIPPED;
 			}
-		}
+			else
+			{
+				$ar = CFile::MakeFileArray($arFile["ID"]);
+				if(!isset($ar["tmp_name"]))
+					return CCloudStorage::FILE_SKIPPED;
+			}
 
-		return $res;
+			$res = $bucket->SaveFile($filePath, $ar);
+			if($res)
+			{
+				$bucket->IncFileCounter(filesize($ar["tmp_name"]));
+
+				if(file_exists($ar["tmp_name"]))
+				{
+					unlink($ar["tmp_name"]);
+					@rmdir(substr($ar["tmp_name"], 0, -strlen(bx_basename($ar["tmp_name"]))));
+				}
+
+				if($arFile["HANDLER_ID"])
+					CCloudStorage::OnFileDelete($arFile);
+			}
+			else
+			{	//delete temporary copy
+				if($arFile["HANDLER_ID"])
+				{
+					unlink($ar["tmp_name"]);
+					@rmdir(substr($ar["tmp_name"], 0, -strlen(bx_basename($ar["tmp_name"]))));
+				}
+			}
+
+			return $res? CCloudStorage::FILE_MOVED: CCloudStorage::FILE_SKIPPED;
+		}
 	}
 
 	function OnFileSave(&$arFile, $strFileName, $strSavePath, $bForceMD5 = false, $bSkipExt = false)
 	{
-		if(!$arFile["tmp_name"])
+		if(!$arFile["tmp_name"] && !$arFile["content"])
 			return false;
 
 		if(array_key_exists("bucket", $arFile))
@@ -562,7 +655,7 @@ class CCloudStorage
 			)
 			{
 				if(COption::GetOptionString("main", "convert_original_file_name", "Y")=="Y")
-					$newName = preg_replace('/([^'.BX_VALID_FILENAME_SYMBOLS.'])/e', "chr(rand(97, 122))", $strFileName);
+					$newName = CCloudStorage::translit($strFileName);
 				else
 					$newName = $strFileName;
 			}
@@ -572,12 +665,20 @@ class CCloudStorage
 				$newName = md5(uniqid(mt_rand(), true)).$strFileExt;
 			}
 
+			//check for double extension vulnerability
+			$newName = RemoveScriptExtension($newName);
+
 			while(true)
 			{
+				$strRand = md5(mt_rand());
+				$strRand = substr($strRand, 0, 3)."/".$strRand;
+
 				if(substr($strSavePath, -1) == "/")
-					$subDir = $strSavePath.md5(mt_rand());
+					$subDir = $strSavePath.$strRand;
 				else
-					$subDir = $strSavePath."/".md5(mt_rand());
+					$subDir = $strSavePath."/".$strRand;
+				$subDir = ltrim($subDir, "/");
+
 				$filePath = "/".$subDir."/".$newName;
 
 				if(!$bucket->FileExists($filePath))
@@ -655,10 +756,36 @@ class CCloudStorage
 		return false;
 	}
 
+	function FindFileURIByURN($urn, $log_descr="")
+	{
+		foreach(CCloudStorageBucket::GetAllBuckets() as $bucket)
+		{
+			if($bucket["ACTIVE"] == "Y")
+			{
+				$obBucket = new CCloudStorageBucket($bucket["ID"]);
+				if($obBucket->Init() && $obBucket->FileExists($urn))
+				{
+					$uri = $obBucket->GetFileSRC($urn);
+
+					if($log_descr && COption::GetOptionString("clouds", "log_404_errors") === "Y")
+						CEventLog::Log("WARNING", "CLOUDS_404", "clouds", $uri, $log_descr);
+
+					return $uri;
+				}
+			}
+		}
+		return "";
+	}
+
 	function OnBuildGlobalMenu(&$aGlobalMenu, &$aModuleMenu)
 	{
 		global $USER;
-		if(!$USER->IsAdmin())
+		if(!$USER->CanDoOperation("clouds_browse"))
+			return;
+
+		//When UnRegisterModuleDependences is called from module uninstall
+		//cached EventHandlers may be called
+		if(defined("BX_CLOUDS_UNINSTALLED"))
 			return;
 
 		$aMenu = array(
@@ -667,13 +794,9 @@ class CCloudStorage
 			"sort" => 150,
 			"text" => GetMessage("CLO_STORAGE_MENU"),
 			"title" => GetMessage("CLO_STORAGE_TITLE"),
-			"url" => "clouds_index.php?lang=".LANGUAGE_ID,
 			"icon" => "clouds_menu_icon",
 			"page_icon" => "clouds_page_icon",
 			"items_id" => "menu_clouds",
-			"more_url" => array(
-				"clouds_index.php",
-			),
 			"items" => array()
 		);
 
@@ -694,6 +817,146 @@ class CCloudStorage
 
 		if(!empty($aMenu["items"]))
 			$aModuleMenu[] = $aMenu;
+	}
+
+	function OnAdminListDisplay(&$obList)
+	{
+		global $USER;
+
+		if($obList->table_id !== "tbl_fileman_admin")
+			return;
+
+		if(!is_object($USER) || !$USER->CanDoOperation("clouds_upload"))
+			return;
+
+		static $clouds = null;
+		static $sTableID = "tbl_clouds_storage_list";
+		static $lAdmin = null;
+
+		$upload_dir = "/".COption::GetOptionString("main", "upload_dir", "")."/";
+		foreach($obList->aRows as $row_num => $obRow)
+		{
+			if($obRow->arRes["TYPE"] === "F")
+			{
+				if(!isset($clouds))
+				{
+					$lAdmin = new CAdminList($sTableID);
+					$clouds = array();
+					$rsClouds = CCloudStorageBucket::GetList(array("SORT"=>"DESC", "ID"=>"ASC"));
+					while($arStorage = $rsClouds->Fetch())
+						if($arStorage["READ_ONLY"] == "N" && $arStorage["ACTIVE"] == "Y")
+							$clouds[$arStorage["ID"]] = $arStorage["BUCKET"];
+				}
+
+				if(!empty($clouds))
+				{
+					$ID = "F".$obRow->arRes["NAME"];
+					$file = $obRow->arRes["NAME"];
+					$path = substr($obRow->arRes["ABS_PATH"], 0, -strlen($file));
+
+					$arSubMenu = array();
+					foreach($clouds as $id => $bucket)
+						$arSubMenu[] = array(
+							"TEXT" => $bucket,
+							"ACTION" => $s = "if(confirm('".GetMessage("CLO_STORAGE_UPLOAD_CONF")."')) jsUtils.Redirect([], '".CUtil::AddSlashes("/bitrix/admin/clouds_file_list.php?lang=".LANGUAGE_ID."&bucket=".urlencode($id)."&path=".urlencode($path)."&ID=".urlencode($ID)."&action=upload&".bitrix_sessid_get())."');"
+						);
+
+					$obRow->aActions[] = array(
+						"TEXT" => GetMessage("CLO_STORAGE_UPLOAD_MENU"),
+						"MENU" => $arSubMenu,
+					);
+				}
+			}
+		}
+	}
+
+	function HasActiveBuckets()
+	{
+		foreach(CCloudStorageBucket::GetAllBuckets() as $bucket)
+			if($bucket["ACTIVE"] === "Y")
+				return true;
+		return false;
+	}
+
+	function OnBeforeProlog()
+	{
+		if(defined("BX_CHECK_SHORT_URI") && BX_CHECK_SHORT_URI)
+		{
+			$upload_dir = "/".trim(COption::GetOptionString("main", "upload_dir", "upload"), "/")."/";
+			$request_uri = urldecode($_SERVER["REQUEST_URI"]);
+			$request_uri = CCloudUtil::URLEncode($request_uri, LANG_CHARSET);
+			foreach(CCloudStorageBucket::GetAllBuckets() as $arBucket)
+			{
+				if($arBucket["ACTIVE"] == "Y")
+				{
+					$obBucket = new CCloudStorageBucket($arBucket["ID"]);
+					if($obBucket->Init())
+					{
+						if($obBucket->FileExists($request_uri))
+						{
+							if(COption::GetOptionString("clouds", "log_404_errors") === "Y")
+								CEventLog::Log("WARNING", "CLOUDS_404", "clouds", $_SERVER["REQUEST_URI"], $_SERVER["HTTP_REFERER"]);
+							LocalRedirect($obBucket->GetFileSRC($request_uri), true);
+						}
+						elseif(strpos($request_uri, $upload_dir) === 0)
+						{
+							$check_url = substr($request_uri, strlen($upload_dir)-1);
+							if($obBucket->FileExists($check_url))
+							{
+								if(COption::GetOptionString("clouds", "log_404_errors") === "Y")
+									CEventLog::Log("WARNING", "CLOUDS_404", "clouds", $_SERVER["REQUEST_URI"], $_SERVER["HTTP_REFERER"]);
+								LocalRedirect($obBucket->GetFileSRC($check_url), true);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	function GetAuditTypes()
+	{
+		return array(
+			"CLOUDS_404" => "[CLOUDS_404] ".GetMessage("CLO_404_ON_MOVED_FILE"),
+		);
+	}
+
+	function translit($file_name, $safe_chars = '')
+	{
+		return CUtil::translit($file_name, LANGUAGE_ID, array(
+			"safe_chars"=>". ".$safe_chars,
+			"change_case"=>false,
+			"max_len"=>255,
+		));
+	}
+
+	function FixFileContentType(&$arFile)
+	{
+		global $DB;
+		$fixedContentType = "";
+
+		if($arFile["CONTENT_TYPE"] === "image/jpg")
+			$fixedContentType = "image/jpeg";
+		else
+		{
+			$hexContentType = unpack("H*", $arFile["CONTENT_TYPE"]);
+			if(
+				$hexContentType[1] === "e0f3e4e8ee2f6d706567"
+				|| $hexContentType[1] === "d0b0d183d0b4d0b8d0be2f6d706567"
+			)
+				$fixedContentType = "audio/mpeg";
+		}
+
+		if($fixedContentType !== "")
+		{
+			$arFile["CONTENT_TYPE"] = $fixedContentType;
+			$DB->Query("
+				UPDATE b_file
+				SET CONTENT_TYPE = '".$DB->ForSQL($fixedContentType)."'
+				WHERE ID = ".intval($arFile["ID"])."
+			");
+			CFile::CleanCache($arFile["ID"]);
+		}
 	}
 }
 ?>

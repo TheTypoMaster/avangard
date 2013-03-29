@@ -32,7 +32,7 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 	<div class="photo-comment" id="bxphoto_com_<?=$res["ID"]?>">
 		<div style="background: red no-repeat center center" class="photo-comment-avatar"></div>
 		<div onmouseout="BX.removeClass(this, 'photo-comment-info-text-hover')" onmouseover="BX.addClass(this, 'photo-comment-info-text-hover')" class="photo-comment-info-text">
-		    <div class="photo-comment-info">
+<			div class="photo-comment-info">
 				<a name="message<?=$res["ID"]?>"></a>
 				<?if (intVal($res["AUTHOR_ID"]) > 0 && !empty($res["AUTHOR_URL"])):?>
 				<a class="photo-comment-name" href="<?=$res["AUTHOR_URL"]?>"><?=$res["AUTHOR_NAME"]?></a>
@@ -64,14 +64,14 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 					?>
 				</span>
 				<?endif;?>
-				<?/* 
-				<a href="" class="photo-comment-edit"></a> 
+				<?/*
+				<a href="" class="photo-comment-edit"></a>
 				<a href="" class="photo-comment-remove"></a>
 				*/?>
 			</div>
-		    <div class="photo-comment-text"><?=$res["POST_MESSAGE_TEXT"]?></div>
+			<div class="photo-comment-text"><?=$res["POST_MESSAGE_TEXT"]?></div>
 		</div>
-    </div>
+	</div>
 <?endforeach;?>
 #COMMENTS_END#
 </div>
@@ -95,6 +95,7 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 	<input type="hidden" name="back_page" value="<?=$arResult["CURRENT_PAGE"]?>" />
 	<input type="hidden" name="ELEMENT_ID" value="<?=$arParams["ELEMENT_ID"]?>" id="ELEMENT_ID<?=$arParams["form_index"]?>" />
 	<input type="hidden" name="SECTION_ID" value="<?=$arResult["ELEMENT_REAL"]["IBLOCK_SECTION_ID"]?>" />
+	<input type="hidden" name="REVIEW_USE_SMILES" id="REVIEW_USE_SMILES<?=$arParams["form_index"]?>" value="<?=(($arResult["REVIEW_USE_SMILES"]=="Y") ? "Y" : "N")?>" />
 	<input type="hidden" name="save_product_review" value="Y" />
 	<input type="hidden" name="preview_comment" value="N" />
 	<input type="hidden" name="save_photo_comment" value="Y" />

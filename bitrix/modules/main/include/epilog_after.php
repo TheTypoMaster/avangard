@@ -18,7 +18,7 @@ if(array_key_exists("show_lang_files", $_GET) || array_key_exists("SHOW_LANG_FIL
 if($USER->CanDoOperation('edit_php'))
 	$_SESSION["SHOW_SQL_STAT"] = ($GLOBALS["DB"]->ShowSqlStat? "Y":"N");
 
-$bShowTime = ($_SESSION["SESS_SHOW_TIME_EXEC"] == 'Y');
+$bShowTime = isset($_SESSION["SESS_SHOW_TIME_EXEC"]) && ($_SESSION["SESS_SHOW_TIME_EXEC"] == 'Y');
 $bShowStat = ($GLOBALS["DB"]->ShowSqlStat && ($USER->CanDoOperation('edit_php') || $_SESSION["SHOW_SQL_STAT"]=="Y"));
 
 if($bShowStat && !$USER->IsAuthorized())
@@ -54,11 +54,13 @@ $GLOBALS["BX_STATE"] = "EA";
 for($i=0; $i<count($arAllEvents); $i++)
 	ExecuteModuleEventEx($arAllEvents[$i]);
 
-if(!IsModuleInstalled("compression") && !defined('PUBLIC_AJAX_MODE'))
+if(!IsModuleInstalled("compression") && !defined('PUBLIC_AJAX_MODE') && ($_REQUEST["mode"] != 'excel'))
 {
 	if($bShowTime || $bShowStat)
 		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/interface/debug_info.php");
 }
 
 $DB->Disconnect();
+
+CMain::ForkActions();
 ?>

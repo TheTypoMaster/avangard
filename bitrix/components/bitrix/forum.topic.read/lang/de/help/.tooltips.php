@@ -15,7 +15,6 @@ $MESS["URL_TEMPLATES_PM_EDIT_TIP"] = "Seite der persönlichen Nachrichten";
 $MESS["URL_TEMPLATES_MESSAGE_SEND_TIP"] = "Seite zur Nachtrichterstellung";
 $MESS["URL_TEMPLATES_RSS_TIP"] = "RSS-Seite";
 $MESS["URL_TEMPLATES_USER_POST_TIP"] = "Seite der Nachrichten des Nutzers";
-$MESS["PAGEN_TIP"] = "Seitennummer in den Breadcrumbs auf der Zielseite";
 $MESS["PATH_TO_SMILE_TIP"] = "Pfad zum Smiley-Ordner (bezüglich des Stammverzeichnisses)";
 $MESS["MESSAGES_PER_PAGE_TIP"] = "Anzahl der Nachrichten pro Seite";
 $MESS["DATE_FORMAT_TIP"] = "Datumformat";

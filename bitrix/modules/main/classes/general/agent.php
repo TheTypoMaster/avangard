@@ -3,73 +3,93 @@ IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/g
 class CAllAgent
 {
 	function AddAgent(
-		$name,			// PHP function name
-		$module="",		// module
-		$period="N",		// check for agent execution count in period of time
-		$interval=86400,	// time interval between execution
-		$datecheck="",		// first check for execution time
-		$active="Y",		// is the agent active or not
-		$next_exec="",		// first execution time
-		$sort=100,		// order
-		$user_id=false		// user
-		)
+		$name, // PHP function name
+		$module = "", // module
+		$period = "N", // check for agent execution count in period of time
+		$interval = 86400, // time interval between execution
+		$datecheck = "", // first check for execution time
+		$active = "Y", // is the agent active or not
+		$next_exec = "", // first execution time
+		$sort = 100, // order
+		$user_id = false // user
+	)
 	{
-		global $DB;
-		$ID=false;
+		global $DB, $APPLICATION;
 
-		$err_mess = "FILE: ".__FILE__."<br>LINE: ";
-		$strSql = "SELECT 'x' FROM b_agent WHERE NAME='".$DB->ForSql($name, 2000)."' AND USER_ID".($user_id ? "=".intval($user_id) : " IS NULL");
-		$z = $DB->Query($strSql, false, $err_mess);
-		if (!($zr = $z->Fetch()))
+		$z = $DB->Query("
+			SELECT 'x'
+			FROM b_agent
+			WHERE NAME = '".$DB->ForSql($name, 2000)."'
+			AND USER_ID".($user_id? " = ".intval($user_id): " IS NULL")
+		);
+		if (!$z->Fetch())
 		{
-			$arFields =
-				Array(
-					"MODULE_ID" => $module,
-					"SORT"		=> $sort,
-					"NAME"		=> $name,
-					"ACTIVE"	=> $active,
-					"AGENT_INTERVAL"	=> $interval,
-					"IS_PERIOD"			=> $period,
-					"USER_ID"			=> $user_id
-				);
-
-			if(strlen($next_exec)>0)
-				$arFields["NEXT_EXEC"]=$next_exec;
+			$arFields = array(
+				"MODULE_ID" => $module,
+				"SORT" => $sort,
+				"NAME" => $name,
+				"ACTIVE" => $active,
+				"AGENT_INTERVAL" => $interval,
+				"IS_PERIOD" => $period,
+				"USER_ID" => $user_id,
+			);
+			if (strlen($next_exec) > 0)
+				$arFields["NEXT_EXEC"] = $next_exec;
 
 			$ID = CAgent::Add($arFields);
+			return $ID;
 		}
 		else
 		{
-			$e = new CAdminException(array(array("id" => "agent_exist", "text" => GetMessage("MAIN_AGENT_ERROR_EXIST"))));
-			$GLOBALS["APPLICATION"]->ThrowException($e);
+			$e = new CAdminException(array(
+				array(
+					"id" => "agent_exist",
+					"text" => GetMessage("MAIN_AGENT_ERROR_EXIST"),
+				),
+			));
+			$APPLICATION->throwException($e);
 			return false;
 		}
-		return $ID;
 	}
 
 	function Add($arFields)
 	{
 		global $DB, $CACHE_MANAGER;
 
-		if(CAgent::CheckFields($arFields))
+		if (CAgent::CheckFields($arFields))
 		{
-			if(!is_set($arFields, "NEXT_EXEC"))
+			if (!is_set($arFields, "NEXT_EXEC"))
 				$arFields["~NEXT_EXEC"] = $DB->GetNowDate();
 
-			if(CACHED_b_agent !== false)
+			if (CACHED_b_agent !== false)
 				$CACHE_MANAGER->CleanDir("agents");
 
-			return $DB->Add("b_agent", $arFields);
+			$ID = $DB->Add("b_agent", $arFields);
+			foreach (GetModuleEvents("main", "OnAfterAgentAdd", true) as $arEvent)
+				ExecuteModuleEventEx($arEvent, array(
+					$arFields,
+				));
+
+			return $ID;
 		}
 		return false;
 	}
 
-	function RemoveAgent($name, $module="", $user_id=false)
+	function RemoveAgent($name, $module = "", $user_id = false)
 	{
 		global $DB;
 
-		$module = (strlen(trim($module))<=0) ? "AND (MODULE_ID is null or ".$DB->Length("MODULE_ID")."=0)" : "AND MODULE_ID='".$DB->ForSql($module,50)."'";
-		$strSql = "DELETE FROM b_agent WHERE NAME='".$DB->ForSql($name, 2000)."' ".$module." AND  USER_ID".($user_id ? "=".intval($user_id) : " IS NULL");
+		if (strlen(trim($module)) <= 0)
+			$module = "AND (MODULE_ID is null or ".$DB->Length("MODULE_ID")." = 0)";
+		else
+			$module = "AND MODULE_ID = '".$DB->ForSql($module, 50)."'";
+
+		$strSql = "
+				DELETE FROM b_agent
+				WHERE NAME = '".$DB->ForSql($name, 2000)."'
+				".$module."
+				AND  USER_ID".($user_id ? " = ".intval($user_id) : " IS NULL");
+
 		$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 	}
 
@@ -77,8 +97,12 @@ class CAllAgent
 	{
 		global $DB;
 		$id = intval($id);
-		if ($id<=0) return false;
-		$DB->Query("DELETE FROM b_agent WHERE ID=$id", false, "FILE: ".__FILE__."<br>LINE: ");
+
+		if ($id <= 0)
+			return false;
+
+		$DB->Query("DELETE FROM b_agent WHERE ID = ".$id, false, "FILE: ".__FILE__."<br>LINE: ");
+
 		return true;
 	}
 
@@ -86,7 +110,7 @@ class CAllAgent
 	{
 		global $DB;
 
-		if (strlen($module)>0)
+		if (strlen($module) > 0)
 		{
 			$strSql = "DELETE FROM b_agent WHERE MODULE_ID='".$DB->ForSql($module,255)."'";
 			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);

@@ -21,4 +21,5 @@ $MESS["USERTYPE_SHOW_IN_LIST"] = "Anzeigen";
 $MESS["USERTYPE_SORT"] = "Sort.";
 $MESS["USER_TYPE_FILTER_E"] = "Suche nach der Maske";
 $MESS["USERTYPE_XML_ID"] = "XML ID";
+$MESS["USERTYPE_BACK_URL_BUTTON"] = "Zurück";
 ?>

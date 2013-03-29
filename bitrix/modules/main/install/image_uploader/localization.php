@@ -1,6 +1,10 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/".LANGUAGE_ID."/localization.php")));
+$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/".LANGUAGE_ID."/localization.php")));	
+
+if(!file_exists($file))
+	$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/".LangSubst(LANGUAGE_ID)."/localization.php")));	
+
 __IncludeLang($file);
 
 ?>

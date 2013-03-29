@@ -164,4 +164,5 @@ $MESS["MTP_SHORT_URI_LIST"] = "URLs";
 $MESS["MTP_SHORT_URI_LIST_ALT"] = "Alle kurzen URLs anzeigen";
 $MESS["MTP_SHORT_URI_HINT"] = "Kurze URL";
 $MESS["MTP_SHORT_URI_HINT_ALT"] = "Für aktuelle Seite kurze URL einstellen";
+$MESS["top_panel_notif_block_title"] = "Benachrichtigungen anzeigen:";
 ?>

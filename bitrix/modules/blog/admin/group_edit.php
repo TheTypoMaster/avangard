@@ -87,8 +87,8 @@ if ($ID > 0)
 	}
 	else
 	{
-		$str_NAME = htmlspecialchars($arGroup["NAME"]);
-		$str_SITE_ID = htmlspecialchars($arGroup["SITE_ID"]);
+		$str_NAME = htmlspecialcharsbx($arGroup["NAME"]);
+		$str_SITE_ID = htmlspecialcharsbx($arGroup["SITE_ID"]);
 	}
 }
 
@@ -154,16 +154,16 @@ $tabControl->BeginNextTab();
 			<td width="60%"><?=$ID?></td>
 		</tr>
 	<?endif;?>
-	<tr>
-		<td width="40%"><span class="required">*</span><?echo GetMessage("BLGE_NAME")?>:</td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?echo GetMessage("BLGE_NAME")?>:</td>
 		<td width="60%">
 			<input type="text" name="NAME" size="50" value="<?= $str_NAME ?>">
 		</td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span><?echo GetMessage("BLGE_SITE")?>:</td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("BLGE_SITE")?>:</td>
 		<td>
-			<?echo CSite::SelectBox("SITE_ID", $str_SITE_ID, "", "", "");?>
+			<?echo CSite::SelectBox("SITE_ID", $str_SITE_ID, "", "");?>
 		</td>
 	</tr>
 
@@ -185,9 +185,4 @@ $tabControl->End();
 ?>
 
 </form>
-
-<?echo BeginNote();?>
-<span class="required">*</span> <?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote(); ?>
-
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

@@ -5,6 +5,7 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/blog/templates/.default/themes/blue/style.css');
 endif;
 ?>
+<?CUtil::InitJSCore(array("image"));?>
 <div class="blog-post-current">
 <?
 if(strlen($arResult["MESSAGE"])>0)
@@ -58,7 +59,14 @@ else
 		$className .= " blog-post-month-".IntVal($arResult["Post"]["DATE_PUBLISH_M"]);
 		$className .= " blog-post-day-".IntVal($arResult["Post"]["DATE_PUBLISH_D"]);
 		?>
-		<div class="<?=$className?>">
+		<script>
+		BX.viewImageBind(
+			'blg-post-<?=$arResult["Post"]["ID"]?>',
+			{showTitle: false},
+			{tag:'IMG', attr: 'data-bx-image'}
+		);
+		</script>
+		<div class="<?=$className?>" id="blg-post-<?=$arResult["Post"]["ID"]?>">
 		<h2 class="blog-post-title"><span><?=$arResult["Post"]["TITLE"]?></span></h2>
 		<div class="blog-post-info-back blog-post-info-top">
 		<div class="blog-post-info">
@@ -154,19 +162,41 @@ else
 		<div class="blog-post-content">
 			<div class="blog-post-avatar"><?=$arResult["BlogUser"]["AVATAR_img"]?></div>
 			<?=$arResult["Post"]["textFormated"]?>
-			<?if($arResult["POST_PROPERTIES"]["SHOW"] == "Y"):?>
-				<p>
+			<?if(!empty($arResult["images"]))
+			{
+				?>
+				<div class="feed-com-files">
+					<div class="feed-com-files-title"><?=GetMessage("BLOG_PHOTO")?></div>
+					<div class="feed-com-files-cont">
+						<?
+						foreach($arResult["images"] as $val)
+						{
+							?><span class="feed-com-files-photo"><img src="<?=$val["small"]?>" alt="" border="0" data-bx-image="<?=$val["full"]?>"></span><?
+						}
+						?>
+					</div>
+				</div>
+				<?
+			}?>
+			<?if($arResult["POST_PROPERTIES"]["SHOW"] == "Y"):
+				$eventHandlerID = false;
+				$eventHandlerID = AddEventHandler('main', 'system.field.view.file', Array('CBlogTools', 'blogUFfileShow'));
+				?>
+				<div>
 				<?foreach ($arResult["POST_PROPERTIES"]["DATA"] as $FIELD_NAME => $arPostField):?>
-				<?if(strlen($arPostField["VALUE"])>0):?>
-					<b><?=$arPostField["EDIT_FORM_LABEL"]?>:</b>&nbsp;
+				<?if(!empty($arPostField["VALUE"])):?>
+					<?=($FIELD_NAME=='UF_BLOG_POST_DOC' ? "" : "<b>".$arPostField["EDIT_FORM_LABEL"].":</b>&nbsp;")?>
 							<?$APPLICATION->IncludeComponent(
 								"bitrix:system.field.view", 
 								$arPostField["USER_TYPE"]["USER_TYPE_ID"], 
 								array("arUserField" => $arPostField), null, array("HIDE_ICONS"=>"Y"));?><br />
 				<?endif;?>
 				<?endforeach;?>
-				</p>
-			<?endif;?>
+				</div>
+				<?
+				if ($eventHandlerID !== false && ( intval($eventHandlerID) > 0 ))
+					RemoveEventHandler('main', 'system.field.view.file', $eventHandlerID);
+			endif;?>
 		</div>
 			<div class="blog-post-meta">
 				<div class="blog-post-info-bottom">

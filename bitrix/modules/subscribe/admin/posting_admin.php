@@ -53,10 +53,32 @@ if($_REQUEST["action"]=="js_send" && check_bitrix_sessid())
 					$nEmailsSent = intval($arEmailStatuses["N"]);
 					$nEmailsError = intval($arEmailStatuses["E"]);
 					$nEmailsTotal = intval($arEmailStatuses["Y"]) + $nEmailsSent + $nEmailsError;
+
+					CAdminMessage::ShowMessage(array(
+						"DETAILS" => '<p>'.GetMessage("POST_ADM_SENDING_NOTE_LINE1").'<br>'.GetMessage("POST_ADM_SENDING_NOTE_LINE2").'</p>'
+							.'#PROGRESS_BAR#'
+							.'<p>'.GetMessage("posting_addr_processed").' <b>'.($nEmailsSent + $nEmailsError).'</b> '.GetMessage("posting_addr_of").' <b>'.$nEmailsTotal.'</b></p>'
+							.'<p>'.GetMessage("POST_ADM_WITH_ERRORS").': <b>'.$nEmailsError.'</b>.</p>'
+						,
+						"HTML"=>true,
+						"TYPE"=>"PROGRESS",
+						"PROGRESS_TOTAL" => $nEmailsTotal,
+						"PROGRESS_VALUE" => $nEmailsSent + $nEmailsError,
+						"BUTTONS" => array(
+							array(
+								"ID" => "btn_stop",
+								"VALUE" => GetMessage("POST_ADM_BTN_STOP"),
+								"ONCLICK" => "Stop()",
+							),
+							array(
+								"ID" => "btn_cont",
+								"VALUE" => GetMessage("posting_continue_button"),
+								"ONCLICK" => "Cont()",
+							),
+						),
+					));
 					?><script>
-						<?=$sTableID?>.GetAdminList(
-							'<?echo $APPLICATION->GetCurPage();?>?lang=<?=LANGUAGE_ID?>',
-							MoveProgress(<?echo $nEmailsSent?>, <?echo $nEmailsError?>, <?echo $nEmailsTotal?>));
+						<?=$sTableID?>.GetAdminList('<?echo $APPLICATION->GetCurPage();?>?lang=<?=LANGUAGE_ID?>', MoveProgress());
 					</script><?
 				}
 			}
@@ -67,25 +89,72 @@ if($_REQUEST["action"]=="js_send" && check_bitrix_sessid())
 		}
 		elseif($arPosting["STATUS"]=="P")
 		{
-			$cPosting=new CPosting;
-			if($cPosting->SendMessage($ID, COption::GetOptionString("subscribe", "posting_interval")) !== false)
+			if($arPosting["AUTO_SEND_TIME"]!="")
 			{
-				$arEmailStatuses = CPosting::GetEmailStatuses($ID);
-				$nEmailsSent = intval($arEmailStatuses["N"]);
-				$nEmailsError = intval($arEmailStatuses["E"]);
-				$nEmailsTotal = intval($arEmailStatuses["Y"]) + $nEmailsSent + $nEmailsError;
-				?><script>
-					setTimeout('MoveProgress(<?echo $nEmailsSent?>, <?echo $nEmailsError?>, <?echo $nEmailsTotal?>)', 100);
-				</script><?
+				//Wait for agent
 			}
 			else
 			{
-				CAdminMessage::ShowMessage($cPosting->LAST_ERROR);
+				$cPosting=new CPosting;
+				if($cPosting->SendMessage($ID, COption::GetOptionString("subscribe", "posting_interval")) !== false)
+				{
+					$arEmailStatuses = CPosting::GetEmailStatuses($ID);
+					$nEmailsSent = intval($arEmailStatuses["N"]);
+					$nEmailsError = intval($arEmailStatuses["E"]);
+					$nEmailsTotal = intval($arEmailStatuses["Y"]) + $nEmailsSent + $nEmailsError;
+
+					CAdminMessage::ShowMessage(array(
+						"DETAILS" => '<p>'.GetMessage("POST_ADM_SENDING_NOTE_LINE1").'<br>'.GetMessage("POST_ADM_SENDING_NOTE_LINE2").'</p>'
+							.'#PROGRESS_BAR#'
+							.'<p>'.GetMessage("posting_addr_processed").' <b>'.($nEmailsSent + $nEmailsError).'</b> '.GetMessage("posting_addr_of").' <b>'.$nEmailsTotal.'</b></p>'
+							.'<p>'.GetMessage("POST_ADM_WITH_ERRORS").': <b>'.$nEmailsError.'</b>.</p>'
+						,
+						"HTML"=>true,
+						"TYPE"=>"PROGRESS",
+						"PROGRESS_TOTAL" => $nEmailsTotal,
+						"PROGRESS_VALUE" => $nEmailsSent + $nEmailsError,
+						"BUTTONS" => array(
+							array(
+								"ID" => "btn_stop",
+								"VALUE" => GetMessage("POST_ADM_BTN_STOP"),
+								"ONCLICK" => "Stop()",
+							),
+							array(
+								"ID" => "btn_cont",
+								"VALUE" => GetMessage("posting_continue_button"),
+								"ONCLICK" => "Cont()",
+							),
+						),
+					));
+					?><script>
+						MoveProgress();
+					</script><?
+				}
+				else
+				{
+					CAdminMessage::ShowMessage($cPosting->LAST_ERROR);
+				}
 			}
 		}
 		elseif($arPosting["STATUS"]=="S" || $arPosting["STATUS"]=="E")
 		{
-			CAdminMessage::ShowMessage(array("MESSAGE"=>GetMessage("post_send_ok"), "TYPE"=>"OK"));
+			$arEmailStatuses = CPosting::GetEmailStatuses($ID);
+			$nEmailsSent = intval($arEmailStatuses["N"]);
+			$nEmailsError = intval($arEmailStatuses["E"]);
+			$nEmailsTotal = intval($arEmailStatuses["Y"]) + $nEmailsSent + $nEmailsError;
+
+			CAdminMessage::ShowMessage(array(
+				"MESSAGE"=>GetMessage("post_send_ok"),
+				"DETAILS" => ''
+					.'#PROGRESS_BAR#'
+					.'<p>'.GetMessage("posting_addr_processed").' <b>'.($nEmailsSent + $nEmailsError).'</b> '.GetMessage("posting_addr_of").' <b>'.$nEmailsTotal.'</b></p>'
+					.'<p>'.GetMessage("POST_ADM_WITH_ERRORS").': <b>'.$nEmailsError.'</b>.</p>'
+				,
+				"HTML"=>true,
+				"TYPE"=>"PROGRESS",
+				"PROGRESS_TOTAL" => $nEmailsTotal,
+				"PROGRESS_VALUE" => $nEmailsSent + $nEmailsError,
+			));
 			?><script>
 				<?=$sTableID?>.GetAdminList('<?echo $APPLICATION->GetCurPage();?>?lang=<?=LANGUAGE_ID?>');
 			</script><?
@@ -227,7 +296,7 @@ if(($arID = $lAdmin->GroupAction()) && $POST_RIGHT=="W")
 	{
 		if(strlen($ID)<=0)
 			continue;
-	   	$ID = IntVal($ID);
+		$ID = IntVal($ID);
 		switch($_REQUEST['action'])
 		{
 		case "delete":
@@ -255,51 +324,60 @@ if(($arID = $lAdmin->GroupAction()) && $POST_RIGHT=="W")
 }
 
 $lAdmin->AddHeaders(array(
-	array(	"id"		=>"ID",
-		"content"	=>"ID",
-		"sort"		=>"id",
-		"align"		=>"right",
-		"default"	=>true,
+	array(
+		"id" => "ID",
+		"content" => "ID",
+		"sort" => "id",
+		"align" => "right",
+		"default" => true,
 	),
-	array(	"id"		=>"TIMESTAMP_X",
-		"content"	=>GetMessage("post_updated"),
-		"sort"		=>"timestamp",
-		"default"	=>true,
+	array(
+		"id" => "TIMESTAMP_X",
+		"content" => GetMessage("post_updated"),
+		"sort" => "timestamp",
+		"default" => true,
 	),
-	array(	"id"		=>"SUBJECT",
-		"content"	=>GetMessage("post_subj"),
-		"sort"		=>"subject",
-		"default"	=>true,
+	array(
+		"id" => "SUBJECT",
+		"content" => GetMessage("post_subj"),
+		"sort" => "subject",
+		"default" => true,
 	),
-	array(	"id"		=>"BODY_TYPE",
-		"content"	=>GetMessage("post_body_type"),
-		"sort"		=>"body_type",
-		"default"	=>true,
+	array(
+		"id" => "BODY_TYPE",
+		"content" => GetMessage("post_body_type"),
+		"sort" => "body_type",
+		"default" => true,
 	),
-	array(	"id"		=>"STATUS",
-		"content"	=>GetMessage("post_stat"),
-		"sort"		=>"status",
-		"default"	=>true,
+	array(
+		"id" => "STATUS",
+		"content" => GetMessage("post_stat"),
+		"sort" => "status",
+		"default" => true,
 	),
-	array(	"id"		=>"DATE_SENT",
-		"content"	=>GetMessage("post_sent"),
-		"sort"		=>"date_sent",
-		"default"	=>true,
+	array(
+		"id" => "DATE_SENT",
+		"content" => GetMessage("post_sent"),
+		"sort" => "date_sent",
+		"default" => true,
 	),
-	array(	"id"		=>"SENT_TO",
-		"content"	=>GetMessage("post_report"),
-		"sort"		=>false,
-		"default"	=>false,
+	array(
+		"id" => "SENT_TO",
+		"content" => GetMessage("post_report"),
+		"sort" => false,
+		"default" => false,
 	),
-	array(	"id"		=>"FROM_FIELD",
-		"content"	=>GetMessage("post_from"),
-		"sort"		=>"from_field",
-		"default"	=>false,
+	array(
+		"id" => "FROM_FIELD",
+		"content" => GetMessage("post_from"),
+		"sort" => "from_field",
+		"default" => false,
 	),
-	array(	"id"		=>"TO_FIELD",
-		"content"	=>GetMessage("post_to"),
-		"sort"		=>"to_field",
-		"default"	=>false,
+	array(
+		"id" => "TO_FIELD",
+		"content" => GetMessage("post_to"),
+		"sort" => "to_field",
+		"default" => false,
 	),
 ));
 
@@ -443,7 +521,7 @@ $oFilter->Begin();
 <tr>
 	<td><b><?=GetMessage("POST_FIND")?>:</b></td>
 	<td>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("POST_FIND_TITLE")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("POST_FIND_TITLE")?>">
 		<?
 		$arr = array(
 			"reference" => array(
@@ -464,7 +542,7 @@ $oFilter->Begin();
 <tr>
 	<td><?=GetMessage("POST_F_ID")?>:</td>
 	<td>
-		<input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>">
+		<input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>">
 		&nbsp;<?=ShowFilterLogicHelp()?>
 	</td>
 </tr>
@@ -483,7 +561,7 @@ $oFilter->Begin();
 <tr>
 	<td><?=GetMessage("POST_F_STATUS")?>:</td>
 	<td>
-		<input type="text" name="find_status" size="47" value="<?echo htmlspecialchars($find_status)?>">&nbsp;<?=ShowFilterLogicHelp()?><br>
+		<input type="text" name="find_status" size="47" value="<?echo htmlspecialcharsbx($find_status)?>">&nbsp;<?=ShowFilterLogicHelp()?><br>
 		<?
 		$arr = array(
 			"reference" => array(
@@ -507,15 +585,15 @@ $oFilter->Begin();
 </tr>
 <tr>
 	<td><?echo GetMessage("POST_F_FROM")?>:</td>
-	<td><input type="text" name="find_from" size="47" value="<?echo htmlspecialchars($find_from)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_from" size="47" value="<?echo htmlspecialcharsbx($find_from)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("POST_F_TO")?>:</td>
-	<td><input type="text" name="find_to" size="47" value="<?echo htmlspecialchars($find_to)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_to" size="47" value="<?echo htmlspecialcharsbx($find_to)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("POST_F_SUBJECT")?>:</td>
-	<td><input type="text" name="find_subject" size="47" value="<?echo htmlspecialchars($find_subject)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_subject" size="47" value="<?echo htmlspecialcharsbx($find_subject)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?=GetMessage("POST_F_BODY_TYPE")?>:</td>
@@ -537,7 +615,7 @@ $oFilter->Begin();
 </tr>
 <tr>
 	<td><?echo GetMessage("POST_F_BODY")?>:</td>
-	<td><input type="text" name="find_body" size="47" value="<?echo htmlspecialchars($find_body)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_body" size="47" value="<?echo htmlspecialcharsbx($find_body)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?=GetMessage("POST_F_RUBRIC")?>:</td>
@@ -568,43 +646,11 @@ $oFilter->End();
 // Send message and show progress
 //******************************
 if($_REQUEST['action']=="send"):
-	$cPosting = new CPosting;
-	$rsPosting = CPosting::GetByID($ID);
-	$arPosting = $rsPosting->Fetch();
-	if($arPosting && $arPosting["STATUS_ID"] == "P")
-	{
-		$arEmailStatuses = CPosting::GetEmailStatuses($ID);
-		$nEmailsSent = intval($arEmailStatuses["N"]);
-		$nEmailsError = intval($arEmailStatuses["E"]);
-		$nEmailsTotal = intval($arEmailStatuses["Y"]) + $nEmailsSent + $nEmailsError;
-	}
-	else
-	{
-		$nEmailsSent = 0;
-		$nEmailsError = 0;
-		$nEmailsTotal = 0;
-	}
 	?>
-	<div id="progress_monitor" style="display:none">
-		<p><?echo GetMessage("POST_ADM_SENDING_NOTE_LINE1")?><br>
-		<?echo GetMessage("POST_ADM_SENDING_NOTE_LINE2")?></p>
-		<table border="0" cellpadding="0" width="350" cellspacing="0"><tr><td>
-			<div class="pbar-outer"><div class="pbar-inner-green" id="progressline_ok" style="width:0px; padding-left:0px"></div><div class="pbar-inner-red" id="progressline_error" style="width:0px; padding-left:0px"></div></div>
-			<p>
-			<?echo GetMessage("posting_addr_processed")?> <span id="progress_cnt">0</span> <?echo GetMessage("posting_addr_of")?> <span id="progress_total">0</span> (<span id="progress_perc">0</span>%)<br>
-			<?echo GetMessage("POST_ADM_WITH_ERRORS")?>: <span id="progress_error">0</span>.
-			</p>
-		</td></tr></table>
-	</div>
 	<div id="progress_message">
-	<input type="button" value="<?echo GetMessage("POST_ADM_BTN_STOP")?>" id="btn_stop" OnClick="Stop()"  style="display:none">
-	<input type="button" value="<?echo GetMessage("posting_continue_button")?>" id="btn_cont" OnClick="Cont()" disabled  style="display:none">
 	</div>
 	<script>
 		var stop = false;
-		var _sent = 0;
-		var _error = 0;
-		var _total = 0;
 		function Stop()
 		{
 			stop=true;
@@ -616,34 +662,12 @@ if($_REQUEST['action']=="send"):
 			stop=false;
 			document.getElementById('btn_stop').disabled = false;
 			document.getElementById('btn_cont').disabled = true;
-			MoveProgress(_sent, _error, _total);
+			MoveProgress();
 		}
-		function MoveProgress(sent, error, total)
+		function MoveProgress()
 		{
 			if(stop)
-			{
-				_sent = sent;
-				_error = error;
-				_total = total;
 				return;
-			}
-			document.getElementById("progress_cnt").innerHTML = sent+error;
-			document.getElementById("progress_total").innerHTML = total;
-			document.getElementById("progress_error").innerHTML = error;
-			if(total > 0)
-			{
-				document.getElementById("progress_monitor").style.display = 'block';
-				if(document.getElementById("btn_stop"))
-					document.getElementById("btn_stop").style.display = 'inline';
-				if(document.getElementById("btn_cont"))
-					document.getElementById("btn_cont").style.display = 'inline';
-
-				document.getElementById("progress_perc").innerHTML = parseInt((sent+error)/total*100);
-				document.getElementById("progressline_ok").style.width = parseInt(350*(sent/total))+'px';
-				document.getElementById("progressline_ok").style.paddingLeft = parseInt(350*(sent/total))+'px';
-				document.getElementById("progressline_error").style.width = parseInt(350*(error/total))+'px';
-				document.getElementById("progressline_error").style.paddingLeft = parseInt(350*(error/total))+'px';
-			}
 
 			var url = 'posting_admin.php?lang=<?echo LANGUAGE_ID?>&ID=<?echo $ID?>&<?echo bitrix_sessid_get()?>&action=js_send';
 			ShowWaitWindow();
@@ -652,12 +676,11 @@ if($_REQUEST['action']=="send"):
 				null,
 				function(result){
 					CloseWaitWindow();
-					if(result.length > 0 && result.indexOf("MoveProgress") < 0)
-						document.getElementById('progress_message').innerHTML = result;
+					document.getElementById('progress_message').innerHTML = result;
 				}
 			);
 		}
-		setTimeout('MoveProgress(<?echo $nEmailsSent?>, <?echo $nEmailsError?>, <?echo $nEmailsTotal?>)', 100);
+		setTimeout('MoveProgress()', 100);
 	</script>
 <?endif;?>
 

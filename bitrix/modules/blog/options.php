@@ -22,13 +22,12 @@ $arAllOptions = array(
 	//array("avatar_max_width", GetMessage("BLO_AVATAR_MAX_WIDTH"), "150", Array("text", 10)),
 	//array("avatar_max_height", GetMessage("BLO_AVATAR_MAX_HEIGHT"), "150", Array("text", 10)),
 	array("image_max_width", GetMessage("BLO_IMAGE_MAX_WIDTH"), "600", Array("text", 10)),
-	array("image_max_height", GetMessage("BLO_IMAGE_MAX_HEIGHT"), "600", Array("text", 10)),
-	array("image_max_size", GetMessage("BLO_IMAGE_MAX_SIZE"), "1000000", Array("text", 10)),
+	array("image_max_height", GetMessage("BLO_IMAGE_MAX_HEIGHT"), "1000", Array("text", 10)),
+	array("image_max_size", GetMessage("BLO_IMAGE_MAX_SIZE"), "5000000", Array("text", 10)),
 	array("allow_alias", GetMessage("BLO_ALLOW_ALIAS"), "Y", Array("checkbox")),
 	array("block_url_change", GetMessage("BLOG_URL_BLOCK"), "N", Array("checkbox")),
 	array("show_ip", GetMessage("BLOG_SHOW_IP"), "Y", Array("checkbox")),
 	array("enable_trackback", GetMessage("BLOG_ENABLE_TRACKBACK"), "Y", Array("checkbox")),
-	array("allow_html", GetMessage("BLOG_ALLOW_HTML"), "N", Array("checkbox")),
 	array("allow_video", GetMessage("BLOG_ALLOW_VIDEO"), "Y", Array("checkbox")),
 	array("parser_nofollow", GetMessage("BLOG_PARSER_NOFOLLOW"), "N", Array("checkbox")),
 	array("use_autosave", GetMessage("BLOG_USE_AUTOSAVE"), "Y", Array("checkbox")),
@@ -36,7 +35,7 @@ $arAllOptions = array(
 	array("captcha_choice", GetMessage("BLOG_CAPTCHA_CHOICE"), "U", Array("selectbox"), Array("U" => GetMessage("BLOG_CAPTCHA_CHOICE_U"), "A" => GetMessage("BLOG_CAPTCHA_CHOICE_A"), "D" => GetMessage("BLOG_CAPTCHA_CHOICE_D"))),
 	array("send_blog_ping", GetMessage("BLOG_SEND_BLOG_PING"), "N", Array("checkbox")),
 	array("send_blog_ping_address", GetMessage("BLOG_SEND_BLOG_PING_ADDRESS"), "http://ping.blogs.yandex.ru/RPC2\r\nhttp://rpc.weblogs.com/RPC2", Array("textarea", 5, 40)),
-	array("post_everyone_max_rights", GetMessage("BLOG_POST_EVERYONE_MAX_RIGHTS"), "I", Array("selectbox"), $GLOBALS["AR_BLOG_PERMS"]),
+	array("post_everyone_max_rights", GetMessage("BLOG_POST_EVERYONE_MAX_RIGHTS"), "I", Array("selectbox"), $GLOBALS["AR_BLOG_PERMS_EVERYONE"]),
 	array("comment_everyone_max_rights", GetMessage("BLOG_COMMENT_EVERYONE_MAX_RIGHTS"), "P", Array("selectbox"), $GLOBALS["AR_BLOG_PERMS"]),
 	array("post_auth_user_max_rights", GetMessage("BLOG_POST_AUTH_USER_MAX_RIGHTS"), "I", Array("selectbox"), $GLOBALS["AR_BLOG_PERMS"]),
 	array("comment_auth_user_max_rights", GetMessage("BLOG_COMMENT_AUTH_USER_MAX_RIGHTS"), "P", Array("selectbox"), $GLOBALS["AR_BLOG_PERMS"]),
@@ -141,7 +140,7 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 ?>
 <?
 $tabControl->Begin();
-?><form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialchars($mid)?>&lang=<?=LANGUAGE_ID?>"><?
+?><form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&lang=<?=LANGUAGE_ID?>"><?
 bitrix_sessid_post();
 $tabControl->BeginNextTab();
 
@@ -153,19 +152,19 @@ $tabControl->BeginNextTab();
 		<tr>
 			<td valign="top" width="50%"><?
 				if ($type[0]=="checkbox")
-					echo "<label for=\"".htmlspecialchars($Option[0])."\">".$Option[1]."</label>";
+					echo "<label for=\"".htmlspecialcharsbx($Option[0])."\">".$Option[1]."</label>";
 				else
 					echo $Option[1];
 			?></td>
 			<td valign="middle" width="50%">
 				<?if($type[0]=="checkbox"):?>
-					<input type="checkbox" name="<?echo htmlspecialchars($Option[0])?>" id="<?echo htmlspecialchars($Option[0])?>" value="Y"<?if($val=="Y")echo" checked";?>>
+					<input type="checkbox" name="<?echo htmlspecialcharsbx($Option[0])?>" id="<?echo htmlspecialcharsbx($Option[0])?>" value="Y"<?if($val=="Y")echo" checked";?>>
 				<?elseif($type[0]=="text"):?>
-					<input type="text" size="<?echo $type[1]?>" value="<?echo htmlspecialchars($val)?>" name="<?echo htmlspecialchars($Option[0])?>">
+					<input type="text" size="<?echo $type[1]?>" value="<?echo htmlspecialcharsbx($val)?>" name="<?echo htmlspecialcharsbx($Option[0])?>">
 				<?elseif($type[0]=="textarea"):?>
-					<textarea rows="<?echo $type[1]?>" cols="<?echo $type[2]?>" name="<?echo htmlspecialchars($Option[0])?>"><?echo htmlspecialchars($val)?></textarea>
+					<textarea rows="<?echo $type[1]?>" cols="<?echo $type[2]?>" name="<?echo htmlspecialcharsbx($Option[0])?>"><?echo htmlspecialcharsbx($val)?></textarea>
 				<?elseif($type[0]=="selectbox"):?>
-					<select name="<?echo htmlspecialchars($Option[0])?>" id="<?echo htmlspecialchars($Option[0])?>">
+					<select name="<?echo htmlspecialcharsbx($Option[0])?>" id="<?echo htmlspecialcharsbx($Option[0])?>">
 						<?foreach($Option[4] as $v => $k)
 						{
 							?><option value="<?=$v?>"<?if($val==$v)echo" selected";?>><?=$k?></option><?
@@ -198,7 +197,7 @@ $tabControl->BeginNextTab();
 			<td valign="top" width="50%">
 				<?= str_replace("#SITE#", $arSite["LID"], GetMessage("BLO_SITE_PATH_SITE")) ?></td>
 			<td valign="middle" width="50%">
-				<input type="text" size="40" value="<?echo htmlspecialchars($arPaths[$arSite["LID"]])?>" name="SITE_PATH_<?= $arSite["LID"] ?>">
+				<input type="text" size="40" value="<?echo htmlspecialcharsbx($arPaths[$arSite["LID"]])?>" name="SITE_PATH_<?= $arSite["LID"] ?>">
 			</td>
 		</tr>
 		<?
@@ -228,23 +227,23 @@ $tabControl->BeginNextTab();
 				<table cellspacing="2" width="100%">
 				<tr>
 					<td align="right" width="50%"><?=GetMessage("BLO_SITE_PATH_SITE_BLOG")?>:</td>
-					<td width="50%"><input type="text" size="40" value="<?echo htmlspecialchars($arPaths[$arSite["LID"]]["B"])?>" name="SITE_PATH_<?= $arSite["LID"] ?>_B"></td>
+					<td width="50%"><input type="text" size="40" value="<?echo htmlspecialcharsbx($arPaths[$arSite["LID"]]["B"])?>" name="SITE_PATH_<?= $arSite["LID"] ?>_B"></td>
 				</tr>
 				<tr>
 					<td align="right"><?=GetMessage("BLO_SITE_PATH_SITE_POST")?>:</td>
-					<td><input type="text" size="40" value="<?echo htmlspecialchars($arPaths[$arSite["LID"]]["P"])?>" name="SITE_PATH_<?= $arSite["LID"] ?>_P"></td>
+					<td><input type="text" size="40" value="<?echo htmlspecialcharsbx($arPaths[$arSite["LID"]]["P"])?>" name="SITE_PATH_<?= $arSite["LID"] ?>_P"></td>
 				</tr>
 				<tr>
 					<td align="right"><?=GetMessage("BLO_SITE_PATH_SITE_USER")?>:</td>
-					<td><input type="text" size="40" value="<?echo htmlspecialchars($arPaths[$arSite["LID"]]["U"])?>" name="SITE_PATH_<?= $arSite["LID"] ?>_U"></td>
+					<td><input type="text" size="40" value="<?echo htmlspecialcharsbx($arPaths[$arSite["LID"]]["U"])?>" name="SITE_PATH_<?= $arSite["LID"] ?>_U"></td>
 				</tr>
 				<tr>
 					<td align="right"><?=GetMessage("BLO_SITE_PATH_SITE_GROUP_BLOG")?>:</td>
-					<td><input type="text" size="40" value="<?echo htmlspecialchars($arPaths[$arSite["LID"]]["G"])?>" name="SITE_PATH_<?= $arSite["LID"] ?>_G"></td>
+					<td><input type="text" size="40" value="<?echo htmlspecialcharsbx($arPaths[$arSite["LID"]]["G"])?>" name="SITE_PATH_<?= $arSite["LID"] ?>_G"></td>
 				</tr>
 				<tr>
 					<td align="right"><?=GetMessage("BLO_SITE_PATH_SITE_GROUP_POST")?>:</td>
-					<td><input type="text" size="40" value="<?echo htmlspecialchars($arPaths[$arSite["LID"]]["H"])?>" name="SITE_PATH_<?= $arSite["LID"] ?>_H"></td>
+					<td><input type="text" size="40" value="<?echo htmlspecialcharsbx($arPaths[$arSite["LID"]]["H"])?>" name="SITE_PATH_<?= $arSite["LID"] ?>_H"></td>
 				</tr>
 				</table>
 			</td>

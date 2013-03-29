@@ -136,4 +136,15 @@ $MESS["IBLOCK_XML2_BX_FILE_WIDTH"] = "BitrixFileWidth";
 $MESS["IBLOCK_XML2_BX_FILE_HEIGHT"] = "BitrixFileHeight";
 $MESS["IBLOCK_XML2_BX_FILE_CONTENT_TYPE"] = "BitrixContentType";
 $MESS["IBLOCK_XML2_UF_ERROR"] = "Fehler beim Import der Nutzereigenschaft (xml_id: #XML_ID#): #ERROR_TEXT#";
+$MESS["IBLOCK_XML2_STORES"] = "Warehouses";
+$MESS["IBLOCK_XML2_STORE_ADDRESS"] = "Address";
+$MESS["IBLOCK_XML2_STORE_AMOUNT_LIST"] = "WarehousesStock";
+$MESS["IBLOCK_XML2_STORE_AMOUNT"] = "WarehouseStock";
+$MESS["IBLOCK_XML2_STORE_ID"] = "WarehouseID";
+$MESS["IBLOCK_XML2_STORE_DESCRIPTION"] = "Comment";
+$MESS["IBLOCK_XML2_STORE_CANTACTS"] = "Contacts";
+$MESS["IBLOCK_XML2_SECTION_PROPERTIES"] = "ElementProperties";
+$MESS["IBLOCK_XML2_SMART_FILTER"] = "SmartFilter";
+$MESS["IBLOCK_XML2_PRICE_SB_ADD_ERROR"] = "Die Edition Small Business erlaubt nur einen einzigen Preistyp. Überlegen Sie sich ein Upgrade Ihrer Lizenz.";
+$MESS["IBLOCK_XML2_PRICE_DUP_ERROR"] = "Es gibt Preise mit dem gleichen Namen. Der Daten-Exchange wird abgebrochen.";
 ?>

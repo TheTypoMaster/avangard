@@ -22,6 +22,9 @@ $APPLICATION->IncludeComponent(
 		"SET_TITLE" => $arResult["SET_TITLE"],
 		"CACHE_TIME" => $arResult["CACHE_TIME"],
 		"CACHE_TYPE" => $arResult["CACHE_TYPE"],
+
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
+		"SEO_USER" => $arParams["SEO_USER"]
 	),
 	$component 
 );

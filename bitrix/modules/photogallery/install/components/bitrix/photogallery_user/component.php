@@ -37,11 +37,11 @@ if (empty($arParams["PERMISSION"]))
 		$cache->EndDataCache(array("PERMISSION" => $arParams["PERMISSION"]));
 	}
 }
-if ($arParams["PERMISSION"] < "R"):
-	ShowError(GetMessage("P_DENIED_ACCESS"));
-	return 0;
-endif;
+if ($arParams["PERMISSION"] < "R")
+	return ShowError(GetMessage("P_DENIED_ACCESS"));
+
 $arParams["SET_STATUS_404"] = "Y";
+
 /********************************************************************
 				/Get data from cache
 ********************************************************************/
@@ -149,6 +149,7 @@ if (!in_array($componentPage, array_keys($arDefaultUrlTemplates404)))
 	$componentPage = "index";
 elseif (($_REQUEST["auth"]=="yes") || ($_REQUEST["register"] == "yes"))
 	$componentPage = "auth";
+
 if ($componentPage == "index" && $arParams["SET_STATUS_404"] == "Y")
 {
 	$folder404 = str_replace("\\", "/", $arParams["SEF_FOLDER"]);
@@ -161,171 +162,49 @@ if ($componentPage == "index" && $arParams["SET_STATUS_404"] == "Y")
 		CHTTP::SetStatus("404 Not Found");
 }
 
-
-
 /********************************************************************
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-//$arParams["IBLOCK_TYPE"]
-//$arParams["IBLOCK_ID"]
-//$arParams["SECTION_ID"]
-//$arParams["SECTION_CODE"]
-//$arParams["ELEMENT_ID"]
-//$arParams["ELEMENT_CODE"]
-//$arParams["USER_ALIAS"]
-//$arParams["BEHAVIOUR"]
-//$arParams["GALLERY_ID"]
-//$arParams["USER_ID"]
-
 $arParams["ONLY_ONE_GALLERY"] = ($arParams["ONLY_ONE_GALLERY"] == "N" ? "N" : "Y"); // only one gallery for user
 //$arParams["GALLERY_GROUPS"] - user groups who can create gallery
 $arParams["GALLERY_SIZE"] = intVal($arParams["GALLERY_SIZE"]); // size gallery in Mb
 $arParams["GALLERY_SIZE"] = 0;
 
-
-//$arParams["ACTION"]
-//$arParams["AJAX_CALL"]
-// Page
-//$arParams["ELEMENTS_USE_DESC_PAGE"] => $arParams["USE_DESC_PAGE"]
-//$arParams["SECTION_PAGE_ELEMENTS"] => $arParams["PAGE_ELEMENTS"]
-//$arParams["ELEMENTS_PAGE_ELEMENTS"] => $arParams["PAGE_ELEMENTS"]
 $arParams["PAGE_NAVIGATION_TEMPLATE"] = (empty($arParams["PAGE_NAVIGATION_TEMPLATE"]) ? "modern" : $arParams["PAGE_NAVIGATION_TEMPLATE"]);
 
 $arParams["SHOW_NAVIGATION"] = $arParams["SHOW_NAVIGATION"] != "N" ? "Y" : "N";
-//$arParams["SHOW_NAVIGATION"] = "Y";
 
-//$arParams["SECTION_SORT_BY"] => $arParams["SORT_BY"]
-//$arParams["SECTION_SORT_ORD"] => $arParams["SORT_ORD"]
-//$arParams["ELEMENT_SORT_FIELD"]
-//$arParams["ELEMENT_SORT_ORDER"]
-//$arParams["ELEMENT_SORT_FIELD1"]
-//$arParams["ELEMENT_SORT_ORDER1"]
-
-//$arParams["ELEMENTS_LAST_COUNT"]
-//$arParams["ELEMENT_LAST_TIME"]
-//$arParams["ELEMENT_FILTER"]
-//$arParams["ELEMENTS_LAST_TYPE"]
-//$arParams["ELEMENTS_LAST_TIME"]
-//$arParams["ELEMENTS_LAST_TIME_FROM"]
-//$arParams["ELEMENTS_LAST_TIME_TO"]
-//$arParams["ELEMENT_LAST_TYPE"]
-
-/****************** URL ********************************************/
-//$arParams["GALLERIES_URL"]
-//$arParams["GALLERY_URL"]
-//$arParams["INDEX_URL"]
-//$arParams["GALLERY_EDIT_URL"]
-//$arParams["SECTION_URL"]
-//$arParams["INDEX_URL"]
 /****************** ADDITIONAL *************************************/
 // Permissions
 $arParams["ANALIZE_SOCNET_PERMISSION"] = ($arParams["ANALIZE_SOCNET_PERMISSION"] == "Y" ? "Y" : "N");
 $arParams["USE_PERMISSIONS"] = "N";
 $arParams["GROUP_PERMISSIONS"] = array();
-//$arParams["PERMISSION"] // in component
-//$arParams["PASSWORD_CHECKED"] // in component
-
-// Visual
-//$arParams["DATE_TIME_FORMAT_DETAIL"] => $arParams["DATE_TIME_FORMAT"]
-//$arParams["DATE_TIME_FORMAT_SECTION"] => $arParams["DATE_TIME_FORMAT"]
 
 $arParams["GALLERY_AVATAR_SIZE"] = intVal(intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? $arParams["GALLERY_AVATAR_SIZE"] : 50);
 $arParams["GALLERY_AVATAR_THUMBS_SIZE"] = intVal(intVal($arParams["GALLERY_AVATAR_THUMBS_SIZE"]) > 0 ?
 	$arParams["GALLERY_AVATAR_THUMBS_SIZE"] : $arParams["GALLERY_AVATAR_SIZE"]);
-//$arParams["GALLERY_AVATAR"] // in component
-//$arParams["GALLERY_AVATAR_THUMBS"] // in component
-
-//$arParams["THUMBS_SIZE"] // thumbs
-//$arParams["PREVIEW_SIZE"] // detail
-//$arParams["ALBUM_PHOTO_SIZE"] // album cover
-//$arParams["ALBUM_PHOTO_THUMBS_SIZE"] album cover (thumbs)
-
-//$arParams["ADDITIONAL_SIGHTS"]
-//$arParams["PICTURES_SIGHT"]
-//$arParams["PICTURES_INFO"]
-//$arParams["PICTURES"]
-//$arParams["SHOW_TAGS"]
 
 // Comments
 $arParams["USE_COMMENTS"] = ($arParams["USE_COMMENTS"] == "Y" ? "Y" : "N");
 $arParams["COMMENTS_TYPE"] = ($arParams["COMMENTS_TYPE"] == "forum" || $arParams["COMMENTS_TYPE"] == "blog" ?
 	$arParams["COMMENTS_TYPE"] : "none");
-if ($arParams["USE_COMMENTS"] == "Y" && (
-	($arParams["COMMENTS_TYPE"] == "forum" && !IsModuleInstalled("forum")) ||
-	($arParams["COMMENTS_TYPE"] == "blog" && !IsModuleInstalled("blog"))))
-{
+
+if ($arParams["USE_COMMENTS"] == "Y" && (($arParams["COMMENTS_TYPE"] == "forum" && !IsModuleInstalled("forum")) || ($arParams["COMMENTS_TYPE"] == "blog" && !IsModuleInstalled("blog"))))
 	$arParams["USE_COMMENTS"] = "N";
-}
 
-//$arParams["BLOG_URL"]
-//$arParams["COMMENTS_COUNT"]
-//$arParams["PATH_TO_BLOG"]
-//$arParams["PATH_TO_USER"]
-//$arParams["USE_CAPTCHA"]
-//$arParams["PREORDER"]
-//$arParams["FORUM_ID"]
-//$arParams["PATH_TO_SMILE"]
-//$arParams["URL_TEMPLATES_READ"]
-//$arParams["SHOW_LINK_TO_FORUM"]
-
-// Rating
-//$arParams["USE_RATING"]
-//$arParams["MAX_VOTE"]
-//$arParams["VOTE_NAMES"]
-//$arParams["DISPLAY_AS_RATING"]
-
-
-// Gallery
-//$arParams["GET_GALLERY_INFO"] - need info about gallery - use only in photogallery.detail.list
 /****************** STANDART ***************************************/
-//$arParams["CACHE_TYPE"]
-//$arParams["CACHE_TIME"]
-//$arParams["DISPLAY_PANEL"]
 $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 $arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y");
 //
 /****************** COMPONENTS *************************************/
-// Upload
-//$arParams["UPLOAD_MAX_FILE"]
-//$arParams["UPLOAD_MAX_FILE_SIZE"]
-//$arParams["JPEG_QUALITY1"]
-//$arParams["JPEG_QUALITY2"]
-//$arParams["JPEG_QUALITY"]
-//$arParams["WATERMARK"]
-//$arParams["WATERMARK_MIN_PICTURE_SIZE"]
-//$arParams["WATERMARK_COLORS"]
-
 // Tags cloud
-//$arParams["TAGS_PAGE_ELEMENTS"]
-//$arParams["TAGS_PERIOD"]
-//$arParams["TAGS_INHERIT"]
-//$arParams["FONT_MAX"]
-//$arParams["FONT_MIN"]
-//$arParams["COLOR_NEW"]
-//$arParams["COLOR_OLD"]
-//$arParams["TAGS_SHOW_CHAIN"]
-//$arParams["TEMPLATE_LIST"]
 $arParams["ELEMENTS_PAGE_ELEMENTS"] = intVal($arParams["ELEMENTS_PAGE_ELEMENTS"]);
 $arParams["ELEMENTS_PAGE_ELEMENTS"] = ($arParams["ELEMENTS_PAGE_ELEMENTS"] > 0 ? $arParams["ELEMENTS_PAGE_ELEMENTS"] : 50);
 
 /****************** TEMPLATES **************************************/
-//$arParams["SHOW_CONTROLS"]
-//$arParams["DetailListViewMode"]
-//$arParams["SHOW_PAGE_NAVIGATION"]
-//$arParams["SHOW_RATING"]
-//$arParams["SHOW_SHOWS"]
-//$arParams["SHOW_COMMENTS"]
-//$arParams["SQUARE"]
-//$arParams["PERCENT"]
 $arParams["SLIDER_COUNT_CELL"] = intVal($arParams["SLIDER_COUNT_CELL"]);
 $arParams["SLIDER_COUNT_CELL"] = ($arParams["SLIDER_COUNT_CELL"] > 0 ? $arParams["SLIDER_COUNT_CELL"] : 3);
-//$arParams["B_ACTIVE_IS_FINED"]
-//$arParams["SHOW_DESCRIPTION"]
-//$arParams["DETAIL_URL_FOR_JS"]
-//$arParams["BACK_URL"]
-//$arParams["CELL_COUNT"]
-//$arParams["WORD_LENGTH"]
 // Main
 $arParams["SHOW_ONLY_PUBLIC"] = ($arParams["SHOW_ONLY_PUBLIC"] == "N" ? "N" : "Y");
 $arParams["MODERATE"] = ($arParams["MODERATE"] == "Y" && $arParams["SHOW_ONLY_PUBLIC"] == "Y" ? "Y" : "N");
@@ -375,28 +254,14 @@ $arResult = array(
 if ($_REQUEST["ACTION"] == "public" && $arParams["PERMISSION"] >= "W" && check_bitrix_sessid() && is_array($_REQUEST["items"]))
 {
 	CModule::IncludeModule("iblock");
-	foreach ($_REQUEST["items"] as $res):
+	foreach ($_REQUEST["items"] as $res)
+	{
 		CIBlockElement::SetPropertyValues($res, $arParams["IBLOCK_ID"], "Y", "APPROVE_ELEMENT");
 		CIBlockElement::SetPropertyValues($res, $arParams["IBLOCK_ID"], "Y", "PUBLIC_ELEMENT");
-	endforeach;
-	PClearComponentCache(array(
-//		"search.page",
-//		"search.tags.cloud",
-//		"photogallery.detail/element".$arResult["ELEMENT"]["ID"],
-		"photogallery.detail.comment",
-//		"photogallery.detail.edit",
-		"photogallery.detail/".$arParams["IBLOCK_ID"],
-		"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/0",
-		"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/0",
-//		"photogallery.gallery.edit",
-//		"photogallery.gallery.list",
-//		"photogallery.section",
-//		"photogallery.section.edit",
-//		"photogallery.section.edit.icon",
-//		"photogallery.section.list,
-//		"photogallery.upload",
-//		"photogallery.user"
-		));
+	}
+
+	PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0));
+
 	$url = $arParams["DETAIL_LIST_URL"];
 	if (empty($url))
 	{

@@ -140,7 +140,6 @@ class CAllVoteUser
 				U.ID, U.STAT_GUEST_ID, U.AUTH_USER_ID, U.COUNTER, U.LAST_IP, U.DATE_FIRST, U.DATE_LAST
 			$strSqlOrder
 			";
-		//echo "<pre>".$strSql."</pre>";
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 		$is_filtered = (IsFiltered($strSqlSearch));
 		return $res;

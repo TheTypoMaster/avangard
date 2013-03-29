@@ -507,12 +507,12 @@ class CAllFilterUnquotableWords
 					if (strLen($arrRepl[$ii]) == 1)
 						$arrRes[$ii] = $arrRepl[$ii]."+";
 					elseif (substr($arrRepl[$ii], 0, 1) == "(" && (substr($arrRepl[$ii], -1, 1) == ")" || substr($arrRepl[$ii], -2, 1) == ")"))
-                    {
-                        if (substr($arrRepl[$ii], -1, 1) == ")")
-                            $arrRes[$ii] = $arrRepl[$ii]."+";
-                        else
-                            $arrRes[$ii] = $arrRepl[$ii];
-                    }
+					{
+						if (substr($arrRepl[$ii], -1, 1) == ")")
+							$arrRes[$ii] = $arrRepl[$ii]."+";
+						else
+							$arrRes[$ii] = $arrRepl[$ii];
+					}
 					elseif (strLen($arrRepl[$ii]) > 1)
 						$arrRes[$ii] = "[".$arrRepl[$ii]."]+";
 					else
@@ -601,7 +601,7 @@ class CAllFilterUnquotableWords
 				{
 					if (strlen(trim($res["PATTERN"])) > 0 )
 					{
-                        $arFilterPattern[LANGUAGE_ID]["pattern"][] = trim($res["PATTERN"]);
+						$arFilterPattern[LANGUAGE_ID]["pattern"][] = trim($res["PATTERN"]);
 						$arFilterPattern[LANGUAGE_ID]["replacement"][] = strlen($res["REPLACEMENT"]) > 0 ? " ".$res["REPLACEMENT"]." " : " ".$replace." ";
 					}
 				}

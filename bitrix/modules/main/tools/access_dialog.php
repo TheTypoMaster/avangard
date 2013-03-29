@@ -54,7 +54,7 @@ foreach($arHtml as $ID=>$provider):
 	if($first == '')
 		$first = $ID;
 ?>
-	<a href="javascript:void(0);" onclick="BX.Access.SelectProvider('<?=$ID?>')" id="access_btn_<?=$ID?>" class="access-provider-button<?if($first == $ID) echo " access-provider-button-selected"?>" hidefocus="true"><?=htmlspecialchars($provider["NAME"])?></a>
+	<a href="javascript:void(0);" onclick="BX.Access.SelectProvider('<?=$ID?>')" id="access_btn_<?=$ID?>" class="access-provider-button<?if($first == $ID) echo " access-provider-button-selected"?>" hidefocus="true"><?=htmlspecialcharsbx($provider["NAME"])?></a>
 	<div class="access-buttons-delimiter"></div>
 <?endforeach;?>
 </div>
@@ -71,7 +71,7 @@ foreach($arHtml as $ID=>$provider):
 <div class="access-selected-container">
 	<div class="bx-finder-box-selected-title bx-finder-box-selected-title-no-line" id="access_selected_title"><?=GetMessage("acc_dialog_sel")?>&nbsp;(0)</div>
 <?foreach($arHtml as $ID=>$provider):?>
-	<div class="bx-finder-box-selected-title" id="access_selected_provider_<?=$ID?>" style="display:none"><?=htmlspecialchars($provider["NAME"])?>&nbsp;<span id="access_sel_count_<?=$ID?>"></span></div>
+	<div class="bx-finder-box-selected-title" id="access_selected_provider_<?=$ID?>" style="display:none"><?=htmlspecialcharsbx($provider["NAME"])?>&nbsp;<span id="access_sel_count_<?=$ID?>"></span></div>
 	<div class="bx-finder-box-selected-items" id="access_selected_items_<?=$ID?>"></div>
 <?endforeach?>
 </div>

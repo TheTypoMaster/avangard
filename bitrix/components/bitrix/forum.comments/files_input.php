@@ -119,7 +119,7 @@ class CCommentFiles
 						$parentComponent,
 						array("HIDE_ICONS" => "Y"));
 					?></div>
-<? 		 		} ?>
+<?				}?>
 			</div>
 <?		}
 		return array(array('DISPLAY' => 'AFTER', 'SORT' => '50', 'TEXT' => ob_get_clean()));

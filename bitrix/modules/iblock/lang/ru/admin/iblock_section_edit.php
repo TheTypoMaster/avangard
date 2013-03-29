@@ -1,6 +1,8 @@
 <?
 $MESS["IBSEC_E_TAB2"] = "Дополнительно";
 $MESS["IBSEC_E_TAB2_TITLE"] = "Дополнительные параметры";
+$MESS["IBSEC_E_PROPERTY_TAB"] = "Свойства элементов";
+$MESS["IBSEC_E_PROPERTY_TAB_TITLE"] = "Настройка отображения свойств элементов";
 $MESS["IBLOCK_SECTION"] = "Раздел";
 $MESS["IBSEC_E_IBLOCK_MANAGE_HINT"] = "Изменить свойства и права доступа к информационному блоку вы можете в";
 $MESS["IBSEC_E_IBLOCK_MANAGE_HINT_HREF"] = "Настройках информационного блока.";
@@ -26,4 +28,16 @@ $MESS["IBSEC_E_RIGHTS_SECTION_TITLE"] = "Права доступа к разделу";
 $MESS["IBSEC_E_RIGHTS_FIELD"] = "Права доступа к разделу";
 $MESS["IBSEC_E_WARNING"] = "Предупреждение.";
 $MESS["IBSEC_E_TRANSLATION_SERVICE_NOT_CONFIGURED"] = "Внешний сервис перевода не настроен. Выполните настройку сервиса в <a href=\"settings.php?mid=main\">главном модуле</a>.";
+$MESS["IBSEC_E_SECTION_PROPERTY_FIELD"] = "Свойства элементов";
+$MESS["IBSEC_E_PROP_TABLE_NAME"] = "Название";
+$MESS["IBSEC_E_PROP_TABLE_TYPE"] = "Тип";
+$MESS["IBSEC_E_PROP_TABLE_SMART_FILTER"] = "Показать в умном фильтре";
+$MESS["IBSEC_E_PROP_TABLE_ACTION"] = "Действия";
+$MESS["IBSEC_E_PROP_SELECT_CHOOSE"] = "<Выбрать>";
+$MESS["IBSEC_E_PROP_SELECT_CREATE"] = "[Создать]";
+$MESS["IBSEC_E_PROP_TABLE_ACTION_DELETE"] = "Удалить";
+$MESS["IBSEC_E_PROP_TABLE_ACTION_ADD"] = "Добавить";
+$MESS["IBSEC_E_PROP_TABLE_EMPTY"] = "-нет данных-";
+$MESS["IBSEC_E_PROP_SKU_SECTION"] = "Свойства торговых предложений";
+$MESS["IBSEC_E_SAVE_AND_ADD"] = "Сохранить и добавить";
 ?>

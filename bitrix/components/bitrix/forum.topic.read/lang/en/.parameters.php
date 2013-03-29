@@ -26,7 +26,6 @@ $MESS["F_RSS_TEMPLATE"] = "RSS page";
 $MESS["F_PAGE_NAVIGATION_WINDOW"] = "Number of pages in the page navigation";
 $MESS["F_USER_POST_TEMPLATE"] = "User's Messages page";
 $MESS["F_SHOW_FIRST_POST"] = "Show Initial Post on Every Page";
-$MESS["F_PAGEN"] = "Pagewise Navigation Number to use on The Target Page";
 $MESS["F_SET_PAGE_PROPERTY"] = "Add Keywords And Topic Description to Page HEAD Tag";
 $MESS["F_PAGE_NAVIGATION_SHOW_ALL"] = "Enable Show All Pages Option";
 $MESS["F_RATING_SETTINGS"] = "Rating Parameters";

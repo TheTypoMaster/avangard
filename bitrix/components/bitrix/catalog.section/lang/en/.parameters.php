@@ -1,7 +1,7 @@
 <?
 $MESS["IBLOCK_PRICES"] = "Prices";
-$MESS["IBLOCK_TYPE"] = "Info-block type";
-$MESS["IBLOCK_IBLOCK"] = "Info-block";
+$MESS["IBLOCK_TYPE"] = "Infoblock type";
+$MESS["IBLOCK_IBLOCK"] = "Infoblock";
 $MESS["IBLOCK_PROPERTY"] = "Properties";
 $MESS["IBLOCK_SORT_SHOWS"] = "average shows";
 $MESS["IBLOCK_SORT_SORT"] = "sorting index";
@@ -50,4 +50,10 @@ $MESS["CP_BCS_OFFERS_PROPERTY_CODE"] = "SKU Properties";
 $MESS["CP_BCS_OFFERS_SORT_FIELD"] = "Sort SKU By Field";
 $MESS["CP_BCS_OFFERS_SORT_ORDER"] = "SKU Sort Order";
 $MESS["CP_BCS_OFFERS_CART_PROPERTIES"] = "SKU Properties In Shopping Cart";
+$MESS["CP_BCS_CONVERT_CURRENCY"] = "Use only one currency to show prices";
+$MESS["CP_BCS_CURRENCY_ID"] = "Convert all prices to currency";
+$MESS["CP_BCS_OFFERS_LIMIT"] = "Maximum SKU's to Show (use 0 to show all)";
+$MESS["CP_BCS_INCLUDE_SUBSECTIONS_ALL"] = "all subsections";
+$MESS["CP_BCS_INCLUDE_SUBSECTIONS_ACTIVE"] = "active subsections";
+$MESS["CP_BCS_INCLUDE_SUBSECTIONS_NO"] = "don't show";
 ?>

@@ -1,5 +1,5 @@
 <?
-class CPHPCacheMemcache
+class CPHPCacheMemcache implements ICacheBackend
 {
 	private static $obMemcache;
 	private static $basedir_version = array();
@@ -27,13 +27,22 @@ class CPHPCacheMemcache
 		if(!defined("BX_MEMCACHE_CONNECTED"))
 		{
 			if(self::$obMemcache->connect(BX_MEMCACHE_HOST, $port))
+			{
 				define("BX_MEMCACHE_CONNECTED", true);
+				register_shutdown_function(array("CPHPCacheMemcache", "close"));
+			}
 		}
 
 		if(defined("BX_CACHE_SID"))
 			$this->sid = BX_CACHE_SID;
 		else
 			$this->sid = "BX";
+	}
+
+	function close()
+	{
+		if(defined("BX_MEMCACHE_CONNECTED") && is_object(self::$obMemcache))
+			self::$obMemcache->close();
 	}
 
 	function IsAvailable()

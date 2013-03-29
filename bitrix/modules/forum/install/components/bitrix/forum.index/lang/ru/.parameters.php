@@ -19,4 +19,5 @@ $MESS ['F_GROUP_ID'] = "ID группы форумов";
 $MESS ['F_RSS_TEMPLATE'] = "Страница RSS";
 $MESS ['F_PAGE_NAVIGATION_WINDOW'] = "Количество страниц в постраничной навигации";
 $MESS ['F_SET_NAVIGATION'] = "Показывать навигацию (хлебные крошки)";
+$MESS ['F_USE_DESC_PAGE'] = "Использовать обратную постраничную навигацию";
 ?>

@@ -1,5 +1,5 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-CUtil::InitJSCore(array('ajax', 'fx')); 
+CUtil::InitJSCore(array('ajax', 'fx'));
 // ************************* Input params***************************************************************
 $arParams["SHOW_LINK_TO_FORUM"] = ($arParams["SHOW_LINK_TO_FORUM"] == "N" ? "N" : "Y");
 $arParams["FILES_COUNT"] = intVal(intVal($arParams["FILES_COUNT"]) > 0 ? $arParams["FILES_COUNT"] : 1);
@@ -65,8 +65,8 @@ foreach ($arResult["MESSAGES"] as $res):
 							"TOTAL_NEGATIVE_VOTES" => 0,
 							"TOTAL_VALUE" => 0
 						);
-				
-				
+
+
 				$arRatingParams = array_merge($arRatingParams, $res['RATING']);
 				$GLOBALS["APPLICATION"]->IncludeComponent( "bitrix:rating.vote", $arParams["RATING_TYPE"], $arRatingParams, $component, array("HIDE_ICONS" => "Y"));
 				?>
@@ -90,7 +90,7 @@ foreach ($arResult["MESSAGES"] as $res):
 	<tr><td>
 		<div class="reviews-text" id="message_text_<?=$res["ID"]?>"><?=$res["POST_MESSAGE_TEXT"]?></div>
 <?
-	foreach ($res["FILES"] as $arFile): 
+	foreach ($res["FILES"] as $arFile):
 	?><div class="reviews-message-img"><?
 		?><?$GLOBALS["APPLICATION"]->IncludeComponent(
 			"bitrix:forum.interface", "show_file",
@@ -222,7 +222,7 @@ if (!empty($arResult["MESSAGE_VIEW"])):
 			<div class="reviews-post-attachments">
 				<label><?=GetMessage("F_ATTACH_FILES")?></label>
 <?
-			foreach ($arResult["REVIEW_FILES"] as $arFile): 
+			foreach ($arResult["REVIEW_FILES"] as $arFile):
 ?>
 				<div class="reviews-post-attachment"><?
 				?><?$GLOBALS["APPLICATION"]->IncludeComponent(
@@ -264,7 +264,7 @@ endif;
 <div class="reviews-reply-form" <?=(($arParams['SHOW_MINIMIZED'] == "Y")?'style="display:none;"':'')?>>
 <a name="review_anchor"></a>
 <?
-if (!empty($arResult["ERROR_MESSAGE"])): 
+if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="reviews-note-box reviews-note-error">
 	<div class="reviews-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "reviews-note-error");?></div>
@@ -296,7 +296,7 @@ if (!$arResult["IS_AUTHORIZED"]):
 			<div class="reviews-reply-field reviews-reply-field-author"><label for="REVIEW_AUTHOR<?=$arParams["form_index"]?>"><?=GetMessage("OPINIONS_NAME")?><?
 				?><span class="reviews-required-field">*</span></label>
 				<span><input name="REVIEW_AUTHOR" id="REVIEW_AUTHOR<?=$arParams["form_index"]?>" size="30" type="text" value="<?=$arResult["REVIEW_AUTHOR"]?>" tabindex="<?=$tabIndex++;?>" /></span></div>
-<?		
+<?
 	if ($arResult["FORUM"]["ASK_GUEST_EMAIL"]=="Y"):
 ?>
 			<div class="reviews-reply-field-user-sep">&nbsp;</div>
@@ -315,7 +315,7 @@ endif;
 	<div class="reviews-reply-field reviews-reply-field-text">
 <?
 	$arSmiles = array();
-	if ($arResult["FORUM"]["ALLOW_SMILES"] == "Y") 
+	if ($arResult["FORUM"]["ALLOW_SMILES"] == "Y")
 	{
 		foreach($arResult["SMILES"] as $arSmile)
 		{
@@ -355,26 +355,7 @@ endif;
 		'bAutoResize' => true
 	);
 
-	$arEditorFeatures = array(
-		"ALLOW_BIU" => array('Bold', 'Italic', 'Underline', 'Strike'),
-		"ALLOW_FONT" => array('ForeColor','FontList', 'FontSizeList'),
-		"ALLOW_QUOTE" => array('Quote'),
-		"ALLOW_CODE" => array('Code'),
-		'ALLOW_ANCHOR' => array('CreateLink', 'DeleteLink'),
-		"ALLOW_IMG" => array('Image'),
-		"ALLOW_VIDEO" => array('ForumVideo'),
-		"ALLOW_TABLE" => array('Table'),
-		"ALLOW_LIST" => array('InsertOrderedList', 'InsertUnorderedList'),
-		"ALLOW_SMILES" => array('SmileList'),
-		"ALLOW_UPLOAD" => array(''),
-		"ALLOW_NL2BR" => array(''),
-	);
-	foreach ($arEditorFeatures as $featureName => $toolbarIcons)
-	{
-		if (isset($arResult['FORUM'][$featureName]) && ($arResult['FORUM'][$featureName] == 'Y'))
-			$arEditorParams['toolbarConfig'] = array_merge($arEditorParams['toolbarConfig'], $toolbarIcons);
-	}
-	$arEditorParams['toolbarConfig'] = array_merge($arEditorParams['toolbarConfig'], array('RemoveFormat', 'Translit', 'Source'));
+	$arEditorParams['toolbarConfig'] = forumTextParser::GetEditorToolbar(array('forum' => $arResult['FORUM']));
 	$LHE->Show($arEditorParams);
 ?>
 	</div>
@@ -543,7 +524,8 @@ function reviewsCtrlEnterHandler<?=CUtil::JSEscape($arParams["form_index"]);?>()
 	if (window.oLHE)
 		window.oLHE.SaveContent();
 	var form = document.forms["REPLIER<?=CUtil::JSEscape($arParams["form_index"]);?>"];
-	if (form.onsubmit()) form.submit();
+	if (BX.fireEvent(form, 'submit'))
+		form.submit();
 }
 
 function replyForumFormOpen()
@@ -578,7 +560,7 @@ function fToggleCommentsForm(link, forceOpen)
 
 function reply2author(name)
 {
-    name = name.replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&quot;/gi, "\"");
+	name = name.replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&quot;/gi, "\"");
 	replyForumFormOpen();
 
 	if (window.oLHE)
@@ -597,7 +579,7 @@ function reply2author(name)
 		else
 			window.oLHE.SetEditorContent(content);
 		setTimeout(function() { window.oLHE.SetFocusToEnd();}, 300);
-	} 
+	}
 	return false;
 }
 

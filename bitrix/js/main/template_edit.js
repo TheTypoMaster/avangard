@@ -187,4 +187,4 @@ function preview_template(ID, sess_id)
 
 		}
 	);
-}
+};   

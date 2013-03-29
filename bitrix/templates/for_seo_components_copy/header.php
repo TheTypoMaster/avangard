@@ -47,18 +47,28 @@
 							<div id="t_l_logo_4"><a href="/"><img src="/images/logo.gif" alt="" border=0></a></div>
 							<table cellpadding="0" cellspacing="0" border="0" width="100%">
 								<tr>
-									<td><div><p class="p_fone"><span>(495)</span> <span id="ya-phone-1">981-66-44</span></p><p>доб. 146, 129</p></div></td>
+									<td><div><p class="p_fone"><span>(495)</span> 981-66-44</p><p>доб. 146, 129</p></div></td>
 									<td><p>Обработка заказов<br>понедельник - пятница<br>с 9.00 до 18.00</p></td>
 								</tr>
 							</table>
 						</td>
-						<td id="t_l_center"></td>
+						<td id="t_l_center0">
+							<table cellpadding="0" cellspacing="0" border="0" width="459">
+								<tr>
+									<td><div align="left"><a href="/shop/credit/"><img src="/images/credit_top.png" border="0" width="245" alt="" ></a></div></td>
+									<td id="t_l_center2">
+										<div style="display:none;" id="mobmen">- Консультация по модельному ряду (габариты, механизмы и др.)<br>- Предложения по обивочным материалам (ткани, кожа)<br>- Оформление договора (спецификации)</div>
+									</td>
+								</tr>
+							</table>
+						</td>
 						<td>
 							<div id="t_l_right">
 								<script type="text/javascript" src="/shop/basket/min.js"></script> 
 								<script type="text/javascript">
 									$(document).ready(function(){
 										$("a.bskype").hover(function () { $("#skype").slideToggle(100); }, function () { $("#skype").slideToggle(100); });
+										$("#t_l_center2").hover(function () { $("#mobmen").slideToggle(100); }, function () { $("#mobmen").slideToggle(100); });										
 										//$("#bzvonok").hover(function () { $("#zvonok").slideToggle(100); }, function () { $("#zvonok").slideToggle(100); });
 										$("#bzvonok").hover(function () { 
 											if (!$("#zvonok").hasClass("needclose")) {
@@ -113,8 +123,8 @@
 									</tr>
 									<tr>
 										<td>
-											<a class="bskype" href="skype:Elena_avangard"><img src="/images/skype.jpg" alt="" border="0"></a>
-											<div style="display:none;" id="skype">Номер скайпа:<br>Elena_avangard</div>
+											<a class="bskype" href="skype:av-internet"><img src="/images/skype.jpg" alt="" border="0"></a>
+											<div style="display:none;" id="skype">Номер скайпа:<br>av-internet</div>
 										</td>
 										<td colspan="2">
 											<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
@@ -197,5 +207,4 @@
 						), false
 				);
 				?>
-				<!--CREDIT BANNER-->
-				<div style="text-align:center; padding-top:20px"><a href="/shop/credit/"><img height="80" width="600" src="/shop/credit/images/credit_600x80_red.png"  /></a></div>
+				

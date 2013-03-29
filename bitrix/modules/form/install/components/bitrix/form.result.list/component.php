@@ -4,6 +4,10 @@ $arParams['WEB_FORM_ID'] = intval($arParams['WEB_FORM_ID']);
 $arParams['RESULT_ID'] = intval($arParams['RESULT_ID']);
 if (!$arParams['RESULT_ID']) $arParams['RESULT_ID'] = '';
 
+$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE'])
+	? (method_exists('CSite', 'GetNameFormat') ? CSite::GetNameFormat() : "#NAME# #LAST_NAME#")
+	: $arParams["NAME_TEMPLATE"];
+
 if (!function_exists("__FormResultListCheckFilter"))
 {
 	function __FormResultListCheckFilter(&$str_error, &$arrFORM_FILTER) // check of filter values
@@ -11,13 +15,13 @@ if (!function_exists("__FormResultListCheckFilter"))
 		global $strError, $_GET;
 		global $find_date_create_1, $find_date_create_2;
 		$str = "";
-		
+
 		CheckFilterDates($find_date_create_1, $find_date_create_2, $date1_wrong, $date2_wrong, $date2_less);
 		if ($date1_wrong=="Y") $str.= GetMessage("FORM_WRONG_DATE_CREATE_FROM")."<br />";
 		if ($date2_wrong=="Y") $str.= GetMessage("FORM_WRONG_DATE_CREATE_TO")."<br />";
 		if ($date2_less=="Y") $str.= GetMessage("FORM_FROM_TILL_DATE_CREATE")."<br />";
-		
-		if (is_array($arrFORM_FILTER)) 
+
+		if (is_array($arrFORM_FILTER))
 		{
 			reset($arrFORM_FILTER);
 			foreach ($arrFORM_FILTER as $arrF)
@@ -31,14 +35,14 @@ if (!function_exists("__FormResultListCheckFilter"))
 						{
 							$date1 = $_GET["find_".$arr["FID"]."_1"];
 							$date2 = $_GET["find_".$arr["FID"]."_2"];
-							
+
 							CheckFilterDates($date1, $date2, $date1_wrong, $date2_wrong, $date2_less);
-							
-							if ($date1_wrong=="Y") 
+
+							if ($date1_wrong=="Y")
 								$str .= str_replace("#TITLE#", $title, GetMessage("FORM_WRONG_DATE1"))."<br />";
-							if ($date2_wrong=="Y") 
+							if ($date2_wrong=="Y")
 								$str .= str_replace("#TITLE#", $title, GetMessage("FORM_WRONG_DATE2"))."<br />";
-							if ($date2_less=="Y") 
+							if ($date2_less=="Y")
 								$str .= str_replace("#TITLE#", $title, GetMessage("FORM_DATE2_LESS"))."<br />";
 						}
 						if ($arr["FILTER_TYPE"]=="integer")
@@ -54,10 +58,10 @@ if (!function_exists("__FormResultListCheckFilter"))
 				}
 			}
 		}
-		
+
 		$strError .= $str;
 		$str_error .= $str;
-		
+
 		return strlen($str) <= 0;
 	}
 }
@@ -66,7 +70,7 @@ if (CModule::IncludeModule("form"))
 {
 	// load additional css with icons
 	if ($APPLICATION->GetShowIncludeAreas() && $USER->IsAdmin())
-	{		
+	{
 		$arIcons = array(
 			// form params edit icon
 			array(
@@ -94,11 +98,11 @@ if (CModule::IncludeModule("form"))
 	{
 		$APPLICATION->AddChainItem($arParams["CHAIN_ITEM_TEXT"], $arParams["CHAIN_ITEM_LINK"]);
 	}
-	
+
 	// preparing additional parameters
 	$arResult["FORM_ERROR"] = $_REQUEST["strError"];
 	//$arResult["FORM_NOTE"] = $_REQUEST["strFormNote"];
-	if (!empty($_REQUEST["formresult"]) && $_SERVER['REQUEST_METHOD'] != 'POST') 
+	if (!empty($_REQUEST["formresult"]) && $_SERVER['REQUEST_METHOD'] != 'POST')
 	{
 		$formResult = strtoupper($_REQUEST['formresult']);
 		switch ($formResult)
@@ -110,44 +114,44 @@ if (CModule::IncludeModule("form"))
 				$arResult['FORM_NOTE'] = str_replace("#RESULT_ID#", $arParams["RESULT_ID"], GetMessage('FORM_NOTE_EDITOK'));
 		}
 	}
-	
+
 	$arParams["F_RIGHT"] = CForm::GetPermission($arParams["WEB_FORM_ID"]);
 
-	if($arParams["F_RIGHT"] < 15) $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));	
-	
+	if($arParams["F_RIGHT"] < 15) $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+
 	$arParams["isStatisticIncluded"] = CModule::IncludeModule("statistic");
-	
+
 	if (is_array($arParams["NOT_SHOW_FILTER"]))
 	{
 		$arParams["arrNOT_SHOW_FILTER"] = $arParams["NOT_SHOW_FILTER"];
 	}
 	else
 	{
-		$arParams["arrNOT_SHOW_FILTER"] = explode(",",$arParams["NOT_SHOW_FILTER"]);	
+		$arParams["arrNOT_SHOW_FILTER"] = explode(",",$arParams["NOT_SHOW_FILTER"]);
 	}
-	
+
 	if (is_array($arParams["arrNOT_SHOW_FILTER"])) //array_walk($arParams["arrNOT_SHOW_FILTER"], create_function("&\$item", "\$item=trim(\$item);"));
 		TrimArr($arParams["arrNOT_SHOW_FILTER"]);
 
 	else $arParams["arrNOT_SHOW_FILTER"]=array();
-	
+
 	if (is_array($arParams["NOT_SHOW_TABLE"]))
 	{
 		$arParams["arrNOT_SHOW_TABLE"] = $arParams["NOT_SHOW_TABLE"];
 	}
 	else
 	{
-		$arParams["arrNOT_SHOW_TABLE"] = explode(",",$arParams["NOT_SHOW_TABLE"]);	
+		$arParams["arrNOT_SHOW_TABLE"] = explode(",",$arParams["NOT_SHOW_TABLE"]);
 	}
 	if (is_array($arParams["arrNOT_SHOW_TABLE"])) //array_walk($arParams["arrNOT_SHOW_TABLE"], create_function("&\$item", "\$item=trim(\$item);"));
 		TrimArr($arParams["arrNOT_SHOW_TABLE"]);
-		
+
 	else $arParams["arrNOT_SHOW_TABLE"]=array();
 
 	// deleting single form result
 	$del_id = intval($_REQUEST["del_id"]);
 
-	if ($del_id > 0 /* && check_bitrix_sessid()*/) 
+	if ($del_id > 0 /* && check_bitrix_sessid()*/)
 	{
 		$GLOBALS['strError'] = '';
 		CFormResult::Delete($del_id);
@@ -158,12 +162,12 @@ if (CModule::IncludeModule("form"))
 			exit();
 		}
 	}
-	
+
 	// deleting multiple form results
 	if ($_REQUEST["delete"] && check_bitrix_sessid())
 	{
 		$ARR_RESULT = $_REQUEST["ARR_RESULT"];
-		if (is_array($ARR_RESULT) && count($ARR_RESULT) > 0 && check_bitrix_sessid()) 
+		if (is_array($ARR_RESULT) && count($ARR_RESULT) > 0 && check_bitrix_sessid())
 		{
 			$GLOBALS['strError'] = '';
 			foreach ($ARR_RESULT as $del_id)
@@ -171,7 +175,7 @@ if (CModule::IncludeModule("form"))
 				$del_id = intval($del_id);
 				if ($del_id > 0) CFormResult::Delete($del_id); // rights check inside
 			}
-			
+
 			if (strlen($GLOBALS['strError']) <= 0)
 			{
 				LocalRedirect($APPLICATION->GetCurPageParam("", array("delete", "sessid", 'formresult')));
@@ -179,24 +183,24 @@ if (CModule::IncludeModule("form"))
 			}
 		}
 	}
-	
+
 	if (strlen($GLOBALS['strError']) > 0)
 		$arResult["FORM_ERROR"] .= $GLOBALS['strError'];
-	
-	if (intval($arParams["WEB_FORM_ID"])>0) 
-		$dbres = CForm::GetByID($arParams["WEB_FORM_ID"]); 
-	else 
+
+	if (intval($arParams["WEB_FORM_ID"])>0)
+		$dbres = CForm::GetByID($arParams["WEB_FORM_ID"]);
+	else
 		$dbres = CForm::GetBySID($arParams["WEB_FORM_NAME"]);
-	
+
 	// get form info
 	if ($arParams["arFormInfo"] = $dbres->Fetch())
 	{
 		$GLOBALS["WEB_FORM_ID"] = $arParams["WEB_FORM_ID"] = $arParams["arFormInfo"]["ID"];
 		$GLOBALS["WEB_FORM_NAME"] = $arParams["WEB_FORM_NAME"] = $arParams["arFormInfo"]["SID"];
-		
+
 		// check form params
 		$arParams["USER_ID"] = $USER->GetID();
-		
+
 		// prepare filter
 		$FilterArr = Array(
 			"find_id",
@@ -218,24 +222,24 @@ if (CModule::IncludeModule("form"))
 			"find_session_id",
 			"find_session_id_exact_match"
 		);
-		
+
 		$arResult["arrFORM_FILTER"] = array();
-		
+
 		$arListFilter = array("ACTIVE" => "Y");
 		if (count($arParams["arrNOT_SHOW_FILTER"]) > 0)
 		{
 			$arListFilter["FIELD_SID"] = "~'".implode("' & ~'", $arParams["arrNOT_SHOW_FILTER"])."'";
 		}
-		
+
 		$z = CFormField::GetFilterList($arParams["WEB_FORM_ID"], $arListFilter);
-		while ($zr=$z->Fetch()) 
+		while ($zr=$z->Fetch())
 		{
 			$FID = $arParams["WEB_FORM_NAME"]."_".$zr["SID"]."_".$zr["PARAMETER_NAME"]."_".$zr["FILTER_TYPE"];
 			$zr["FID"] = $FID;
 			if (!is_set($arResult["arrFORM_FILTER"][$zr["SID"]])) $arResult["arrFORM_FILTER"][$zr["SID"]] = array();
 			$arResult["arrFORM_FILTER"][$zr["SID"]][] = $zr;
 			$fname = "find_".$FID;
-			
+
 			if ($zr["FILTER_TYPE"]=="date" || $zr["FILTER_TYPE"]=="integer")
 			{
 				$FilterArr[] = $fname."_1";
@@ -249,7 +253,7 @@ if (CModule::IncludeModule("form"))
 			}
 			else $FilterArr[] = $fname;
 		}
-		
+
 		//fix minor bug with CFormField::GetFilterList and filter list logic - without it "exist" checkbox will be before main search field for date fields in filter
 		foreach ($arResult["arrFORM_FILTER"] as $q_sid => $arFilterFields)
 		{
@@ -266,29 +270,29 @@ if (CModule::IncludeModule("form"))
 						$change = true;
 					}
 				}
-				
+
 				if ($change) $arResult["arrFORM_FILTER"][$q_sid] = $arFilterFields;
 			}
 		}
-		
+
 		$arParams["sess_filter"] = "FORM_RESULT_LIST_".$arParams["WEB_FORM_NAME"];
-		if (strlen($_REQUEST["set_filter"])>0) 
-			InitFilterEx($FilterArr,$arParams["sess_filter"],"set"); 
-		else 
+		if (strlen($_REQUEST["set_filter"])>0)
+			InitFilterEx($FilterArr,$arParams["sess_filter"],"set");
+		else
 			InitFilterEx($FilterArr,$arParams["sess_filter"],"get");
 
-		if (strlen($_REQUEST["del_filter"])>0) 
+		if (strlen($_REQUEST["del_filter"])>0)
 		{
 			DelFilterEx($FilterArr,$arParams["sess_filter"]);
 		}
-		else 
+		else
 		{
 			InitBVar($GLOBALS["find_id_exact_match"]);
 			InitBVar($GLOBALS["find_status_id_exact_match"]);
 			InitBVar($GLOBALS["find_user_id_exact_match"]);
 			InitBVar($GLOBALS["find_guest_id_exact_match"]);
 			InitBVar($GLOBALS["find_session_id_exact_match"]);
-			
+
 			$arResult["ERROR_MESSAGE"] = "";
 			if (__FormResultListCheckFilter($arResult["ERROR_MESSAGE"], $arResult["arrFORM_FILTER"]))
 			{
@@ -311,7 +315,7 @@ if (CModule::IncludeModule("form"))
 					"SESSION_ID"				=> $GLOBALS["find_session_id"],
 					"SESSION_ID_EXACT_MATCH"	=> $GLOBALS["find_session_id_exact_match"]
 					);
-				if (is_array($arResult["arrFORM_FILTER"])) 
+				if (is_array($arResult["arrFORM_FILTER"]))
 				{
 					foreach ($arResult["arrFORM_FILTER"] as $arrF)
 					{
@@ -335,7 +339,7 @@ if (CModule::IncludeModule("form"))
 				}
 			}
 		}
-		
+
 		if (strlen($_POST['save'])>0 && $_SERVER['REQUEST_METHOD']=="POST" && check_bitrix_sessid())
 		{
 			// update results
@@ -359,9 +363,9 @@ if (CModule::IncludeModule("form"))
 		$arParams["by"] = $_REQUEST["by"];
 		$arParams["order"] = $_REQUEST["order"];
 		$arResult["is_filtered"] = false;
-		
+
 		$rsResults = CFormResult::GetList($arParams["WEB_FORM_ID"], $arParams["by"], $arParams["order"], $arFilter, $arResult["is_filtered"]);
-		
+
 		$arResult["res_counter"] = 0;
 		$arParams["can_delete_some"] = false;
 		$arResult["arRID"] = array();
@@ -381,7 +385,7 @@ if (CModule::IncludeModule("form"))
 				}
 			}
 		}
-		
+
 		$rsResults = new CDBResult;
 		$rsResults->InitFromArray($arResults);
 
@@ -389,7 +393,7 @@ if (CModule::IncludeModule("form"))
 
 		$rsResults->NavStart($page_split);
 		$arResult["pager"] = $rsResults->GetNavPrint(GetMessage("FORM_PAGES"), false, 'text', false, array('formresult', 'RESULT_ID'));
-		
+
 		if (!$rsResults->NavShowAll)
 		{
 			$pagen_from = (intval($rsResults->NavPageNomer)-1)*intval($rsResults->NavPageSize);
@@ -399,7 +403,7 @@ if (CModule::IncludeModule("form"))
 				$i=0;
 				foreach($arResult["arRID"] as $rid)
 				{
-					if ($i>=$pagen_from && $i<$pagen_from+$page_split) 
+					if ($i>=$pagen_from && $i<$pagen_from+$page_split)
 					{
 						$arRID_tmp[] = $rid; // array of IDs of results for the page
 					}
@@ -408,29 +412,29 @@ if (CModule::IncludeModule("form"))
 			}
 			$arResult["arRID"] = $arRID_tmp;
 		}
-		
+
 		$arResult["arrResults"] = array();
 		$arrUsers = array();
-		while ($arRes = $rsResults->NavNext(false)) 
+		while ($arRes = $rsResults->NavNext(false))
 		{
 			$arRes["arrRESULT_PERMISSION"] = CFormResult::GetPermissions($arRes["ID"], $v);
 
 			$arRes["can_view"] = false;
 			$arRes["can_edit"] = false;
 			$arRes["can_delete"] = false;
-			
+
 			if ($arParams["F_RIGHT"]>=20 || ($arParams["F_RIGHT"]>=15 && $arParams["USER_ID"]==$arRes["USER_ID"]))
 			{
 				if (in_array("VIEW",$arRes["arrRESULT_PERMISSION"])) $arRes["can_view"] = true;
 				if (in_array("EDIT",$arRes["arrRESULT_PERMISSION"])) $arRes["can_edit"] = true;
 				if (in_array("DELETE",$arRes["arrRESULT_PERMISSION"])) $arRes["can_delete"] = true;
 			}
-			
+
 			$arr = explode(" ",$arRes["TIMESTAMP_X"]);
 			$arRes["TSX_0"] = $arr[0];
 			$arRes["TSX_1"] = $arr[1];
-			
-			if ($arRes["USER_ID"]>0) 
+
+			if ($arRes["USER_ID"]>0)
 			{
 				if (!in_array($arRes["USER_ID"], array_keys($arrUsers)))
 				{
@@ -439,21 +443,24 @@ if (CModule::IncludeModule("form"))
 					$arRes["LOGIN"] = $arU["LOGIN"];
 					$arRes["USER_FIRST_NAME"] = $arU["NAME"];
 					$arRes["USER_LAST_NAME"] = $arU["LAST_NAME"];
+					$arRes["USER_SECOND_NAME"] = $arU["SECOND_NAME"];
 					$arrUsers[$arRes["USER_ID"]]["USER_FIRST_NAME"] = $arRes["USER_FIRST_NAME"];
 					$arrUsers[$arRes["USER_ID"]]["USER_LAST_NAME"] = $arRes["USER_LAST_NAME"];
+					$arrUsers[$arRes["USER_ID"]]["USER_SECOND_NAME"] = $arRes["USER_SECOND_NAME"];
 					$arrUsers[$arRes["USER_ID"]]["LOGIN"] = $arRes["LOGIN"];
 				}
 				else
 				{
 					$arRes["USER_FIRST_NAME"] = $arrUsers[$arRes["USER_ID"]]["USER_FIRST_NAME"];
 					$arRes["USER_LAST_NAME"] = $arrUsers[$arRes["USER_ID"]]["USER_LAST_NAME"];
+					$arRes["USER_SECOND_NAME"] = $arrUsers[$arRes["USER_ID"]]["USER_SECOND_NAME"];
 					$arRes["LOGIN"] = $arrUsers[$arRes["USER_ID"]]["LOGIN"];
 				}
 			}
-			
+
 			$arResult["arrResults"][] = $arRes;
 		}
-		
+
 		// get columns titles
 		if ($arResult["res_counter"] > 0)
 		{
@@ -466,9 +473,9 @@ if (CModule::IncludeModule("form"))
 		else
 		{
 			$arFilter = array("IN_RESULTS_TABLE" => "Y");
-		
+
 			$rsFields = CFormField::GetList($arParams["WEB_FORM_ID"], "ALL", ($v1="s_c_sort"), ($v2="asc"), $arFilter, $v3);
-			while ($arField = $rsFields->Fetch()) 
+			while ($arField = $rsFields->Fetch())
 			{
 				$arResult["arrColumns"][$arField["ID"]] = $arField;
 			}
@@ -482,29 +489,29 @@ if (CModule::IncludeModule("form"))
 				{
 					foreach ($arAnswers as $a_key => $arrA)
 					{
-						if (strlen(trim($arrA["USER_TEXT"]))>0) 
-							$arrA["USER_TEXT"] = intval($arrA["USER_FILE_ID"])>0 ? htmlspecialchars($arrA["USER_TEXT"]) : TxtToHTML($arrA["USER_TEXT"], true, 100);
-							
+						if (strlen(trim($arrA["USER_TEXT"]))>0)
+							$arrA["USER_TEXT"] = intval($arrA["USER_FILE_ID"])>0 ? htmlspecialcharsbx($arrA["USER_TEXT"]) : TxtToHTML($arrA["USER_TEXT"], true, 100);
+
 						if (strlen(trim($arrA["USER_DATE"]))>0)
 						{
 							$arrA["USER_TEXT"] = $DB->FormatDate($arrA["USER_DATE"], FORMAT_DATETIME, FORMAT_DATE);
 						}
-						
+
 						if (strlen(trim($arrA["ANSWER_TEXT"]))>0)
 							$arrA["ANSWER_TEXT"] = TxtToHTML($arrA["ANSWER_TEXT"],true,100);
-						
+
 						if (strlen(trim($arrA["ANSWER_VALUE"]))>0)
 							$arrA["ANSWER_VALUE"] = TxtToHTML($arrA["ANSWER_VALUE"],true,100);
-						
-						if (intval($arrA["USER_FILE_ID"])>0) 
+
+						if (intval($arrA["USER_FILE_ID"])>0)
 						{
-							if ($arrA["USER_FILE_IS_IMAGE"]=="Y") 
+							if ($arrA["USER_FILE_IS_IMAGE"]=="Y")
 							{
 								$arrA["USER_FILE_IMAGE_CODE"] = CFile::ShowImage($arrA["USER_FILE_ID"], 0, 0, "border=0", "", true);
 							}
-							else 
+							else
 							{
-								$arrA["USER_FILE_NAME"] = htmlspecialchars($arrA["USER_FILE_NAME"]);
+								$arrA["USER_FILE_NAME"] = htmlspecialcharsbx($arrA["USER_FILE_NAME"]);
 								$a = array("b", "Kb", "Mb", "Gb");
 								$pos = 0;
 								$size = $arrA["USER_FILE_SIZE"];
@@ -512,7 +519,7 @@ if (CModule::IncludeModule("form"))
 								$arrA["USER_FILE_SIZE_TEXT"] = round($size,2)." ".$a[$pos];
 							}
 						}
-						
+
 						$arResult["arrAnswers"][$res_key][$q_key][$a_key] = $arrA;
 					}
 				}
@@ -522,71 +529,71 @@ if (CModule::IncludeModule("form"))
 		{
 			$arResult["arrAnswers"] = array();
 		}
-		
-		if (!is_array($arResult["arrColumns"])) $arResult["arrColumns"] = array();		
-		
+
+		if (!is_array($arResult["arrColumns"])) $arResult["arrColumns"] = array();
+
 		foreach ($arResult["arrColumns"] as $key => $arrCol)
 		{
 			if (strlen($arrCol["RESULTS_TABLE_TITLE"])<=0)
 			{
-				$title = ($arrCol["TITLE_TYPE"]=="html") ? strip_tags($arrCol["TITLE"]) : htmlspecialchars($arrCol["TITLE"]);
+				$title = ($arrCol["TITLE_TYPE"]=="html") ? strip_tags($arrCol["TITLE"]) : htmlspecialcharsbx($arrCol["TITLE"]);
 				$title = TruncateText($title,100);
 			}
-			else $title = htmlspecialchars($arrCol["RESULTS_TABLE_TITLE"]);
-			
+			else $title = htmlspecialcharsbx($arrCol["RESULTS_TABLE_TITLE"]);
+
 			$arResult["arrColumns"][$key]["RESULTS_TABLE_TITLE"] = $title;
 		}
-		
+
 		$arResult["filter_id"] = rand(0, 10000);
 		$arResult["tf_name"] = COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_FORM_RESULT_FILTER";
 		if (strlen($arResult["tf"])<=0) $arResult["tf"] = $_REQUEST[$arResult["tf_name"]];
 		if (strlen($arResult["tf"])<=0) $arResult["tf"] = "none";
 		$arResult["is_ie"] = IsIE();
-		
+
 		$arResult["__find"] = array();
 		foreach ($GLOBALS as $key => $value)
 		{
 			if (substr($key, 0, 5) == "find_") $arResult["__find"][$key] = $value;
 		}
-		
+
 		reset($arResult["arrFORM_FILTER"]);
-		
+
 		foreach ($arResult["arrFORM_FILTER"] as $f_sid => $arrF)
 		{
 			foreach ($arrF as $key => $arr)
 			{
 				if (strlen($arrF["FILTER_TITLE"])<=0)
 				{
-					$title = ($arrF["TITLE_TYPE"]=="html" ? strip_tags($arrF["TITLE"]) : htmlspecialchars($arrF["TITLE"]));
+					$title = ($arrF["TITLE_TYPE"]=="html" ? strip_tags($arrF["TITLE"]) : htmlspecialcharsbx($arrF["TITLE"]));
 					$arrResult["arrFORM_FILTER"][$f_sid][$key]["FILTER_TITLE"] = TruncateText($title, 100);
 				}
-				else 
+				else
 				{
-					$arrResult["arrFORM_FILTER"][$f_sid][$key]["FILTER_TITLE"] = htmlspecialchars($arrF["FILTER_TITLE"]);
+					$arrResult["arrFORM_FILTER"][$f_sid][$key]["FILTER_TITLE"] = htmlspecialcharsbx($arrF["FILTER_TITLE"]);
 				}
 			}
 		}
-		
-		$arParams["by"] = htmlspecialchars($arParams["by"]);
-		$arParams["order"] = htmlspecialchars($arParams["order"]);
-		
+
+		$arParams["by"] = htmlspecialcharsbx($arParams["by"]);
+		$arParams["order"] = htmlspecialcharsbx($arParams["order"]);
+
 		$arResult["res_counter"] = intval($arResult["res_counter"]);
-		
+
 		$arrPermissions = array("MOVE", "VIEW");
-		
+
 		foreach($arrPermissions as $perm)
 		{
 			$rsStatuses = CFormStatus::GetDropdown($arParams["WEB_FORM_ID"], array($perm));
 			$arResult["arStatuses_".$perm] = array();
 			while ($arStatus = $rsStatuses->Fetch())
 			{
-				$arResult["arStatuses_".$perm][] = array("REFERENCE_ID" => htmlspecialchars($arStatus["REFERENCE_ID"]), "REFERENCE" => htmlspecialchars($arStatus["REFERENCE"]));
+				$arResult["arStatuses_".$perm][] = array("REFERENCE_ID" => htmlspecialcharsbx($arStatus["REFERENCE_ID"]), "REFERENCE" => htmlspecialcharsbx($arStatus["REFERENCE"]));
 			}
 		}
-		
+
 		$this->IncludeComponentTemplate();
 	}
-	else 
+	else
 	{
 		echo ShowError(GetMessage("FORM_INCORRECT_FORM_ID"));
 	}

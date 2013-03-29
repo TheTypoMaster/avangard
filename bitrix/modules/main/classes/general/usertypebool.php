@@ -51,7 +51,7 @@ class CUserTypeBoolean
 		else
 			$value = 1;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_BOOL_DEFAULT_VALUE").':</td>
 			<td>
 				<select name="'.$arHtmlControl["NAME"].'[DEFAULT_VALUE]">
@@ -68,8 +68,8 @@ class CUserTypeBoolean
 		else
 			$value = "CHECKBOX";
 		$result .= '
-		<tr valign="top">
-			<td>'.GetMessage("USER_TYPE_BOOL_DISPLAY").':</td>
+		<tr>
+			<td class="adm-detail-valign-top">'.GetMessage("USER_TYPE_BOOL_DISPLAY").':</td>
 			<td>
 				<label><input type="radio" name="'.$arHtmlControl["NAME"].'[DISPLAY]" value="CHECKBOX" '.("CHECKBOX"==$value? 'checked="checked"': '').'>'.GetMessage("USER_TYPE_BOOL_CHECKBOX").'</label><br>
 				<label><input type="radio" name="'.$arHtmlControl["NAME"].'[DISPLAY]" value="RADIO" '.("RADIO"==$value? 'checked="checked"': '').'>'.GetMessage("USER_TYPE_BOOL_RADIO").'</label><br>
@@ -87,6 +87,7 @@ class CUserTypeBoolean
 		switch($arUserField["SETTINGS"]["DISPLAY"])
 		{
 			case "DROPDOWN":
+				$arHtmlControl["VALIGN"] = "middle";
 				return '
 					<select name="'.$arHtmlControl["NAME"].'">
 					<option value="1"'.($arHtmlControl["VALUE"]? ' selected': '').'>'.GetMessage("MAIN_YES").'</option>
@@ -99,6 +100,7 @@ class CUserTypeBoolean
 					<label><input type="radio" value="0" name="'.$arHtmlControl["NAME"].'"'.(!$arHtmlControl["VALUE"]? ' checked': '').'>'.GetMessage("MAIN_NO").'</label>
 				';
 			default:
+				$arHtmlControl["VALIGN"] = "middle";
 				return '
 					<input type="hidden" value="0" name="'.$arHtmlControl["NAME"].'">
 					<input type="checkbox" value="1" name="'.$arHtmlControl["NAME"].'"'.($arHtmlControl["VALUE"]? ' checked': '').'>
@@ -141,5 +143,4 @@ class CUserTypeBoolean
 			return 0;
 	}
 }
-AddEventHandler("main", "OnUserTypeBuildList", array("CUserTypeBoolean", "GetUserTypeDescription"));
 ?>

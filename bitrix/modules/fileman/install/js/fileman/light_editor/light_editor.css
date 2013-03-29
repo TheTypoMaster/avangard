@@ -9,11 +9,11 @@ table.bxlhe-float-tlb-table{border-collapse: collapse; width: 100%;}
 table.bxlhe-float-tlb-table td {padding: 0px;}
 table.bxlhe-float-tlb-table td.bxlhe-toggle {width: 12px; border: 1px solid #E4E2DC; border-bottom-color: #817F7F; border-right-width: 0px; background: #476AB0; cursor: move !important; -moz-user-select: none !important;}
 
-.lhe-stat-toolbar-cont {overflow: hidden; border: 1px solid #fff; border-bottom: 1px solid #e5e5e5; zoom:1;} 
-.lhe-stat-toolbar-cont-preload { border: 0 none; } 
+.lhe-stat-toolbar-cont {overflow: hidden; border: 1px solid #fff; border-bottom: 1px solid #e5e5e5; zoom:1;}
+.lhe-stat-toolbar-cont-preload { border: 0 none; }
 iframe.lha-iframe{width:100%; height: 100%; background-color: white; border-width: 0!important;margin: 0!important;}
-.lha-textarea{width:100%; border-width: 0!important; background-color: #FFFFFF!important; font-size: 14px!important; font-family:Verdana,Tahoma,Arial,Sans-Serif!important; resize: none!important;}
-.lha-source-div{display: none; height: 100%; width: 100%; overflow: hidden!important;}
+.lha-textarea{width:100%; border-width: 0!important; background-color: #FFFFFF!important; resize: none!important; color: #273242;outline: none;}
+.lha-source-div{display: none; height: 100%; width: 100%; overflow: hidden!important; padding: 7px 0 0 7px;}
 input.lhe-br-but{width: 20px;  padding-left: 2px;}
 
 td.bxlhe-editor-cell{overflow: hidden; vertical-align: top; background:#f8f8f8 !important;}
@@ -58,14 +58,12 @@ div.lhed-vid-preview-cont{height:240px; width:320px; overflow: hidden; border: 1
 /*div.lhe-line-end, div.lhe-line-begin{height: 25px;background-image: url(/bitrix/images/fileman/light_htmledit/lhe_iconkit.gif); float: left;}
 div.lhe-line-end{width: 5px; background-position: -334px -96px;}
 div.lhe-line-begin{width: 3px;background-position: -330px -96px; clear:left;}*/
-div.lhe-line-end, div.lhe-line-begin { display: none; }
-
-
+div.lhe-line-end, div.lhe-line-begin {display: none;}
 
 .lhe-line-ie{height: 0px!important; width: 99%!important; clear:left!important; margin: 0!important; padding: 0!important; background: red!important;}
 
 /*list*/
-div.lhe-list-val-cont{position: absolute; border: 1px solid #808080; background-color: #FFFFFF; display: none; width: 150px; top: -1000px; left: -1000px;}
+div.lhe-list-val-cont{position: absolute; border: 1px solid #808080; background-color: #FFFFFF; display: none;  width: 200px; top: -1000px; left: -1000px;}
 table.lhe-smiles-cont {border-collapse: collapse; margin: 1px!important;}
 table.lhe-smiles-cont td{padding: 0!important;}
 
@@ -80,7 +78,7 @@ img.lhe-tlbr-smile-more{background-position: -65px -58px!important; width:10px!i
 div.lhe-smile-cont {float: left; padding: 2px; border: 1px solid #FFFFFF;}
 div.lhe-smile-cont-over {background-color: #FFC678; border: 1px solid #4B4B6F;}
 
-div.lhe-header-cont {padding: 0px 5px; border: 1px solid #FFFFFF;}
+div.lhe-header-cont {padding: 0px 5px; border: 1px solid #FFFFFF; white-space: nowrap;}
 div.lhe-header-cont-over {background-color: #FFC678; border: 1px solid #4B4B6F;}
 div.lhe-header-innercont , div.lhe-list-innercont {width: 100%; height: 200px; overflow: auto; overflow-x: hidden; overflow-y: auto;}
 span.lhe-list-font-span {white-space: nowrap; font-size: 12px; display: block; margin: 2px 0 2px 8px;}
@@ -100,7 +98,7 @@ div.lhe-justify-list {background-color: #E4E2DC!important; width: 22px; height: 
 
 
 /*colorpicker*/
-div.lhe-colpick-cont{position: absolute; border: 1px solid #808080; background-color: #E4E2DC; display: none; width: 322px; 
+div.lhe-colpick-cont{position: absolute; border: 1px solid #808080; background-color: #E4E2DC; display: none; width: 322px;
 top: -1000px; left: -1000px;}
 table.lha-colpic-tbl{border-collapse: separate !important;}
 table.lha-colpic-tbl td.lha-col-cell{width: 16px; height: 16px; border: 1px solid #808080; font-size: 5px !important;}
@@ -138,11 +136,11 @@ table.lhe-dialog-list-table td{padding: 2px !important;}
 table.lhe-dialog-list-table td.lhe-dialog-list-items{height: 130px !important; padding: 0 !important;}
 table.lhe-dialog-list-table td.lhe-dialog-list-items div{height: 130px !important; overflow: auto!important; padding: 0!important; margin: 0!important;}
 table.lhe-dialog-list-table td.lhe-dialog-list-items ol, table.lhe-dialog-list-table td.lhe-dialog-list-items ul{margin: 0!important;}
-table.lhe-dialog-list-table img.lhe-dialog-list-del{width: 20px; height: 18px; background: url(/bitrix/images/fileman/light_htmledit/delete.gif) 1px 3px no-repeat; cursor: pointer;}
+table.lhe-dialog-list-table img.lhe-dialog-list-del{width: 20px; height: 20px; background: url(/bitrix/images/fileman/light_htmledit/delete.gif) 1px 3px no-repeat; cursor: pointer;}
+
 
 #lhe_btn_source{background-position: -1px -80px;}
 #lhe_btn_sourcebb{background-position: -1px -61px;}
-
 #lhe_btn_anchor{background-position: -260px 0;}
 #lhe_btn_createlink{background-position: -280px 0;}
 #lhe_btn_deletelink{background-position: -300px 0;}

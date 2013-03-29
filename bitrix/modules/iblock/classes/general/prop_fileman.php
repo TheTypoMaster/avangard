@@ -6,14 +6,63 @@ class CIBlockPropertyFileMan
 	function GetUserTypeDescription()
 	{
 		return array(
-			"PROPERTY_TYPE"		=>"S",
-			"USER_TYPE"		=>"FileMan",
-			"GetPropertyFieldHtml"	=>array("CIBlockPropertyFileMan","GetPropertyFieldHtml"),
-			"ConvertToDB"		=>array("CIBlockPropertyFileMan","ConvertToDB"),
-			"ConvertFromDB"		=>array("CIBlockPropertyFileMan","ConvertFromDB"),
+			"PROPERTY_TYPE" =>"S",
+			"USER_TYPE" =>"FileMan",
+			"GetPropertyFieldHtml" =>array("CIBlockPropertyFileMan","GetPropertyFieldHtml"),
+			"GetPropertyFieldHtmlMulty" => array('CIBlockPropertyFileMan','GetPropertyFieldHtmlMulty'),
+			"ConvertToDB" => array("CIBlockPropertyFileMan","ConvertToDB"),
+			"ConvertFromDB" => array("CIBlockPropertyFileMan","ConvertFromDB"),
+			"GetSettingsHTML" => array("CIBlockPropertyFileMan","GetSettingsHTML"),
 		);
 	}
 
+	public function GetPropertyFieldHtmlMulty($arProperty, $arValues, $strHTMLControlName)
+	{
+		if($strHTMLControlName["MODE"]=="FORM_FILL" && CModule::IncludeModule('fileman'))
+		{
+			$inputName = array();
+			$description = array();
+			foreach ($arValues as $intPropertyValueID => $arOneValue)
+			{
+				$key = $strHTMLControlName["VALUE"]."[".$intPropertyValueID."]";
+				$inputName[$key."[VALUE]"] = $arOneValue["VALUE"];
+				$description[$key."[DESCRIPTION]"] = $arOneValue["DESCRIPTION"];
+			}
+
+			return CFileInput::ShowMultiple($inputName, $strHTMLControlName["VALUE"]."[n#IND#][VALUE]", array(
+				"PATH" => "Y",
+				"IMAGE" => "N",
+			), false, array(
+				'upload' => false,
+				'medialib' => true,
+				'file_dialog' => true,
+				'cloud' => true,
+				'del' => true,
+				'description' => $arProperty["WITH_DESCRIPTION"]=="Y"? array(
+					"VALUES" => $description,
+					'NAME_TEMPLATE' => $strHTMLControlName["VALUE"]."[n#IND#][DESCRIPTION]",
+				): false,
+			));
+		}
+		else
+		{
+			$table_id = md5($strHTMLControlName["VALUE"]);
+			$return = '<table id="tb'.$table_id.'" border=0 cellpadding=0 cellspacing=0>';
+			foreach ($arValues as $intPropertyValueID => $arOneValue)
+			{
+				$return .= '<tr><td>';
+
+				$return .= '<input type="text" name="'.htmlspecialcharsbx($strHTMLControlName["VALUE"]."[$intPropertyValueID][VALUE]").'" size="'.$arProperty["COL_COUNT"].'" value="'.htmlspecialcharsEx($arOneValue["VALUE"]).'">';
+
+				if (($arProperty["WITH_DESCRIPTION"]=="Y") && ('' != trim($strHTMLControlName["DESCRIPTION"])))
+					$return .= ' <span title="'.GetMessage("IBLOCK_PROP_FILEMAN_DESCRIPTION_TITLE").'">'.GetMessage("IBLOCK_PROP_FILEMAN_DESCRIPTION_LABEL").':<input name="'.htmlspecialcharsEx($strHTMLControlName["DESCRIPTION"]."[$intPropertyValueID][DESCRIPTION]").'" value="'.htmlspecialcharsEx($arOneValue["DESCRIPTION"]).'" size="18" type="text"></span>';
+
+				$return .= '</td></tr>';
+			}
+			$return .= '<tr><td><input type="button" value="'.GetMessage("IBLOCK_PROP_FILEMAN_ADD").'" onClick="addNewRow(\'tb'.$table_id.'\')"></td></tr>';
+			return $return.'</table>';
+		}
+	}
 
 	function GetPropertyFieldHtml($arProperty, $value, $strHTMLControlName)
 	{
@@ -21,8 +70,7 @@ class CIBlockPropertyFileMan
 
 		if (strLen(trim($strHTMLControlName["FORM_NAME"])) <= 0)
 			$strHTMLControlName["FORM_NAME"] = "form_element";
-		ob_start();
-		$name = preg_replace("/[^a-zA-Z0-9_]/i", "x", htmlspecialchars($strHTMLControlName["VALUE"]));
+		$name = preg_replace("/[^a-zA-Z0-9_]/i", "x", htmlspecialcharsbx($strHTMLControlName["VALUE"]));
 
 		if(is_array($value["VALUE"]))
 		{
@@ -30,37 +78,36 @@ class CIBlockPropertyFileMan
 			$value["DESCRIPTION"] = $value["DESCRIPTION"]["VALUE"];
 		}
 
-		if($strHTMLControlName["MODE"]=="FORM_FILL"):?>
-			<input type="text" name="<?=htmlspecialchars($strHTMLControlName["VALUE"])?>" id="<?=$name?>" size="<?=$arProperty["COL_COUNT"]?>" value="<?=htmlspecialcharsEx($value["VALUE"])?>">
-			<input type="button" value="<?=GetMessage("IBLOCK_PROP_FILEMAN_VIEW")?>" OnClick="BC<?=$name?>();">
-			<?
-			CAdminFileDialog::ShowScript
-			(
-				Array(
-					"event" => "BC".$name,
-					"arResultDest" => array(
-						"ELEMENT_ID" => $name,
-					),
-					"arPath" => array("SITE" => SITE_ID, "PATH" =>"/"),
-					"select" => 'F',// F - file only, D - folder only
-					"operation" => 'O',// O - open, S - save
-					"showUploadTab" => true,
-					"showAddToMenuTab" => false,
-					"fileFilter" => '',
-					"allowAllFiles" => true,
-					"SaveConfig" => true,
+		if($strHTMLControlName["MODE"]=="FORM_FILL" && CModule::IncludeModule('fileman'))
+		{
+			return CFileInput::Show($strHTMLControlName["VALUE"], $value["VALUE"],
+				array(
+					"PATH" => "Y",
+					"IMAGE" => "N",
+				), array(
+					'upload' => false,
+					'medialib' => true,
+					'file_dialog' => true,
+					'cloud' => true,
+					'del' => true,
+					'description' => $arProperty["WITH_DESCRIPTION"]=="Y"? array(
+						"VALUE" => $value["DESCRIPTION"],
+						"NAME" => $strHTMLControlName["DESCRIPTION"],
+					): false,
 				)
 			);
-		else:?>
-			<input type="text" name="<?=htmlspecialchars($strHTMLControlName["VALUE"])?>" id="<?=$name?>" size="<?=$arProperty["COL_COUNT"]?>" value="<?=htmlspecialcharsEx($value["VALUE"])?>">
-		<?endif;
+		}
+		else
+		{
+			$return = '<input type="text" name="'.htmlspecialcharsbx($strHTMLControlName["VALUE"]).'" id="'.$name.'" size="'.$arProperty["COL_COUNT"].'" value="'.htmlspecialcharsEx($value["VALUE"]).'">';
 
-		if (($arProperty["WITH_DESCRIPTION"]=="Y") && ('' != trim($strHTMLControlName["DESCRIPTION"])))
-			echo ' <span title="'.GetMessage("IBLOCK_PROP_FILEMAN_DESCRIPTION_TITLE").'">'.GetMessage("IBLOCK_PROP_FILEMAN_DESCRIPTION_LABEL").':<input name="'.htmlspecialcharsEx($strHTMLControlName["DESCRIPTION"]).'" value="'.htmlspecialcharsEx($value["DESCRIPTION"]).'" size="18" type="text"></span>';
-			echo "<br>";
-		$return = ob_get_contents();
-		ob_end_clean();
-		return  $return;
+			if (($arProperty["WITH_DESCRIPTION"]=="Y") && ('' != trim($strHTMLControlName["DESCRIPTION"])))
+			{
+				$return .= ' <span title="'.GetMessage("IBLOCK_PROP_FILEMAN_DESCRIPTION_TITLE").'">'.GetMessage("IBLOCK_PROP_FILEMAN_DESCRIPTION_LABEL").':<input name="'.htmlspecialcharsEx($strHTMLControlName["DESCRIPTION"]).'" value="'.htmlspecialcharsEx($value["DESCRIPTION"]).'" size="18" type="text"></span>';
+			}
+
+			return $return;
+		}
 	}
 
 	function ConvertToDB($arProperty, $value)
@@ -91,5 +138,15 @@ class CIBlockPropertyFileMan
 			$return["DESCRIPTION"] = $value["DESCRIPTION"];
 		return $return;
 	}
+
+	function GetSettingsHTML($arProperty, $strHTMLControlName, &$arPropertyFields)
+	{
+		$arPropertyFields = array(
+			"HIDE" => array("MULTIPLE_CNT"),
+		);
+
+		return '';
+	}
+
 }
 ?>

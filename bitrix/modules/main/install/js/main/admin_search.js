@@ -1,4 +1,4 @@
-function JCTitleSearch(arParams)
+function JCAdminTitleSearch(arParams)
 {
 	var _this = this;
 
@@ -23,23 +23,36 @@ function JCTitleSearch(arParams)
 	this.INPUT = null;
 	this.WAIT = null;
 
+	this.Hide = function()
+	{
+		_this.RESULT.style.display = 'none';
+		_this.RESULT.innerHTML = '';
+		_this.currentRow = -1;
+		_this.UnSelectAll();
+		BX.removeClass(_this.INPUT.parentNode,'adm-header-search-block-active-popup');
+	};
+
 	this.ShowResult = function(result)
 	{
 		var pos = BX.pos(_this.CONTAINER);
 		pos.width = pos.right - pos.left;
 		_this.RESULT.style.position = 'absolute';
-		_this.RESULT.style.top = (pos.bottom + 2) + 'px';
-		_this.RESULT.style.left = (pos.left - 250) + 'px';
-		_this.RESULT.style.width = (pos.width + 250)+ 'px';
+		_this.RESULT.style.top = '4px';//(pos.bottom + 2) - 46  + 'px';
+		_this.RESULT.style.left = (pos.left - 7) + 'px';
+		_this.RESULT.style.width = (pos.width + 14)+ 'px';
+		//_this.RESULT.style.zIndex = _this.CONTAINER.style.zIndex - 1;
 		if(result != null)
 			_this.RESULT.innerHTML = result;
 
 		if(_this.RESULT.innerHTML.length > 0)
+		{
 			_this.RESULT.style.display = 'block';
+			BX.addClass(_this.INPUT.parentNode,'adm-header-search-block-active-popup');
+		}
 		else
-			_this.RESULT.style.display = 'none';
+			this.Hide();
 
-	}
+	};
 
 	this.onKeyPress = function(keyCode)
 	{
@@ -52,9 +65,7 @@ function JCTitleSearch(arParams)
 		switch (keyCode)
 		{
 		case 27: // escape key - close search div
-			_this.RESULT.style.display = 'none';
-			_this.currentRow = -1;
-			_this.UnSelectAll();
+			_this.Hide();
 		return true;
 
 		case 40: // down key - navigate down on search results
@@ -64,20 +75,17 @@ function JCTitleSearch(arParams)
 			var first = -1;
 			for(var i = 0; i < cnt; i++)
 			{
-				if(!BX.findChild(tbl.rows[i], {'class':'adm-search-separator'}, true))
-				{
-					if(first == -1)
-						first = i;
+				if(first == -1)
+					first = i;
 
-					if(_this.currentRow < i)
-					{
-						_this.currentRow = i;
-						break;
-					}
-					else if(tbl.rows[i].className == 'adm-search-selected')
-					{
-						tbl.rows[i].className = '';
-					}
+				if(_this.currentRow < i)
+				{
+					_this.currentRow = i;
+					break;
+				}
+				else if(tbl.rows[i].className == 'adm-search-selected')
+				{
+					tbl.rows[i].className = '';
 				}
 			}
 
@@ -94,24 +102,21 @@ function JCTitleSearch(arParams)
 			var last = -1;
 			for(var i = cnt-1; i >= 0; i--)
 			{
-				if(!BX.findChild(tbl.rows[i], {'class':'adm-search-separator'}, true))
-				{
-					if(last == -1)
-						last = i;
+				if(last == -1)
+					last = i;
 
-					if(_this.currentRow > i)
-					{
-						_this.currentRow = i;
-						break;
-					}
-					else if(tbl.rows[i].className == 'adm-search-selected')
-					{
-						tbl.rows[i].className = '';
-					}
+				if(_this.currentRow > i)
+				{
+					_this.currentRow = i;
+					break;
+				}
+				else if(tbl.rows[i].className == 'adm-search-selected')
+				{
+					tbl.rows[i].className = '';
 				}
 			}
 
-			if(i < 0 && _this.currentRow != i)
+			if(i < 0)
 				_this.currentRow = last;
 
 			tbl.rows[_this.currentRow].className = 'adm-search-selected';
@@ -140,7 +145,7 @@ function JCTitleSearch(arParams)
 		}
 
 		return false;
-	}
+	};
 
 	this.onTimeout = function()
 	{
@@ -192,9 +197,7 @@ function JCTitleSearch(arParams)
 			}
 			else
 			{
-				_this.RESULT.style.display = 'none';
-				_this.currentRow = -1;
-				_this.UnSelectAll();
+				_this.Hide();
 				setTimeout(_this.onTimeout, 500);
 			}
 		}
@@ -213,7 +216,7 @@ function JCTitleSearch(arParams)
 			for(var i = 0; i < cnt; i++)
 				tbl.rows[i].className = '';
 		}
-	}
+	};
 
 	this.EnableMouseEvents = function()
 	{
@@ -222,35 +225,34 @@ function JCTitleSearch(arParams)
 		{
 			var cnt = tbl.rows.length;
 			for(var i = 0; i < cnt; i++)
-				if(!BX.findChild(tbl.rows[i], {'class':'adm-search-separator'}, true))
-				{
-					tbl.rows[i].id = 'row_' + i;
-					tbl.rows[i].onmouseover = function (e) {
-						if(_this.currentRow != this.id.substr(4))
-						{
-							_this.UnSelectAll();
-							this.className = 'adm-search-selected';
-							_this.currentRow = this.id.substr(4);
-						}
-					};
-					tbl.rows[i].onmouseout = function (e) {
-						this.className = '';
-						_this.currentRow = -1;
-					};
-				}
+			{
+				tbl.rows[i].id = 'row_' + i;
+				tbl.rows[i].onmouseover = function (e) {
+					if(_this.currentRow != this.id.substr(4))
+					{
+						_this.UnSelectAll();
+						this.className = 'adm-search-selected';
+						_this.currentRow = this.id.substr(4);
+					}
+				};
+				tbl.rows[i].onmouseout = function (e) {
+					this.className = '';
+					_this.currentRow = -1;
+				};
+			}
 		}
-	}
+	};
 
 	this.onFocusLost = function(hide)
 	{
-		setTimeout(function(){_this.RESULT.style.display = 'none';}, 250);
-	}
+		setTimeout(function(){_this.Hide();}, 250);
+	};
 
 	this.onFocusGain = function()
 	{
 		if(_this.RESULT.innerHTML.length)
 			_this.ShowResult();
-	}
+	};
 
 	this.onKeyDown = function(e)
 	{
@@ -262,17 +264,20 @@ function JCTitleSearch(arParams)
 			if(_this.onKeyPress(e.keyCode))
 				return BX.PreventDefault(e);
 		}
-	}
+	};
 
 	this.Init = function()
 	{
 		this.CONTAINER = document.getElementById(this.arParams.CONTAINER_ID);
-		this.RESULT = document.body.appendChild(document.createElement("DIV"));
-		this.RESULT.className = 'adm-search-result';
+		this.RESULT = document.getElementById("bx-panel").appendChild(document.createElement("DIV"));
+		this.RESULT.className = 'adm-search-result-wrap';
+		this.RESULT.style.display = 'none';
+
 		this.INPUT = document.getElementById(this.arParams.INPUT_ID);
 		this.startText = this.oldValue = this.INPUT.value;
 		BX.bind(this.INPUT, 'focus', function() {_this.onFocusGain()});
 		BX.bind(this.INPUT, 'blur', function() {_this.onFocusLost()});
+		BX.bind(window, 'resize', function() {_this.onFocusGain()});
 
 		if(BX.browser.IsSafari() || BX.browser.IsIE())
 			this.INPUT.onkeydown = this.onKeyDown;
@@ -291,7 +296,7 @@ function JCTitleSearch(arParams)
 		}
 
 		setTimeout(this.onTimeout, 500);
-	}
+	};
 
 	BX.ready(function (){_this.Init(arParams)});
 }

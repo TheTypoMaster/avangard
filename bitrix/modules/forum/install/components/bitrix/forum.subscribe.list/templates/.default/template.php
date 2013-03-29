@@ -4,6 +4,7 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/themes/blue/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/styles/additional.css');
 endif;
+CUtil::InitJSCore(array());
 /********************************************************************
 				Input params
 ********************************************************************/
@@ -55,14 +56,14 @@ endif;
 					<th><span><?=GetMessage("FSL_TOPIC_NAME")?></span></th>
 					<th><span><?=GetMessage("FSL_SUBSCR_DATE")?></span></th>
 					<th><span><?=GetMessage("FSL_LAST_SENDED_MESSAGE")?></span></th>
-					<th class="forum-last-column"><input type="checkbox" name="all_SID__" onclick="FSelectAll(this, 'SID[]');" /></th>
+					<th class="forum-last-column"><input type="checkbox" name="all_SID__" onclick="FSelectAll(this, true);" /></th>
 				</tr>
 			</thead>
 <?
 if ($arResult["SHOW_SUBSCRIBE_LIST"] != "Y"):
 ?>
 			<tbody>
- 				<tr class="forum-row-first forum-row-odd">
+				<tr class="forum-row-first forum-row-odd">
 					<td class="forum-first-column" colspan="5"><?=GetMessage("FSL_NOT_SUBCRIBED")?></td>
 				</tr>
 			<tbody>
@@ -75,8 +76,8 @@ else:
 	foreach ($arResult["SUBSCRIBE_LIST"] as $res):
 		$iCount++;
 ?>
- 				<tr class="<?=($iCount == 1 ? "forum-row-first " : (
-				 $iCount == count($arResult["SUBSCRIBE_LIST"]) ? "forum-row-last " : ""))?><?=($iCount%2 == 1 ? "forum-row-odd" : "forum-row-even")?>">
+				<tr class="<?=($iCount == 1 ? "forum-row-first " : (
+				$iCount == count($arResult["SUBSCRIBE_LIST"]) ? "forum-row-last " : ""))?><?=($iCount%2 == 1 ? "forum-row-odd" : "forum-row-even")?>">
 					<td class="forum-first-column"><a href="<?=$res["list"]?>"><?=$res["FORUM_INFO"]["NAME"]?></a></td>
 					<td><?
 		if ($res["SUBSCRIBE_TYPE"] == "TOPIC"):
@@ -96,7 +97,7 @@ else:
 		endif;
 					?></td>
 					<td class="forum-last-column">
-						<input type="checkbox" name="SID[]" id="SID_<?=$res["ID"]?>" value="<?=$res["ID"]?>"  onclick="onClickCheckbox(this);" />
+						<input type="checkbox" name="SID[]" id="SID_<?=$res["ID"]?>" value="<?=$res["ID"]?>" class="forum-subscribe-checkbox" onclick="onClickCheckbox(this);" />
 					</td>
 				</tr>
 		<?

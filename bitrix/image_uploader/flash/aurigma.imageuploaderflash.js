@@ -3093,3 +3093,4 @@ wnd.Aurigma.ImageUploaderFlash = AU;
 wnd.$au = AU;
 
 })(window);
+;   

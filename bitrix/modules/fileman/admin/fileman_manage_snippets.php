@@ -22,18 +22,23 @@ if (isset($_GET['target']) && check_bitrix_sessid())
 			break;
 		case "add":
 		case "edit":
+			CUtil::JSPostUnEscape();
+			$code = isset($_REQUEST['code']) ? $_REQUEST['code'] : '';
+			if (CFileman::IsPHP($code) && !$USER->CanDoOperation('edit_php'))
+				return $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+
 			CSnippets::Edit(array(
-				'bNew' => $_GET['target'] == 'add',
-				'name' => $APPLICATION->UnJSEscape($_REQUEST['name']),
-				'path' => isset($_REQUEST['path']) ? $APPLICATION->UnJSEscape($_REQUEST['path']) : false,
-				'template' => $APPLICATION->UnJSEscape($_REQUEST['templateID']),
+				'bNew' => $_REQUEST['target'] == 'add',
+				'name' => $_REQUEST['name'],
+				'path' => $_REQUEST['target'] == 'add' && isset($_REQUEST['path']) ? $_REQUEST['path'] : false,
+				'template' => $_REQUEST['templateID'],
 				'site' => $_REQUEST['site'],
-				'title' => isset($_REQUEST['title']) ? $APPLICATION->UnJSEscape($_REQUEST['title']) : '',
-				'description' => isset($_REQUEST['description']) ? $APPLICATION->UnJSEscape($_REQUEST['description']) : '',
-				'code' => isset($_REQUEST['code']) ? $APPLICATION->UnJSEscape($_REQUEST['code']) : '',
-				'thumb' => isset($_REQUEST['thumb']) ? $APPLICATION->UnJSEscape($_REQUEST['thumb']) : '',
-				'location' => isset($_REQUEST["location"]) ? $APPLICATION->UnJSEscape($_REQUEST["location"]) : false,
-				'newGroup' => isset($_REQUEST["new_group"]) ? $APPLICATION->UnJSEscape($_REQUEST["new_group"]) : false,
+				'title' => isset($_REQUEST['title']) ? $_REQUEST['title'] : '',
+				'description' => isset($_REQUEST['description']) ? $_REQUEST['description'] : '',
+				'code' => $code,
+				'thumb' => isset($_REQUEST['thumb']) ? $_REQUEST['thumb'] : false,
+				'location' => isset($_REQUEST["location"]) ? $_REQUEST["location"] : false,
+				'newGroup' => isset($_REQUEST["new_group"]) ? $_REQUEST["new_group"] : false
 			));
 			break;
 		case "delete":

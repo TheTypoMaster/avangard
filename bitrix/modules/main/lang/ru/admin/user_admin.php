@@ -31,7 +31,7 @@ $MESS["MAIN_F_ID"] = "ID:";
 $MESS["MAIN_F_LAST_LOGIN"] = "Последняя авторизация";
 $MESS["MAIN_F_TIMESTAMP"] = "Дата изменения";
 $MESS["MAIN_F_EMAIL"] = "E-Mail:";
-$MESS["MAIN_F_KEYWORDS"] = "Поля профайла:";
+$MESS["MAIN_F_KEYWORDS"] = "Поля профиля:";
 $MESS["DATE_REGISTER"] = "Дата регистрации";
 $MESS["PERSONAL_BIRTHDAY"] = "Дата рождения";
 $MESS["PERSONAL_PROFESSION"] = "Профессия";
@@ -73,4 +73,6 @@ $MESS["MAIN_ADMIN_LIST_REM_GROUP"]="удалить из группы";
 $MESS["MAIN_ADMIN_LIST_GROUP"]="(выберите группу)";
 $MESS["MAIN_ADMIN_LIST_ADD_STRUCT"]="добавить в структуру";
 $MESS["MAIN_ADMIN_LIST_REM_STRUCT"]="удалить из структуры";
+$MESS["MAIN_ADMIN_AUTH"]="Авторизоваться";
+$MESS["MAIN_ADMIN_AUTH_TITLE"]="Авторизоваться под данным пользователем";
 ?>

@@ -12,5 +12,5 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 			.('Y' == $arParams['MULTIPLE']? "&m=y": "")
 			."&lookup=".urlencode($arParams['ONSELECT'])
 		;
-		echo htmlspecialchars("jsUtils.OpenWindow('".CUtil::JSEscape($url)."', 600, 500);");
+		echo htmlspecialcharsbx("jsUtils.OpenWindow('".CUtil::JSEscape($url)."', 600, 500);");
 	?>">

@@ -1,4 +1,5 @@
 <?
+$MESS["IBLOCK_CML2_WRONG_FILE_ERROR"] = "This file is not an XML CommerceML 2.0 file.";
 $MESS["IBLOCK_CML2_TABLE_CREATE_ERROR"] = "An error occurred trying to create temporary import tables.";
 $MESS["IBLOCK_CML2_FILE_ERROR"] = "File open error.";
 $MESS["IBLOCK_CML2_INDEX_ERROR"] = "An error occurred trying to create index.";
@@ -45,5 +46,5 @@ $MESS["IBLOCK_CML2_LID_ERROR"] = "No sites were selected.";
 $MESS["IBLOCK_CML2_IMAGE_RESIZE"] = "Use Information Block Settings For Image Processing";
 $MESS["IBLOCK_CML2_ELEMENTS_LIST"] = "Jump to element list.";
 $MESS["IBLOCK_CML2_ACCESS_DENIED"] = "Access denied.";
-$MESS["IBLOCK_CML2_WRONG_FILE_ERROR"] = "This file is not an XML CommerceML 2.0 file.";
+$MESS["IBLOCK_CML2_FILE_PROGRESS2"] = "Reading import file to temporary tables";
 ?>

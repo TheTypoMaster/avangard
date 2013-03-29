@@ -27,6 +27,42 @@ Class clouds extends CModule
 		$this->MODULE_DESCRIPTION = GetMessage("CLO_MODULE_DESCRIPTION");
 	}
 
+	function GetModuleTasks()
+	{
+		return array(
+			'clouds_denied' => array(
+				"LETTER" => "D",
+				"BINDING" => "module",
+				"OPERATIONS" => array(
+				),
+			),
+			'clouds_browse' => array(
+				"LETTER" => "F",
+				"BINDING" => "module",
+				"OPERATIONS" => array(
+					'clouds_browse',
+				),
+			),
+			'clouds_upload' => array(
+				"LETTER" => "U",
+				"BINDING" => "module",
+				"OPERATIONS" => array(
+					'clouds_browse',
+					'clouds_upload',
+				),
+			),
+			'clouds_full_access' => array(
+				"LETTER" => "W",
+				"BINDING" => "module",
+				"OPERATIONS" => array(
+					'clouds_browse',
+					'clouds_upload',
+					'clouds_config',
+				),
+			),
+		);
+	}
+
 	function InstallDB($arParams = array())
 	{
 		global $DB, $DBType, $APPLICATION;
@@ -46,8 +82,13 @@ Class clouds extends CModule
 		}
 		else
 		{
+			$this->InstallTasks();
+
 			RegisterModule("clouds");
 			CModule::IncludeModule("clouds");
+			RegisterModuleDependences("main", "OnEventLogGetAuditTypes", "clouds", "CCloudStorage", "GetAuditTypes");
+			RegisterModuleDependences("main", "OnBeforeProlog", "clouds", "CCloudStorage", "OnBeforeProlog");
+			RegisterModuleDependences("main", "OnAdminListDisplay", "clouds", "CCloudStorage", "OnAdminListDisplay");
 			RegisterModuleDependences("main", "OnBuildGlobalMenu", "clouds", "CCloudStorage", "OnBuildGlobalMenu");
 			RegisterModuleDependences("main", "OnFileSave", "clouds", "CCloudStorage", "OnFileSave");
 			RegisterModuleDependences("main", "OnGetFileSRC", "clouds", "CCloudStorage", "OnGetFileSRC");
@@ -61,6 +102,7 @@ Class clouds extends CModule
 			RegisterModuleDependences("clouds", "OnGetStorageService", "clouds", "CCloudStorageService_OpenStackStorage", "GetObject");
 			RegisterModuleDependences("clouds", "OnGetStorageService", "clouds", "CCloudStorageService_RackSpaceCloudFiles", "GetObject");
 			RegisterModuleDependences("clouds", "OnGetStorageService", "clouds", "CCloudStorageService_ClodoRU", "GetObject");
+			RegisterModuleDependences("clouds", "OnGetStorageService", "clouds", "CCloudStorageService_Selectel", "GetObject");
 
 			return true;
 		}
@@ -74,8 +116,12 @@ Class clouds extends CModule
 		if(!array_key_exists("save_tables", $arParams) || $arParams["save_tables"] != "Y")
 		{
 			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/clouds/install/db/".strtolower($DB->type)."/uninstall.sql");
+			$this->UnInstallTasks();
 		}
 
+		UnRegisterModuleDependences("main", "OnEventLogGetAuditTypes", "clouds", "CCloudStorage", "GetAuditTypes");
+		UnRegisterModuleDependences("main", "OnBeforeProlog", "clouds", "CCloudStorage", "OnBeforeProlog");
+		UnRegisterModuleDependences("main", "OnAdminListDisplay", "clouds", "CCloudStorage", "OnAdminListDisplay");
 		UnRegisterModuleDependences("main", "OnBuildGlobalMenu", "clouds", "CCloudStorage", "OnBuildGlobalMenu");
 		UnRegisterModuleDependences("main", "OnFileSave", "clouds", "CCloudStorage", "OnFileSave");
 		UnRegisterModuleDependences("main", "OnGetFileSRC", "clouds", "CCloudStorage", "OnGetFileSRC");
@@ -89,8 +135,12 @@ Class clouds extends CModule
 		UnRegisterModuleDependences("clouds", "OnGetStorageService", "clouds", "CCloudStorageService_OpenStackStorage", "GetObject");
 		UnRegisterModuleDependences("clouds", "OnGetStorageService", "clouds", "CCloudStorageService_RackSpaceCloudFiles", "GetObject");
 		UnRegisterModuleDependences("clouds", "OnGetStorageService", "clouds", "CCloudStorageService_ClodoRU", "GetObject");
+		UnRegisterModuleDependences("clouds", "OnGetStorageService", "clouds", "CCloudStorageService_Selectel", "GetObject");
 
 		UnRegisterModule("clouds");
+
+		if(!defined("BX_CLOUDS_UNINSTALLED"))
+			define("BX_CLOUDS_UNINSTALLED", true);
 
 		if($this->errors !== false)
 		{
@@ -113,11 +163,10 @@ Class clouds extends CModule
 
 	function InstallFiles($arParams = array())
 	{
-		global $DB;
 		if($_ENV["COMPUTERNAME"]!='BX')
 		{
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/clouds/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/clouds/install/themes/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/", true, true);
+			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/clouds/install/themes/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
 		}
 		return true;
 	}
@@ -128,7 +177,6 @@ Class clouds extends CModule
 		{
 			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/clouds/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
 			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/clouds/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");
-			DeleteDirFilesEx("/bitrix/themes/.default/icons/clouds/");
 		}
 		return true;
 	}
@@ -139,13 +187,7 @@ Class clouds extends CModule
 		if($USER->IsAdmin())
 		{
 			$step = IntVal($step);
-			if(!CBXFeatures::IsFeatureEditable("Clouds"))
-			{
-				$this->errors = array(GetMessage("MAIN_FEATURE_ERROR_EDITABLE"));
-				$GLOBALS["errors"] = $this->errors;
-				$APPLICATION->IncludeAdminFile(GetMessage("CLO_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/clouds/install/step2.php");
-			}
-			elseif($step < 2)
+			if($step < 2)
 			{
 				$APPLICATION->IncludeAdminFile(GetMessage("CLO_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/clouds/install/step1.php");
 			}
@@ -154,7 +196,6 @@ Class clouds extends CModule
 				if($this->InstallDB())
 				{
 					$this->InstallFiles();
-					CBXFeatures::SetFeatureEnabled("Clouds", true);
 				}
 				$GLOBALS["errors"] = $this->errors;
 				$APPLICATION->IncludeAdminFile(GetMessage("CLO_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/clouds/install/step2.php");
@@ -178,7 +219,6 @@ Class clouds extends CModule
 					"save_tables" => $_REQUEST["save_tables"],
 				));
 				$this->UnInstallFiles();
-				CBXFeatures::SetFeatureEnabled("Clouds", false);
 				$GLOBALS["errors"] = $this->errors;
 				$APPLICATION->IncludeAdminFile(GetMessage("CLO_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/clouds/install/unstep2.php");
 			}

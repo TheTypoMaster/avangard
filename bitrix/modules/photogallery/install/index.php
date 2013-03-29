@@ -12,7 +12,7 @@ Class photogallery extends CModule
 	var $MODULE_DESCRIPTION;
 	var $MODULE_CSS;
 	var $MODULE_GROUP_RIGHTS = "N";
-	
+
 	function photogallery()
 	{
 		$arModuleVersion = array();
@@ -35,27 +35,25 @@ Class photogallery extends CModule
 		$this->MODULE_NAME = GetMessage("P_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("P_MODULE_DESCRIPTION");
 	}
-	
+
 	function InstallDB()
 	{
 		RegisterModule("photogallery");
-		CAgent::AddAgent("PClearTmpUploadDir();", "photogallery");
 		RegisterModuleDependences("iblock", "OnBeforeIBlockElementDelete", "photogallery", "CPhotogalleryElement", "OnBeforeIBlockElementDelete");
 		RegisterModuleDependences("iblock", "OnAfterIBlockElementAdd", "photogallery", "CPhotogalleryElement", "OnAfterIBlockElementAdd");
-		RegisterModuleDependences("search", "BeforeIndex", "photogallery", "CRatingsComponentsPhotogallery", "BeforeIndex");	
+		RegisterModuleDependences("search", "BeforeIndex", "photogallery", "CRatingsComponentsPhotogallery", "BeforeIndex");
 		return true;
 	}
-	
+
 	function UnInstallDB()
 	{
 		UnRegisterModuleDependences("iblock", "OnBeforeIBlockElementDelete", "photogallery", "CPhotogalleryElement", "OnBeforeIBlockElementDelete");
 		UnRegisterModuleDependences("iblock", "OnAfterIBlockElementAdd", "photogallery", "CPhotogalleryElement", "OnAfterIBlockElementAdd");
 		UnRegisterModuleDependences("search", "BeforeIndex", "photogallery", "CRatingsComponentsPhotogallery", "BeforeIndex");
-		CAgent::RemoveModuleAgents("photogallery");
 		UnRegisterModule("photogallery");
 		return true;
 	}
-	
+
 	function InstallEvents()
 	{
 		return true;
@@ -88,7 +86,7 @@ Class photogallery extends CModule
 		if (IsModuleInstalled("iblock"))
 		{
 			$step = IntVal($_REQUEST["step"]);
-			
+
 			if ($step < 2)
 				$APPLICATION->IncludeAdminFile(GetMessage("PHOTO_INSTALL"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/photogallery/install/step1.php");
 			elseif($step == 2)

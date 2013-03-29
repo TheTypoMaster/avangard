@@ -169,7 +169,7 @@ $MESS["SUP_SUAC_TEXT"] = "Please activate your coupon to add a new solution.";
 $MESS["SUP_SUAC_ADD"] = "Activate coupon";
 $MESS["SUP_SUAC_TEXT2"] = "Enter the coupon code:";
 $MESS["SUP_SU_UPD_MP_NEW"] = "The following solutions has been added to your website:";
-$MESS["SUP_SU_UPD_MP_NEW2"] = "If you don't want to install the solutions right now, you can do it later at Settings &gt; Marketplace &gt; Solutions.";
+$MESS["SUP_SU_UPD_MP_NEW2"] = "If you don't want to install the solutions right now, you can do it later at Marketplace &gt; Solutions.";
 $MESS["SUP_SU_UPD_MP_NEW_INST"] = "Install";
 $MESS["SUP_SUAC_NO_COUP"] = "Please provide the coupon code to activate";
 ?>

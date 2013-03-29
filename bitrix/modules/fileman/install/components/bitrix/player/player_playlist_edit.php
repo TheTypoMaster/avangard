@@ -212,11 +212,16 @@ if (!window.style_2 || !window.style_2.parentNode)
 <?
 $TITLE = GetMessage("PLAYLIST_TITLE_".($bCreate ? "CREATE" : "EDIT"));
 $DESCRIPTION = GetMessage('PLAYLIST_TITLE_DESCRIPTION');
+$back_url = $_GET["back_url"];
+
+// Clear all pathes which not begining from '/'
+if ($back_url != '' && (substr($back_url, 0, 1) != '/' || strpos($back_url, ':') !== false))
+	$back_url = '';
 
 $obJSPopup = new CJSPopup('',
 	array(
 		'TITLE' => $TITLE,
-		'ARGS' => "lang=".urlencode($_GET["lang"])."&site=".urlencode($_GET["site"])."&back_url=".urlencode($_GET["back_url"])."&path=".urlencode($_GET["path"])."&name=".urlencode($_GET["name"])
+		'ARGS' => "lang=".urlencode($_GET["lang"])."&site=".urlencode($_GET["site"])."&back_url=".urlencode($back_url)."&path=".urlencode($_GET["path"])."&name=".urlencode($_GET["name"])
 	)
 );
 $obJSPopup->ShowTitlebar();

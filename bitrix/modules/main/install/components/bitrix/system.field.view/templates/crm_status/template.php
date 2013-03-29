@@ -9,6 +9,6 @@ foreach ($arResult["VALUE"] as $res):
 	else:
 		$first = false;	
 	endif;
-	?><span class="fields crm_status"><?=(isset($ar[$res])? $ar[$res]: '')?></span><?
+	?><span class="fields crm_status"><?=(isset($ar[$res])? htmlspecialcharsbx($ar[$res]): '')?></span><?
 endforeach;	
 ?>

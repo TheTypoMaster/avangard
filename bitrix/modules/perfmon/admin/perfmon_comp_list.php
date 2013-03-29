@@ -188,7 +188,7 @@ $oFilter = new CAdminFilter(
 <tr>
 	<td><b><?=GetMessage("PERFMON_COMP_FIND")?>:</b></td>
 	<td>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("PERFMON_COMP_FIND")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("PERFMON_COMP_FIND")?>">
 		<?
 		$arr = array(
 			"reference" => array(
@@ -206,15 +206,15 @@ $oFilter = new CAdminFilter(
 </tr>
 <tr>
 	<td><?=GetMessage("PERFMON_COMP_COMPONENT_NAME")?></td>
-	<td><input type="text" name="find_component_name" size="47" value="<?echo htmlspecialchars($find_component_name)?>"></td>
+	<td><input type="text" name="find_component_name" size="47" value="<?echo htmlspecialcharsbx($find_component_name)?>"></td>
 </tr>
 <tr>
 	<td><?=GetMessage("PERFMON_COMP_HIT_ID")?></td>
-	<td><input type="text" name="find_hit_id" size="47" value="<?echo htmlspecialchars($find_hit_id)?>"></td>
+	<td><input type="text" name="find_hit_id" size="47" value="<?echo htmlspecialcharsbx($find_hit_id)?>"></td>
 </tr>
 <tr>
 	<td><?=GetMessage("PERFMON_COMP_HIT_SCRIPT_NAME")?></td>
-	<td><input type="text" name="find_hit_script_name" size="47" value="<?echo htmlspecialchars($find_hit_script_name)?>"></td>
+	<td><input type="text" name="find_hit_script_name" size="47" value="<?echo htmlspecialcharsbx($find_hit_script_name)?>"></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("PERFMON_COMP_CACHE_TYPE")?>:</td>
@@ -223,7 +223,7 @@ $oFilter = new CAdminFilter(
 			"reference"=>array(GetMessage("PERFMON_COMP_CACHE_TYPE_YES"), GetMessage("PERFMON_COMP_CACHE_TYPE_NO"), GetMessage("PERFMON_COMP_CACHE_TYPE_AUTO")),
 			"reference_id"=>array("Y", "N", "A"),
 		);
-		echo SelectBoxFromArray("find_cache_type", $arr, htmlspecialchars($find_cache_type), GetMessage("MAIN_ALL"));
+		echo SelectBoxFromArray("find_cache_type", $arr, htmlspecialcharsbx($find_cache_type), GetMessage("MAIN_ALL"));
 	?></td>
 </tr>
 <?

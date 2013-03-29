@@ -46,7 +46,7 @@ if (!function_exists("__array_merge"))
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
@@ -58,7 +58,6 @@ if (!function_exists("__array_merge"))
 /***************** STANDART ****************************************/
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
-	// $arParams["DISPLAY_PANEL"] = ($arParams["DISPLAY_PANEL"] == "Y" ? "Y" : "N");
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 	else
@@ -109,7 +108,7 @@ $cache_path = $cache_path_main."forums";
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
 	$res = $cache->GetVars();
-	$arForums = $res["arForums"];
+	$arForums = CForumCacheManager::Expand($res["arForums"]);
 }
 $arForums = (is_array($arForums) ? $arForums : array());
 if (empty($arForums))
@@ -117,14 +116,14 @@ if (empty($arForums))
 	$db_res = CForumNew::GetListEx(array("FORUM_GROUP_SORT"=>"ASC", "FORUM_GROUP_ID"=>"ASC", "SORT"=>"ASC", "NAME"=>"ASC"), $arFilter);
 	if ($db_res && ($res = $db_res->GetNext()))
 	{
-		do 
+		do
 		{
 			$arForums[$res["ID"]] = $res;
 		} while ($res = $db_res->GetNext());
 	}
 	if ($arParams["CACHE_TIME"] > 0):
 		$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
-		$cache->EndDataCache(array("arForums" => $arForums));
+		$cache->EndDataCache(array("arForums" => CForumCacheManager::Compress($arForums)));
 	endif;
 }
 $arResult["FORUMS"] = $arForums;
@@ -210,9 +209,9 @@ if (strLen($_REQUEST["q"]) > 0 || !empty($_REQUEST["tags"])):
 				"q=".urlencode($q).
 				(!empty($arParams["FID"]) ? "&FORUM_ID=".$arParams["FID"] : "").
 				"&order=date", array("FORUM_ID", "q", "order", "s", BX_AJAX_PARAM_ID));
-			$arResult["order"]["relevance"] = htmlspecialchars($arResult["order"]["~relevance"]);
-			$arResult["order"]["topic"] = htmlspecialchars($arResult["order"]["~topic"]);
-			$arResult["order"]["date"] = htmlspecialchars($arResult["order"]["~date"]);
+			$arResult["order"]["relevance"] = htmlspecialcharsbx($arResult["order"]["~relevance"]);
+			$arResult["order"]["topic"] = htmlspecialcharsbx($arResult["order"]["~topic"]);
+			$arResult["order"]["date"] = htmlspecialcharsbx($arResult["order"]["~date"]);
 			$arResult["EMPTY"] = "N";
 			do
 			{
@@ -244,7 +243,7 @@ if (strLen($_REQUEST["q"]) > 0 || !empty($_REQUEST["tags"])):
 						$tags = $tag;
 						$res["TAGS"][] = array(
 							"URL" => $APPLICATION->GetCurPageParam("tags=".urlencode($tags), array("tags")),
-							"TAG_NAME" => htmlspecialchars($name),
+							"TAG_NAME" => htmlspecialcharsbx($name),
 						);
 					}
 				}
@@ -258,14 +257,11 @@ endif;
 /************** For custom template *******************************/
 	$arResult["index"] = $arResult["URL"]["INDEX"];
 /******************************************************************/
-	if ($arParams["SET_NAVIGATION"] != "N")
-		$APPLICATION->AddChainItem(GetMessage("F_TITLE"));
-/******************************************************************/
-	if ($arParams["SET_TITLE"] != "N")
-		$APPLICATION->SetTitle(GetMessage("F_TITLE"));
-	// if($arParams["DISPLAY_PANEL"] == "Y" && $USER->IsAuthorized())
-		// CForumNew::ShowPanel(0, 0, false);
-/******************************************************************/
 	$this->IncludeComponentTemplate();
 /******************************************************************/
+if ($arParams["SET_NAVIGATION"] != "N")
+	$APPLICATION->AddChainItem(GetMessage("F_TITLE"));
+/******************************************************************/
+if ($arParams["SET_TITLE"] != "N")
+	$APPLICATION->SetTitle(GetMessage("F_TITLE"));
 ?>

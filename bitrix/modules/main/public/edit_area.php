@@ -44,7 +44,7 @@ class CEditArea
 		$areaId = $this->__GetAreaId();
 
 		if ($this->bDrawIcons)
-			$res .= '<script type="text/javascript">BX.admin.setComponentBorder(\'bx_incl_area_'.$areaId.'\')</script>';
+			$res .= '<script type="text/javascript">if(window.BX&&BX.admin)BX.admin.setComponentBorder(\'bx_incl_area_'.$areaId.'\')</script>';
 
 		$this->includeLevel--;
 		return $res;
@@ -53,7 +53,7 @@ class CEditArea
 	function DrawIcons($arIcons, $arParams=array())
 	{
 		$bStack = $this->includeLevel > ($GLOBALS['BX_GLOBAL_AREA_EDIT_ICON'] ? 1 : 0);
-	
+
 		$arJSIcons = array();
 		$arOuterIcons = array();
 		foreach ($arIcons as $arIcon)
@@ -76,9 +76,9 @@ class CEditArea
 					else
 						$this->includeAreaIcons["ICONS_ID"][] = $arIcon["ID"];
 				}
-			
+
 				$jsIcon = CEditArea::GetJSIcon($arIcon);
-				
+
 				if ($arIcon['IN_MENU'] || ($arIcon['TYPE'] == 'components2_props' && $bStack))
 					$arJSIcons[] = $jsIcon;
 				elseif ($arIcon['IN_PARAMS_MENU'])
@@ -92,14 +92,14 @@ class CEditArea
 		}
 
 		$areaId = $this->__GetAreaId();
- 
+
 		$this->includeAreaIcons[$areaId] = array(
 			'COMPONENT' => $arParams['COMPONENT'],
 			'DESCRIPTION' => $arParams['COMPONENT_DESCRIPTION'],
 			'OUTER_ICONS' => $arOuterIcons,
 			'ICONS' => $arJSIcons
 		);
-		
+
 		if ($bStack)
 		{
 			$this->bDrawIcons = false;
@@ -109,7 +109,7 @@ class CEditArea
 		{
 			if (array_key_exists("ICONS_ID", $this->includeAreaIcons))
 				unset($this->includeAreaIcons["ICONS_ID"]);
-				
+
 			$arAllOuterIcons = array();
 			$arAllInnerIcons = array();
 			foreach ($this->includeAreaIcons as $arSubIcons)
@@ -119,16 +119,16 @@ class CEditArea
 					$arAllInnerIcons,
 					array(
 						array(
-							'TEXT' => $arSubIcons['DESCRIPTION']['NAME'] ? ($arSubIcons['DESCRIPTION']['NAME'].' ('.$arSubIcons['COMPONENT'].')') : $arSubIcons['COMPONENT'], 
+							'TEXT' => $arSubIcons['DESCRIPTION']['NAME'] ? ($arSubIcons['DESCRIPTION']['NAME'].' ('.$arSubIcons['COMPONENT'].')') : $arSubIcons['COMPONENT'],
 							'ICON' => 'parameters-2',
 							'MENU' => $arSubIcons['ICONS']
 						)
 					)
 				);
 			}
-			
+
 			$arAllInnerIcons = array_reverse($arAllInnerIcons);
-			
+
 			$arAddInnerIcons = array();
 			foreach ($arAllOuterIcons as $key => $aIcon)
 			{
@@ -141,12 +141,12 @@ class CEditArea
 					$arAddInnerIcons[] = $aIcon;
 				}
 			}
-			
+
 			if (count($arAddInnerIcons) > 1)
 			{
 				$arAddInnerIcons[] = array('SEPARATOR' => 'Y');
 			}
-			
+
 			if (count($arAddInnerIcons) > 0 && count($arAllInnerIcons) > 0)
 			{
 				$arJSIcons = array_merge(
@@ -165,13 +165,13 @@ class CEditArea
 			{
 				$arJSIcons = $arAllOuterIcons;
 			}
-			
+
 			$arUserOptions = false;
 			if ($arParams['COMPONENT_ID'])
 			{
 				$arUserOptions = CUtil::GetPopupOptions($arParams['COMPONENT_ID']);
 			}
-			
+
 			$arJSParams = array(
 				'parent' => 'bx_incl_area_'.$areaId,
 				'id' => 'comp_'.$areaId,
@@ -180,7 +180,7 @@ class CEditArea
 			if ($arParams['COMPONENT_ID'])
 			{
 				$arJSParams['component_id'] = $arParams['COMPONENT_ID'];
-			
+
 				if (is_array($arUserOptions))
 				{
 					if ($arUserOptions['pin'] === 'true' || $arParams['COMPONENT_ID'] == 'page_edit_control')
@@ -188,7 +188,7 @@ class CEditArea
 						$arJSParams['pin'] = $arUserOptions['pin'] === 'true';
 						if ($arJSParams['pin'])
 						{
-							if ($arUserOptions['transform']) 
+							if ($arUserOptions['transform'])
 								$arJSParams['transform'] = ($arUserOptions['transform'] === 'true');
 							if ($arUserOptions['top']) $arJSParams['top'] = $arUserOptions['top'] == 'false' ? false : $arJSParams['top'];
 							if ($arUserOptions['left']) $arJSParams['left'] = $arUserOptions['left'] == 'false' ? false : $arUserOptions['left'];
@@ -196,7 +196,7 @@ class CEditArea
 					}
 				}
 			}
-			
+
 			if (is_array($arParams['TOOLTIP']) && ($arParams['TOOLTIP']['TITLE'] || $arParams['TOOLTIP']['TEXT']))
 			{
 				$arJSParams['HINT'] = array(
@@ -208,12 +208,12 @@ class CEditArea
 			if (count($arJSIcons) > 0)
 			{
 				$arJSParams['menu'] = $arJSIcons;
-			
+
 				CUtil::InitJSCore(array('admin'));
-				
+
 				$this->bDrawIcons = true;
-			
-				$res = '<script type="text/javascript">BX.ready(function() {(new BX.'.($arParams['COMPONENT_ID'] == 'page_edit_control' ? 'CPageOpener' : 'CMenuOpener').'('.CUtil::PhpToJsObject($arJSParams).')).Show()});</script>';
+
+				$res = '<script type="text/javascript">if(window.BX)BX.ready(function() {(new BX.'.($arParams['COMPONENT_ID'] == 'page_edit_control' ? 'CPageOpener' : 'CMenuOpener').'('.CUtil::PhpToJsObject($arJSParams).')).Show()});</script>';
 			}
 			else
 			{
@@ -242,10 +242,10 @@ class CEditArea
 			'TITLE' => $arIcon['ALT'],
 			'TEXT' => $arIcon['TITLE'],
 		);
-		
+
 		if ($url)
 			$jsIcon['ONCLICK'] = $url;
-		
+
 		if(isset($arIcon['DEFAULT']) && $arIcon['DEFAULT'] == true)
 			$jsIcon['DEFAULT'] = true;
 		if(isset($arIcon['IMAGE']))
@@ -255,12 +255,12 @@ class CEditArea
 
 		if ($arIcon['TYPE'])
 			$jsIcon['TYPE'] = $arIcon['TYPE'];
-		
+
 		if ($arIcon['MENU'])
 		{
 			$jsIcon['MENU'] = CEditArea::GetJSIconMenu($arIcon['MENU']);
 		}
-		
+
 		return $jsIcon;
 	}
 
@@ -275,16 +275,16 @@ class CEditArea
 					$u = substr($u, 11);
 				else
 					$u = 'jsUtils.Redirect([], \''.CUtil::JSEscape($u).'\')';
-				
+
 				$aMenuItem['URL'] = $aMenuItem['ACTION'] = $u;
 			}
-			
+
 			if ($aMenuItem['MENU'])
 				$aMenuItem['MENU'] = CEditArea::GetJSIconMenu($aMenuItem['MENU']);
-			
+
 			$arMenu[$k] = $aMenuItem;
 		}
-		
+
 		return $arMenu;
 	}
 
@@ -299,22 +299,22 @@ class CEditArea
 			{
 				$arJSIcons[] = CEditArea::GetJSIcon($arIcon);
 			}
-		
+
 			$arJSParams = array(
 				'parent' => $areaId,
 				'menu' => $arJSIcons
 			);
-			
+
 			$res_ready .= '(new BX.CMenuOpener('.CUtil::PhpToJsObject($arJSParams).')).Show();'."\r\n";
 			$res_ready .= 'BX.admin.setComponentBorder(\''.CUtil::JSEscape($areaId).'\');'."\r\n";
 		}
-		
-		$res .= 'BX.ready(function() {'.$res_ready.'});';
+
+		$res .= 'if(window.BX)BX.ready(function(){'.$res_ready.'});';
 		$res .= '</script>';
-		
+
 		echo $res;
 	}
-	
+
 	function SetEditArea($areaId, $arIcons)
 	{
 		if (!$this->bEditAreas)
@@ -323,10 +323,10 @@ class CEditArea
 			AddEventHandler("main", "OnEpilog", array($this, '__GetEditAreas'));
 			$this->bEditAreas = true;
 		}
-	
+
 		if (!isset($this->arEditAreas[$areaId]))
 			$this->arEditAreas[$areaId] = array();
-			
+
 		$this->arEditAreas[$areaId] = array_merge($this->arEditAreas[$areaId], $arIcons);
 	}
 }
@@ -349,7 +349,7 @@ class CComponentPanel
 		$this->componentTemplate = $componentTemplate;
 		$this->parentComponent = $parentComponent;
 		$this->bComponentEnabled = $bComponentEnabled;
-		
+
 		if(function_exists("debug_backtrace"))
 		{
 			$aTrace = debug_backtrace();
@@ -382,11 +382,11 @@ class CComponentPanel
 			}
 		}
 	}
-	
+
 	public function GetIcons()
 	{
 		global $USER, $APPLICATION;
-		
+
 		$arIcons = array();
 		$arPanelParams = array();
 
@@ -473,7 +473,8 @@ class CComponentPanel
 								'PARAMS' => array(
 									'width' => 770,
 									'height' => 470,
-									'resize' => true
+									'resize' => true,
+									"dialog_type" => 'EDITOR'
 								)
 							)
 						),
@@ -492,7 +493,8 @@ class CComponentPanel
 										'PARAMS' => array(
 											'width' => 770,
 											'height' => 470,
-											'resize' => true
+											'resize' => true,
+											"dialog_type" => 'EDITOR'
 										)
 									)
 								),
@@ -512,7 +514,8 @@ class CComponentPanel
 										'PARAMS' => array(
 											'width' => 770,
 											'height' => 470,
-											'resize' => true
+											'resize' => true,
+											"dialog_type" => 'EDITOR'
 										)
 									)
 								),
@@ -530,7 +533,8 @@ class CComponentPanel
 										'PARAMS' => array(
 											'width' => 770,
 											'height' => 470,
-											'resize' => true
+											'resize' => true,
+											"dialog_type" => 'EDITOR'
 										)
 									)
 								),
@@ -565,7 +569,7 @@ class CComponentPanel
 		if($arComponentDescription && is_array($arComponentDescription))
 		{
 			$arPanelParams['COMPONENT_DESCRIPTION'] = $arComponentDescription;
-			
+
 			//component bar tooltip
 			$arPanelParams['TOOLTIP'] = array(
 				'TITLE' => $arComponentDescription["NAME"],
@@ -632,7 +636,7 @@ class CComponentPanel
 
 		if($this->bSrcFound)
 			$arPanelParams['COMPONENT_ID'] = md5($arPanelParams['COMPONENT'].'|'.$this->sSrcFile.':'.$this->iSrcLine);
-			
+
 		return array("icons"=>$arIcons, "parameters"=>$arPanelParams);
 	}
 }

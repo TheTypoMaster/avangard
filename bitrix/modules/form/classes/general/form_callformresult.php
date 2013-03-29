@@ -48,6 +48,7 @@ class CAllFormResult extends CFormResult_old
 
 		$strSql = "
 SELECT
+	F.ID as FILE_ID,
 	F.FILE_NAME,
 	F.SUBDIR,
 	F.CONTENT_TYPE,
@@ -115,7 +116,11 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 				if ($IN_EVENT3===false)
 				{
-					$event3 = (strlen($zr["STAT_EVENT3"])<=0) ? "http://".$_SERVER["HTTP_HOST"]."/bitrix/admin/form_result_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID."&find_id=".$RESULT_ID."&find_id_exact_match=Y&set_filter=Y" : $zr["STAT_EVENT3"];
+					$event3 = strlen($zr["STAT_EVENT3"])<=0
+						? (
+							$GLOBALS['APPLICATION']->IsHTTPS() ? "https://" : "http://"
+						).$_SERVER["HTTP_HOST"]."/bitrix/admin/form_result_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID."&find_id=".$RESULT_ID."&find_id_exact_match=Y&set_filter=Y"
+						: $zr["STAT_EVENT3"];
 				}
 				else $event3 = $IN_EVENT3;
 
@@ -423,6 +428,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 									"USER_AUTH"			=> "'".$USER_AUTH."'",
 									"STAT_GUEST_ID"		=> intval($_SESSION["SESS_GUEST_ID"]),
 									"STAT_SESSION_ID"	=> intval($_SESSION["SESS_SESSION_ID"]),
+									"SENT_TO_CRM"		=> "'N'", // result can be sent only after adding
 									);
 
 								$dbEvents = GetModuleEvents('form', 'onBeforeResultAdd');
@@ -653,8 +659,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												$original_name = $arFILE["name"];
 												$fid = 0;
 												$max_size = COption::GetOptionString("form", "MAX_FILESIZE");
-												$fes = COption::GetOptionString("form", "NOT_IMAGE_EXTENSION_SUFFIX");
-												$arFILE["name"] .= $fes;
 												$upload_dir = COption::GetOptionString("form", "NOT_IMAGE_UPLOAD_DIR");
 
 												$fid = CFile::SaveFile($arFILE, $upload_dir);
@@ -1079,8 +1083,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 														$new_file="Y";
 														$original_name = $arFILE["name"];
 														$max_size = COption::GetOptionString("form", "MAX_FILESIZE");
-														$suffix = COption::GetOptionString("form","NOT_IMAGE_EXTENSION_SUFFIX");
-														$arFILE["name"] .= $suffix;
 														$upload_dir = COption::GetOptionString("form", "NOT_IMAGE_UPLOAD_DIR");
 
 														$fid = CFile::SaveFile($arFILE, $upload_dir, $max_size);
@@ -1456,8 +1458,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												$arFILE["MODULE_ID"] = "form";
 												$original_name = $arFILE["name"];
 												$max_size = COption::GetOptionString("form", "MAX_FILESIZE");
-												$suffix = COption::GetOptionString("form","NOT_IMAGE_EXTENSION_SUFFIX");
-												$arFILE["name"] .= $suffix;
 												$upload_dir = COption::GetOptionString("form", "NOT_IMAGE_UPLOAD_DIR");
 												$fid = CFile::SaveFile($arFILE, $upload_dir, $max_size);
 												if (intval($fid)>0)
@@ -1545,11 +1545,15 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 			if ($RIGHT_OK=="Y")
 			{
 				// rights check by status
-				$arrRESULT_PERMISSION = CFormResult::GetPermissions($RESULT_ID, $v);
-				if (in_array("DELETE", $arrRESULT_PERMISSION)) // delete rights ok
+				if ($CHECK_RIGHTS == 'Y')
+				{
+					$arrRESULT_PERMISSION = CFormResult::GetPermissions($RESULT_ID, $v);
+					$RIGHT_OK = in_array("DELETE", $arrRESULT_PERMISSION) ? 'Y' : 'N';
+				}
+
+				if ($RIGHT_OK=="Y") // delete rights ok
 				{
 					$dbEvents = GetModuleEvents('form', 'onBeforeResultDelete');
-					//$fp = fopen($_SERVER['DOCUMENT_ROOT'].'/sigurd/delete.log', 'a');
 					while ($arEvent = $dbEvents->Fetch())
 					{
 						ExecuteModuleEventEx($arEvent, array($qr["FORM_ID"], $RESULT_ID, $CHECK_RIGHTS));
@@ -1585,16 +1589,20 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 		global $DB, $strError;
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: Reset<br>Line: ";
 		$RESULT_ID = intval($RESULT_ID);
+		$strExc = '';
 
 		if (is_array($arrException) && count($arrException)>0)
 		{
-			$strExc = implode(",",$arrException);
+			foreach ($arrException as $field_id)
+			{
+				$strExc .= ($strExc === '' ? '' : "','").intval($field_id);
+			}
 		}
 
 		if ($DELETE_FILES)
 		{
 			$sqlExc = "";
-			if (strlen($strExc)>0) $sqlExc = " and FIELD_ID not in ($strExc) ";
+			if (strlen($strExc)>0) $sqlExc = " and FIELD_ID not in ('$strExc') ";
 			// delete result files
 			$strSql = "SELECT USER_FILE_ID, ANSWER_ID FROM b_form_result_answer WHERE RESULT_ID='$RESULT_ID' and USER_FILE_ID>0 $sqlExc";
 			$z = $DB->Query($strSql, false, $err_mess.__LINE__);
@@ -1604,13 +1612,13 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 		if ($DELETE_ADDITIONAL=="Y")
 		{
 			$sqlExc = "";
-			if (strlen($strExc)>0) $sqlExc = " and FIELD_ID not in ($strExc) ";
+			if (strlen($strExc)>0) $sqlExc = " and FIELD_ID not in ('$strExc') ";
 			$DB->Query("DELETE FROM b_form_result_answer WHERE RESULT_ID='$RESULT_ID' $sqlExc", false, $err_mess.__LINE__);
 		}
 		else
 		{
 			$sqlExc = "";
-			if (strlen($strExc)>0) $sqlExc = "and F.ID not in (".$strExc.")";
+			if (strlen($strExc)>0) $sqlExc = "and F.ID not in ('".$strExc."'')";
 			$strSql = "
 				SELECT
 					F.ID
@@ -1642,6 +1650,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 		$NEW_STATUS_ID = intval($NEW_STATUS_ID);
 		$RESULT_ID = intval($RESULT_ID);
 
+		if ($RESULT_ID <= 0 || $NEW_STATUS_ID <= 0)
+			return false;
+
 		$strSql = "SELECT USER_ID, FORM_ID FROM b_form_result WHERE ID='".$RESULT_ID."'";
 		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
 		if ($zr = $z->Fetch())
@@ -1650,7 +1661,14 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 			// rights check
 			$RIGHT_OK = "N";
-			if ($CHECK_RIGHTS!="Y") $RIGHT_OK="Y";
+			if ($CHECK_RIGHTS!="Y")
+			{
+				$dbRes = CFormStatus::GetByID($NEW_STATUS_ID);
+				if ($dbRes->Fetch())
+				{
+					$RIGHT_OK="Y";
+				}
+			}
 			else
 			{
 				// form rights
@@ -1711,7 +1729,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	//send form event notification;
 	function Mail($RESULT_ID, $TEMPLATE_ID = false)
 	{
-		global $DB, $MESS, $strError;
+		global $APPLICATION, $DB, $MESS, $strError;
 
 		$err_mess = (CAllFormResult::err_mess())."<br>Function: Mail<br>Line: ";
 		$RESULT_ID = intval($RESULT_ID);
@@ -1867,6 +1885,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 										case 'hidden':
 										case 'date':
 										case 'password':
+										case 'integer':
 
 											if ($USER_TEXT_EXIST)
 											{
@@ -1921,7 +1940,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												if ($fr = $f->Fetch())
 												{
 													$file_size = CFile::FormatSize($fr["FILE_SIZE"]);
-													$url = "http://".$_SERVER["HTTP_HOST"]. "/bitrix/tools/form_show_file.php?rid=".$RESULT_ID. "&hash=".$arrA["USER_FILE_HASH"]."&lang=".LANGUAGE_ID;
+													$url = ($APPLICATION->IsHTTPS() ? "https://" : "http://").$_SERVER["HTTP_HOST"]. "/bitrix/tools/form_show_file.php?rid=".$RESULT_ID. "&hash=".$arrA["USER_FILE_HASH"]."&lang=".LANGUAGE_ID;
 
 													if ($arrA["USER_FILE_IS_IMAGE"]=="Y")
 													{
@@ -1971,6 +1990,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 										case 'hidden':
 										case 'date':
 										case 'password':
+										case 'integer':
 
 											if ($USER_TEXT_EXIST)
 											{
@@ -2018,7 +2038,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												if ($fr = $f->Fetch())
 												{
 													$file_size = CFile::FormatSize($fr["FILE_SIZE"]);
-													$url = "http://".$_SERVER["HTTP_HOST"]. "/bitrix/tools/form_show_file.php?rid=".$RESULT_ID. "&hash=".$arrA["USER_FILE_HASH"]."&action=download&lang=".LANGUAGE_ID;
+													$url = ($APPLICATION->IsHTTPS() ? "https://" : "http://").$_SERVER["HTTP_HOST"]. "/bitrix/tools/form_show_file.php?rid=".$RESULT_ID. "&hash=".$arrA["USER_FILE_HASH"]."&action=download&lang=".LANGUAGE_ID;
 
 													if ($arrA["USER_FILE_IS_IMAGE"]=="Y")
 													{
@@ -2115,6 +2135,11 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 			unset($arrFilterReturn["FIELDS"]);
 		}
 		return $arrFilterReturn;
+	}
+
+	function SetCRMFlag($RESULT_ID, $flag_value)
+	{
+		return $GLOBALS['DB']->Query("UPDATE b_form_result SET SENT_TO_CRM='".($flag_value == 'N' ? 'N' : 'Y')."' WHERE ID='".intval($RESULT_ID)."'");
 	}
 }
 ?>

@@ -570,4 +570,4 @@ BXHTMLEditor.prototype.getSelectedCells = function()
 	return arrCells;
 };
 
-*/
+*/;   

@@ -138,6 +138,6 @@ $MESS["TP_CBIV_RATING_MAIN"] = "Rating (Kernel module)";
 $MESS["RATING_MAIN_TYPE"] = "Rating buttons design";
 $MESS["RATING_MAIN_TYPE_CONFIG"] = "default";
 $MESS["RATING_MAIN_TYPE_STANDART"] = "Plus / Minus";
-$MESS["RATING_MAIN_TYPE_LIKE"] = "I like it";
+$MESS["RATING_MAIN_TYPE_LIKE"] = "Like";
 $MESS["P_SHOW_NAVIGATION"] = "Show breadcrumbs in composite component";
 ?>

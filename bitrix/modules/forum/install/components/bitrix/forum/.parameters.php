@@ -24,11 +24,11 @@ $arComponentParameters = array(
 			"NAME" => GetMessage("F_RSS"),
 		),
 	),
-	
+
 	"PARAMETERS" => array(
 		"USE_LIGHT_VIEW" => array(
 			"PARENT" => "BASE",
-	        "NAME" => GetMessage("P_USE_LIGHT_VIEW"),
+			"NAME" => GetMessage("P_USE_LIGHT_VIEW"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "Y",
 			"REFRESH" => "Y"),
@@ -193,23 +193,18 @@ $arComponentParameters = array(
 			"MULTIPLE" => "Y",
 			"DEFAULT" => array(), 
 			"HIDDEN" => $hidden),
-		"FILES_COUNT" => Array(
-			"PARENT" => "BASE",
-			"NAME" => GetMessage("F_FILES_COUNT"),
-			"TYPE" => "STRING",
-			"DEFAULT" => 5),
 		"HELP_CONTENT" => Array(
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("F_HELP_CONTENT"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "", 
-			"HIDDEN" => $hidden),
+			"DEFAULT" => "",
+			"HIDDEN" => ($GLOBALS["USER"]->IsAdmin() ? $hidden : "Y")),
 		"RULES_CONTENT" => Array(
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("F_RULES_CONTENT"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "", 
-			"HIDDEN" => $hidden),
+			"DEFAULT" => "",
+			"HIDDEN" => ($GLOBALS["USER"]->IsAdmin() ? $hidden : "Y")),
 /*		"USE_DESC_PAGE_TOPIC" => Array(
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("F_USE_DESC_PAGE_TOPIC"),
@@ -242,22 +237,57 @@ $arComponentParameters = array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_TIME_INTERVAL_FOR_USER_STAT"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "10"),
+			"DEFAULT" => "10",
+			"HIDDEN" => $hidden),
 		"DATE_FORMAT" => CComponentUtil::GetDateFormatField(GetMessage("F_DATE_FORMAT"), "ADDITIONAL_SETTINGS"),
 		"DATE_TIME_FORMAT" => CComponentUtil::GetDateTimeFormatField(GetMessage("F_DATE_TIME_FORMAT"), "ADDITIONAL_SETTINGS"),
+		"USE_NAME_TEMPLATE" => Array(
+			"NAME" => GetMessage("F_USE_NAME_TEMPLATE"),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "N",
+			"PARENT" => "ADDITIONAL_SETTINGS",
+			"HIDDEN" => $hidden),
+		"NAME_TEMPLATE" => array(
+			"PARENT" => "ADDITIONAL_SETTINGS",
+			"TYPE" => "LIST",
+			"NAME" => GetMessage("F_NAME_TEMPLATE"),
+			"VALUES" => CComponentUtil::GetDefaultNameTemplates(),
+			"MULTIPLE" => "N",
+			"ADDITIONAL_VALUES" => "Y",
+			"DEFAULT" => "",
+			"HIDDEN" => $hidden),
 		"IMAGE_SIZE" => array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_IMAGE_SIZE"),
 			"TYPE" => "STRING",
 			"DEFAULT" => "500"),
+		"ATTACH_MODE" => array(
+			"PARENT" => "ADDITIONAL_SETTINGS",
+			"NAME" => GetMessage("F_ATTACH_MODE"),
+			"TYPE" => "LIST",
+			"VALUES" => array(
+				"THUMB" => GetMessage("F_ATTACH_MODE_THUMB"),
+				"NAME" => GetMessage("F_ATTACH_MODE_NAME")
+			),
+			"MULTIPLE" => "Y",
+			"DEFAULT" => array("NAME"),
+			"REFRESH" => "Y"
+		),
+		"ATTACH_SIZE" => Array(
+			"PARENT" => "ADDITIONAL_SETTINGS",
+			"NAME" => GetMessage("F_ATTACH_SIZE"),
+			"TYPE" => "STRING",
+			"DEFAULT" => "90",
+			"HIDDEN" => "Y"),
 		"EDITOR_CODE_DEFAULT" => Array(
 			"NAME" => GetMessage("F_EDITOR_CODE_DEFAULT"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N",
-			"PARENT" => "ADDITIONAL_SETTINGS",),
+			"PARENT" => "ADDITIONAL_SETTINGS",
+			"HIDDEN" => $hidden),
 
-		"SEND_MAIL" => CForumParameters::GetSendMessageRights(GetMessage("F_SEND_MAIL"), "ADDITIONAL_SETTINGS", "E"),
-		"SEND_ICQ" => CForumParameters::GetSendMessageRights(GetMessage("F_SEND_ICQ"), "ADDITIONAL_SETTINGS", "E", "ICQ"),
+		"SEND_MAIL" => CForumParameters::GetSendMessageRights(GetMessage("F_SEND_MAIL"), "ADDITIONAL_SETTINGS", "E") + array("HIDDEN" => $hidden),
+		"SEND_ICQ" => CForumParameters::GetSendMessageRights(GetMessage("F_SEND_ICQ"), "ADDITIONAL_SETTINGS", "E", "ICQ") + array("HIDDEN" => "Y"),
 /*		"SHOW_USER_STATUS" => Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_SHOW_USER_STATUS"),
@@ -308,6 +338,11 @@ $arComponentParameters = array(
 			"NAME" => GetMessage("F_CACHE_TIME_USER_STAT"),
 			"TYPE" => "STRING",
 			"DEFAULT"=> "60"),
+		"CACHE_TIME_FOR_FORUM_STAT" => array(
+			"PARENT" => "CACHE_SETTINGS",
+			"NAME" => GetMessage("F_CACHE_TIME_FOR_FORUM_STAT"),
+			"TYPE" => "STRING",
+			"DEFAULT" => "3600"),
 /*		"AJAX_TYPE" => Array(
 			"PARENT" => "AJAX_SETTINGS",
 			"NAME" => GetMessage("F_AJAX_TYPE_DIALOG"),
@@ -320,7 +355,7 @@ $arComponentParameters = array(
 $arComponentParameters["PARAMETERS"]["DATE_FORMAT"]["HIDDEN"] = $hidden;
 $arComponentParameters["PARAMETERS"]["DATE_TIME_FORMAT"]["HIDDEN"] = $hidden;
 $arComponentParameters["PARAMETERS"]["SEND_MAIL"]["HIDDEN"] = $hidden;
-$arComponentParameters["PARAMETERS"]["SEND_ICQ"]["HIDDEN"] = $hidden;
+$arComponentParameters["PARAMETERS"]["SEND_ICQ"]["HIDDEN"] = "Y";
 $arComponentParameters["PARAMETERS"]["SET_NAVIGATION"]["HIDDEN"] = $hidden;
 
 if($arCurrentValues["USE_RSS"]=="Y")
@@ -394,62 +429,52 @@ if (IsModuleInstalled("vote"))
 					"VALUES" => $arVoteChannels,
 					"DEFAULT" => "", 
 					"REFRESH" => "Y");
-            reset($arVoteChannels);
-            if (intVal($arCurrentValues["VOTE_CHANNEL_ID"]) > 0)
-                $voteId = intVal($arCurrentValues["VOTE_CHANNEL_ID"]);
-            else
-                $voteId = key($arVoteChannels);
-            if (!empty($voteId))
-            {
-				__IncludeLang($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/components/bitrix/voting.current/lang/".LANGUAGE_ID."/.parameters.php");
-
-                $arPermissions = CVoteChannel::GetArrayGroupPermission($voteId);
-                $arUGroupsEx = array();
-                $db_res = CGroup::GetList($by = "c_sort", $order = "asc");
-                while($res = $db_res -> Fetch())
-                {
-                    if ((isset($arPermissions[$res["ID"]]) && intVal($arPermissions[$res["ID"]]) >= 2) || intVal($res["ID"]) == 1):
-                        $arUGroupsEx[$res["ID"]] = $res["NAME"]."[".$res["ID"]."]";
-                    endif;
-                }
-                if (!empty($arUGroupsEx)):
-                    $arComponentParameters["PARAMETERS"]["VOTE_GROUP_ID"] = array(
-                        "PARENT" => "VOTE_SETTINGS",
-                        "NAME" => GetMessage("F_VOTE_GROUP_ID"),
-                        "TYPE" => "LIST",
-                        "VALUES" => $arUGroupsEx,
-                        "DEFAULT" => "", 
-                        "MULTIPLE" => "Y");
-                    $arComponentParameters["PARAMETERS"]["VOTE_COUNT_QUESTIONS"] = array(
-                        "PARENT" => "VOTE_SETTINGS",
-                        "NAME" => GetMessage("F_VOTE_COUNT_QUESTIONS"),
-                        "TYPE" => "STRING",
-                        "DEFAULT"=> "10", 
-                        "HIDDEN" => $hidden);
-                    $arComponentParameters["PARAMETERS"]["VOTE_COUNT_ANSWERS"] = array(
-                        "PARENT" => "VOTE_SETTINGS",
-                        "NAME" => GetMessage("F_VOTE_COUNT_ANSWERS"),
-                        "TYPE" => "STRING",
-                        "DEFAULT"=> "20", 
-                        "HIDDEN" => $hidden);
-                    $arComponentParameters["PARAMETERS"]["VOTE_TEMPLATE"] = array(
-                        "PARENT" => "VOTE_SETTINGS",
-                        "NAME" => GetMessage("F_VOTE_TEMPLATE"),
-                        "TYPE" => "LIST",
-                        "VALUES" => array(
-                            ".default" => GetMessage("F_VOTE_TEMPLATE_DEFAULT"), 
-                            "light" => GetMessage("F_VOTE_TEMPLATE_LIGHT"), 
-                            "main_page" => GetMessage("F_VOTE_TEMPLATE_MAIN_PAGE")),
-                        "DEFAULT" => "light", 
-                        "MULTIPLE" => "N", 
-                        "ADDITIONAL_VALUES" => "Y");
-					$arComponentParameters["PARAMETERS"]["VOTE_UNIQUE"] = array(
+			reset($arVoteChannels);
+			if (intVal($arCurrentValues["VOTE_CHANNEL_ID"]) > 0)
+				$voteId = intVal($arCurrentValues["VOTE_CHANNEL_ID"]);
+			else
+				$voteId = key($arVoteChannels);
+			if (!empty($voteId))
+			{
+				$arPermissions = CVoteChannel::GetArrayGroupPermission($voteId);
+				$arUGroupsEx = array();
+				$db_res = CGroup::GetList($by = "c_sort", $order = "asc");
+				while($res = $db_res -> Fetch())
+				{
+					if ((isset($arPermissions[$res["ID"]]) && intVal($arPermissions[$res["ID"]]) >= 2) || intVal($res["ID"]) == 1):
+						$arUGroupsEx[$res["ID"]] = $res["NAME"]."[".$res["ID"]."]";
+					endif;
+				}
+				if (!empty($arUGroupsEx)):
+					$arComponentParameters["PARAMETERS"]["VOTE_GROUP_ID"] = array(
+						"PARENT" => "VOTE_SETTINGS",
+						"NAME" => GetMessage("F_VOTE_GROUP_ID"),
+						"TYPE" => "LIST",
+						"VALUES" => $arUGroupsEx,
+						"DEFAULT" => "",
+						"MULTIPLE" => "Y");
+					$arComponentParameters["PARAMETERS"]["VOTE_TEMPLATE"] = array(
+						"PARENT" => "VOTE_SETTINGS",
+						"NAME" => GetMessage("F_VOTE_TEMPLATE"),
+						"TYPE" => "LIST",
 						"VALUES" => array(
-							"1" => GetMessage("F_VOTE_UNIQUE_SESSION"),
-							"2" => GetMessage("F_VOTE_UNIQUE_COOKIE_ONLY"),
-							"4" => GetMessage("F_VOTE_UNIQUE_IP_ONLY"),
-							"8" => GetMessage("F_VOTE_UNIQUE_USER_ID_ONLY")
-						),
+							".default" => GetMessage("F_VOTE_TEMPLATE_DEFAULT"),
+							"light" => GetMessage("F_VOTE_TEMPLATE_LIGHT"),
+							/*"main_page" => GetMessage("F_VOTE_TEMPLATE_MAIN_PAGE")*/),
+						"DEFAULT" => "light",
+						"MULTIPLE" => "N",
+						"ADDITIONAL_VALUES" => "Y");
+
+					$arVoteUnique = array();
+					if (IsModuleInstalled('statistic')) {
+						$arVoteUnique["1"] = GetMessage("F_VOTE_UNIQUE_SESSION");
+					}
+					$arVoteUnique["2"] = GetMessage("F_VOTE_UNIQUE_COOKIE_ONLY");
+					$arVoteUnique["4"] = GetMessage("F_VOTE_UNIQUE_IP_ONLY");
+					$arVoteUnique["8"] = GetMessage("F_VOTE_UNIQUE_USER_ID_ONLY");
+
+					$arComponentParameters["PARAMETERS"]["VOTE_UNIQUE"] = array(
+						"VALUES" => $arVoteUnique,
 						"PARENT" => "VOTE_SETTINGS",
 						"NAME" => GetMessage("F_VOTE_UNIQUE"),
 						"TYPE" => "LIST",
@@ -471,12 +496,12 @@ if (IsModuleInstalled("vote"))
 							"DAYS" => GetMessage("F_VOTE_DAYS"),
 						)
 					);
-                endif;
-            }
+				endif;
+			}
 		}
 	}
 }
- 
+
 // rating
 $arComponentParameters["GROUPS"]["RATING_SETTINGS"] = array("NAME" => GetMessage("F_RATING_SETTINGS"));
 $arComponentParameters["PARAMETERS"]["SHOW_RATING"] = array(
@@ -492,6 +517,7 @@ $arComponentParameters["PARAMETERS"]["SHOW_RATING"] = array(
 	"DEFAULT" => "",
 	"REFRESH" => "Y"
 );
+
 if ($arCurrentValues["SHOW_RATING"] != "N")
 {
 	$arRatingsList = array();
@@ -523,5 +549,16 @@ if ($arCurrentValues["SHOW_RATING"] != "N")
 		"PARENT" => "RATING_SETTINGS",
 	);	
 }
-
+if (!isset($arCurrentValues["ATTACH_MODE"]) && (intval($arCurrentValues["IMAGE_SIZE"]) > 0))
+{
+	$arComponentParameters["PARAMETERS"]["ATTACH_MODE"]["DEFAULT"] = array("THUMB", "NAME");
+	$arComponentParameters["PARAMETERS"]["ATTACH_SIZE"]["DEFAULT"] = $arCurrentValues["IMAGE_SIZE"];
+	$arComponentParameters["PARAMETERS"]["ATTACH_SIZE"]["HIDDEN"] = "N";
+}
+else
+{
+	if (!is_array($arCurrentValues["ATTACH_MODE"]) || empty($arCurrentValues["ATTACH_MODE"]))
+		$arComponentParameters["PARAMETERS"]["ATTACH_MODE"]["DEFAULT"] = $arCurrentValues["ATTACH_MODE"] = array("NAME");
+	$arComponentParameters["PARAMETERS"]["ATTACH_SIZE"]["HIDDEN"] = (in_array("THUMB", $arCurrentValues["ATTACH_MODE"]) ? "N" : "Y");
+}
 ?>

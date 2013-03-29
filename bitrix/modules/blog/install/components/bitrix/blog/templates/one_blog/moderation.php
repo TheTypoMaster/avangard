@@ -57,6 +57,7 @@ $APPLICATION->IncludeComponent(
 				"PATH_TO_USER"			=> $arResult["PATH_TO_USER"],
 				"IMAGE_MAX_WIDTH" => $arParams["IMAGE_MAX_WIDTH"],
 				"IMAGE_MAX_HEIGHT" => $arParams["IMAGE_MAX_HEIGHT"],
+				"POST_PROPERTY_LIST"	=> $arParams["POST_PROPERTY_LIST"],
 			),
 		$component 
 	);

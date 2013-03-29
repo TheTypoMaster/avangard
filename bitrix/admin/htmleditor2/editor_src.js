@@ -72,4 +72,4 @@ BXHTMLEditor.prototype.SetView = function(sType)
 	
 	this.sEditorMode = sType;
 	this.OnEvent("OnChangeView", [this.sEditorMode, this.sEditorSplitMode]);
-};
+};;   

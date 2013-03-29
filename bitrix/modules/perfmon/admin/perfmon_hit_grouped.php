@@ -196,18 +196,18 @@ $oFilter = new CAdminFilter(
 <?$oFilter->Begin();?>
 <tr>
 	<td><?=GetMessage("PERFMON_HIT_PAGE")?>:</td>
-	<td><input type="text" name="find_script_name" size="47" value="<?echo htmlspecialchars($find_script_name)?>"></td>
+	<td><input type="text" name="find_script_name" size="47" value="<?echo htmlspecialcharsbx($find_script_name)?>"></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("PERFMON_HIT_IS_ADMIN")?>:</td>
 	<td><?
 		$arr = array("reference"=>array(GetMessage("MAIN_YES"), GetMessage("MAIN_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_is_admin", $arr, htmlspecialchars($find_is_admin), GetMessage("MAIN_ALL"));
+		echo SelectBoxFromArray("find_is_admin", $arr, htmlspecialcharsbx($find_is_admin), GetMessage("MAIN_ALL"));
 	?></td>
 </tr>
 <tr>
 	<td><?=GetMessage("PERFMON_HIT_COUNT")?>:</td>
-	<td><input type="text" name="find_count_from" size="7" value="<?echo htmlspecialchars($find_count_from)?>">...<input type="text" name="find_count_to" size="7" value="<?echo htmlspecialchars($find_count_to)?>"></td>
+	<td><input type="text" name="find_count_from" size="7" value="<?echo htmlspecialcharsbx($find_count_from)?>">...<input type="text" name="find_count_to" size="7" value="<?echo htmlspecialcharsbx($find_count_to)?>"></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage(), "form"=>"find_form"));

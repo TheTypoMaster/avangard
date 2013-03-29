@@ -19,4 +19,5 @@ $MESS ['F_MESSAGE_TEMPLATE'] = "Seite zum Lesen der Nachrichten";
 $MESS ['F_READ_TEMPLATE'] = "Seite zum Lesen des Themas";
 $MESS ['F_LIST_TEMPLATE'] = "Seite mit Themen";
 $MESS ['F_URL_TEMPLATES'] = "URL verwalten";
+$MESS ['F_USE_DESC_PAGE'] = "Rückwärtige Seitennavigation benutzen";
 ?>

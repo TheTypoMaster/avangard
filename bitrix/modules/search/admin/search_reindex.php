@@ -12,6 +12,8 @@ if($POST_RIGHT=="D")
 $res=false;
 if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Reindex"]=="Y")
 {
+	CUtil::JSPostUnescape();
+
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
 	if(array_key_exists("NS", $_POST) && is_array($_POST["NS"]))
@@ -63,9 +65,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Reindex"]=="Y")
 			"MESSAGE"=>GetMessage("SEARCH_REINDEX_IN_PROGRESS"),
 			"DETAILS"=>GetMessage("SEARCH_REINDEX_TOTAL")." <b>".$res["CNT"]."</b><br>
 				".$path."
-				<a id=\"continue_href\" onclick=\"savedNS=".$jsNS."; ContinueReindex(); return false;\" href=\"".htmlspecialchars("search_reindex.php?Continue=Y&lang=".urlencode(LANGUAGE_ID).$urlNS)."\">".GetMessage("SEARCH_REINDEX_NEXT_STEP")."</a>",
+				<a id=\"continue_href\" onclick=\"savedNS=".$jsNS."; ContinueReindex(); return false;\" href=\"".htmlspecialcharsbx("search_reindex.php?Continue=Y&lang=".urlencode(LANGUAGE_ID).$urlNS)."\">".GetMessage("SEARCH_REINDEX_NEXT_STEP")."</a>",
 			"HTML"=>true,
-			"TYPE"=>"OK",
+			"TYPE"=>"PROGRESS",
 		));
 	?>
 		<script>
@@ -124,7 +126,7 @@ function StartReindex()
 function DoNext(NS)
 {
 	var queryString = 'Reindex=Y'
-		+ '&lang=<?echo htmlspecialchars(LANG)?>';
+		+ '&lang=<?echo htmlspecialcharsbx(LANG)?>';
 
 	if(!NS)
 	{
@@ -214,7 +216,7 @@ function Full_OnClick(full_checked)
 }
 
 </script>
-<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?echo htmlspecialchars(LANG)?>" name="fs1">
+<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?echo htmlspecialcharsbx(LANG)?>" name="fs1">
 <?
 $tabControl->Begin();
 $tabControl->BeginNextTab();
@@ -243,7 +245,7 @@ if($max_execution_time <= 0)
 		<option value="NOT_REF"><?=GetMessage("SEARCH_REINDEX_ALL")?></option>
 		<option value="main"><?=GetMessage("SEARCH_REINDEX_MAIN")?></option>
 		<?foreach(CSearchParameters::GetModulesList() as $module_id => $module_name):?>
-			<option value="<?echo $module_id?>"><?echo htmlspecialchars($module_name)?></option>
+			<option value="<?echo $module_id?>"><?echo htmlspecialcharsbx($module_name)?></option>
 		<?endforeach;?>
 		</select>
 		</td>
@@ -256,7 +258,7 @@ if($max_execution_time <= 0)
 <?
 $tabControl->Buttons();
 ?>
-	<input type="button" id="start_button" value="<?echo GetMessage("SEARCH_REINDEX_REINDEX_BUTTON")?>" OnClick="StartReindex();">
+	<input type="button" id="start_button" value="<?echo GetMessage("SEARCH_REINDEX_REINDEX_BUTTON")?>" OnClick="StartReindex();" class="adm-btn-save">
 	<input type="button" id="stop_button" value="<?=GetMessage("SEARCH_REINDEX_STOP")?>" OnClick="StopReindex();" disabled>
 	<input type="button" id="continue_button" value="<?=GetMessage("SEARCH_REINDEX_CONTINUE")?>" OnClick="ContinueReindex();" disabled>
 <?

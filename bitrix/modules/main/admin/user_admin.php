@@ -11,14 +11,14 @@ require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog_user.php");
 define("HELP_FILE", "users/user_admin.php");
 $entity_id = "USER";
 
-if (!($USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('view_all_users') || $USER->CanDoOperation('edit_subordinate_users')))
+if(!($USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('view_all_users') || $USER->CanDoOperation('edit_all_users') || $USER->CanDoOperation('edit_subordinate_users')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 $uid = $USER->GetID();
 $handle_subord = (
-		($USER->CanDoOperation('edit_subordinate_users') && !$USER->CanDoOperation('edit_all_users'))
-		 || ($USER->CanDoOperation('view_subordinate_users') && !$USER->CanDoOperation('view_all_users'))
-		 );
+	($USER->CanDoOperation('edit_subordinate_users') && !$USER->CanDoOperation('edit_all_users'))
+	|| ($USER->CanDoOperation('view_subordinate_users') && !$USER->CanDoOperation('view_all_users'))
+);
 if($handle_subord)
 {
 	$arUserSubordinateGroups = Array();
@@ -31,16 +31,15 @@ if($handle_subord)
 	$arUserSubordinateGroups = array_unique($arUserSubordinateGroups);
 }
 
-if($USER->CanDoOperation('edit_own_profile') && !($USER->CanDoOperation('view_all_users') || $USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('edit_subordinate_users')))
+IncludeModuleLangFile(__FILE__);
+
+//authorize as user
+if($_REQUEST["action"] == "authorize" && check_bitrix_sessid() && $USER->CanDoOperation('edit_php'))
 {
-	$ID = $USER->GetParam("USER_ID");
-	if(intval($ID)>0)
-		LocalRedirect(BX_ROOT."/admin/user_edit.php?lang=".LANG."&ID=".$ID);
-	else
-		$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+	$USER->Authorize(intval($_REQUEST["ID"]));
+	LocalRedirect("user_admin.php?lang=".LANGUAGE_ID);
 }
 
-IncludeModuleLangFile(__FILE__);
 // идентификатор таблицы
 $sTableID = "tbl_user";
 
@@ -125,17 +124,17 @@ $arFilter = Array();
 if(CheckFilter($arFilterFields))
 {
 	$arFilter = Array(
-		"ID"			=> $find_id,
-		"TIMESTAMP_1"	=> $find_timestamp_1,
-		"TIMESTAMP_2"	=> $find_timestamp_2,
-		"LAST_LOGIN_1"	=> $find_last_login_1,
-		"LAST_LOGIN_2"	=> $find_last_login_2,
-		"ACTIVE"		=> $find_active,
-		"LOGIN"			=>	($find!='' && $find_type == "login"? $find: $find_login),
-		"NAME"			=>	($find!='' && $find_type == "name"? $find: $find_name),
-		"EMAIL"			=>	($find!='' && $find_type == "email"? $find: $find_email),
-		"KEYWORDS"		=> $find_keywords,
-		"GROUPS_ID"		=> $find_group_id
+		"ID" => $find_id,
+		"TIMESTAMP_1" => $find_timestamp_1,
+		"TIMESTAMP_2" => $find_timestamp_2,
+		"LAST_LOGIN_1" => $find_last_login_1,
+		"LAST_LOGIN_2" => $find_last_login_2,
+		"ACTIVE" => $find_active,
+		"LOGIN" => ($find!='' && $find_type == "login"? $find: $find_login),
+		"NAME" => ($find!='' && $find_type == "name"? $find: $find_name),
+		"EMAIL" => ($find!='' && $find_type == "email"? $find: $find_email),
+		"KEYWORDS" => $find_keywords,
+		"GROUPS_ID" => $find_group_id
 		);
 	if ($bIntranetEdition)
 		$arFilter["INTRANET_USERS"] = $find_intranet_users;
@@ -164,7 +163,7 @@ if($lAdmin->EditAction())
 		if(!$USER->IsAdmin())
 		{
 			$UGroups = CUser::GetUserGroup($ID);
-			if(in_array(1, $UGroups))   // not admin can't edit admins
+			if(in_array(1, $UGroups)) // not admin can't edit admins
 			{
 				continue;
 			}
@@ -221,7 +220,7 @@ if(($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('edit_all_users') 
 			continue;
 
 		$UGroups = CUser::GetUserGroup($ID);
-		if(in_array(1, $UGroups) && !$USER->CanDoOperation('edit_php'))   // not admin can't edit admins
+		if(in_array(1, $UGroups) && !$USER->CanDoOperation('edit_php')) // not admin can't edit admins
 			continue;
 
 		if(!$USER->CanDoOperation('edit_all_users') && $USER->CanDoOperation('edit_subordinate_users') && count(array_diff($UGroups, $arUserSubordinateGroups))>0)
@@ -252,7 +251,7 @@ if(($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('edit_all_users') 
 			case "remove_group":
 				if($gr_id <= 0)
 					continue;
-				if($gr_id == 1 && !$USER->CanDoOperation('edit_php'))   // not admin can't edit admins
+				if($gr_id == 1 && !$USER->CanDoOperation('edit_php')) // not admin can't edit admins
 					continue;
 				if ($USER->CanDoOperation('edit_subordinate_users') && !$USER->CanDoOperation('edit_all_users') && !in_array($gr_id, $arUserSubordinateGroups))
 					continue;
@@ -273,7 +272,7 @@ if(($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('edit_all_users') 
 				$arDep = $arUser['UF_DEPARTMENT'];
 				if(!is_array($arDep))
 					$arDep = array();
-				
+
 				if($_REQUEST['action']=="add_structure")
 					$arDep[] = $struct_id;
 				else
@@ -297,13 +296,13 @@ if(($arID = $lAdmin->GroupAction()) && ($USER->CanDoOperation('edit_all_users') 
 
 // заголовок списка
 $arHeaders = array(
-	array("id"=>"LOGIN", 			"content"=>GetMessage("LOGIN"),  "sort"=>"login", "default"=>true),
-	array("id"=>"ACTIVE", 			"content"=>GetMessage('ACTIVE'),	"sort"=>"active", "default"=>true),
+	array("id"=>"LOGIN", 			"content"=>GetMessage("LOGIN"), "sort"=>"login", "default"=>true),
+	array("id"=>"ACTIVE", 			"content"=>GetMessage('ACTIVE'),	"sort"=>"active", "default"=>true, "align" => "center"),
 	array("id"=>"TIMESTAMP_X",		"content"=>GetMessage('TIMESTAMP'), "sort"=>"timestamp_x", "default"=>true),
 	array("id"=>"NAME",				"content"=>GetMessage("NAME"), "sort"=>"name",	"default"=>true),
-	array("id"=>"LAST_NAME", 		"content"=>GetMessage("LAST_NAME"),  "sort"=>"last_name", "default"=>true),
-	array("id"=>"SECOND_NAME", 		"content"=>GetMessage("SECOND_NAME"),  "sort"=>"second_name"),
-	array("id"=>"EMAIL", 			"content"=>GetMessage('EMAIL'),  "sort"=>"email", "default"=>true),
+	array("id"=>"LAST_NAME", 		"content"=>GetMessage("LAST_NAME"), "sort"=>"last_name", "default"=>true),
+	array("id"=>"SECOND_NAME", 		"content"=>GetMessage("SECOND_NAME"), "sort"=>"second_name"),
+	array("id"=>"EMAIL", 			"content"=>GetMessage('EMAIL'), "sort"=>"email", "default"=>true),
 	array("id"=>"LAST_LOGIN", 		"content"=>GetMessage("LAST_LOGIN"), "sort"=>"last_login", "default"=>true),
 	array("id"=>"DATE_REGISTER", 	"content"=>GetMessage("DATE_REGISTER"), "sort"=>"date_register"),
 	array("id"=>"ID",				"content"=>"ID", 	"sort"=>"id", "default"=>true, "align"=>"right"),
@@ -328,7 +327,7 @@ $arHeaders = array(
 
 $rsRatings = CRatings::GetList(array('ID' => 'ASC'), array('ACTIVE' => 'Y', 'ENTITY_ID' => 'USER'));
 while ($arRatingsTmp = $rsRatings->GetNext())
-	$arHeaders[] = array("id"=>"RATING_".$arRatingsTmp['ID'], "content"=>htmlspecialchars($arRatingsTmp['NAME']), "sort"=>"RATING_".$arRatingsTmp['ID']);
+	$arHeaders[] = array("id"=>"RATING_".$arRatingsTmp['ID'], "content"=>htmlspecialcharsbx($arRatingsTmp['NAME']), "sort"=>"RATING_".$arRatingsTmp['ID']);
 
 $USER_FIELD_MANAGER->AdminListAddHeaders($entity_id, $arHeaders);
 $lAdmin->AddHeaders($arHeaders);
@@ -390,13 +389,17 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	}
 
 	$arActions = Array();
-	$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage($can_edit ? "MAIN_ADMIN_MENU_EDIT" : "MAIN_ADMIN_MENU_VIEW"), "ACTION"=>$lAdmin->ActionRedirect("user_edit.php?ID=".$f_ID), "DEFAULT"=>true);
+	$arActions[] = array("ICON"=>$can_edit ? "edit" : "view", "TEXT"=>GetMessage($can_edit ? "MAIN_ADMIN_MENU_EDIT" : "MAIN_ADMIN_MENU_VIEW"), "LINK"=> "user_edit.php?ID=".$f_ID, "DEFAULT"=>true);
 	if($can_edit && $edit)
 	{
-		$arActions[] = array("ICON"=>"copy", "TEXT"=>GetMessage("MAIN_ADMIN_ADD_COPY"), "ACTION"=>$lAdmin->ActionRedirect("user_edit.php?COPY_ID=".$f_ID));
-		$arActions[] = array("SEPARATOR"=>true);
+		$arActions[] = array("ICON"=>"copy", "TEXT"=>GetMessage("MAIN_ADMIN_ADD_COPY"), "LINK"=>"user_edit.php?COPY_ID=".$f_ID);
 		if (!$own_edit)
 			$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("MAIN_ADMIN_MENU_DELETE"), "ACTION"=>"if(confirm('".GetMessage('CONFIRM_DEL_USER')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete"));
+	}
+	if($USER->CanDoOperation('edit_php'))
+	{
+		$arActions[] = array("SEPARATOR"=>true);
+		$arActions[] = array("ICON"=>"", "TEXT"=>GetMessage("MAIN_ADMIN_AUTH"), "TITLE"=>GetMessage("MAIN_ADMIN_AUTH_TITLE"), "LINK"=>"user_admin.php?ID=".$f_ID."&action=authorize&".bitrix_sessid_get());
 	}
 
 	$row->AddActions($arActions);
@@ -441,7 +444,7 @@ if ($USER->CanDoOperation('edit_subordinate_users') || $USER->CanDoOperation('ed
 		{
 			$arUserField['MULTIPLE'] = 'N';
 			$arUserField['SETTINGS']['LIST_HEIGHT'] = 1;
-	
+
 			$sStruct = call_user_func_array(
 				array($arUserField["USER_TYPE"]["CLASS_NAME"], "geteditformhtml"),
 				array(
@@ -452,7 +455,7 @@ if ($USER->CanDoOperation('edit_subordinate_users') || $USER->CanDoOperation('ed
 					),
 				)
 			);
-						
+
 			$ar["add_structure"] = GetMessage("MAIN_ADMIN_LIST_ADD_STRUCT");
 			$ar["remove_structure"] = GetMessage("MAIN_ADMIN_LIST_REM_STRUCT");
 			$ar["structure"] = array(
@@ -460,7 +463,7 @@ if ($USER->CanDoOperation('edit_subordinate_users') || $USER->CanDoOperation('ed
 				"value"=>'<div id="bx_user_structure" style="display:none">'.$sStruct.'</div>',
 			);
 		}
-		
+
 		$ar["intranet_deactivate"] = GetMessage("MAIN_ADMIN_LIST_INTRANET_DEACTIVATE");
 	}
 
@@ -511,7 +514,7 @@ $oFilter->Begin();
 <tr>
 	<td><b><?=GetMessage("MAIN_FLT_SEARCH")?></b></td>
 	<td nowrap>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("MAIN_FLT_SEARCH_TITLE")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("MAIN_FLT_SEARCH_TITLE")?>">
 		<select name="find_type">
 			<option value="login"<?if($find_type=="login") echo " selected"?>><?=GetMessage('MAIN_FLT_LOGIN')?></option>
 			<option value="email"<?if($find_type=="email") echo " selected"?>><?=GetMessage('MAIN_FLT_EMAIL')?></option>
@@ -521,39 +524,39 @@ $oFilter->Begin();
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_ID")?></td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_F_TIMESTAMP")." (".CLang::GetDateFormat("SHORT")."):"?></td>
-	<td><?echo CalendarPeriod("find_timestamp_1", htmlspecialchars($find_timestamp_1), "find_timestamp_2", htmlspecialchars($find_timestamp_2), "find_form","Y")?></td>
+	<td><?echo GetMessage("MAIN_F_TIMESTAMP").":"?></td>
+	<td><?echo CalendarPeriod("find_timestamp_1", htmlspecialcharsbx($find_timestamp_1), "find_timestamp_2", htmlspecialcharsbx($find_timestamp_2), "find_form","Y")?></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_F_LAST_LOGIN")." (".CLang::GetDateFormat("SHORT")."):"?></td>
-	<td><?echo CalendarPeriod("find_last_login_1", htmlspecialchars($find_last_login_1), "find_last_login_2", htmlspecialchars($find_last_login_2), "find_form","Y")?></td>
+	<td><?echo GetMessage("MAIN_F_LAST_LOGIN").":"?></td>
+	<td><?echo CalendarPeriod("find_last_login_1", htmlspecialcharsbx($find_last_login_1), "find_last_login_2", htmlspecialcharsbx($find_last_login_2), "find_form","Y")?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("F_ACTIVE")?></td>
 	<td><?
 		$arr = array("reference"=>array(GetMessage("MAIN_YES"), GetMessage("MAIN_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_active", $arr, htmlspecialchars($find_active), GetMessage('MAIN_ALL'));
+		echo SelectBoxFromArray("find_active", $arr, htmlspecialcharsbx($find_active), GetMessage('MAIN_ALL'));
 		?>
 	</td>
 </tr>
 <tr>
 	<td><?echo GetMessage("F_LOGIN")?></td>
-	<td><input type="text" name="find_login" size="47" value="<?echo htmlspecialchars($find_login)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_login" size="47" value="<?echo htmlspecialcharsbx($find_login)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_EMAIL")?></td>
-	<td><input type="text" name="find_email" value="<?echo htmlspecialchars($find_email)?>" size="47"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_email" value="<?echo htmlspecialcharsbx($find_email)?>" size="47"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("F_NAME")?></td>
-	<td><input type="text" name="find_name" value="<?echo htmlspecialchars($find_name)?>" size="47"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_name" value="<?echo htmlspecialcharsbx($find_name)?>" size="47"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_KEYWORDS")?></td>
-	<td><input type="text" name="find_keywords" value="<?echo htmlspecialchars($find_keywords)?>" size="47"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_keywords" value="<?echo htmlspecialcharsbx($find_keywords)?>" size="47"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr valign="top">
 	<td><?echo GetMessage("F_GROUP")?><br><img src="/bitrix/images/main/mouse.gif" width="44" height="21" border="0" alt=""></td>
@@ -570,7 +573,7 @@ if ($bIntranetEdition)
 		<td><?echo GetMessage("F_FIND_INTRANET_USERS")?>:</td>
 		<td><?
 			$arr = array("reference"=>array(GetMessage("MAIN_YES")), "reference_id"=>array("Y"));
-			echo SelectBoxFromArray("find_intranet_users", $arr, htmlspecialchars($find_intranet_users), GetMessage('MAIN_ALL'));
+			echo SelectBoxFromArray("find_intranet_users", $arr, htmlspecialcharsbx($find_intranet_users), GetMessage('MAIN_ALL'));
 			?>
 		</td>
 	</tr>

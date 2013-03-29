@@ -4,6 +4,7 @@ class CFile extends CAllFile
 	function Delete($ID)
 	{
 		global $DB;
+		$io = CBXVirtualIo::GetInstance();
 		$ID = intval($ID);
 
 		if($ID <= 0)
@@ -17,17 +18,18 @@ class CFile extends CAllFile
 
 			$dname = $_SERVER["DOCUMENT_ROOT"]."/".$upload_dir."/".$res["SUBDIR"];
 			$fname = $dname."/".$res["FILE_NAME"];
+			$file = $io->GetFile($fname);
 
-			if(file_exists($fname))
-				if(unlink($fname))
+			if($file->isExists() && $file->unlink())
 					$delete_size += $res["FILE_SIZE"];
 
 			$delete_size += CFile::ResizeImageDelete($res);
 
 			$DB->Query("DELETE FROM b_file WHERE ID = ".$ID);
 
-			if(file_exists($dname))
-				@rmdir($dname);
+			$directory = $io->GetDirectory($dname);
+			if($directory->isExists() && $directory->isEmpty())
+				$directory->rmdir();
 
 			CFile::CleanCache($ID);
 

@@ -103,7 +103,7 @@ class CIBlockPropertyEnum
 			$strSqlSearch
 			$strSqlOrder
 			";
-		//echo "<pre>".htmlspecialchars($strSql)."</pre>";
+		//echo "<pre>".htmlspecialcharsbx($strSql)."</pre>";
 		$rs = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 		return $rs;
 	}

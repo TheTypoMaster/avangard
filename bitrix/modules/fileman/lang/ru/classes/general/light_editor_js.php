@@ -87,4 +87,5 @@ $MESS["AddLITitle"] = "Добавить пункт в список (Enter)";
 $MESS["DelListItem"] = "Удалить пункт из списка";
 $MESS["ResizerTitle"] = "Изменить размер";
 $MESS["CodeDel"] = "Нажмите (Shift + Del) чтобы удалить весь фрагмент кода";
+$MESS["OnPasteProcessing"] = "Идет обработка вставленного текста...";
 ?>

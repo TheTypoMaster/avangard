@@ -25,7 +25,7 @@ class CIBlockPropertyXmlID
 				if($ar_res)
 					$cache[$value["VALUE"]] = '<a href="'.$ar_res["DETAIL_PAGE_URL"].'">'.$ar_res["NAME"].'</a>';
 				else
-					$cache[$value["VALUE"]] = htmlspecialchars($value["VALUE"]);
+					$cache[$value["VALUE"]] = htmlspecialcharsbx($value["VALUE"]);
 			}
 			return $cache[$value["VALUE"]];
 		}
@@ -51,7 +51,7 @@ class CIBlockPropertyXmlID
 				);
 				$ar_res = $db_res->GetNext();
 				if($ar_res)
-					$cache[$value["VALUE"]] = htmlspecialchars($ar_res['NAME']).
+					$cache[$value["VALUE"]] = htmlspecialcharsbx($ar_res['NAME']).
 					' [<a href="'.
 					'/bitrix/admin/iblock_element_edit.php?'.
 					'type='.urlencode($ar_res['IBLOCK_TYPE_ID']).
@@ -60,7 +60,7 @@ class CIBlockPropertyXmlID
 					'&amp;lang='.LANGUAGE_ID.
 					'" title="'.GetMessage("IBLOCK_PROP_EL_EDIT").'">'.$ar_res['ID'].'</a>]';
 				else
-					$cache[$value["VALUE"]] = htmlspecialchars($value["VALUE"]);
+					$cache[$value["VALUE"]] = htmlspecialcharsbx($value["VALUE"]);
 			}
 			return $cache[$value["VALUE"]];
 		}
@@ -94,9 +94,9 @@ class CIBlockPropertyXmlID
 		if(!$ar_res)
 			$ar_res = array("NAME" => "");
 
-		return  '<input name="'.htmlspecialchars($strHTMLControlName["VALUE"]).'" id="'.htmlspecialchars($strHTMLControlName["VALUE"]).'" value="'.htmlspecialcharsex($value["VALUE"]).'" size="20" type="text">'.
+		return  '<input name="'.htmlspecialcharsbx($strHTMLControlName["VALUE"]).'" id="'.htmlspecialcharsbx($strHTMLControlName["VALUE"]).'" value="'.htmlspecialcharsex($value["VALUE"]).'" size="20" type="text">'.
 			'<input type="button" value="..." onClick="jsUtils.OpenWindow(\''.CUtil::JSEscape('/bitrix/admin/iblock_element_search.php?lang='.LANG.'&n='.urlencode($strHTMLControlName["VALUE"]).'&get_xml_id=Y&a=b').'\', 600, 500);">'.
-			'&nbsp;<span id="sp_'.htmlspecialchars($strHTMLControlName["VALUE"]).'" >'.$ar_res['NAME'].'</span>';
+			'&nbsp;<span id="sp_'.htmlspecialcharsbx($strHTMLControlName["VALUE"]).'" >'.$ar_res['NAME'].'</span>';
 	}
 
 	function GetSettingsHTML($arProperty, $strHTMLControlName, &$arPropertyFields)

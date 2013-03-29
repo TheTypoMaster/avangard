@@ -4,11 +4,20 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 ?>
 <div class="bx-interface-toolbar">
 <table cellpadding="0" cellspacing="0" border="0" class="bx-interface-toolbar">
+	<tr class="bx-top">
+		<td class="bx-left"><div class="empty"></div></td>
+		<td><div class="empty"></div></td>
+		<td class="bx-right"><div class="empty"></div></td>
+	</tr>
+	<tr>
+		<td class="bx-left"><div class="empty"></div></td>
+		<td class="bx-content">
+			<table cellpadding="0" cellspacing="0" border="0">
+				<tr>
+				<td><div class="bx-section-separator bx-first"></div></td>
 <?
-$bFirst = true;
-$bWasSeparator = false;
+$bWasSeparator = true;
 foreach($arParams["BUTTONS"] as $index=>$item):
-
 	if(!empty($item["NEWBAR"])):
 ?>
 				</tr>
@@ -21,10 +30,6 @@ foreach($arParams["BUTTONS"] as $index=>$item):
 		<td><div class="empty"></div></td>
 		<td class="bx-right"><div class="empty"></div></td>
 	</tr>
-<?
-	endif;
-	if($bFirst || !empty($item["NEWBAR"])):
-?>
 	<tr class="bx-top">
 		<td class="bx-left"><div class="empty"></div></td>
 		<td><div class="empty"></div></td>
@@ -38,10 +43,8 @@ foreach($arParams["BUTTONS"] as $index=>$item):
 				<td><div class="bx-section-separator bx-first"></div></td>
 <?
 		$bWasSeparator = true;
-	endif;
-
-	if(!empty($item["NEWBAR"]))
 		continue;
+	endif;
 
 	if(!empty($item["SEPARATOR"])):
 ?>
@@ -75,7 +78,6 @@ foreach($arParams["BUTTONS"] as $index=>$item):
 		endif;
 		$bWasSeparator = false;
 	endif;
-	$bFirst = false;
 endforeach;
 ?>
 				</tr>

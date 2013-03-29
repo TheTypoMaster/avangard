@@ -1,4 +1,4 @@
-(function(window) {
+;(function(window) {
 
 if (BX.PopupWindowManager)
 	return;
@@ -69,17 +69,21 @@ BX.PopupWindowManager =
 
 BX.PopupWindow = function(uniquePopupId, bindElement, params)
 {
+	BX.onCustomEvent("onPopupWindowInit", [uniquePopupId, bindElement, params ]);
+
 	this.uniquePopupId = uniquePopupId;
 	this.params = params || {};
 	this.params.zIndex = parseInt(this.params.zIndex);
 	this.params.zIndex = isNaN(this.params.zIndex) ? 0 : this.params.zIndex;
 	this.buttons = this.params.buttons && BX.type.isArray(this.params.buttons) ? this.params.buttons : [];
-	this.offsetTop = this.offsetLeft = 0;
+	this.offsetTop = BX.PopupWindow.getOption("offsetTop", 0);
+	this.offsetLeft = BX.PopupWindow.getOption("offsetLeft", 0);
 	this.firstShow = false;
 	this.bordersWidth = 20;
 	this.bindElementPos = null;
 	this.closeIcon = null;
 	this.angle = null;
+	this.overlay = null;
 	this.titleBar = null;
 	this.bindOptions = typeof(this.params.bindOptions) == "object" ? this.params.bindOptions : {};
 	this.isAutoHideBinded = false;
@@ -103,7 +107,7 @@ BX.PopupWindow = function(uniquePopupId, bindElement, params)
 			id : uniquePopupId
 		},
 		style : {
-			zIndex: 0,
+			zIndex: this.getZindex(),
 			position: "absolute",
 			display: "none",
 			top: "0px",
@@ -159,6 +163,10 @@ BX.PopupWindow = function(uniquePopupId, bindElement, params)
 
 	if (params.angle)
 		this.setAngle(params.angle);
+
+	if (params.overlay)
+		this.setOverlay(params.overlay);
+
 	this.setOffset(this.params);
 	this.setBindElement(bindElement);
 	this.setTitleBar(this.params.titleBar);
@@ -197,7 +205,7 @@ BX.PopupWindow.prototype.setButtons = function(buttons)
 		BX.remove(this.buttonsHr);
 	if (this.buttonsContainer)
 		BX.remove(this.buttonsContainer);
-	
+
 	if (this.buttons.length > 0 && this.contentContainer)
 	{
 		var newButtons = [];
@@ -278,11 +286,12 @@ BX.PopupWindow.prototype.setAngle = function(params)
 	if (this.angle == null)
 	{
         var position = this.bindOptions.position && this.bindOptions.position == "top" ? "bottom" : "top";
+		var angleMinLeft = BX.PopupWindow.getOption(position == "top" ? "angleMinTop" : "angleMinBottom", 7);
 		this.angle = {
 			element : BX.create("div", { props : { className: className + " " + className +"-" + position }}),
 			position : position,
 			offset : 0,
-			defaultOffset : BX.type.isNumber(params.offset) ? params.offset : 0
+			defaultOffset :  Math.max(BX.type.isNumber(params.offset) ? params.offset : 0, angleMinLeft)
 		};
 		this.popupContainer.appendChild(this.angle.element);
 	}
@@ -296,34 +305,34 @@ BX.PopupWindow.prototype.setAngle = function(params)
 
 	if (typeof(params) == "object" && BX.type.isNumber(params.offset))
 	{
+		var offset = params.offset;
 		if (this.angle.position == "top")
 		{
-			this.angle.element.style.left = (this.angle.offset = Math.max(7, params.offset)) + "px";
+			this.angle.element.style.left = (this.angle.offset = Math.max(BX.PopupWindow.getOption("angleMinTop", 7), offset)) + "px";
 			this.angle.element.style.marginLeft = "auto";
 		}
 		else if (this.angle.position == "right")
-			this.angle.element.style.top = (this.angle.offset = Math.max(2, params.offset)) + "px";
+			this.angle.element.style.top = (this.angle.offset = Math.max(BX.PopupWindow.getOption("angleMinRight", 2), offset)) + "px";
 		else if (this.angle.position == "bottom")
 		{
-			this.angle.element.style.marginLeft = (this.angle.offset = Math.max(7, params.offset)) + "px";
+			this.angle.element.style.marginLeft = (this.angle.offset = Math.max(BX.PopupWindow.getOption("angleMinBottom", 7), offset)) + "px";
 			this.angle.element.style.left = "auto";
 		}
 		else if (this.angle.position == "left")
-			this.angle.element.style.top = (this.angle.offset = Math.max(2, params.offset)) + "px";
+			this.angle.element.style.top = (this.angle.offset = Math.max(BX.PopupWindow.getOption("angleMinLeft", 2), offset)) + "px";
 	}
 };
 
 BX.PopupWindow.prototype.setOffset = function(params)
 {
-
 	if (typeof(params) != "object")
 		return;
 
 	if (params.offsetLeft && BX.type.isNumber(params.offsetLeft))
-		this.offsetLeft = params.offsetLeft;
+		this.offsetLeft = params.offsetLeft + BX.PopupWindow.getOption("offsetLeft", 0);
 
 	if (params.offsetTop && BX.type.isNumber(params.offsetTop))
-		this.offsetTop = params.offsetTop;
+		this.offsetTop = params.offsetTop + BX.PopupWindow.getOption("offsetTop", 0);
 };
 
 BX.PopupWindow.prototype.setTitleBar = function(params)
@@ -333,7 +342,7 @@ BX.PopupWindow.prototype.setTitleBar = function(params)
 
 	this.titleBar.innerHTML = "";
 	this.titleBar.appendChild(params.content);
-	
+
 	if (this.params.draggable)
 	{
 		this.titleBar.parentNode.style.cursor = "move";
@@ -364,6 +373,82 @@ BX.PopupWindow.prototype.setClosingByEsc = function(enable)
 	}
 };
 
+BX.PopupWindow.prototype.setOverlay = function(params)
+{
+	if (this.overlay == null)
+	{
+		this.overlay = {
+			element : BX.create("div", { props : { className: "popup-window-overlay", id : "popup-window-overlay-" + this.uniquePopupId } })
+		};
+
+		this.adjustOverlayZindex();
+		this.resizeOverlay();
+		document.body.appendChild(this.overlay.element);
+	}
+
+	if (params && params.opacity && BX.type.isNumber(params.opacity) && params.opacity >= 0 && params.opacity <= 100)
+	{
+		if (BX.browser.IsIE() && !BX.browser.IsIE9())
+			this.overlay.element.style.filter =  "alpha(opacity=" + params.opacity +")";
+		else
+		{
+			this.overlay.element.style.filter = "none";
+			this.overlay.element.style.opacity = parseFloat(params.opacity/100).toPrecision(3);
+		}
+	}
+
+	if (params && params.backgroundColor)
+		this.overlay.element.style.backgroundColor = params.backgroundColor;
+};
+
+BX.PopupWindow.prototype.removeOverlay = function()
+{
+	if (this.overlay != null && this.overlay.element != null)
+		BX.remove(this.overlay.element);
+
+	this.overlay = null;
+};
+
+BX.PopupWindow.prototype.hideOverlay = function()
+{
+	if (this.overlay != null && this.overlay.element != null)
+		this.overlay.element.style.display = "none";
+};
+
+BX.PopupWindow.prototype.showOverlay = function()
+{
+	if (this.overlay != null && this.overlay.element != null)
+		this.overlay.element.style.display = "block";
+};
+
+BX.PopupWindow.prototype.resizeOverlay = function()
+{
+	if (this.overlay != null && this.overlay.element != null)
+	{
+		var windowSize = BX.GetWindowScrollSize();
+		this.overlay.element.style.width = windowSize.scrollWidth + "px";
+		this.overlay.element.style.height = windowSize.scrollHeight + "px";
+	}
+};
+
+BX.PopupWindow.prototype.getZindex = function()
+{
+	if (this.overlay != null)
+		return BX.PopupWindow.getOption("popupOverlayZindex", 1100) + this.params.zIndex;
+	else
+		return BX.PopupWindow.getOption("popupZindex", 1000) + this.params.zIndex;
+};
+
+
+BX.PopupWindow.prototype.adjustOverlayZindex = function()
+{
+	if (this.overlay != null && this.overlay.element != null)
+	{
+		this.overlay.element.style.zIndex = parseInt(this.popupContainer.style.zIndex) - 1;
+	}
+};
+
+
 BX.PopupWindow.prototype.show = function()
 {
 	if (!this.firstShow)
@@ -373,6 +458,7 @@ BX.PopupWindow.prototype.show = function()
 	}
 	BX.onCustomEvent(this, "onPopupShow", [this]);
 
+	this.showOverlay();
 	this.popupContainer.style.display = "block";
 
 	this.adjustPosition();
@@ -419,6 +505,8 @@ BX.PopupWindow.prototype.close = function(event)
         return;
 
 	BX.onCustomEvent(this, "onPopupClose", [this, event]);
+
+	this.hideOverlay();
 	this.popupContainer.style.display = "none";
 
 	if (this.isCloseByEscBinded)
@@ -459,6 +547,7 @@ BX.PopupWindow.prototype.destroy = function()
 	BX.onCustomEvent(this, "onPopupDestroy", [this]);
 	BX.unbindAll(this);
 	BX.remove(this.popupContainer);
+	this.removeOverlay();
 };
 
 BX.PopupWindow.prototype.adjustPosition = function(bindOptions)
@@ -467,7 +556,7 @@ BX.PopupWindow.prototype.adjustPosition = function(bindOptions)
 		this.bindOptions = bindOptions;
 
 	var bindElementPos = this.getBindElementPos(this.bindElement);
-    
+
 	if (!this.bindOptions.forceBindPosition && this.bindElementPos != null &&
          bindElementPos.top == this.bindElementPos.top &&
          bindElementPos.left == this.bindElementPos.left
@@ -481,22 +570,27 @@ BX.PopupWindow.prototype.adjustPosition = function(bindOptions)
 	var popupWidth = bindElementPos.popupWidth ? bindElementPos.popupWidth : this.popupContainer.offsetWidth;
 	var popupHeight = bindElementPos.popupHeight ? bindElementPos.popupHeight : this.popupContainer.offsetHeight;
 
-	var angleMinLeft = 7;
-	var angleTopOffset = 5;
-	var angleLeftOffset = 15;
+	var angleTopOffset = BX.PopupWindow.getOption("angleTopOffset", 5);
+	var angleLeftOffset = BX.PopupWindow.getOption("angleLeftOffset", 15);
 
-    var left = this.bindElementPos.left + this.offsetLeft - (this.angle != null && BX.util.in_array(this.angle.position, ["top", "bottom"]) ? angleLeftOffset : 0);
+    var left = this.bindElementPos.left + this.offsetLeft - (this.angle != null && BX.util.in_array(this.angle.position, ["top", "bottom"]) ? angleLeftOffset  : 0);
+
+
 	if ( !this.bindOptions.forceLeft &&
-		(left + popupWidth) >= (windowSize.innerWidth + windowScroll.scrollLeft) &&
+		(left + popupWidth + this.bordersWidth) >= (windowSize.innerWidth + windowScroll.scrollLeft) &&
 		(windowSize.innerWidth + windowScroll.scrollLeft - popupWidth - this.bordersWidth) > 0)
 	{
 			var bindLeft = left;
 			left = windowSize.innerWidth + windowScroll.scrollLeft - popupWidth - this.bordersWidth;
 			if (this.angle != null && BX.util.in_array(this.angle.position, ["top", "bottom"]))
-				this.setAngle({ offset : bindLeft - left + angleMinLeft + this.angle.defaultOffset + (this.offsetLeft < 0 ? -this.offsetLeft : 0)});
+			{
+				this.setAngle({ offset : bindLeft - left + this.angle.defaultOffset});
+			}
 	}
 	else if (this.angle != null && BX.util.in_array(this.angle.position, ["top", "bottom"]))
-		this.setAngle({ offset : this.angle.defaultOffset + (this.offsetLeft < 0 ? -this.offsetLeft : 0) + (left < 0 ? left : 0) });
+	{
+		this.setAngle({ offset :  this.angle.defaultOffset + (left < 0 ? left : 0) });
+	}
 
 	if (left < 0)
 		left = 0;
@@ -516,9 +610,11 @@ BX.PopupWindow.prototype.adjustPosition = function(bindOptions)
         }
         else if (this.angle != null && this.angle.position == "top")
         {
-            top -= angleTopOffset;
+            top = top - angleTopOffset + BX.PopupWindow.getOption("positionTopXOffset", 0);
             this.setAngle({ position: "bottom"});
         }
+		else
+			top += BX.PopupWindow.getOption("positionTopXOffset", 0);
     }
     else
     {
@@ -531,6 +627,8 @@ BX.PopupWindow.prototype.adjustPosition = function(bindOptions)
     			top -= angleTopOffset;
     			this.setAngle({ position: "bottom"});
     		}
+
+			top += BX.PopupWindow.getOption("positionTopXOffset", 0)
     	}
     	else if (this.angle != null && this.angle.position == "bottom")
     	{
@@ -545,14 +643,20 @@ BX.PopupWindow.prototype.adjustPosition = function(bindOptions)
 	BX.adjust(this.popupContainer, { style: {
         top: top + "px",
         left: left + "px",
-        zIndex: 1000 + this.params.zIndex
+        zIndex: this.getZindex()
 	}});
+
+	this.adjustOverlayZindex();
 };
 
 BX.PopupWindow.prototype._onResizeWindow = function(event)
 {
     if (this.isShown())
-	    this.adjustPosition();
+	{
+		this.adjustPosition();
+		if (this.overlay != null)
+			this.resizeOverlay();
+	}
 };
 
 BX.PopupWindow.prototype.move = function(offsetX, offsetY)
@@ -597,7 +701,7 @@ BX.PopupWindow.prototype._startDrag = function(event)
 
 	BX.bind(document, "mousemove", BX.proxy(this._moveDrag, this));
 	BX.bind(document, "mouseup", BX.proxy(this._stopDrag, this));
-	
+
 	if (document.body.setCapture)
 		document.body.setCapture();
 
@@ -635,8 +739,8 @@ BX.PopupWindow.prototype._moveDrag = function(event)
 BX.PopupWindow.prototype._stopDrag = function(event)
 {
 	if(document.body.releaseCapture)
-		document.body.releaseCapture();	
-		
+		document.body.releaseCapture();
+
 	BX.unbind(document, "mousemove", BX.proxy(this._moveDrag, this));
 	BX.unbind(document, "mouseup", BX.proxy(this._stopDrag, this));
 
@@ -652,6 +756,26 @@ BX.PopupWindow.prototype._stopDrag = function(event)
 
 	return BX.PreventDefault(event);
 };
+
+BX.PopupWindow.options = {};
+BX.PopupWindow.setOptions = function(options)
+{
+	if (!options || typeof(options) != "object")
+		return;
+
+	for (var option in options)
+		BX.PopupWindow.options[option] = options[option];
+};
+
+BX.PopupWindow.getOption = function(option, defaultValue)
+{
+	if (typeof(BX.PopupWindow.options[option]) != "undefined")
+		return BX.PopupWindow.options[option];
+	else
+		return defaultValue;
+};
+
+
 
 /*========================================Buttons===========================================*/
 
@@ -704,7 +828,9 @@ BX.PopupWindowButton.prototype.setClassName = function(className)
 {
 	if (this.buttonNode)
 	{
-		BX.removeClass(this.buttonNode, this.className);
+		if (BX.type.isString(this.className) && (this.className != ''))
+			BX.removeClass(this.buttonNode, this.className);
+
 		BX.addClass(this.buttonNode, className)
 	}
 
@@ -732,11 +858,28 @@ BX.PopupMenu = {
 
 	Data : {},
 	currentItem : null,
+	stack : [],
 
-	show : function(Id, bindElement, menuItems, params)
+	onkeypresslistener: null,
+
+	show : function(Id, bindElement, menuItems, params, level)
 	{
-		if (this.currentItem !== null)
-			this.currentItem.popupWindow.close();
+		if (!level)
+			level = 0;
+
+		if (level < this.stack.length)
+		{
+			for (var i = this.stack.length-1; i >= level; i--)
+			{
+				this.currentItem = this.stack.pop();
+
+				if (this.currentItem)
+					this.currentItem.popupWindow.close();
+
+				if (i > 0)
+					this.currentItem = this.stack[i-1];
+			}
+		}
 
 		if (!this.Data[Id])
 		{
@@ -745,45 +888,71 @@ BX.PopupMenu = {
 		}
 
 		this.currentItem = this.Data[Id];
+		this.stack[level] = this.currentItem;
+
 		this.currentItem.popupWindow.show();
+
+		if (!this.onkeypresslistener)
+		{
+			this.onkeypresslistener = BX.delegate(function(e) {
+				e = e || window.event;
+				if (e && e.keyCode == 27)
+				{
+					this.currentItem = this.stack.pop();
+
+					if (this.currentItem)
+						this.currentItem.popupWindow.close();
+
+					if (this.stack.length > 0)
+						this.currentItem = this.stack[this.stack.length - 1];
+				}
+			}, this);
+
+			BX.bind(document, 'keypress', this.onkeypresslistener);
+		}
 	},
 
 	__createPopup : function(node, menuItems, params)
 	{
 		var items = [];
-		for (var i = 0; i < menuItems.length; i++) 
+		for (var i = 0; i < menuItems.length; i++)
 		{
-
 			var item = menuItems[i];
-			if (!item || !item.text || !BX.type.isNotEmptyString(item.text))
+
+			if (!item)
 				continue;
 
 			if (i > 0)
-				items.push(BX.create("div", { props : { className : "popup-window-hr" }, children : [ BX.create("i", {}) ]}));
+				items.push(BX.create("div", { props : { className : "popup-window-hr" }, html:'<i></i>'}));
 
-			var a = BX.create("a", {
-				props : { className: "menu-popup-item" +  (BX.type.isNotEmptyString(item.className) ? " " + item.className : "")},
-				attrs : { title : item.title ? item.title : ""},
-				events : item.onclick && BX.type.isFunction(item.onclick) ? { click : BX.proxy(item.onclick, node) } : null,
-				html :  '<span class="menu-popup-item-left"></span><span class="menu-popup-item-icon"></span><span class="menu-popup-item-text">' + item.text + '</span><span class="menu-popup-item-right"></span>'
-			});
+			if (!!item.delimiter)
+			{
+				var a = BX.create('span', {props:{className:'popup-window-delimiter'},html:'<i></i>'});
+			}
+			else if (!!item.text && BX.type.isNotEmptyString(item.text))
+			{
 
-			if (item.href)
-				a.href = item.href;
+				var a = BX.create(!!item.href ? "a" : "span", {
+					props : { className: "menu-popup-item" +  (BX.type.isNotEmptyString(item.className) ? " " + item.className : "")},
+					attrs : { title : item.title ? item.title : "", onclick: item.onclick && BX.type.isString(item.onclick) ? item.onclick : null},
+					events : item.onclick && BX.type.isFunction(item.onclick) ? { click : BX.proxy(item.onclick, node) } : null,
+					html :  '<span class="menu-popup-item-left"></span><span class="menu-popup-item-icon"></span><span class="menu-popup-item-text">' + item.text + '</span><span class="menu-popup-item-right"></span>'
+				});
+
+				if (item.href)
+					a.href = item.href;
+			}
+
 			items.push(a);
-
 		}
 
 		var popupWindow = new BX.PopupWindow("menu-popup-" + node.id, node.bindElement, {
-			closeByEsc : params.closeByEsc ? params.closeByEsc : true,
-			autoHide : params.autoHide ? params.autoHide : true,
+			closeByEsc : false,
+			autoHide : typeof(params.autoHide) != "undefined" ? params.autoHide : true,
 			offsetTop : params.offsetTop ? params.offsetTop : 1,
 			offsetLeft : params.offsetLeft ? params.offsetLeft : 0,
-			lightShadow : params.lightShadow ? params.lightShadow : true,
-			events : {
-				onPopupClose : params && params.events && params.events.onPopupClose && BX.type.isFunction(params.events.onPopupClose)
-						? BX.proxy(params.events.onPopupClose, node) : null
-			},
+			lightShadow : typeof(params.lightShadow) != "undefined" ? params.lightShadow : true,
+			angle : typeof(params.angle) != "undefined" ? params.angle : false,
 			content : BX.create("div", { props : { className : "menu-popup" }, children: [
 				BX.create("div", { props : { className : "menu-popup-items" }, children: items})
 			]})
@@ -990,4 +1159,4 @@ Deactivate: function(bDeactivate)
 }
 };
 
-})(window);
+})(window);  

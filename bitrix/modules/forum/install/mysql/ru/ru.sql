@@ -1,5 +1,5 @@
-INSERT  INTO b_forum_dictionary (ID, TITLE,`TYPE`) VALUES (1,'[ru]Словарь слов', 'W');
-INSERT  INTO b_forum_dictionary (ID, TITLE,`TYPE`) VALUES (2, '[ru]Словарь транслита', 'T');
+INSERT  INTO b_forum_dictionary (ID, TITLE,`TYPE`) VALUES (1,'[ru] Словарь слов', 'W');
+INSERT  INTO b_forum_dictionary (ID, TITLE,`TYPE`) VALUES (2, '[ru] Словарь транслита', 'T');
 
 INSERT INTO b_forum_filter (DICTIONARY_ID,WORDS,PATTERN,REPLACEMENT,DESCRIPTION,USE_IT,PATTERN_CREATE) VALUES ('1', '*пизд*', '', '', '', 'Y', 'TRNSL');
 INSERT INTO b_forum_filter (DICTIONARY_ID,WORDS,PATTERN,REPLACEMENT,DESCRIPTION,USE_IT,PATTERN_CREATE) VALUES ('1', '*пизж*', '', '', '', 'Y', 'TRNSL');

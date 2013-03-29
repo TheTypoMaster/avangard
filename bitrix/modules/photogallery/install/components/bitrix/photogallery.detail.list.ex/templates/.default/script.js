@@ -9,7 +9,11 @@ window.BXPhotoSlider = function(Params)
 
 	this.itemsCount = Params.itemsCount;
 	this.actionUrl = Params.actionUrl;
+	this.responderUrl = Params.responderUrl;
 	this.actionPostUrl = Params.actionUrl === true ? this.actionUrl : false;
+	this.sign = Params.sign;
+	this.reqParams = Params.reqParams;
+	this.checkParams = Params.checkParams;
 
 	this.userSettings = Params.userSettings;
 	this.itemsPageSize = Params.itemsPageSize;
@@ -49,7 +53,7 @@ window.BXPhotoSlider = function(Params)
 	this.moderation  = Params.moderation == 'Y';
 
 	// Theme
-	this.theme = this.userSettings.theme == "dark" ? "dark" : "light";
+	this.theme = this.userSettings.theme == "light" ? "light" : "dark";
 	this.bChangeTheme = true;
 
 	this.itemUrl = Params.itemUrl;
@@ -327,7 +331,8 @@ window.BXPhotoSlider.prototype = {
 			current : {id : curItemId},
 			include_subsection: 'Y',
 			return_array : 'Y',
-			ELEMENT_ID : curItemId
+			ELEMENT_ID : curItemId,
+			AJAX_CALL: 'Y'
 		};
 		if (direction !== false)
 			params.direction = direction == 'next' ? 'next' : 'prev';
@@ -580,7 +585,7 @@ window.BXPhotoSlider.prototype = {
 						if (oItem.comments > this.showAddCommentsCount)
 						{
 							this.pAddCommentForm.style.display = "none"; // Hide add comment form
-								this.pAddComLink.style.display = "";
+							this.pAddComLink.style.display = "";
 						}
 						else
 						{
@@ -601,8 +606,8 @@ window.BXPhotoSlider.prototype = {
 		if (this.oTopSlider && bAffectTopSlider !== false)
 			this.oTopSlider.SelectItem(oItem);
 
-		if (!oItem.bShowed)
-			this.IncrementCounter(oItem);
+		if (!oItem.bShowed || this.useRatings)
+			this.OnItemShowed(oItem);
 	},
 
 	DisplayItemDetails: function(oItem)
@@ -619,6 +624,9 @@ window.BXPhotoSlider.prototype = {
 
 		// Author
 		this.pAuthorLink.href = this.userUrl.replace(/#USER_ID#/ig, oItem.author_id);
+		if (oItem.gallery_id && this.pAuthorLink.href.toLowerCase().indexOf('#user_alias#'))
+			this.pAuthorLink.href = this.pAuthorLink.href.replace(/#USER_ALIAS#/ig, oItem.gallery_id);
+
 		this.pAuthorLink.innerHTML = oItem.author_name;
 
 		// Views
@@ -651,9 +659,6 @@ window.BXPhotoSlider.prototype = {
 			this.pTags.parentNode.style.display = "none";
 		}
 
-		// Rating
-		this.DisplayRating(oItem);
-
 		// Date
 		this.pDate.innerHTML = this.MESS.created + ' ' + oItem.date;
 
@@ -663,70 +668,6 @@ window.BXPhotoSlider.prototype = {
 
 		if (this.moderation)
 			this.SetWarning(oItem['active'] != 'Y' ? 'active' : false);
-	},
-
-	/*
-	// TODO: put 3 requests (view count, comments, rating to only one request)
-	OnDisplayRequest: function()
-	{
-		var _this = this;
-		BX.ajax.get(
-			this.actionUrl,
-			{
-				UCID: this.uniqueId,
-				photo_list_action: 'ondisplay',
-				sessid: BX.bitrix_sessid(),
-				ELEMENT_ID : oItem.id
-			},
-			function(result){setTimeout(function()
-			{
-			}, 100);}
-		);
-	},
-	*/
-	DisplayRating: function(oItem)
-	{
-		if (!this.useRatings || !oItem)
-			return;
-
-		if (typeof oItem.rating != 'undefined')
-		{
-			this.pRatingCont.innerHTML = oItem.rating;
-			// For like (rating_main) - we have to rerender ratings for each photo loading
-			if (!this.cacheRaitingReq)
-				delete oItem.rating;
-		}
-		else
-		{
-			this.pRatingCont.innerHTML = '';
-			var _this = this;
-			BX.ajax.get(
-			this.actionUrl,
-			{
-				UCID: this.uniqueId,
-				photo_list_action: 'get_rating',
-				sessid: BX.bitrix_sessid(),
-				ELEMENT_ID : oItem.id,
-				AUTHOR_ID : oItem.author_id
-			},
-			function(result){setTimeout(function()
-			{
-				result = BX.util.trim(result);
-				var
-					res = '',
-					indBegin = result.indexOf('<!--BX_PHOTO_RARING-->'),
-					indEnd = result.indexOf('<!--BX_PHOTO_RARING_END-->');
-
-				if (indBegin !== -1 && indEnd !== -1)
-					res = result.substr(indBegin + '<!--BX_PHOTO_RARING-->'.length, indEnd - indBegin - '<!--BX_PHOTO_RARING-->'.length);
-				else
-					res = result;
-
-				oItem.rating = res;
-				_this.DisplayRating(oItem);
-			}, 100);}
-		);
-		}
 	},
 
 	SetWarning: function(type)
@@ -766,7 +707,11 @@ window.BXPhotoSlider.prototype = {
 	CreateSceleton: function()
 	{
 		var _this = this;
-		this.pFixedOverlay = document.body.appendChild(BX.create("DIV", {props: {className: (!BX.browser.IsDoctype() && BX.browser.IsIE()) ? "photo-fixed-overlay photo-quirks-mode" : "photo-fixed-overlay"}}));
+		var pPrev = BX.findChild(document.body, {className: 'photo-fixed-overlay'});
+		if (pPrev)
+			BX.cleanNode(pPrev, true);
+
+		this.pFixedOverlay = document.body.appendChild(BX.create("DIV", {props: {className: (!BX.browser.IsDoctype() && BX.browser.IsIE()) ? "photo-fixed-overlay photo-quirks-mode" : "photo-fixed-overlay sds"}}));
 		this.pTable = this.pFixedOverlay.appendChild(BX.create("TABLE", {props: {className: "photo-main-table", cellSpacing: 0}}));
 
 		var r = this.pTable.insertRow(-1);
@@ -935,8 +880,8 @@ window.BXPhotoSlider.prototype = {
 		this.pShowMoreComLink.onclick = BX.proxy(this.ShowMoreComments, this);
 		this.pAddCommentForm = pLeftCont.appendChild(BX.create("DIV"));
 
-		if (!this.perm.addComment)
-			this.pComAccessDeniedCont = pLeftCont.appendChild(BX.create("DIV", {props: {className: 'photo-comments-warning'}, text: this.MESS.comAccessDenied}));
+		if (!this.perm.addComment && this.useComments)
+			pLeftCont.appendChild(BX.create("DIV", {props: {className: 'photo-comments-warning'}, text: this.MESS.comAccessDenied}));
 
 		if (this.perm.addComment)
 		{
@@ -1123,7 +1068,8 @@ window.BXPhotoSlider.prototype = {
 				UCID: this.uniqueId,
 				photo_list_action: 'load_comments',
 				sessid: BX.bitrix_sessid(),
-				photo_element_id : id
+				photo_element_id : id,
+				AJAX_CALL: 'Y'
 			},
 			function(result){setTimeout(function()
 			{
@@ -1198,6 +1144,7 @@ window.BXPhotoSlider.prototype = {
 		}
 
 		this._CommentsParams = Params;
+
 		this.Items[this.currentIndex].savedNavparams = BX.clone(Params.navParams, true);
 
 		if (!this.Items[this.currentIndex].arCommentInds)
@@ -1210,7 +1157,7 @@ window.BXPhotoSlider.prototype = {
 		this.UpdateCommentsCount();
 		var _this = this;
 
-		if (this.perm.addComment)
+		if (this.perm.addComment && this._CommentsParams && this._CommentsParams.textarea && this._CommentsParams.button)
 		{
 			this._CommentsParams.button.onclick = BX.proxy(this.SubmitNewComment, this);
 			this._CommentsParams.textarea.onblur = function()
@@ -1273,7 +1220,8 @@ window.BXPhotoSlider.prototype = {
 			photo_list_action: 'load_comments',
 			sessid: BX.bitrix_sessid(),
 			return_more_comments: 'Y',
-			photo_element_id : this.Items[this.currentIndex].id
+			photo_element_id : this.Items[this.currentIndex].id,
+			AJAX_CALL: 'Y'
 		};
 		params['PAGEN_' + this._CommentsParams.navParams.NavNum] = this._CommentsParams.navParams.pagen + 1;
 
@@ -1338,10 +1286,16 @@ window.BXPhotoSlider.prototype = {
 			indEnd = result.indexOf('#ADD_COMMENT_END#');
 
 		if (indBegin === -1 || indEnd === -1)
-			return '';
+			return;
 		var res = result.substr(indBegin + '#ADD_COMMENT_BEGIN#'.length, indEnd - indBegin - '#ADD_COMMENT_BEGIN#'.length);
 
 		this.pAddCommentForm.innerHTML = BX.util.trim(res);
+
+		// Fetch errors
+		if (res.indexOf('"reviews-note-error"') !== -1) // For forums
+			return false;
+
+		return true;
 	},
 
 	UpdateCommentsCount: function()
@@ -1402,14 +1356,15 @@ window.BXPhotoSlider.prototype = {
 		// Add UCID to
 		this._CommentsParams.form.action += '&UCID='+ this.uniqueId;
 		top._bxError = false;
+		var comment = this._CommentsParams.textarea.value;
 
-		if (this._CommentsParams.textarea.value.length > 2)
+		if (comment.length > 2)
 		{
 			// Comments
 			this.ShowComWait(true);
 			BX.ajax.submit(this._CommentsParams.form, function(result)
 			{
-				_this.ParseForm(result);
+				var res = _this.ParseForm(result);
 				if (!top._bxError)
 				{
 					if (bReRequest)
@@ -1417,17 +1372,24 @@ window.BXPhotoSlider.prototype = {
 					setTimeout(function(){_this.AddComments(result, true);}, 100);
 				}
 
+				if (res == false)
+				{
+					_this.pAddCommentForm.style.display = "";
+					_this.pAddComLink.style.display = "none";
+					_this._CommentsParams.textarea.value = comment;
+				}
 				BX.onCustomEvent(_this, 'OnRegisterCommentsControl');
 				_this.ShowComWait(false);
 			});
 
-			// Hide add comment link and show link
-			this.pAddCommentForm.style.display = "none";
-			this.pAddComLink.style.display = "";
+			setTimeout(function(){
+				// Hide add comment link and show link
+				_this.pAddCommentForm.style.display = "none";
+				_this.pAddComLink.style.display = "";
 
-			this._CommentsParams.textarea.value = "";
-			//this._CommentsParams.button.focus();
-			this._CommentsParams.form.parentNode.removeChild(this._CommentsParams.form);
+				_this._CommentsParams.textarea.value = "";
+				_this._CommentsParams.form.parentNode.removeChild(_this._CommentsParams.form);
+			}, 50);
 		}
 		else
 		{
@@ -1846,7 +1808,8 @@ window.BXPhotoSlider.prototype = {
 				photo_list_action: 'rotate',
 				sessid: BX.bitrix_sessid(),
 				ELEMENT_ID : oItem.id,
-				angle: angle
+				angle: angle,
+				AJAX_CALL: 'Y'
 			},
 			function(result){setTimeout(function()
 			{
@@ -2062,7 +2025,8 @@ window.BXPhotoSlider.prototype = {
 				UCID: this.uniqueId,
 				photo_list_action: 'delete',
 				sessid: BX.bitrix_sessid(),
-				ELEMENT_ID : oItem.id
+				ELEMENT_ID : oItem.id,
+				AJAX_CALL: 'Y'
 			},
 			function(result){setTimeout(function()
 			{
@@ -2375,24 +2339,68 @@ window.BXPhotoSlider.prototype = {
 				res[ii].onclick = function(e){_this.OpenPopup(parseInt(this.id.substr("photo_".length))); return BX.PreventDefault(e);};
 	},
 
-	IncrementCounter: function(oItem)
+	OnItemShowed: function(oItem)
 	{
-		oItem.bShowed = true;
-		var _this = this;
-		BX.ajax.get(
-			this.actionUrl,
-			{
-				UCID: this.uniqueId,
-				photo_list_action: 'counter_inc',
-				sessid: BX.bitrix_sessid(),
-				ELEMENT_ID : oItem.id
-			},
-			function(result){setTimeout(function()
-			{
-				_this.CheckActionPostUrl();
-				oItem.shows++;
-			}, 100);}
-		);
+		var bIncreaseCounter = oItem.bShowed ? 'N' : 'Y';
+
+		var bGetRaitings = this.useRatings ? 'Y' : 'N';
+		if (this.useRatings && typeof oItem.rating != 'undefined')
+		{
+			this.pRatingCont.innerHTML = oItem.rating;
+			bGetRaitings = 'N';
+		}
+
+		if (bGetRaitings == 'Y')
+			this.pRatingCont.innerHTML = '';
+
+		if (bGetRaitings == 'Y' || !oItem.bShowed)
+		{
+			var _this = this;
+			BX.ajax.get(
+				this.responderUrl,
+				{
+					sessid: BX.bitrix_sessid(),
+					ELEMENT_ID : oItem.id,
+					AUTHOR_ID : oItem.author_id,
+					sigh: this.sign,
+					checkParams: this.checkParams,
+					reqParams: this.reqParams,
+					increaseCounter: bIncreaseCounter,
+					getRaiting: bGetRaitings,
+					UCID: this.uniqueId,
+					AJAX_CALL: 'Y'
+				},
+				function(result){
+					setTimeout(function()
+					{
+						//_this.CheckActionPostUrl();
+
+						if (bIncreaseCounter == 'Y')
+							oItem.shows++;
+
+						if (bGetRaitings == 'Y')
+						{
+							var
+								res = '',
+								indBegin = result.indexOf('<!--BX_PHOTO_RATING-->'),
+								indEnd = result.indexOf('<!--BX_PHOTO_RATING_END-->');
+
+							if (indBegin !== -1 && indEnd !== -1)
+								res = result.substr(indBegin + '<!--BX_PHOTO_RATING-->'.length, indEnd - indBegin - '<!--BX_PHOTO_RATING-->'.length);
+							else
+								res = result;
+
+							_this.pRatingCont.innerHTML = res;
+
+							// For like (rating_main) - we have to rerender ratings for each photo loading
+							if (!_this.cacheRaitingReq)
+								oItem.rating = res;
+						}
+					}, 100);
+				}
+			);
+			oItem.bShowed = true;
+		}
 	},
 
 	OnResize: function()
@@ -2874,9 +2882,12 @@ BXTopSlider.prototype = {
 					Item.thumb_width = Item.width;
 				}
 
-				this.itemsIndex[Item.index].pImg.src = Item.thumb_src;
-				BX.removeClass(this.itemsIndex[Item.index].pLink, 'photo-wait');
-				this.AdjustThumb(this.itemsIndex[Item.index].pImg, Item.thumb_width, Item.thumb_height);
+				if (Item.thumb_src && Item.thumb_src != undefined)
+				{
+					this.itemsIndex[Item.index].pImg.src = Item.thumb_src;
+					BX.removeClass(this.itemsIndex[Item.index].pLink, 'photo-wait');
+					this.AdjustThumb(this.itemsIndex[Item.index].pImg, Item.thumb_width, Item.thumb_height);
+				}
 			}
 		}
 	},
@@ -2896,7 +2907,6 @@ BXTopSlider.prototype = {
 
 	BuildItems: function()
 	{
-		this.bItemBuilt = true;
 		var i, _this = this, pLink, pImg, pDiv;
 		for (i = 0; i < this.pObj.itemsCount; i++)
 		{
@@ -3124,14 +3134,19 @@ BXTopSlider.prototype = {
 				oItem.thumb_width = oItem.width;
 			}
 
-			Item.pImg.src = oItem.thumb_src;
-			this.AdjustThumb(Item.pImg, oItem.thumb_width, oItem.thumb_height);
+			if (oItem.thumb_src && oItem.thumb_src != undefined)
+			{
+				Item.pImg.src = oItem.thumb_src;
+				this.AdjustThumb(Item.pImg, oItem.thumb_width, oItem.thumb_height);
+			}
 			BX.removeClass(Item.pLink, 'photo-wait');
 		}
 	},
 
 	AdjustThumb: function(img, w, h)
 	{
+		if (!w || !h)
+			return;
 		var r = w / h;
 		if (r > 1)
 		{
@@ -3149,8 +3164,6 @@ BXTopSlider.prototype = {
 		}
 	}
 };
-
-
 
 // Controll which used to display thumbs, open popups, sort thumbs
 window.BXPhotoList = function(Params)

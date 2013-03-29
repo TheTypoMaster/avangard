@@ -9,30 +9,40 @@ class CAllBlogImage
 	{
 		global $DB;
 		
-		if (is_set($arFields, "FILE_ID") && strlen($arFields["FILE_ID"]["name"]) <= 0 && strlen($arFields["FILE_ID"]["del"]) <= 0)
-			unset($arFields["FILE_ID"]);
-
 		if (is_set($arFields, "FILE_ID"))
 		{
-			$res = CFile::CheckImageFile($arFields["FILE_ID"], 0, 0, 0);
-			if (strlen($res) > 0)
+			if (is_array($arFields['FILE_ID']))
 			{
-				$GLOBALS["APPLICATION"]->ThrowException($res, "ERROR_ATTACH_IMG");
+				if (strlen($arFields["FILE_ID"]["name"]) <= 0 && strlen($arFields["FILE_ID"]["del"]) <= 0)
+				{
+					unset($arFields["FILE_ID"]);
+				}
+
+				$arFile = $arFields["FILE_ID"];
+			}
+			else
+			{
+				$arFields['FILE_ID'] = intval($arFields['FILE_ID']);
+				if (
+					($arFields['FILE_ID'] > 0) &&
+					( $arFile = CFile::GetFileArray($arFields['FILE_ID']) )
+				)
+				{
+					$res = CFile::CheckImageFile($arFile, 0, 0, 0);
+					if (strlen($res) > 0)
+					{
+						$GLOBALS["APPLICATION"]->ThrowException($res, "ERROR_ATTACH_IMG");
+						return false;
+					}
+				}
+			}
+					
+			if($arFields["IMAGE_SIZE_CHECK"] != "N" &&IntVal($arFields["IMAGE_SIZE"]) > 0 && IntVal($arFields["IMAGE_SIZE"]) > COption::GetOptionString("blog", "image_max_size", 5000000))
+			{
+				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("ERROR_ATTACH_IMG_SIZE", Array("#SIZE#" => DoubleVal(COption::GetOptionString("blog", "image_max_size", 5000000)/1000000))), "ERROR_ATTACH_IMG_SIZE");
 				return false;
 			}
-			
-			if(IntVal($arFields["IMAGE_SIZE"]) > 0 && IntVal($arFields["IMAGE_SIZE"]) > COption::GetOptionString("blog", "image_max_size", 1000000))
-			{
-				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("ERROR_ATTACH_IMG_SIZE", Array("#SIZE#" => DoubleVal(COption::GetOptionString("blog", "image_max_size", 1000000)/1000000))), "ERROR_ATTACH_IMG_SIZE");
-				return false;
-			}
-/*
-			if (!CBlogImage::ImageFixSize($arFields["FILE_ID"]))
-			{
-				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("ERROR_IMAGE_RESAMPLE"));
-				return false;
-			}
-*/
+			unset($arFields["IMAGE_SIZE_CHECK"]);
 		}
 
 		return True;
@@ -49,8 +59,8 @@ class CAllBlogImage
 
 		switch ($ext_tmp)
 		{
-		    case 'jpeg':
-		    case 'pjpeg':			
+			case 'jpeg':
+			case 'pjpeg':			
 			case 'jpg':
 				if(!function_exists("imageJPEG") || !function_exists("imagecreatefromjpeg"))
 					return false;
@@ -160,5 +170,44 @@ class CAllBlogImage
 		return False;
 	}
 
+	function AddImageResizeHandler($arParams)
+	{
+		AddEventHandler('main',  "main.file.input.upload", array(__class__, 'ImageResizeHandler'));
+		$bNull = null;
+		self::ImageResizeHandler($bNull, $arParams);
+	}
+
+	static function ImageResizeHandler(&$arCustomFile, $arParams = null)
+	{
+		static $arResizeParams = array();
+
+		if ($arParams !== null)
+			$arResizeParams = $arParams;
+
+		if ((!is_array($arCustomFile)) || !isset($arCustomFile['fileID']))
+			return false;
+
+		$fileID = $arCustomFile['fileID'];
+		$arFile = CFile::GetFileArray($fileID);
+		$arCustomFile['content_type'] = $arFile['CONTENT_TYPE'];
+		if ($arFile && CFile::CheckImageFile($arFile) === null)
+		{
+			$aImgThumb = CFile::ResizeImageGet(
+				$fileID,
+				array("width" => 90, "height" => 90),
+				BX_RESIZE_IMAGE_EXACT,
+				true
+			);
+			$arCustomFile['img_thumb_src'] = $aImgThumb['src'];
+
+			$aImgSource = CFile::ResizeImageGet(
+				$fileID,
+				array("width" => $arResizeParams["width"], "height" => $arResizeParams["height"]),
+				BX_RESIZE_IMAGE_PROPORTIONAL,
+				true
+			);
+			$arCustomFile['img_source_src'] = $aImgSource['src'];
+		}
+	}
 }
 ?>

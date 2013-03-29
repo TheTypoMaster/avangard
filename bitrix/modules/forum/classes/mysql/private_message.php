@@ -3,7 +3,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/classes/general/pr
 
 class CForumPrivateMessage extends CAllForumPrivateMessage
 {
-	function GetListEx($arOrder = Array("ID"=>"ASC"), $arFilter = Array(), $bCount = false, $iNum = 0)
+	function GetListEx($arOrder = Array("ID"=>"ASC"), $arFilter = Array(), $bCount = false, $iNum = 0, $arAddParams = array())
 	{
 		global $DB;
 		$arSqlSearch = array();
@@ -12,7 +12,10 @@ class CForumPrivateMessage extends CAllForumPrivateMessage
 		$strSqlOrder = "";
 		$strSqlFrom = "";
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
-		
+		$arAddParams = (is_array($arAddParams) ? $arAddParams : array($arAddParams));
+		if (is_set($arAddParams, "nameTemplate"))
+			$arAddParams["sNameTemplate"] = $arAddParams["nameTemplate"];
+
 		foreach ($arFilter as $key => $val)
 		{
 			$key_res = CForumNew::GetFilterOperation($key);
@@ -79,12 +82,8 @@ class CForumPrivateMessage extends CAllForumPrivateMessage
 			"SELECT COUNT(PM.ID) AS CNT 
 				FROM b_forum_private_message PM 
 				WHERE (1=1) ".$strSqlSearch;
-			
-			if (($db_res->Fetch()) && ($res = $db_res->Fetch()))
-			{
-				$iCnt = IntVal($ar_res["CNT"]);
-			}
-			return $iCnt;
+			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			return ($db_res && ($res = $db_res->Fetch()) ? intval($res["CNT"]) : 0);
 		}
 		
 		foreach ($arOrder as $by=>$order)
@@ -110,7 +109,7 @@ class CForumPrivateMessage extends CAllForumPrivateMessage
 		DelDuplicateSort($arSqlOrder); 
 		if(count($arSqlOrder) > 0)
 			$strSqlOrder = " ORDER BY ".implode(", ", $arSqlOrder);
-		
+
 		$strSql = 
 			"SELECT 
 				PM.ID, PM.POST_SUBJ, PM.POST_MESSAGE, PM.FOLDER_ID, PM.IS_READ, PM.USE_SMILES, PM.REQUEST_IS_READ, 
@@ -119,16 +118,17 @@ class CForumPrivateMessage extends CAllForumPrivateMessage
 				
 				PM.AUTHOR_ID, U.EMAIL AS AUTHOR_EMAIL, U.LOGIN AS AUTHOR_LOGIN, 
 				CASE
-			         WHEN ((FU.SHOW_NAME='Y') AND (LENGTH(TRIM(CONCAT_WS('',U.NAME,U.LAST_NAME)))>0)) THEN trim(CONCAT_WS(' ',U.NAME,U.LAST_NAME))
-			         ELSE U.LOGIN
-	         	END AS AUTHOR_NAME, 
-	         	
-				PM.RECIPIENT_ID, UU.EMAIL AS RECIPIENT_EMAIL, UU.LOGIN AS RECIPIENT_LOGIN, 
+					WHEN ((FU.SHOW_NAME='Y') AND (LENGTH(TRIM(CONCAT_WS('',".CForumUser::GetNameFieldsForQuery($arAddParams["sNameTemplate"]).")))>0))
+						THEN TRIM(REPLACE(CONCAT_WS(' ',".CForumUser::GetNameFieldsForQuery($arAddParams["sNameTemplate"])."), '  ', ' '))
+						ELSE U.LOGIN
+					END AS AUTHOR_NAME, 
+				PM.RECIPIENT_ID, UU.EMAIL AS RECIPIENT_EMAIL, UU.LOGIN AS RECIPIENT_LOGIN,
 				CASE
-			         WHEN ((FUU.SHOW_NAME='Y') AND (LENGTH(TRIM(CONCAT_WS('',UU.NAME,UU.LAST_NAME)))>0)) THEN trim(CONCAT_WS(' ',UU.NAME,UU.LAST_NAME))
-			         ELSE UU.LOGIN
-	         	END AS RECIPIENT_NAME
-			FROM b_forum_private_message PM 
+					WHEN ((FUU.SHOW_NAME='Y') AND (LENGTH(TRIM(CONCAT_WS('',".CForumUser::GetNameFieldsForQuery($arAddParams["sNameTemplate"],"UU.").")))>0))
+					THEN TRIM(REPLACE(CONCAT_WS(' ',".CForumUser::GetNameFieldsForQuery($arAddParams["sNameTemplate"],"UU.")."), '  ', ' '))
+					ELSE UU.LOGIN
+				END AS RECIPIENT_NAME
+			FROM b_forum_private_message PM
 				LEFT JOIN b_forum_user FU ON (PM.AUTHOR_ID = FU.USER_ID)
 				LEFT JOIN b_forum_user FUU ON (PM.RECIPIENT_ID = FUU.USER_ID)
 				LEFT JOIN b_user U ON (PM.AUTHOR_ID = U.ID)

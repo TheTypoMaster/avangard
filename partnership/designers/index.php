@@ -24,9 +24,9 @@ $APPLICATION->SetTitle("Дизайнерам");
 <p style="font-size:11pt;line-height:1.5;">Модельный ряд фабрики «Авангард» включает в себя пять разноплановых коллекций.
 <br /><br />Мы поможем подобрать модель для любого интерьера, от классики до hi-tech. На нашем сайте  http://www.avangard.biz/ вы можете получить необходимую информацию о коллекциях.
 <br /><br /><br /><i>С уважением,
-<br /><br />Елена Пронина
-<br /><br /><a href="mailto:pronina@avangard.biz" >pronina@avangard.biz</a> 
-<br /><br />Тел.: 8-916-406-60-97</i></p>
+<br /><br />Елена Шишова
+<br /><br /><a href="mailto:referent@avangard.biz" >referent@avangard.biz</a> 
+<br /><br />Тел.: 8-916-201-62-02</i></p>
 
 
 

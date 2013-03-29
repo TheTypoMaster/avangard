@@ -3,7 +3,7 @@
 $bFirst = true;
 
 foreach ($arResult["VALUE"] as $ID => $res):
-	$res = CUser::FormatName('#NAME# #LAST_NAME#', $res, true, true);
+	$res = CUser::FormatName(CSite::GetNameFormat(false), $res, true, true);
 	if ($arParams['arUserField']['SETTINGS']['USER_URL'])
 		$res = '<a href="'.str_replace(array('#ID#', '#USER_ID#'), urlencode($ID), $arParams['arUserField']['SETTINGS']['USER_URL']).'">'.$res.'</a>';
 	elseif (StrLen($arParams['arUserField']['PROPERTY_VALUE_LINK']) > 0)

@@ -65,10 +65,37 @@ if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="" || $antivirus_b!="") &&
 	LocalRedirect("/bitrix/admin/security_antivirus.php?lang=".LANGUAGE_ID.($return_url? "&return_url=".urlencode($_GET["return_url"]): "")."&".$tabControl->ActiveTabParam());
 }
 
+$messageDetails = "";
+if (CSecurityAntiVirus::IsActive())
+{
+	$messageType = "OK";
+	$messageText = GetMessage("SEC_ANTIVIRUS_ON");
+	if($bSecurityWhiteList || COption::GetOptionString("security", "antivirus_action") == "notify_only")
+		$messageDetails = "<span style=\"font-style: italic;\">".GetMessage("SEC_ANTIVIRUS_WARNING")."</span>";
+} else
+{
+	$messageType = "ERROR";
+	$messageText = GetMessage("SEC_ANTIVIRUS_OFF");
+}
+
+$warningMessage = "";
+if(!defined("BX_SECURITY_AV_STARTED")){
+	if(preg_match("/cgi/i", php_sapi_name()))
+		$warningMessage = GetMessage("SEC_ANTIVIRUS_PREBODY_NOTFOUND_CGI", array("#PATH#" => $_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/security/tools/start.php"));
+	else
+		$warningMessage = GetMessage("SEC_ANTIVIRUS_PREBODY_NOTFOUND", array("#PATH#" => $_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/security/tools/start.php"));
+}
+
 $APPLICATION->SetTitle(GetMessage("SEC_ANTIVIRUS_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
+CAdminMessage::ShowMessage(array(
+			"MESSAGE"=>$messageText,
+			"TYPE"=>$messageType,
+			"DETAILS"=>$messageDetails,
+			"HTML"=>true
+		));
 ?>
 
 <script language="JavaScript">
@@ -81,6 +108,9 @@ function addNewRow(tableID)
 	var oCell = oRow.insertCell(0);
 	var sHTML=tbl.rows[cnt-2].cells[0].innerHTML;
 
+	//styles hack
+	oCell.style.cssText  = 'padding-bottom:3px;';
+	
 	var p = 0;
 	while(true)
 	{
@@ -148,50 +178,31 @@ $tabControl->BeginNextTab();
 ?>
 <?if(CSecurityAntiVirus::IsActive()):?>
 	<tr>
-		<td valign="top" colspan="2" align="left">
-			<span style="color:green;"><b><?echo GetMessage("SEC_ANTIVIRUS_ON")?>.</b></span>
-		</td>
-	</tr>
-	<?if($bSecurityWhiteList || COption::GetOptionString("security", "antivirus_action") == "notify_only"):?>
-		<tr>
-			<td valign="top" colspan="2" align="left">
-				<span style="color:red;"><b><?echo GetMessage("SEC_ANTIVIRUS_WARNING")?></b></span>
-			</td>
-		</tr>
-	<?endif;?>
-	<tr>
-		<td valign="top" colspan="2" align="left">
+		<td colspan="2" align="left">
 			<input type="hidden" name="antivirus_active" value="N">
 			<input type="submit" name="antivirus_b" value="<?echo GetMessage("SEC_ANTIVIRUS_BUTTON_OFF")?>"<?if(!$RIGHT_W) echo " disabled"?>>
 		</td>
 	</tr>
 <?else:?>
 	<tr>
-		<td valign="top" colspan="2" align="left">
-			<span style="color:red;"><b><?echo GetMessage("SEC_ANTIVIRUS_OFF")?>.</b></span>
-		</td>
-	</tr>
-	<tr>
-		<td valign="top" colspan="2" align="left">
+		<td colspan="2" align="left">
 			<input type="hidden" name="antivirus_active" value="Y">
-			<input type="submit" name="antivirus_b" value="<?echo GetMessage("SEC_ANTIVIRUS_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?>>
+			<input type="submit" name="antivirus_b" value="<?echo GetMessage("SEC_ANTIVIRUS_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?> class="adm-btn-save">
 		</td>
 	</tr>
 <?endif?>
-<?if(!defined("BX_SECURITY_AV_STARTED")):?>
-	<?if(preg_match("/cgi/i", php_sapi_name())):?>
+<?if(strlen($warningMessage) > 0):?>
 	<tr>
-		<td valign="top" colspan="2" align="left">
-			<span style="color:red;"><b><?echo GetMessage("SEC_ANTIVIRUS_PREBODY_NOTFOUND_CGI", array("#PATH#" => $_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/security/tools/start.php"))?></b></span>
+		<td colspan="2" align="left">
+			<?
+				CAdminMessage::ShowMessage(array(
+					"TYPE"=>"ERROR",
+					"DETAILS"=>$warningMessage,
+					"HTML"=>true
+				));
+			?>
 		</td>
 	</tr>
-	<?else:?>
-	<tr>
-		<td valign="top" colspan="2" align="left">
-			<span style="color:red;"><b><?echo GetMessage("SEC_ANTIVIRUS_PREBODY_NOTFOUND", array("#PATH#" => $_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/security/tools/start.php"))?></b></span>
-		</td>
-	</tr>
-	<?endif?>
 <?endif;?>
 <tr>
 	<td colspan="2">
@@ -204,16 +215,16 @@ $tabControl->BeginNextTab();
 <?
 $tabControl->BeginNextTab();
 ?>
-<tr valign="top">
-	<td width="40%"><?echo GetMessage("SEC_ANTIVIRUS_ACTION")?>:</td>
+<tr>
+	<td class="adm-detail-valign-top" width="40%"><?echo GetMessage("SEC_ANTIVIRUS_ACTION")?>:</td>
 	<td width="60%">
 		<label><input type="radio" name="antivirus_action" value="replace" <?if(COption::GetOptionString("security", "antivirus_action") != "notify_only") echo "checked";?>><?echo GetMessage("SEC_ANTIVIRUS_ACTION_REPLACE")?></span></label><br>
 		<label><input type="radio" name="antivirus_action" value="notify_only" <?if(COption::GetOptionString("security", "antivirus_action") == "notify_only") echo "checked";?>><?echo GetMessage("SEC_ANTIVIRUS_ACTION_NOTIFY_ONLY")?></label><br>
 	</td>
 </tr>
-<tr valign="top">
-	<td width="40%"><label for="antivirus_timeout"><?echo GetMessage("SEC_ANTIVIRUS_TIMEOUT")?></label>:</td>
-	<td width="60%">
+<tr>
+	<td><label for="antivirus_timeout"><?echo GetMessage("SEC_ANTIVIRUS_TIMEOUT")?></label>:</td>
+	<td>
 		<input type="text" size="4" name="antivirus_timeout" value="<?echo COption::GetOptionInt("security", "antivirus_timeout")?>">
 	</td>
 </tr>
@@ -224,26 +235,26 @@ if($bVarsFromForm)
 {
 	if(is_array($_POST["WHITE_LIST"]))
 		foreach($_POST["WHITE_LIST"] as $i => $v)
-			$arWhiteList[] = htmlspecialchars($v);
+			$arWhiteList[] = htmlspecialcharsbx($v);
 }
 else
 {
 	$rs = CSecurityAntiVirus::GetWhiteList();
 	while($ar = $rs->Fetch())
-		$arWhiteList[] = htmlspecialchars($ar["WHITE_SUBSTR"]);
+		$arWhiteList[] = htmlspecialcharsbx($ar["WHITE_SUBSTR"]);
 }
 ?>
-<tr valign="top">
-	<td width="40%"><?echo GetMessage("SEC_ANTIVIRUS_WHITE_LIST")?></td>
+<tr>
+	<td class="adm-detail-valign-top" width="40%" style="padding-top:12px;"><?echo GetMessage("SEC_ANTIVIRUS_WHITE_LIST")?></td>
 	<td width="60%">
-	<table cellpadding="4" cellspacing="4" border="0" width="100%" id="tb_WHITE_LIST">
+	<table cellpadding="0" cellspacing="0" border="0" width="100%" id="tb_WHITE_LIST">
 		<?foreach($arWhiteList as $i => $white_substr):?>
-			<tr><td nowrap>
+			<tr><td nowrap style="padding-bottom: 3px;">
 				<input type="text" size="45" name="WHITE_LIST[<?echo $i?>]" value="<?echo $white_substr?>">
 			</td></tr>
 		<?endforeach;?>
 		<?if(!$bVarsFromForm):?>
-			<tr><td nowrap>
+			<tr><td nowrap style="padding-bottom: 3px;">
 				<input type="text" size="45" name="WHITE_LIST[n0]" value="">
 			</td></tr>
 		<?endif;?>

@@ -1,7 +1,7 @@
 <?
 $search_default_option = array(
 	"include_mask" => "*.php;*.html;*.htm",
-	"exclude_mask" => "/bitrix/*;/404.php",
+	"exclude_mask" => "/bitrix/*;/404.php;/upload/*",
 	"max_file_size" => "",
 	"max_execution_time" => "",
 	"use_stemming" => "Y",

@@ -28,7 +28,7 @@ $arComponentParameters = array(
 		"EMAIL_TO" => Array(
 			"NAME" => GetMessage("MFP_EMAIL_TO"), 
 			"TYPE" => "STRING",
-			"DEFAULT" => htmlspecialchars(COption::GetOptionString("main", "email_from")), 
+			"DEFAULT" => htmlspecialcharsbx(COption::GetOptionString("main", "email_from")), 
 			"PARENT" => "BASE",
 		),
 		"REQUIRED_FIELDS" => Array(

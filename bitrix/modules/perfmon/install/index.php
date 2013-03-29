@@ -92,6 +92,7 @@ Class perfmon extends CModule
 	{
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
 		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/themes/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/images/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images", true, true);
 
 		return true;
 	}
@@ -100,7 +101,7 @@ Class perfmon extends CModule
 	{
 		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
 		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/perfmon/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");
-		DeleteDirFilesEx("/bitrix/themes/.default/icons/perfmon/");
+		DeleteDirFilesEx("/bitrix/images/perfmon/");
 
 		return true;
 	}

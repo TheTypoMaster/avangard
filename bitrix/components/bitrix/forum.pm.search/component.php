@@ -7,6 +7,21 @@ elseif (!$USER->IsAuthorized()):
 	return 0;
 endif;
 
+if(!function_exists("GetUserName"))
+{
+	function GetUserName($USER_ID, $sNameTemplate = "")
+	{
+		$sNameTemplate = str_replace(array("#NOBR#","#/NOBR#"), "", (!empty($sNameTemplate) ? $sNameTemplate : CSite::GetDefaultNameFormat()));
+		if (intval($USER_ID) <= 0)
+		{
+			$db_res = CUser::GetByLogin($USER_ID);
+			$ar_res = $db_res->Fetch();
+			$USER_ID = $ar_res["ID"];
+		}
+		return CForumUser::GetFormattedNameByUserID($USER_ID, $sNameTemplate);
+	}
+}
+
 if(!function_exists("__UnEscape"))
 {
 	function __UnEscape(&$item, $key)
@@ -38,30 +53,33 @@ array_walk($_REQUEST, '__UnEscape');
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "FID", "TID", "UID", BX_AJAX_PARAM_ID));
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 // ************************* ADDITIONAL ****************************************************************
+	$arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "",
+		(!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : CSite::GetDefaultNameFormat()));
 	$arParams["PM_USER_PAGE"] = intVal($arParams["PM_USER_PAGE"] > 0 ? $arParams["PM_USER_PAGE"] : 10);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 // *************************/Input params***************************************************************
 
-	ForumSetLastVisit();
-	$arResult["CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_SEARCH"], array());
+		$arResult["CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_SEARCH"], array());
 // *****************************************************************************************
 	$arResult["sessid"] = bitrix_sessid_post();
 	$arResult["SITE_CHARSET"] = SITE_CHARSET;
 // *****************************************************************************************
 	$arResult["~search_template"] = trim($_REQUEST["search_template"]);
-	$arResult["search_template"] = htmlspecialcharsEx($arResult["~search_template"]);
+	if (!empty($arResult["~search_template"]))
+		$arResult["~search_template"] = preg_replace("/[%]+/", "%", "%".str_replace("*", "%", $arResult["~search_template"])."%");
+	$arResult["search_template"] = htmlspecialcharsEx($_REQUEST["search_template"]);
 // *****************************************************************************************
 	$arResult["SHOW_SEARCH_RESULT"] = "N";
 	$arResult["SEARCH_RESULT"] = array();
-	
-	if (strLen($arResult["~search_template"]) > 0 && ($arResult["~search_template"] != "*")) 
+	if (!empty($arResult["~search_template"]) && $arResult["~search_template"] != "%")
 	{
 		$arResult["SHOW_SEARCH_RESULT"] = "Y";
-		$reqSearch = CForumUser::SearchUser(str_replace("**", "*", "*".$arResult["~search_template"]."*"));
+		$reqSearch = CForumUser::SearchUser($arResult["~search_template"], array("sNameTemplate" => $arParams["NAME_TEMPLATE"]));
+
 		$reqSearch->NavStart($arParams["PM_USER_PAGE"], false);
 		$arResult["NAV_RESULT"] = $reqSearch;
 		$arResult["NAV_STRING"] = $reqSearch->GetPageNavStringEx($navComponentObject, GetMessage("PM_SEARCH_RESULT"), $arParams["PAGE_NAVIGATION_TEMPLATE"]);
@@ -81,11 +99,17 @@ array_walk($_REQUEST, '__UnEscape');
 		}
 	}
 	$arResult["SHOW_SELF_CLOSE"] = "N";
-	if ((($_REQUEST["search_insert"] == "Y") && (intVal($UID) > 0)) || (strLen($_REQUEST["search_by_login"]) > 0))
+
+	if (($_REQUEST["search_insert"] == "Y" && intval($UID) > 0) || !empty($_REQUEST["search_by_login"]))
 	{
-		if (strLen($_REQUEST["search_by_login"]) <= 0)
+
+		if (empty($_REQUEST["search_by_login"]))
 		{
-			$db_res = CForumUser::GetList(array(), array("USER_ID" => $UID, "SHOW_ABC" => ""));
+			$db_res = CForumUser::GetList(
+				array(),
+				array("USER_ID" => $UID, "SHOW_ABC" => ""),
+				array("sNameTemplate" => $arParams["NAME_TEMPLATE"])
+			);
 			if ($db_res && ($res = $db_res->GetNext()))
 			{
 				$arResult["SHOW_SELF_CLOSE"] = "Y";
@@ -98,31 +122,37 @@ array_walk($_REQUEST, '__UnEscape');
 		{
 			$arResult["SHOW_SELF_CLOSE"] = "Y";
 			$arResult["SHOW_MODE"] = "none";
-			$db_res = CUser::GetByLogin($_REQUEST["search_by_login"]);
-			if ($db_res && ($res = $db_res->GetNext()))
+
+			$db_res = CForumUser::GetList(
+				array("ID" => "DESC"),
+				array("SHOW_ABC" => str_replace(array("*", "%"), "", $_REQUEST["search_by_login"])),
+				array("sNameTemplate" => $arParams["NAME_TEMPLATE"])
+			);
+			if ($db_res && ($res = $db_res->getNext()))
 			{
-				$forum_user = CForumUser::GetByUSER_ID($res["ID"]);
-				if ($forum_user["SHOW_NAME"]=="Y")
-					$res["SHOW_ABC"] = trim($res["NAME"]." ".$res["LAST_NAME"]);
-				if (empty($res["SHOW_ABC"]))
-					$res["SHOW_ABC"] = $res["LOGIN"];
-				if ($res["SHOW_ABC"] == $_REQUEST["search_by_login"])
+				$arResult["SHOW_MODE"] = "full";
+				$arResult["SHOW_NAME"] = $res["SHOW_ABC"];
+				$arResult["profile_view"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $res["USER_ID"]));
+				$arResult["UID"] = $res["USER_ID"];
+			}
+			else
+			{
+				$db_res = CUser::GetByLogin($_REQUEST["search_by_login"]);
+				if ($db_res && ($res = $db_res->GetNext()))
 				{
-					$arResult["SHOW_MODE"] = "full";
-					$arResult["SHOW_NAME"] = $res["SHOW_ABC"];
-					$arResult["profile_view"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $res["ID"]));
-				}
-				else
 					$arResult["SHOW_MODE"] = "light";
-				$arResult["UID"] = $res["ID"];
+					$arResult["SHOW_NAME"] = GetUserName($res["ID"], $arParams["NAME_TEMPLATE"]);
+					$arResult["UID"] = $res["ID"];
+				}
 			}
 		}
-        $arResult['SHOW_NAME'] = htmlspecialchars_decode($arResult['SHOW_NAME']);
+//		$arResult["SHOW_NAME"] = htmlspecialcharsback($arResult["SHOW_NAME"]);
 	}
 // *****************************************************************************************
-	$APPLICATION->RestartBuffer();
+
+$APPLICATION->RestartBuffer();
 	header("Pragma: no-cache");
 	$this->IncludeComponentTemplate();
-	die();
+die();
 // *****************************************************************************************
 ?>

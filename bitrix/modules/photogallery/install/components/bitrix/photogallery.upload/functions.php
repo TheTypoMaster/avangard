@@ -11,13 +11,10 @@ function onBeforeUpload($Params)
 {
 	CModule::IncludeModule("iblock");
 	$_SESSION['arUploadedPhotos'] = Array();
-
 	$arParams = $Params['arParams'];
-	$sessid = $Params['sessid'];
 	$savedData = CImageUploader::GetSavedData();
 	$savedData['UPLOADING_START'] = "Y";
 	CImageUploader::SetSavedData($savedData);
-
 
 	if ($savedData["SECTION_ID"] <= 0)
 	{
@@ -37,6 +34,7 @@ function onBeforeUpload($Params)
 	{
 		$arParams["SECTION_ID"] = $savedData["SECTION_ID"];
 	}
+
 	// Check and create properties
 	if (count($savedData['arError']) == 0)
 	{
@@ -108,45 +106,25 @@ function onAfterUpload($Params)
 
 	$savedData['UPLOADING_SUCCESS'] = "Y";
 	CImageUploader::SetSavedData($savedData);
-	$parSectionId = 0;
+
+	$sectionsIds = array(0, $arParams['SECTION_ID']);
+	$arGalleriesIds = array(0);
+	$arUsers = array();
+
+
 	if ($arResult['SECTION'] && $arResult['SECTION']['IBLOCK_SECTION_ID'])
-		$parSectionId = $arResult['SECTION']['IBLOCK_SECTION_ID'];
+		$sectionsIds[] = $arResult['SECTION']['IBLOCK_SECTION_ID'];
 	if ($arParams["BEHAVIOUR"] == "USER")
-		$parSectionId = $arResult["GALLERY"]["ID"];
+		$sectionsIds[] = $arResult["GALLERY"]["ID"];
 
-	$arCache = array(
-		"search.page",
-		"search.tags.cloud",
-		"photogallery.upload",
-		"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/0",
-		"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams['SECTION_ID'],
-		"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/section".$arParams['SECTION_ID'],
-		"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/section0",
-		"photogallery.detail/".$arParams["IBLOCK_ID"]."/section".$arParams['SECTION_ID'],
-		"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/0",
-		"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams['SECTION_ID'],
-		"photogallery.section/".$arParams["IBLOCK_ID"]."/section0",
-		"photogallery.section/".$arParams["IBLOCK_ID"]."/section".$arParams['SECTION_ID'],
-		"photogallery.section.list/".$arParams["IBLOCK_ID"]."/section0",
-		"photogallery.section.list/".$arParams["IBLOCK_ID"]."/section".$arParams['SECTION_ID'],
-		"photogallery.section.list/".$arParams["IBLOCK_ID"]."/sections0",
-		"photogallery.section.list/".$arParams["IBLOCK_ID"]."/sections".$arParams['SECTION_ID'],
-		"photogallery.section.list/".$arParams["IBLOCK_ID"]."/section".$parSectionId,
-		"photogallery.section.list/".$arParams["IBLOCK_ID"]."/sections".$parSectionId,
-		"photogallery.gallery.edit",
-		"photogallery.gallery.list"
-	);
-
-	if ($arParams["BEHAVIOUR"] == "USER")
+	if (isset($arResult["GALLERY"]["CODE"]))
 	{
-		$arCache[] = "photogallery.section/".$arParams["IBLOCK_ID"]."/gallery".$arResult["GALLERY"]["CODE"];
-		$arCache[] = "photogallery.section.edit/".$arParams["IBLOCK_ID"]."/gallery".$arResult["GALLERY"]["CODE"];
-		$arCache[] = "photogallery.section.list/".$arParams["IBLOCK_ID"]."/gallery".$arResult["GALLERY"]["CODE"];
-		$arCache[] = "photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/gallery".$arResult["GALLERY"]["CODE"];
-		$arCache[] = "photogallery.user/".$arParams["IBLOCK_ID"]."/gallery".$arResult["GALLERY"]["CODE"];
+		$arGalleriesIds[] = $arResult["GALLERY"]["CODE"];
+		if ($arResult["GALLERY"]["CREATED_BY"])
+			$arUsers[] = $arResult["GALLERY"]["CREATED_BY"];
 	}
 
-	PClearComponentCache($arCache);
+	PClearComponentCacheEx($arParams["IBLOCK_ID"], $sectionsIds, $arGalleriesIds, $arUsers);
 }
 
 // Used to get album and create new album (only once)
@@ -220,7 +198,7 @@ function handleFile($Info, $arFiles, $Params)
 	$arErrors = array();
 	// Check file sizes and types (types only for mass uploaders)
 
-	foreach($arFiles as $i => $file)
+	foreach($arFiles as $file)
 	{
 		if ($file['size'] > 0 && $arParams["UPLOAD_MAX_FILE_SIZE"] > 0 && $file['size'] > $arParams["UPLOAD_MAX_FILE_SIZE"])
 			$arErrors[] = array("file" => $file['name'], "id" => "BXPH_FUNC_HANDLE_2_LARGE_SIZE","text" => GetMessage('P_WM_IMG_ERROR04'));
@@ -235,7 +213,32 @@ function handleFile($Info, $arFiles, $Params)
 	// Handle watermark for Flash-uploader
 	if ($arParams["UPLOADER_TYPE"] == 'flash')
 	{
-		if ($Params['packageFields']['photo_watermark_use'] == 'Y')
+		$arWatermark = false;
+
+		if ($arParams['WATERMARK_RULES'] == 'ALL')
+		{
+			$arWatermark = array(
+				'type' => strtolower($arParams['WATERMARK_TYPE']),
+				'position' => $arParams['WATERMARK_POSITION']
+			);
+
+			if($arParams['WATERMARK_TYPE'] == 'TEXT')
+			{
+				$arWatermark['coefficient'] = $arParams['WATERMARK_SIZE'];
+				$arWatermark['text'] = trim($arParams['WATERMARK_TEXT']);
+				$arWatermark['font'] = trim($arParams['PATH_TO_FONT']);
+				$arWatermark['color'] = trim($arParams['WATERMARK_COLOR']);
+				$arWatermark['use_copyright'] = "N";
+			}
+			else
+			{
+				$arWatermark['file'] = $arParams['WATERMARK_FILE'];
+				$arWatermark['alpha_level'] = $arParams['WATERMARK_TRANSPARENCY'];
+				$arWatermark['size'] = 'real';
+				$arWatermark['fill'] = $arParams['WATERMARK_FILE_ORDER'] == 'usual' ? 'exact' : $arParams['WATERMARK_FILE_ORDER'];
+			}
+		}
+		elseif ($Params['packageFields']['photo_watermark_use'] == 'Y')
 		{
 			$arWatermark = array(
 				'type' => $Params['packageFields']['photo_watermark_type'],
@@ -249,7 +252,10 @@ function handleFile($Info, $arFiles, $Params)
 				'alpha_level' => $Params['packageFields']['photo_watermark_opacity'],
 				'use_copyright' => $Params['packageFields']["photo_watermark_copyright"] == "Y" ? "Y" : "N"
 			);
+		}
 
+		if($arWatermark)
+		{
 			// Add watermark here
 			foreach($arFiles as $i => $file)
 			{
@@ -262,7 +268,7 @@ function handleFile($Info, $arFiles, $Params)
 
 				if ($sourceImage)
 				{
-					CFile::Watermark($sourceImage, $arWatermark);
+					$res = CFile::Watermark($sourceImage, $arWatermark);
 					if(file_exists($file['tmp_name']))
 						unlink($file['tmp_name']);
 
@@ -382,6 +388,13 @@ function simpleUploadHandler($arParams, $arResult = array())
 	$APPLICATION->RestartBuffer();
 	$sTmpPath = CImageUploader::SetTmpPath($_REQUEST["PackageGuid"], $arParams["PATH_TO_TMP"]);
 
+	$savedData = CImageUploader::GetSavedData();
+	if ($savedData['SECTION_ID'])
+	{
+		unset($savedData['SECTION_ID']);
+		CImageUploader::SetSavedData($savedData);
+	}
+
 	onBeforeUpload(array(
 		'pathToTmp' => $arParams["PATH_TO_TMP"],
 		'arParams' => $arParams,
@@ -410,7 +423,30 @@ function simpleUploadHandler($arParams, $arResult = array())
 		$file_count = count($files['name']);
 	}
 
-	if ($_POST['photo_watermark_use'] == 'Y')
+	if ($arParams['WATERMARK_RULES'] == 'ALL')
+	{
+		$arWatermark = array(
+			'type' => strtolower($arParams['WATERMARK_TYPE']),
+			'position' => $arParams['WATERMARK_POSITION']
+		);
+
+		if($arParams['WATERMARK_TYPE'] == 'TEXT')
+		{
+			$arWatermark['coefficient'] = $arParams['WATERMARK_SIZE'];
+			$arWatermark['text'] = trim($arParams['WATERMARK_TEXT']);
+			$arWatermark['font'] = trim($arParams['PATH_TO_FONT']);
+			$arWatermark['color'] = trim($arParams['WATERMARK_COLOR']);
+			$arWatermark['use_copyright'] = "N";
+		}
+		else
+		{
+			$arWatermark['file'] = $arParams['WATERMARK_FILE'];
+			$arWatermark['alpha_level'] = $arParams['WATERMARK_TRANSPARENCY'];
+			$arWatermark['size'] = 'real';
+			$arWatermark['fill'] = $arParams['WATERMARK_FILE_ORDER'] == 'usual' ? 'exact' : $arParams['WATERMARK_FILE_ORDER'];
+		}
+	}
+	elseif ($_POST['photo_watermark_use'] == 'Y')
 	{
 		$arWatermark = array(
 			'type' => $_POST['photo_watermark_type'],
@@ -457,14 +493,20 @@ function simpleUploadHandler($arParams, $arResult = array())
 			continue;
 		}
 
-		// TODO: IPTC
-		$exif = CFile::ExtractImageExif($tmp_name_i);
-		$iptc = CFile::ExtractImageIPTC($tmp_name_i);
+		$ext_i = GetFileExtension($name_i);
+		$name_i = GetFileNameWithoutExtension($name_i);
+		$name_i_ = preg_replace("/[^a-zA-Z0-9_]/i", "", $name_i);
+		if ($name_i_ != $name_i)
+			$name_i = ($name_i_ == '' ? substr(md5(mt_rand()), 0, 6) : '').$name_i_;
+
+		// TODO: exif, iptc
+		//$exif = CFile::ExtractImageExif($tmp_name_i);
+		//$iptc = CFile::ExtractImageIPTC($tmp_name_i);
 
 		$thumbSize = round($arParams["THUMBNAIL_SIZE"] * 1.8);
 		foreach ($arParams['converters'] as $key => $val)
 		{
-			$destPath = $sTmpPath.substr($name_i, 0, strrpos($name_i, '.'))."_".$key.".".GetFileExtension($name_i);
+			$destPath = $sTmpPath.$name_i."_".$key.".".$ext_i;
 			if ($val["code"] == "real_picture") // original file
 			{
 				$size = intVal($_POST['photo_resize_size']);
@@ -503,6 +545,7 @@ function simpleUploadHandler($arParams, $arResult = array())
 				'path' => $destPath
 			);
 		}
+
 		$elementId = handleFile($Info, $arFiles, array('arParams' => $arParams, "~arResult" => $arResult));
 		if ($elementId)
 			$arIds[] = $elementId;
@@ -543,15 +586,16 @@ function simpleUploadHandler($arParams, $arResult = array())
 	// Update redirect url
 	$REDIRECT_URL = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"], array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $savedData["SECTION_ID"]));
 	//$REDIRECT_URL = $REDIRECT_URL.(strpos($REDIRECT_URL, "?") === false ? "?" : "&")."uploader_redirect=Y&sessid=".bitrix_sessid();
+
 	?>
 	<script>top.bxiu_simple_res = {
 		error: <?if ($savedData['arError'] && count($savedData['arError']) > 0){echo CUtil::PhpToJSObject($savedData['arError']);} else {echo '""';}?>,
-		files: <?= CUtil::PhpToJSObject($jsResFiles)?>
+		files: <?= CUtil::PhpToJSObject($jsResFiles)?>,
+		redirectUrl: '<?= CUtil::JSEscape($REDIRECT_URL)?>'
 		<? if (!empty($newSectionName)):?>
 		,newSection: {
 			id: <?= intVal($savedData['SECTION_ID'])?>,
-			title: '<?= CUtil::JSEscape($newSectionName);?>',
-			redirectUrl: '<?= CUtil::JSEscape($REDIRECT_URL)?>'
+			title: '<?= CUtil::JSEscape($newSectionName);?>'
 		}
 		<?endif;?>
 	};</script>
@@ -579,7 +623,7 @@ if (!function_exists("_get_size"))
 				$ret /= 1024;
 			break;
 		}
-	     return $ret;
+		return $ret;
 	}
 }
 ?>

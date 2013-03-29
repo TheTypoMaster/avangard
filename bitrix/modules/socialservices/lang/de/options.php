@@ -7,4 +7,8 @@ $MESS["socserv_sett_common"] = "Der mobile Online-Shop kann installiert werden, 
 $MESS["socserv_sett_common_title"] = "Allgemeine";
 $MESS["socserv_sett_site"] = "Allgemeine Parameter für alle Websites";
 $MESS["socserv_sett_site_apply"] = "Einstellungen für Website";
+$MESS["soc_serv_opt_list"] = "Services:";
+$MESS["soc_serv_opt_list_title"] = "Externe Services:";
+$MESS["socserv_twit_to_buzz"] = "Die Nutzertweets mit dem Hashtag #hash# im Activity Stream veröffentlichen.";
+$MESS["soc_serv_send_activity"] = "Nutzeraktivitäten in sozialen Netzwerken veröffentlichen";
 ?>

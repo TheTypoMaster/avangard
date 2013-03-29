@@ -43,9 +43,9 @@ class CAllEvent
 	{
 		global $DB, $CACHE_MANAGER;
 
-		$events = GetModuleEvents("main", "OnBeforeEventAdd");
-		while ($arEvent = $events->Fetch())
-			ExecuteModuleEventEx($arEvent, array(&$event, &$lid, &$arFields));
+		foreach(GetModuleEvents("main", "OnBeforeEventAdd", true) as $arEvent)
+			if(ExecuteModuleEventEx($arEvent, array(&$event, &$lid, &$arFields, &$message_id)) === false)
+				return false;
 
 		$flds = "";
 		if(is_array($arFields))
@@ -177,11 +177,12 @@ class CAllEvent
 		//$maxl = IntVal((76 - strlen($charset) + 7)*0.4);
 		$res = "";
 		$maxl = 40;
+		$eol = CEvent::GetMailEOL();
 		$len = strlen($text);
 		for($i=0; $i<$len; $i=$i+$maxl)
 		{
 			if($i>0)
-				$res .= "\r\n ";
+				$res .= $eol."\t";
 			$res .= "=?".$charset."?B?".base64_encode(substr($text, $i, $maxl))."?=";
 		}
 		return $res;

@@ -14,7 +14,8 @@ if (!CModule::IncludeModule("form"))
 
 if (strlen($_REQUEST["hash"]) > 0)
 {
-	if ($arFile = CFormResult::GetFileByHash($_REQUEST["rid"], $_REQUEST["hash"]))
+	$arFile = CFormResult::GetFileByHash($_REQUEST["rid"], $_REQUEST["hash"]);
+	if ($arFile)
 	{
 		set_time_limit(0);
 		// if we need "download"
@@ -25,8 +26,7 @@ if (strlen($_REQUEST["hash"]) > 0)
 		}
 		else // otherwise just view
 		{
-			// if it's image
-			if (CFile::IsImage($arFile["ORIGINAL_NAME"], $arFile["CONTENT_TYPE"]) && strpos($arFile["CONTENT_TYPE"], "html")===false)
+			if (CFile::CheckImageFile(CFile::MakeFileArray($arFile['FILE_ID'])) === null)
 			{
 				// display as image
 				CFile::ViewByUser($arFile, array("content_type" => $arFile["CONTENT_TYPE"]));
@@ -61,7 +61,7 @@ if (strlen($_REQUEST["hash"]) > 0)
 					case "xml":
 					case "pdf":
 					default:
-						CFile::ViewByUser($arFile);
+						CFile::ViewByUser($arFile, array("force_download" => true));
 				}
 			}
 		}

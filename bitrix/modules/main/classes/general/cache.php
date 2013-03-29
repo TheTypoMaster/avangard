@@ -2,6 +2,15 @@
 /*********************************************************************
 						Caching
 *********************************************************************/
+interface ICacheBackend
+{
+	function IsAvailable();
+	function clean($basedir, $initdir = false, $filename = false);
+	function read(&$arAllVars, $basedir, $initdir, $filename, $TTL);
+	function write($arAllVars, $basedir, $initdir, $filename, $TTL);
+	function IsCacheExpired($path);
+}
+
 class CPHPCache
 {
 	var $_cache;
@@ -29,75 +38,85 @@ class CPHPCache
 		static $cache_type = false;
 		if($cache_type === false)
 		{
+			$isOK = false;
 			if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/cluster/memcache.php"))
+			{
 				include($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/cluster/memcache.php");
-
-			$cache_type = "files";
-			if(defined("BX_MEMCACHE_CLUSTER") && extension_loaded('memcache'))
+				if(defined("BX_MEMCACHE_CLUSTER") && extension_loaded('memcache'))
+				{
+					include_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/cluster/classes/general/memcache_cache.php");
+					$obCache = new CPHPCacheMemcacheCluster;
+					if($obCache->IsAvailable())
+					{
+						$cache_type = "CPHPCacheMemcacheCluster";
+						$isOK = true;
+					}
+				}
+			}
+			//There is no cluster configuration
+			if($cache_type === false)
 			{
-				include_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/cluster/classes/general/memcache_cache.php");
-				$obCache = new CPHPCacheMemcacheCluster;
-				if($obCache->IsAvailable())
-					$cache_type = "memcache_cluster";
+				if(defined("BX_CACHE_TYPE"))
+				{
+					switch(BX_CACHE_TYPE)
+					{
+					case "memcache":
+					case "CPHPCacheMemcache":
+						if(extension_loaded('memcache') && defined("BX_MEMCACHE_HOST"))
+						{
+							include_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/cache_memcache.php");
+							$cache_type = "CPHPCacheMemcache";
+						}
+						break;
+					case "eaccelerator":
+					case "CPHPCacheEAccelerator":
+						if(extension_loaded('eaccelerator'))
+						{
+							include_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/cache_eaccelerator.php");
+							$cache_type = "CPHPCacheEAccelerator";
+						}
+						break;
+					case "apc":
+					case "CPHPCacheAPC":
+						if(extension_loaded('apc'))
+						{
+							include_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/cache_apc.php");
+							$cache_type = "CPHPCacheAPC";
+						}
+						break;
+					default:
+						if(defined("BX_CACHE_CLASS_FILE") && file_exists(BX_CACHE_CLASS_FILE))
+						{
+							include_once(BX_CACHE_CLASS_FILE);
+							$cache_type = BX_CACHE_TYPE;
+						}
+						break;
+					}
+				}
+				else
+				{
+					include_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/cache_files.php");
+					$cache_type = "CPHPCacheFiles";
+				}
 			}
 
-			if($cache_type == "files" && defined("BX_CACHE_TYPE"))
-				$prefered_cache_type = BX_CACHE_TYPE;
-
-			switch($prefered_cache_type)
+			//Probe the cache backend class
+			if(!$isOK && class_exists($cache_type))
 			{
-			case "memcache":
-				if(extension_loaded('memcache') && defined("BX_MEMCACHE_HOST"))
-				{
-					include_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/cache_memcache.php");
-					$obCache = new CPHPCacheMemcache;
-					if($obCache->IsAvailable())
-						$cache_type = "memcache";
-				}
-				break;
-			case "eaccelerator":
-				if(extension_loaded('eaccelerator'))
-				{
-					include_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/cache_eaccelerator.php");
-					$obCache = new CPHPCacheEAccelerator;
-					if($obCache->IsAvailable())
-						$cache_type = "eaccelerator";
-				}
-				break;
-			case "apc":
-				if(extension_loaded('apc'))
-				{
-					include_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/cache_apc.php");
-					$obCache = new CPHPCacheAPC;
-					if($obCache->IsAvailable())
-						$cache_type = "apc";
-				}
-				break;
+				$obCache = new $cache_type;
+				if ($obCache instanceof ICacheBackend)
+					$isOK = $obCache->IsAvailable();
 			}
 
-			if($cache_type == "files")
+			//Bulletproof files cache
+			if(!$isOK)
+			{
 				include_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/cache_files.php");
+				$cache_type = "CPHPCacheFiles";
+			}
 		}
 
-		switch($cache_type)
-		{
-		case "memcache":
-			$cache = new CPHPCacheMemcache;
-			break;
-		case "eaccelerator":
-			$cache = new CPHPCacheEAccelerator;
-			break;
-		case "apc":
-			$cache = new CPHPCacheAPC;
-			break;
-		case "memcache_cluster":
-			$cache = new CPHPCacheMemcacheCluster;
-			break;
-		default:
-			$cache = new CPHPCacheFiles;
-			break;
-		}
-
+		$cache = new $cache_type;
 		return $cache;
 	}
 
@@ -147,9 +166,6 @@ class CPHPCache
 
 		if(is_object($USER) && $USER->CanDoOperation('cache_control'))
 		{
-			if(isset($_GET["clear_cache"]) && strtoupper($_GET["clear_cache"])=="Y")
-				return false;
-
 			if(isset($_GET["clear_cache_session"]))
 			{
 				if(strtoupper($_GET["clear_cache_session"])=="Y")
@@ -157,6 +173,9 @@ class CPHPCache
 				elseif(strlen($_GET["clear_cache_session"]) > 0)
 					unset($_SESSION["SESS_CLEAR_CACHE"]);
 			}
+
+			if(isset($_GET["clear_cache"]) && strtoupper($_GET["clear_cache"])=="Y")
+				return false;
 		}
 
 		if(isset($_SESSION["SESS_CLEAR_CACHE"]) && $_SESSION["SESS_CLEAR_CACHE"] == "Y")
@@ -313,9 +332,6 @@ class CPageCache
 
 		if(is_object($USER) && $USER->CanDoOperation('cache_control'))
 		{
-			if(isset($_GET["clear_cache"]) && strtoupper($_GET["clear_cache"])=="Y")
-				return false;
-
 			if(isset($_GET["clear_cache_session"]))
 			{
 				if(strtoupper($_GET["clear_cache_session"])=="Y")
@@ -323,6 +339,9 @@ class CPageCache
 				elseif(strlen($_GET["clear_cache_session"]) > 0)
 					unset($_SESSION["SESS_CLEAR_CACHE"]);
 			}
+
+			if(isset($_GET["clear_cache"]) && strtoupper($_GET["clear_cache"])=="Y")
+				return false;
 		}
 
 		if(isset($_SESSION["SESS_CLEAR_CACHE"]) && $_SESSION["SESS_CLEAR_CACHE"] == "Y")
@@ -376,7 +395,7 @@ class CPageCache
 		$this->_cache->write($arAllVars, $this->basedir, $this->initdir, $this->filename, $this->TTL);
 		$GLOBALS["CACHE_STAT_BYTES"] += $this->_cache->written;
 
- 		if(strlen($arAllVars)>0)
+		if(strlen($arAllVars)>0)
 			ob_end_flush();
 		else
 			ob_end_clean();
@@ -482,7 +501,7 @@ class CCacheManager
 	function Read($ttl, $uniqid, $table_id=false)
 	{
 		global $DB;
-		if(array_key_exists($uniqid, $this->CACHE))
+		if(isset($this->CACHE[$uniqid]))
 			return true;
 		else
 		{
@@ -498,7 +517,7 @@ class CCacheManager
 	{
 		if(array_key_exists($uniqid, $this->VARS))
 			return $this->VARS[$uniqid];
-		elseif(array_key_exists($uniqid, $this->CACHE))
+		elseif(isset($this->CACHE[$uniqid]))
 			return $this->CACHE[$uniqid]->GetVars();
 		else
 			return false;
@@ -506,13 +525,13 @@ class CCacheManager
 	// Sets new value to the variable
 	function Set($uniqid, $val)
 	{
-		if(array_key_exists($uniqid, $this->CACHE))
+		if(isset($this->CACHE[$uniqid]))
 			$this->VARS[$uniqid]=$val;
 	}
 
 	function SetImmediate($uniqid, $val)
 	{
-		if(array_key_exists($uniqid, $this->CACHE))
+		if(isset($this->CACHE[$uniqid]))
 		{
 			$obCache = new CPHPCache;
 			$obCache->StartDataCache($this->TTL[$uniqid], $uniqid, $this->CACHE_PATH[$uniqid], $val, "managed_cache");
@@ -529,7 +548,7 @@ class CCacheManager
 		global $DB;
 		$obCache = new CPHPCache;
 		$obCache->Clean($uniqid, $DB->type.($table_id===false?"":"/".$table_id), "managed_cache");
-		if(array_key_exists($uniqid, $this->CACHE))
+		if(isset($this->CACHE[$uniqid]))
 		{
 			unset($this->CACHE[$uniqid]);
 			unset($this->CACHE_PATH[$uniqid]);
@@ -657,6 +676,13 @@ class CCacheManager
 			$sqlSITE_ID = $DB->ForSQL(SITE_ID, 2);
 			$sqlCACHE_SALT = $this->SALT;
 
+			$strSqlPrefix = "
+				INSERT INTO b_cache_tag (SITE_ID, CACHE_SALT, RELATIVE_PATH, TAG)
+				VALUES
+			";
+			$maxValuesLen = $DB->type=="MYSQL"? 2048: 0;
+			$strSqlValues = "";
+
 			foreach($this->comp_cache_stack as $arCompCache)
 			{
 				$path = $arCompCache[0];
@@ -664,8 +690,7 @@ class CCacheManager
 				{
 					$sqlRELATIVE_PATH = $DB->ForSQL($path, 255);
 
-					$sql = "INSERT INTO b_cache_tag (SITE_ID, CACHE_SALT, RELATIVE_PATH, TAG)
-						VALUES ('".$sqlSITE_ID."', '".$sqlCACHE_SALT."', '".$sqlRELATIVE_PATH."',";
+					$sql = ",\n('".$sqlSITE_ID."', '".$sqlCACHE_SALT."', '".$sqlRELATIVE_PATH."',";
 
 					if(!isset($this->DBCacheTags[$path]))
 						$this->DBCacheTags[$path] = array();
@@ -674,11 +699,21 @@ class CCacheManager
 					{
 						if(!isset($this->DBCacheTags[$path][$tag]))
 						{
-							$DB->Query($sql." '".$DB->ForSQL($tag, 50)."')");
+							$strSqlValues .= $sql." '".$DB->ForSQL($tag, 50)."')";
+							if(strlen($strSqlValues) > $maxValuesLen)
+							{
+								$DB->Query($strSqlPrefix.substr($strSqlValues, 2));
+								$strSqlValues = "";
+							}
 							$this->DBCacheTags[$path][$tag] = true;
 						}
 					}
 				}
+			}
+			if(strlen($strSqlValues) > 0)
+			{
+				$DB->Query($strSqlPrefix.substr($strSqlValues, 2));
+				$strSqlValues = "";
 			}
 		}
 

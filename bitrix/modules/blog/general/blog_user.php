@@ -138,7 +138,7 @@ class CAllBlogUser
 
 				$DB->Query(
 					"UPDATE b_blog_comment SET ".
-					"	AUTHOR_NAME = '".$DB->ForSql(CBlogUser::GetUserName($arUser["ALIAS"], $arGloUser["NAME"], $arGloUser["LAST_NAME"], $arGloUser["LOGIN"]))."', ".
+					"	AUTHOR_NAME = '".$DB->ForSql(CBlogUser::GetUserName($arUser["ALIAS"], $arGloUser["NAME"], $arGloUser["LAST_NAME"], $arGloUser["LOGIN"], $arGloUser["SECOND_NAME"]))."', ".
 					"	AUTHOR_ID = null ".
 					"WHERE AUTHOR_ID = ".$arUser["USER_ID"]."",
 					true
@@ -561,7 +561,7 @@ class CAllBlogUser
 		}
 	}
 
-	function GetUserName($alias, $name, $lastName, $login)
+	function GetUserName($alias, $name, $lastName, $login, $secondName = "")
 	{
 		$result = "";
 
@@ -570,10 +570,13 @@ class CAllBlogUser
 			$result = $alias;
 
 		if (strlen($result) <= 0)
-			$result = $name.((strlen($name) > 0 && strlen($lastName) > 0) ? " " : "").$lastName;
-
-		if (strlen($result) <= 0)
-			$result = $login;
+		{
+			$result = CUser::FormatName(CSite::GetNameFormat(false), 
+				array("NAME" 		=> $name,
+					"LAST_NAME" 	=> $lastName,
+					"SECOND_NAME" 	=> $secondName,
+					"LOGIN"			=> $login), true, false);
+		}
 
 		return $result;
 	}
@@ -590,14 +593,14 @@ class CAllBlogUser
 
 		if (strlen($result) <= 0)
 		{
-			$arParams["NAME_TEMPLATE"] = $arParams["NAME_TEMPLATE"] ? $arParams["NAME_TEMPLATE"] : GetMessage("BLG_GU_NAME_TEMPLATE_DEFAULT");
+			$arParams["NAME_TEMPLATE"] = $arParams["NAME_TEMPLATE"] ? $arParams["NAME_TEMPLATE"] : CSite::GetNameFormat();
 			$arParams["NAME_TEMPLATE"] = str_replace(
 					array("#NOBR#", "#/NOBR#"), 
 					array("", ""), 
 					$arParams["NAME_TEMPLATE"]
 			);
 			$bUseLogin = $arParams["SHOW_LOGIN"] != "N" ? true : false;
-		
+
 			$result = CUser::FormatName(
 						$arParams["NAME_TEMPLATE"], 
 						$arUser, 
@@ -630,9 +633,9 @@ class CAllBlogUser
 		else
 		{
 			if($is404)
-				$result = htmlspecialchars($arPaths["OLD"])."/users/".$userID.".php";
+				$result = htmlspecialcharsbx($arPaths["OLD"])."/users/".$userID.".php";
 			else
-				$result = htmlspecialchars($arPaths["OLD"])."/users.php?&user_id=".$userID;
+				$result = htmlspecialcharsbx($arPaths["OLD"])."/users.php?&user_id=".$userID;
 		}
 
 		return $result;
@@ -665,6 +668,50 @@ class CAllBlogUser
 		}
 
 		return array($clientIP, $clientProxy);
+	}
+	
+	function GetUserInfo($id, $path, $arParams = array())
+	{
+		if (isset($GLOBALS["BLOG_POST"]["BLOG_U_".$id]) && !empty($GLOBALS["BLOG_POST"]["BLOG_U_".$id]))
+		{
+			$arResult["arUser"] = $GLOBALS["BLOG_POST"]["BLOG_U_".$id];
+		}
+		else
+		{
+			if (intval($arParams["AVATAR_SIZE"]) <= 0)
+				$arParams["AVATAR_SIZE"] = 42;
+
+			if (intval($arParams["AVATAR_SIZE_COMMENT"]) <= 0)
+				$arParams["AVATAR_SIZE_COMMENT"] = 30;
+
+			$dbUser = CUser::GetList(($sort_by = Array('ID'=>'desc')), ($dummy=''), Array("ID" => $id), Array("FIELDS" => Array("ID", "LAST_NAME", "NAME", "SECOND_NAME", "LOGIN", "PERSONAL_PHOTO")));
+			if($arResult["arUser"] = $dbUser->GetNext())
+			{
+				if(IntVal($arResult["arUser"]["PERSONAL_PHOTO"]) > 0)
+				{
+					$arResult["arUser"]["PERSONAL_PHOTO_file"] = CFile::GetFileArray($arResult["arUser"]["PERSONAL_PHOTO"]);
+					$arResult["arUser"]["PERSONAL_PHOTO_resized"] = CFile::ResizeImageGet(
+						$arResult["arUser"]["PERSONAL_PHOTO_file"],
+						array("width" => $arParams["AVATAR_SIZE"], "height" => $arParams["AVATAR_SIZE"]),
+						BX_RESIZE_IMAGE_EXACT,
+						false
+					);
+					if ($arResult["arUser"]["PERSONAL_PHOTO_resized"] !== false)
+						$arResult["arUser"]["PERSONAL_PHOTO_img"] = CFile::ShowImage($arResult["arUser"]["PERSONAL_PHOTO_resized"]["src"], $arParams["AVATAR_SIZE"], $arParams["AVATAR_SIZE"], "border=0 align='right'");
+					$arResult["arUser"]["PERSONAL_PHOTO_resized_30"] = CFile::ResizeImageGet(
+						$arResult["arUser"]["PERSONAL_PHOTO_file"],
+						array("width" => $arParams["AVATAR_SIZE_COMMENT"], "height" => $arParams["AVATAR_SIZE_COMMENT"]),
+						BX_RESIZE_IMAGE_EXACT,
+						false
+					);
+					if ($arResult["arUser"]["PERSONAL_PHOTO_resized_30"] !== false)
+						$arResult["arUser"]["PERSONAL_PHOTO_img_30"] = CFile::ShowImage($arResult["arUser"]["PERSONAL_PHOTO_resized_30"]["src"], $arParams["AVATAR_SIZE_COMMENT"], $arParams["AVATAR_SIZE_COMMENT"], "border=0 align='right'");
+				}
+				$arResult["arUser"]["url"] = CComponentEngine::MakePathFromTemplate($path, array("user_id" => $id));
+			}
+			$GLOBALS["BLOG_POST"]["BLOG_U_".$id] = $arResult["arUser"];
+		}
+		return $arResult["arUser"];
 	}
 }
 ?>

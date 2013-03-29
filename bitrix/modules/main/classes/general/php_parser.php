@@ -256,18 +256,24 @@ class PHPParser
 		$string = False;
 		$instruction = "";
 
-		$scriptContentLength = StrLen($scriptContent);
+		//mb_substr is catastrophic slow, so in UTF we use array of characters
+		if(defined("BX_UTF"))
+			$allChars = preg_split('//u', $scriptContent, -1, PREG_SPLIT_NO_EMPTY);
+		else
+			$allChars = &$scriptContent;
+
+		$scriptContentLength = strlen($scriptContent);
 		$ind = -1;
 		while ($ind < $scriptContentLength - 1)
 		{
 			$ind++;
-			$ch = SubStr($scriptContent, $ind, 1);
+			$ch = $allChars[$ind];
 
 			if ($bInPHP)
 			{
 				if (!$bInString)
 				{
-					if (!$bInComponent && StrLen($instruction) > 0)
+					if (!$bInComponent && $instruction <> '')
 					{
 						if (preg_match("#^\s*((\\\$[A-Z_][A-Z0-9_]*)\s*=)?\s*\\\$APPLICATION->IncludeComponent\s*\(#is", $instruction, $arMatches))
 						{
@@ -275,9 +281,9 @@ class PHPParser
 							$bInComponent = True;
 							$componentNumber++;
 
-							$arMatches[0] = LTrim($arMatches[0]);
+							$arMatches[0] = ltrim($arMatches[0]);
 							$arComponents[$componentNumber] = array(
-								"START" => ($ind - StrLen($arMatches[0])),
+								"START" => ($ind - strlen($arMatches[0])),
 								"END" => False,
 								"DATA" => array()
 							);
@@ -288,17 +294,16 @@ class PHPParser
 						if ($bInComponent)
 						{
 							$arAllStr[] = $string;
-							$instruction .= Chr(1).(Count($arAllStr) - 1).Chr(2);
+							$instruction .= chr(1).(count($arAllStr) - 1).chr(2);
 						}
 						$string = False;
 					}
 					if ($ch == ";")
 					{
-						//echo "<font color=\"#6600FF\">".$instruction."</font><br>";
 						if ($bInComponent)
 						{
 							$bInComponent = False;
-							$arComponents[$componentNumber]["END"] = $ind + 1/* - 1*/;
+							$arComponents[$componentNumber]["END"] = $ind + 1;
 							$arComponents[$componentNumber]["DATA"] = PHPParser::GetComponentParams(preg_replace("#[ \r\n\t]#", "", $instruction), $arAllStr);
 						}
 						$instruction = "";
@@ -306,9 +311,10 @@ class PHPParser
 					}
 					if ($ch == "/" && $ind < $scriptContentLength - 2)
 					{
-						if (SubStr($scriptContent, $ind + 1, 1) == "/")
+						$nextChar = $allChars[$ind + 1];
+						if ($nextChar == "/")
 						{
-							$endPos = StrPos($scriptContent, "\n", $ind + 2);
+							$endPos = strpos($scriptContent, "\n", $ind + 2);
 
 							if ($endPos === False)
 								$ind = $scriptContentLength - 1;
@@ -317,9 +323,9 @@ class PHPParser
 
 							continue;
 						}
-						elseif (SubStr($scriptContent, $ind + 1, 1) == "*")
+						elseif ($nextChar == "*")
 						{
-							$endPos = StrPos($scriptContent, "*/", $ind + 2);
+							$endPos = strpos($scriptContent, "*/", $ind + 2);
 
 							if ($endPos === False)
 								$ind = $scriptContentLength - 1;
@@ -338,12 +344,11 @@ class PHPParser
 						continue;
 					}
 
-					if ($ch == "?" && $ind < $scriptContentLength - 2 && SubStr($scriptContent, $ind + 1, 1) == ">")
+					if ($ch == "?" && $ind < $scriptContentLength - 2 && $allChars[$ind + 1] == ">")
 					{
 						$ind += 1;
 						if ($bInComponent)
 						{
-							//echo "<font color=\"#6600FF\">".$instruction."</font><br>";
 							$bInComponent = False;
 							$arComponents[$componentNumber]["END"] = $ind - 1;
 							$arComponents[$componentNumber]["DATA"] = PHPParser::GetComponentParams(preg_replace("#[ \r\n\t]#", "", $instruction), $arAllStr);
@@ -357,33 +362,6 @@ class PHPParser
 
 					if ($ch == " " || $ch == "\r" || $ch == "\n" || $ch == "\t")
 						continue;
-
-					/*
-					if ($bInComponent)
-					{
-						if ($ch == ",")
-						{
-
-							if ($parenthesesLevel == 1)
-							{
-								$arComponents[$componentNumber]["DATA"][$callParam] = $string;
-								$callParam++;
-							}
-							else
-							{
-
-							}
-						}
-						elseif ($ch == "(")
-						{
-							$parenthesesLevel++;
-						}
-						elseif ($ch == ")")
-						{
-							$parenthesesLevel--;
-						}
-					}
-					*/
 				}
 				else
 				{
@@ -401,22 +379,17 @@ class PHPParser
 
 					$string .= $ch;
 				}
-
-				if ($bInComponent)
-				{
-
-				}
 			}
 			else
 			{
 				if ($ch == "<")
 				{
-					if ($ind < $scriptContentLength - 5 && SubStr($scriptContent, $ind + 1, 4) == "?php")
+					if ($ind < $scriptContentLength - 5 && $allChars[$ind + 1].$allChars[$ind + 2].$allChars[$ind + 3].$allChars[$ind + 4] == "?php")
 					{
 						$bInPHP = True;
 						$ind += 4;
 					}
-					elseif ($ind < $scriptContentLength - 2 && SubStr($scriptContent, $ind + 1, 1) == "?")
+					elseif ($ind < $scriptContentLength - 2 && $allChars[$ind + 1] == "?")
 					{
 						$bInPHP = True;
 						$ind += 1;
@@ -424,7 +397,6 @@ class PHPParser
 				}
 			}
 		}
-
 		return $arComponents;
 	}
 

@@ -1,58 +1,44 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
-IncludeModuleLangFile(__FILE__);
+?>
 
-$sDocPath = $APPLICATION->GetCurPage();
-
-if(!empty($arAuthResult))
-{
-	if(!is_array($arAuthResult))
-		$arAuthResult = array("MESSAGE"=>$arAuthResult, "TYPE"=>"ERROR");
-	CAdminMessage::ShowMessage(array(
-		"MESSAGE"=>($arAuthResult["TYPE"] == "ERROR"? GetMessage("admin_authorize_error"):GetMessage("admin_authorize_info")), 
-		"DETAILS"=>$arAuthResult["MESSAGE"], 
-		"TYPE"=>$arAuthResult["TYPE"]
-	));
-}
-?>	
-<form name="form_auth" method="post" target="_top" action="<?echo htmlspecialchars($sDocPath."?forgot_password=yes".(($s=DeleteParam(array("forgot_password"))) == ""? "":"&".$s))?>">
-<input type="hidden" name="AUTH_FORM" value="Y">
-<input type="hidden" name="TYPE" value="SEND_PWD">
-
-<div class="bx-auth-form">
-	<div class="bx-auth-header"><?=GetMessage("AUTH_GET_CHECK_STRING")?></div>
-
-	<div class="bx-auth-picture"></div>
-	<div class="bx-auth-table">
-	<table cellpadding="0" cellspacing="0" border="0">
-		<tr>
-			<td class="label"><?=GetMessage("AUTH_LOGIN")?>:</td>
-			<td><input type="text" name="USER_LOGIN" maxlength="50" size="20" value="<?echo htmlspecialchars($last_login)?>" class="input-text"></td>
-		</tr>
-		<tr> 
-			<td></td>
-			<td><label class="bx-label"><?=GetMessage("AUTH_OR")?></label></td>
-		</tr>
-		<tr>
-			<td class="label">E-Mail:</td>
-			<td><input type="text" name="USER_EMAIL" maxlength="255" size="20" class="input-text"></td>
-		</tr>
-		<tr> 
-			<td></td>
-			<td><input type="submit" name="send_account_info" value="<?=GetMessage("AUTH_SEND")?>"></td>
-		</tr>
-	</table>
+<div id="forgot_password" class="login-popup-wrap-with-text">
+	<div class="login-popup-wrap login-popup-request-wrap">
+		<input type="hidden" name="TYPE" value="SEND_PWD">
+		<div class="login-popup">
+			<div class="login-popup-title"><?=GetMessage('AUTH_FORGOT_PASSWORD')?></div>
+			<div class="login-popup-title-description"><?=GetMessage("AUTH_GET_CHECK_STRING")?></div>
+			<div class="login-popup-request-fields-wrap" id="forgot_password_fields">
+				<div class="login-popup-field">
+					<div class="login-popup-field-title"><?=GetMessage("AUTH_LOGIN")?></div>
+					<div class="login-input-wrap">
+						<input type="text" onfocus="BX.addClass(this.parentNode, 'login-input-active')" onblur="BX.removeClass(this.parentNode, 'login-input-active')" class="login-input"  name="USER_LOGIN" value="<?echo htmlspecialcharsbx($last_login)?>">
+						<div class="login-inp-border"></div>
+					</div>
+				</div>
+				<div class="login-popup-either"><?=GetMessage("AUTH_OR")?></div>
+				<div class="login-popup-field">
+					<div class="login-popup-field-title">E-mail</div>
+					<div class="login-input-wrap">
+						<input type="text" onfocus="BX.addClass(this.parentNode, 'login-input-active')" onblur="BX.removeClass(this.parentNode, 'login-input-active')" class="login-input" name="USER_EMAIL">
+						<div class="login-inp-border"></div>
+					</div>
+				</div>
+			</div>
+			<div class="login-btn-wrap" id="forgot_password_message_button"><a class="login-popup-link login-popup-return-auth" href="javascript:void(0)" onclick="BX.adminLogin.toggleAuthForm('authorize')"><?=GetMessage('AUTH_GOTO_AUTH_FORM_1')?></a><input type="submit" value="<?=GetMessage("AUTH_SEND")?>" class="login-btn" name="send_account_info"></div>
+		</div>
 	</div>
-	<br clear="all">
-
-	<div class="bx-auth-footer">
-		<p><?=GetMessage("AUTH_FORGOT_PASSWORD_1")?></p>
-		<p><?=GetMessage("AUTH_MESS_1")?> <a href="<?echo htmlspecialchars($sDocPath."?change_password=yes".($s<>""? "&".$s:""));?>"><?=GetMessage("AUTH_CHANGE_FORM")?></a>.</p>
-		<p><?echo GetMessage("admin_authorize_back")?> <a href="<?echo htmlspecialchars($sDocPath.($s == ""? "":"?$s"))?>"><?echo GetMessage("admin_authorize_back_form")?></a>.</p>
+	<div class="login-popup-request-text" id="forgot_password_note">
+		<?=GetMessage("AUTH_FORGOT_PASSWORD_1")?><br>
 	</div>
 </div>
-</form>
 
 <script type="text/javascript">
-document.form_auth.USER_LOGIN.focus();
+var obForgMsg = new BX.authFormForgotPasswordMessage('forgot_password_message', {url:''}),
+	obForg = new BX.authFormForgotPassword('forgot_password', {
+		url: '<?echo CUtil::JSEscape($authUrl."?forgot_password=yes".(($s=DeleteParam(array("forgot_password"))) == ""? "":"&".$s))?>',
+		message: obForgMsg
+});
+BX.adminLogin.registerForm(obForg);
+BX.adminLogin.registerForm(obForgMsg);
 </script>

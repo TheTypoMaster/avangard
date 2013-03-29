@@ -176,7 +176,7 @@ if ($bShowStat): //2
 BX_DEBUG_INFO_<?=$i?> = new BX.CDebugDialog();
 </script>
 <?
-		$obJSPopup = new CJSPopup();
+		$obJSPopup = new CJSPopupOnPage('', array());
 		$obJSPopup->jsPopup = 'BX_DEBUG_INFO_'.$i;
 		$obJSPopup->StartDescription('bx-core-debug-info');
 ?>
@@ -209,7 +209,7 @@ BX_DEBUG_INFO_<?=$i?> = new BX.CDebugDialog();
 ?>
 	<tr>
 		<td align="right" valign="top"><?echo $j?></td>
-		<td><a href="javascript:BX_DEBUG_INFO_<?=$i?>.ShowDetails('BX_DEBUG_INFO_<?=$i."_".$j?>')"><?echo htmlspecialchars(substr($strSql, 0, 100))."..."?></a>&nbsp;(<?echo $query["COUNT"]?>) </td>
+		<td><a href="javascript:BX_DEBUG_INFO_<?=$i?>.ShowDetails('BX_DEBUG_INFO_<?=$i."_".$j?>')"><?echo htmlspecialcharsbx(substr($strSql, 0, 100))."..."?></a>&nbsp;(<?echo $query["COUNT"]?>) </td>
 		<td align="right" valign="top"><?
 				$t = 0.0;
 				foreach($query["CALLS"] as $call)
@@ -241,7 +241,7 @@ BX_DEBUG_INFO_<?=$i?> = new BX.CDebugDialog();
 				echo str_replace(
 					array("\n"),
 					array("<br />"),
-					htmlspecialchars($strSql)
+					htmlspecialcharsbx($strSql)
 				);
 			?>
 			<br /><br />
@@ -257,11 +257,11 @@ BX_DEBUG_INFO_<?=$i?> = new BX.CDebugDialog();
 		<br /><br />
 		<b>(<?echo $k.".".($n+1)?>)</b>
 <?
-						echo $tr["file"].":".$tr["line"]."<br /><nobr>".htmlspecialchars($tr["class"].$tr["type"].$tr["function"]);
+						echo $tr["file"].":".$tr["line"]."<br /><nobr>".htmlspecialcharsbx($tr["class"].$tr["type"].$tr["function"]);
 						if($n == 0)
 							echo "(...)</nobr>";
 						else
-							echo "</nobr>(".htmlspecialchars(print_r($tr["args"], true)).")";
+							echo "</nobr>(".htmlspecialcharsbx(print_r($tr["args"], true)).")";
 						if($n>1)
 							break;
 					endforeach; //$back_trace
@@ -305,7 +305,7 @@ endif; //$bShowStat 2
 
 if($bShowExtTime)
 {
-	$obJSPopup = new CJSPopup();
+	$obJSPopup = new CJSPopupOnPage();
 	$obJSPopup->jsPopup = 'jsDebugTimeWindow';
 ?>
 <script type="text/javascript">
@@ -605,9 +605,9 @@ var jsDebugTimeWindow = new BX.CDebugDialog();
 						<td>
 						<?if($arIncludeDebug["LEVEL"] > 0) echo str_repeat("&nbsp;&nbsp;", $arIncludeDebug["LEVEL"]);?>
 						<?if($bShowStat):?>
-							<a title="<?echo GetMessage("debug_info_query_title")?>" href="javascript:BX_DEBUG_INFO_<?echo $i?>.Show(); BX_DEBUG_INFO_<?echo $i?>.ShowDetails('BX_DEBUG_INFO_<?echo $i?>_1');"><?echo htmlspecialchars($arIncludeDebug["REL_PATH"])?></a>
+							<a title="<?echo GetMessage("debug_info_query_title")?>" href="javascript:BX_DEBUG_INFO_<?echo $i?>.Show(); BX_DEBUG_INFO_<?echo $i?>.ShowDetails('BX_DEBUG_INFO_<?echo $i?>_1');"><?echo htmlspecialcharsbx($arIncludeDebug["REL_PATH"])?></a>
 						<?else:?>
-							<?echo htmlspecialchars($arIncludeDebug["REL_PATH"])?>
+							<?echo htmlspecialcharsbx($arIncludeDebug["REL_PATH"])?>
 						<?endif?>
 						</td>
 						<td>&nbsp;<?

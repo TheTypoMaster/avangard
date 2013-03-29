@@ -81,7 +81,7 @@ if (count($arParams["SHOW_FIELDS"]) > 0)
 				case 'WORK_STREET':
 				case 'WORK_MAILBOX':
 					if (StrLen($val) > 0)
-						$val = htmlspecialchars($val);
+						$val = htmlspecialcharsbx($val);
 					break;
 
 				case 'LAST_LOGIN':
@@ -92,7 +92,7 @@ if (count($arParams["SHOW_FIELDS"]) > 0)
 					
 				case 'EMAIL':
 					if ($bIntranet && StrLen($val) > 0):
-						$val = '<a href="mailto:'.htmlspecialchars($val).'">'.htmlspecialchars($val).'</a>';
+						$val = '<a href="mailto:'.htmlspecialcharsbx($val).'">'.htmlspecialcharsbx($val).'</a>';
 					else:
 						$val = '';
 					endif;	
@@ -104,7 +104,7 @@ if (count($arParams["SHOW_FIELDS"]) > 0)
 						$val = "";
 					elseif (StrLen($val) > 0)
 					{
-						$val = htmlspecialchars($val);
+						$val = htmlspecialcharsbx($val);
 						$valLink = $val;
 						if (StrToLower(SubStr($val, 0, StrLen("http://"))) != "http://")
 							$valLink = "http://".$val;
@@ -120,7 +120,7 @@ if (count($arParams["SHOW_FIELDS"]) > 0)
 
 				case 'PERSONAL_ICQ':
 					if (StrLen($val) > 0)
-						$val = htmlspecialchars($val).'<!-- <img src="http://web.icq.com/whitepages/online?icq='.htmlspecialchars($val).'&img=5" alt="" />-->';
+						$val = htmlspecialcharsbx($val).'<!-- <img src="http://web.icq.com/whitepages/online?icq='.htmlspecialcharsbx($val).'&img=5" alt="" />-->';
 					break;
 
 				case 'PERSONAL_PHONE':
@@ -130,8 +130,8 @@ if (count($arParams["SHOW_FIELDS"]) > 0)
 				case 'WORK_FAX':
 					if (StrLen($val) > 0)
 					{
-						$valEncoded = preg_replace('/[^\d\+]+/', '', htmlspecialchars($val));
-						$val = '<a href="callto:'.$valEncoded.'">'.htmlspecialchars($val).'</a>';
+						$valEncoded = preg_replace('/[^\d\+]+/', '', htmlspecialcharsbx($val));
+						$val = '<a href="callto:'.$valEncoded.'">'.htmlspecialcharsbx($val).'</a>';
 					}
 					break;
 					
@@ -159,7 +159,6 @@ if (count($arParams["SHOW_FIELDS"]) > 0)
 					if (IntVal($val) > 0)
 					{
 						$iSize = 150;
-						$val = "";
 						$imageFile = CFile::GetFileArray($val);
 						if ($imageFile !== false)
 						{

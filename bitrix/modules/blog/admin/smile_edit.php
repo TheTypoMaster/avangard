@@ -15,13 +15,14 @@ $ID = IntVal($ID);
 
 $db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"));
 $langCount = 0;
+$arSysLangs = Array();
+$arSysLangNames = Array();
 while ($arLang = $db_lang->Fetch())
 {
 	$arSysLangs[$langCount] = $arLang["LID"];
-	$arSysLangNames[$langCount] = htmlspecialchars($arLang["NAME"]);
+	$arSysLangNames[$langCount] = htmlspecialcharsbx($arLang["NAME"]);
 	$langCount++;
 }
-
 
 $strErrorMessage = "";
 $bInitVars = false;
@@ -51,18 +52,22 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $blogPer
 
 		if (is_set($_FILES, "IMAGE1") && strlen($_FILES["IMAGE1"]["name"])>0)
 		{
-			$strFileName = basename($_FILES["IMAGE1"]["name"]);
-			$strFileExt = strrchr($_FILES["IMAGE1"]["name"], ".");
+			$strFileName = RemoveScriptExtension($_FILES["IMAGE1"]["name"]);
+			$strFileName = GetFileNameWithoutExtension($strFileName);
+			$strFileExt = GetFileExtension($_FILES["IMAGE1"]["name"]);
 
-			if ($strFileExt!=".jpg" && $strFileExt!=".jpeg" && $strFileExt!=".gif" && $strFileExt!=".png")
+			if (!in_array($strFileExt, array("jpg", "jpeg", "gif", "png")))
 				$strErrorMessage .= GetMessage("FSE_ERROR_EXT").". \n";
 
 			if (strlen($strErrorMessage)<=0)
 			{
 				$strDirName = $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/blog/";
-				if ($SMILE_TYPE=="I") $strDirName .= "icon";
-				else $strDirName .= "smile";
+				if ($SMILE_TYPE=="I") 
+					$strDirName .= "icon";
+				else 
+					$strDirName .= "smile";
 				$strDirName .= "/";
+				$strFileName = $strFileName.".".$strFileExt;
 
 				CheckDirPath($strDirName);
 
@@ -79,7 +84,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $blogPer
 					else
 					{
 						@chmod($strDirName.$strFileName, BX_FILE_PERMISSIONS);
-						$imgArray = @getimagesize($strDirName.$strFileName);
+						$imgArray = CFile::GetImageSize($strDirName.$strFileName);
 						if (is_array($imgArray))
 						{
 							$iIMAGE_WIDTH = $imgArray[0];
@@ -179,10 +184,6 @@ if ($ID > 0)
 {
 	$db_smile = CBlogSmile::GetList(array(), array("ID" => $ID));
 	$db_smile->ExtractFields("str_", True);
-	$f_IMAGE = $str_IMAGE;
-	$f_IMAGE_WIDTH = $str_IMAGE_WIDTH;
-	$f_IMAGE_HEIGHT = $str_IMAGE_HEIGHT;
-	$f_SMILE_TYPE = $str_SMILE_TYPE;
 }
 
 if ($bInitVars)
@@ -284,9 +285,9 @@ $tabControl->BeginNextTab();
 		<td>
 			<input type="file" name="IMAGE1" size="30">
 			<?
-			if (strlen($f_IMAGE)>0)
+			if (strlen($str_IMAGE)>0)
 			{
-				?><br><img src="/bitrix/images/blog/<?echo ($f_SMILE_TYPE=="I")?"icon":"smile" ?>/<?echo $f_IMAGE?>" border="0" <?echo (IntVal($f_IMAGE_WIDTH)>0) ? "width=\"".$f_IMAGE_WIDTH."\"" : "" ?> <?echo (IntVal($f_IMAGE_WIDTH)>0) ? "height=\"".$f_IMAGE_HEIGHT."\"" : "" ?>><?
+				?><br><img src="/bitrix/images/blog/<?echo ($str_SMILE_TYPE=="I")?"icon":"smile" ?>/<?echo $str_IMAGE?>" border="0" <?echo (IntVal($str_IMAGE_WIDTH)>0) ? "width=\"".$str_IMAGE_WIDTH."\"" : "" ?> <?echo (IntVal($str_IMAGE_WIDTH)>0) ? "height=\"".$str_IMAGE_HEIGHT."\"" : "" ?>><?
 			}
 			?>
 		</td>
@@ -295,20 +296,20 @@ $tabControl->BeginNextTab();
 	<?
 	for ($i = 0; $i < count($arSysLangs); $i++):
 		$arSmileLang = CBlogSmile::GetLangByID($ID, $arSysLangs[$i]);
-		$str_NAME = htmlspecialchars($arSmileLang["NAME"]);
-		$str_DESCRIPTION = htmlspecialchars($arSmileLang["DESCRIPTION"]);
+		$str_NAME = htmlspecialcharsbx($arSmileLang["NAME"]);
+		$str_DESCRIPTION = htmlspecialcharsbx($arSmileLang["DESCRIPTION"]);
 		if ($bInitVars)
 		{
-			$str_NAME = htmlspecialchars(${"NAME_".$arSysLangs[$i]});
-			$str_DESCRIPTION = htmlspecialchars(${"DESCRIPTION_".$arSysLangs[$i]});
+			$str_NAME = htmlspecialcharsbx(${"NAME_".$arSysLangs[$i]});
+			$str_DESCRIPTION = htmlspecialcharsbx(${"DESCRIPTION_".$arSysLangs[$i]});
 		}
 		?>
 		<tr class="heading">
 			<td colspan="2">[<?echo $arSysLangs[$i];?>] <?echo $arSysLangNames[$i];?></td>
 		</tr>
-		<tr>
+		<tr class="adm-detail-required-field">
 			<td>
-				<span class="required">*</span><?echo GetMessage("BLOG_NAME")?>:
+				<?echo GetMessage("BLOG_NAME")?>:
 			</td>
 			<td>
 				<input type="text" name="NAME_<?echo $arSysLangs[$i] ?>" value="<?echo $str_NAME ?>" size="40">

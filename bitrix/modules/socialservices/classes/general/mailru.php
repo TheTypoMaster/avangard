@@ -4,7 +4,7 @@ IncludeModuleLangFile(__FILE__);
 class CSocServMyMailRu extends CSocServAuth
 {
 	const ID = "MyMailRu";
-	
+
 	public function GetSettings()
 	{
 		return array(
@@ -17,103 +17,172 @@ class CSocServMyMailRu extends CSocServAuth
 
 	public function GetFormHtml($arParams)
 	{
-		$mailru_id = self::GetOption("mailru_id");
-		$mailru_private_key = self::GetOption("mailru_private_key");
+		$appID = trim(self::GetOption("mailru_id"));
+		$appSecret = trim(self::GetOption("mailru_secret_key"));
 
-		$aRemove = array("logout", "auth_service_error", "auth_service_id");
-		$url_err = $GLOBALS['APPLICATION']->GetCurPageParam('auth_service_id='.self::ID.'&auth_service_error=1', $aRemove);
-		$url_ok = $GLOBALS['APPLICATION']->GetCurPageParam('', $aRemove);
+		$gAuth = new CMailRuOAuthInterface($appID, $appSecret);
 
-		$script = '
-<script type="text/javascript" src="http://cdn.connect.mail.ru/js/loader.js"></script>
-<script type="text/javascript">
-BX.ready(function(){mailru.loader.require("api", 
-	function() 
-	{
-		mailru.connect.init(\''.CUtil::JSEscape($mailru_id).'\', \''.CUtil::JSEscape($mailru_private_key).'\');
-		mailru.events.listen(mailru.connect.events.login, function(sess){mailru.common.users.getInfo(function(res){BxMailRuAuthInfo(sess, res);});});
+		$redirect_uri = CSocServUtil::GetCurUrl('auth_service_id='.self::ID);
+		$state = 'site_id='.SITE_ID.'&backurl='.($GLOBALS["APPLICATION"]->GetCurPageParam('check_key='.$_SESSION["UNIQUE_KEY"], array("logout", "auth_service_error", "auth_service_id", "backurl")));
+
+		$url = $gAuth->GetAuthUrl($redirect_uri, $state);
+		if($arParams["FOR_INTRANET"])
+			return array("ON_CLICK" => 'onclick="BX.util.popup(\''.htmlspecialcharsbx(CUtil::JSEscape($url)).'\', 580, 400)"');
+		return '<a href="javascript:void(0)" onclick="BX.util.popup(\''.htmlspecialcharsbx(CUtil::JSEscape($url)).'\', 580, 400)" class="bx-ss-button mymailru-button"></a><span class="bx-spacer"></span><span>'.GetMessage("socserv_mailru_note").'</span>';
 	}
-);});
 
-function BxMailRuAuthInfo(sess, response) 
-{
-	var url_err = \''.CUtil::JSEscape($url_err).'\';
-	if(sess && response && response[0]) 
-	{
-		var url_post = \''.CUtil::JSEscape($arParams["~AUTH_URL"]).'\';
-		var url_ok = \''.CUtil::JSEscape($url_ok).'\';
-		var data = {
-			"auth_service_id": "'.self::ID.'",
-			"mailru_user": response[0],
-			"mailru_sess": sess
-		};
-		BX.ajax.post(url_post, data, function(res){window.location = (res == "OK"? url_ok : url_err);});
-	} 
-	else 
-	{
-		window.location = url_err;
-	}
-}
-</script>
-';
-		CUtil::InitJSCore(array("ajax"));
-		$GLOBALS['APPLICATION']->AddHeadString($script, true);
-
-		$s = '
-<a href="javascript:void(0)" onclick="mailru.connect.login();" class="bx-ss-button mymailru-button"></a><span class="bx-spacer"></span><span>'.GetMessage("socserv_mailru_note").'</span>';
-		return $s;
-	}
-	
 	public function Authorize()
 	{
 		$GLOBALS["APPLICATION"]->RestartBuffer();
-		
-		if(isset($_REQUEST["mailru_sess"]["sig"]) && isset($_REQUEST["mailru_user"]["uid"]))
+		$bSuccess = 1;
+		if((isset($_REQUEST["code"]) && $_REQUEST["code"] <> '') && CSocServAuthManager::CheckUniqueKey())
 		{
-			if(self::CheckUserData($_REQUEST["mailru_sess"]["sig"]))
-			{
-				CUtil::decodeURIComponent($_REQUEST);
-				$arFields = array(
-					'EXTERNAL_AUTH_ID' => self::ID,
-					'XML_ID' => $_REQUEST["mailru_user"]["uid"],
-					'LOGIN' => $_REQUEST["mailru_user"]["email"],
-					'EMAIL' => $_REQUEST["mailru_user"]["email"],
-					'NAME'=> $_REQUEST["mailru_user"]["first_name"],
-					'LAST_NAME'=> $_REQUEST["mailru_user"]["last_name"],
-				);
+			$redirect_uri = CSocServUtil::GetCurUrl('auth_service_id='.self::ID, array("code", "state", "check_key", "backurl"));
+			$appID = trim(self::GetOption("mailru_id"));
+			$appSecret = trim(self::GetOption("mailru_secret_key"));
 
-				if($this->AuthorizeUser($arFields))
-					die("OK");
+			$gAuth = new CMailRuOAuthInterface($appID, $appSecret, $_REQUEST["code"]);
+
+			if($gAuth->GetAccessToken($redirect_uri) !== false)
+			{
+				$arMRUser = $gAuth->GetCurrentUser();
+
+				if($arMRUser['0']['uid'] <> '')
+				{
+					$email = $first_name = $last_name = $gender = "";
+					if($arMRUser['0']['first_name'] <> '')
+					{
+						$first_name = $arMRUser['0']['first_name'];
+					}
+					if($arMRUser['0']['last_name'] <> '')
+					{
+						$last_name = $arMRUser['0']['last_name'];
+					}
+					if($arMRUser['0']['email'] <> '')
+					{
+						$email = $arMRUser['0']['email'];
+					}
+					if(isset($arMRUser['0']['sex']) && $arMRUser['0']['sex'] != '')
+					{
+						if ($arMRUser['0']['sex'] == '1')
+							$gender = 'M';
+						elseif ($arMRUser['0']['sex'] == '2')
+							$gender = 'F';
+					}
+
+					$arFields = array(
+						'EXTERNAL_AUTH_ID' => self::ID,
+						'XML_ID' => $arMRUser['0']['uid'],
+						'LOGIN' => "MM_".$email,
+						'NAME'=> $first_name,
+						'EMAIL'=> $email,
+						'LAST_NAME'=> $last_name,
+						'PERSONAL_GENDER' => $gender,
+					);
+
+					if(isset($arMRUser['0']['birthday']))
+						if ($date = MakeTimeStamp($arMRUser['0']['birthday'], "DD.MM.YYYY"))
+							$arFields["PERSONAL_BIRTHDAY"] = ConvertTimeStamp($date);
+					if(isset($arMRUser['0']['pic_190']) && self::CheckPhotoURI($arMRUser['0']['pic_190']))
+						if ($arPic = CFile::MakeFileArray($arMRUser['0']['pic_190'].'?name=/'.md5($arMRUser['0']['pic_190']).'.jpg'))
+							$arFields["PERSONAL_PHOTO"] = $arPic;
+					$arFields["PERSONAL_WWW"] = $arMRUser['0']['link'];
+					if(strlen(SITE_ID) > 0)
+						$arFields["SITE_ID"] = SITE_ID;
+					$bSuccess = $this->AuthorizeUser($arFields);
+				}
 			}
 		}
-		die("FAILURE");
-	}
-	
-	protected function CheckUserData($control_sign)
-	{
-		$APP_SECRET = self::GetOption("mailru_secret_key");
+		$url = ($GLOBALS["APPLICATION"]->GetCurDir() == "/login/") ? "/auth/" : $GLOBALS["APPLICATION"]->GetCurDir();
+		if(isset($_REQUEST["state"]))
+		{
+			$arState = array();
+			parse_str($_REQUEST["state"], $arState);
 
-		$app_cookie = $_COOKIE['mrc'];
-		if($app_cookie == '') 
+			if(isset($arState['backurl']))
+				$url = parse_url($arState['backurl'], PHP_URL_PATH);
+		}
+
+		$aRemove = array("logout", "auth_service_error", "auth_service_id", "code", "error_reason", "error", "error_description", "check_key");
+		if($bSuccess !== true)
+			$url = $GLOBALS['APPLICATION']->GetCurPageParam(('auth_service_id='.self::ID.'&auth_service_error='.$bSuccess), $aRemove);
+
+		echo '
+<script type="text/javascript">
+if(window.opener)
+	window.opener.location = \''.CUtil::JSEscape($url).'\';
+window.close();
+</script>
+';
+		die();
+	}
+}
+
+class CMailRuOAuthInterface
+{
+	const AUTH_URL = "https://connect.mail.ru/oauth/authorize";
+	const TOKEN_URL = "https://connect.mail.ru/oauth/token";
+	const CONTACTS_URL = "http://www.appsmail.ru/platform/api";
+
+	protected $appID;
+	protected $appSecret;
+	protected $code = false;
+	protected $access_token = false;
+	protected $userID = false;
+
+	public function __construct($appID, $appSecret, $code=false)
+	{
+		$this->httpTimeout =10;
+		$this->appID = $appID;
+		$this->appSecret = $appSecret;
+		$this->code = $code;
+	}
+
+	public function GetAuthUrl($redirect_uri, $state='')
+	{
+		return self::AUTH_URL.
+			"?client_id=".urlencode($this->appID).
+			"&redirect_uri=".$redirect_uri.
+			"&response_type=code".
+			($state <> ''? '&state='.urlencode($state):'');
+	}
+
+	public function GetAccessToken($redirect_uri)
+	{
+		if($this->code === false)
 			return false;
 
-		$session = array();
-		parse_str(urldecode($app_cookie), $session);
+		$result = CHTTP::sPostHeader(self::TOKEN_URL, array(
+			"client_id"=>$this->appID,
+			"client_secret"=>$this->appSecret,
+			"code"=>$this->code,
+			"redirect_uri"=>$redirect_uri,
+			"grant_type"=>"authorization_code",
+		), array(), $this->httpTimeout);
 
-    	ksort($session);
+		$arResult = CUtil::JsObjectToPhp($result);
 
-		$sign = '';
-		foreach($session as $key=>$value) 
-			if($key <> 'sig') 
-				$sign .= ($key.'='.$value);
+		if((isset($arResult["access_token"]) && $arResult["access_token"] <> '') && isset($arResult["x_mailru_vid"]) && $arResult["x_mailru_vid"] <> '')
+		{
+			$this->access_token = $arResult["access_token"];
+			$this->userID = $arResult["x_mailru_vid"];
+			$_SESSION["OAUTH_DATA"] = array("OATOKEN" => $this->access_token);
 
-		$sign .= $APP_SECRET;
-		$sign = md5($sign);
-
-		if($control_sign === $sign && $control_sign === $session['sig']) 
 			return true;
+		}
+		return false;
+	}
 
-  		return false;
+	public function GetCurrentUser()
+	{
+		if($this->access_token === false)
+			return false;
+		$sign=md5("app_id=".$this->appID."method=users.getInfosecure=1session_key=".$this->access_token.$this->appSecret);
+		$result = CHTTP::sGetHeader(self::CONTACTS_URL.'?method=users.getInfo&secure=1&app_id='.$this->appID.'&session_key='.urlencode($this->access_token).'&sig='.$sign, array(), $this->httpTimeout);
+		if(!defined("BX_UTF"))
+			$result = CharsetConverter::ConvertCharset($result, "utf-8", LANG_CHARSET);
+
+		return CUtil::JsObjectToPhp($result);
 	}
 }
 ?>

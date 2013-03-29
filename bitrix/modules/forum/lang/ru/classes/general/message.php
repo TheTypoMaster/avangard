@@ -1,6 +1,7 @@
 <?
 $MESS["AVTOR_PREF"] = "Автор:";
 $MESS["F_ERR_EMPTY_FORUM_ID"] = "Не указан форум.";
+$MESS["F_ERR_INVALID_FORUM_ID"] = "Неверно указан форум.";
 $MESS["F_ERR_EMPTY_TOPIC_ID"] = "Не указана тема.";
 $MESS["F_ERR_EMPTY_AUTHOR_NAME"] = "Не указан автор сообщения.";
 $MESS["F_ERR_EMPTY_POST_MESSAGE"] = "Не указан текст сообщения.";

@@ -119,7 +119,7 @@ var jsUtils =
 		}
 		if(el==false)
 			this.arEvents.length = 0;
-	 },
+	},
 
 	GetRealPos: function(el)
 	{
@@ -398,9 +398,9 @@ function ForumPopupMenu(id)
 		
 		this.Show(div, pos["left"], pos["top"]);
 
-	    div.ondrag = jsUtils.False;
-	    div.onselectstart = jsUtils.False;
-	    div.style.MozUserSelect = 'none';
+		div.ondrag = jsUtils.False;
+		div.onselectstart = jsUtils.False;
+		div.style.MozUserSelect = 'none';
 	}
 
 	this.PopupHide = function()

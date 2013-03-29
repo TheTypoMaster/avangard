@@ -4,14 +4,18 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/themes/blue/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/styles/additional.css');
 endif;
-$GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/js/main/utils.js"></script>', true);
-$GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/components/bitrix/forum.interface/templates/.default/script.js"></script>', true);
+$GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/main/utils.js");
+$GLOBALS['APPLICATION']->AddHeadScript("/bitrix/components/bitrix/forum.interface/templates/.default/script.js");
 /********************************************************************
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
 $iIndex = rand();
 //$arResult["FID"] = (is_array($arResult["FID"]) ? $arResult["FID"] : array($arResult["FID"]));
+$arParams["SEO_USER"] = (in_array($arParams["SEO_USER"], array("Y", "N", "TEXT")) ? $arParams["SEO_USER"] : "Y");
+$arParams["USER_TMPL"] = '<noindex><a rel="nofollow" href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a></noindex>';
+if ($arParams["SEO_USER"] == "N") $arParams["USER_TMPL"] = '<a href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a>';
+elseif ($arParams["SEO_USER"] == "TEXT") $arParams["USER_TMPL"] = '#NAME#';
 /********************************************************************
 				/Input params
 ********************************************************************/
@@ -84,7 +88,7 @@ endif;
 if ($arResult["MESSAGE"] == "N" || empty($arResult["MESSAGE"])):
 ?>
 			<tbody>
- 				<tr class="forum-row-first forum-row-odd">
+				<tr class="forum-row-first forum-row-odd">
 					<td class="forum-first-column" colspan="5"><?=GetMessage("PM_EMPTY_FOLDER")?></td>
 				</tr>
 			<tbody>
@@ -104,13 +108,15 @@ else:
 	foreach ($arResult["MESSAGE"] as $res):
 		$iCount++;
 ?>
- 				<tr onmouseup="OnRowClick(<?=$res["ID"]?>, this);" id="message_row_<?=$res["ID"]?>" class="<?=($iCount == 1 ? "forum-row-first " : (
-				 $iCount == count($arResult["MESSAGE"]) ? "forum-row-last " : ""))?><?=($iCount%2 == 1 ? "forum-row-odd" : "forum-row-even")?> <?
-				 	?><?=($res["IS_READ"] != "Y" ? "forum-pmessage-new" : "")?>">
+				<tr onmouseup="OnRowClick(<?=$res["ID"]?>, this);" id="message_row_<?=$res["ID"]?>" class="<?=($iCount == 1 ? "forum-row-first " : (
+				$iCount == count($arResult["MESSAGE"]) ? "forum-row-last " : ""))?><?=($iCount%2 == 1 ? "forum-row-odd" : "forum-row-even")?> <?
+					?><?=($res["IS_READ"] != "Y" ? "forum-pmessage-new" : "")?>">
 					<td class="forum-first-column">
 						<a href="<?=$res["pm_read"]?>" onmouseup="FCancelBubble(event);" class="<?
 							?><?=($res["IS_READ"] != "Y" ? "forum-pmessage-new" : "")?>"><?=$res["POST_SUBJ"]?></a></td>
-					<td><a href="<?=$res["profile_view"]?>" onmouseup="FCancelBubble(event)"><?=$res["SHOW_NAME"]?></a></td>
+					<td><span onmouseup="FCancelBubble(event)"><?
+						?><?=str_replace(array("#URL#", "#NAME#"), array($res["profile_view"], $res["SHOW_NAME"]), $arParams["USER_TMPL"])?></span>
+					</td>
 					<td><?=$res["POST_DATE"]?></td>
 					<td class="forum-last-column forum-column-action">
 						<input type=checkbox name="message[]" id="message_id_<?=$res["ID"]?>" value="<?=$res["ID"]?>" <?

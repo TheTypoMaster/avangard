@@ -24,7 +24,7 @@ table.bx-edit-tabs td.bx-tab-left-hover div.empty {width:3px; height:29px; backg
 table.bx-edit-tabs td.bx-tab-right-hover div.empty {width:18px; height:29px; background-image:url(images/edit/tab_r_hov.gif);}
 table.bx-edit-tabs td.bx-tab-hover {vertical-align:top; padding:8px 3px 0px 10px; background-image:url(images/edit/tab_bg_hov.gif);}
 
-table.bx-edit-tabs a.bx-context-button {display:block; border:0px; margin:1px; outline:none; float:right;}
+table.bx-edit-tabs a.bx-context-button {display:inline-block; border:0px; margin:1px; outline:none;}
 table.bx-edit-tabs a.bx-context-button:hover {margin:0px; border:1px solid #AEB6C2; background-color:#DBE3F2;}
 table.bx-edit-tabs a.bx-context-button span {cursor:pointer; display:inline-block; background-repeat:no-repeat; background-position:3px 3px; height:18px; width:18px; border:0px;}
 table.bx-edit-tabs a.bx-down span {background-image:url(images/buttons/show.gif); }

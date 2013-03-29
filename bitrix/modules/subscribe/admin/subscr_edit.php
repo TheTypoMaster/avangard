@@ -175,8 +175,8 @@ $tabControl->BeginNextTab();
 		<td><?echo GetMessage("subscr_active")?></td>
 		<td><input type="checkbox" name="ACTIVE" value="Y"<?if($str_ACTIVE == "Y") echo " checked"?>></td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span>E-Mail:</td>
+	<tr class="adm-detail-required-field">
+		<td>E-Mail:</td>
 		<td><input type="text" name="EMAIL" value="<?echo $str_EMAIL;?>" size="30" maxlength="255"></td>
 	</tr>
 	<tr>
@@ -201,9 +201,10 @@ $tabControl->BeginNextTab();
 		<td><input type="radio" id="FORMAT_1" name="FORMAT" value="text"<?if($str_FORMAT == "text") echo " checked"?>><label for="FORMAT_1"><?echo GetMessage("subscr_fmt_text")?></label>&nbsp;/<input type="radio" id="FORMAT_2" name="FORMAT" value="html"<?if($str_FORMAT == "html") echo " checked"?>><label for="FORMAT_2">HTML</label></td>
 	</tr>
 	<tr>
-		<td width="40%"><?echo GetMessage("subscr_rub")?></td>
+		<td width="40%" class="adm-detail-valign-top"><?echo GetMessage("subscr_rub")?></td>
 		<td width="60%">
-		<?
+			<div class="adm-list">
+			<?
 			if($bVarsFromForm)
 				$aSubscrRub = is_array($RUB_ID)? $RUB_ID: array();
 			else
@@ -211,10 +212,12 @@ $tabControl->BeginNextTab();
 
 			$rsRubrics = CRubric::GetList(array("LID"=>"ASC", "SORT"=>"ASC", "NAME"=>"ASC"), array("ACTIVE"=>"Y"));
 			while($arRubric = $rsRubrics->GetNext()):?>
-				<input type="checkbox" id="RUB_ID_<?echo $arRubric["ID"]?>" name="RUB_ID[]" value="<?echo $arRubric["ID"]?>"<?if(in_array($arRubric["ID"], $aSubscrRub)) echo " checked"?>>
-				<label for="RUB_ID_<?echo $arRubric["ID"]?>"><?echo "[".$arRubric["LID"]."] ".$arRubric["NAME"]?></label><br>
-			<?endwhile;
-		?>
+				<div class="adm-list-item">
+					<div class="adm-list-control"><input type="checkbox" id="RUB_ID_<?echo $arRubric["ID"]?>" name="RUB_ID[]" value="<?echo $arRubric["ID"]?>"<?if(in_array($arRubric["ID"], $aSubscrRub)) echo " checked"?>></div>
+					<div class="adm-list-label"><label for="RUB_ID_<?echo $arRubric["ID"]?>"><?echo "[".$arRubric["LID"]."] ".$arRubric["NAME"]?></label></div>
+				</div>
+			<?endwhile;?>
+			</div>
 		</td>
 	</tr>
 <?
@@ -240,9 +243,6 @@ $tabControl->End();
 $tabControl->ShowWarnings("subscrform", $message);
 ?>
 
-<?echo BeginNote();?>
-<span class="required">*</span><?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote();?>
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 ?>

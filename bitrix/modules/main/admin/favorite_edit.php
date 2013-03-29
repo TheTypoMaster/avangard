@@ -17,7 +17,7 @@ function UserInfo($USER_ID)
 		return "";
 	$user = CUser::GetByID($USER_ID);
 	if($user_arr = $user->Fetch())
-		return '[<a title="'.GetMessage("MAIN_USER_PROFILE").'" href="user_edit.php?ID='.$user_arr["ID"].'&amp;lang='.LANG.'">'.$user_arr["ID"].'</a>] ('.htmlspecialchars($user_arr["LOGIN"]).') '.htmlspecialchars($user_arr["NAME"]).' '.htmlspecialchars($user_arr["LAST_NAME"]);
+		return '[<a title="'.GetMessage("MAIN_USER_PROFILE").'" href="user_edit.php?ID='.$user_arr["ID"].'&amp;lang='.LANG.'">'.$user_arr["ID"].'</a>] ('.htmlspecialcharsbx($user_arr["LOGIN"]).') '.htmlspecialcharsbx($user_arr["NAME"]).' '.htmlspecialcharsbx($user_arr["LAST_NAME"]);
 }
 
 if(!$USER->CanDoOperation('edit_own_profile') && !$USER->CanDoOperation('edit_other_settings') && !$USER->CanDoOperation('view_other_settings'))
@@ -50,6 +50,7 @@ if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<
 		"MODIFIED_BY"	=> $USER->GetID(),
 		"NAME"			=> $_POST['NAME'],
 		"URL"			=> $_POST['URL'],
+		"MENU_ID"		=> $_POST['MENU_ID'],
 		"COMMENTS"		=> $_POST['COMMENTS'],
 		"LANGUAGE_ID"	=> $_POST['LANGUAGE_ID'],
 	);
@@ -96,8 +97,8 @@ if($_SERVER['REQUEST_METHOD']=="POST" && ($_POST['save']<>"" || $_POST['apply']<
 
 if($_REQUEST["encoded"] == "Y")
 	CUtil::decodeURIComponent($_REQUEST["name"]);
-$str_NAME = htmlspecialchars($_REQUEST["name"]);
-$str_URL = htmlspecialchars($_REQUEST["addurl"]);
+$str_NAME = htmlspecialcharsbx($_REQUEST["name"]);
+$str_URL = htmlspecialcharsbx($_REQUEST["addurl"]);
 $str_C_SORT = 100;
 $str_COMMON = 'N';
 $str_USER_ID = $USER->GetID();
@@ -164,7 +165,7 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 <input type="hidden" name="ID" value=<?=$ID?>>
 <input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
 <?if($_REQUEST["addurl"]<>""):?>
-<input type="hidden" name="addurl" value="<?echo htmlspecialchars($_REQUEST["addurl"])?>">
+<input type="hidden" name="addurl" value="<?echo htmlspecialcharsbx($_REQUEST["addurl"])?>">
 <?endif;?>
 <?
 $tabControl->Begin();
@@ -182,12 +183,12 @@ $tabControl->BeginNextTab();
 		<td><?=$str_DATE_CREATE?> / <?echo UserInfo($str_CREATED_BY)?></td>
 	</tr>
 	<? endif; ?>
-	<tr>
-		<td width="40%"><span class="required">*</span><?=GetMessage("MAIN_NAME")?></td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?=GetMessage("MAIN_NAME")?></td>
 		<td width="60%"><input type="text" name="NAME" size="45" maxlength="255" value="<?=$str_NAME?>"></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><?echo GetMessage("fav_edit_link")?></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("fav_edit_link")?></td>
 		<td><input type="text" name="URL" size="45" maxlength="2000" value="<?=$str_URL?>"></td>
 	</tr>
 	<tr>
@@ -198,8 +199,12 @@ $tabControl->BeginNextTab();
 		<td><?echo GetMessage("fav_edit_lang")?></td>
 		<td><?echo CLanguage::SelectBox("LANGUAGE_ID", $str_LANGUAGE_ID)?></td>
 	</tr>
-	<tr valign="top">
-		<td><?=GetMessage("MAIN_COMMENTS")?></td>
+	<tr>
+		<td width="40%"><?=GetMessage("MAIN_MENU_ID")?></td>
+		<td width="60%"><input type="text" name="MENU_ID" size="45" maxlength="255" value="<?=$str_MENU_ID?>"></td>
+	</tr>
+	<tr>
+		<td class="adm-detail-valign-top"><?=GetMessage("MAIN_COMMENTS")?></td>
 		<td><textarea name="COMMENTS" class="textarea" rows="5" cols="40"><?echo $str_COMMENTS?></textarea></td>
 	</tr>
 <?
@@ -231,7 +236,7 @@ if($isAdmin):
 $a = CModule::GetDropDownList();
 while($ar = $a->Fetch()):
 ?>
-	<option value="<?echo htmlspecialchars($ar["REFERENCE_ID"])?>"<?if($ar["REFERENCE_ID"] == $str_MODULE_ID) echo " selected"?>><?echo htmlspecialchars($ar["REFERENCE"])?></option>
+	<option value="<?echo htmlspecialcharsbx($ar["REFERENCE_ID"])?>"<?if($ar["REFERENCE_ID"] == $str_MODULE_ID) echo " selected"?>><?echo htmlspecialcharsbx($ar["REFERENCE"])?></option>
 <?endwhile?>
 </select>
 <script type="text/javascript">
@@ -260,9 +265,6 @@ $tabControl->End();
 $tabControl->ShowWarnings("favform", $message);
 ?>
 
-<?echo BeginNote();?>
-<span class="required">*</span> <?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote();?>
 <?
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php"); 
 ?>

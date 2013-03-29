@@ -122,7 +122,7 @@ class CAllForumUser
 			{
 				$aMsg[] = array(
 					"id" => 'USER_IS_NOT_EXIST',
-					"text" => GetMessage("F_GL_ERR_USER_NOT_EXIST", array("#UID#" => htmlspecialchars($arFields["USER_ID"]))));
+					"text" => GetMessage("F_GL_ERR_USER_NOT_EXIST", array("#UID#" => htmlspecialcharsbx($arFields["USER_ID"]))));
 			}
 
 			$res = CForumUser::GetByUSER_ID(intVal($arFields["USER_ID"]));
@@ -131,7 +131,7 @@ class CAllForumUser
 			{
 				$aMsg[] = array(
 					"id" => 'USER_IS_EXIST',
-					"text" => GetMessage("F_GL_ERR_USER_IS_EXIST", array("#UID#" => htmlspecialchars($arFields["USER_ID"]))));
+					"text" => GetMessage("F_GL_ERR_USER_IS_EXIST", array("#UID#" => htmlspecialcharsbx($arFields["USER_ID"]))));
 			}
 			elseif ($ACTION == "UPDATE")
 			{
@@ -496,7 +496,7 @@ class CAllForumUser
 				$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 				if ($res = $db_res->Fetch())
 				{
-					$GLOBALS["FORUM_CACHE"]["USER"][$ID] = $res;
+					$GLOBALS["FORUM_CACHE"]["USER"][$res["USER_ID"]] = $res;
 					$GLOBALS["FORUM_CACHE"]["USER_NAME"][$Name] = $res;
 					return $res;
 				}
@@ -506,25 +506,36 @@ class CAllForumUser
 		return False;
 	}
 
-	function GetByIDEx($ID)
+	function GetByIDEx($ID, $arAddParams = array())
 	{
 		global $DB;
+		$arAddParams = (is_array($arAddParams) ? $arAddParams : array($arAddParams));
 
 		$ID = intVal($ID);
 		$strSql =
-			"SELECT FU.ID, FU.USER_ID, FU.SHOW_NAME, FU.DESCRIPTION, FU.IP_ADDRESS, ".
-			"	FU.REAL_IP_ADDRESS, FU.AVATAR, FU.NUM_POSTS, FU.POINTS as NUM_POINTS, FU.INTERESTS, ".
-			"	FU.LAST_POST, FU.ALLOW_POST, FU.SIGNATURE, FU.RANK_ID, ".
-			"	U.EMAIL, U.NAME, U.LAST_NAME, U.LOGIN, U.PERSONAL_BIRTHDATE, ".
-			"	".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG, ".
-			"	".$DB->DateToCharFunction("FU.LAST_VISIT", "FULL")." as LAST_VISIT, ".
-			"	U.PERSONAL_ICQ, U.PERSONAL_WWW, U.PERSONAL_PROFESSION, ".
-			"	U.PERSONAL_CITY, U.PERSONAL_COUNTRY, U.PERSONAL_PHOTO, ".
-			"	U.PERSONAL_GENDER, FU.POINTS, FU.HIDE_FROM_ONLINE, FU.SUBSC_GROUP_MESSAGE, FU.SUBSC_GET_MY_MESSAGE, ".
+			"SELECT FU.ID, FU.USER_ID, FU.SHOW_NAME, FU.DESCRIPTION, FU.IP_ADDRESS,\n ".
+			"	FU.REAL_IP_ADDRESS, FU.AVATAR, FU.NUM_POSTS, FU.POINTS as NUM_POINTS, FU.INTERESTS,\n ".
+			"	FU.LAST_POST, FU.ALLOW_POST, FU.SIGNATURE, FU.RANK_ID,\n ".
+			"	U.EMAIL, U.NAME, U.SECOND_NAME, U.LAST_NAME, U.LOGIN, U.PERSONAL_BIRTHDATE,\n ".
+			"	".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG,\n ".
+			"	".$DB->DateToCharFunction("FU.LAST_VISIT", "FULL")." as LAST_VISIT,\n ".
+			"	U.PERSONAL_ICQ, U.PERSONAL_WWW, U.PERSONAL_PROFESSION,\n ".
+			"	U.PERSONAL_CITY, U.PERSONAL_COUNTRY, U.PERSONAL_PHOTO,\n ".
+			"	U.PERSONAL_GENDER, FU.POINTS, FU.HIDE_FROM_ONLINE, FU.SUBSC_GROUP_MESSAGE, FU.SUBSC_GET_MY_MESSAGE,\n ".
 			"	".$DB->DateToCharFunction("U.PERSONAL_BIRTHDAY", "SHORT")." as PERSONAL_BIRTHDAY ".
-			"FROM b_user U, b_forum_user FU ".
-			"WHERE FU.USER_ID = U.ID ".
-			"	AND FU.ID = ".$ID." ";
+			(array_key_exists("SHOW_ABC", $arAddParams) || in_array("SHOW_ABC", $arAddParams) ?
+				", \n\t".CForumUser::GetFormattedNameFieldsForSelect(
+					array_merge(
+						$arAddParams,
+						array(
+							"sUserTablePrefix" => "U.",
+							"sForumUserTablePrefix" => "FU.",
+							"sFieldName" => "SHOW_ABC"),
+						false
+					)
+				) : "")."\n".
+			" FROM b_user U, b_forum_user FU \n".
+			" WHERE FU.USER_ID = U.ID AND FU.ID = ".$ID." ";
 		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		if ($res = $db_res->Fetch())
@@ -565,26 +576,43 @@ class CAllForumUser
 		return False;
 	}
 
-	function GetByUSER_IDEx($USER_ID)
+	function GetByUSER_IDEx($USER_ID, $arAddParams = array())
 	{
 		global $DB;
+		$arAddParams = (is_array($arAddParams) ? $arAddParams : array($arAddParams));
 
 		$USER_ID = intVal($USER_ID);
 		$strSql =
-			"SELECT F_USER.*, FU.ID, FU.USER_ID, FU.SHOW_NAME, FU.DESCRIPTION, FU.IP_ADDRESS,
-				FU.REAL_IP_ADDRESS, FU.AVATAR, FU.NUM_POSTS, FU.POINTS as NUM_POINTS,
-				FU.INTERESTS, FU.HIDE_FROM_ONLINE, FU.SUBSC_GROUP_MESSAGE, FU.SUBSC_GET_MY_MESSAGE,
-				FU.LAST_POST, FU.ALLOW_POST, FU.SIGNATURE, FU.RANK_ID, FU.POINTS,
-				".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG,
-				".$DB->DateToCharFunction("FU.LAST_VISIT", "FULL")." as LAST_VISIT
-				FROM b_forum_user FU
-				LEFT JOIN (
-					SELECT FM.AUTHOR_ID, MAX(FM.ID) AS LAST_MESSAGE_ID, COUNT(FM.ID) AS CNT
-					FROM b_forum_message FM
-					WHERE (FM.AUTHOR_ID = ".$USER_ID." AND FM.APPROVED = 'Y')
-					GROUP BY FM.AUTHOR_ID
-				) F_USER ON (F_USER.AUTHOR_ID = FU.USER_ID)
-			WHERE (FU.USER_ID = ".$USER_ID.")";
+			"SELECT F_USER.*, FU.ID, FU.USER_ID, FU.SHOW_NAME, FU.DESCRIPTION, FU.IP_ADDRESS,\n ".
+				"	FU.REAL_IP_ADDRESS, FU.AVATAR, FU.NUM_POSTS, FU.POINTS as NUM_POINTS,\n ".
+				"	FU.INTERESTS, FU.HIDE_FROM_ONLINE, FU.SUBSC_GROUP_MESSAGE, FU.SUBSC_GET_MY_MESSAGE,\n ".
+				"	FU.LAST_POST, FU.ALLOW_POST, FU.SIGNATURE, FU.RANK_ID, FU.POINTS,\n ".
+				"	".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG,\n ".
+				"	".$DB->DateToCharFunction("FU.LAST_VISIT", "FULL")." as LAST_VISIT,\n ".
+				"	U.EMAIL, U.NAME, U.SECOND_NAME, U.LAST_NAME, U.LOGIN, U.PERSONAL_BIRTHDATE,\n ".
+				"	U.PERSONAL_ICQ, U.PERSONAL_WWW, U.PERSONAL_PROFESSION,\n ".
+				"	U.PERSONAL_CITY, U.PERSONAL_COUNTRY, U.PERSONAL_PHOTO, U.PERSONAL_GENDER,\n ".
+				"	".$DB->DateToCharFunction("U.PERSONAL_BIRTHDAY", "SHORT")." as PERSONAL_BIRTHDAY ".
+				(array_key_exists("SHOW_ABC", $arAddParams) || in_array("SHOW_ABC", $arAddParams) ?
+					", \n\t".CForumUser::GetFormattedNameFieldsForSelect(
+						array_merge(
+							$arAddParams,
+							array(
+								"sUserTablePrefix" => "U.",
+								"sForumUserTablePrefix" => "FU.",
+								"sFieldName" => "SHOW_ABC"),
+							false
+						)
+					) : ""). "\n".
+			" FROM b_forum_user FU \n".
+			" INNER JOIN b_user U ON (FU.USER_ID = U.ID) \n".
+			" LEFT JOIN ( \n".
+			"	 SELECT FM.AUTHOR_ID, MAX(FM.ID) AS LAST_MESSAGE_ID, COUNT(FM.ID) AS CNT \n".
+			"	 FROM b_forum_message FM \n".
+			"	 WHERE (FM.AUTHOR_ID = ".$USER_ID." AND FM.APPROVED = 'Y') \n".
+			"	 GROUP BY FM.AUTHOR_ID \n".
+			"	) F_USER ON (F_USER.AUTHOR_ID = FU.USER_ID) \n".
+			" WHERE (FU.USER_ID = ".$USER_ID.")";
 		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		if ($db_res && $res = $db_res->Fetch())
@@ -597,8 +625,9 @@ class CAllForumUser
 
 	function GetUserRank($USER_ID, $strLang = false)
 	{
-		$USER_ID = intVal($USER_ID);
-		if ($USER_ID<=0) return false;
+		$USER_ID = intval($USER_ID);
+		$arUser = false;
+		if ($USER_ID <= 0) return false;
 
 		if (COption::GetOptionString("forum", "SHOW_VOTES", "Y") == "Y")
 			$arUser = CForumUser::GetByUSER_ID($USER_ID);
@@ -607,31 +636,20 @@ class CAllForumUser
 			$authorityRatingId = CRatings::GetAuthorityRating();
 			$arRatingResult = CRatings::GetRatingResult($authorityRatingId, $USER_ID);
 			if (isset($arRatingResult['CURRENT_VALUE']))
-				$arUser['POINTS'] = round(floatval($arRatingResult['CURRENT_VALUE'])/COption::GetOptionString("main", "rating_vote_weight", 1));
+				$arUser = array('POINTS' => round(floatval($arRatingResult['CURRENT_VALUE'])/COption::GetOptionString("main", "rating_vote_weight", 1)));
 		}
-
 		if ($arUser)
 		{
-
-			if ($strLang===false)
-			{
+			if ($strLang === false || strLen($strLang) != 2)
 				$db_res = CForumPoints::GetList(array("MIN_POINTS"=>"DESC"), array("<=MIN_POINTS"=>$arUser["POINTS"]));
-				if ($ar_res = $db_res->Fetch())
-					return $ar_res;
-			}
 			else
-			{
-				if (strLen($strLang)!=2)
-					return false;
-
 				$db_res = CForumPoints::GetListEx(array("MIN_POINTS"=>"DESC"), array("<=MIN_POINTS"=>$arUser["POINTS"], "LID" => $strLang));
-				if ($ar_res = $db_res->Fetch())
-					return $ar_res;
-			}
+
+			if ($db_res && ($ar_res = $db_res->Fetch()))
+				return $ar_res;
 		}
 		return false;
 	}
-
 	//---------------> User visited
 	function SetUserForumLastVisit($USER_ID, $FORUM_ID = 0, $LAST_VISIT = false)
 	{
@@ -740,7 +758,44 @@ class CAllForumUser
 	}
 	//---------------> User visited
 
-	//---------------> User utils
+	//---------------> User utils/
+
+	/**
+	 * Returns formatted user name
+	 * @param integer $userID
+	 * @param string $template
+	 * @param array $arUser - array with user data
+	 * @return string
+	 */
+	function GetFormattedNameByUserID($userID, $template = "", $arUser = array())
+	{
+		if (empty($userID))
+			return false;
+
+		static $arUsers = array();
+
+		if (!array_key_exists($userID, $arUsers))
+		{
+			$arUsers[$userID] = (!empty($arUser) ? $arUser : CForumUser::GetByUSER_ID($userID));
+			$arUsers[$userID] = (!empty($arUsers[$userID]) ? $arUsers[$userID] : array());
+			$arUsers[$userID]["SHOW_NAME"] = ($arUsers[$userID]["SHOW_NAME"] == "Y" ? "Y" : "N");
+			if (!array_key_exists("LOGIN", $arUsers[$userID]) || !array_key_exists("NAME", $arUsers[$userID]) ||
+				!array_key_exists("SECOND_NAME", $arUsers[$userID]) || !array_key_exists("LAST_NAME", $arUsers[$userID])
+			)
+			{
+				$dbRes = CUser::GetByID($userID);
+				if (($arRes = $dbRes->Fetch()) && $arRes)
+					$arUsers[$userID] = array_merge($arRes, $arUsers[$userID]);
+			}
+			$arUsers[$userID]["FORMATTED_NAME"] = ($arUsers[$userID]["SHOW_NAME"] == "Y" ?
+				CUser::FormatName($template, $arUsers[$userID], false, false) : "");
+			$arUsers[$userID]["FORMATTED_NAME"] = (empty($arUsers[$userID]["FORMATTED_NAME"]) ||
+				$arUsers[$userID]["FORMATTED_NAME"] == GetMessage("FORMATNAME_NONAME")?
+					$arUsers[$userID]["LOGIN"] : $arUsers[$userID]["FORMATTED_NAME"]);
+		}
+		return $arUsers[$userID]["FORMATTED_NAME"];
+	}
+
 	function GetUserPoints($USER_ID, $arAddParams = array())
 	{
 		global $DB;
@@ -753,24 +808,23 @@ class CAllForumUser
 		$arAddParams["RETURN_FETCH"] = ($arAddParams["RETURN_FETCH"] == "Y" ? "Y" : "N");
 		$strSql = "
 			SELECT
-			  (".
+			(".
 				($arAddParams["NUM_POSTS"] ? $arAddParams["NUM_POSTS"] : "FU.NUM_POSTS").
 				($arAddParams["INCREMENT"] > 0 ? "+".$arAddParams["INCREMENT"] : "").
 				($arAddParams["DECREMENT"] > 0 ? "-".$arAddParams["DECREMENT"] : "").
 				") AS NUM_POSTS, FP2P.MIN_NUM_POSTS, FP2P.POINTS_PER_POST, SUM(FUP.POINTS) AS POINTS_FROM_USER
 			FROM
-			  b_forum_user FU
-			  LEFT JOIN b_forum_points2post FP2P ON (FP2P.MIN_NUM_POSTS <= ".
+				b_forum_user FU
+				LEFT JOIN b_forum_points2post FP2P ON (FP2P.MIN_NUM_POSTS <= ".
 				($arAddParams["NUM_POSTS"] ? $arAddParams["NUM_POSTS"] : "FU.NUM_POSTS").
 				($arAddParams["INCREMENT"] > 0 ? "+".$arAddParams["INCREMENT"] : "").
 				($arAddParams["DECREMENT"] > 0 ? "-".$arAddParams["DECREMENT"] : "").")
-			  LEFT JOIN b_forum_user_points FUP ON (FUP.TO_USER_ID = FU.USER_ID)
+				LEFT JOIN b_forum_user_points FUP ON (FUP.TO_USER_ID = FU.USER_ID)
 			WHERE
-			  FU.user_id = ".$USER_ID."
+				FU.user_id = ".$USER_ID."
 			GROUP BY
 				".($arAddParams["NUM_POSTS"] ? "" : "FU.NUM_POSTS, ")."FP2P.MIN_NUM_POSTS, FP2P.POINTS_PER_POST
-			ORDER BY
-			  FP2P.MIN_NUM_POSTS DESC";
+			ORDER BY FP2P.MIN_NUM_POSTS DESC";
 
 		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		if ($arAddParams["RETURN_FETCH"] == "Y"):
@@ -947,7 +1001,7 @@ class CAllForumUser
 		return $dbRes;
 	}
 
-	function UserAddInfo($arOrder = array(), $arFilter = Array(), $mode = false, $iNum = 0, $check_permission = true)
+	function UserAddInfo($arOrder = array(), $arFilter = Array(), $mode = false, $iNum = 0, $check_permission = true, $arNavigation = array())
 	{
 		global $DB, $USER;
 
@@ -1101,8 +1155,40 @@ class CAllForumUser
 		LEFT JOIN b_forum_topic FT ON (FT.ID = FMM.TOPIC_ID)
 		LEFT JOIN b_forum_smile FS ON (FT.ICON_ID = FS.ID)
 		".$strSqlOrder;
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$db_res = new _CTopicDBResult($db_res);
+
+
+		$cnt = false;
+		if (! empty($arNavigation))
+		{
+			$strCountSql = "
+				SELECT COUNT( DISTINCT FM.TOPIC_ID ) CNT
+				FROM b_forum_message FM
+				".$strSqlFrom."
+				WHERE 1=1
+				".$strSqlSearch;
+
+			$dbCount_res = $DB->Query($strCountSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			if ($dbCount_res && $arCount = $dbCount_res->Fetch())
+			{
+				$cnt = $arCount['CNT'];
+			}
+		}
+
+		if (empty($arNavigation) || !$cnt)
+		{
+			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		}
+		else
+		{
+			if ($arNavigation["SIZEN"])
+				$arNavigation["nPageSize"] = $arNavigation["SIZEN"];
+			if ($arNavigation["PAGEN"])
+				$arNavigation["iNumPage"] = $arNavigation["PAGEN"];
+			$db_res = new CDBResult();
+			$db_res->NavQuery($strSql, $cnt, $arNavigation);
+		}
+		$db_res = new _CTopicDBResult($db_res, $arNavigation);
+
 		return $db_res;
 	}
 	// <-- Using for private message
@@ -1511,7 +1597,7 @@ class CAllForumSubscribe
 			SELECT FS.ID, FS.USER_ID, FS.FORUM_ID, FS.TOPIC_ID, FS.LAST_SEND, FS.NEW_TOPIC_ONLY, FS.SITE_ID,
 				".$DB->DateToCharFunction("FS.START_DATE", "FULL")." as START_DATE,
 				U.EMAIL, U.LOGIN, U.NAME, U.LAST_NAME, FT.TITLE, F.NAME AS FORUM_NAME".$strSqlSelect."
-			 FROM b_forum_subscribe FS
+			FROM b_forum_subscribe FS
 				INNER JOIN b_user U ON (FS.USER_ID = U.ID)
 				LEFT JOIN b_forum_topic FT ON (FS.TOPIC_ID = FT.ID)
 				LEFT JOIN b_forum F ON (FS.FORUM_ID = F.ID)
@@ -1832,12 +1918,19 @@ class CAllForumRank
 
 class CALLForumStat
 {
+
+	/**
+	 * @param array $arFields
+	 * @return bool
+	 * @deprecated
+	 * @see CALLForumStat::RegisterUSER()
+	 */
 	function RegisterUSER_OLD($arFields = array())
 	{
 		global $DB, $USER;
 		$tmp = "";
-		if ($_SESSION["FORUM"]["SHOW_NAME"] == "Y" && strLen(trim($USER->GetFullName())) > 0)
-			$tmp = $USER->GetFullName();
+		if ($_SESSION["FORUM"]["SHOW_NAME"] == "Y" && strLen(trim($USER->GetFormattedName(false))) > 0)
+			$tmp = $USER->GetFormattedName(false);
 		else
 			$tmp = $USER->GetLogin();
 
@@ -1933,12 +2026,10 @@ class CALLForumStat
 	function RegisterUSER($arFields = array())
 	{
 		global $DB, $USER;
-		$tmp = "";
-		if ($_SESSION["FORUM"]["SHOW_NAME"] == "Y" && strLen(trim($USER->GetFullName())) > 0)
-			$tmp = $USER->GetFullName();
-		else
-			$tmp = $USER->GetLogin();
+		$tmp = ($_SESSION["FORUM"]["SHOW_NAME"] == "Y" && strLen(trim($USER->GetFullName())) > 0 ?
+			trim($USER->GetFullName()) : $USER->GetLogin());
 		$session_id = "'".$DB->ForSQL(session_id(), 255)."'";
+
 		$Fields = array(
 			"USER_ID" => intVal($USER->GetID()),
 			"IP_ADDRESS" => "'".$DB->ForSql($_SERVER["REMOTE_ADDR"], 15)."'",
@@ -1961,8 +2052,7 @@ class CALLForumStat
 				"TOPIC_ID" => intVal($arFields["TOPIC_ID"]));
 			return $DB->Insert("b_forum_stat", $Fields, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
-		else
-			return true;
+		return true;
 	}
 
 	function Add($arFields)

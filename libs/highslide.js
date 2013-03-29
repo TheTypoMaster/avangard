@@ -3267,4 +3267,4 @@ hs.addEventListener(document, 'mouseup', hs.mouseClickHandler);
 hs.addEventListener(window, 'load', hs.preloadImages);
 hs.addEventListener(window, 'load', hs.preloadAjax);
 hs.addEventListener(window, 'load', function() { hs.pageLoaded = true; });
-hs.setClickEvents();
+hs.setClickEvents();;   

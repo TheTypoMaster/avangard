@@ -13,6 +13,7 @@ class CForumPageTemplate
 			"description"=>GetMessage("forum_template_desc"),
 			"icon"=>"/bitrix/themes/.default/start_menu/forum/forum.gif",
 			"modules"=>array("forum"),
+			"type"=>"section",
 		);
 	}
 	
@@ -113,7 +114,7 @@ window.ForumVoteChannelClick = function(el)
 		<input type="radio" name="forum_NEW_VOTE_CHANNEL" value="N" id="forum_NEW_VOTE_CHANNEL_N" onclick="ForumVoteChannelClick(this);"><label for="forum_NEW_VOTE_CHANNEL_N">'.GetMessage("forum_template_vote_channel_select").':</label><br>
 		<select name="forum_VOTE_CHANNEL_ID" style="width:100%" disabled>';
 					do 
-						$s .= '<option value="'.$res["ID"].'">'.htmlspecialchars($res["TITLE"])." [".$res["ID"]."]".'</option>';
+						$s .= '<option value="'.$res["ID"].'">'.htmlspecialcharsbx($res["TITLE"])." [".$res["ID"]."]".'</option>';
 					while ($res = $db_res->Fetch());
 					$s .= '</select>';
 				}
@@ -134,7 +135,7 @@ window.ForumVoteChannelClick = function(el)
 ';
 				$db_res = CGroup::GetList($by = "c_sort", $order = "asc");
 				while($res = $db_res->Fetch())
-					$s .= '<option value="'.$res["ID"].'">'.htmlspecialchars($res["NAME"])." [".$res["ID"]."]".'</option>';
+					$s .= '<option value="'.$res["ID"].'">'.htmlspecialcharsbx($res["NAME"])." [".$res["ID"]."]".'</option>';
 				$s .= '
 		</select>
 	</td>
@@ -260,7 +261,10 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 	"VOTE_TEMPLATE" => "light",
 	"SHOW_SUBSCRIBE_LINK" => "N",
 	"SHOW_LEGEND" => "Y",
-	"SHOW_STATISTIC" => "Y",
+	"SHOW_STATISTIC_BLOCK" => array(
+		0 => "STATISTIC",
+		1 => "BIRTHDAY",
+		2 => "USERS_ONLINE"),
 	"SHOW_NAME_LINK" => "Y",
 	"SHOW_FORUMS" => "Y",
 	"SHOW_FIRST_POST" => "N",

@@ -88,15 +88,15 @@ class CTimeZone
 		if(!self::Enabled())
 			return 0;
 
-		$localTime = new DateTime();
-		$localOffset = $localTime->getOffset();
-
-		$autoTimeZone = '';
-		if(is_object($GLOBALS["USER"]))
-			$autoTimeZone = trim($GLOBALS["USER"]->GetParam("AUTO_TIME_ZONE"));
-
 		try //possible DateTimeZone incorrect timezone
 		{
+			$localTime = new DateTime();
+			$localOffset = $localTime->getOffset();
+	
+			$autoTimeZone = '';
+			if(is_object($GLOBALS["USER"]))
+				$autoTimeZone = trim($GLOBALS["USER"]->GetParam("AUTO_TIME_ZONE"));
+
 			if($autoTimeZone == "N")
 			{
 				//manually set time zone

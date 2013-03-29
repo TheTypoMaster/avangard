@@ -201,4 +201,6 @@ $MESS["CL_SECURITY_MODULE_NOT_INSTALLED"] = "Das Modul Proaktiver Schutz ist nic
 $MESS["CL_LICENSE_KEY_NONE_ACTIVATE"] = "Lizenzschlüssel ist <a href=\"/bitrix/admin/update_system.php?lang=#LANG#\" target=\"_blank\">nicht aktiviert</a>.";
 $MESS["CL_LICENSE_KEY_ACTIVATE"] = "Lizenzschlüssel ist aktiviert.";
 $MESS["CL_EMPTY_PASS"] = "Leeres Datenbankpasswort.";
+$MESS["CL_QSEC0080"] = "Test zur Entdeckung von Sicherheitslücken im Code";
+$MESS["CL_QSEC0080_DESC"] = "Der Code wird auf offensichtliche Sicherheitslücken geprüft.";
 ?>

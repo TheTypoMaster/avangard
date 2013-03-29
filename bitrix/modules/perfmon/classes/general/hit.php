@@ -270,7 +270,7 @@ class CAllPerfomanceHit
 				".implode(", ", $arQueryOrder)."
 			";
 		}
-		//echo "<pre>",htmlspecialchars($strSql),"</pre><hr>";
+		//echo "<pre>",htmlspecialcharsbx($strSql),"</pre><hr>";
 		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 

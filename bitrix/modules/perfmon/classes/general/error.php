@@ -52,7 +52,7 @@ class CAllPerfomanceError
 				".$strQueryWhere."
 			";
 		}
-		//echo "<pre>",htmlspecialchars($strSql),"</pre><hr>";
+		//echo "<pre>",htmlspecialcharsbx($strSql),"</pre><hr>";
 		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
@@ -202,7 +202,7 @@ class CAllPerfomanceError
 				".implode(", ", $arQueryOrder)."
 			";
 		}
-		//echo "<pre>",htmlspecialchars($strSql),"</pre><hr>";
+		//echo "<pre>",htmlspecialcharsbx($strSql),"</pre><hr>";
 		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 

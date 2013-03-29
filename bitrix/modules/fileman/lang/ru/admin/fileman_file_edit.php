@@ -31,4 +31,5 @@ $MESS ['FILEMAN_FILE_DELETE_CONFIRM'] = "Вы действительно хотите удалить файл?";
 $MESS ['FILEMAN_FILE_EDIT'] = "Редактировать";
 $MESS ['FILEMAN_FILE_TRANS_LINKED'] = "Генерация имени файла из заголовка: Включено";
 $MESS ['FILEMAN_FILE_TRANS_UNLINKED'] = "Генерация имени файла из заголовка: Выключено";
+$MESS ['FILEMAN_APPLY_PROCESS'] = "Применение изменений";
 ?>

@@ -22,9 +22,9 @@
 				$colspan++;
 				if (strlen($arrCol["RESULTS_TABLE_TITLE"])<=0)
 				{
-					$title = ($arrCol["TITLE_TYPE"]=="html") ? strip_tags($arrCol["TITLE"]) : htmlspecialchars($arrCol["TITLE"]);
+					$title = ($arrCol["TITLE_TYPE"]=="html") ? strip_tags($arrCol["TITLE"]) : htmlspecialcharsbx($arrCol["TITLE"]);
 				}
-				else $title = htmlspecialchars($arrCol["RESULTS_TABLE_TITLE"]);
+				else $title = htmlspecialcharsbx($arrCol["RESULTS_TABLE_TITLE"]);
 				?>
 				<td valign="top"><?
 				if ($F_RIGHT>=25) :
@@ -40,9 +40,9 @@
 		endwhile;
 		?>
 	</tr>
-	<? 
+	<?
 	$j=0;
-	while ($result->NavNext(true, "f_")) : 
+	while ($result->NavNext(true, "f_")) :
 		$j++;
 		$arrRESULT_PERMISSION = CFormResult::GetPermissions($f_ID, $v);
 	?>
@@ -74,7 +74,7 @@
 
 			if (!is_array($arrNOT_SHOW_TABLE) || !in_array($arrC["SID"],$arrNOT_SHOW_TABLE)):
 
-			if (($arrC["ADDITIONAL"]=="Y" && $SHOW_ADDITIONAL=="Y") || $arrC["ADDITIONAL"]!="Y") :						
+			if (($arrC["ADDITIONAL"]=="Y" && $SHOW_ADDITIONAL=="Y") || $arrC["ADDITIONAL"]!="Y") :
 		?>
 		<td valign="top" align="left" nowrap><?
 			$arrAnswer = $arrAnswers[$f_ID][$FIELD_ID];
@@ -87,17 +87,17 @@
 						if (strlen(trim($arrA["USER_TEXT"]))>0)
 						{
 							if (intval($arrA["USER_FILE_ID"])<=0)
-								echo htmlspecialchars($arrA["USER_TEXT"])."<br>";
+								echo htmlspecialcharsbx($arrA["USER_TEXT"])."<br>";
 						}
 
 						if (strlen(trim($arrA["ANSWER_TEXT"]))>0)
 						{
-							$answer = "[".htmlspecialchars($arrA["ANSWER_TEXT"])."]";
+							$answer = "[".htmlspecialcharsbx($arrA["ANSWER_TEXT"])."]";
 							if (strlen(trim($arrA["ANSWER_VALUE"]))>0 && $SHOW_ANSWER_VALUE=="Y") $answer .= "&nbsp;"; else $answer .= "<br>";
 							echo $answer;
 						}
 						if (strlen(trim($arrA["ANSWER_VALUE"]))>0 && $SHOW_ANSWER_VALUE=="Y")
-							echo "(".htmlspecialchars($arrA["ANSWER_VALUE"]).")<br>";
+							echo "(".htmlspecialcharsbx($arrA["ANSWER_VALUE"]).")<br>";
 
 						if (intval($arrA["USER_FILE_ID"])>0)
 						{
@@ -108,13 +108,13 @@
 
 							if (intval($arFile["HEIGHT"])>0)
 								echo GetMessage("FORM_HEIGHT").$arFile["HEIGHT"]."<br>";
-							
+
 							if (intval($arFile["WIDTH"])>0)
 								echo GetMessage("FORM_WIDTH").$arFile["WIDTH"]."<br>";
 
 							echo GetMessage("FORM_SIZE").$arFile["FILE_SIZE"]."<br>";
 						}
-			endwhile; 
+			endwhile;
 			?></td>
 		<?
 			endif;
@@ -122,8 +122,8 @@
 		endwhile;
 		?>
 	</tr>
-	<? 
-	endwhile; 
+	<?
+	endwhile;
 	?>
 	<tr valign="top">
 		<td align="left" colspan="<?=$colspan?>"><?=GetMessage("FORM_TOTAL")?>&nbsp;<?echo $result->SelectedRowsCount()?></td>

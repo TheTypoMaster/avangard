@@ -23,7 +23,7 @@ $MESS ['SEC_FILTER_STOP'] = "Добавить IP-адрес атакующего в стоп-лист";
 $MESS ['SEC_FILTER_DURATION'] = "На сколько минут добавлять в стоп-лист";
 $MESS ['SEC_FILTER_ACTION_NOTE_1'] = "Данные будут модифицированы. Например &quot;select&quot; будет заменен на &quot;sel&nbsp;ect&quot;, а &quot;&lt;script&gt;&quot; на &quot;&lt;sc&nbsp;ript&gt;&quot;";
 $MESS ['SEC_FILTER_ACTION_NOTE_2'] = "При такой настройке становится возможной атака, когда действия злоумышленника могут привести к блокировке посетителей сайта.";
-$MESS ['SEC_FILTER_LOG'] = "Занести попытку вторжения в <a href=\"#HREF#\">журнал</a>";
+$MESS ['SEC_FILTER_LOG'] = "Занести попытку вторжения в журнал";
 $MESS ['SEC_FILTER_EXCEPTIONS_TAB'] = "Исключения";
 $MESS ['SEC_FILTER_EXCEPTIONS_TAB_TITLE'] = "К страницам подходящим к условиям фильтрация не будет применяться.";
 $MESS ['SEC_FILTER_SITE'] = "для сайта:";

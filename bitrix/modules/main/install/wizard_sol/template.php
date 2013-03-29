@@ -6,12 +6,12 @@ class WizardTemplate extends CWizardTemplate
 		global $arWizardConfig;
 		$wizard =& $this->GetWizard();
 
-		$formName = htmlspecialchars($wizard->GetFormName());
+		$formName = htmlspecialcharsbx($wizard->GetFormName());
 
-		$nextButtonID = htmlspecialchars($wizard->GetNextButtonID());
-		$prevButtonID = htmlspecialchars($wizard->GetPrevButtonID());
-		$cancelButtonID = htmlspecialchars($wizard->GetCancelButtonID());
-		$finishButtonID = htmlspecialchars($wizard->GetFinishButtonID());
+		$nextButtonID = htmlspecialcharsbx($wizard->GetNextButtonID());
+		$prevButtonID = htmlspecialcharsbx($wizard->GetPrevButtonID());
+		$cancelButtonID = htmlspecialcharsbx($wizard->GetCancelButtonID());
+		$finishButtonID = htmlspecialcharsbx($wizard->GetFinishButtonID());
 
 		$wizardPathCustom = $wizard->GetPath();
 		$wizardPath = "/bitrix/images/main/wizard_sol";

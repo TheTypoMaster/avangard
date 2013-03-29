@@ -18,15 +18,15 @@ if ($arResult["NAV_RESULT"]->bNavStart)
 		{
 			$number_element += $arResult["NAV_RESULT"]->NavRecordCount % $arResult["NAV_RESULT"]->NavPageSize + $arResult["NAV_RESULT"]->NavPageSize;
 			$number_element += ($arResult["NAV_RESULT"]->NavPageSize * ($arResult["NAV_RESULT"]->NavPageCount - $arResult["NAV_RESULT"]->NavPageNomer - 1)) ;
-			
+
 		}
 	}
 	$count_elements = $arResult["NAV_RESULT"]->NavRecordCount;
 	if (!empty($_REQUEST["current"]))
 	{
 		$res = array(
-			"elements" => $arResult["ELEMENT_FOR_JS"], 
-			"start_number" => $number_element, 
+			"elements" => $arResult["ELEMENT_FOR_JS"],
+			"start_number" => $number_element,
 			"status" => "inprogress");
 		if ($arResult["NAV_RESULT"]->bDescPageNumbering)
 		{
@@ -130,7 +130,7 @@ endif;
 					endif;
 					?>} <?
 					if ($arParams["BACK_URL"] != ''):
-						?>jsUtils.Redirect([], '<?= CUtil::JSEscape(htmlspecialchars($arParams["BACK_URL"]))?>');<?
+						?>jsUtils.Redirect([], '<?= CUtil::JSEscape(htmlspecialcharsbx($arParams["BACK_URL"]))?>');<?
 					endif;
 					?>"></div></td>
 			</tr>
@@ -191,7 +191,7 @@ function GetWindowSize()
 		else
 			scrollHeight = document.body.offsetHeight;
 
-		if (document.body.scrollWidth > document.body.offsetWidth || 
+		if (document.body.scrollWidth > document.body.offsetWidth ||
 			(document.compatMode && document.compatMode == "BackCompat") ||
 			(document.documentElement && !document.documentElement.clientWidth)
 		)
@@ -208,32 +208,32 @@ function Show()
 	div = BX('navigator_container');
 	div.style.left = parseInt(document.body.scrollLeft + document.body.clientWidth/2 - 600/2) + "px";
 	div.style.display = "block";
-    var windowSize = GetWindowSize();
-    
-    if (params['x'] != windowSize.innerWidth || params['y'] != windowSize.innerHeight)
-    {
-    	params['x'] = windowSize.innerWidth; params['y'] = windowSize.innerHeight;
-    	if (window.SlideSlider && window.SlideSlider != null)
-    	{
-	    	window.SlideSlider.item_params = {'width' : (windowSize.innerWidth - 40), 'height' : (windowSize.innerHeight - 20)};
-	    	window.SlideSlider.ShowSlider();
-    	}
-    }
+	var windowSize = GetWindowSize();
+
+	if (params['x'] != windowSize.innerWidth || params['y'] != windowSize.innerHeight)
+	{
+		params['x'] = windowSize.innerWidth; params['y'] = windowSize.innerHeight;
+		if (window.SlideSlider && window.SlideSlider != null)
+		{
+			window.SlideSlider.item_params = {'width' : (windowSize.innerWidth - 40), 'height' : (windowSize.innerHeight - 20)};
+			window.SlideSlider.ShowSlider();
+		}
+	}
 }
 
 function to_init(e)
 {
 	var is_loaded = false;
-	try { 
-		is_loaded = (bPhotoPlayerLoad == true); 
+	try {
+		is_loaded = (bPhotoPlayerLoad == true);
 	}
 	catch(e){}
-	
+
 	if (is_loaded)
 	{
 		jsUtils.addEvent(window, "resize", Show);
 		Show();
-		// Source 
+		// Source
 		BPCSourse.prototype.OnBeforeSendData = function()
 		{
 			BX('image-upload').style.display = 'block';
@@ -242,7 +242,7 @@ function to_init(e)
 				var res = BX(jj[ii]);
 				if (res)
 				{
-					if (!res.__onclick) { res.__onclick = res.onclick; } 
+					if (!res.__onclick) { res.__onclick = res.onclick; }
 					res.onclick = function() { return false; }
 				}
 			}
@@ -255,12 +255,12 @@ function to_init(e)
 				var res = BX(jj[ii]);
 				if (res)
 				{
-					res.onclick = res.__onclick; 
+					res.onclick = res.__onclick;
 				}
 			}
 		}
-		
-		// Slider 
+
+		// Slider
 		BPCSlider1 = BPCSlider;
 		BPCSlider1.prototype.ShowItem = function(item_id, number)
 		{
@@ -285,7 +285,7 @@ function to_init(e)
 			params = (typeof params != "object" ? {} : params);
 			return (params['slideshow'] != true);
 		}
-		// Player 
+		// Player
 		BPCPlayer1 = BPCPlayer;
 		BPCPlayer1.prototype.OnStopPlay = function()
 		{
@@ -296,14 +296,14 @@ function to_init(e)
 		{
 			if (BX('play'))
 				BX('play').id = 'pause';
-		}		
-		
+		}
+
 		SlideSlider = new BPCSlider1(
 			<?=CUtil::PhpToJSObject($arResult['ELEMENT_FOR_JS'])?>, // array of elements
 			<?=intVal($arParams["ELEMENT_ID"])?>, // active element
 			<?=intVal($count_elements)?>, // count elements
 			<?=$number_element?> // number element in set
-		); 
+		);
 		var windowSize = GetWindowSize();
 		SlideSlider.item_params = {'width' : (windowSize.innerWidth - 40), 'height' : (windowSize.innerHeight - 20)};
 		SlideSlider.ShowSlider();
@@ -311,7 +311,7 @@ function to_init(e)
 		if (player)
 		{
 			player.params = {
-				period : 2, 
+				period : 2,
 				status : 'paused'
 			};
 			<?if ($play):?>
@@ -320,7 +320,7 @@ function to_init(e)
 		}
 		else
 		{
-			var str = '<?=CUtil::JSEscape(GetMessage("P_ERROR_WHEN_PAGE_LOAD"))?>'; 
+			var str = '<?=CUtil::JSEscape(GetMessage("P_ERROR_WHEN_PAGE_LOAD"))?>';
 			BX("bx_slider_content_item_1").innerHTML = '<div class="error">' + str.replace("#HREF#", window.location.href) + '</div>';
 		}
 	}
@@ -329,9 +329,9 @@ function to_init(e)
 		setTimeout(to_init, 100);
 	}
 }
-if (window.attachEvent) 
+if (window.attachEvent)
 	window.attachEvent("onload", to_init);
-else if (window.addEventListener) 
+else if (window.addEventListener)
 	window.addEventListener("load", to_init, false);
 else
 	setTimeout(to_init, 100);

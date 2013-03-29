@@ -18,6 +18,5 @@ if($arParams["TOOLBAR_ID"] == '')
 	$arParams["TOOLBAR_ID"] = "toolbar_".randString(5);
 else
 	$arParams["TOOLBAR_ID"] = preg_replace("/[^a-z0-9_]/i", "", $arParams["TOOLBAR_ID"]);
-
 $this->IncludeComponentTemplate();
 ?>

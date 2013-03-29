@@ -64,4 +64,7 @@ $MESS["FEN_DELETE_FORUM_CONFIRM"] = "Wollen Sie dieses Forum wirklich löschen? D
 $MESS["FE_ROOT_GROUP"] = "Obere Stufe";
 $MESS["REQUIRE_REINDEX"] = "Eine <a href=\"#LINK#\">Neuindexierung</a> des Forums kann erforderlich sein, wenn der Wert geändert wird.";
 $MESS["ALLOW_TABLE_TITLE"] = "Tabellen erlauben";
+$MESS["ALLOW_ALIGN_TITLE"] = "Ausrichten aktivieren";
+$MESS["DEDUPLICATION"] = "Gleiche Themen";
+$MESS["DEDUPLICATION_TITLE"] = "nicht erlauben";
 ?>

@@ -1,8 +1,9 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetPageProperty("title", "Габаритные размеры мягкой мебели: длина, глубина, ширина, высота. Низкие диваны");
-$APPLICATION->SetTitle("Габаритные размеры мягкой мебели: длина, глубина, ширина, высота. Низкие диваны");
-?> <?$APPLICATION->IncludeComponent(
+$APPLICATION->SetPageProperty("title", "Габаритные размеры мягкой мебели: длина, глубина, ширина, высота. Нестандартные и низкие диваны выкатные со спальным местом.");
+$APPLICATION->SetTitle("Габаритные размеры мягкой мебели: длина, глубина, ширина, высота. Нестандартные и низкие диваны выкатные со спальным местом.");
+?> 
+<div><?$APPLICATION->IncludeComponent(
 	"bitrix:catalog.element",
 	"template_statii_det",
 	Array(
@@ -23,7 +24,6 @@ $APPLICATION->SetTitle("Габаритные размеры мягкой мебели: длина, глубина, ширина
 		"META_KEYWORDS" => "-",
 		"META_DESCRIPTION" => "-",
 		"BROWSER_TITLE" => "-",
-		"DISPLAY_PANEL" => "N",
 		"SET_TITLE" => "N",
 		"SET_STATUS_404" => "N",
 		"ADD_SECTIONS_CHAIN" => "Y",
@@ -44,6 +44,59 @@ $APPLICATION->SetTitle("Габаритные размеры мягкой мебели: длина, глубина, ширина
 		"CACHE_NOTES" => "",
 		"CACHE_GROUPS" => "Y"
 	)
-);?> 
-
+);?></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;">Все, наверное, согласятся с тем, что мягкая мебель больших размеров выгодно подчеркивает пространство гостиной, но можно отойти от правил и смело сказать &ndash; размеры мягкой мебели не имеют никакого значения! Стоит определенно решить, нужен ли диван большой или приобрести изящный низкий диванчик. Любое решение будет бесспорно выигрышно, если определиться, какой размер будет у той или иной мягкой мебели.</span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;">Если раньше, всего несколько лет назад, можно было купить обычный диван, с простым механизмом &laquo;книжка&raquo;, то теперь российский рынок предлагает мягкую мебель на все случаи жизни: выкатные и раскладывающиеся, а также диваны, которые умеют разворачиваться (механизм «французская раскладушка»). Представленный модельный ряд поражает своим разнообразием мебельной продукции по дизайну, стилю и предлагает диваны абсолютно любого размера, будь то мебель для квартиры или для особняка.</span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;">Установив в просторной гостиной угловой диван, можно, тем самым, показать всю презентабельность модной новинки. Мягкий и габаритный диван имеет нестандартный размер и ширину, выкатной механизм позволяет за считанные секунды превратить диван в удобное двуспальное место.</span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;">Узкий диванчик с изящной спинкой, так называемое канапе (не путать с бутербродами), длина которого может не превышать полутора метров, с легкой иронией впишется в интерьер стиля «минимализм». Ширина такого чуда мебельной продукции не превышает сиденья обычного стула. А вот глубина, позволяет удобно расположиться за прочтением любимой книги.</span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;"> 
+    <br />
+   </span></div>
+ 
+<div><span style="background-color: rgb(255, 255, 255); font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 12.727272033691406px; text-indent: 35.4pt;">Если же брать во внимание то, что диван может быть немного длинный, то это, в некотором понимании, даже удобно, так как такая мягкая мебель при раскладывании позволяет представить, что гостиная теперь – спальная, и комната изменится до неузнаваемости.</span></div>
  <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

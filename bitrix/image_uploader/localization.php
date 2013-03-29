@@ -1,6 +1,10 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/".LANGUAGE_ID."/localization.php")));
+$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/".LANGUAGE_ID."/localization.php")));	
+
+if(!file_exists($file))
+	$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/".LangSubst(LANGUAGE_ID)."/localization.php")));	
+
 __IncludeLang($file);
 
 ?>
@@ -24,7 +28,6 @@ language_resources = {
 		AddFolderDialogButtonSkipAllText: "<?=CUtil::JSEscape(GetMessage("AddFolderDialogButtonSkipAllText"))?>", 
 		AddFolderDialogButtonSkipText: "<?=CUtil::JSEscape(GetMessage("AddFolderDialogButtonSkipText"))?>", 
 		AddFolderDialogTitleText: "<?=CUtil::JSEscape(GetMessage("AddFolderDialogTitleText"))?>", 
-<?/*?>
 		AuthenticationRequestBasicText: "<?=CUtil::JSEscape(GetMessage("AuthenticationRequestBasicText"))?>", 
 		AuthenticationRequestButtonCancelText: "<?=CUtil::JSEscape(GetMessage("AuthenticationRequestButtonCancelText"))?>", 
 		AuthenticationRequestButtonOkText: "OK", 
@@ -52,7 +55,6 @@ language_resources = {
 		ButtonUncheckAllText: "<?=CUtil::JSEscape(GetMessage("ButtonUncheckAllText"))?>", 
 
 		CmykImagesAreNotAllowedText: "<?=CUtil::JSEscape(GetMessage("CmykImagesAreNotAllowedText"))?>", 
-<?*/?>
 		DescriptionEditorButtonCancelText: "<?=CUtil::JSEscape(GetMessage("DescriptionEditorButtonCancelText"))?>", 
 		DescriptionEditorButtonOkText: "OK", 
 		
@@ -69,10 +71,8 @@ language_resources = {
 		
 		//To be supplied
 		ErrorDeletingFilesDialogMessageText: "<?=CUtil::JSEscape(GetMessage("ErrorDeletingFilesDialogMessageText"))?>", 
-<?/*?>
 		FileIsTooLargeText: "<?=CUtil::JSEscape(GetMessage("FileIsTooLargeText"))?>", 
 		FileIsTooSmallText: "<?=CUtil::JSEscape(GetMessage("FileIsTooSmallText"))?>", 
-<?*/?>
 		HoursText: "<?=CUtil::JSEscape(GetMessage("HoursText"))?>", 
 		IncludeSubfoldersText: "<?=CUtil::JSEscape(GetMessage("IncludeSubfoldersText"))?>", 
 		KilobytesText: "<?=CUtil::JSEscape(GetMessage("KilobytesText"))?>", 

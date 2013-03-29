@@ -109,7 +109,7 @@ function ConditionShow($arArgs=array())
 <?if (isset($arConditionTypes['false'])):?>
 <div style="display:<?=$arDisplay['false']?>" id="type_false<?=$i?>"><?=GetMessage("TYPES_FALSE_COND")?></div>
 <?endif;?>
-	<div style="display:<?=$arDisplay['folder']?>" value="<?=htmlspecialchars($strFolder)?>" id="type_folder<?=$i?>">
+	<div style="display:<?=$arDisplay['folder']?>" value="<?=htmlspecialcharsbx($strFolder)?>" id="type_folder<?=$i?>">
 	<?
 	CAdminFileDialog::ShowScript(Array
 		(
@@ -122,27 +122,27 @@ function ConditionShow($arArgs=array())
 			"saveConfig" => true,
 		)
 	);
-	?><input title="<?=GetMessage("MAIN_PATH")?>" type="text" size="25" id="fname<?=$i?>" name="<?=$field_name?>[CONDITION_folder]" value="<?=htmlspecialchars($strFolder)?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick<?=$i?>()">
+	?><input title="<?=GetMessage("MAIN_PATH")?>" type="text" size="25" id="fname<?=$i?>" name="<?=$field_name?>[CONDITION_folder]" value="<?=htmlspecialcharsbx($strFolder)?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick<?=$i?>()">
 	</div>
 	<div style="display:<?=$arDisplay['ugroups']?>" id="type_ugroups<?=$i?>">
 		<select title="<?=GetMessage("MAIN_USERGROUPS");?>" multiple size=5 style="width:100%" name="<?=$field_name?>[CONDITION_ugroups][]"><?
 		reset($arGroupsNames);
 		while ($e=each($arGroupsNames))
-			echo '<option value="'.$e[0].'"'.(in_array($e[0], $arSelGroups)?" selected":"").'>'.htmlspecialchars($e[1]).'</option>';
+			echo '<option value="'.$e[0].'"'.(in_array($e[0], $arSelGroups)?" selected":"").'>'.htmlspecialcharsbx($e[1]).'</option>';
 		?></select>
 	</div>
 	<div style="display:<?=$arDisplay['period']?>" id="type_period<?=$i?>">
-		<input title="<?=GetMessage("MAIN_PERIOD_FROM")?>" type="text" size="10" value="<?=htmlspecialchars($strPer_start)?>" name="<?=$field_name?>[CONDITION_period_start]" id="<?=$field_name?>[CONDITION_period_start]">
+		<input title="<?=GetMessage("MAIN_PERIOD_FROM")?>" type="text" size="10" value="<?=htmlspecialcharsbx($strPer_start)?>" name="<?=$field_name?>[CONDITION_period_start]" id="<?=$field_name?>[CONDITION_period_start]">
 		<?=Calendar($field_name."[CONDITION_period_start]",$form)?>
 		-
-		<input title="<?=GetMessage("MAIN_PERIOD_TO")?>" type="text" size="10" value="<?=htmlspecialchars($strPer_end)?>" name="<?=$field_name?>[CONDITION_period_end]">
+		<input title="<?=GetMessage("MAIN_PERIOD_TO")?>" type="text" size="10" value="<?=htmlspecialcharsbx($strPer_end)?>" name="<?=$field_name?>[CONDITION_period_end]">
 		<?=Calendar($field_name."[CONDITION_period_end]",$form)?>
-		<span class="required"><sup>1</sup></span>
+		<span class="required"></span>
 	</div>
 	<div style="display:<?=$arDisplay['url']?>" id="type_url<?=$i?>">
-		<input title="<?=GetMessage("MAIN_URL_FIELD")?>" type="text" size="10" name="<?=$field_name?>[CONDITION_url_param]" value="<?=htmlspecialchars($strUrl_param)?>">
+		<input title="<?=GetMessage("MAIN_URL_FIELD")?>" type="text" size="10" name="<?=$field_name?>[CONDITION_url_param]" value="<?=htmlspecialcharsbx($strUrl_param)?>">
 		=
-		<input title="<?=GetMessage("MAIN_URL_VALUE")?>" type="text" size="10" name="<?=$field_name?>[CONDITION_url_value]" value="<?=htmlspecialchars($strUrl_value)?>">
+		<input title="<?=GetMessage("MAIN_URL_VALUE")?>" type="text" size="10" name="<?=$field_name?>[CONDITION_url_value]" value="<?=htmlspecialcharsbx($strUrl_value)?>">
 	</div>
 	<div style="display:<?=$arDisplay['php']?>" id="type_php<?=$i?>"><input type="text" style="width:100%" size="25" name="<?=$field_name?>[CONDITION_php]" value="<?=htmlspecialcharsex($strCondition)?>" <?echo ((!$USER->CanDoOperation('edit_php')) ? 'disabled' : '');?>></div>
 <?

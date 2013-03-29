@@ -46,4 +46,5 @@ $MESS["MAIN_BFSD_BITRIX_PERMS_W"] = "Eintrag";
 $MESS["MAIN_BFSD_LOAD_DENY_ALERT"] = "Der Schreibzugriff wurde verweigert.";
 $MESS["MAIN_BFSD_FTYPE_XML"] = "XML Dokument";
 $MESS["MAIN_BFSD_NO_PERMS"] = "Sie haben nicht genügend Rechte, um den Dateiauswahl-Dialog zu verwenden";
+$MESS["MAIN_BFSD_FTYPE_ARC"] = "Archiv";
 ?>

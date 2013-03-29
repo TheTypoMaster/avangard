@@ -106,7 +106,7 @@ if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 	{
 		if(strlen($ID)<=0)
 			continue;
-	   	$ID = IntVal($ID);
+		$ID = IntVal($ID);
 		switch($_REQUEST['action'])
 		{
 		case "delete":
@@ -228,8 +228,8 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 $oFilter = new CAdminFilter(
 	$sTableID."_filter",
 	array(
-//	     GetMessage("SU_AF_F_URI"),
-	     GetMessage("SU_AF_F_SHORT_URI"),
+//		GetMessage("SU_AF_F_URI"),
+		GetMessage("SU_AF_F_SHORT_URI"),
 		GetMessage("SU_AF_F_MODIFIED"),
 		GetMessage("SU_AF_F_LAST_USED"),
 	)
@@ -241,20 +241,20 @@ $oFilter = new CAdminFilter(
 <tr>
 	<td><b><?=GetMessage("SU_AF_F_URI")?>:</b></td>
 	<td>
-		<input type="text" size="47" name="find_uri" value="<?echo htmlspecialchars($find_uri)?>">&nbsp;<?=ShowFilterLogicHelp()?>
+		<input type="text" size="47" name="find_uri" value="<?echo htmlspecialcharsbx($find_uri)?>">&nbsp;<?=ShowFilterLogicHelp()?>
 	</td>
 </tr>
 <tr>
 	<td><?echo GetMessage("SU_AF_F_SHORT_URI")?>:</td>
-	<td><input type="text" name="find_short_uri" size="47" value="<?echo htmlspecialchars($find_short_uri)?>"></td>
+	<td><input type="text" name="find_short_uri" size="47" value="<?echo htmlspecialcharsbx($find_short_uri)?>"></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("SU_AF_F_MODIFIED")." (".FORMAT_DATE."):"?></td>
-	<td><?echo CalendarPeriod("find_modified_1", htmlspecialchars($find_modified_1), "find_modified_2", htmlspecialchars($find_modified_2), "find_form","Y")?></td>
+	<td><?echo GetMessage("SU_AF_F_MODIFIED")?>:</td>
+	<td><?echo CalendarPeriod("find_modified_1", htmlspecialcharsbx($find_modified_1), "find_modified_2", htmlspecialcharsbx($find_modified_2), "find_form","Y")?></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("SU_AF_F_LAST_USED")." (".FORMAT_DATE."):"?></td>
-	<td><?echo CalendarPeriod("find_last_used_1", htmlspecialchars($find_last_used_1), "find_last_used_2", htmlspecialchars($find_last_used_2), "find_form","Y")?></td>
+	<td><?echo GetMessage("SU_AF_F_LAST_USED")?>:</td>
+	<td><?echo CalendarPeriod("find_last_used_1", htmlspecialcharsbx($find_last_used_1), "find_last_used_2", htmlspecialcharsbx($find_last_used_2), "find_form","Y")?></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID,"url"=>$APPLICATION->GetCurPage(),"form"=>"find_form"));

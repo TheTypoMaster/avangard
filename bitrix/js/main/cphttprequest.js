@@ -277,3 +277,4 @@ else if (navigator.userAgent)
 		currentBrowserDetected = "Firefox";
 }
 		
+;   

@@ -18,7 +18,6 @@ class CAllPerfomanceTable
 		$arQueryOrder = array();
 		foreach($arOrder as $strColumn => $strDirection)
 		{
-			$strColumn = strtoupper($strColumn);
 			$strDirection = strtoupper($strDirection)=="ASC"? "ASC": "DESC";
 			if(array_key_exists($strColumn, $arFields))
 			{
@@ -33,7 +32,6 @@ class CAllPerfomanceTable
 		$arQuerySelect = array();
 		foreach($arSelect as $strColumn)
 		{
-			$strColumn = strtoupper($strColumn);
 			if(array_key_exists($strColumn, $arFields))
 			{
 				if($arFields[$strColumn]=="datetime")
@@ -91,7 +89,7 @@ class CAllPerfomanceTable
 					".implode(", ", $arQueryOrder)."
 				";
 			}
-			//echo "<pre>",htmlspecialchars($strSql),"</pre><hr>";
+			//echo "<pre>",htmlspecialcharsbx($strSql),"</pre><hr>";
 			return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
 	}

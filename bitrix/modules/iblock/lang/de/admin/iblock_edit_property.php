@@ -46,4 +46,14 @@ $MESS["BT_ADM_IEP_PROP_LINK_IBLOCK"] = "Informationsblock:";
 $MESS["BT_ADM_IEP_PROP_SIZE"] = "Größe der Felder für die Werteeingabe (Zeilen und Spalten):";
 $MESS["BT_ADM_IEP_PROP_DEFAULT"] = "Standardwert:";
 $MESS["BT_ADM_IEP_PROP_USER_TYPE_SETTINGS"] = "Zusätzliche Einstellungen";
+$MESS["BT_ADM_IEP_PROP_HINT_DET"] = "Hilfe:";
+$MESS["BT_ADM_IEP_PROPERTY_NEW"] = "Neue Eigenschaft";
+$MESS["BT_ADM_IEP_PROPERTY_EDIT"] = "Eigenschaft \"#NAME#\" bearbeiten";
+$MESS["BT_ADM_IEP_PROP_SECTION_PROPERTY"] = "Seite zur Elementbearbeitung zeigt an:";
+$MESS["BT_ADM_IEP_LIST"] = "Eigenschaften";
+$MESS["BT_ADM_IEP_DELETE"] = "Löschen";
+$MESS["BT_ADM_IEP_CONFIRM_DEL_MESSAGE"] = "Alle Werte dieser Eigenschaft werden gelöscht. Fortfahren?";
+$MESS["BT_ADM_IEP_PROP_SMART_FILTER"] = "Im Smart-Filter enthalten:";
+$MESS["BT_ADM_IEP_TAB"] = "Eigenschaft";
+$MESS["BT_ADM_IEP_TAB_TITLE"] = "Eigenschaftsparameter";
 ?>

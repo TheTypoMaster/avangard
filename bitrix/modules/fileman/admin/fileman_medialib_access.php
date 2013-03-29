@@ -65,7 +65,7 @@ while($arRes = $res->Fetch())
 ?>
 
 <form method="POST" action="<?= $APPLICATION->GetCurPage()?>?" name="ml_access_form">
-<input type="hidden" name="site" value="<?= htmlspecialchars($site) ?>">
+<input type="hidden" name="site" value="<?= htmlspecialcharsbx($site) ?>">
 <input type="hidden" name="saveperm" value="Y">
 <input type="hidden" name="lang" value="<?= LANG ?>">
 <?= bitrix_sessid_post()?>
@@ -105,10 +105,11 @@ $tabControl->Begin();
 			//for each groups
 			foreach ($arGroups as $arGroup)
 			{
+				$arGroup['ID'] = intVal($arGroup['ID']);
 			?>
 			<tr valign="top">
 				<td>
-					[<a href="/bitrix/admin/group_edit.php?ID=<?= $arGroup['ID']?>&lang=<?=LANGUAGE_ID?>"><?= $arGroup['ID']?></a>]&nbsp;<?= $arGroup['NAME']?>:
+					[<a href="/bitrix/admin/group_edit.php?ID=<?= $arGroup['ID']?>&lang=<?=LANGUAGE_ID?>"><?= $arGroup['ID']?></a>]&nbsp;<?= htmlspecialcharsex($arGroup['NAME'])?>:
 				</td>
 				<td>
 					<select name="g_<?= $arGroup['ID']?>" class="typeselect">

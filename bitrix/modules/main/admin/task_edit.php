@@ -25,7 +25,7 @@ for($i = 0, $l=count($modules);$i < $l;$i++)
 }
 
 /***************************************************************************
-				   Handling GET | POST
+Handling GET | POST
 ****************************************************************************/
 
 $ID = intval($ID);
@@ -165,18 +165,18 @@ if($message)
 <?=bitrix_sessid_post()?>
 <input type="hidden" name="lang" value="<?echo LANG?>">
 <input type="hidden" name="ID" value="<?echo $ID?>">
-<?if(strlen($COPY_ID)>0):?><input type="hidden" name="COPY_ID" value="<?echo htmlspecialchars($COPY_ID)?>"><?endif?>
+<?if(strlen($COPY_ID)>0):?><input type="hidden" name="COPY_ID" value="<?echo htmlspecialcharsbx($COPY_ID)?>"><?endif?>
 <?
 $tabControl->Begin();
 
 $tabControl->BeginNextTab();
 if (isset($_POST['NAME']))
 {
-	$str_NAME = htmlspecialchars($_POST['NAME']);
-	$str_DESCRIPTION = htmlspecialchars($_POST['DESCRIPTION']);
-	$str_MODULE_ID = htmlspecialchars($_POST['MODULE_ID']); 
-	$str_BINDING = htmlspecialchars($_POST['BINDING']); 
-	$str_LETTER = htmlspecialchars($_POST['LETTER']);
+	$str_NAME = htmlspecialcharsbx($_POST['NAME']);
+	$str_DESCRIPTION = htmlspecialcharsbx($_POST['DESCRIPTION']);
+	$str_MODULE_ID = htmlspecialcharsbx($_POST['MODULE_ID']); 
+	$str_BINDING = htmlspecialcharsbx($_POST['BINDING']); 
+	$str_LETTER = htmlspecialcharsbx($_POST['LETTER']);
 }
 
 $dbOperations = COperation::GetList();
@@ -215,14 +215,12 @@ while ($arOperation = $dbOperations->Fetch())
 ?></script><?
 ksort($arOperations);
 ?>
-	<tr valign="top">
-		<td width="40%"><span class="required">*</span>
-		<?=GetMessage('NAME')?>
-		</td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?=GetMessage('NAME')?></td>
 		<td width="60%"><input type="text" name="NAME" size="40" maxlength="100" value="<? echo CTask::GetLangTitle($str_NAME);?>"></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><?=GetMessage('MODULE_ID')?></td>
+	<tr class="adm-detail-required-field">
+		<td><?=GetMessage('MODULE_ID')?></td>
 		<td>
 		<script>
 		var arModules = ['main'];
@@ -230,7 +228,6 @@ ksort($arOperations);
 		<select name="MODULE_ID" id="__module_id_select">
 			<option value="main" <? echo ($str_MODULE_ID == 'main') ? 'selected' : '';?>><?=GetMessage('KERNEL')?></option>
 		<?
-		//$modules = COperation::GetAllowedModules();
 		for($i = 0, $l=count($modules);$i < $l;$i++):
 			$MID = $modules[$i];
 			$def = ($str_MODULE_ID == $MID) ? $str_LETTER : false;
@@ -241,16 +238,16 @@ ksort($arOperations);
 				continue;
 			?>
 			<script>arModules.push('<?=$MID?>');</script>
-			<option value="<?=htmlspecialchars($MID)?>"<?echo ($str_MODULE_ID == $MID? ' selected' : '');?>><?=htmlspecialchars($m->MODULE_NAME);?></option>
+			<option value="<?=htmlspecialcharsbx($MID)?>"<?echo ($str_MODULE_ID == $MID? ' selected' : '');?>><?=htmlspecialcharsbx($m->MODULE_NAME);?></option>
 		<?endfor;?>
 		</select>
 		</td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage('SYS_TITLE')?>:</td>
 		<td><?echo ($str_SYS == 'Y') ? GetMessage("MAIN_YES") : GetMessage("MAIN_NO")?></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?=GetMessage('TASK_BINDING')?>:</td>
 		<td>
 		<?
@@ -271,21 +268,21 @@ ksort($arOperations);
 		</select>
 		</td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage('LETTER')?>:</td>
 		<td>
 		<input type="text" name="LETTER" size="1" maxlength="1" value="<?=$str_LETTER?>">
 		</td>
 	</tr>
-	<tr valign="top">
-		<td><?echo GetMessage('DESCRIPTION')?></td>
+	<tr>
+		<td class="adm-detail-valign-top"><?echo GetMessage('DESCRIPTION')?></td>
 		<td><textarea name="DESCRIPTION" cols="30" rows="5"><? echo CTask::GetLangDescription($str_NAME, $str_DESCRIPTION);?></textarea>
 		</td>
 	</tr>
 	<?$tabControl->BeginNextTab();?>
-	<tr valign="top">
+	<tr>
 		<td colspan="2" align="center">
-		<table border="0" cellpadding="0" cellspacing="0" align="center">
+		<table border="0" cellpadding="5" cellspacing="0" align="center">
 			<tr>
 				<td width="10%" align="center">&nbsp;</td>
 				<td width="90%">&nbsp;</td>
@@ -307,7 +304,7 @@ ksort($arOperations);
 						<input type="checkbox" name="OPERATION_ID[]" id="OPERATION_ID_<?=$ind ?>" value="<?=$arOperation["ID"]?>" <? echo (in_array($arOperation["ID"], $arTaskOperations)) ? " checked" : ''?>>
 						<script>
 						arOperations['<?=$ind?>'] = {
-							name : '<?=$name?>',
+							name : '<?=CUtil::JSEscape($name)?>',
 							module_id : '<?=$arOperation["MODULE_ID"]?>',
 							binding : '<?=$arOperation["BINDING"]?>'
 						}
@@ -381,7 +378,7 @@ ksort($arOperations);
 			{
 				ch = document.getElementById('OPERATION_ID_'+i);
 				var module_id = __module_id_select.value;
-				if (arOperations[i].binding == this.value  && arOperations[i].module_id == module_id)
+				if (arOperations[i].binding == this.value && arOperations[i].module_id == module_id)
 				{
 					document.getElementById('operation_row_'+i).style.display = (jsUtils.IsIE() ? 'block' : 'table-row');
 					if (arOperations[i].was_checked)
@@ -436,6 +433,7 @@ $tabControl->Buttons(array("disabled" => (!$USER->CanDoOperation('edit_tasks') |
 $tabControl->End();
 ?>
 </form>
+
 <?$tabControl->ShowWarnings("form1", $message);?>
 
 <?require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");?>

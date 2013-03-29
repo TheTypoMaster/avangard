@@ -9,7 +9,6 @@ if($APPLICATION->GetGroupRight("search")!="D")
 		"sort" => 200,
 		"text" => GetMessage("mnu_search"),
 		"title" => GetMessage("mnu_search_title"),
-		"url" => "search_index.php?lang=".LANGUAGE_ID,
 		"icon" => "search_menu_icon",
 		"page_icon" => "search_page_icon",
 		"items_id" => "menu_search",
@@ -34,7 +33,6 @@ if($APPLICATION->GetGroupRight("search")!="D")
 			),
 			array(
 				"text" => GetMessage("mnu_statistic"),
-				"url" => "search_phrase_list.php?lang=".LANGUAGE_ID."&amp;set_default=Y",
 				"title" => GetMessage("mnu_statistic_alt"),
 				"items_id" => "menu_search_stat",
 				"items" => array(

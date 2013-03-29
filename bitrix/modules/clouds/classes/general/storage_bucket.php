@@ -13,6 +13,16 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 		$this->_ID = intval($ID);
 	}
 
+	function getBucketArray()
+	{
+		return $this->arBucket;
+	}
+
+	function getService()
+	{
+		return $this->service;
+	}
+
 	function __get($name)
 	{
 		if(!$this->arBucket)
@@ -56,7 +66,7 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 		if(is_array($arFile) && isset($arFile["URN"]))
 			return $this->service->GetFileSRC($this->arBucket, $arFile["URN"]);
 		else
-			return $this->service->GetFileSRC($this->arBucket, $arFile);
+			return preg_replace("'(?<!:)/+'s", "/", $this->service->GetFileSRC($this->arBucket, $arFile));
 	}
 
 	function FileExists($filePath)
@@ -95,14 +105,16 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 		$FILE_NAME = substr($filePath, strlen($DIR_NAME));
 
 		$arListing = $this->service->ListFiles($this->arBucket, $DIR_NAME, false);
-		foreach($arListing["file"] as $i => $name)
-			if($name === $FILE_NAME)
-				return $arListing["file_size"][$i];
-
+		if(is_array($arListing))
+		{
+			foreach($arListing["file"] as $i => $name)
+				if($name === $FILE_NAME)
+					return $arListing["file_size"][$i];
+		}
 		return 0;
 	}
 
-	function GetAllBuckets()
+	static function GetAllBuckets()
 	{
 		self::_init();
 		return self::$arBuckets;
@@ -291,7 +303,7 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 				$arName = explode(".", $arFields["BUCKET"]);
 				$bBadLength = false;
 				foreach($arName as $str)
-					if(strlen($str) < 3 || strlen($str) > 63)
+					if(strlen($str) < 2 || strlen($str) > 63)
 						$bBadLength = true;
 			}
 
@@ -299,7 +311,7 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 				$aMsg[] = array("id" => "BUCKET", "text" => GetMessage("CLO_STORAGE_EMPTY_BUCKET"));
 			if(preg_match("/[^a-z0-9-.]/", $arFields["BUCKET"]))
 				$aMsg[] = array("id" => "BUCKET", "text" => GetMessage("CLO_STORAGE_BAD_BUCKET_NAME"));
-			if(strlen($arFields["BUCKET"]) < 3 || strlen($arFields["BUCKET"]) > 63)
+			if(strlen($arFields["BUCKET"]) < 2 || strlen($arFields["BUCKET"]) > 63)
 				$aMsg[] = array("id" => "BUCKET", "text" => GetMessage("CLO_STORAGE_WRONG_BUCKET_NAME_LENGTH"));
 			if($bBadLength)
 				$aMsg[] = array("id" => "BUCKET", "text" => GetMessage("CLO_STORAGE_WRONG_BUCKET_NAME_LENGTH2"));
@@ -329,7 +341,7 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 		return true;
 	}
 
-	function GetList($arOrder=false, $arFilter=false, $arSelect=false)
+	static function GetList($arOrder=false, $arFilter=false, $arSelect=false)
 	{
 		global $DB;
 
@@ -404,18 +416,21 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 				"TABLE_ALIAS" => "s",
 				"FIELD_NAME" => "s.ID",
 				"FIELD_TYPE" => "int",
+				"MULTIPLE" => false,
 				"JOIN" => false,
 			),
 			"SERVICE_ID" => array(
 				"TABLE_ALIAS" => "s",
 				"FIELD_NAME" => "s.SERVICE_ID",
 				"FIELD_TYPE" => "string",
+				"MULTIPLE" => false,
 				"JOIN" => false,
 			),
 			"BUCKET" => array(
 				"TABLE_ALIAS" => "s",
 				"FIELD_NAME" => "s.BUCKET",
 				"FIELD_TYPE" => "string",
+				"MULTIPLE" => false,
 				"JOIN" => false,
 			),
 		);
@@ -625,6 +640,11 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 		}
 
 		return $arRules;
+	}
+
+	function setHeader($name, $value)
+	{
+		$this->service->setHeader($name, $value);
 	}
 }
 ?>

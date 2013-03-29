@@ -368,6 +368,8 @@ function PopupMenu(id, zIndex, dxShadow)
 		{
 			var row = tbl.insertRow(-1);
 			var cell = row.insertCell(-1);
+			if(items[i]['CLASS'])
+				row.className = items[i]['CLASS'];
 			if(items[i]['SEPARATOR'])
 			{
 				cell.innerHTML = '<div class="popupseparator"><div class="empty"></div></div>';
@@ -375,7 +377,7 @@ function PopupMenu(id, zIndex, dxShadow)
 			else
 			{
 				var s =
-					'<div id="'+this.menu_id+'_item_'+i+'" class="popupitem"'+(items[i]['DISABLED']!=true && items[i]['ONCLICK']? ' '+(items[i]['MENU']? 'ondblclick':'onclick')+'="'+items[i]['ONCLICK']+'"':'')+'>'+
+					'<div id="'+this.menu_id+'_item_'+i+'" class="popupitem"'+(items[i]['DISABLED']!=true && items[i]['ONCLICK']? ' '+(items[i]['MENU']? 'ondblclick':'onclick')+'="'+jsUtils.htmlspecialchars(items[i]['ONCLICK'])+'"':'')+'>'+
 					'	<div style="width:100%;"><table style="width:100% !important" cellpadding="0" cellspacing="0" border="0" dir="ltr">'+
 					'		<tr>'+
 					'			<td class="gutter"'+(items[i]['ID']? ' id="'+items[i]['ID']+'"' : '')+'><div class="icon'+(items[i]['ICONCLASS']? ' '+items[i]['ICONCLASS']:'')+'"'+(items[i]['IMAGE']? ' style="background-image:url('+items[i]['IMAGE']+');"':'')+'></div></td>'+
@@ -500,3 +502,4 @@ function PopupMenu(id, zIndex, dxShadow)
 		}
 	}
 }
+;   

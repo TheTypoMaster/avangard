@@ -36,7 +36,9 @@ $APPLICATION->IncludeComponent(
 		"URL_TEMPLATES_PROFILE_VIEW" => $arResult["URL_TEMPLATES_PROFILE_VIEW"],
 		
 		"CACHE_TYPE" => $arResult["CACHE_TYPE"],
-		"CACHE_TIME" => $arResult["CACHE_TIME"]
+		"CACHE_TIME" => $arResult["CACHE_TIME"],
+
+		"SEO_USER" => $arParams["SEO_USER"]
 	),
 	$component
 );
@@ -75,6 +77,7 @@ $APPLICATION->IncludeComponent(
 		"COUNT" => $arParams["RSS_COUNT"],
 		"PATH_TO_SMILE" =>  $arParams["PATH_TO_SMILE"],
 		"DATE_TIME_FORMAT" =>  $arResult["DATE_TIME_FORMAT"],
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 		
 		"URL_TEMPLATES_RSS" => $arResult["URL_TEMPLATES_RSS"],
 		"URL_TEMPLATES_INDEX" =>  $arResult["URL_TEMPLATES_INDEX"],
@@ -85,6 +88,8 @@ $APPLICATION->IncludeComponent(
 		
 		"CACHE_TYPE" => $arResult["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["RSS_CACHE"],
+
+		"SEO_USER" => $arParams["SEO_USER"]
 	),
 	$component
 );

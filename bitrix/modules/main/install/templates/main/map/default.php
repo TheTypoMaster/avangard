@@ -32,7 +32,7 @@ $im_c = "</TD><TD><IMG SRC=\"/bitrix/images/map/c.gif\" WIDTH=\"12\" HEIGHT=\"22
 $im_c_invert = "</TD><TD><IMG SRC=\"/bitrix/images/map/c-invert.gif\" WIDTH=\"9\" HEIGHT=\"22\" BORDER=0 ALT=\"\">";
 $im_i = "</TD><TD><IMG SRC=\"/bitrix/images/map/i.gif\" WIDTH=\"9\" HEIGHT=\"22\" BORDER=0 ALT=\"\">";
 $im_i_invert = "</TD><TD background=\"/bitrix/images/map/i-invert.gif\">".
- "<IMG SRC=\"/bitrix/images/map/i-invert.gif\" WIDTH=\"12\" HEIGHT=\"22\" BORDER=0 ALT=\"\">";
+	"<IMG SRC=\"/bitrix/images/map/i-invert.gif\" WIDTH=\"12\" HEIGHT=\"22\" BORDER=0 ALT=\"\">";
 $im_m = "</TD><TD><IMG SRC=\"/bitrix/images/map/m.gif\" WIDTH=\"9\" HEIGHT=\"21\" BORDER=0 ALT=\"\">";
 $im_m_invert = "<IMG SRC=\"/bitrix/images/map/m-invert.gif\" WIDTH=\"9\" HEIGHT=\"22\" BORDER=0 ALT=\"\">";
 $im_n = "</TD><TD><IMG SRC=\"/bitrix/images/map/n.gif\" WIDTH=\"9\" HEIGHT=\"21\" BORDER=0 ALT=\"\">";
@@ -41,16 +41,13 @@ $im_p = "</TD><TD><IMG SRC=\"/bitrix/images/map/p.gif\" WIDTH=\"9\" HEIGHT=\"21\
 $im_p_invert = "<IMG SRC=\"/bitrix/images/map/p-invert.gif\" WIDTH=\"9\" HEIGHT=\"21\" BORDER=0 ALT=\"\">";
 $im_t = "</TD><TD><IMG SRC=\"/bitrix/images/map/t.gif\" WIDTH=\"9\" HEIGHT=\"21\" BORDER=0 ALT=\"\">";
 $im_t_invert = "</TD><TD background=\"/bitrix/images/map/i-invert.gif\">".
- "<IMG SRC=\"/bitrix/images/map/t-invert.gif\" WIDTH=\"12\" HEIGHT=\"22\" BORDER=0 ALT=\"\">";
+	"<IMG SRC=\"/bitrix/images/map/t-invert.gif\" WIDTH=\"12\" HEIGHT=\"22\" BORDER=0 ALT=\"\">";
 $im_trans = "</TD><TD><IMG SRC=\"/bitrix/images/map/trans.gif\" WIDTH=\"9\" HEIGHT=\"21\" BORDER=0 ALT=\"\">";
 $im_l = "</TD><TD><IMG SRC=\"/bitrix/images/map/l.gif\" WIDTH=\"9\" HEIGHT=\"21\" BORDER=0 ALT=\"\">";
 $im_l_invert = "</TD><TD><IMG SRC=\"/bitrix/images/map/l-invert.gif\" WIDTH=\"12\" HEIGHT=\"22\" BORDER=0 ALT=\"\">";
 $im_folder = "<img src=\"/bitrix/images/map/folder.gif\" BORDER=0 alt=\"\" hspace=\"3\" width=\"10\" height=\"21\">";
 //$im_null = "<IMG SRC=\"/bitrix/images/1.gif\" WIDTH=\"6\" HEIGHT=\"10\" BORDER=0 ALT=\"\">";
 
-/***************************************************************************
-								  Functions
-***************************************************************************/
 function FindChild(&$map, $iCurrent)
 {
 	global $APPLICATION, $URI_404, $levels;
@@ -157,7 +154,7 @@ print_r($levels);
 			$str = implode(",",$unfolded_arr_temp).",".$id;
 			$link = "</td><td><a href=\"javascript:document.form_$id.submit()\">$im_p_invert</a>";
 		}
-		$frm .= "<form name=\"".htmlspecialchars("form_".$id)."\" action=\"".$URI_404."?$random_number\" method=\"POST\"><input type=\"hidden\" name=\"unfolded\" value=\"".htmlspecialchars($str)."\"><input type=\"hidden\" name=\"local\" value=\"Y\"><input type=\"hidden\" name=\"lang\" value=\"".LANG."\"></form>";
+		$frm .= "<form name=\"".htmlspecialcharsbx("form_".$id)."\" action=\"".$URI_404."?$random_number\" method=\"POST\"><input type=\"hidden\" name=\"unfolded\" value=\"".htmlspecialcharsbx($str)."\"><input type=\"hidden\" name=\"local\" value=\"Y\"><input type=\"hidden\" name=\"lang\" value=\"".LANG."\"></form>";
 	}
 	elseif ($iCurrent>0) $link = "$im_c_invert";
 	else $link = "$im1";
@@ -276,9 +273,6 @@ function GetMapChilds($PARENT_PATH, $PARENT_ID)
 	}
 }
 
-/***************************************************************************
-						   Processing of GET | POST
-****************************************************************************/
 define("IS_SITE_MAP","Y");
 
 if (ERROR_404=="Y")
@@ -295,11 +289,9 @@ if (ERROR_404=="Y")
 	$URI_404 = $dir."map.php";
 }
 
-//session_register("SESS_UNFOLDED");
 if (isset($unfolded)) $_SESSION["SESS_UNFOLDED"] = $unfolded;
 $unfolded_arr = explode(",", $_SESSION["SESS_UNFOLDED"]);
 
-mt_srand ((double) microtime() * 1000000);
 $random_number = mt_rand (1,999999);
 $levels="";
 
@@ -403,12 +395,6 @@ else
 
 if (!isset($_SESSION["SESS_UNFOLDED"])) $unfolded_arr = explode(",", $strFolders);
 
-/*
-echo "MAP_COUNTER = ".$MAP_COUNTER."<br>";
-echo "strFolders = ".$strFolders."<br>";
-echo "<pre>"; print_r($arrMAP); echo "</pre>";
-*/
-
 for ($j=1; $j<=$MAP_COUNTER; $j++)
 {
 	if (count($arrMAP[$j])>0)
@@ -424,17 +410,14 @@ for ($j=1; $j<=$MAP_COUNTER; $j++)
 	}
 	$return .= $s_map;
 }
-/***************************************************************************
-							   HTML form
-****************************************************************************/
 ?>
 <font class="text">[&nbsp;<a href="javascript:document.expand_all.submit()" class="text"><?=GetMessage("MAP_EXPAND_ALL")?></a>&nbsp;]&nbsp;&nbsp;[&nbsp;<a href="javascript:document.collapse_all.submit()" class="text"><?=GetMessage("MAP_COLLAPSE_ALL")?></a>&nbsp;]
 <br><br><?=$return?>
-<form name="expand_all" action="<?=htmlspecialchars($URI_404)?>?<?=htmlspecialchars($random_number)?>" method="POST">
-<input type="hidden" name="unfolded" value="<?=htmlspecialchars($strFolders)?>">
+<form name="expand_all" action="<?=htmlspecialcharsbx($URI_404)?>?<?=htmlspecialcharsbx($random_number)?>" method="POST">
+<input type="hidden" name="unfolded" value="<?=htmlspecialcharsbx($strFolders)?>">
 <input type="hidden" name="lang" value="<?=LANG?>">
 </form>
-<form name="collapse_all" action="<?=htmlspecialchars($URI_404)?>?<?=htmlspecialchars($random_number)?>" method="POST">
+<form name="collapse_all" action="<?=htmlspecialcharsbx($URI_404)?>?<?=htmlspecialcharsbx($random_number)?>" method="POST">
 <input type="hidden" name="unfolded" value="">
 <input type="hidden" name="lang" value="<?=LANG?>">
 </form><?=$frm?>

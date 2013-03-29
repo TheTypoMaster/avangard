@@ -67,12 +67,22 @@ if(($arTABLES = $lAdmin->GroupAction()) && $RIGHT>="W")
 				}
 			}
 			break;
+		case "optimize":
+			$DB->Query("optimize table ".$table_name, false);
+			break;
 		}
 	}
 }
 
 $lAdmin->BeginPrologContent();
-echo "<h4>".GetMessage("PERFMON_TABLES_ALL")."</h4>\n";
+?>
+<h4><?echo GetMessage("PERFMON_TABLES_ALL")?></h4>
+<script>
+hrefs = "";
+rows = new Array();
+prev = '';
+</script>
+<?
 $lAdmin->EndPrologContent();
 
 $arHeaders = array();
@@ -107,10 +117,24 @@ $arHeaders[] = array(
 
 $lAdmin->AddHeaders($arHeaders);
 
+$bShowFullInfo = ($DB->type == "MYSQL")
+	&& (
+		(isset($_REQUEST["full_info"]) && $_REQUEST["full_info"] == "Y")
+		|| (COption::GetOptionInt("perfmon", "tables_show_time", 0) <= 5)
+	);
+
+if($bShowFullInfo)
+	session_write_close();
+
+$stime = time();
 $arAllTables = array();
-$rsData = CPerfomanceTableList::GetList();
+$rsData = CPerfomanceTableList::GetList($bShowFullInfo);
 while($ar = $rsData->Fetch())
 	$arAllTables[] = $ar;
+$etime = time();
+
+if($bShowFullInfo)
+	COption::SetOptionInt("perfmon", "tables_show_time", $etime-$stime);
 
 $rsData = new CDBResult;
 $rsData->InitFromArray($arAllTables);
@@ -119,21 +143,28 @@ $rsData = new CAdminResult($rsData, $sTableID);
 while($arRes = $rsData->NavNext(true, "f_"))
 {
 	$row =& $lAdmin->AddRow($f_TABLE_NAME, $arRes);
-	$row->AddViewField("TABLE_NAME", '<a href="perfmon_table.php?lang='.LANGUAGE_ID.'&amp;table_name='.urlencode($f_TABLE_NAME).'">'.$f_TABLE_NAME.'</a>');
+	$row->AddViewField("TABLE_NAME", '<a class="table_name" id="'.$f_TABLE_NAME.'" href="perfmon_table.php?lang='.LANGUAGE_ID.'&amp;table_name='.urlencode($f_TABLE_NAME).'">'.$f_TABLE_NAME.'</a>');
 	$row->AddViewField("BYTES", CFile::FormatSize($arRes["BYTES"]));
 	$arActions = array();
 	if($DB->type == "MYSQL")
 	{
-		foreach($arEngines as $id => $ar)
-		{
-			if(strtoupper($f_ENGINE_TYPE) != $id)
-				$arActions[] = array(
-					"ICON" => "edit",
-					"DEFAULT" => false,
-					"TEXT" => GetMessage("PERFMON_TABLES_ACTION_CONVERT", array("#ENGINE_TYPE#" => $ar["NAME"])),
-					"ACTION" => $lAdmin->ActionDoGroup($f_TABLE_NAME, "convert", "to=".$id),
-				);
-		}
+		if($bShowFullInfo)
+			foreach($arEngines as $id => $ar)
+			{
+				if(strtoupper($f_ENGINE_TYPE) != $id)
+					$arActions[] = array(
+						"ICON" => "edit",
+						"DEFAULT" => false,
+						"TEXT" => GetMessage("PERFMON_TABLES_ACTION_CONVERT", array("#ENGINE_TYPE#" => $ar["NAME"])),
+						"ACTION" => $lAdmin->ActionDoGroup($f_TABLE_NAME, "convert", "to=".$id),
+					);
+			}
+
+		$arActions[] = array(
+			"DEFAULT" => false,
+			"TEXT" => GetMessage("PERFMON_TABLES_ACTION_OPTIMIZE"),
+			"ACTION" => $lAdmin->ActionDoGroup($f_TABLE_NAME, "optimize"),
+		);
 	}
 	if(count($arActions))
 		$row->AddActions($arActions);
@@ -148,11 +179,24 @@ $lAdmin->AddFooter(
 
 if($DB->type == "MYSQL")
 {
-	$arGroupActions = array();
+	$arGroupActions = array(
+		"optimize" => GetMessage("PERFMON_TABLES_ACTION_OPTIMIZE")
+	);
 	foreach($arEngines as $id => $ar)
 		$arGroupActions["convert_to_".$id] = GetMessage("PERFMON_TABLES_ACTION_CONVERT", array("#ENGINE_TYPE#" => $ar["NAME"]));
 
 	$lAdmin->AddGroupActionTable($arGroupActions);
+
+	if(!$bShowFullInfo)
+	{
+		$lAdmin->BeginEpilogContent();
+		?><script>
+		BX.ready(function(){
+			<?=$sTableID?>.GetAdminList('<?echo $APPLICATION->GetCurPage();?>?lang=<?=LANGUAGE_ID?>&full_info=Y');
+		});
+		</script><?
+		$lAdmin->EndEpilogContent();
+	}
 }
 
 $lAdmin->CheckListMode();
@@ -170,11 +214,22 @@ if(strlen($strLastTables) > 0)
 		sort($arLastTables);
 
 		foreach($arLastTables as $i => $table_name)
-			$arLastTables[$i] = array("NAME" => '<a href="perfmon_table.php?lang='.LANGUAGE_ID.'&amp;table_name='.urlencode($table_name).'">'.$table_name.'</a>');
+		{
+			if($DB->TableExists($table_name))
+			{
+				$arLastTables[$i] = array(
+					"NAME" => '<a href="perfmon_table.php?lang='.LANGUAGE_ID.'&amp;table_name='.urlencode($table_name).'">'.$table_name.'</a>',
+				);
+			}
+			else
+			{
+				unset($arLastTables[$i]);
+			}
+		}
 
-		$sTableID = "t_perfmon_recent_tables";
+		$sTableID2= "t_perfmon_recent_tables";
 
-		$lAdmin2 = new CAdminList($sTableID);
+		$lAdmin2 = new CAdminList($sTableID2);
 
 		$lAdmin2->BeginPrologContent();
 		echo "<h4>".GetMessage("PERFMON_TABLES_RECENTLY_BROWSED")."</h4>\n";
@@ -190,7 +245,7 @@ if(strlen($strLastTables) > 0)
 
 		$rsData = new CDBResult;
 		$rsData->InitFromArray($arLastTables);
-		$rsData = new CAdminResult($rsData, $sTableID);
+		$rsData = new CAdminResult($rsData, $sTableID2);
 
 		$j = 0;
 		while($arRes = $rsData->NavNext(true, "f_"))
@@ -205,7 +260,57 @@ if(strlen($strLastTables) > 0)
 
 	}
 }
+?>
+<h4><?echo GetMessage("PERFMON_TABLES_QUICK_SEARCH")?></h4>
+<input type="text" id="instant-search">
+<script>
+BX.ready(function(){
+	if(location.hash != '#empty')
+		BX('instant-search').value = location.hash.replace(/^#/, '');
+	BX('instant-search').focus();
+	setTimeout(filter_rows, 250);
+});
+var hrefs;
+var rows = new Array();
+var prev = '';
+function filter_rows()
+{
+	var input = BX('instant-search').value;
+	if(input != prev)
+	{
+		prev = input;
+		if(prev.length)
+			location.hash = prev;
+		else
+			location.hash = 'empty';
 
+		var tbody = BX('<?echo $sTableID?>').getElementsByTagName("tbody")[0];
+		if(!hrefs)
+		{
+			hrefs = BX.findChildren(tbody, {tag : 'a', className : 'table_name'}, true);
+			for(var i = 0; i< hrefs.length; i++)
+				rows[i] = BX.findParent(hrefs[i], {'tag' : 'tr'});
+		}
+
+
+		for(var i = 0; i < hrefs.length; i++)
+			if(rows[i].parentNode)
+				rows[i].parentNode.removeChild(rows[i]);
+
+		var j = 0;
+		for(var i = 0; i < hrefs.length; i++)
+		{
+			if(input.length == 0 || hrefs[i].id.indexOf(input) >= 0)
+			{
+				tbody.appendChild(rows[i]);
+				j++;
+			}
+		}
+	}
+	setTimeout(filter_rows, 250);
+}
+</script>
+<?
 $lAdmin->DisplayList();
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

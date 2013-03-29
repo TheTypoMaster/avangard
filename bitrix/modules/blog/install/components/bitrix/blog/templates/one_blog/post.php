@@ -131,6 +131,7 @@ $APPLICATION->IncludeComponent(
 				"PATH_TO_MESSAGES_CHAT" => $arParams["PATH_TO_MESSAGES_CHAT"],
 				"PATH_TO_VIDEO_CALL" => $arParams["PATH_TO_VIDEO_CALL"],
 				"SHOW_RATING" => $arParams["SHOW_RATING"],
+				"RATING_TYPE" => $arParams["RATING_TYPE"],
 				"SMILES_COUNT" => $arParams["SMILES_COUNT"],
 				"IMAGE_MAX_WIDTH" => $arParams["IMAGE_MAX_WIDTH"],
 				"IMAGE_MAX_HEIGHT" => $arParams["IMAGE_MAX_HEIGHT"],
@@ -143,7 +144,8 @@ $APPLICATION->IncludeComponent(
 				"SHOW_SPAM" => $arParams["SHOW_SPAM"],
 				"NO_URL_IN_COMMENTS" => $arParams["NO_URL_IN_COMMENTS"],
 				"NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["NO_URL_IN_COMMENTS_AUTHORITY"],
-				"RATING_TYPE" => $arParams["RATING_TYPE"],
+				"AJAX_POST" => $arParams["AJAX_POST"],
+				"COMMENT_PROPERTY" => $arParams["COMMENT_PROPERTY"],
 			),
 		$component 
 	);

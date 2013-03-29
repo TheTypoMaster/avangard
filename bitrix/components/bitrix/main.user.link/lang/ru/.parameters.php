@@ -22,6 +22,7 @@ $MESS ['MAIN_UL_P_NAME_TEMPLATE_SMITH_COMMA_J'] = "Петров, И.";
 $MESS ['MAIN_UL_P_NAME_TEMPLATE_SMITH_COMMA_J_L'] = "Петров, И. В.";
 $MESS ['MAIN_UL_P_NAME_TEMPLATE_JOHN_SMITH'] = "Иван Петров";
 $MESS ['MAIN_UL_P_NAME_TEMPLATE_JOHN_L_SMITH'] = "Иван В. Петров";
+$MESS ['MAIN_UL_P_NAME_TEMPLATE_SITE'] = "Формат сайта";
 $MESS ['MAIN_UL_P_ID'] = "Код пользователя";
 $MESS ['MAIN_UL_P_LOGIN'] = "Логин";
 $MESS ['MAIN_UL_P_NAME'] = "Имя";

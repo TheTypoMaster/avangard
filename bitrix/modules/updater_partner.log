@@ -28,3 +28,27 @@
 2010-09-22 16:40:30 -  - exec CUpdateClientPartner::GetHTTPPage
 2010-09-22 16:40:30 -  - TIME SearchModulesEx(request) 0.581 sec
 2010-09-22 16:40:30 -  - exec CUpdateClientPartner::ParseServerData
+2012-11-12 18:24:25 -  - exec CUpdateClientPartner::GetUpdatesList
+2012-11-12 18:24:25 -  - exec CUpdateClientPartner::__CollectRequestData
+2012-11-12 18:24:25 -  - utf=N&lang=ru&stable=Y&CANGZIP=Y&SUPD_DBS=MYSQL&XE=N&CLIENT_SITE=www.avangard.biz&LICENSE_KEY=X&SUPD_STS=1&SUPD_URS=0&SUPD_URSA=61&TYPENC=F&CLIENT_PHPVER=5.3.3-7%2Bsqueeze14&dbv=5.1.63&instm=main%2C11.0.13%2CN%3Bseo%2C11.0.0%2CN%3Bblog%2C11.0.7%2CN%3Bform%2C11.0.2%2CN%3Bvote%2C11.0.1%2CN%3Bforum%2C11.0.10%2CN%3Bfileman%2C11.0.4%2CN%3Bcompression%2C11.0.0%2CN%3Bclouds%2C11.0.4%2CN%3Bsubscribe%2C11.0.4%2CN%3Biblock%2C11.0.13%2CN%3Bsecurity%2C11.0.7%2CN%3Bsearch%2C11.0.7%2CN%3Bphotogallery%2C11.0.6%2CN%3Bsocialservices%2C11.0.1%2CN%3Bperfmon%2C11.0.3%2CN
+2012-11-12 18:24:25 -  - exec CUpdateClientPartner::GetHTTPPage
+2012-11-12 18:24:25 -  - TIME GetUpdatesList(request) 0.456 sec
+2012-11-12 18:24:25 -  - exec CUpdateClientPartner::ParseServerData
+2012-11-12 18:24:33 -  - exec CUpdateClientPartner::GetUpdatesList
+2012-11-12 18:24:33 -  - exec CUpdateClientPartner::__CollectRequestData
+2012-11-12 18:24:33 -  - utf=N&lang=ru&stable=Y&CANGZIP=Y&SUPD_DBS=MYSQL&XE=N&CLIENT_SITE=www.avangard.biz&LICENSE_KEY=X&SUPD_STS=1&SUPD_URS=0&SUPD_URSA=61&TYPENC=F&CLIENT_PHPVER=5.3.3-7%2Bsqueeze14&dbv=5.1.63&instm=main%2C11.0.13%2CN%3Bseo%2C11.0.0%2CN%3Bblog%2C11.0.7%2CN%3Bform%2C11.0.2%2CN%3Bvote%2C11.0.1%2CN%3Bforum%2C11.0.10%2CN%3Bfileman%2C11.0.4%2CN%3Bcompression%2C11.0.0%2CN%3Bclouds%2C11.0.4%2CN%3Bsubscribe%2C11.0.4%2CN%3Biblock%2C11.0.13%2CN%3Bsecurity%2C11.0.7%2CN%3Bsearch%2C11.0.7%2CN%3Bphotogallery%2C11.0.6%2CN%3Bsocialservices%2C11.0.1%2CN%3Bperfmon%2C11.0.3%2CN
+2012-11-12 18:24:33 -  - exec CUpdateClientPartner::GetHTTPPage
+2012-11-12 18:24:33 -  - TIME GetUpdatesList(request) 0.462 sec
+2012-11-12 18:24:33 -  - exec CUpdateClientPartner::ParseServerData
+2012-11-12 18:24:59 -  - exec CUpdateClientPartner::GetUpdatesList
+2012-11-12 18:24:59 -  - exec CUpdateClientPartner::__CollectRequestData
+2012-11-12 18:24:59 -  - utf=N&lang=ru&stable=Y&CANGZIP=Y&SUPD_DBS=MYSQL&XE=N&CLIENT_SITE=www.avangard.biz&LICENSE_KEY=X&SUPD_STS=1&SUPD_URS=0&SUPD_URSA=61&TYPENC=F&CLIENT_PHPVER=5.3.3-7%2Bsqueeze14&dbv=5.1.63&instm=main%2C11.0.13%2CN%3Bseo%2C11.0.0%2CN%3Bblog%2C11.0.7%2CN%3Bform%2C11.0.2%2CN%3Bvote%2C11.0.1%2CN%3Bforum%2C11.0.10%2CN%3Bfileman%2C11.0.4%2CN%3Bcompression%2C11.0.0%2CN%3Bclouds%2C11.0.4%2CN%3Bsubscribe%2C11.0.4%2CN%3Biblock%2C11.0.13%2CN%3Bsecurity%2C11.0.7%2CN%3Bsearch%2C11.0.7%2CN%3Bphotogallery%2C11.0.6%2CN%3Bsocialservices%2C11.0.1%2CN%3Bperfmon%2C11.0.3%2CN
+2012-11-12 18:24:59 -  - exec CUpdateClientPartner::GetHTTPPage
+2012-11-12 18:24:59 -  - TIME GetUpdatesList(request) 0.406 sec
+2012-11-12 18:24:59 -  - exec CUpdateClientPartner::ParseServerData
+2012-11-28 22:23:07 -  - exec CUpdateClientPartner::GetUpdatesList
+2012-11-28 22:23:07 -  - exec CUpdateClientPartner::__CollectRequestData
+2012-11-28 22:23:07 -  - utf=N&lang=ru&stable=Y&CANGZIP=Y&SUPD_DBS=MYSQL&XE=N&CLIENT_SITE=www.avangard.biz&LICENSE_KEY=X&SUPD_STS=1&SUPD_URS=0&SUPD_URSA=61&TYPENC=F&CLIENT_PHPVER=5.3.3-7%2Bsqueeze14&dbv=5.1.63&instm=main%2C11.0.13%2CN%3Bseo%2C11.0.0%2CN%3Bblog%2C11.0.7%2CN%3Bform%2C11.0.2%2CN%3Bvote%2C11.0.1%2CN%3Bforum%2C11.0.10%2CN%3Bfileman%2C11.0.4%2CN%3Bcompression%2C11.0.0%2CN%3Bclouds%2C11.0.4%2CN%3Bsubscribe%2C11.0.4%2CN%3Biblock%2C11.0.13%2CN%3Bsecurity%2C11.0.7%2CN%3Bsearch%2C11.0.7%2CN%3Bphotogallery%2C11.0.6%2CN%3Bsocialservices%2C11.0.1%2CN%3Bperfmon%2C11.0.3%2CN
+2012-11-28 22:23:07 -  - exec CUpdateClientPartner::GetHTTPPage
+2012-11-28 22:23:08 -  - TIME GetUpdatesList(request) 0.724 sec
+2012-11-28 22:23:08 -  - exec CUpdateClientPartner::ParseServerData

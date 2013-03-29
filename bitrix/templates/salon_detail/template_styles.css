@@ -78,6 +78,16 @@ top: 0px;
 left: 0px;
 z-index:200; 
 }
+.filter_td1{
+  width: 100%;
+  height:70px;
+  padding: 0px;
+  margin: 0px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index:200; 
+}
 .prokrutka {
 position: absolute;
 width: 100%;
@@ -89,7 +99,17 @@ height: 470px;
 padding: 5px;
 border-bottom: solid 1px #f9f9f9;
 }
-
+.prokrutka1 {
+position: absolute;
+width: 70%;
+top: 80px;
+right: 0px;
+z-index:1; 
+overflow-y:auto;
+height: 470px;
+padding: 5px;
+border-bottom: solid 1px #f9f9f9;
+}
 
 
 .pop-div-right{

@@ -67,10 +67,27 @@ if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="" || $redirect_button!=""
 	LocalRedirect("/bitrix/admin/security_redirect.php?lang=".LANGUAGE_ID.($return_url? "&return_url=".urlencode($_GET["return_url"]): "")."&".$tabControl->ActiveTabParam());
 }
 
+$messageDetails = "";
+if (CSecurityRedirect::IsActive())
+{
+	$messageType = "OK";
+	$messageText = GetMessage("SEC_REDIRECT_ON");
+} else
+{
+	$messageType = "ERROR";
+	$messageText = GetMessage("SEC_REDIRECT_OFF");
+}
+
 $APPLICATION->SetTitle(GetMessage("SEC_REDIRECT_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
+CAdminMessage::ShowMessage(array(
+			"MESSAGE"=>$messageText,
+			"TYPE"=>$messageType,
+			"DETAILS"=>$messageDetails,
+			"HTML"=>true
+		));
 ?>
 <script language="JavaScript">
 <!--
@@ -81,6 +98,9 @@ function addNewRow(tableID)
 	var oRow = tbl.insertRow(cnt-1);
 	var oCell = oRow.insertCell(0);
 	var sHTML=tbl.rows[cnt-2].cells[0].innerHTML;
+
+	//styles hack
+	oCell.style.cssText  = 'padding-bottom:3px;';
 
 	var p = 0;
 	while(true)
@@ -149,26 +169,16 @@ $tabControl->BeginNextTab();
 ?>
 <?if(CSecurityRedirect::IsActive()):?>
 	<tr>
-		<td valign="top" colspan="2" align="left">
-			<span style="color:green;"><b><?echo GetMessage("SEC_REDIRECT_ON")?>.</b></span>
-		</td>
-	</tr>
-	<tr>
-		<td valign="top" colspan="2" align="left">
+		<td colspan="2" align="left">
 			<input type="hidden" name="redirect_active" value="N">
 			<input type="submit" name="redirect_button" value="<?echo GetMessage("SEC_REDIRECT_BUTTON_OFF")?>"<?if(!$RIGHT_W) echo " disabled"?>>
 		</td>
 	</tr>
 <?else:?>
 	<tr>
-		<td valign="top" colspan="2" align="left">
-			<span style="color:red;"><b><?echo GetMessage("SEC_REDIRECT_OFF")?>.</b></span>
-		</td>
-	</tr>
-	<tr>
-		<td valign="top" colspan="2" align="left">
+		<td colspan="2" align="left">
 			<input type="hidden" name="redirect_active" value="Y">
-			<input type="submit" name="redirect_button" value="<?echo GetMessage("SEC_REDIRECT_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?>>
+			<input type="submit" name="redirect_button" value="<?echo GetMessage("SEC_REDIRECT_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?> class="adm-btn-save">
 		</td>
 	</tr>
 <?endif?>
@@ -187,49 +197,58 @@ while($ar = $rs->Fetch())
 {
 	if($ar["IS_SYSTEM"] == "Y")
 		$arSysUrls[] = array(
-			"URL" => htmlspecialchars($ar["URL"]),
-			"PARAMETER_NAME" => htmlspecialchars($ar["PARAMETER_NAME"]),
+			"URL" => htmlspecialcharsbx($ar["URL"]),
+			"PARAMETER_NAME" => htmlspecialcharsbx($ar["PARAMETER_NAME"]),
 		);
 	else
 		$arUsrUrls[] = array(
-			"URL" => htmlspecialchars($ar["URL"]),
-			"PARAMETER_NAME" => htmlspecialchars($ar["PARAMETER_NAME"]),
+			"URL" => htmlspecialcharsbx($ar["URL"]),
+			"PARAMETER_NAME" => htmlspecialcharsbx($ar["PARAMETER_NAME"]),
 		);
 }
 ?>
-<tr valign="top" class="heading">
+<tr class="heading">
 	<td colspan="2"><?echo GetMessage("SEC_REDIRECT_METHODS_HEADER")?></td>
 </tr>
-<tr valign="top">
-	<td width="40%"><?echo GetMessage("SEC_REDIRECT_METHODS")?></td>
+<tr>
+	<td class="adm-detail-valign-top" width="40%"><?echo GetMessage("SEC_REDIRECT_METHODS")?></td>
 	<td width="60%">
-		<label><input type="checkbox" name="redirect_referer_check" value="Y" <?if(COption::GetOptionString("security", "redirect_referer_check") == "Y") echo "checked";?>><?echo GetMessage("SEC_REDIRECT_REFERER_CHECK")?></label><br>
-		<label><input type="checkbox" name="redirect_referer_site_check" value="Y" <?if(COption::GetOptionString("security", "redirect_referer_site_check") == "Y") echo "checked";?>><?echo GetMessage("SEC_REDIRECT_REFERER_SITE_CHECK")?></label><br>
-		<label><input type="checkbox" name="redirect_href_sign" value="Y" <?if(COption::GetOptionString("security", "redirect_href_sign") == "Y") echo "checked";?>><?echo GetMessage("SEC_REDIRECT_HREF_SIGN")?></label><br>
+		<div class="adm-list">
+			<div class="adm-list-item">
+				<div class="adm-list-control"><input type="checkbox" name="redirect_referer_check" id="redirect_referer_check" value="Y" <?if(COption::GetOptionString("security", "redirect_referer_check") == "Y") echo "checked";?>></div>
+				<div class="adm-list-label"><label for="redirect_referer_check"><?echo GetMessage("SEC_REDIRECT_REFERER_CHECK")?></label></div>
+			</div>
+			<div class="adm-list-item">
+				<div class="adm-list-control"><input type="checkbox" name="redirect_referer_site_check" id="redirect_referer_site_check" value="Y" <?if(COption::GetOptionString("security", "redirect_referer_site_check") == "Y") echo "checked";?>></div>
+				<div class="adm-list-label"><label for="redirect_referer_site_check"><?echo GetMessage("SEC_REDIRECT_REFERER_SITE_CHECK")?></label></div>
+			</div>
+			<div class="adm-list-item">
+				<div class="adm-list-control"><input type="checkbox" name="redirect_href_sign" id="redirect_href_sign" value="Y" <?if(COption::GetOptionString("security", "redirect_href_sign") == "Y") echo "checked";?>></div>
+				<div class="adm-list-label"><label for="redirect_href_sign"><?echo GetMessage("SEC_REDIRECT_HREF_SIGN")?></label></div>
+			</div>
+		</div>
 	</td>
 </tr>
-<tr valign="top">
-	<td width="40%"><?echo GetMessage("SEC_REDIRECT_URLS")?></td>
-	<td width="60%">
-	<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbURLS">
-		<tr><td nowrap>
-			<?echo GetMessage("SEC_REDIRECT_SYSTEM")?>
-		</td></tr>
+<tr>
+	<td class="adm-detail-valign-top"><?echo GetMessage("SEC_REDIRECT_URLS")?>:</td>
+	<td>
+		<?echo GetMessage("SEC_REDIRECT_SYSTEM")?><br>
+	<table cellpadding="2" cellspacing="2" border="0" width="100%" id="tbURLS">
 		<?foreach($arSysUrls as $i => $arUrl):?>
-			<tr><td nowrap>
-				<?echo GetMessage("SEC_REDIRECT_URL")?>&nbsp;<input type="text" size="45" name="URLS[<?echo $i?>][URL]" value="<?echo $arUrl["URL"]?>" disabled>&nbsp;<?echo GetMessage("SEC_REDIRECT_PARAMETER_NAME")?>&nbsp;<input type="text" size="25" name="URLS[<?echo $i?>][PARAMETER_NAME]" value="<?echo $arUrl["PARAMETER_NAME"]?>" disabled><br>
+			<tr><td nowrap style="padding-bottom: 3px;">
+				<?echo GetMessage("SEC_REDIRECT_URL")?>&nbsp;<input type="text" size="35" name="URLS[<?echo $i?>][URL]" value="<?echo $arUrl["URL"]?>" disabled>&nbsp;<?echo GetMessage("SEC_REDIRECT_PARAMETER_NAME")?>&nbsp;<input type="text" size="15" name="URLS[<?echo $i?>][PARAMETER_NAME]" value="<?echo $arUrl["PARAMETER_NAME"]?>" disabled><br>
 			</td></tr>
 		<?endforeach;?>
-		<tr><td nowrap>
-			<?echo GetMessage("SEC_REDIRECT_USER")?>
+		<tr><td nowrap style="padding-bottom: 3px;">
+			<br><?echo GetMessage("SEC_REDIRECT_USER")?>
 		</td></tr>
 		<?foreach($arUsrUrls as $i => $arUrl):?>
-			<tr><td nowrap>
-				<?echo GetMessage("SEC_REDIRECT_URL")?>&nbsp;<input type="text" size="45" name="URLS[<?echo $i?>][URL]" value="<?echo $arUrl["URL"]?>">&nbsp;<?echo GetMessage("SEC_REDIRECT_PARAMETER_NAME")?>&nbsp;<input type="text" size="25" name="URLS[<?echo $i?>][PARAMETER_NAME]" value="<?echo $arUrl["PARAMETER_NAME"]?>"><br>
+			<tr><td nowrap style="padding-bottom: 3px;">
+				<?echo GetMessage("SEC_REDIRECT_URL")?>&nbsp;<input type="text" size="35" name="URLS[<?echo $i?>][URL]" value="<?echo $arUrl["URL"]?>">&nbsp;<?echo GetMessage("SEC_REDIRECT_PARAMETER_NAME")?>&nbsp;<input type="text" size="15" name="URLS[<?echo $i?>][PARAMETER_NAME]" value="<?echo $arUrl["PARAMETER_NAME"]?>"><br>
 			</td></tr>
 		<?endforeach;?>
 		<tr><td nowrap>
-			<?echo GetMessage("SEC_REDIRECT_URL")?>&nbsp;<input type="text" size="45" name="URLS[n0][URL]" value="">&nbsp;<?echo GetMessage("SEC_REDIRECT_PARAMETER_NAME")?>&nbsp;<input type="text" size="25" name="URLS[n0][PARAMETER_NAME]" value=""><br>
+			<?echo GetMessage("SEC_REDIRECT_URL")?>&nbsp;<input type="text" size="35" name="URLS[n0][URL]" value="">&nbsp;<?echo GetMessage("SEC_REDIRECT_PARAMETER_NAME")?>&nbsp;<input type="text" size="15" name="URLS[n0][PARAMETER_NAME]" value=""><br>
 		</td></tr>
 		<tr><td>
 			<br><input type="button" value="<?echo GetMessage("SEC_REDIRECT_ADD")?>" onClick="addNewRow('tbURLS')">
@@ -237,11 +256,11 @@ while($ar = $rs->Fetch())
 	</table>
 	</td>
 </tr>
-<tr valign="top" class="heading">
+<tr class="heading">
 	<td colspan="2"><?echo GetMessage("SEC_REDIRECT_ACTIONS_HEADER")?></td>
 </tr>
-<tr valign="top">
-	<td width="40%"><?echo GetMessage("SEC_REDIRECT_ACTIONS")?></td>
+<tr>
+	<td  class="adm-detail-valign-top" width="40%"><?echo GetMessage("SEC_REDIRECT_ACTIONS")?></td>
 	<td width="60%">
 		<script>
 		function Toggle(input)
@@ -266,7 +285,7 @@ while($ar = $rs->Fetch())
 		$l = CLanguage::GetList($lby="sort", $lorder="asc");
 		$arLangs = array();
 		while($ar = $l->GetNext()):?>
-			<tr valign="top">
+			<tr class="adm-detail-valign-top">
 				<td><?echo GetMessage("SEC_REDIRECT_MESSAGE")."(".$ar["LID"].")"?></td>
 				<td><textarea name="redirect_message_warning_<?echo $ar["LID"]?>" id="redirect_message_warning_<?echo $ar["LID"]?>" cols=40 rows=5 <?if($disabled) echo "disabled";?>
 				><?
@@ -275,28 +294,33 @@ while($ar = $rs->Fetch())
 					$mess = trim(COption::GetOptionString("security", "redirect_message_warning"));
 				if(strlen($mess) <= 0)
 					$mess = trim(CSecurityRedirect::GetDefaultMessage($ar["LID"]));
-				echo htmlspecialchars($mess);
+				echo htmlspecialcharsbx($mess);
 				$arLangs[] = $ar["LID"];
 				?></textarea></td>
 			</tr>
 		<?endwhile?>
-		<tr valign="top"><td>
-		<script>
-		var arLangs = <?echo CUtil::PHPToJSObject($arLangs);?>;
-		</script>
-		<?echo GetMessage("SEC_REDIRECT_TIMEOUT")?></td><td><input type="text" name="redirect_message_timeout" id="redirect_message_timeout" value="<?echo COption::GetOptionInt("security", "redirect_message_timeout")?>" size="4" <?if(COption::GetOptionString("security", "redirect_action") == "force_url") echo "disabled";?>><?echo GetMessage("SEC_REDIRECT_TIMEOUT_SEC")?>
-		</td></tr>
+		<tr>
+			<td>
+				<script>
+					var arLangs = <?echo CUtil::PHPToJSObject($arLangs);?>;
+				</script>
+				<?echo GetMessage("SEC_REDIRECT_TIMEOUT")?>
+			</td>
+			<td>
+				<input type="text" name="redirect_message_timeout" id="redirect_message_timeout" value="<?echo COption::GetOptionInt("security", "redirect_message_timeout")?>" size="4" <?if(COption::GetOptionString("security", "redirect_action") == "force_url") echo "disabled";?>><?echo GetMessage("SEC_REDIRECT_TIMEOUT_SEC")?>
+			</td>
+		</tr>
 		</table>
 		<label><input type="radio" name="redirect_action" id="redirect_force_url" value="force_url" <?if(COption::GetOptionString("security", "redirect_action") == "force_url") echo "checked";?> onClick="Toggle(this);"><?echo GetMessage("SEC_REDIRECT_ACTION_REDIRECT")?></label><br>
 		<table style="margin-left:24px">
-		<tr valign="top"><td>
-		<?echo GetMessage("SEC_REDIRECT_ACTION_REDIRECT_URL")?></td><td><input type="text" name="redirect_url" id="redirect_url" value="<?echo htmlspecialchars(COption::GetOptionString("security", "redirect_url"))?>" size="45" <?if(COption::GetOptionString("security", "redirect_action") == "show_message") echo "disabled";?>>
+		<tr><td>
+		<?echo GetMessage("SEC_REDIRECT_ACTION_REDIRECT_URL")?></td><td><input type="text" name="redirect_url" id="redirect_url" value="<?echo htmlspecialcharsbx(COption::GetOptionString("security", "redirect_url"))?>" size="45" <?if(COption::GetOptionString("security", "redirect_action") == "show_message") echo "disabled";?>>
 		</td></tr>
 		</table>
 	</td>
 </tr>
-<tr valign="top">
-	<td width="40%"><label for="filter_log"><?echo GetMessage("SEC_REDIRECT_LOG", array("#HREF#" => "/bitrix/admin/event_log.php?lang=".LANGUAGE_ID."&set_filter=Y&find_type=audit_type_id&find_audit_type[]=SECURITY_REDIRECT&mod=security"))?></label>:</td>
+<tr>
+	<td width="40%"><label for="filter_log"><?echo GetMessage("SEC_REDIRECT_LOG")?></label>:</td>
 	<td width="60%">
 		<input type="checkbox" name="redirect_log" id="redirect_log" value="Y" <?if(COption::GetOptionString("security", "redirect_log") == "Y") echo "checked";?>>
 	</td>

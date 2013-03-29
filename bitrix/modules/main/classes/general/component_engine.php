@@ -129,7 +129,7 @@ class CComponentEngine
 		return array_merge($arDefaultVariableAliases, $arCustomVariableAliases);
 	}
 
-	function MakePathFromTemplate($template, $arParams)
+	function MakePathFromTemplate($template, $arParams = array())
 	{
 		$arPatterns = array("#SITE_DIR#", "#SITE#", "#SERVER_NAME#");
 		$arReplace = array(SITE_DIR, SITE_ID, SITE_SERVER_NAME);

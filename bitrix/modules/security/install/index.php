@@ -64,6 +64,7 @@ Class security extends CModule
 					'security_stat_activity_settings_read',
 					'security_iprule_settings_read',
 					'security_antivirus_settings_read',
+					'security_frame_settings_read',
 				),
 			),
 			'security_full_access' => array(
@@ -94,6 +95,8 @@ Class security extends CModule
 					'security_file_verifier_verify',
 					'security_antivirus_settings_read',
 					'security_antivirus_settings_write',
+					'security_frame_settings_read',
+					'security_frame_settings_write',
 				),
 			),
 		);
@@ -124,6 +127,7 @@ Class security extends CModule
 			RegisterModuleDependences("main", "OnUserDelete", "security", "CSecurityUser", "OnUserDelete");
 			RegisterModuleDependences("main", "OnEventLogGetAuditTypes", "security", "CSecurityFilter", "GetAuditTypes");
 			RegisterModuleDependences("main", "OnEventLogGetAuditTypes", "security", "CSecurityAntiVirus", "GetAuditTypes");
+			RegisterModuleDependences("main", "OnAdminInformerInsertItems", "security", "CSecurityFilter", "OnAdminInformerInsertItems");
 
 			CModule::IncludeModule("security");
 
@@ -149,6 +153,7 @@ Class security extends CModule
 			if(!COption::GetOptionString("security", "ipcheck_disable_file"))
 				COption::SetOptionString("security", "ipcheck_disable_file", "/bitrix/modules/ipcheck_disable_".md5(mt_rand()));
 
+			CAgent::RemoveAgent("CSecurityFilter::ClearTmpFiles();", "security");
 			CSecurityFilter::SetActive(true);
 			CSecurityAntiVirus::SetActive(true);
 
@@ -170,6 +175,7 @@ Class security extends CModule
 		UnRegisterModuleDependences("main", "OnEventLogGetAuditTypes", "security", "CSecurityAntiVirus", "GetAuditTypes");
 		UnRegisterModuleDependences("main", "OnBeforeLocalRedirect", "security", "CSecurityRedirect", "BeforeLocalRedirect");
 		UnRegisterModuleDependences("main", "OnEndBufferContent", "security", "CSecurityRedirect", "EndBufferContent");
+		UnRegisterModuleDependences("main", "OnAdminInformerInsertItems", "security", "CSecurityFilter", "OnAdminInformerInsertItems");
 
 		COption::SetOptionString("main", "session_id_ttl", "60");
 		COption::SetOptionString("main", "use_session_id_ttl", "N");

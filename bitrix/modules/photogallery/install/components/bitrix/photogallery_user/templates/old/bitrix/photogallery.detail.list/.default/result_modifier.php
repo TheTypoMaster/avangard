@@ -4,7 +4,7 @@
 	if (empty($arParams["DetailListViewMode"]) && $arParams["SHOW_CONTROLS"] == "Y")
 	{
 		$DetailListViewMode = ($_REQUEST["view_mode"] == "edit" ? "edit" : "view");
-		
+
 		if ($GLOBALS["USER"]->IsAuthorized())
 		{
 			require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
@@ -17,7 +17,7 @@
 		}
 		$arParams["DetailListViewMode"] = $DetailListViewMode;
 	}
-	
+
 	$arResult["SECTIONS_LIST"] = array();
 	if ($arParams["DetailListViewMode"] == "edit" && $arParams["PERMISSION"] >= "W")
 	{
@@ -54,7 +54,7 @@ $arResult["VOTE_NAMES"] = array();
 foreach($arParams1["VOTE_NAMES"] as $k=>$v)
 {
 	if(strlen($v)>0)
-		$arResult["VOTE_NAMES"][]=htmlspecialchars($v);
+		$arResult["VOTE_NAMES"][]=htmlspecialcharsbx($v);
 	if(count($arResult["VOTE_NAMES"])>=$arParams1["MAX_VOTE"])
 		break;
 }

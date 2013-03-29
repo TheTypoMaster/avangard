@@ -9,7 +9,7 @@ if ($arParams["MULTIPLE"] == "Y")
 	$arParams["DESKTOP_PAGE"] = intval($_REQUEST["dt_page"]);
 
 if (
-	in_array($arParams["MODE"], array("SU", "SG")) 
+	in_array($arParams["MODE"], array("SU", "SG"))
 	&& strlen($arParams["DEFAULT_ID"]) > 0
 )
 {
@@ -20,7 +20,7 @@ if (
 		if (count($arTmp) == 3)
 		{
 			$DefaultIDWOS = implode("_", array_slice($arTmp, 0, 2));
-			$arUserOptionsDefaultWOS = CUserOptions::GetOption("intranet", "~gadgets_".$DefaultIDWOS, false, 0);	
+			$arUserOptionsDefaultWOS = CUserOptions::GetOption("intranet", "~gadgets_".$DefaultIDWOS, false, 0);
 			if ($arUserOptionsDefaultWOS)
 				CUserOptions::SetOption("intranet", "~gadgets_".$arParams["DEFAULT_ID"], $arUserOptionsDefaultWOS, false, 0);
 		}
@@ -33,10 +33,10 @@ if (
 		if (count($arTmp) == 4)
 		{
 			$IDWOS = implode("_", array_merge(array_slice($arTmp, 0, 2), array($arTmp[3])));
-		
-			$arUserOptionsDefaultWOS = CUserOptions::GetOption("intranet", "~gadgets_".$IDWOS, false, 0);	
+
+			$arUserOptionsDefaultWOS = CUserOptions::GetOption("intranet", "~gadgets_".$IDWOS, false, 0);
 			if ($arUserOptionsDefaultWOS)
-				CUserOptions::SetOption("intranet", "~gadgets_".$arParams["ID"], $arUserOptionsDefaultWOS, false, 0);		
+				CUserOptions::SetOption("intranet", "~gadgets_".$arParams["ID"], $arUserOptionsDefaultWOS, false, 0);
 		}
 	}
 }
@@ -56,7 +56,7 @@ else
 if (IsModuleInstalled('intranet'))
 {
 	if (strlen(trim($arParams["NAME_TEMPLATE"])) <= 0)
-		$arParams["NAME_TEMPLATE"] = GetMessage('CMDESKTOP_NAME_TEMPLATE_DEFAULT');
+		$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 	$arParams['SHOW_LOGIN'] = $arParams['SHOW_LOGIN'] != "N" ? "Y" : "N";
 
 	if (!array_key_exists("PM_URL", $arParams))
@@ -70,6 +70,9 @@ if (IsModuleInstalled('intranet'))
 if (!array_key_exists("GADGETS_FIXED", $arParams))
 	$arParams["GADGETS_FIXED"] = array();
 
+$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
+	
 $arResult = Array();
 
 if($USER->IsAuthorized() && $APPLICATION->GetFileAccessPermission($APPLICATION->GetCurPage()) > "R" && !$arParams["DEFAULT_ID"])
@@ -147,8 +150,8 @@ if($USER->IsAuthorized() && $arResult["PERMISSION"]>"R" && check_bitrix_sessid()
 						if($tempgadget["COLUMN"]==0)
 							$arUserOptions["GADGETS"][$tempid]["ROW"]++;
 
-			   		$arUserOptions["GADGETS"][$gdid] = Array("COLUMN"=>0, "ROW"=>0);
-					
+					$arUserOptions["GADGETS"][$gdid] = Array("COLUMN"=>0, "ROW"=>0);
+
 					if ($arParams["MULTIPLE"] == "Y")
 					{
 						$arUserOptionsTmp[$arParams["DESKTOP_PAGE"]] = $arUserOptions;
@@ -160,7 +163,7 @@ if($USER->IsAuthorized() && $arResult["PERMISSION"]>"R" && check_bitrix_sessid()
 				}
 				elseif($_POST['action']=='update')
 				{
-			   		$arUserOptions["GADGETS"][$gdid]["SETTINGS"] = $_POST["settings"];
+					$arUserOptions["GADGETS"][$gdid]["SETTINGS"] = $_POST["settings"];
 
 					if ($arParams["MULTIPLE"] == "Y")
 					{
@@ -247,7 +250,7 @@ if($_REQUEST['gd_ajax']==$arParams["ID"])
 			case 'clear_settings':
 				CUserOptions::DeleteOption("intranet", "~gadgets_".$arParams["ID"], false, $user_option_id);
 				if (
-					in_array($arParams["MODE"], array("SU", "SG")) 
+					in_array($arParams["MODE"], array("SU", "SG"))
 					&& strlen($arParams["DEFAULT_ID"]) > 0
 				)
 				{
@@ -262,7 +265,7 @@ if($_REQUEST['gd_ajax']==$arParams["ID"])
 
 			case 'save_default':
 				GDCSaveSettings($arParams, $_REQUEST['POS']);
-				
+
 				if ($arResult["PERMISSION"] > "W")
 				{
 					$arUserOptions = CUserOptions::GetOption("intranet", "~gadgets_".$arParams["ID"], $arUserOptionsDefault, $user_option_id);
@@ -363,7 +366,7 @@ if (is_array($arUserOptions) && array_key_exists("COLS", $arUserOptions))
 
 if	(intval($arResult["COLS"]) <= 0)
 	$arResult["COLS"] = (
-			intval($arParams["COLUMNS"])>0 
+			intval($arParams["COLUMNS"])>0
 			&& intval($arParams["COLUMNS"])<10
 		)
 		? intval($arParams["COLUMNS"])
@@ -448,17 +451,12 @@ $arGroups = Array(
 				"DESCRIPTION" => GetMessage("CMDESKTOP_GROUP_ADMIN_SETTINGS_DESCR"),
 				"GADGETS" => Array(),
 			),
+		"crm" => Array(
+				"NAME" => GetMessage("CMDESKTOP_GROUP_CRM"),
+				"DESCRIPTION" => GetMessage("CMDESKTOP_GROUP_CRM_DESCR"),
+				"GADGETS" => Array(),
+			),
 		);
-
-if (IsModuleInstalled("crm"))
-{
-	$arGroups["crm"] = array(
-		"NAME" => GetMessage("CMDESKTOP_GROUP_CRM"),
-		"DESCRIPTION" => GetMessage("CMDESKTOP_GROUP_CRM_DESCR"),
-		"GADGETS" => Array(),		
-	);
-}
-		
 
 $arResult["ALL_GADGETS"] = Array();
 $arGadgets = BXGadget::GetList();
@@ -498,18 +496,24 @@ foreach($arGadgets as $gadget)
 		continue;
 	if ($gadget["SALE_ONLY"] == true && !IsModuleInstalled("sale"))
 		continue;
-	if ($gadget["SALE_ONLY"] == true && $gadget["AI_ONLY"] == true && $APPLICATION->GetGroupRight("sale") == "D") 
+	if ($gadget["SALE_ONLY"] == true && $gadget["AI_ONLY"] == true && $APPLICATION->GetGroupRight("sale") == "D")
 		continue;
 	if ($gadget["STATISTIC_ONLY"] == true && !IsModuleInstalled("statistic"))
 		continue;
-	if ($gadget["STATISTIC_ONLY"] == true && $gadget["AI_ONLY"] == true && $APPLICATION->GetGroupRight("statistic") == "D") 
+	if ($gadget["STATISTIC_ONLY"] == true && $gadget["AI_ONLY"] == true && $APPLICATION->GetGroupRight("statistic") == "D")
 		continue;
 	if ($gadget["IBLOCK_ONLY"] == true && !IsModuleInstalled("iblock"))
 		continue;
 	if ($gadget["IBLOCK_ONLY"] == true && $gadget["AI_ONLY"] == true)
 	{
-		$dbIBlock = CIBlock::GetList(Array(), array("MIN_PERMISSION" => (IsModuleInstalled("workflow")?"U":"W")));
-		$arIBlock = $dbIBlock->Fetch();
+		if(CModule::IncludeModule('iblock'))
+		{
+			$dbIBlock = CIBlock::GetList(Array(), array("MIN_PERMISSION" => (IsModuleInstalled("workflow")?"U":"W")));
+			$arIBlock = $dbIBlock->Fetch();
+		}
+		else
+			$arIBlock = false;
+
 		if (!$arIBlock)
 			continue;
 	}
@@ -528,8 +532,8 @@ foreach($arGadgets as $gadget)
 			continue;
 	}
 	if (
-		$gadget["SUPPORT_ONLY"] == true 
-		&& 
+		$gadget["SUPPORT_ONLY"] == true
+		&&
 		(
 			!CModule::IncludeModule("support")
 			|| !$GLOBALS["USER"]->IsAuthorized()
@@ -538,6 +542,8 @@ foreach($arGadgets as $gadget)
 	)
 		continue;
 	if ($gadget["WIKI_ONLY"] == true && !IsModuleInstalled("wiki"))
+		continue;
+	if ($gadget["CRM_ONLY"] == true && !IsModuleInstalled("crm"))
 		continue;
 	if ($gadget["VOTE_ONLY"] == true && (!IsModuleInstalled("vote") || !CBXFeatures::IsFeatureEnabled("Vote")))
 		continue;
@@ -563,7 +569,7 @@ foreach($arGadgets as $gadget)
 		continue;
 	if ($gadget["FRIENDS_ONLY"] == true && !CBXFeatures::IsFeatureEnabled("Friends"))
 		continue;
-		
+
 	if ($GLOBALS["USER"]->IsAuthorized() && $arResult["PERMISSION"] < "W" && $gadget["SELF_PROFILE_ONLY"] == true && $arParams["MODE"] == "SU" && intval($arParams["USER_ID"]) > 0 && $arParams["USER_ID"] != $GLOBALS["USER"]->GetID())
 		continue;
 
@@ -673,7 +679,7 @@ if(is_array($arUserOptions))
 
 				$arGadget["ID"] = $gdid;
 				$arGadget["GADGET_ID"] = $arResult["GADGETS_LIST"][] = $gadget_id;
-				$arGadget["TITLE"] = htmlspecialchars($arGadget["NAME"]);
+				$arGadget["TITLE"] = htmlspecialcharsbx($arGadget["NAME"]);
 				$arGadget["SETTINGS"] = $arGadgetParams;
 
 				if (
@@ -681,8 +687,8 @@ if(is_array($arUserOptions))
 					&& array_key_exists("TITLE_STD", $arGadgetParams)
 					&& strlen($arGadgetParams["TITLE_STD"]) > 0
 				)
-					$arGadget["TITLE"] = htmlspecialchars($arGadgetParams["TITLE_STD"]);
-				
+					$arGadget["TITLE"] = htmlspecialcharsbx($arGadgetParams["TITLE_STD"]);
+
 				$arGadget["HIDE"] = $gadgetUserSettings["HIDE"];
 				if($arParams["PERMISSION"]>"R")
 					$arGadget["USERDATA"] = &$arUserOptions["GADGETS"][$gdid]["USERDATA"];
@@ -690,7 +696,7 @@ if(is_array($arUserOptions))
 					$arGadget["USERDATA"] = $arUserOptions["GADGETS"][$gdid]["USERDATA"];
 				$arGadget["CONTENT"] = BXGadget::GetGadgetContent($arGadget, $arParams);
 				$arResult["GADGETS"][$gadgetUserSettings["COLUMN"]][$gadgetUserSettings["ROW"]] = $arGadget;
-				
+
 				if($arGadget["FORCE_REDIRECT"])
 					$bForceRedirect = true;
 			}
@@ -706,7 +712,7 @@ if(is_array($arUserOptions))
 
 	if($bForceRedirect)
 	{
-	
+
 		if ($arParams["MULTIPLE"] == "Y")
 		{
 			$arUserOptionsTmp[$arParams["DESKTOP_PAGE"]] = $arUserOptions;

@@ -10,4 +10,5 @@ $MESS["RATING_ALLOW_VOTE_SELF"] = "Sie können nicht auf sich selbst abstimmen";
 $MESS["RATING_ALLOW_VOTE_GUEST"] = "Die Abstimmung ist nur den autorisierten Nutzern erlaubt";
 $MESS["RATING_ALLOW_VOTE_COUNT_VOTE"] = "Sie haben Ihr tägliches Stimmenlimit überschritten";
 $MESS["RATING_ALLOW_VOTE_ACCESS"] = "Sie haben für die Abstimmung keine Berechtigung.";
+$MESS["RATING_ALLOW_VOTE_LOW_WEIGHT"] = "Ihre Autorität ist für die Abstimmung unzureichend.";
 ?>

@@ -25,7 +25,7 @@ if($arParams["ELEMENT_ID"] > 0 && $arParams["ELEMENT_ID"]."" != $arParams["~ELEM
 $arParams["ELEMENT_CODE"] = trim($arParams["ELEMENT_CODE"]);
 $arParams["ELEMENT_SORT_FIELD"] = trim($arParams["ELEMENT_SORT_FIELD"]);
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["ELEMENT_SORT_ORDER"]))
-	 $arParams["ELEMENT_SORT_ORDER"]="asc";
+	$arParams["ELEMENT_SORT_ORDER"]="asc";
 
 if(!is_array($arParams["FIELD_CODE"]))
 	$arParams["FIELD_CODE"] = array();
@@ -177,8 +177,10 @@ if($arParams["SHOW_WORKFLOW"] || $this->StartResultCache(false, ($arParams["CACH
 			foreach($arParams["PROPERTY_CODE"] as $pid)
 			{
 				$prop = &$arResult["PROPERTIES"][$pid];
-				if((is_array($prop["VALUE"]) && count($prop["VALUE"])>0) ||
-				   (!is_array($prop["VALUE"]) && strlen($prop["VALUE"])>0))
+				if(
+					(is_array($prop["VALUE"]) && count($prop["VALUE"])>0)
+					|| (!is_array($prop["VALUE"]) && strlen($prop["VALUE"])>0)
+				)
 				{
 					$arResult["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arResult, $prop, "photo_out");
 				}
@@ -278,7 +280,7 @@ if($arParams["SHOW_WORKFLOW"] || $this->StartResultCache(false, ($arParams["CACH
 			$arResult["NEXT"][$key]["PICTURE"] = CFile::GetFileArray($value["PREVIEW_PICTURE"]);
 		foreach($arResult["PREV"] as $key=>$value)
 			$arResult["PREV"][$key]["PICTURE"] = CFile::GetFileArray($value["PREVIEW_PICTURE"]);
-		//echo "<pre>",htmlspecialchars(print_r($arResult,true)),"</pre>";
+		//echo "<pre>",htmlspecialcharsbx(print_r($arResult,true)),"</pre>";
 		$this->SetResultCacheKeys(array(
 			"ID",
 			"IBLOCK_ID",

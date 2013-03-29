@@ -25,9 +25,9 @@ $MESS["RATING_FIELDS_DEF_NAME"] = "Коэффициент:";
 $MESS["RATING_FIELDS_DEF_DESC"] = "Оценка основывается на итогах голосования.";
 $MESS["RATING_FIELDS_DEF_FORMULA"] = "Total * K";
 $MESS["RATING_FIELDS_DEF_FORMULA_DESC"] = "Total - итог голосования; K - коэффициент для итогов голосования, определяемый пользователем.";
-$MESS["RATING_EDIT_FRM_POSITION"] = "Рассчитывать место в рейтинге";
-$MESS["RATING_EDIT_FRM_AUTHORITY"] = "Использовать этот рейтинг для расчёта авторитета";
-$MESS["RATING_EDIT_FRM_NEW_CALC"] = "Обнулить предыдущие результаты рейтинга после сохранения";
+$MESS["RATING_EDIT_FRM_POSITION"] = "Рассчитывать место в рейтинге:";
+$MESS["RATING_EDIT_FRM_AUTHORITY"] = "Использовать этот рейтинг для расчёта авторитета:";
+$MESS["RATING_EDIT_FRM_NEW_CALC"] = "Обнулить предыдущие результаты рейтинга после сохранения:";
 $MESS["RATING_EDIT_CAT_RATING_COMPONENT"] = "Критерии рейтингования";
 $MESS["RATING_EDIT_CAT_WHAT_NEW_CALC"] = "Результаты рейтинга";
 ?>

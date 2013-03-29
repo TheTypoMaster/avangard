@@ -103,7 +103,7 @@ class CForumTabControl
 			</div>
 		</div>
 
-<input type="hidden" id="'.$this->name.'_active_tab" name="'.$this->name.'_active_tab" value="'.htmlspecialchars($this->selectedTab).'">
+<input type="hidden" id="'.$this->name.'_active_tab" name="'.$this->name.'_active_tab" value="'.htmlspecialcharsbx($this->selectedTab).'">
 
 <script>';
 		$s = "";

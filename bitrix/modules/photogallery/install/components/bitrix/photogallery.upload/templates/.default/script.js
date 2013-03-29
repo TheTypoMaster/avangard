@@ -40,11 +40,13 @@
 				{
 					_this.pNewAlbumName.style.display = _this.pAlbumSel.value == 'new' ? '' : 'none';
 					_this.pForm.photo_album_id.value = _this.pAlbumSel.value;
+
+
 					if (_this.pAlbumSel.value == 'new')
 						BX.focus(_this.pNewAlbumName);
 				};
 				this.pNewAlbumName.style.display = this.pAlbumSel.value == 'new' ? '' : 'none';
-				this.pNewAlbumName.onfocus = function(e){this.select();};
+				this.pNewAlbumName.onfocus = function(){this.select();};
 				this.pNewAlbumName.onchange = this.pNewAlbumName.onblur = this.pNewAlbumName.onkeyup = function(){_this.pForm.new_album_name.value = _this.pNewAlbumName.value;};
 
 				this.pForm.photo_album_id.value = this.pAlbumSel.value;
@@ -75,7 +77,7 @@
 
 				if (this.showWatermark)
 				{
-					BX(this.id + '_use_watermark').onclick = function(e){_this.SetUsing(this.checked, true);};
+					BX(this.id + '_use_watermark').onclick = function(){_this.SetUsing(this.checked, true);};
 					this.SetUsing(this.initConfig.watermark.use, false);
 
 					// Watermark type
@@ -183,7 +185,9 @@
 			if (this.oUploadHandler)
 				this.oUploadHandler.Watermark.Copyright(val);
 			this.pForm.photo_watermark_copyright.value = val ? 'Y' : 'N';
-			this.SaveUserOption('copyright', val ? 'Y' : 'N');
+
+			if (bSave !== false)
+				this.SaveUserOption('copyright', val ? 'Y' : 'N');
 		},
 
 		InitTextTypeControls: function()
@@ -458,7 +462,7 @@
 						_this.watermarkPreviewDel.style.display = "block";
 					}
 				}, 200);
-			}
+			};
 			_this.Resize();
 		},
 
@@ -484,7 +488,7 @@
 			if (this.pSeparator)
 				this.pSeparator.style.height = (h - 16) + "px";
 		}
-	}
+	};
 
 	function ColorPicker(oPar)
 	{
@@ -528,7 +532,7 @@
 				colorCell.style.backgroundColor = '#FF0000';
 			};
 			defBut.onmouseout = function(){this.className = 'wm-colpic-def-but';};
-			defBut.onmousedown = function(e){_this.Select('#FF0000');}
+			defBut.onmousedown = function(e){_this.Select('#FF0000');};
 
 			colorCell = row.insertCell(-1);
 			colorCell.colSpan = 8;
@@ -546,13 +550,13 @@
 				cell.style.backgroundColor = arColors[i];
 				cell.id = 'lhe_color_id__' + i;
 
-				cell.onmouseover = function (e)
+				cell.onmouseover = function ()
 				{
 					this.className = 'wm-col-cell wm-col-cell-over';
 					colorCell.style.backgroundColor = arColors[this.id.substring('lhe_color_id__'.length)];
 				};
-				cell.onmouseout = function (e){this.className = 'wm-col-cell';};
-				cell.onmousedown = function (e)
+				cell.onmouseout = function (){this.className = 'wm-col-cell';};
+				cell.onmousedown = function ()
 				{
 					var k = this.id.substring('lhe_color_id__'.length);
 					_this.Select(arColors[k]);
@@ -649,7 +653,7 @@
 		if (this.oPar && typeof this.oPar.OnCreate == 'function')
 			this.oPar.OnCreate(this);
 
-		var i, l = this.oPar.items.length, item;
+		var i, l = this.oPar.items.length;
 		for (i = 0; i < l; i++)
 		{
 			this.oPar.items[i].pItem = BX.create("DIV", {props: {id: 'bxiu__item_' + i, className: "bxiu-popup-but " + this.oPar.classPrefix + this.oPar.items[i].value.toLowerCase()}});
@@ -686,15 +690,12 @@
 			this.oPopup.Show();
 			var
 				pos = BX.pos(this.pWnd),
-				top, left = pos.left;
-
-			if (BX.browser.IsIE() && this.type == 'applet')
-				top = pos.top - parseInt(this.oPopup.Get().offsetHeight) - 2;
-			else
-				top = pos.top + 18;
+				top = pos.top, left = pos.left;
 
 			if (this.oPar.popupOpenType == 'top')
-				top -= this.oPopup.Get().offsetHeight + 18;
+				top -= this.oPopup.Get().offsetHeight;
+			else
+				top += 18;
 
 			this.oPopup.Get().style.top = top + 'px';
 			this.oPopup.Get().style.left = left + 'px';
@@ -734,19 +735,20 @@
 	{
 		this.pCont = BX.create("DIV", {props: {className: "bxiu-opacity"}});
 
-		var pLabel = this.pCont.appendChild(BX.create("DIV", {props: {className: "bxiu-opacity-label"}, text: BXIU_MESS.Opacity}));
+		this.pCont.appendChild(BX.create("DIV", {props: {className: "bxiu-opacity-label"}, text: BXIU_MESS.Opacity}));
 		var pDiv = this.pCont.appendChild(BX.create("DIV", {props: {className: "bxiu-op-div"}}));
 
 		this.oPar = oPar;
 		this.values = [
-			{value:0, title: '0%'},
+			{value:100, title: '0%'},
 			{value:75, title: '25%'},
 			{value:50, title: '50%'},
 			{value:25, title: '75%'}
 		];
+
 		var
 			_this = this,
-			i, l = this.values.length, valCont, cent;
+			i, l = this.values.length, valCont;
 
 		for (i = 0; i < l; i++)
 		{
@@ -754,7 +756,7 @@
 			valCont.appendChild(BX.create("DIV", {props: {className: "bxiu-op-l-corn"}}));
 			valCont.appendChild(BX.create("DIV", {props: {className: "bxiu-op-center"}, html: '<span>' + this.values[i].title + '</span>'}));
 			valCont.appendChild(BX.create("DIV", {props: {className: "bxiu-op-r-corn"}}));
-			valCont.onmousedown = function(e){_this.SelectItem(parseInt(this.id.substr('bxiu_op_item_'.length)));};
+			valCont.onmousedown = function(){_this.SelectItem(parseInt(this.id.substr('bxiu_op_item_'.length)));};
 			this.values[i].cont = valCont;
 		}
 
@@ -774,7 +776,6 @@
 				ind = i;
 			}
 
-			var oItem = this.values[ind].cont;
 			if (this.oPar.OnSelect && typeof this.oPar.OnSelect == 'function')
 				this.oPar.OnSelect(this.values[ind].value);
 
@@ -833,7 +834,6 @@
 
 		Hide: function ()
 		{
-			var _this = this;
 			if (!this.bShowed)
 				return;
 			this.bShowed = false;
@@ -847,12 +847,12 @@
 			if (this.bCreated)
 				this.pWnd.style.width = BX.GetWindowScrollSize().scrollWidth + "px";
 		}
-	}
+	};
 
 	var oTransOverlay = new Overlay();
 
 	/* Upload form */
-	SimpleUploader = function(Params)
+	var SimpleUploader = function(Params)
 	{
 		this.id = Params.id;
 		this.oUploader = Params.oUploader;
@@ -877,7 +877,7 @@
 		this.PackageGuid = Math.random() * 10E16;
 
 		this.pInput.onchange = BX.proxy(this.OnChangeFile, this);
-	}
+	};
 
 	SimpleUploader.prototype = {
 		AddEntry: function(fileName, form, pFile)
@@ -996,17 +996,19 @@
 			form.appendChild(this.pInput);
 			this.SubmitFiles(form);
 
-			this.pInput.parentNode.removeChild(this.pInput);
-
-			this.pInput = this.pInputParent.appendChild(BX.create("INPUT", {props: {type: "file", name: "photos[]", size: "1", multiple: this.pInput.multiple, id: this.pInput.id, className: "bxiu-fake-input"}}));
-			this.pInput.onchange = BX.proxy(this.OnChangeFile, this);
+			var _this = this;
+			setTimeout(function(){
+				_this.pInput.parentNode.removeChild(_this.pInput);
+				_this.pInput = _this.pInputParent.appendChild(BX.create("INPUT", {props: {type: "file", name: "photos[]", size: "1", multiple: _this.pInput.multiple, id: _this.pInput.id, className: "bxiu-fake-input"}}));
+				_this.pInput.onchange = BX.proxy(_this.OnChangeFile, _this);
+			},100);
 		},
 
-		OnSubmit: function(oForm)
+		OnSubmit: function()
 		{
 			var
 				wrongLoaded = {},
-				b_stop_all_unloaded = false;
+				b_stop_all_unloaded = false,
 				b_response = !!top.bxiu_simple_res;
 
 			if (!b_response)
@@ -1040,7 +1042,7 @@
 					oFile.id = res[oFile.name]['ID'];
 					oFile.loaded = true;
 					oFile.pImg.src = res[oFile.name]['PATH'];
-					this.AdjustThumb(oFile.pImg, res[oFile.name]['WIDTH'], res[oFile.name]['HEIGHT'])
+					this.AdjustThumb(oFile.pImg, res[oFile.name]['WIDTH'], res[oFile.name]['HEIGHT']);
 					BX.removeClass(oFile.pWnd, "bxiu-loading");
 				}
 				else if (!oFile.loaded && (wrongLoaded[oFile.name] || !b_response || b_stop_all_unloaded))
@@ -1060,13 +1062,13 @@
 
 			this.EnableGoBut(bComplete);
 
+			if (b_response && top.bxiu_simple_res && top.bxiu_simple_res.redirectUrl)
+				this.oUploader.redirectUrl = top.bxiu_simple_res.redirectUrl;
+
 			if (b_response && top.bxiu_simple_res.newSection && this.oUploader.pAlbumSel)
 			{
 				this.oUploader.pAlbumSel.options.add(new Option(top.bxiu_simple_res.newSection.title, top.bxiu_simple_res.newSection.id, true, true));
 				this.oUploader.pAlbumSel.onchange();
-
-				if (top.bxiu_simple_res.newSection.redirectUrl)
-					this.oUploader.redirectUrl = top.bxiu_simple_res.newSection.redirectUrl;
 			}
 		},
 

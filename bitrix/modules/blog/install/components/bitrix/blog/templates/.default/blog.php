@@ -140,7 +140,6 @@ $APPLICATION->IncludeComponent(
 						"CACHE_TIME_LONG"		=> $arResult["CACHE_TIME_LONG"],
 						"SET_NAV_CHAIN"			=> $arResult["SET_NAV_CHAIN"],
 						"SET_TITLE"				=> $arResult["SET_TITLE"],
-						"POST_PROPERTY_LIST"	=> $arParams["POST_PROPERTY_LIST"],
 						"DATE_TIME_FORMAT"	=> $arResult["DATE_TIME_FORMAT"],
 						"NAV_TEMPLATE"	=> $arParams["NAV_TEMPLATE"],
 						"GROUP_ID" 			=> $arParams["GROUP_ID"],

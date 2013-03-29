@@ -28,4 +28,7 @@ $MESS["SORT"] = "Sortierung:";
 $MESS["MAIN_PARAM_TITLE"] = "Systemsprache-Parameter";
 $MESS["DIRECTION"] = "Leserichtung:";
 $MESS["RECORD_LIST_TITLE"] = "Sprachen";
+$MESS["LANG_EDIT_WEEK_START"] = "Erster Wochentag:";
+$MESS["LANG_EDIT_WEEK_START_DEFAULT"] = "1";
+$MESS["FORMAT_NAME"] = "Namenformat:";
 ?>

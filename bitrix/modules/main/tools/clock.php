@@ -1,8 +1,4 @@
 <?
-define("STOP_STATISTICS", true);
-define("NOT_CHECK_PERMISSIONS", true);
-
-require_once(dirname(__FILE__)."/../include/prolog_before.php");
 IncludeModuleLangFile(__FILE__);
 
 class CClock
@@ -17,11 +13,11 @@ class CClock
 			$arParams['step'] = 5;
 		if ($arParams['view'] == 'select' && $arParams['step'] < 30)
 			$arParams['step'] = 30;
-		
+
 		if ($arParams['view'] != 'inline')
 			$arParams['view'] = 'input';
 	}
-	
+
 	function Show($arParams)
 	{
 		CClock::Init($arParams);
@@ -67,7 +63,7 @@ window.bxClockLoaders.push("bxShowClock_<?=$arParams['inputId']?>('<?=$arParams[
 <?
 				break;
 			default: //input
-				?><input id="<?=$arParams['inputId']?>" name="<?=$arParams['inputName']?>" type="text" value="<?=$arParams['initTime']?>" size="4" title="<?=$arParams['inputTitle']?>" /><?
+				?><input id="<?=$arParams['inputId']?>" name="<?=$arParams['inputName']?>" type="text" value="<?=$arParams['initTime']?>" size="<?=IsAmPmMode() ? 6 : 4?>" title="<?=$arParams['inputTitle']?>" /><?
 				break;
 		}
 		// Show icon
@@ -81,19 +77,19 @@ window.bxClockLoaders.push("bxShowClock_<?=$arParams['inputId']?>('<?=$arParams[
 		function bxc_load_css()
 		{
 			if (!window.BXClockStyles)
-				window.BXClockStyles = jsUtils.loadCSSFile(['/bitrix/themes/.default/clock.css']);
+				window.BXClockStyles = jsUtils.loadCSSFile(['<?=CUtil::GetAdditionalFileURL("/bitrix/themes/.default/clock.css")?>']);
 		}
 		if (!window.phpVars)
 			phpVars = {ADMIN_THEME_ID:'.default'};
 		if (!window.jsUtils)
 		{
 			setTimeout(function(){
-				var oSript = document.body.appendChild(document.createElement('script'));
-				oSript.src = '/bitrix/js/main/utils.js';
+				var oScript = document.body.appendChild(document.createElement('script'));
+				oScript.src = '/bitrix/js/main/utils.js';
 				if (document.attachEvent && navigator.userAgent.toLowerCase().indexOf('opera') == -1)
-					oSript.onreadystatechange = function(){if (oSript.readyState == 'loaded'){bxc_load_css();}};
+					oScript.onreadystatechange = function(){if (oScript.readyState == 'loaded'){bxc_load_css();}};
 				else
-					oSript.onload = function(){setTimeout(bxc_load_css, 50);};
+					oScript.onload = function(){setTimeout(bxc_load_css, 50);};
 			}, 50);
 		}
 		else
@@ -103,8 +99,15 @@ window.bxClockLoaders.push("bxShowClock_<?=$arParams['inputId']?>('<?=$arParams[
 
 		function bxLoadClock_<?=$arParams['inputId']?>(callback)
 		{
+			if (!window.JCClock && !window.jsUtils)
+			{
+				return setTimeout(function(){bxLoadClock_<?=$arParams['inputId']?>(callback);}, 50);
+			}
+
 			if (!window.JCClock)
-				return jsUtils.loadJSFile(['/bitrix/js/main/clock.js'], function() {bxLoadClock_<?=$arParams['inputId']?>(callback)});
+			{
+				return jsUtils.loadJSFile(['<?=CUtil::GetAdditionalFileURL("/bitrix/js/main/clock.js")?>'], function() {bxLoadClock_<?=$arParams['inputId']?>(callback)});
+			}
 
 			var obId = 'bxClock_<?=$arParams['inputId']?>';
 			if (!window[obId])
@@ -114,20 +117,21 @@ window.bxClockLoaders.push("bxShowClock_<?=$arParams['inputId']?>('<?=$arParams[
 					showIcon: <? echo $arParams['showIcon'] ? 'true' : 'false';?>,
 					inputId: '<?=$arParams['inputId']?>',
 					iconId: '<?=$arParams['inputId'].'_icon'?>',
+					zIndex: <?= isset($arParams['zIndex']) ? intval($arParams['zIndex']) : 0 ?>,
 					AmPmMode: <? echo $arParams['am_pm_mode'] ? 'true' : 'false';?>,
 					MESS: {
-						Insert: '<?=GetMessage('BX_CLOCK_INSERT')?>',
-						Close: '<?=GetMessage('BX_CLOCK_CLOSE')?>',
-						Hours: '<?=GetMessage('BX_CLOCK_HOURS')?>',
-						Minutes: '<?=GetMessage('BX_CLOCK_MINUTES')?>',
-						Up: '<?=GetMessage('BX_CLOCK_UP')?>',
-						Down: '<?=GetMessage('BX_CLOCK_DOWN')?>'
+						Insert: '<?=GetMessageJS('BX_CLOCK_INSERT')?>',
+						Close: '<?=GetMessageJS('BX_CLOCK_CLOSE')?>',
+						Hours: '<?=GetMessageJS('BX_CLOCK_HOURS')?>',
+						Minutes: '<?=GetMessageJS('BX_CLOCK_MINUTES')?>',
+						Up: '<?=GetMessageJS('BX_CLOCK_UP')?>',
+						Down: '<?=GetMessageJS('BX_CLOCK_DOWN')?>'
 					}
 				});
-			
+
 			return callback.apply(window, [window[obId]]);
 		}
-		
+
 		function bxShowClock_<?=$arParams['inputId']?>(id)
 		{
 			bxLoadClock_<?=$arParams['inputId']?>(function(obClock) {

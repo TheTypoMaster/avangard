@@ -844,7 +844,7 @@ if (CModule::IncludeModule("iblock"))
 			{
 				$arResult["ELEMENT"]["~".$key] = $value;
 				if(!is_array($value) && !is_object($value))
-					$arResult["ELEMENT"][$key] = htmlspecialchars($value);
+					$arResult["ELEMENT"][$key] = htmlspecialcharsbx($value);
 				else
 					$arResult["ELEMENT"][$key] = $value;
 			}
@@ -884,25 +884,25 @@ if (CModule::IncludeModule("iblock"))
 						{
 							$htmlvalue[$k] = array();
 							foreach($v as $k1 => $v1)
-								$htmlvalue[$k][$k1] = htmlspecialchars($v1);
+								$htmlvalue[$k][$k1] = htmlspecialcharsbx($v1);
 						}
 						else
 						{
-							$htmlvalue[$k] = htmlspecialchars($v);
+							$htmlvalue[$k] = htmlspecialcharsbx($v);
 						}
 					}
 				}
 				else
 				{
-					$htmlvalue = htmlspecialchars($arElementProperty["VALUE"]);
+					$htmlvalue = htmlspecialcharsbx($arElementProperty["VALUE"]);
 				}
 
 				$arResult["ELEMENT_PROPERTIES"][$arElementProperty["ID"]][] = array(
-					"ID" => htmlspecialchars($arElementProperty["ID"]),
+					"ID" => htmlspecialcharsbx($arElementProperty["ID"]),
 					"VALUE" => $htmlvalue,
 					"~VALUE" => $arElementProperty["VALUE"],
-					"VALUE_ID" => htmlspecialchars($arElementProperty["PROPERTY_VALUE_ID"]),
-					"VALUE_ENUM" => htmlspecialchars($arElementProperty["VALUE_ENUM"]),
+					"VALUE_ID" => htmlspecialcharsbx($arElementProperty["PROPERTY_VALUE_ID"]),
+					"VALUE_ENUM" => htmlspecialcharsbx($arElementProperty["VALUE_ENUM"]),
 				);
 			}
 
@@ -949,7 +949,7 @@ if (CModule::IncludeModule("iblock"))
 			// prepare form data if some errors occured
 			if (count($arResult["ERRORS"]) > 0)
 			{
-				//echo "<pre>",htmlspecialchars(print_r($arUpdateValues, true)),"</pre>";
+				//echo "<pre>",htmlspecialcharsbx(print_r($arUpdateValues, true)),"</pre>";
 				foreach ($arUpdateValues as $key => $value)
 				{
 					if ($key == "IBLOCK_SECTION")
@@ -957,13 +957,13 @@ if (CModule::IncludeModule("iblock"))
 						$arResult["ELEMENT"][$key] = array();
 						if(!is_array($value))
 						{
-							$arResult["ELEMENT"][$key][] = array("VALUE" => htmlspecialchars($value));
+							$arResult["ELEMENT"][$key][] = array("VALUE" => htmlspecialcharsbx($value));
 						}
 						else
 						{
 							foreach ($value as $vkey => $vvalue)
 							{
-								$arResult["ELEMENT"][$key][$vkey] = array("VALUE" => htmlspecialchars($vvalue));
+								$arResult["ELEMENT"][$key][$vkey] = array("VALUE" => htmlspecialcharsbx($vvalue));
 							}
 						}
 					}
@@ -981,7 +981,7 @@ if (CModule::IncludeModule("iblock"))
 					}
 					else
 					{
-						$arResult["ELEMENT"][$key] = htmlspecialchars($value);
+						$arResult["ELEMENT"][$key] = htmlspecialcharsbx($value);
 					}
 				}
 
@@ -1003,7 +1003,7 @@ if (CModule::IncludeModule("iblock"))
 								if(array_key_exists("VALUE", $vv))
 									$arResult["ELEMENT_PROPERTIES"][$key][] = array(
 										"~VALUE" => $vv["VALUE"],
-										"VALUE" => !is_array($vv["VALUE"])? htmlspecialchars($vv["VALUE"]): $vv["VALUE"],
+										"VALUE" => !is_array($vv["VALUE"])? htmlspecialcharsbx($vv["VALUE"]): $vv["VALUE"],
 									);
 								else
 									$arResult["ELEMENT_PROPERTIES"][$key][] = array(
@@ -1015,7 +1015,7 @@ if (CModule::IncludeModule("iblock"))
 							{
 								$arResult["ELEMENT_PROPERTIES"][$key][] = array(
 									"~VALUE" => $vv,
-									"VALUE" => htmlspecialchars($vv),
+									"VALUE" => htmlspecialcharsbx($vv),
 								);
 							}
 						}
@@ -1026,7 +1026,7 @@ if (CModule::IncludeModule("iblock"))
 			// prepare captcha
 			if ($arParams["USE_CAPTCHA"] == "Y" && $arParams["ID"] <= 0)
 			{
-				$arResult["CAPTCHA_CODE"] = htmlspecialchars($APPLICATION->CaptchaGetCode());
+				$arResult["CAPTCHA_CODE"] = htmlspecialcharsbx($APPLICATION->CaptchaGetCode());
 			}
 
 			$arResult["MESSAGE"] = htmlspecialcharsex($_REQUEST["strIMessage"]);

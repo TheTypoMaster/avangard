@@ -1,12 +1,11 @@
-(function(window) {
+;(function(window) {
 if (BX.WindowManager) return;
-
 
 /* windows manager */
 BX.WindowManager = {
 	_stack: [],
 	_runtime_resize: {},
-	_delta: 5,
+	_delta: 2,
 	_delta_start: 1000,
 	currently_loaded: null,
 
@@ -185,7 +184,8 @@ BX.CWindowButton = function(params)
 		this.title = params.title; // html value attr
 		this.hint = params.hint; // html title attr
 		this.id = params.id; // html name and id attrs
-		this.name = params.name // html name or value attrs when id and title 're absent
+		this.name = params.name; // html name or value attrs when id and title 're absent
+		this.className = params.className; // className for button input
 
 		this.action = params.action;
 		this.onclick = params.onclick;
@@ -198,8 +198,15 @@ BX.CWindowButton = function(params)
 	}
 }
 
-BX.CWindowButton.prototype.disable = function(){if (this.btn) this.btn.disabled = true;};
-BX.CWindowButton.prototype.enable = function(){if (this.btn) this.btn.disabled = false;};
+BX.CWindowButton.prototype.disable = function()
+{
+	if (this.btn)
+		this.parentWindow.showWait(this.btn);
+};
+BX.CWindowButton.prototype.enable = function(){
+	if (this.btn)
+		this.parentWindow.closeWait(this.btn);
+};
 
 BX.CWindowButton.prototype.emulate = function()
 {
@@ -244,6 +251,8 @@ BX.CWindowButton.prototype.Button = function(parentWindow)
 
 	if (this.hint)
 		btn.props.title = this.hint;
+	if (!!this.className)
+		btn.props.className = this.className;
 
 	if (this.action)
 	{
@@ -290,6 +299,8 @@ BX.CWindow = function(div, type)
 		resizable: false,
 		min_height: 0,
 		min_width: 0,
+		top: 0,
+		left: 0,
 		draggable: false,
 		drag_restrict: true,
 		resize_restrict: true
@@ -311,8 +322,8 @@ BX.CWindow = function(div, type)
 			'zIndex': 0,
 			'position': 'absolute',
 			'display': 'none',
-			'top': '0px',
-			'left': '0px',
+			'top': this.SETTINGS.top + 'px',
+			'left': this.SETTINGS.left + 'px',
 			'height': '100px',
 			'width': '100px'
 		}
@@ -428,7 +439,8 @@ BX.CWindow.prototype.__expand = function()
 
 	if (!this.bExpanded)
 	{
-		var wndScroll = BX.GetWindowScrollPos();
+		var wndScroll = BX.GetWindowScrollPos(),
+			wndSize = BX.GetWindowInnerSize();
 
 		this.__expand_settings = {
 			resizable: this.SETTINGS.resizable,
@@ -437,18 +449,16 @@ BX.CWindow.prototype.__expand = function()
 			height: this.DIV.style.height,
 			left: this.DIV.style.left,
 			top: this.DIV.style.top,
-			scroll: wndScroll.scrollTop,
+			scrollTop: wndScroll.scrollTop,
+			scrollLeft: wndScroll.scrollLeft,
 			overflow: BX.style(pDocElement, 'overflow')
 		}
 
 		this.SETTINGS.resizable = false;
 		this.SETTINGS.draggable = false;
 
+		window.scrollTo(0,0);
 		pDocElement.style.overflow = 'hidden';
-
-		var wndSize = BX.GetWindowInnerSize();
-
-		pDocElement.scrollTop = 0;
 
 		this.DIV.style.top = '0px';
 		this.DIV.style.left = '0px';
@@ -462,7 +472,6 @@ BX.CWindow.prototype.__expand = function()
 		BX.onCustomEvent(this, 'onWindowResize');
 
 		BX.bind(window, 'resize', BX.proxy(this.__expand_onresize, this));
-
 	}
 	else
 	{
@@ -478,7 +487,7 @@ BX.CWindow.prototype.__expand = function()
 		this.DIV.style.width = this.__expand_settings.width;
 		this.DIV.style.height = this.__expand_settings.height;
 
-		pDocElement.scrollTop = this.__expand_settings.scroll;
+		window.scrollTo(this.__expand_settings.scrollLeft, this.__expand_settings.scrollTop);
 
 		this.bExpanded = false;
 
@@ -829,6 +838,8 @@ BX.CDialog = function(arParams)
 {
 	BX.CDialog.superclass.constructor.apply(this);
 
+	this._sender = 'core_window_cdialog';
+
 	this.PARAMS = arParams || {};
 
 	for (var i in this.defaultParams)
@@ -854,88 +865,83 @@ BX.CDialog = function(arParams)
 		}
 	}
 
-	BX.addClass(this.DIV, 'bx-core-dialog');
+	BX.addClass(this.DIV, 'bx-core-adm-dialog');
+	this.DIV.id = 'bx-admin-prefix';
 
 	this.PARTS = {};
 
 	this.DIV.style.height = null;
 	this.DIV.style.width = null;
 
-	this.PARTS.CONTENT = this.DIV.appendChild(BX.create('DIV', {
-		props: {className: 'dialog-center'}
+	this.PARTS.TITLEBAR = this.DIV.appendChild(BX.create('DIV', {props: {
+			className: 'bx-core-adm-dialog-head'
+		}
 	}));
 
+	this.PARTS.TITLE_CONTAINER = this.PARTS.TITLEBAR.appendChild(BX.create('SPAN', {
+		props: {className: 'bx-core-adm-dialog-head-inner'},
+		text: this.PARAMS.title
+	}))
+
+	this.PARTS.TITLEBAR_ICONS = this.PARTS.TITLEBAR.appendChild(BX.create('DIV', {
+		props: {
+			className: 'bx-core-adm-dialog-head-icons'
+		},
+		children: (this.PARAMS.resizable ? [
+			BX.create('SPAN', {props: {className: 'bx-core-adm-icon-expand', title: BX.message('JS_CORE_WINDOW_EXPAND')}}),
+			BX.create('SPAN', {props: {className: 'bx-core-adm-icon-close', title: BX.message('JS_CORE_WINDOW_CLOSE')}})
+		] : [
+			BX.create('SPAN', {props: {className: 'bx-core-adm-icon-close', title: BX.message('JS_CORE_WINDOW_CLOSE')}})
+		])
+	}));
+
+
+	this.PARTS.CONTENT = this.DIV.appendChild(BX.create('DIV', {
+		props: {className: 'bx-core-adm-dialog-content-wrap adm-workarea'}
+	}));
 
 	this.PARTS.CONTENT_DATA = this.PARTS.CONTENT.appendChild(BX.create('DIV', {
-		props: {className: 'bx-core-dialog-content'}
-	}));
-
-	BX.adjust(this.PARTS.CONTENT_DATA, {
+		props: {className: 'bx-core-adm-dialog-content'},
 		style: {
 			height: this.PARAMS.height + 'px',
 			width: this.PARAMS.width + 'px'
 		}
-	});
+	}));
 
 	this.PARTS.HEAD = this.PARTS.CONTENT_DATA.appendChild(BX.create('DIV', {
 		props: {
-			className: 'bx-core-dialog-head'
-		},
-		children: [
-			BX.create('DIV', {
-				props: {className: 'bx-core-dialog-head-content' + (this.PARAMS.icon ? ' ' + this.PARAMS.icon : '')}
-			})
-		]
+			className: 'bx-core-adm-dialog-head-block' + (this.PARAMS.icon ? ' ' + this.PARAMS.icon : '')
+		}
 	}));
 
 	this.SetHead(this.PARAMS.head);
 	this.SetContent(this.PARAMS.content);
-
-	this.PARTS.TITLEBAR = this.DIV.appendChild(BX.create('DIV', {props: {
-			className: 'dialog-head'
-		},
-		html: '<div class="l"><div class="r"><div class="c"><span>'+this.PARAMS.title+'</span></div></div></div>'
-	}));
-	this.PARTS.TITLE_CONTAINER = this.PARTS.TITLEBAR.firstChild.firstChild.firstChild.firstChild;
 	this.SetTitle(this.PARAMS.title);
-
-	this.PARTS.TITLEBAR_ICONS = this.DIV.appendChild(BX.create('DIV', {
-		props: {
-			className: 'dialog-head-icons'
-		},
-		children: (this.PARAMS.resizable ? [
-			BX.create('A', {props: {className: 'bx-icon-expand', title: BX.message('JS_CORE_WINDOW_EXPAND')}}),
-			BX.create('A', {props: {className: 'bx-icon-close', title: BX.message('JS_CORE_WINDOW_CLOSE')}})
-		] : [
-			BX.create('A', {props: {className: 'bx-icon-close', title: BX.message('JS_CORE_WINDOW_CLOSE')}})
-		])
-	}));
-
 	this.SetClose(this.PARTS.TITLEBAR_ICONS.lastChild);
 
 	if (this.PARAMS.resizable)
 	{
 		this.SetExpand(this.PARTS.TITLEBAR_ICONS.firstChild);
+
 		BX.addCustomEvent(this, 'onWindowExpand', BX.proxy(this.__onexpand, this));
 		BX.addCustomEvent(this, 'onWindowNarrow', BX.proxy(this.__onexpand, this));
 	}
 
-
-	this.PARTS.FOOT = this.DIV.appendChild(BX.create('DIV', {props: {
-			className: 'dialog-foot'
-		},
-		html: '<div class="l"><div class="r"><div class="c"><img src="/bitrix/js/main/core/images/line.png" height="1" width="90%" border="0" style="position: absolute; top: 0; left: 0;" /><span></span></div></div></div>'
-	}));
-
-	this.PARTS.BUTTONS_CONTAINER = this.PARTS.FOOT.firstChild.firstChild.firstChild.lastChild;
-	BX.adjust(this.PARTS.BUTTONS_CONTAINER, {
-		children: this.ShowButtons()
-	});
+	this.PARTS.FOOT = this.PARTS.BUTTONS_CONTAINER = this.PARTS.CONTENT.appendChild(BX.create('DIV', {
+			props: {
+				className: 'bx-core-adm-dialog-buttons'
+			},
+			// events: {
+			// 	'click': BX.delegateEvent({property:{type: /button|submit/}}, BX.delegate(function() {this.showWait(BX.proxy_context)}, this))
+			// },
+			children: this.ShowButtons()
+		}
+	));
 
 	if (this.PARAMS.draggable)
 		this.SetDraggable(this.PARTS.TITLEBAR);
 
-	this.SetExpand(this.PARTS.TITLEBAR.firstChild, 'dblclick');
+	this.SetExpand(this.PARTS.TITLEBAR, 'dblclick');
 
 	if (this.PARAMS.resizable)
 	{
@@ -948,6 +954,12 @@ BX.CDialog = function(arParams)
 		this.SETTINGS.min_width = this.PARAMS.min_width;
 		this.SETTINGS.min_height = this.PARAMS.min_height;
 	}
+
+	this.auth_callback = BX.delegate(function(){
+		this.PARAMS.content = '';
+		this.hideNotify();
+		this.Show();
+	}, this)
 }
 BX.extend(BX.CDialog, BX.CWindowDialog);
 
@@ -964,6 +976,84 @@ BX.CDialog.prototype.defaultParams = {
 	icon: ''
 }
 
+BX.CDialog.prototype.showWait = function(el)
+{
+	if (BX.type.isElementNode(el) && (el.type == 'button' || el.type == 'submit'))
+	{
+		BX.defer(function(){el.disabled = true})();
+
+		var bSave = (BX.hasClass(el, 'adm-btn-save') || BX.hasClass(el, 'adm-btn-save')),
+			parent = BX.findParent(el, BX.is_fixed) || document.body,
+			pos = BX.pos(el, true);
+
+		el.bxwaiter = this.PARTS.FOOT.appendChild(BX.create('DIV', {
+			props: {className: 'adm-btn-load-img' + (bSave ? '-green' : '')},
+			style: {
+				top: parseInt((pos.bottom + pos.top)/2 - 10) + 'px',
+				left: parseInt((pos.right + pos.left)/2 - 10) + 'px'
+			}
+		}));
+
+		BX.addClass(el, 'adm-btn-load');
+
+		this.lastWaitElement = el;
+
+		return el.bxwaiter;
+	}
+}
+
+BX.CDialog.prototype.closeWait = function(el)
+{
+	el = el || this.lastWaitElement;
+
+	if (BX.type.isElementNode(el))
+	{
+		if (el.bxwaiter)
+		{
+			el.bxwaiter.parentNode.removeChild(el.bxwaiter);
+			el.bxwaiter = null;
+		}
+
+		el.disabled = false;
+		BX.removeClass(el, 'adm-btn-load');
+
+		if (this.lastWaitElement == el)
+			this.lastWaitElement = null;
+	}
+}
+
+BX.CDialog.prototype.Authorize = function(arAuthResult)
+{
+	this.bSkipReplaceContent = true;
+	this.ShowError(BX.message('JSADM_AUTH_REQ'));
+
+	BX.onCustomEvent(this, 'onWindowError', []);
+
+	BX.closeWait();
+
+	(new BX.CAuthDialog({
+		content_url: this.PARAMS.content_url,
+		auth_result: arAuthResult,
+		callback: BX.delegate(function(){
+			if (this.auth_callback)
+				this.auth_callback()
+		}, this)
+	})).Show();
+}
+
+BX.CDialog.prototype.ShowError = function(str)
+{
+	BX.onCustomEvent(this, 'onWindowError', [str]);
+
+	this.closeWait();
+
+	if (this._wait)
+		BX.closeWait(this._wait);
+
+	this.Notify(str, true);
+}
+
+
 BX.CDialog.prototype.__expandGetSize = function()
 {
 	var pDocElement = BX.GetDocElement();
@@ -977,19 +1067,20 @@ BX.CDialog.prototype.__expandGetSize = function()
 	this.DIV.style.left = '-' + this.dxShadow + 'px';
 
 	return {
-		width: (wndSize.innerWidth - parseInt(BX.style(this.PARTS.CONTENT, 'padding-right'))),
-		height: (wndSize.innerHeight - this.PARTS.TITLEBAR.offsetHeight - (this.PARTS.FOOT.offsetHeight) + this.dxShadow)
+		width: (wndSize.innerWidth - parseInt(BX.style(this.PARTS.CONTENT, 'padding-right')) - parseInt(BX.style(this.PARTS.CONTENT, 'padding-left'))) + this.dxShadow,
+		height: (wndSize.innerHeight - this.PARTS.TITLEBAR.offsetHeight - this.PARTS.FOOT.offsetHeight - parseInt(BX.style(this.PARTS.CONTENT, 'padding-top')) - parseInt(BX.style(this.PARTS.CONTENT, 'padding-bottom'))) + this.dxShadow
 	};
 }
 
 BX.CDialog.prototype.__expand = function()
 {
 	var pDocElement = BX.GetDocElement();
-	this.dxShadow = 7;
+	this.dxShadow = 2;
 
 	if (!this.bExpanded)
 	{
-		var wndScroll = BX.GetWindowScrollPos();
+		var wndScroll = BX.GetWindowScrollPos(),
+			wndSize = BX.GetWindowInnerSize();
 
 		this.__expand_settings = {
 			resizable: this.SETTINGS.resizable,
@@ -998,7 +1089,8 @@ BX.CDialog.prototype.__expand = function()
 			height: this.PARTS.CONTENT_DATA.style.height,
 			left: this.DIV.style.left,
 			top: this.DIV.style.top,
-			scroll: wndScroll.scrollTop,
+			scrollTop: wndScroll.scrollTop,
+			scrollLeft: wndScroll.scrollLeft,
 			overflow: BX.style(pDocElement, 'overflow')
 		}
 
@@ -1009,6 +1101,9 @@ BX.CDialog.prototype.__expand = function()
 
 		this.PARTS.CONTENT_DATA.style.width = pos.width + 'px';
 		this.PARTS.CONTENT_DATA.style.height = pos.height + 'px';
+
+		window.scrollTo(0,0);
+		pDocElement.style.overflow = 'hidden';
 
 		this.bExpanded = true;
 
@@ -1031,7 +1126,7 @@ BX.CDialog.prototype.__expand = function()
 		this.DIV.style.left = this.__expand_settings.left;
 		this.PARTS.CONTENT_DATA.style.width = this.__expand_settings.width;
 		this.PARTS.CONTENT_DATA.style.height = this.__expand_settings.height;
-		pDocElement.scrollTop = this.__expand_settings.scroll;
+		window.scrollTo(this.__expand_settings.scrollLeft, this.__expand_settings.scrollTop);
 		this.bExpanded = false;
 
 		BX.onCustomEvent(this, 'onWindowNarrow');
@@ -1054,7 +1149,7 @@ BX.CDialog.prototype.__expand_onresize = function()
 BX.CDialog.prototype.__onexpand = function()
 {
 	var ob = this.PARTS.TITLEBAR_ICONS.firstChild;
-	ob.className = BX.toggle(ob.className, ['bx-icon-expand', 'bx-icon-narrow']);
+	ob.className = BX.toggle(ob.className, ['bx-core-adm-icon-expand', 'bx-core-adm-icon-narrow']);
 	ob.title = BX.toggle(ob.title, [BX.message('JS_CORE_WINDOW_EXPAND'), BX.message('JS_CORE_WINDOW_NARROW')]);
 
 	if (this.PARTS.RESIZER)
@@ -1081,6 +1176,9 @@ BX.CDialog.prototype.__startResize = function(e)
 
 	this.dx = this.pos.left + this.pos.width - this.x;
 	this.dy = this.pos.top + this.pos.height - this.y;
+
+
+	// TODO: suspicious
 	this.dw = this.pos.width - parseInt(this.PARTS.CONTENT_DATA.style.width) + parseInt(BX.style(this.PARTS.CONTENT, 'padding-right'));
 
 	BX.bind(document, "mousemove", BX.proxy(this.__moveResize, this));
@@ -1196,25 +1294,39 @@ BX.CDialog.prototype.GetParameters = function(form_name)
 BX.CDialog.prototype.PostParameters = function(params)
 {
 	var url = this.PARAMS.content_url;
-	if (null != params)
-	{
-		index = url.indexOf('?')
-		if (index == -1)
-			url += '?' + params;
-		else
-			url = url.substring(0, index) + '?' + params + "&" + url.substring(index+1);
-	}
+
+	if (null == params)
+		params = "";
+
+	params += (params == "" ? "" : "&") + "bxsender=" + this._sender;
+
+	index = url.indexOf('?')
+	if (index == -1)
+		url += '?' + params;
+	else
+		url = url.substring(0, index) + '?' + params + "&" + url.substring(index+1);
 
 	BX.showWait();
+
+	this.auth_callback = BX.delegate(function(){
+		this.hideNotify();
+		this.PostParameters(params);
+	}, this);
+
 	BX.ajax.post(url, this.GetParameters(), BX.delegate(function(result) {
 		BX.closeWait();
-		this.ClearButtons(); // buttons are appended during form reload, so we should clear footer
-		this.SetContent(result);
-		this.Show(true);
+		if (!this.bSkipReplaceContent)
+		{
+			this.ClearButtons(); // buttons are appended during form reload, so we should clear footer
+			this.SetContent(result);
+			this.Show(true);
+		}
+
+		this.bSkipReplaceContent = false;
 	}, this));
 }
 
-BX.CDialog.prototype.Submit = function(params)
+BX.CDialog.prototype.Submit = function(params, url)
 {
 	var FORM = this.GetForm();
 	if (FORM)
@@ -1222,9 +1334,9 @@ BX.CDialog.prototype.Submit = function(params)
 		FORM.onsubmit = null;
 
 		FORM.method = 'POST';
-		if (!FORM.action)
+		if (!FORM.action || url)
 		{
-			var url = this.PARAMS.content_url;
+			var url = url || this.PARAMS.content_url;
 			if (null != params)
 			{
 				index = url.indexOf('?')
@@ -1237,8 +1349,25 @@ BX.CDialog.prototype.Submit = function(params)
 			FORM.action = url;
 		}
 
+		if (!FORM._bxsender)
+		{
+			FORM._bxsender = FORM.appendChild(BX.create('INPUT', {
+				attrs: {
+					type: 'hidden',
+					name: 'bxsender',
+					value: this._sender
+				}
+			}));
+		}
+
 		this._wait = BX.showWait();
-		BX.ajax.submit(FORM);
+
+		this.auth_callback = BX.delegate(function(){
+			this.hideNotify();
+			this.Submit(params);
+		}, this);
+
+		BX.ajax.submit(FORM, BX.delegate(function(){this.closeWait()}, this));
 	}
 	else
 	{
@@ -1319,37 +1448,6 @@ BX.CDialog.prototype.setAutosave = function () {
 		setTimeout(BX.proxy(this.setAutosave, this), 10);
 		return;
 	}
-
-	var auto_lnk = this.PARTS.FOOT.appendChild(BX.create('A', {
-		attr: {href: 'javascript:void(0)'},
-		style: {
-			position: 'absolute', top: '11px', left: '11px'
-		},
-		props: {
-			className: 'context-button bx-core-autosave bx-core-autosave-ready',
-			title: BX.message('AUTOSAVE_T')
-		}
-	}));
-
-	BX.addCustomEvent(this.GetRealForm(), 'onAutoSavePrepare', function (ob, h) {
-		BX.bind(auto_lnk, 'click', BX.proxy(ob.Save, ob));
-	});
-	BX.addCustomEvent(this.GetRealForm(), 'onAutoSave', function() {
-		auto_lnk.className = 'context-button bx-core-autosave bx-core-autosave-saving';
-	});
-	BX.addCustomEvent(this.GetRealForm(), 'onAutoSaveFinished', function(ob, t) {
-		t = parseInt(t);
-		if (!isNaN(t))
-		{
-			setTimeout(function() {
-				auto_lnk.className = 'context-button bx-core-autosave bx-core-autosave-ready';
-			}, 1000);
-			auto_lnk.title = BX.message('AUTOSAVE_L').replace('#DATE#', BX.formatDate(new Date(t * 1000)));
-		}
-	});
-	BX.addCustomEvent(this.GetRealForm(), 'onAutoSaveInit', function() {
-		auto_lnk.className = 'context-button bx-core-autosave bx-core-autosave-edited';
-	});
 }
 
 BX.CDialog.prototype.SetTitle = function(title)
@@ -1360,62 +1458,59 @@ BX.CDialog.prototype.SetTitle = function(title)
 
 BX.CDialog.prototype.SetHead = function(head)
 {
-	this.PARAMS.head = head;
-	this.PARTS.HEAD.firstChild.innerHTML = head || "&nbsp;";
+	this.PARAMS.head = BX.util.trim(head);
+	this.PARTS.HEAD.innerHTML = this.PARAMS.head || "&nbsp;";
 	this.PARTS.HEAD.style.display = this.PARAMS.head ? 'block' : 'none';
 	this.adjustSize();
 }
 
-BX.CDialog.prototype.Notify = function(note)
+BX.CDialog.prototype.Notify = function(note, bError)
 {
 	if (!this.PARTS.NOTIFY)
 	{
 		this.PARTS.NOTIFY = this.DIV.insertBefore(BX.create('DIV', {
-			props: {className: 'bx-dialog-notify-outer'},
+			props: {className: 'adm-warning-block'},
 			children: [
-				BX.create('DIV', {
-					props: {className: 'bx-dialog-notify'},
-					children: [
-						BX.create('DIV', {
-							props: {className: 'bx-dialog-notify-close'},
-							children: [
-								BX.create('A', {
-									style: {cursor: 'pointer'},
-									events: {click: BX.proxy(this.hideNotify, this)}
-								})
-							]
-						}),
-						BX.create('DIV', {
-							props: {className: 'bx-dialog-notify-text'}
-						})
-					]
+				BX.create('SPAN', {
+					props: {className: 'adm-warning-text'}
+				}),
+				BX.create('SPAN', {
+					props: {className: 'adm-warning-icon'}
+				}),
+				BX.create('SPAN', {
+					props: {className: 'adm-warning-close'},
+					events: {click: BX.proxy(this.hideNotify, this)}
 				})
 			]
 		}), this.DIV.firstChild);
 	}
 
-	this.PARTS.NOTIFY.firstChild.lastChild.innerHTML = note || '&nbsp;';
-	BX.removeClass(this.PARTS.NOTIFY, 'bx-dialog-notify-hidden');
-	BX.addClass(this.PARTS.CONTENT, 'dialog-center-notify');
+	if (bError)
+		BX.addClass(this.PARTS.NOTIFY, 'adm-warning-block-red');
+	else
+		BX.removeClass(this.PARTS.NOTIFY, 'adm-warning-block-red');
+
+	this.PARTS.NOTIFY.firstChild.innerHTML = note || '&nbsp;';
+	this.PARTS.NOTIFY.firstChild.style.width = this.PARAMS.width + 'px';
+	BX.removeClass(this.PARTS.NOTIFY, 'adm-warning-animate');
 }
 
 BX.CDialog.prototype.hideNotify = function()
 {
-	BX.addClass(this.PARTS.NOTIFY, 'bx-dialog-notify-hidden');
-	BX.removeClass(this.PARTS.CONTENT, 'dialog-center-notify');
+	BX.addClass(this.PARTS.NOTIFY, 'adm-warning-animate');
 }
 
 BX.CDialog.prototype.__adjustHeadToIcon = function()
 {
-	if (!this.PARTS.HEAD.firstChild.offsetHeight)
+	if (!this.PARTS.HEAD.offsetHeight)
 	{
 		setTimeout(BX.delegate(this.__adjustHeadToIcon, this), 50);
 	}
 	else
 	{
-		if (this.icon_image && this.icon_image.height && this.icon_image.height > this.PARTS.HEAD.firstChild.offsetHeight - 5)
+		if (this.icon_image && this.icon_image.height && this.icon_image.height > this.PARTS.HEAD.offsetHeight - 5)
 		{
-			this.PARTS.HEAD.firstChild.style.height = this.icon_image.height + 5 + 'px';
+			this.PARTS.HEAD.style.height = this.icon_image.height + 5 + 'px';
 			this.adjustSize();
 		}
 
@@ -1429,15 +1524,15 @@ BX.CDialog.prototype.SetIcon = function(icon_class)
 	if (this.PARAMS.icon != icon_class)
 	{
 		if (this.PARAMS.icon)
-			BX.removeClass(this.PARTS.HEAD.firstChild, this.PARAMS.icon);
+			BX.removeClass(this.PARTS.HEAD, this.PARAMS.icon);
 
 		this.PARAMS.icon = icon_class
 
 		if (this.PARAMS.icon)
 		{
-			BX.addClass(this.PARTS.HEAD.firstChild, this.PARAMS.icon);
+			BX.addClass(this.PARTS.HEAD, this.PARAMS.icon);
 
-			var icon_file = (BX.style(this.PARTS.HEAD.firstChild, 'background-image') || BX.style(this.PARTS.HEAD.firstChild, 'backgroundImage')).replace('url("', '').replace('")', '');
+			var icon_file = (BX.style(this.PARTS.HEAD, 'background-image') || BX.style(this.PARTS.HEAD, 'backgroundImage')).replace('url("', '').replace('")', '');
 			if (BX.type.isNotEmptyString(icon_file) && icon_file != 'none')
 			{
 				this.icon_image = new Image();
@@ -1455,7 +1550,7 @@ BX.CDialog.prototype.SetIconFile = function(icon_file)
 	this.icon_image.onload = BX.delegate(this.__adjustHeadToIcon, this);
 	this.icon_image.src = icon_file;
 
-	BX.adjust(this.PARTS.HEAD.firstChild, {style: {backgroundImage: 'url(' + icon_file + ')', backgroundPosition: 'right 9px'/*'99% center'*/}});
+	BX.adjust(this.PARTS.HEAD, {style: {backgroundImage: 'url(' + icon_file + ')', backgroundPosition: 'right 9px'/*'99% center'*/}});
 	this.adjustSize();
 }
 
@@ -1511,6 +1606,10 @@ BX.CDialog.prototype.SetContent = function(html)
 		if (html.parentNode)
 			html.parentNode.removeChild(html);
 	}
+	else if (BX.type.isString(html))
+	{
+		html = BX.create('DIV', {html: html});
+	}
 
 	this.PARAMS.content = html;
 	BX.cleanNode(this.PARTS.CONTENT_DATA);
@@ -1519,8 +1618,10 @@ BX.CDialog.prototype.SetContent = function(html)
 		children: [
 			this.PARTS.HEAD,
 			BX.create('DIV', {
-				props: {className: 'content-inner'},
-				children: [this.PARAMS.content || '&nbsp;']
+				props: {
+					className: 'bx-core-adm-dialog-content-wrap-inner'
+				},
+				children: [this.PARAMS.content]
 			})
 		]
 	});
@@ -1564,64 +1665,35 @@ BX.CDialog.prototype.SwapContent = function(cont)
 	this.SetContent(cont.innerHTML);
 }
 
+// this method deprecated
 BX.CDialog.prototype.adjustSize = function()
 {
-	return;
-	setTimeout(BX.delegate(this.__adjustSize, this), 10);
 }
 
+// this method deprecated
 BX.CDialog.prototype.__adjustSize = function()
 {
-	return;
-	var height =
-		parseInt(this.DIV.style.height) - 2 // strange bug with offsetHeight in IE while expanding
-		- (this.PARTS.TITLEBAR.offsetHeight + 1)
-		- (this.PARTS.HEAD ? this.PARTS.HEAD.offsetHeight + 10 : 0)
-		- (this.PARTS.FOOT ? this.PARTS.FOOT.offsetHeight : 0);
-
-	this.PARTS.CONTENT.style.height = height + 'px';
-
-	// autotraing: calm down, max! calm down....
-	if (BX.browser.IsIE())
-	{
-		var width_tmp = this.PARTS.CONTENT.style.width;
-		this.PARTS.CONTENT.style.width = '0px';
-		var width = this.DIV.offsetWidth-12;
-		this.PARTS.CONTENT.style.width = width > 0 ? (width + 'px') : width_tmp;
-	}
-
-	// TODO: optimize it!
-	BX.onCustomEvent(this, 'onWindowResizeExt', [{'height': height, 'width': this.PARTS.CONTENT.offsetWidth-(BX.browser.IsIE() ? -5 : 2)}]);
 }
 
 BX.CDialog.prototype.adjustSizeEx = function()
 {
-	setTimeout(BX.delegate(this.__adjustSizeEx, this), 10);
+	BX.defer(this.__adjustSizeEx, this)();
 }
 
 BX.CDialog.prototype.__adjustSizeEx = function()
 {
-	var new_height = this.PARTS.CONTENT_DATA.firstChild.offsetHeight + this.PARTS.CONTENT_DATA.lastChild.offsetHeight;
+	var ob = this.PARTS.CONTENT_DATA.firstChild, new_height = 0;
+	while (ob)
+	{
+		new_height += ob.offsetHeight
+			+ parseInt(BX.style(ob, 'margin-top'))
+			+ parseInt(BX.style(ob, 'margin-bottom'));
+
+		ob = BX.nextSibling(ob);
+	}
 
 	if (new_height)
 		this.PARTS.CONTENT_DATA.style.height = new_height + 'px';
-
-	return;
-	var arMargins = [10, parseInt(BX.style(this.PARTS.CONTENT, 'top')), parseInt(BX.style(this.PARTS.CONTENT.firstChild, 'margin-top')), parseInt(BX.style(this.PARTS.CONTENT.firstChild, 'margin-bottom'))];
-	if (BX.browser.IsIE()) arMargins[0] += 5;
-	var margins = 0;
-	for (var i=0; i < arMargins.length; i++)
-		if (!isNaN(arMargins[i]))
-			margins += arMargins[i];
-
-	var height = this.PARTS.CONTENT.firstChild.offsetHeight
-		+ margins
-		+ this.PARTS.TITLEBAR.offsetHeight
-		+ (this.PARTS.FOOT ? this.PARTS.FOOT.offsetHeight : 0)
-		+ (this.PARTS.HEAD ? this.PARTS.HEAD.offsetHeight : 0);
-
-	this.DIV.style.height = height + 'px';
-	this.adjustSize();
 }
 
 
@@ -1634,6 +1706,8 @@ BX.CDialog.prototype.__onResizeFinished = function()
 
 BX.CDialog.prototype.Show = function(bNotRegister)
 {
+	BX.browser.addGlobalClass();
+
 	if ((!this.PARAMS.content) && this.PARAMS.content_url && BX.ajax && !bNotRegister)
 	{
 		var wait = BX.showWait();
@@ -1644,19 +1718,35 @@ BX.CDialog.prototype.Show = function(bNotRegister)
 		this.OVERLAY.style.display = 'block';
 		this.OVERLAY.className = 'bx-core-dialog-overlay';
 
-		var post_data = '', method = 'get';
+		var post_data = '', method = 'GET';
 		if (this.PARAMS.content_post)
 		{
 			post_data = this.PARAMS.content_post;
-			method = 'post';
+			method = 'POST';
 		}
 
-		BX.ajax[method](this.PARAMS.content_url, post_data, BX.delegate(function(data) {
-			BX.closeWait(null, wait);
+		var url = this.PARAMS.content_url
+			+ (this.PARAMS.content_url.indexOf('?')<0?'?':'&')+'bxsender=' + this._sender;
 
-			this.SetContent(data || '&nbsp;');
+		this.auth_callback = BX.delegate(function(){
+			this.PARAMS.content = '';
+			this.hideNotify();
 			this.Show();
-		}, this));
+		}, this)
+
+		BX.ajax({
+			method: method,
+			dataType: 'html',
+			url: url,
+			data: post_data,
+			onsuccess: BX.delegate(function(data) {
+				BX.closeWait(null, wait);
+
+				this.SetContent(data || '&nbsp;');
+				this.Show();
+			}, this),
+			processScriptsConsecutive: true
+		});
 	}
 	else
 	{
@@ -1703,6 +1793,7 @@ BX.CDialog.prototype.btnSave = BX.CDialog.btnSave = {
 	title: BX.message('JS_CORE_WINDOW_SAVE'),
 	id: 'savebtn',
 	name: 'savebtn',
+	className: BX.browser.IsIE() && BX.browser.IsDoctype() && !BX.browser.IsIE10() ? '' : 'adm-btn-save',
 	action: function () {
 		this.disableUntilError();
 		this.parentWindow.PostParameters();
@@ -1732,25 +1823,40 @@ BX.CAdminDialog = function(arParams)
 {
 	BX.CAdminDialog.superclass.constructor.apply(this, arguments);
 
+	this._sender = 'core_window_cadmindialog';
 
-	if (this.PARTS.HEAD.parentNode)
-		this.PARTS.HEAD.parentNode.removeChild(this.PARTS.HEAD);
+	BX.addClass(this.DIV, 'bx-core-adm-admin-dialog');
 
 	this.PARTS.CONTENT.insertBefore(this.PARTS.HEAD, this.PARTS.CONTENT.firstChild);
-
-	this.PARTS.HEAD.className = 'bx-core-admin-dialog-head';
-	this.PARTS.CONTENT.className += ' bx-core-admin-dialog-content';
+	this.PARTS.HEAD.className = 'bx-core-adm-dialog-tabs';
 }
 BX.extend(BX.CAdminDialog, BX.CDialog);
-
 
 BX.CAdminDialog.prototype.SetHead = function()
 {
 	BX.CAdminDialog.superclass.SetHead.apply(this, arguments);
 
-	if (this.PARTS.HEAD.firstChild.firstChild && BX.type.isElementNode(this.PARTS.HEAD.firstChild.firstChild))
+	if (this.PARTS.HEAD.firstChild && BX.type.isElementNode(this.PARTS.HEAD.firstChild))
 	{
-		this.SETTINGS.min_width = Math.max(this.PARTS.HEAD.firstChild.firstChild.offsetWidth, this.SETTINGS.min_width);
+		var ob = this.PARTS.HEAD.firstChild, new_width = 0;
+		while (ob)
+		{
+			new_width += ob.offsetWidth
+				+ parseInt(BX.style(ob, 'margin-left'))
+				+ parseInt(BX.style(ob, 'margin-right'));
+
+			ob = BX.nextSibling(ob);
+		}
+
+		this.SETTINGS.min_width = Math.max(new_width, this.SETTINGS.min_width) - 2;
+		if (this.PARAMS.width < this.SETTINGS.min_width)
+		{
+			BX.adjust(this.PARTS.CONTENT_DATA, {
+				style: {
+					width: this.SETTINGS.min_width + 'px'
+				}
+			});
+		}
 	}
 }
 
@@ -1769,10 +1875,7 @@ BX.CAdminDialog.prototype.SetContent = function(html)
 
 	BX.adjust(this.PARTS.CONTENT_DATA, {
 		children: [
-			BX.create('DIV', {
-				props: {className: 'content-inner'},
-				children: [this.PARAMS.content || '&nbsp;']
-			})
+			this.PARAMS.content || '&nbsp;'
 		]
 	});
 
@@ -1785,7 +1888,7 @@ BX.CAdminDialog.prototype.SetContent = function(html)
 
 BX.CAdminDialog.prototype.__adjustSizeEx = function()
 {
-	var new_height = this.PARTS.CONTENT_DATA.firstChild.offsetHeight;
+	var new_height = BX.firstChild(this.PARTS.CONTENT_DATA).offsetHeight;
 	if (new_height)
 		this.PARTS.CONTENT_DATA.style.height = new_height + 'px';
 }
@@ -1794,7 +1897,11 @@ BX.CAdminDialog.prototype.__expandGetSize = function()
 {
 	var res = BX.CAdminDialog.superclass.__expandGetSize.apply(this, arguments);
 
+	res.width -= parseInt(BX.style(this.PARTS.CONTENT_DATA, 'padding-right')) + parseInt(BX.style(this.PARTS.CONTENT_DATA, 'padding-left'));
+	res.height -= parseInt(BX.style(this.PARTS.CONTENT_DATA, 'padding-top')) + parseInt(BX.style(this.PARTS.CONTENT_DATA, 'padding-bottom'));
+
 	res.height -= this.PARTS.HEAD.offsetHeight;
+
 	return res;
 }
 
@@ -1819,6 +1926,7 @@ BX.CAdminDialog.prototype.btnSave = BX.CAdminDialog.btnSave = {
 	title: BX.message('JS_CORE_WINDOW_SAVE'),
 	id: 'savebtn',
 	name: 'savebtn',
+	className: 'adm-btn-save',
 	action: function () {
 		this.disableUntilError();
 		this.parentWindow.Submit();
@@ -1833,39 +1941,6 @@ BX.CDebugDialog = function(arParams)
 	BX.CDebugDialog.superclass.constructor.apply(this, arguments);
 }
 BX.extend(BX.CDebugDialog, BX.CDialog);
-
-BX.CDebugDialog.prototype.Show = function()
-{
-	BX.CDebugDialog.superclass.Show.apply(this, arguments);
-
-	/*
-	if (BX.browser.IsIE())
-	{
-		BX.cleanNode(this.PARTS.CONTENT_DATA).style.padding = '0px !important';
-		this.PARTS.CONTENT_BOTTOM = this.PARTS.CONTENT_DATA.appendChild(BX.create('DIV', {style: {
-			width: '100%', overflow: 'auto'
-		}, html: this.PARAMS.content}));
-
-		BX.adjust(this.PARTS.CONTENT_DATA.parentNode.parentNode.parentNode, {
-			style: {marginTop: this.PARTS.CONTENT_TOP ? this.PARTS.CONTENT_TOP.style.height : '0px'},
-			attrs: {cellSpacing: '0px', cellPadding: '0px'}
-		});
-
-		BX.adjust(this.PARTS.CONTENT_DATA, {style: {
-			padding: '0px', backgroundImage: 'none'
-		}});
-
-		this.__adjustSize();
-	}
-	else
-	{
-		if (this.PARTS.CONTENT_TOP)
-			this.PARTS.CONTENT_DATA.style.marginTop = this.PARTS.CONTENT_TOP.style.height;
-
-		this.PARTS.CONTENT_DATA.style.overflow = 'auto';
-	}
-	*/
-}
 
 BX.CDebugDialog.prototype.ShowDetails = function(div_id)
 {
@@ -1882,7 +1957,8 @@ BX.CDebugDialog.prototype.ShowDetails = function(div_id)
 
 BX.CDebugDialog.prototype.SetContent = function(html)
 {
-	if (!html) return;
+	if (!html)
+		return;
 
 	var arHtml = html.split('#DIVIDER#');
 	if (arHtml.length > 1)
@@ -1895,14 +1971,8 @@ BX.CDebugDialog.prototype.SetContent = function(html)
 
 		this.PARTS.CONTENT_INNER = this.PARTS.CONTENT_DATA.firstChild.nextSibling;
 		this.PARTS.CONTENT_TOP = this.PARTS.CONTENT_DATA.insertBefore(BX.create('DIV', {
-			style: {
-				position: 'relative',
-				top: '0px',
-				left: '0px',
-				height: '120px',
-				overflow: 'auto',
-				backgroundColor: 'white',
-				borderBottom: '1px solid #D0D0D0'
+			props: {
+				className: 'bx-debug-content-top'
 			},
 			html: arHtml[0]
 		}), this.PARTS.CONTENT_INNER);
@@ -1914,23 +1984,99 @@ BX.CDebugDialog.prototype.SetContent = function(html)
 	}
 }
 
-
 BX.CDebugDialog.prototype.__adjustSize = function()
 {
 	BX.CDebugDialog.superclass.__adjustSize.apply(this, arguments);
 
 	if (this.PARTS.CONTENT_TOP)
 	{
-		var new_height = this.PARTS.CONTENT_DATA.offsetHeight - this.PARTS.HEAD.offsetHeight - this.PARTS.CONTENT_TOP.offsetHeight - 20;
+		var new_height = this.PARTS.CONTENT_DATA.offsetHeight - this.PARTS.HEAD.offsetHeight - this.PARTS.CONTENT_TOP.offsetHeight - 38;
 
 		if (new_height > 0)
 		{
 			this.PARTS.CONTENT_INNER.style.height = new_height + 'px';
-
 		}
 	}
 }
 
+
+/* class for dialog window with editors */
+
+BX.CEditorDialog = function(arParams)
+{
+	BX.CEditorDialog.superclass.constructor.apply(this, arguments);
+
+	BX.removeClass(this.PARTS.CONTENT, 'bx-core-adm-dialog-content-wrap');
+	BX.removeClass(this.PARTS.CONTENT_DATA, 'bx-core-adm-dialog-content');
+
+	BX.removeClass(this.PARTS.CONTENT_DATA.lastChild, 'bx-core-adm-dialog-content-wrap-inner');
+	BX.removeClass(this.PARTS.BUTTONS_CONTAINER, 'bx-core-adm-dialog-buttons');
+
+	BX.addClass(this.PARTS.CONTENT, 'bx-core-editor-dialog-content-wrap');
+	BX.addClass(this.PARTS.CONTENT_DATA, 'bx-core-editor-dialog-content');
+	BX.addClass(this.PARTS.BUTTONS_CONTAINER, 'bx-core-editor-dialog-buttons');
+}
+BX.extend(BX.CEditorDialog, BX.CDialog);
+
+BX.CEditorDialog.prototype.SetContent  = function()
+{
+	BX.CEditorDialog.superclass.SetContent.apply(this, arguments);
+
+	BX.removeClass(this.PARTS.CONTENT_DATA.lastChild, 'bx-core-adm-dialog-content-wrap-inner');
+}
+
+/* class for auth dialog */
+BX.CAuthDialog = function(arParams)
+{
+	arParams.resizable = false;
+	arParams.width = 350;
+	arParams.height = 200;
+
+	arParams.buttons = [this.btnSave];
+
+	BX.CAuthDialog.superclass.constructor.apply(this, arguments);
+	this._sender = 'core_window_cauthdialog';
+
+	BX.addClass(this.DIV, 'bx-core-auth-dialog');
+
+	BX.AUTHAGENT = this;
+}
+BX.extend(BX.CAuthDialog, BX.CDialog);
+
+BX.CAuthDialog.prototype.btnSave = BX.CAuthDialog.btnSave = {
+	title: BX.message('JS_CORE_WINDOW_AUTH'),
+	id: 'savebtn',
+	name: 'savebtn',
+	className: 'adm-btn-save',
+	action: function () {
+		this.disableUntilError();
+		this.parentWindow.Submit({}, this.parentWindow.PARAMS.content_url);
+	}
+};
+
+BX.CAuthDialog.prototype.SetError = function(error)
+{
+	BX.closeWait();
+
+	if (!!error)
+		this.ShowError(error.MESSAGE || error);
+}
+
+BX.CAuthDialog.prototype.setAuthResult = function(result)
+{
+	BX.closeWait();
+
+	if (result === false)
+	{
+		this.Close();
+		if (this.PARAMS.callback)
+			this.PARAMS.callback();
+	}
+	else
+	{
+		this.SetError(result);
+	}
+}
 
 /* MENU CLASSES */
 
@@ -1958,14 +2104,7 @@ BX.CWindowFloat.prototype.adjustToPos = function(pos)
 
 BX.CWindowFloat.prototype.adjustToNodeGetPos = function()
 {
-	var pos = BX.pos(this.PARAMS.parent, true);
-
-	if (this.DIV.parentNode != this.PARAMS.parent)
-	{
-		this.DIV.parentNode.removeChild(this.DIV);
-		this.PARAMS.parent.insertBefore(this.DIV, this.PARAMS.parent.firstChild);
-	}
-
+	var pos = BX.pos(this.PARAMS.parent);
 	return pos;
 }
 
@@ -1988,6 +2127,7 @@ BX.CWindowFloat.prototype.adjustToNode = function(el)
 
 BX.CWindowFloat.prototype.Show = function()
 {
+	this.adjustToPos([-1000, -1000]);
 	BX.CWindowFloat.superclass.Show.apply(this, arguments);
 	this.adjustPos();
 }
@@ -1998,28 +2138,53 @@ BX.CWindowFloat.prototype.Show = function()
 	DOMNode DIV,
 	BX.CMenu or Array MENU,
 	TYPE = 'hover' | 'click',
-	TIMEOUT: 500
+	TIMEOUT: 1000
+	ATTACH_MODE: 'top' | 'right'
+	ACTIVE_CLASS: className for opener element when menu is opened
 }
 */
 BX.COpener = function(arParams)
 {
 	this.PARAMS = arParams || {};
 
-	this.MENU = arParams.MENU;
+	this.MENU = arParams.MENU || [];
 
 	this.DIV = arParams.DIV;
 	this.ATTACH = arParams.ATTACH || arParams.DIV;
+	this.ATTACH_MODE = arParams.ATTACH_MODE || 'bottom';
+
+	this.ACTIVE_CLASS = arParams.ACTIVE_CLASS || '';
+	this.LEVEL = arParams.LEVEL || 0;
+
+	this.CLOSE_ON_CLICK = typeof arParams.CLOSE_ON_CLICK != 'undefined' ? !!arParams.CLOSE_ON_CLICK : true;
+	this.ADJUST_ON_CLICK = typeof arParams.ADJUST_ON_CLICK != 'undefined' ? !!arParams.ADJUST_ON_CLICK : true;
 
 	this.TYPE = this.PARAMS.TYPE == 'hover' ? 'hover' : 'click';
 
-	if (arParams.TIMEOUT !== 0)
-		this.TIMEOUT = arParams.TIMEOUT || 10;
+	this._openTimeout = null;
+
+	if (this.PARAMS.TYPE == 'hover' && arParams.TIMEOUT !== 0)
+		this.TIMEOUT = arParams.TIMEOUT || 1000;
 	else
 		this.TIMEOUT = 0;
 
-	this.bOpen = false;
+	if (!!this.PARAMS.MENU_URL)
+	{
+		this.bMenuLoaded = false;
+		this.bMenuLoading = false;
 
-	BX.ready(BX.delegate(this.Init, this));
+		this.MENU = [{
+			TEXT: BX.message('JS_CORE_LOADING'),
+			CLOSE_ON_CLICK: false
+		}];
+
+		if (this.PARAMS.MENU_PRELOAD)
+		{
+			BX.defer(this.Load, this)();
+		}
+	}
+
+	BX.ready(BX.defer(this.Init, this));
 }
 
 BX.COpener.prototype.Init = function()
@@ -2029,11 +2194,12 @@ BX.COpener.prototype.Init = function()
 	switch (this.TYPE)
 	{
 		case 'hover':
-			BX.adjust(this.DIV, {'events': {'mouseover': BX.delegate(this.Open, this)}});
+			BX.bind(this.DIV, 'mouseover', BX.proxy(this.Open, this));
+			BX.bind(this.DIV, 'click', BX.proxy(this.Toggle, this));
 		break;
 
 		case 'click':
-			this.DIV.onclick = BX.delegate(this.Toggle, this);
+			BX.bind(this.DIV, 'click', BX.proxy(this.Toggle, this));
 		break;
 	}
 
@@ -2042,15 +2208,70 @@ BX.COpener.prototype.Init = function()
 	this.bMenuInit = false;
 }
 
-BX.COpener.prototype.Toggle = function(e)
+BX.COpener.prototype.Load = function()
 {
-	if (!this.bOpen)
-		this.Open(e);
+	if (this.PARAMS.MENU_URL && !this.bMenuLoaded)
+	{
+		if (!this.bMenuLoading)
+		{
+			var url = this.PARAMS.MENU_URL;
+			if (url.indexOf('sessid=') <= 0)
+				url += (url.indexOf('?') > 0 ? '&' : '?') + 'sessid=' + BX.bitrix_sessid();
 
-	//closing will be done by window itself
+			this.bMenuLoading = true;
+			BX.ajax.loadJSON(url, BX.proxy(this.SetMenu, this), BX.proxy(this.LoadFailed, this));
+		}
+	}
 }
 
-BX.COpener.prototype.Open = function(e)
+BX.COpener.prototype.SetMenu = function(menu)
+{
+	this.bMenuLoaded = true;
+	this.bMenuLoading = false;
+	if (this.bMenuInit)
+	{
+		this.MENU.setItems(menu);
+	}
+	else
+	{
+		this.MENU = menu;
+	}
+}
+
+BX.COpener.prototype.LoadFailed = function()
+{
+	this.bMenuLoading = false;
+	BX.debug(arguments);
+}
+
+BX.COpener.prototype.checkAdminMenu = function()
+{
+	if (document.documentElement.id == 'bx-admin-prefix')
+		return true;
+
+	return !!BX.findParent(this.DIV, {property: {id: 'bx-admin-prefix'}});
+}
+
+BX.COpener.prototype.Toggle = function(e)
+{
+	this.__clear_timeout();
+
+	if (!this.bMenuInit || !this.MENU.visible())
+	{
+		var t = this.TIMEOUT;
+		this.TIMEOUT = 0;
+		this.Open(e);
+		this.TIMEOUT = t;
+	}
+	else
+	{
+		this.MENU.Close();
+	}
+
+	return !!(e||window.event) && BX.PreventDefault(e);
+}
+
+BX.COpener.prototype.GetMenu = function()
 {
 	if (!this.bMenuInit)
 	{
@@ -2058,34 +2279,124 @@ BX.COpener.prototype.Open = function(e)
 		{
 			this.MENU = new BX.CMenu({
 				ITEMS: this.MENU,
-				ATTACH_MODE: 'bottom',
+				ATTACH_MODE: this.ATTACH_MODE,
+				SET_ID: this.checkAdminMenu() ? 'bx-admin-prefix' : '',
+				CLOSE_ON_CLICK: !!this.CLOSE_ON_CLICK,
+				ADJUST_ON_CLICK: !!this.ADJUST_ON_CLICK,
+				LEVEL: this.LEVEL,
 				parent: BX(this.DIV),
 				parent_attach: BX(this.ATTACH)
 			});
+
+			if (this.LEVEL > 0)
+			{
+				BX.bind(this.MENU.DIV, 'mouseover', BX.proxy(this._on_menu_hover, this));
+				BX.bind(this.MENU.DIV, 'mouseout', BX.proxy(this._on_menu_hout, this));
+			}
 		}
 
-		BX.addCustomEvent(this.MENU, 'onMenuOpen', BX.delegate(this.handler_onopen, this));
-		BX.addCustomEvent(this.MENU, 'onMenuClose', BX.delegate(this.handler_onclose, this));
+		BX.addCustomEvent(this.MENU, 'onMenuOpen', BX.proxy(this.handler_onopen, this));
+		BX.addCustomEvent(this.MENU, 'onMenuClose', BX.proxy(this.handler_onclose, this));
+
+		BX.addCustomEvent('onMenuItemHover', BX.proxy(this.handler_onover, this));
 
 		this.bMenuInit = true;
 	}
 
+	return this.MENU;
+}
+
+BX.COpener.prototype.Open = function(e)
+{
+	this.GetMenu();
+
 	this.bOpen = true;
+
+	this.__clear_timeout();
+
 	if (this.TIMEOUT > 0)
-		setTimeout(BX.proxy(this.__open, this), this.TIMEOUT);
+	{
+		BX.bind(this.DIV, 'mouseout', BX.proxy(this.__clear_timeout, this));
+		this._openTimeout = setTimeout(BX.proxy(this.__open, this), this.TIMEOUT);
+	}
 	else
+	{
 		this.__open();
+	}
 
-	//return BX.PreventDefault(e);
+	if (!!this.PARAMS.MENU_URL && !this.bMenuLoaded)
+	{
+		this._loadTimeout = setTimeout(BX.proxy(this.Load, this), parseInt(this.TIMEOUT/2));
+	}
+
+	return true;
 }
 
-BX.COpener.prototype.handler_onopen = function(){
+BX.COpener.prototype.__clear_timeout = function()
+{
+	if (!!this._openTimeout)
+		clearTimeout(this._openTimeout);
+	if (!!this._loadTimeout)
+		clearTimeout(this._loadTimeout);
+
+	BX.unbind(this.DIV, 'mouseout', BX.proxy(this.__clear_timeout, this));
+}
+
+BX.COpener.prototype._on_menu_hover = function()
+{
+	this.bMenuHover = true;
+
+	this.__clear_timeout();
+
+	if (this.ACTIVE_CLASS)
+		BX.addClass(this.DIV, this.ACTIVE_CLASS);
+
+}
+
+BX.COpener.prototype._on_menu_hout = function()
+{
+	this.bMenuHover = false;
+}
+
+BX.COpener.prototype.handler_onover = function(level, opener)
+{
+	if (this.bMenuHover)
+		return;
+
+	if (opener != this && level == this.LEVEL-1 && this.ACTIVE_CLASS)
+	{
+		BX.removeClass(this.DIV, this.ACTIVE_CLASS);
+	}
+
+	if (this.bMenuInit && level <= this.LEVEL-1 && this.MENU.visible())
+	{
+		if (opener != this)
+		{
+			this.__clear_timeout();
+			this._openTimeout = setTimeout(BX.proxy(this.Close, this), this.TIMEOUT);
+		}
+	}
+}
+
+BX.COpener.prototype.handler_onopen = function()
+{
 	this.bOpen = true;
-	BX.onCustomEvent(this, 'onOpenerMenuOpen');
+
+	if (this.ACTIVE_CLASS)
+		BX.addClass(this.DIV, this.ACTIVE_CLASS);
+
+	BX.defer(function() {
+		BX.onCustomEvent(this, 'onOpenerMenuOpen');
+	}, this)();
 }
-BX.COpener.prototype.handler_onclose = function(){
+
+BX.COpener.prototype.handler_onclose = function()
+{
 	this.bOpen = false;
 	BX.onCustomEvent(this, 'onOpenerMenuClose');
+
+	if (this.ACTIVE_CLASS)
+		BX.removeClass(this.DIV, this.ACTIVE_CLASS);
 }
 
 BX.COpener.prototype.Close = function(e)
@@ -2093,26 +2404,461 @@ BX.COpener.prototype.Close = function(e)
 	if (!this.bMenuInit)
 		return;
 
+	if (!!this._openTimeout)
+		clearTimeout(this._openTimeout);
+
 	this.bOpen = false;
-	if (this.TIMEOUT > 0)
-		setTimeout(BX.proxy(this.__close, this), this.TIMEOUT-10);
-	else
-		this.__close();
+
+	this.__close();
 }
 
-BX.COpener.prototype.__open = function(){
+BX.COpener.prototype.__open = function()
+{
+	this.__clear_timeout();
+
 	if (this.bMenuInit && this.bOpen && !this.MENU.visible())
 		this.MENU.Show();
 }
-BX.COpener.prototype.__close = function(){
-	if (this.bMenuInit && !this.bOpen && this.MENU.visible()) this.MENU.Hide();
+
+BX.COpener.prototype.__close = function()
+{
+	if (this.bMenuInit && !this.bOpen && this.MENU.visible())
+		this.MENU.Hide();
 }
+
 BX.COpener.prototype.__close_immediately = function() {
 	this.bOpen = false; this.__close();
 }
+
 BX.COpener.prototype.isMenuVisible = function() {
 	return null != this.MENU.visible && this.MENU.visible()
 }
+
+/* common menu class */
+
+BX.CMenu = function(arParams)
+{
+	BX.browser.addGlobalClass();
+	BX.CMenu.superclass.constructor.apply(this);
+
+	this.DIV.style.width = 'auto';//this.DIV.firstChild.offsetWidth + 'px';
+	this.DIV.style.height = 'auto';//this.DIV.firstChild.offsetHeight + 'px';
+
+	this.PARAMS = arParams || {};
+	this.PARTS = {};
+
+	this.PARAMS.ATTACH_MODE = this.PARAMS.ATTACH_MODE || 'bottom';
+	this.PARAMS.CLOSE_ON_CLICK = typeof this.PARAMS.CLOSE_ON_CLICK == 'undefined' ? true : this.PARAMS.CLOSE_ON_CLICK;
+	this.PARAMS.ADJUST_ON_CLICK = typeof this.PARAMS.ADJUST_ON_CLICK == 'undefined' ? true : this.PARAMS.ADJUST_ON_CLICK;
+	this.PARAMS.LEVEL = this.PARAMS.LEVEL || 0;
+
+	this.DIV.className = 'bx-core-popup-menu bx-core-popup-menu-' + this.PARAMS.ATTACH_MODE + ' bx-core-popup-menu-level' + this.PARAMS.LEVEL;
+
+ + (typeof this.PARAMS.ADDITIONAL_CLASS != 'undefined' ? ' ' + this.PARAMS.ADDITIONAL_CLASS : '')
+	if (!!this.PARAMS.SET_ID)
+		this.DIV.id = this.PARAMS.SET_ID;
+
+	if (this.PARAMS.LEVEL == 0)
+	{
+		this.ARROW = this.DIV.appendChild(BX.create('SPAN', {props: {className: 'bx-core-popup-menu-angle'}, style: {left:'15px'}}));
+	}
+
+	if (!!this.PARAMS.CLASS_NAME)
+		this.DIV.className += ' ' + this.PARAMS.CLASS_NAME;
+
+	BX.bind(this.DIV, 'click', BX.eventCancelBubble);
+
+	this.ITEMS = [];
+
+	this.setItems(this.PARAMS.ITEMS);
+
+	BX.addCustomEvent('onMenuOpen', BX.proxy(this._onMenuOpen, this));
+	BX.addCustomEvent('onMenuItemSelected', BX.proxy(this.Hide, this));
+}
+BX.extend(BX.CMenu, BX.CWindowFloat);
+
+BX.CMenu.broadcastCloseEvent = function()
+{
+	BX.onCustomEvent("onMenuItemSelected");
+}
+
+BX.CMenu._toggleChecked = function()
+{
+	BX.toggleClass(this, 'bx-core-popup-menu-item-checked');
+}
+
+BX.CMenu._itemDblClick = function()
+{
+	window.location.href = this.href;
+}
+
+BX.CMenu.prototype.toggleArrow = function(v)
+{
+	if (!!this.ARROW)
+	{
+		if (typeof v == 'undefined')
+		{
+			v = this.ARROW.style.visibility == 'hidden';
+		}
+
+		this.ARROW.style.visibility = !!v ? 'visible' : 'hidden';
+	}
+}
+
+BX.CMenu.prototype.visible = function()
+{
+	return this.DIV.style.display !== 'none';
+}
+
+BX.CMenu.prototype._onMenuOpen = function(menu, menu_level)
+{
+	if (this.visible())
+	{
+		if (menu_level == this.PARAMS.LEVEL && menu != this)
+		{
+			this.Hide();
+		}
+	}
+}
+
+BX.CMenu.prototype.onUnRegister = function()
+{
+	if (!this.visible())
+		return;
+
+	this.Hide();
+}
+
+BX.CMenu.prototype.setItems = function(items)
+{
+	this.PARAMS.ITEMS = items;
+
+	BX.cleanNode(this.DIV);
+
+	if (!!this.ARROW)
+		this.DIV.appendChild(this.ARROW);
+
+	if (this.PARAMS.ITEMS)
+	{
+		this.PARAMS.ITEMS = BX.util.array_values(this.PARAMS.ITEMS);
+
+		var bIcons = false;
+		var cnt = 0;
+		for (var i = 0, len = this.PARAMS.ITEMS.length; i < len; i++)
+		{
+			if ((i == 0 || i == len-1) && this.PARAMS.ITEMS[i].SEPARATOR)
+				continue;
+
+			cnt++;
+
+			if (!bIcons)
+				bIcons = !!this.PARAMS.ITEMS[i].GLOBAL_ICON;
+
+			this.addItem(this.PARAMS.ITEMS[i], i);
+		}
+
+		// Occam turning in his grave
+		if (cnt === 1)
+			BX.addClass(this.DIV, 'bx-core-popup-menu-single-item');
+		else
+			BX.removeClass(this.DIV, 'bx-core-popup-menu-single-item');
+
+		if (!bIcons)
+			BX.addClass(this.DIV, 'bx-core-popup-menu-no-icons');
+		else
+			BX.removeClass(this.DIV, 'bx-core-popup-menu-no-icons');
+
+	}
+}
+
+BX.CMenu.prototype.addItem = function(item, index)
+{
+	this.ITEMS.push(item);
+
+	if (item.SEPARATOR)
+	{
+		item.NODE = BX.create(
+			'DIV', {props: {className: 'bx-core-popup-menu-separator'}}
+		);
+	}
+	else
+	{
+		var bHasMenu = (!!item.MENU
+			&& (
+				(BX.type.isArray(item.MENU) && item.MENU.length > 0)
+				|| item.MENU instanceof BX.CMenu
+			) || !!item.MENU_URL
+		);
+
+		if (item.DISABLED)
+		{
+			item.CLOSE_ON_CLICK = false;
+			item.LINK = null;
+			item.ONCLICK = null;
+			item.ACTION = null;
+		}
+
+		item.NODE = BX.create(!!item.LINK || BX.browser.IsIE() && !BX.browser.IsDoctype() ? 'A' : 'SPAN', {
+			props: {
+				className: 'bx-core-popup-menu-item'
+					+ (bHasMenu ? ' bx-core-popup-menu-item-opener' : '')
+					+ (!!item.DEFAULT ? ' bx-core-popup-menu-item-default' : '')
+					+ (!!item.DISABLED ? ' bx-core-popup-menu-item-disabled' : '')
+					+ (!!item.CHECKED ? ' bx-core-popup-menu-item-checked' : ''),
+				title: !!BX.message['MENU_ENABLE_TOOLTIP'] ? item.TITLE || '' : '',
+				BXMENULEVEL: this.PARAMS.LEVEL
+			},
+			attrs: !!item.LINK || BX.browser.IsIE() && !BX.browser.IsDoctype() ? {href: item.LINK || 'javascript:void(0)'} : {},
+			events: {
+				mouseover: function()
+				{
+					BX.onCustomEvent('onMenuItemHover', [this.BXMENULEVEL, this.OPENER])
+				}
+			},
+			html: '<span class="bx-core-popup-menu-item-icon' + (item.GLOBAL_ICON ? ' '+item.GLOBAL_ICON : '') + '"></span><span class="bx-core-popup-menu-item-text">'+item.TEXT+'</span>'
+		});
+
+		if (bHasMenu && !item.DISABLED)
+		{
+			item.NODE.OPENER = new BX.COpener({
+				DIV: item.NODE,
+				ACTIVE_CLASS: 'bx-core-popup-menu-item-opened',
+				TYPE: 'hover',
+				MENU: item.MENU,
+				MENU_URL: item.MENU_URL,
+				MENU_PRELOAD: !!item.MENU_PRELOAD,
+				LEVEL: this.PARAMS.LEVEL + 1,
+				ATTACH_MODE:'right',
+				TIMEOUT: 500
+			});
+		}
+		else if (this.PARAMS.CLOSE_ON_CLICK && (typeof item.CLOSE_ON_CLICK == 'undefined' || !!item.CLOSE_ON_CLICK))
+		{
+			BX.bind(item.NODE, 'click', BX.CMenu.broadcastCloseEvent);
+		}
+		else if (this.PARAMS.ADJUST_ON_CLICK && (typeof item.ADJUST_ON_CLICK == 'undefined' || !!item.ADJUST_ON_CLICK))
+		{
+			BX.bind(item.NODE, 'click', BX.defer(this.adjustPos, this));
+		}
+
+		if (bHasMenu && !!item.LINK)
+		{
+			BX.bind(item.NODE, 'dblclick', BX.CMenu._itemDblClick);
+		}
+
+		if (typeof item.CHECKED != 'undefined')
+		{
+			BX.bind(item.NODE, 'click', BX.CMenu._toggleChecked);
+		}
+
+		item.ONCLICK = item.ACTION || item.ONCLICK;
+		if (!!item.ONCLICK)
+		{
+			if (BX.type.isString(item.ONCLICK))
+			{
+				item.ONCLICK = new Function("event", item.ONCLICK);
+			}
+
+			BX.bind(item.NODE, 'click', item.ONCLICK);
+		}
+	}
+
+	this.DIV.appendChild(item.NODE);
+}
+
+BX.CMenu.prototype._documentClickBind = function()
+{
+	this._documentClickUnBind();
+	BX.bind(document, 'click', BX.proxy(this._documentClick, this));
+}
+
+BX.CMenu.prototype._documentClickUnBind = function()
+{
+	BX.unbind(document, 'click', BX.proxy(this._documentClick, this));
+}
+
+BX.CMenu.prototype._documentClick = function(e)
+{
+	e = e||window.event;
+	if(!!e && !(BX.getEventButton(e)&BX.MSLEFT))
+		return;
+
+	this.Close();
+}
+
+BX.CMenu.prototype.Show = function()
+{
+	BX.onCustomEvent(this, 'onMenuOpen', [this, this.PARAMS.LEVEL]);
+	BX.CMenu.superclass.Show.apply(this, []);
+
+	this.bCloseEventFired = false;
+
+	BX.addCustomEvent(this.PARAMS.parent_attach, 'onChangeNodePosition', BX.proxy(this.adjustToNode, this));
+
+	(BX.defer(this._documentClickBind, this))();
+}
+
+BX.CMenu.prototype.Close = // we shouldn't 'Close' window - only hide
+BX.CMenu.prototype.Hide = function()
+{
+	if (!this.visible())
+		return;
+
+	BX.removeCustomEvent(this.PARAMS.parent_attach, 'onChangeNodePosition', BX.proxy(this.adjustToNode, this));
+
+	this._documentClickUnBind();
+
+	if (!this.bCloseEventFired)
+	{
+		BX.onCustomEvent(this, 'onMenuClose', [this, this.PARAMS.LEVEL]);
+		this.bCloseEventFired = true;
+	}
+	BX.CMenu.superclass.Hide.apply(this, arguments);
+
+
+//	this.DIV.onclick = null;
+	//this.PARAMS.parent.onclick = null;
+}
+
+BX.CMenu.prototype.__adjustMenuToNode = function()
+{
+	var pos = BX.pos(this.PARAMS.parent_attach),
+		bFixed = !!BX.findParent(this.PARAMS.parent_attach, BX.is_fixed);
+
+	if (bFixed)
+		this.DIV.style.position = 'fixed';
+	else
+		this.DIV.style.position = 'absolute';
+
+	if (!pos.top)
+	{
+		this.DIV.style.top = '-1000px';
+		this.DIV.style.left = '-1000px';
+	}
+
+	if (this.bTimeoutSet) return;
+
+	var floatWidth = this.DIV.offsetWidth, floatHeight = this.DIV.offsetHeight;
+	if (!floatWidth)
+	{
+		setTimeout(BX.delegate(function(){
+			this.bTimeoutSet = false; this.__adjustMenuToNode();
+		}, this), 100);
+
+		this.bTimeoutSet = true;
+		return;
+	}
+
+	var menu_pos = {},
+		wndSize = BX.GetWindowSize();
+
+/*
+	if (BX.browser.IsIE() && !BX.browser.IsDoctype())
+	{
+		pos.top -= 4; pos.bottom -= 4;
+		pos.left -= 2; pos.right -= 2;
+	}
+*/
+
+	switch (this.PARAMS.ATTACH_MODE)
+	{
+		case 'bottom':
+			menu_pos.top = pos.bottom + 9;
+			menu_pos.left = pos.left;
+
+			if (!!this.ARROW)
+			{
+				var arrowPos = parseInt(this.ARROW.style.left);
+				if (pos.width > floatWidth)
+					arrowPos = parseInt(floatWidth/2 - 7);
+				else
+					arrowPos = parseInt(Math.min(floatWidth, pos.width)/2 - 7);
+
+				if (arrowPos < 7)
+				{
+					menu_pos.left -= 15;
+					arrowPos += 15;
+				}
+			}
+
+			if (menu_pos.left > wndSize.scrollWidth - floatWidth - 10)
+			{
+				var orig_menu_pos = menu_pos.left;
+				menu_pos.left = wndSize.scrollWidth - floatWidth - 10;
+
+				if (!!this.ARROW)
+					arrowPos += orig_menu_pos - menu_pos.left;
+			}
+
+			if (bFixed)
+			{
+				menu_pos.left -= wndSize.scrollLeft;
+			}
+
+			if (!!this.ARROW)
+				this.ARROW.style.left = arrowPos + 'px';
+		break;
+		case 'right':
+			menu_pos.top = pos.top-1;
+			menu_pos.left = pos.right;
+
+			if (menu_pos.left > wndSize.scrollWidth - floatWidth - 10)
+			{
+				menu_pos.left = pos.left - floatWidth - 1;
+			}
+		break;
+	}
+
+	if (bFixed)
+	{
+		menu_pos.top -= wndSize.scrollTop;
+	}
+
+	if (!!this.ARROW)
+		this.ARROW.className = 'bx-core-popup-menu-angle'
+
+	if((menu_pos.top + floatHeight > wndSize.scrollTop + wndSize.innerHeight)
+		|| (menu_pos.top + floatHeight > wndSize.scrollHeight))
+	{
+		var new_top = this.PARAMS.ATTACH_MODE == 'bottom'
+			? pos.top - floatHeight - 9
+			: pos.bottom - floatHeight + 1;
+
+		if((new_top > wndSize.scrollTop)
+			|| (menu_pos.top + floatHeight > wndSize.scrollHeight))
+		{
+			if ((menu_pos.top + floatHeight > wndSize.scrollHeight))
+			{
+				menu_pos.top = Math.max(0, wndSize.scrollHeight-floatHeight);
+				this.toggleArrow(false);
+			}
+			else
+			{
+				menu_pos.top = new_top;
+
+				if (!!this.ARROW)
+					this.ARROW.className = 'bx-core-popup-menu-angle-bottom';
+			}
+		}
+	}
+
+	if (menu_pos.top + menu_pos.left == 0)
+	{
+		this.Hide();
+	}
+	else
+	{
+		this.DIV.style.top = menu_pos.top + 'px';
+		this.DIV.style.left = menu_pos.left + 'px';
+	}
+}
+
+BX.CMenu.prototype.adjustToNode = function(el)
+{
+	this.PARAMS.parent_attach = BX(el) || this.PARAMS.parent_attach || this.PARAMS.parent;
+	this.__adjustMenuToNode();
+}
+
 
 /* components toolbar class */
 
@@ -2146,7 +2892,7 @@ BX.CMenuOpener = function(arParams)
 	//set internal structure and register draggable element
 	this.PARTS.INNER = this.DIV.firstChild.appendChild(BX.create('SPAN', {
 		props: {className: 'bx-context-toolbar-inner'},
-		html: '<span class="bx-context-toolbar-drag-icon"></span><br>'
+		html: '<span class="bx-context-toolbar-drag-icon"></span><span class="bx-context-toolbar-vertical-line"></span><br>'
 	}));
 
 	this.EXTRA_BUTTONS = {};
@@ -2195,8 +2941,6 @@ BX.CMenuOpener = function(arParams)
 
 	if (this.EXTRA_BUTTONS['components2_props'])
 	{
-		this.PARTS.ICONS.appendChild(BX.create('SPAN', {props: {className: 'bx-context-toolbar-separator'}}));
-
 		var btn = this.EXTRA_BUTTONS['components2_props'] || {URL: 'javascript:void(0)'};
 		if (null == this.defaultAction)
 		{
@@ -2207,7 +2951,7 @@ BX.CMenuOpener = function(arParams)
 		btn.URL = 'javascript:' + BX.util.urlencode(btn.ONCLICK);
 
 		this.ATTACH = this.PARTS.ICONS.appendChild(BX.create('SPAN', {
-			props: {className: 'bx-context-toolbar-button'},
+			props: {className: 'bx-context-toolbar-button bx-context-toolbar-button-settings' },
 			children:
 			[
 				BX.create('SPAN',
@@ -2218,8 +2962,9 @@ BX.CMenuOpener = function(arParams)
 						BX.create('A', {
 							attrs: {href: btn.URL},
 							events: {
-								'mouseover': function() {this.parentNode.parentNode.className+=' bx-context-toolbar-button-text-hover'},
-								'mouseout': function() {this.parentNode.parentNode.className='bx-context-toolbar-button'}
+								mouseover: BX.proxy(this.__msover_text, this),
+								mouseout: BX.proxy(this.__msout_text, this),
+								mousedown: BX.proxy(this.__msdown_text, this)
 							},
 							html: '<span class="bx-context-toolbar-button-icon bx-context-toolbar-settings-icon"></span>'
 						}),
@@ -2227,8 +2972,9 @@ BX.CMenuOpener = function(arParams)
 							attrs: {href: 'javascript: void(0)'},
 							props: {className: 'bx-context-toolbar-button-arrow'},
 							events: {
-								'mouseover': function() {this.parentNode.parentNode.className += ' bx-context-toolbar-button-arrow-hover'},
-								'mouseout': function() {this.parentNode.parentNode.className='bx-context-toolbar-button'}
+								mouseover: BX.proxy(this.__msover_arrow, this),
+								mouseout: BX.proxy(this.__msout_arrow, this),
+								mousedown: BX.proxy(this.__msdown_arrow, this)
 							},
 							html: '<span class="bx-context-toolbar-button-arrow"></span>'
 						})
@@ -2238,12 +2984,16 @@ BX.CMenuOpener = function(arParams)
 		}));
 
 		this.OPENER = this.ATTACH.firstChild.lastChild;
-		this.attachMenu(this.EXTRA_BUTTONS['components2_submenu']['MENU']);
+
+		var opener = this.attachMenu(this.EXTRA_BUTTONS['components2_submenu']['MENU']);
+
+		BX.addCustomEvent(opener, 'onOpenerMenuOpen', BX.proxy(this.__menu_open, this));
+		BX.addCustomEvent(opener, 'onOpenerMenuClose', BX.proxy(this.__menu_close, this));
 	}
 
 	if (btnCount > 1)
 	{
-		this.PARTS.ICONS.appendChild(BX.create('span', { props: {className: 'bx-context-toolbar-switcher-separator'}}));
+		this.PARTS.ICONS.appendChild(BX.create('span', { props: {className: 'bx-context-toolbar-separator bx-context-toolbar-separator-switcher'}}));
 
 		this.ICON_TRANSFORM = this.PARTS.ICONS.appendChild(BX.create('A', {
 			attrs: {href: 'javascript: void(0)'},
@@ -2288,6 +3038,58 @@ BX.CMenuOpener.prototype.__check_intersection = function(pos_self, pos_other)
 {
 	return !(pos_other.right <= pos_self.left || pos_other.left >= pos_self.right
 			|| pos_other.bottom <= pos_self.top || pos_other.top >= pos_self.bottom);
+}
+
+
+BX.CMenuOpener.prototype.__msover_text = function() {
+	this.bx_hover = true;
+	if (!this._menu_open)
+		BX.addClass(this.ATTACH, 'bx-context-toolbar-button-text-hover');
+}
+
+BX.CMenuOpener.prototype.__msout_text = function() {
+	this.bx_hover = false;
+	if (!this._menu_open)
+		BX.removeClass(this.ATTACH, 'bx-context-toolbar-button-text-hover bx-context-toolbar-button-text-active');
+}
+
+BX.CMenuOpener.prototype.__msover_arrow = function() {
+	this.bx_hover = true;
+	if (!this._menu_open)
+		BX.addClass(this.ATTACH, 'bx-context-toolbar-button-arrow-hover');
+}
+
+BX.CMenuOpener.prototype.__msout_arrow = function() {
+	this.bx_hover = false;
+	if (!this._menu_open)
+		BX.removeClass(this.ATTACH, 'bx-context-toolbar-button-arrow-hover bx-context-toolbar-button-arrow-active');
+}
+
+BX.CMenuOpener.prototype.__msdown_text = function() {
+	this.bx_active = true;
+	if (!this._menu_open)
+		BX.addClass(this.ATTACH, 'bx-context-toolbar-button-text-active');
+}
+
+BX.CMenuOpener.prototype.__msdown_arrow = function() {
+	this.bx_active = true;
+	if (!this._menu_open)
+		BX.addClass(this.ATTACH, 'bx-context-toolbar-button-arrow-active');
+}
+
+BX.CMenuOpener.prototype.__menu_close = function() {
+	this._menu_open = false;
+	this.bx_active = false;
+	BX.removeClass(this.ATTACH, 'bx-context-toolbar-button-active bx-context-toolbar-button-text-active bx-context-toolbar-button-arrow-active');
+	if (!this.bx_hover)
+	{
+		BX.removeClass(this.ATTACH, 'bx-context-toolbar-button-hover bx-context-toolbar-button-text-hover bx-context-toolbar-button-arrow-hover');
+		this.bx_hover = false;
+	}
+}
+
+BX.CMenuOpener.prototype.__menu_open = function() {
+	this._menu_open = true;
 }
 
 BX.CMenuOpener.prototype.checkPosition = function()
@@ -2477,7 +3279,7 @@ BX.CMenuOpener.prototype.adjustToNodeGetPos = function()
 
 	if (true || !this.PARAMS.transform)
 	{
-		pos.top -= 26;
+		pos.top -= 45;
 	}
 
 	if (pos.left > scrollSize.scrollWidth - floatWidth)
@@ -2529,6 +3331,8 @@ BX.CMenuOpener.prototype.attachMenu = function(menu)
 	});
 
 	this.OPENERS[this.OPENERS.length] = opener;
+
+	return opener;
 }
 
 BX.CMenuOpener.prototype.__hide_hint = function()
@@ -2629,8 +3433,9 @@ BX.CMenuOpenerItem = function(item)
 				'href': 'javascript: void(0)'
 			},
 			events: {
-				mouseover: this.bHasMenu ? this.__msover_text : this.__msover,
-				mouseout: this.bHasMenu ? this.__msout_text : this.__msout
+				mouseover: this.bHasMenu ? BX.proxy(this.__msover_text, this) : BX.proxy(this.__msover, this),
+				mouseout: this.bHasMenu ? BX.proxy(this.__msout_text, this) : BX.proxy(this.__msout, this),
+				mousedown: this.bHasMenu ? BX.proxy(this.__msdown_text, this) : BX.proxy(this.__msdown, this)
 			},
 			children: [btn_icon, btn_text]
 		}));
@@ -2643,8 +3448,9 @@ BX.CMenuOpenerItem = function(item)
 					'href': 'javascript: void(0)'
 				},
 				events: {
-					mouseover: this.__msover_arrow,
-					mouseout: this.__msout_arrow
+					mouseover: BX.proxy(this.__msover_arrow, this),
+					mouseout: BX.proxy(this.__msout_arrow, this),
+					mousedown: BX.proxy(this.__msdown_arrow, this)
 				},
 				children: [
 					BX.create('SPAN', {props: {className: 'bx-context-toolbar-button-arrow'}})
@@ -2662,8 +3468,9 @@ BX.CMenuOpenerItem = function(item)
 				'href': 'javascript: void(0)'
 			},
 			events: {
-				mouseover: this.__msover,
-				mouseout: this.__msout
+				mouseover: BX.proxy(this.__msover, this),
+				mouseout: BX.proxy(this.__msout, this),
+				mousedown: BX.proxy(this.__msdown, this)
 			},
 			children: [
 				btn_icon,
@@ -2690,6 +3497,9 @@ BX.CMenuOpenerItem = function(item)
 			TYPE: 'click',
 			MENU: this.item.SUBMENU
 		});
+
+		BX.addCustomEvent(this.item.OPENER, 'onOpenerMenuOpen', BX.proxy(this.__menu_open, this));
+		BX.addCustomEvent(this.item.OPENER, 'onOpenerMenuClose', BX.proxy(this.__menu_close, this));
 	}
 
 	if (this.bHasAction)
@@ -2700,22 +3510,63 @@ BX.CMenuOpenerItem = function(item)
 
 BX.CMenuOpenerItem.prototype.Get = function() {return this.DIV;}
 BX.CMenuOpenerItem.prototype.__msover = function() {
-	BX.addClass(this.parentNode.parentNode, 'bx-context-toolbar-button-hover');
+	this.bx_hover = true;
+	if (!this._menu_open)
+		BX.addClass(this.LINK.parentNode.parentNode, 'bx-context-toolbar-button-hover');
 }
 BX.CMenuOpenerItem.prototype.__msout = function() {
-	BX.removeClass(this.parentNode.parentNode, 'bx-context-toolbar-button-hover');
+	this.bx_hover = false;
+	if (!this._menu_open)
+		BX.removeClass(this.LINK.parentNode.parentNode, 'bx-context-toolbar-button-hover bx-context-toolbar-button-active');
 }
 BX.CMenuOpenerItem.prototype.__msover_text = function() {
-	BX.addClass(this.parentNode.parentNode, 'bx-context-toolbar-button-text-hover');
+	this.bx_hover = true;
+	if (!this._menu_open)
+		BX.addClass(this.LINK.parentNode.parentNode, 'bx-context-toolbar-button-text-hover');
 }
 BX.CMenuOpenerItem.prototype.__msout_text = function() {
-	BX.removeClass(this.parentNode.parentNode, 'bx-context-toolbar-button-text-hover');
+	this.bx_hover = false;
+	if (!this._menu_open)
+		BX.removeClass(this.LINK.parentNode.parentNode, 'bx-context-toolbar-button-text-hover bx-context-toolbar-button-text-active');
 }
 BX.CMenuOpenerItem.prototype.__msover_arrow = function() {
-	BX.addClass(this.parentNode.parentNode, 'bx-context-toolbar-button-arrow-hover');
+	this.bx_hover = true;
+	if (!this._menu_open)
+		BX.addClass(this.LINK.parentNode.parentNode, 'bx-context-toolbar-button-arrow-hover');
 }
 BX.CMenuOpenerItem.prototype.__msout_arrow = function() {
-	BX.removeClass(this.parentNode.parentNode, 'bx-context-toolbar-button-arrow-hover');
+	this.bx_hover = false;
+	if (!this._menu_open)
+		BX.removeClass(this.LINK.parentNode.parentNode, 'bx-context-toolbar-button-arrow-hover bx-context-toolbar-button-arrow-active');
+}
+BX.CMenuOpenerItem.prototype.__msdown = function() {
+	this.bx_active = true;
+	if (!this._menu_open)
+		BX.addClass(this.LINK.parentNode.parentNode, 'bx-context-toolbar-button-active');
+}
+BX.CMenuOpenerItem.prototype.__msdown_text = function() {
+	this.bx_active = true;
+	if (!this._menu_open)
+		BX.addClass(this.LINK.parentNode.parentNode, 'bx-context-toolbar-button-text-active');
+}
+BX.CMenuOpenerItem.prototype.__msdown_arrow = function() {
+	this.bx_active = true;
+	if (!this._menu_open)
+		BX.addClass(this.LINK.parentNode.parentNode, 'bx-context-toolbar-button-arrow-active');
+}
+BX.CMenuOpenerItem.prototype.__menu_close = function() {
+
+	this._menu_open = false;
+	this.bx_active = false;
+	BX.removeClass(this.LINK.parentNode.parentNode, 'bx-context-toolbar-button-active bx-context-toolbar-button-text-active bx-context-toolbar-button-arrow-active');
+	if (!this.bx_hover)
+	{
+		BX.removeClass(this.LINK.parentNode.parentNode, 'bx-context-toolbar-button-hover bx-context-toolbar-button-text-hover bx-context-toolbar-button-arrow-hover');
+		this.bx_hover = false;
+	}
+}
+BX.CMenuOpenerItem.prototype.__menu_open = function() {
+	this._menu_open = true;
 }
 
 BX.CMenuOpenerItem.prototype.__click = function() {BX.evalGlobal(this.item.ONCLICK)}
@@ -2790,383 +3641,6 @@ BX.CPageOpener.prototype.Remove = function()
 	this.DIV.style.display = 'none';
 }
 
-/* common menu class */
-BX.CMenu = function(arParams)
-{
-	BX.CMenu.superclass.constructor.apply(this);
-
-	this.DIV.style.width = 'auto';//this.DIV.firstChild.offsetWidth + 'px';
-	this.DIV.style.height = 'auto';//this.DIV.firstChild.offsetHeight + 'px';
-
-	this.PARAMS = arParams || {};
-	this.PARTS = {};
-
-	this.PARAMS.ATTACH_MODE = this.PARAMS.ATTACH_MODE || 'bottom';
-
-	this.DIV.className = 'bx-popup-menu';
-
-	this.PARTS.LAYOUT_TABLE = this.DIV.appendChild(BX.create('TABLE', {
-		props: {className: 'bx-popup-menu-wrapper'},
-		attrs: {cellPadding: "0", cellSpacing: "0", border: "0"},
-		children: [BX.create('TBODY')]
-	}));
-	this.PARTS.TABLE = BX.adjust(
-		this.PARTS.LAYOUT_TABLE.tBodies[0].insertRow(-1).insertCell(-1),
-		{props: {className: 'bx-popup-menu'}}
-	).appendChild(BX.create('TABLE', {
-		props: {className: 'bx-popup-menu-layout'},
-		attrs: {cellPadding: "0", cellSpacing: "0", border: "0"},
-		children: [BX.create('TBODY')]
-	}));
-
-	if (this.PARAMS.ITEMS)
-	{
-		this.PARAMS.ITEMS = BX.util.array_values(this.PARAMS.ITEMS);
-		for (var i = 0, len = this.PARAMS.ITEMS.length; i < len; i++)
-		{
-			if ((i == 0 || i == len-1) && this.PARAMS.ITEMS[i].SEPARATOR)
-				continue;
-
-			this.addItem(this.PARAMS.ITEMS[i], i);
-		}
-	}
-
-	BX.addCustomEvent(this, 'onMenuItemClick', BX.delegate(this.Hide, this));
-
-	if (this.PARAMS.PARENT_MENU)
-		BX.addCustomEvent(this, 'onMenuItemClick', BX.delegate(this.__call_parent, this));
-
-	//BX.bind(this.DIV, 'mousedown', function(e) {BX.PreventDefault(e);});
-}
-BX.extend(BX.CMenu, BX.CWindowFloat);
-
-BX.CMenu.prototype.Show = function()
-{
-	if (this.visible()) return;
-	if (this.PARAMS.PARENT_MENU && !this.PARAMS.PARENT_MENU.visible()) return;
-
-	BX.CMenu.superclass.Show.apply(this, []);
-
-	BX.bind(document, 'click', BX.proxy(this.Hide, this));
-	this.DIV.onclick = BX.PreventDefault;
-	//this.PARAMS.parent.onclick = BX.PreventDefault;
-
-	BX.onCustomEvent(this, 'onMenuOpen');
-	BX.addClass(this.PARAMS.parent_attach, 'bx-pressed');
-
-	this.adjustPos();
-}
-
-BX.CMenu.prototype.ShowMenu = function(parent, items)
-{
-	this.PARAMS.parent = parent;
-	this.PARAMS.parent_attach = null;
-	if (items)
-		this.SetItems(items);
-
-	setTimeout(BX.delegate(this.Show, this), 50);
-}
-
-BX.CMenu.prototype.SetItems = function(items)
-{
-	if (null != this.PARAMS.ITEMS)
-	{
-		for (var i = 0; i < this.PARAMS.ITEMS.length; i++)
-		{
-			if (BX.is_subclass_of(this.PARAMS.ITEMS[i], BX.CMenuItem))
-				this.PARAMS.ITEMS[i].Destroy();
-
-			this.PARAMS.ITEMS[i] = null;
-		}
-		this.PARAMS.ITEMS = null;
-	}
-
-	this.PARAMS.ITEMS = BX.util.array_values(items);
-	for (var i = 0, len = this.PARAMS.ITEMS.length; i < len; i++)
-	{
-		if ((i == 0 || i == len-1) && this.PARAMS.ITEMS[i].SEPARATOR)
-			continue;
-
-		this.addItem(this.PARAMS.ITEMS[i], i);
-	}
-}
-
-BX.CMenu.prototype.__call_parent = function()
-{
-	BX.onCustomEvent(this.PARAMS.PARENT_MENU, 'onMenuItemClick', arguments);
-}
-
-BX.CMenu.prototype.Close = // we shouldn't 'Close' window - only hide
-BX.CMenu.prototype.Hide = function()
-{
-	if (!this.visible()) return;
-
-	BX.CMenu.superclass.Hide.apply(this, arguments);
-
-	BX.unbind(document, 'click', BX.proxy(this.Close, this));
-
-	BX.onCustomEvent(this, 'onMenuClose');
-	BX.removeClass(this.PARAMS.parent_attach, 'bx-pressed');
-
-	this.DIV.onclick = null;
-	//this.PARAMS.parent.onclick = null;
-}
-
-BX.CMenu.prototype.onUnRegister = function(clean)
-{
-	//if (!this.PARAMS.SUBMENU)
-	//	BX.unbind(document, 'mousedown', BX.proxy(this.Hide, this));
-
-	BX.CMenu.superclass.onUnRegister.apply(this, arguments);
-
-	if (clean)
-	{
-		// TODO: kill menu items
-	}
-}
-
-BX.CMenu.prototype.addItem = function(item, index)
-{
-	if (null == index)
-		index = this.PARAMS.ITEMS.length;
-
-	var ob = new BX.CMenuItem(item, this)
-
-	//if (!ob.hasSubmenu())
-	//	BX.bind(ob.Get(), 'click', BX.proxy(this.Hide, this))
-
-	if (ob.Get())
-	{
-		this.PARTS.TABLE.tBodies[0].insertRow(-1).insertCell(-1).appendChild(ob.Get());
-	}
-
-	this.PARAMS.ITEMS[index] = ob;
-}
-
-BX.CMenu.prototype.__adjustMenuToNode = function()
-{
-	var pos = BX.pos(this.PARAMS.parent_attach);
-
-	if (!pos.top)
-	{
-		this.DIV.style.top = '-1000px';
-		this.DIV.style.left = '-1000px';
-	}
-
-	if (this.bTimeoutSet) return;
-
-	var floatWidth = this.DIV.offsetWidth, floatHeight = this.DIV.offsetHeight;
-	if (!floatWidth)
-	{
-		setTimeout(BX.delegate(function(){
-			this.bTimeoutSet = false; this.__adjustMenuToNode();
-		}, this), 100);
-
-		this.bTimeoutSet = true;
-		return;
-	}
-
-	var menu_pos = {};
-	var scrollSize = BX.GetWindowScrollSize();
-
-	if (BX.browser.IsIE() && !BX.browser.IsDoctype())
-	{
-		pos.top -= 4; pos.bottom -= 4;
-		pos.left -= 2; pos.right -= 2;
-	}
-
-	switch (this.PARAMS.ATTACH_MODE)
-	{
-		case 'bottom':
-			menu_pos.top = pos.bottom;
-			menu_pos.left = pos.left;
-
-			if (menu_pos.left > scrollSize.scrollWidth - floatWidth)
-			{
-				menu_pos.left = scrollSize.scrollWidth - floatWidth;
-			}
-		break;
-		case 'right':
-			menu_pos.top = pos.top;
-			menu_pos.left = pos.right;
-
-			if (menu_pos.left > scrollSize.scrollWidth - floatWidth)
-			{
-				menu_pos.left = pos.left - floatWidth - 1;
-			}
-		break;
-	}
-
-	if (menu_pos.top > scrollSize.scrollHeight - floatHeight)
-	{
-		menu_pos.top = scrollSize.scrollHeight - floatHeight;
-	}
-
-	if (menu_pos.top + menu_pos.left == 0)
-		this.Hide();
-	else
-	{
-		this.DIV.style.top = menu_pos.top + 'px';
-		this.DIV.style.left = menu_pos.left + 'px';
-	}
-}
-
-BX.CMenu.prototype.adjustToNode = function(el)
-{
-	this.PARAMS.parent_attach = BX(el) || this.PARAMS.parent_attach || this.PARAMS.parent;
-	this.__adjustMenuToNode();
-}
-
-/* menu item class */
-BX.CMenuItem = function(item, parentMenu)
-{
-	this.item = item
-	this.parentMenu = parentMenu;
-
-	if (this.item.SEPARATOR)
-	{
-		this.node = BX.create(
-			'DIV', {props: {className: 'bx-popup-menu-separator'}}
-		);
-	}
-	else
-	{
-		if (this.item.MENU && BX.type.isArray(this.item.MENU) && this.item.MENU.length <= 0)
-		{
-			this.node = null;
-			return false;
-		}
-
-
-		if (this.item.MENU)
-		{
-			this.item.ONCLICK = null;
-		}
-		else if (this.item.ACTION && !this.item.ONCLICK)
-		{
-			this.item.ONCLICK = this.item.ACTION;
-		}
-
-		var events = {
-			mouseover: function () {BX.addClass(this, 'bx-popup-item-over')},
-			mouseout: function () {BX.removeClass(this, 'bx-popup-item-over')}
-		};
-
-		this.node = BX.create(
-			'DIV', {
-				'props': {className: 'bx-popup-item'},
-				'events': events,
-				'children': [BX.create('DIV', {style: {width: '100%'}})]
-			}
-		);
-
-		if (this.item.ID)
-			this.node.id = this.item.ID;
-
-		if (this.item.MENU)
-		{
-			this.item.SUBMENU = new BX.CMenu({
-				ATTACH_MODE:'right',
-				ITEMS:this.item['MENU'],
-				PARENT_MENU:this.parentMenu,
-				parent: this.node
-			});
-
-			this.item.OPENER = new BX.COpener({
-				DIV: this.node,
-				TYPE: 'hover',
-				MENU: this.item.SUBMENU,
-				TIMEOUT: 500,
-				mirror_events: true
-			});
-
-			BX.addCustomEvent(this.parentMenu, 'onItemMouseOver', BX.delegate(this.__other_mouseover, this));
-		}
-		else
-		{
-			BX.bind(this.node, 'click', BX.delegate(this.__clicked, this));
-			BX.bind(this.node, 'mouseup', BX.delegate(this.__action_done, this));
-		}
-
-		var obRow = this.node.firstChild.appendChild(BX.create('TABLE', {
-			props: {className: 'bx-popup-item'},
-			attrs: {cellPadding: "0", cellSpacing: "0", border: "0", dir: "ltr"}, // !!!!!!!!!!!!!!!!!
-			style: {width: '100%'},
-			children: [BX.create('TBODY')]
-		})).tBodies[0].insertRow(-1);
-
-		BX.adjust(obRow.insertCell(-1), {
-			props: {className: 'gutter'},
-			children: [
-				BX.create('DIV', {
-					props: {className: (this.item.ICON || this.item.ICONCLASS) ? 'icon ' + (this.item.ICON || this.item.ICONCLASS) : 'icon'},
-					style: (this.item.SRC || this.item.IMAGE) ? {
-						'backgroundImage': 'url(' + (this.item.SRC || this.item.IMAGE) + ')'
-					} : {}
-				})
-			]
-		});
-
-		BX.adjust(obRow.insertCell(-1), {
-			props: {
-				className: 'item' + (this.item.DEFAULT ? ' default' : ''),
-				title: this.item.TITLE || ''
-			},
-			style: {whiteSpace: 'nowrap'},
-			html: this.item.TEXT
-		});
-
-		if (this.item.MENU)
-		{
-			obRow.insertCell(-1).className = 'arrow';
-		}
-
-		BX.bind(this.node, 'mouseover', BX.delegate(this.__mouseover, this));
-	}
-}
-
-BX.CMenuItem.prototype.__mouseover = function()
-{
-	BX.onCustomEvent(this.parentMenu, 'onItemMouseOver', [this]);
-}
-
-BX.CMenuItem.prototype.__other_mouseover = function(item)
-{
-	if (item !== this)
-	{
-		this.item.OPENER.Close();
-	}
-}
-
-BX.CMenuItem.prototype.Get = function() {return this.node;}
-BX.CMenuItem.prototype.GetItem = function() {return this.item;}
-BX.CMenuItem.prototype.hasSubmenu = function() {return !!this.item.SUBMENU;}
-BX.CMenuItem.prototype.Destroy = function() {
-	this.node.parentNode.removeChild(this.node);
-	this.node = null;
-}
-
-BX.CMenuItem.prototype.__clicked = function()
-{
-	if (this.item.ONCLICK)
-	{
-		setTimeout(this.item.ONCLICK, 10);
-	}
-}
-
-BX.CMenuItem.prototype.__action_done = function ()
-{
-	if (this.parentMenu && !this.hasSubmenu())
-	{
-		setTimeout(BX.delegate(this.__call_parent, this), 10);
-	}
-}
-
-BX.CMenuItem.prototype.__call_parent = function()
-{
-	BX.onCustomEvent(this.parentMenu, 'onMenuItemClick', [this]);
-}
-
 /******* HINT ***************/
 BX.CHintSimple = function()
 {
@@ -3192,5 +3666,209 @@ BX.CHintSimple.prototype.Init = function()
 
 	this.bInited = true;
 }
+
+/*************************** admin informer **********************************/
+BX.adminInformer = {
+
+	itemsShow: 3,
+
+	Init: function (itemsShow)
+	{
+		if(itemsShow)
+			BX.adminInformer.itemsShow = itemsShow;
+
+		var informer = BX("admin-informer");
+
+		if(informer)
+			document.body.appendChild(informer);
+
+		BX.addCustomEvent("onTopPanelCollapse", BX.proxy(BX.adminInformer.Close, BX.adminInformer));
+	},
+
+	Toggle: function(notifyBlock)
+	{
+		var informer = BX("admin-informer");
+
+		if(!informer)
+			return false;
+
+		var pos = BX.pos(notifyBlock);
+
+		informer.style.top = (parseInt(pos.top)+parseInt(pos.height)+7)+'px';
+		informer.style.left = pos.left+'px';
+
+		if(!BX.hasClass(informer, "adm-informer-active"))
+			BX.adminInformer.Show(informer);
+		else
+			BX.adminInformer.Hide(informer);
+
+		return false;
+	},
+
+	Close: function(event)
+	{
+		BX.adminInformer.Hide(BX("admin-informer"));
+	},
+
+	OnInnerClick: function(event)
+	{
+		var target = event.target || event.srcElement;
+
+		if(target.nodeName.toLowerCase() != 'a' || BX.hasClass(target,"adm-informer-footer"))
+		{
+			var prevent = BX.PreventDefault(event);
+			return prevent;
+		}
+
+		return true;
+	},
+
+	ToggleExtra : function()
+	{
+		var footerLink = BX("adm-informer-footer");
+
+		if (BX.hasClass(footerLink, "adm-informer-footer-collapsed"))
+			this.ShowAll();
+		else
+			this.HideExtra();
+
+		return false;
+	},
+
+	ShowAll: function()
+	{
+		var informer = BX("admin-informer");
+		for(var i=0; i<informer.children.length; i++)
+
+			if(BX.hasClass(informer.children[i], "adm-informer-item") && informer.children[i].style.display == "none") {
+				informer.children[i].style.display = "block";
+			}
+
+		var footerLink = BX("adm-informer-footer");
+
+		if(footerLink.textContent !== undefined)
+			footerLink.textContent = BX.message('JSADM_AI_HIDE_EXTRA');
+		else
+			footerLink.innerText = BX.message('JSADM_AI_HIDE_EXTRA');
+
+		BX.removeClass(footerLink, "adm-informer-footer-collapsed");
+
+		return false;
+	},
+
+	HideExtra: function()
+	{
+		var informer = BX("admin-informer");
+		var hided = 0;
+
+		for(var i=BX.adminInformer.itemsShow+1; i<informer.children.length; i++)
+		{
+			if (BX.hasClass(informer.children[i], "adm-informer-item") && informer.children[i].style.display == "block") {
+				informer.children[i].style.display = "none";
+				hided++;
+			}
+		}
+
+		var footerLink = BX("adm-informer-footer");
+
+		var linkText = BX.message('JSADM_AI_ALL_NOTIF')+" ("+(BX.adminInformer.itemsShow+parseInt(hided))+")";
+
+		if(footerLink.textContent !== undefined)
+			footerLink.textContent = linkText;
+		else
+			footerLink.innerText = linkText;
+
+		BX.addClass(footerLink, "adm-informer-footer-collapsed");
+
+		return false;
+	},
+
+	Show: function(informer)
+	{
+		var notifButton = BX("adm-header-notif-block");
+		if (notifButton)
+			BX.addClass(notifButton, "adm-header-notif-block-active");
+
+		BX.onCustomEvent(informer, 'onBeforeAdminInformerShow');
+		setTimeout(
+			BX.proxy(function() {
+					BX.bind(document, "click", BX.proxy(BX.adminInformer.Close, BX.adminInformer));
+				},
+				BX.adminInformer
+			),0
+		);
+		BX.addClass(informer, "adm-informer-active");
+		setTimeout(function() {BX.addClass(informer, "adm-informer-animate");},0);
+	},
+
+	Hide: function(informer)
+	{
+		var notifButton = BX("adm-header-notif-block");
+		if (notifButton)
+			BX.removeClass(notifButton, "adm-header-notif-block-active");
+
+		var visibleCount = 3;
+
+		BX.unbind(document, "click", BX.proxy(BX.adminInformer.Close, BX.adminInformer));
+
+		BX.removeClass(informer, "adm-informer-animate");
+
+		if (this.IsAnimationSupported())
+			setTimeout(function() {BX.removeClass(informer, "adm-informer-active");}, 300);
+		else
+			BX.removeClass(informer, "adm-informer-active");
+
+		BX.onCustomEvent(informer, 'onAdminInformerHide');
+		//setTimeout(function() {BX.adminInformer.HideExtra();},500);
+	},
+
+	IsAnimationSupported : function()
+	{
+		var d = document.body || document.documentElement;
+		if (typeof(d.style.transition) == "string")
+			return true;
+		else if (typeof(d.style.MozTransition) == "string")
+			return true;
+		else if (typeof(d.style.OTransition) == "string")
+			return true;
+		else if (typeof(d.style.WebkitTransition) == "string")
+			return true;
+		else if (typeof(d.style.msTransition) == "string")
+			return true;
+
+		return false;
+	},
+
+
+	SetItemHtml: function(itemIdx, html)
+	{
+		var itemHtmlDiv = BX("adm-informer-item-html-"+itemIdx);
+
+		if(!itemHtmlDiv)
+			return false;
+
+		itemHtmlDiv.innerHTML = html;
+
+		return true;
+	},
+
+	SetItemFooter: function(itemIdx, html)
+	{
+		var itemFooterDiv = BX("adm-informer-item-footer-"+itemIdx);
+
+		if(!itemFooterDiv)
+			return false;
+
+		itemFooterDiv.innerHTML = html;
+
+		if(html)
+			itemFooterDiv.style.display = "block";
+		else
+			itemFooterDiv.style.display = "none";
+
+		return true;
+	}
+
+};
 
 })(window)

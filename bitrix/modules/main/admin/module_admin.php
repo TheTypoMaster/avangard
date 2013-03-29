@@ -71,7 +71,7 @@ if($isAdmin && !$fb && check_bitrix_sessid())
 			{
 				if (strtolower($DB->type)=="mysql" && defined("MYSQL_TABLE_TYPE") && strlen(MYSQL_TABLE_TYPE)>0)
 				{
-					$DB->Query("SET table_type = '".MYSQL_TABLE_TYPE."'", true);
+					$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 				}
 
 				OnModuleInstalledEvent($id);
@@ -133,7 +133,7 @@ require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_af
 <script>
 function DoAction(oEvent, action, module_id)
 {
-	if (oEvent.ctrlKey)
+	if (oEvent.ctrlKey || BX.browser.IsMac() && oEvent.altKey)
 	{
 		BX('version_for_' + module_id).className = 'no-select';
 		if(action == 'version_down')
@@ -154,7 +154,7 @@ function DoAction(oEvent, action, module_id)
 }
 </script>
 <table border="0" cellspacing="0" cellpadding="0" width="100%" class="list-table">
-	<tr class="head" valign="middle" align="center">
+	<tr class="heading">
 		<td width="60%"><b><?echo GetMessage("MOD_NAME")?></b></td>
 		<td><b><?echo GetMessage("MOD_VERSION")?></b></td>
 		<td><b><?echo GetMessage("MOD_DATE_UPDATE")?></b></td>
@@ -166,7 +166,7 @@ function DoAction(oEvent, action, module_id)
 		$str = str_replace("#A1#","<a  href='sysupdate.php?lang=".LANG."'>",GetMessage("MOD_MAIN_DESCRIPTION"));
 		$str = str_replace("#A2#","</a>",$str);
 		echo $str;?></td>
-		<td ondblclick="<?echo htmlspecialchars("DoAction(event, 'version_down', 'main')")?>" id="version_for_main"><?echo SM_VERSION;?></td>
+		<td ondblclick="<?echo htmlspecialcharsbx("DoAction(event, 'version_down', 'main')")?>" id="version_for_main"><?echo SM_VERSION;?></td>
 		<td nowrap><?echo CDatabase::FormatDate(SM_VERSION_DATE, "YYYY-MM-DD HH:MI:SS", CLang::GetDateFormat("SHORT"));?></td>
 		<td><?=GetMessage("MOD_INSTALLED")?></td>
 		<td>&nbsp;</td>
@@ -176,23 +176,24 @@ foreach($arModules as $info) :
 ?>
 	<tr>
 		<td><b><?echo htmlspecialcharsex($info["MODULE_NAME"])?></b> <?echo htmlspecialcharsex(strlen($info["MODULE_PARTNER"]) > 0? " <b><i>(".str_replace(array("#NAME#", "#URI#"), array($info["MODULE_PARTNER"], $info["MODULE_PARTNER_URI"]), GetMessage("MOD_PARTNER_NAME")).")</i></b>" : "(".$info["MODULE_ID"].")") ?><br><?echo $info["MODULE_DESCRIPTION"]?></td>
-		<td ondblclick="<?echo htmlspecialchars("DoAction(event, 'version_down', '".CUtil::AddSlashes($info["MODULE_ID"])."')")?>" id="version_for_<?echo htmlspecialchars($info["MODULE_ID"])?>"><?echo $info["MODULE_VERSION"]?></td>
+		<td ondblclick="<?echo htmlspecialcharsbx("DoAction(event, 'version_down', '".CUtil::AddSlashes($info["MODULE_ID"])."')")?>" id="version_for_<?echo htmlspecialcharsbx($info["MODULE_ID"])?>"><?echo $info["MODULE_VERSION"]?></td>
 		<td nowrap><?echo CDatabase::FormatDate($info["MODULE_VERSION_DATE"], "YYYY-MM-DD HH:MI:SS", CLang::GetDateFormat("SHORT"));?></td>
-		<td><?if($info["IsInstalled"]):?><?echo GetMessage("MOD_INSTALLED")?><?else:?><span class="required"><?echo GetMessage("MOD_NOT_INSTALLED")?></span><?endif?></td>
+		<td nowrap><?if($info["IsInstalled"]):?><?echo GetMessage("MOD_INSTALLED")?><?else:?><span class="required"><?echo GetMessage("MOD_NOT_INSTALLED")?></span><?endif?></td>
 		<td>
-			<form action="<?echo $APPLICATION->GetCurPage()?>" method="GET" id="form_for_<?echo htmlspecialchars($info["MODULE_ID"])?>">
-				<input type="hidden" name="action" value="" id="action_for_<?echo htmlspecialchars($info["MODULE_ID"])?>">
+			<form action="<?echo $APPLICATION->GetCurPage()?>" method="GET" id="form_for_<?echo htmlspecialcharsbx($info["MODULE_ID"])?>">
+				<input type="hidden" name="action" value="" id="action_for_<?echo htmlspecialcharsbx($info["MODULE_ID"])?>">
 				<input type="hidden" name="lang" value="<?echo LANG?>">
-				<input type="hidden" name="id" value="<?echo htmlspecialchars($info["MODULE_ID"])?>">
+				<input type="hidden" name="id" value="<?echo htmlspecialcharsbx($info["MODULE_ID"])?>">
 				<?=bitrix_sessid_post()?>
 				<?if($info["IsInstalled"]):?>
-					<input <?if (!$isAdmin || $info["MODULE_ID"] == 'fileman') echo "disabled" ?> type="submit" name="uninstall" value="<?echo GetMessage("MOD_DELETE")?>">
+					<input <?if (!$isAdmin || $info["MODULE_ID"] == 'fileman' || $info["MODULE_ID"] == 'intranet') echo "disabled" ?> type="submit" name="uninstall" value="<?echo GetMessage("MOD_DELETE")?>">
 				<?else:?>
-					<input <?if (!$isAdmin) echo "disabled" ?> type="submit" name="install" value="<?echo GetMessage("MOD_INSTALL_BUTTON")?>">
+					<input <?if (!$isAdmin) echo "disabled" ?> type="submit" class="adm-btn-green" name="install" value="<?echo GetMessage("MOD_INSTALL_BUTTON")?>">
 				<?endif?>
 			</form>
 		</td>
 	</tr>
+	<tr style="display: none;"><td colspan="5"></td></tr>
 <?
 endforeach;
 ?>

@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET" && $_GET["ACTION"] == "FORUM_SUBSCRIBE")
 		if (strLen(trim($res["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$res["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$res["~URL_TEMPLATES_".strToUpper($URL)] = $res["URL_TEMPLATES_".strToUpper($URL)];
-		$res["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($res["~URL_TEMPLATES_".strToUpper($URL)]);
+		$res["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($res["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 /********************************************************************
@@ -83,6 +83,7 @@ endif;
 		"MESSAGES_PER_PAGE"	=>	$arParams["MESSAGES_PER_PAGE"],
 		"DATE_FORMAT"	=>	$arParams["DATE_FORMAT"],
 		"DATE_TIME_FORMAT"	=>	$arParams["DATE_TIME_FORMAT"],
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 		"PAGE_NAVIGATION_TEMPLATE" =>  $arParams["PAGE_NAVIGATION_TEMPLATE"],
 		"PAGE_NAVIGATION_WINDOW" =>  $arParams["PAGE_NAVIGATION_WINDOW"],
 		"WORD_LENGTH"	=>	$arParams["WORD_LENGTH"],
@@ -101,7 +102,7 @@ endif;
 	), $component
 );?>
 <?
-if ($arParams["SHOW_STATISTIC"] != "N"):
+if (in_array("USERS_ONLINE", $arParams["SHOW_STATISTIC_BLOCK"])):
 ?>
 <?$APPLICATION->IncludeComponent("bitrix:forum.statistic", "", 
 	Array(
@@ -116,7 +117,8 @@ if ($arParams["SHOW_STATISTIC"] != "N"):
 		"CACHE_TIME_USER_STAT" => $arParams["CACHE_TIME_USER_STAT"], 
 		"WORD_LENGTH"	=>	$arParams["WORD_LENGTH"], 
 		"WORD_WRAP_CUT" => $arParams["WORD_WRAP_CUT"], 
-		"SEO_USER" => $arParams["SEO_USER"]
+		"SEO_USER" => $arParams["SEO_USER"],
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"]
 	), $component
 );?>
 <?

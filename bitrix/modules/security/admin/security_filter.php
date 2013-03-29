@@ -66,10 +66,29 @@ if($rsSecurityFilterExclMask->Fetch())
 else
 	$bSecurityFilterExcl = false;
 
+$messageDetails = "";
+if (CSecurityFilter::IsActive())
+{
+	$messageType = "OK";
+	$messageText = GetMessage("SEC_FILTER_ON");
+	if($bSecurityFilterExcl)
+		$messageDetails = "<span style=\"font-style: italic;\">".GetMessage("SEC_FILTER_EXCL_FOUND")."</span>";
+} else
+{
+	$messageType = "ERROR";
+	$messageText = GetMessage("SEC_FILTER_OFF");
+}
+
 $APPLICATION->SetTitle(GetMessage("SEC_FILTER_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
+CAdminMessage::ShowMessage(array(
+			"MESSAGE"=>$messageText,
+			"TYPE"=>$messageType,
+			"DETAILS"=>$messageDetails,
+			"HTML"=>true
+		));
 ?>
 
 <script language="JavaScript">
@@ -81,6 +100,9 @@ function addNewRow(tableID)
 	var oRow = tbl.insertRow(cnt-1);
 	var oCell = oRow.insertCell(0);
 	var sHTML=tbl.rows[cnt-2].cells[0].innerHTML;
+
+	//styles hack
+	oCell.style.cssText  = 'padding-bottom:3px;';
 
 	var p = 0;
 	while(true)
@@ -149,33 +171,16 @@ $tabControl->BeginNextTab();
 ?>
 <?if(CSecurityFilter::IsActive()):?>
 	<tr>
-		<td valign="top" colspan="2" align="left">
-			<span style="color:green;"><b><?echo GetMessage("SEC_FILTER_ON")?>.</b></span>
-		</td>
-	</tr>
-	<?if($bSecurityFilterExcl):?>
-		<tr>
-			<td valign="top" colspan="2" align="left">
-				<span style="color:red;"><b><?echo GetMessage("SEC_FILTER_EXCL_FOUND")?></b></span>
-			</td>
-		</tr>
-	<?endif;?>
-	<tr>
-		<td valign="top" colspan="2" align="left">
+		<td colspan="2" align="left">
 			<input type="hidden" name="filter_active" value="N">
 			<input type="submit" name="filter_siteb" value="<?echo GetMessage("SEC_FILTER_BUTTON_OFF")?>"<?if(!$RIGHT_W) echo " disabled"?>>
 		</td>
 	</tr>
 <?else:?>
 	<tr>
-		<td valign="top" colspan="2" align="left">
-			<span style="color:red;"><b><?echo GetMessage("SEC_FILTER_OFF")?>.</b></span>
-		</td>
-	</tr>
-	<tr>
-		<td valign="top" colspan="2" align="left">
+		<td colspan="2" align="left">
 			<input type="hidden" name="filter_active" value="Y">
-			<input type="submit" name="filter_siteb" value="<?echo GetMessage("SEC_FILTER_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?>>
+			<input type="submit" name="filter_siteb" value="<?echo GetMessage("SEC_FILTER_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?> class="adm-btn-save">
 		</td>
 	</tr>
 <?endif?>
@@ -188,29 +193,29 @@ $tabControl->BeginNextTab();
 <?
 $tabControl->BeginNextTab();
 ?>
-<tr valign="top">
-	<td width="40%"><?echo GetMessage("SEC_FILTER_ACTION")?>:</td>
+<tr>
+	<td width="40%" class="adm-detail-valign-top"><?echo GetMessage("SEC_FILTER_ACTION")?>:</td>
 	<td width="60%">
 		<label><input type="radio" name="filter_action" value="filter" <?if(COption::GetOptionString("security", "filter_action") != "clear" && COption::GetOptionString("security", "filter_action") != "none") echo "checked";?>><?echo GetMessage("SEC_FILTER_ACTION_FILTER")?><span class="required"><sup>1</sup></span></label><br>
 		<label><input type="radio" name="filter_action" value="clear" <?if(COption::GetOptionString("security", "filter_action") == "clear") echo "checked";?>><?echo GetMessage("SEC_FILTER_ACTION_CLEAR")?></label><br>
 		<label><input type="radio" name="filter_action" value="none" <?if(COption::GetOptionString("security", "filter_action") == "none") echo "checked";?>><?echo GetMessage("SEC_FILTER_ACTION_NONE")?></label><br>
 	</td>
 </tr>
-<tr valign="top">
-	<td width="40%"><label for="filter_stop"><?echo GetMessage("SEC_FILTER_STOP")?></label><span class="required"><sup>2</sup></span>:</td>
-	<td width="60%">
+<tr>
+	<td><label for="filter_stop"><?echo GetMessage("SEC_FILTER_STOP")?></label><span class="required"><sup>2</sup></span>:</td>
+	<td>
 		<input type="checkbox" name="filter_stop" id="filter_stop" value="Y" <?if(COption::GetOptionString("security", "filter_stop") == "Y") echo "checked";?>>
 	</td>
 </tr>
-<tr valign="top">
-	<td width="40%"><label for="filter_duration"><?echo GetMessage("SEC_FILTER_DURATION")?></label>:</td>
-	<td width="60%">
+<tr>
+	<td><label for="filter_duration"><?echo GetMessage("SEC_FILTER_DURATION")?></label>:</td>
+	<td>
 		<input type="text" size="4" name="filter_duration" value="<?echo COption::GetOptionInt("security", "filter_duration")?>">
 	</td>
 </tr>
-<tr valign="top">
-	<td width="40%"><label for="filter_log"><?echo GetMessage("SEC_FILTER_LOG", array("#HREF#" => "/bitrix/admin/event_log.php?lang=".LANGUAGE_ID."&set_filter=Y&find_type=audit_type_id&find_audit_type[]=SECURITY_FILTER_SQL&find_audit_type[]=SECURITY_FILTER_XSS&find_audit_type[]=SECURITY_FILTER_XSS2&find_audit_type[]=SECURITY_FILTER_PHP&mod=security"))?></label>:</td>
-	<td width="60%">
+<tr>
+	<td><label for="filter_log"><?echo GetMessage("SEC_FILTER_LOG")?></label>:</td>
+	<td>
 		<input type="checkbox" name="filter_log" id="filter_log" value="Y" <?if(COption::GetOptionString("security", "filter_log") == "Y") echo "checked";?>>
 	</td>
 </tr>
@@ -230,8 +235,8 @@ if($bVarsFromForm)
 	if(is_array($_POST["FILTER_MASKS"]))
 		foreach($_POST["FILTER_MASKS"] as $i => $POST_MASK)
 			$arMasks[] = array(
-				"SITE_ID" => htmlspecialchars($POST_MASK["SITE_ID"]),
-				"FILTER_MASK" => htmlspecialchars($POST_MASK["FILTER_MASK"]),
+				"SITE_ID" => htmlspecialcharsbx($POST_MASK["SITE_ID"]),
+				"FILTER_MASK" => htmlspecialcharsbx($POST_MASK["FILTER_MASK"]),
 			);
 }
 else
@@ -239,23 +244,23 @@ else
 	$rs = CSecurityFilterMask::GetList();
 	while($ar = $rs->Fetch())
 		$arMasks[] = array(
-			"SITE_ID" => htmlspecialchars($ar["SITE_ID"]),
-			"FILTER_MASK" => htmlspecialchars($ar["FILTER_MASK"]),
+			"SITE_ID" => htmlspecialcharsbx($ar["SITE_ID"]),
+			"FILTER_MASK" => htmlspecialcharsbx($ar["FILTER_MASK"]),
 		);
 }
 ?>
-<tr valign="top">
-	<td width="40%"><?echo GetMessage("SEC_FILTER_MASKS")?></td>
+<tr>
+	<td class="adm-detail-valign-top" width="40%"><?echo GetMessage("SEC_FILTER_MASKS")?></td>
 	<td width="60%">
 	<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbFILTER_MASKS">
 		<?foreach($arMasks as $i => $arMask):?>
-			<tr><td nowrap>
-				<input type="text" size="45" name="FILTER_MASKS[<?echo $i?>][MASK]" value="<?echo $arMask["FILTER_MASK"]?>">&nbsp;<?echo GetMessage("SEC_FILTER_SITE")?>&nbsp;<?echo CSite::SelectBox("FILTER_MASKS[$i][SITE_ID]", $arMask["SITE_ID"], GetMessage("MAIN_ALL"), "", "");?><br>
+			<tr><td nowrap style="padding-bottom: 3px;">
+				<input type="text" size="45" name="FILTER_MASKS[<?echo $i?>][MASK]" value="<?echo $arMask["FILTER_MASK"]?>">&nbsp;<?echo GetMessage("SEC_FILTER_SITE")?>&nbsp;<?echo CSite::SelectBox("FILTER_MASKS[$i][SITE_ID]", $arMask["SITE_ID"], GetMessage("MAIN_ALL"), "");?><br>
 			</td></tr>
 		<?endforeach;?>
 		<?if(!$bVarsFromForm):?>
-			<tr><td nowrap>
-				<input type="text" size="45" name="FILTER_MASKS[n0][MASK]" value="">&nbsp;<?echo GetMessage("SEC_FILTER_SITE")?>&nbsp;<?echo CSite::SelectBox("FILTER_MASKS[n0][SITE_ID]", "", GetMessage("MAIN_ALL"), "", "");?><br>
+			<tr><td nowrap style="padding-bottom: 3px;">
+				<input type="text" size="45" name="FILTER_MASKS[n0][MASK]" value="">&nbsp;<?echo GetMessage("SEC_FILTER_SITE")?>&nbsp;<?echo CSite::SelectBox("FILTER_MASKS[n0][SITE_ID]", "", GetMessage("MAIN_ALL"), "");?><br>
 			</td></tr>
 		<?endif;?>
 			<tr><td>

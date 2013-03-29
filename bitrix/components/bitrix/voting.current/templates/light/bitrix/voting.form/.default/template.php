@@ -1,6 +1,5 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-
-if (!empty($arResult["ERROR_MESSAGE"])): 
+if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="vote-note-box vote-note-error">
 	<div class="vote-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"])?></div>
@@ -134,9 +133,10 @@ endif;
 </ol>
 <div class="vote-form-box-buttons vote-vote-footer">
 	<span class="vote-form-box-button vote-form-box-button-first"><input type="submit" name="vote" value="<?=GetMessage("VOTE_SUBMIT_BUTTON")?>" /></span>
-	<span class="vote-form-box-button vote-form-box-button-last"><input type="button" name="" onclick="window.location='<?
-			?><?=CUtil::JSEscape($APPLICATION->GetCurPageParam("view_result=Y", array("VOTE_ID","VOTING_OK","VOTE_SUCCESSFULL", "view_result")))?>';" <?
-			?>value="<?=GetMessage("VOTE_RESULTS")?>"></span>
+	<span class="vote-form-box-button vote-form-box-button-last">
+		<a name="show_result" <?
+			?>href="<?=$APPLICATION->GetCurPageParam("view_result=Y", array("VOTE_ID","VOTING_OK","VOTE_SUCCESSFULL", "view_result"))?>"><?=GetMessage("VOTE_RESULTS")?></a>
+	</span>
 </div>
 </form>
 

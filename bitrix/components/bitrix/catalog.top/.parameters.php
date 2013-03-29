@@ -6,6 +6,7 @@ if(!CModule::IncludeModule("iblock"))
 
 $arIBlockType = CIBlockParameters::GetIBlockTypes();
 
+$arIBlock = array();
 $rsIBlock = CIBlock::GetList(Array("sort" => "asc"), Array("TYPE" => $arCurrentValues["IBLOCK_TYPE"], "ACTIVE"=>"Y"));
 while($arr=$rsIBlock->Fetch())
 	$arIBlock[$arr["ID"]] = "[".$arr["ID"]."] ".$arr["NAME"];
@@ -13,26 +14,29 @@ while($arr=$rsIBlock->Fetch())
 $arProperty = array();
 $arProperty_N = array();
 $arProperty_X = array();
-$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$arCurrentValues["IBLOCK_ID"]));
-while ($arr=$rsProp->Fetch())
+if (0 < intval($arCurrentValues["IBLOCK_ID"]))
 {
-	$code = $arr["CODE"];
-	$label = "[".$arr["CODE"]."] ".$arr["NAME"];
-
-	if($arr["PROPERTY_TYPE"] != "F")
-		$arProperty[$code] = $label;
-
-	if($arr["PROPERTY_TYPE"]=="N")
-		$arProperty_N[$code] = $label;
-
-	if($arr["PROPERTY_TYPE"]!="F")
+	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("IBLOCK_ID"=>$arCurrentValues["IBLOCK_ID"], "ACTIVE"=>"Y"));
+	while ($arr=$rsProp->Fetch())
 	{
-		if($arr["MULTIPLE"] == "Y")
-			$arProperty_X[$code] = $label;
-		elseif($arr["PROPERTY_TYPE"] == "L")
-			$arProperty_X[$code] = $label;
-		elseif($arr["PROPERTY_TYPE"] == "E" && $arr["LINK_IBLOCK_ID"] > 0)
-			$arProperty_X[$code] = $label;
+		$code = $arr["CODE"];
+		$label = "[".$arr["CODE"]."] ".$arr["NAME"];
+
+		if($arr["PROPERTY_TYPE"] != "F")
+			$arProperty[$code] = $label;
+
+		if($arr["PROPERTY_TYPE"]=="N")
+			$arProperty_N[$code] = $label;
+
+		if($arr["PROPERTY_TYPE"]!="F")
+		{
+			if($arr["MULTIPLE"] == "Y")
+				$arProperty_X[$code] = $label;
+			elseif($arr["PROPERTY_TYPE"] == "L")
+				$arProperty_X[$code] = $label;
+			elseif($arr["PROPERTY_TYPE"] == "E" && $arr["LINK_IBLOCK_ID"] > 0)
+				$arProperty_X[$code] = $label;
+		}
 	}
 }
 
@@ -41,7 +45,7 @@ $OFFERS_IBLOCK_ID = is_array($arOffers)? $arOffers["OFFERS_IBLOCK_ID"]: 0;
 $arProperty_Offers = array();
 if($OFFERS_IBLOCK_ID)
 {
-	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$OFFERS_IBLOCK_ID));
+	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("IBLOCK_ID"=>$OFFERS_IBLOCK_ID, "ACTIVE"=>"Y"));
 	while($arr=$rsProp->Fetch())
 	{
 		if($arr["PROPERTY_TYPE"] != "F")
@@ -220,6 +224,12 @@ $arComponentParameters = array(
 			"DEFAULT" => "asc",
 			"ADDITIONAL_VALUES" => "Y",
 		),
+		"OFFERS_LIMIT" => array(
+			"PARENT" => "VISUAL",
+			"NAME" => GetMessage('CP_BCT_OFFERS_LIMIT'),
+			"TYPE" => "STRING",
+			"DEFAULT" => 5,
+		),
 		"PRICE_CODE" => array(
 			"PARENT" => "PRICES",
 			"NAME" => GetMessage("IBLOCK_PRICE_CODE"),
@@ -267,6 +277,35 @@ $arComponentParameters = array(
 		),
 	),
 );
+
+if (CModule::IncludeModule('catalog') && CModule::IncludeModule('currency'))
+{
+	$arComponentParameters["PARAMETERS"]['CONVERT_CURRENCY'] = array(
+		'PARENT' => 'PRICES',
+		'NAME' => GetMessage('CP_BCT_CONVERT_CURRENCY'),
+		'TYPE' => 'CHECKBOX',
+		'DEFAULT' => 'N',
+		'REFRESH' => 'Y',
+	);
+
+	if (isset($arCurrentValues['CONVERT_CURRENCY']) && 'Y' == $arCurrentValues['CONVERT_CURRENCY'])
+	{
+		$arCurrencyList = array();
+		$rsCurrencies = CCurrency::GetList(($by = 'SORT'), ($order = 'ASC'));
+		while ($arCurrency = $rsCurrencies->Fetch())
+		{
+			$arCurrencyList[$arCurrency['CURRENCY']] = $arCurrency['CURRENCY'];
+		}
+		$arComponentParameters['PARAMETERS']['CURRENCY_ID'] = array(
+			'PARENT' => 'PRICES',
+			'NAME' => GetMessage('CP_BCT_CURRENCY_ID'),
+			'TYPE' => 'LIST',
+			'VALUES' => $arCurrencyList,
+			'DEFAULT' => CCurrency::GetBaseCurrency(),
+			"ADDITIONAL_VALUES" => "Y",
+		);
+	}
+}
 
 if(!$OFFERS_IBLOCK_ID)
 {

@@ -457,7 +457,7 @@ class CPostingGeneral
 			//Here is agent entry
 			if($limit===true)
 			{
- 				$maxcount = COption::GetOptionInt("subscribe", "subscribe_max_emails_per_hit") - self::$current_emails_per_hit;
+				$maxcount = COption::GetOptionInt("subscribe", "subscribe_max_emails_per_hit") - self::$current_emails_per_hit;
 				if($maxcount <= 0)
 					return "CPosting::AutoSend(".$ID.",true".($site_id? ",\"".$site_id."\"": "").");";
 			}
@@ -595,6 +595,7 @@ class CPostingGeneral
 				$sBoundary = "----------".uniqid("");
 				$sHeader =
 					'From: '.$sFrom.$eol.
+					'X-Bitrix-Posting: '.$post_arr["ID"].$eol.
 					'MIME-Version: 1.0'.$eol.
 					'Content-Type: multipart/related; boundary="'.$sBoundary.'"'.$eol.
 					'Content-Transfer-Encoding: 8bit';
@@ -636,6 +637,7 @@ class CPostingGeneral
 				$sBoundary = "----------".uniqid("");
 				$sHeader =
 					"From: ".$sFrom.$eol.
+					'X-Bitrix-Posting: '.$post_arr["ID"].$eol.
 					"MIME-Version: 1.0".$eol.
 					"Content-Type: multipart/related; boundary=\"".$sBoundary."\"".$eol.
 					"Content-Transfer-Encoding: 8bit";
@@ -662,7 +664,7 @@ class CPostingGeneral
 					$eol."--".$sBoundary.$eol.
 					"Content-Type: ".$arFile["CONTENT_TYPE"]."; name=\"".$file_name."\"".$eol.
 					"Content-Transfer-Encoding: base64".$eol.
-					"Content-Disposition: attachment; filename=\"".$file_name."\"".$eol.$eol;
+					"Content-Disposition: attachment; filename=\"".CMailTools::EncodeHeaderFrom($file_name, $post_arr["CHARSET"])."\"".$eol.$eol;
 
 				$arTempFile = CFile::MakeFileArray($arFile["ID"]);
 				$sBody .= chunk_split(
@@ -684,6 +686,7 @@ class CPostingGeneral
 			//plain message without MIME
 			$sHeader =
 				"From: ".$sFrom.$eol.
+				'X-Bitrix-Posting: '.$post_arr["ID"].$eol.
 				"MIME-Version: 1.0".$eol.
 				"Content-Type: ".($post_arr["BODY_TYPE"]=="html"? "text/html":"text/plain").($post_arr["CHARSET"]<>""? "; charset=".$post_arr["CHARSET"]:"").$eol.
 				"Content-Transfer-Encoding: 8bit";
@@ -1018,17 +1021,17 @@ class CMailTools
 
 	function EncodeHeaderFrom($text, $charset)
 	{
-		$i = strlen($text);
+		$i = CUtil::BinStrlen($text);
 		while($i > 0)
 		{
-			if(ord(substr($text, $i-1, 1))>>7)
+			if(ord(CUtil::BinSubstr($text, $i-1, 1))>>7)
 				break;
 			$i--;
 		}
 		if($i==0)
 			return $text;
 		else
-			return "=?".$charset."?B?".base64_encode(substr($text, 0, $i))."?=".substr($text, $i);
+			return "=?".$charset."?B?".base64_encode(CUtil::BinSubstr($text, 0, $i))."?=".CUtil::BinSubstr($text, $i);
 	}
 
 	function __replace_img($matches)

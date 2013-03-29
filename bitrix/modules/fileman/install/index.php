@@ -66,6 +66,16 @@ Class fileman extends CModule
 
 		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/install/tasks/install.php");
 
+		// // Add hotkeys
+		// $hkc = new CHotKeysCode;
+		// $id = $hkc->Add(array(
+			// CLASS_NAME => "admin_file_edit_apply",
+			// CODE => "if(top.AjaxApply && typeof top.AjaxApply == 'function'){top.AjaxApply();}",
+			// NAME => GetMessage("FILEMAN_HOTKEY_TITLE"),
+			// IS_CUSTOM => "0"			
+		// ));
+		// CHotKeys::getInstance()->Add(array("KEYS_STRING"=>"Ctrl+83", "CODE_ID"=>$id, "USER_ID" => 0)); //S
+
 		return true;
 	}
 

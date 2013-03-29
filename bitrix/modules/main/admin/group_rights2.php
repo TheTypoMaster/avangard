@@ -17,7 +17,7 @@ while($zr = $z->Fetch())
 {
 	$ar = array();
 	$ar["ID"] = intval($zr["ID"]);
-	$ar["NAME"] = htmlspecialchars($zr["NAME"]);
+	$ar["NAME"] = htmlspecialcharsbx($zr["NAME"]);
 	$arGROUPS[] = $ar;
 }
 
@@ -54,11 +54,11 @@ if ($GROUP_DEFAULT_TASK == '')
 }
 ?>
 <tr>
-	<td width="50%"><b><?=GetMessage("MAIN_BY_DEFAULT");?></b></td>
-	<td width="50%"><?
+	<td width="40%"><b><?=GetMessage("MAIN_BY_DEFAULT");?></b></td>
+	<td width="60%"><?
 	$arTasksInModule = CTask::GetTasksInModules(true,$module_id,'module');
 	$arTasks = $arTasksInModule[$module_id];
-	echo SelectBoxFromArray("GROUP_DEFAULT_TASK", $arTasks, htmlspecialchars($GROUP_DEFAULT_TASK));
+	echo SelectBoxFromArray("GROUP_DEFAULT_TASK", $arTasks, htmlspecialcharsbx($GROUP_DEFAULT_TASK));
 	?><?=bitrix_sessid_post()?></td>
 </tr>
 <?
@@ -86,7 +86,7 @@ endforeach;
 if(count($arGROUPS) > count($arUsedGroups)):
 ?>
 <tr>
-	<td><select onchange="settingsSetGroupID(this)">
+	<td><select style="width:300px" onchange="settingsSetGroupID(this)">
 		<option value=""><?echo GetMessage("group_rights_select")?></option>
 <?
 foreach($arGROUPS as $group):
@@ -101,7 +101,8 @@ foreach($arGROUPS as $group):
 	?></td>
 </tr>
 <tr>
-	<td colspan="2" align="center" style="padding-bottom:10px;">
+	<td>&nbsp;</td>
+	<td style="padding-bottom:10px;">
 <script type="text/javascript">
 function settingsSetGroupID(el)
 {
@@ -126,7 +127,7 @@ function settingsAddRights(a)
 	sel.selectedIndex = 0;
 }
 </script>
-<a href="javascript:void(0)" onclick="settingsAddRights(this)" hidefocus="true" class="bx-action-href"><?echo GetMessage("group_rights_add")?></a>
+<a href="javascript:void(0)" onclick="settingsAddRights(this)" hidefocus="true" class="adm-btn"><?echo GetMessage("group_rights_add")?></a>
 	</td>
 </tr>
 <?endif?>

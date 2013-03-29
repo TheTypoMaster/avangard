@@ -12,6 +12,11 @@ $arComponentParameters = array(
 		),
 	),
 	"PARAMETERS" => array(
+		"USE_DESC_PAGE" => Array(
+			"PARENT" => "BASE",
+			"NAME" => GetMessage("F_USE_DESC_PAGE"),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "Y"),
 		"URL_TEMPLATES_FORUMS" => Array(
 			"PARENT" => "URL_TEMPLATES",
 			"NAME" => GetMessage("F_FORUMS_TEMPLATE"),

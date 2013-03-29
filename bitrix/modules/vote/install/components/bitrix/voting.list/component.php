@@ -32,7 +32,7 @@ endif;
 		if (strLen(trim($arParams[strToUpper($URL)."_TEMPLATE"])) <= 0)
 			$arParams[strToUpper($URL)."_TEMPLATE"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~".strToUpper($URL)."_TEMPLATE"] = $arParams[strToUpper($URL)."_TEMPLATE"];
-		$arParams[strToUpper($URL)."_TEMPLATE"] = htmlspecialchars($arParams["~".strToUpper($URL)."_TEMPLATE"]);
+		$arParams[strToUpper($URL)."_TEMPLATE"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_TEMPLATE"]);
 	endforeach;
 /********************************************************************
 				/Input params
@@ -62,9 +62,9 @@ if ($db_res)
 		foreach ($res["URL"] as $key => $val):
 			$res[$key."_URL"] = $val;
 		endforeach;
-        $res["TITLE"] = htmlspecialcharsEx($res["TITLE"]);
-        if ($res['DESCRIPTION_TYPE'] == 'text')
-            $res['DESCRIPTION'] = htmlspecialchars($res['DESCRIPTION']);
+		$res["TITLE"] = htmlspecialcharsEx($res["TITLE"]);
+		if ($res['DESCRIPTION_TYPE'] == 'text')
+			$res['DESCRIPTION'] = htmlspecialcharsbx($res['DESCRIPTION']);
 		$arResult["VOTES"][$res["ID"]] = $res;
 	}
 }

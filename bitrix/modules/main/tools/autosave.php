@@ -4,7 +4,7 @@ define("STOP_STATISTICS", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 if(!$USER->IsAuthorized() || !check_bitrix_sessid())
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+	die();
 
 CUtil::JSPostUnescape();
 
@@ -17,5 +17,5 @@ if ($AUTOSAVE->Set($arFormData))
 else
 	echo 'FAILED';
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php"); 
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 ?>

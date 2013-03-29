@@ -5,4 +5,5 @@ $MESS["IBLOCK_BAD_BLOCK_SECTION_ID_PARENT"] = "Der Zeichencode stimmt nicht mit 
 $MESS["IBLOCK_BAD_SECTION"] = "Die Überschrift wurde nicht angegeben.";
 $MESS["IBLOCK_DUP_SECTION_CODE"] = "Der Bereich mit diesem Zeichencode existiert bereits.";
 $MESS["IBLOCK_BAD_SECTION_FIELD"] = "Das benötigte Feld  \"#FIELD_NAME#\" wurde leer gelassen.";
+$MESS["IBLOCK_BAD_SECTION_ID"] = "Ein Bereich mit dieser ID (#ID#) existiert nicht.";
 ?>

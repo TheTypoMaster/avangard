@@ -1,11 +1,11 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 $APPLICATION->AddHeadString(
-    '<link type="text/css" rel="stylesheet" href="/bitrix/themes/.default/check-list-style.css">');?>
+	'<link type="text/css" rel="stylesheet" href="/bitrix/themes/.default/check-list-style.css">');?>
 <style type="text/css">
-    .checklist-button-left-corn {background:url('/bitrix/js/main/core/images/controls-sprite.png') no-repeat left -328px;}
-    .checklist-button-cont{background:url('/bitrix/js/main/core/images/controls-sprite.png') repeat-x left -356px;}
-    .checklist-button-right-corn {background:url('/bitrix/js/main/core/images/controls-sprite.png') no-repeat -6px -328px;}
+	.checklist-button-left-corn {background:url('/bitrix/js/main/core/images/controls-sprite.png') no-repeat left -328px;}
+	.checklist-button-cont{background:url('/bitrix/js/main/core/images/controls-sprite.png') repeat-x left -356px;}
+	.checklist-button-right-corn {background:url('/bitrix/js/main/core/images/controls-sprite.png') no-repeat -6px -328px;}
 	.project-checked {background:url("/bitrix/themes/.default/images/checklist/checklist-sprite.png") no-repeat 0 -123px; height:11px;top:4px; font-size:1px; left:3px;float:left;width:14px;position:relative;margin-right:10px;}
 	.checklist-report-info{vertical-align:top;display:inline-block;padding-left:10px;}
 	.checklist-top-info-left{vertical-align:top}
@@ -27,10 +27,10 @@ else
 		$arReportData = new CCheckList($arReport["ID"]);
 		$arReportInfo = $arReportData->GetReportInfo();
 		$arStat = $arReportInfo["STAT"];
-		if ($arReportInfo["INFO"]["PICTURE"])
-			$arPictureSrc = CFile::GetPath($arReportInfo["INFO"]["PICTURE"]);
+//		if ($arReportInfo["INFO"]["PICTURE"])
+//			$arPictureSrc = CFile::GetPath($arReportInfo["INFO"]["PICTURE"]);
 
-	}	
+	}
 }
 ?>
 <?if($isStarted):?>
@@ -38,7 +38,7 @@ else
 		<div class="bx-gadgets-warning-bord"></div>
 		<div class="bx-gadgets-warning-bord2"></div>
 		<div class="bx-gadgets-warning-text-red">
-			<div class="bx-gadgets-warning-cont"><?=GetMessage("CL_PROJECT_NOT_PASSED");?></div>			
+			<div class="bx-gadgets-warning-cont"><?=GetMessage("CL_PROJECT_NOT_PASSED");?></div>
 		</div>
 		<div class="bx-gadgets-warning-bord2"></div>
 		<div class="bx-gadgets-warning-bord"></div>
@@ -55,8 +55,8 @@ else
 				<td><?=$arStat["TOTAL"]?></td>
 				<td class="checklist-test-successfully" ><?=$arStat["CHECK"]?></td>
 				<td class="checklist-test-unsuccessful"><?=$arStat["FAILED"]?></td>
-				<td><?=$arStat["WAITING"]?></td>				
-		</tr>						
+				<td><?=$arStat["WAITING"]?></td>
+		</tr>
 	</table><br>
 	<div><?=GetMessage("CL_TO_CHECKLIST_PAGE2",Array("#LANG#"=>LANG));?></div>
 <?elseif(is_array($arReport)):?>
@@ -65,7 +65,7 @@ else
 		<div class="bx-gadgets-warning-bord"></div>
 		<div class="bx-gadgets-warning-bord2"></div>
 		<div class="bx-gadgets-warning-text-green">
-			<div class="bx-gadgets-warning-cont"><?=GetMessage("CL_PROJECT_PASSED");?></div>			
+			<div class="bx-gadgets-warning-cont"><?=GetMessage("CL_PROJECT_PASSED");?></div>
 		</div>
 		<div class="bx-gadgets-warning-bord2"></div>
 		<div class="bx-gadgets-warning-bord"></div>
@@ -76,31 +76,23 @@ else
 			<span class="checklist-top-info-left-item checklist-test-successfully"><?=GetMessage("CL_TEST_CHECKED");?>:</span><br/>
 			<span class="checklist-top-info-left-item checklist-test-unsuccessful"><?=GetMessage("CL_TEST_FAILED");?>:</span><br/>
 			<span class="checklist-top-info-left-item checklist-test-not-necessarily"><?=GetMessage("CL_TEST_NOT_REQUIRE");?>:</span><br/>
-			<span class="checklist-top-info-left-item not-necessarily"><?=GetMessage("CL_TEST_WAITING");?>:</span><br/>
 		</span><span class="checklist-top-info-right-nambers table-statistic">
 			<span class="checklist-top-info-left-item-qt"><?=$arReport["TOTAL"]?></span><br/>
 			<span class="checklist-top-info-left-item-qt"><?=$arStat["REQUIRE"]?></span><br/>
 			<span class="checklist-test-successfully"><?=$arStat["CHECK"]?></span><br/>
 			<span class="checklist-test-unsuccessful"><?=$arStat["FAILED"]?></span><br/>
 			<span class="checklist-test-not-necessarily"><?=($arStat["TOTAL"] - $arStat["REQUIRE"]);?></span><br/>
-			<span class="checklist-top-info-left-item-qt"><?=$arStat["WAITING"]?></span>
-		</span>	
+		</span>
 		<span class="checklist-report-info">
 			<span class="checklist-top-info-left-item checklist-testlist-grey"><?=GetMessage("CL_REPORT_DATE");?></span><br/>
 			<span class="checklist-top-info-left-item"><b><?=$arReport["DATE_CREATE"]?></b></span><br/><br/>
 			<span class="checklist-top-info-left-item checklist-testlist-grey"><?=GetMessage("CL_REPORT_TABLE_TESTER");?></span><br/>
 			<span class="checklist-top-info-left-item">
-			<span class="bx-picture-statistic">
-			<?if ($arPictureSrc):?>
-					<img width="30px" height="30px" src="<?=$arPictureSrc;?>"/>
-				<?endif;?>
+			<?=$arReport["COMPANY_NAME"]?> (<?=$arReport["TESTER"]?>)
 			</span>
-			<?=$arReport["TESTER"]?>
-			
-			</span>		
-		</span>				
+		</span>
 <?else:?>
 	<span class="bx-gadgets-warning-cont-ball"><?=GetMessage("CL_NOT_CHECKED_YET");?></span><br><br>
 	<?=GetMessage("CL_TO_CHECKLIST_PAGE",Array("#LANG#"=>LANG));?>
-	
+
 <?endif;?>

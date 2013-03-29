@@ -26,6 +26,7 @@ if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="") && $POST_RIGHT=="W" &&
 	$arFields = Array(
 		"ACTIVE"	=> ($ACTIVE <> "Y"? "N":"Y"),
 		"NAME"		=> $NAME,
+		"CODE"		=> $CODE,
 		"SORT"		=> $SORT,
 		"DESCRIPTION"	=> $DESCRIPTION,
 		"LID"		=> $LID,
@@ -160,17 +161,21 @@ $tabControl->BeginNextTab();
 		<td><?echo GetMessage("rub_site")?></td>
 		<td><?echo CLang::SelectBox("LID", $str_LID);?></td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span><?echo GetMessage("rub_name")?></td>
-		<td><input type="text" name="NAME" value="<?echo $str_NAME;?>" size="30" maxlength="100"></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("rub_name")?></td>
+		<td><input type="text" name="NAME" value="<?echo $str_NAME;?>" size="45" maxlength="100"></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("rub_sort")?></td>
-		<td><input type="text" name="SORT" value="<?echo $str_SORT;?>" size="30"></td>
+		<td><input type="text" name="SORT" value="<?echo $str_SORT;?>" size="6"></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("rub_desc")?></td>
-		<td><textarea class="typearea" name="DESCRIPTION" cols="45" rows="5" wrap="VIRTUAL"><?echo $str_DESCRIPTION; ?></textarea></td>
+		<td><?echo GetMessage("rub_code")?></td>
+		<td><input type="text" name="CODE" value="<?echo $str_CODE;?>" size="45"></td>
+	</tr>
+	<tr>
+		<td class="adm-detail-valign-top"><?echo GetMessage("rub_desc")?></td>
+		<td><textarea class="typearea" name="DESCRIPTION" cols="45" rows="5" wrap="VIRTUAL" style="width:100%"><?echo $str_DESCRIPTION; ?></textarea></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("rub_auto")?></td>
@@ -185,8 +190,8 @@ $tabControl->BeginNextTab();
 	<tr class="heading">
 		<td colspan="2"><?echo GetMessage("rub_schedule")?></td>
 	</tr>
-	<tr>
-		<td width="40%"><span class="required">*</span><?echo GetMessage("rub_last_executed"). " (".FORMAT_DATETIME."):"?></td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?echo GetMessage("rub_last_executed"). ":"?></td>
 		<td width="60%"><?echo CalendarDate("LAST_EXECUTED", $str_LAST_EXECUTED, "post_form", "20")?></td>
 	</tr>
 	<tr>
@@ -194,7 +199,7 @@ $tabControl->BeginNextTab();
 		<td><input class="typeinput" type="text" name="DAYS_OF_MONTH" value="<?echo $str_DAYS_OF_MONTH;?>" size="30" maxlength="100"></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("rub_dow")?></td>
+		<td class="adm-detail-valign-top"><?echo GetMessage("rub_dow")?></td>
 		<td>
 		<table cellspacing=1 cellpadding=0 border=0 class="internal">
 		<?	$arDoW = array(
@@ -213,14 +218,14 @@ $tabControl->BeginNextTab();
 			</tr>
 			<tr>
 			<?foreach($arDoW as $strVal=>$strDoW):?>
-				<td><input type="checkbox" name="DAYS_OF_WEEK[]" value="<?=$strVal?>"<?if(array_search($strVal, $DAYS_OF_WEEK) !== false) echo " checked"?>></td>
+				<td style="text-align:center"><input type="checkbox" name="DAYS_OF_WEEK[]" value="<?=$strVal?>"<?if(array_search($strVal, $DAYS_OF_WEEK) !== false) echo " checked"?>></td>
 			<?endforeach;?>
 			</tr>
 		</table>
 		</td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span><?echo GetMessage("rub_tod")?></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("rub_tod")?></td>
 		<td><input type="text" name="TIMES_OF_DAY" value="<?echo $str_TIMES_OF_DAY;?>" size="30" maxlength="255"></td>
 	</tr>
 	<tr class="heading">
@@ -230,8 +235,8 @@ $tabControl->BeginNextTab();
 $arTemplates=CPostingTemplate::GetList();
 if(count($arTemplates)>0):
 ?>
-	<tr>
-		<td><span class="required">*</span><?echo GetMessage("rub_templates")?></td>
+	<tr class="adm-detail-required-field">
+		<td class="adm-detail-valign-top"><?echo GetMessage("rub_templates")?></td>
 		<td><table>
 <?
 	$i=0;
@@ -239,7 +244,7 @@ if(count($arTemplates)>0):
 		$arTemplate = CPostingTemplate::GetByID($strTemplate);
 ?>
 		<tr>
-			<td valign="top"><input type="radio" id="TEMPLATE<?=$i?>" name="TEMPLATE" value="<?=$arTemplate["PATH"]?>"<?if($str_TEMPLATE==$arTemplate["PATH"]) echo "checked"?>></td>
+			<td class="adm-detail-valign-top"><input type="radio" id="TEMPLATE<?=$i?>" name="TEMPLATE" value="<?=$arTemplate["PATH"]?>"<?if($str_TEMPLATE==$arTemplate["PATH"]) echo "checked"?>></td>
 			<td>
 				<label for="TEMPLATE<?=$i?>" title="<?=$arTemplate["DESCRIPTION"]?>"><?=(strlen($arTemplate["NAME"])>0?$arTemplate["NAME"]:GetMessage("rub_no_name"))?></label><br>
 				<?if(IsModuleInstalled("fileman")):?>
@@ -261,8 +266,8 @@ if(count($arTemplates)>0):
 	<tr class="heading">
 		<td colspan="2"><?echo GetMessage("rub_post_fields")?></td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span><?echo GetMessage("rub_post_fields_from")?></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("rub_post_fields_from")?></td>
 		<td><input type="text" name="FROM_FIELD" value="<?echo $str_FROM_FIELD;?>" size="30" maxlength="255"></td>
 	</tr>
 <?
@@ -295,9 +300,5 @@ $tabControl->ShowWarnings("post_form", $message);
 		tabControl.DisableTab('edit2');
 //-->
 </script>
-
-<?echo BeginNote();?>
-<span class="required">*</span><?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote();?>
 
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

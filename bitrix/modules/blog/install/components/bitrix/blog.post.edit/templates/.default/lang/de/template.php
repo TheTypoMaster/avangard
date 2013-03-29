@@ -42,7 +42,7 @@ $MESS["BLOG_PUBLISH"] = "Veröffentlichen";
 $MESS["FPF_QUOTE"] = "Zitat";
 $MESS["BLOG_REG_USERS"] = "registr. Nutzer";
 $MESS["STOF_REQUIED_FIELDS_NOTE"] = "Felder, die mit dem Sternchen (<font color=\"#FF0000\">*</font>) markiert sind, müssen ausgefüllt werden.";
-$MESS["BLOG_FAVORITE_SORT"] = "Sortierindex:";
+$MESS["BLOG_FAVORITE_SORT"] = "In beliebtesten Nachrichten anzeigen";
 $MESS["BLOG_SPECIAL_PERMS"] = "Spezielle Zugriffsberechtigungen";
 $MESS["FPF_STRIKE"] = "Durchgestrichen";
 $MESS["BLOG_CATEGORY_NAME"] = "Tag-Bezeichnung";
@@ -73,4 +73,6 @@ $MESS["BPC_IMAGE_SIZE_NOTICE"] = "Maximal zugelassene Größe einer Bilddatei: <b>
 $MESS["BLOG_POST_AUTOSAVE"] = "Daten des Blogbeitrags wurden nicht gespeichert.";
 $MESS["BLOG_POST_GROUP_CHOOSE"] = "Auswählen";
 $MESS["BLOG_POST_GROUP"] = "Beitrag in der Gruppe schreiben";
+$MESS["MPF_IMAGE_TITLE"] = "Bild in die Nachricht einfügen";
+$MESS["BLOG_ADD_FILES"] = "Dateien hinzufügen";
 ?>

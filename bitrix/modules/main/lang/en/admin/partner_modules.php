@@ -43,4 +43,12 @@ $MESS["MOD_SMP_INSTALLED"] = "The solution \"#MODULE_NAME#\" has been installed 
 $MESS["MOD_SMP_UNINSTALLED"] = "The solution \"#MODULE_NAME#\" has been uninstalled successfully.";
 $MESS["MOD_SMP_DELETED"] = "The solution \"#MODULE_NAME#\" has been deleted successfully.";
 $MESS["MOD_SMP_DOWNLOAD"] = "Download";
+$MESS["MOD_DATE_TO"] = "Updates until";
+$MESS["MOD_DEMO"] = "Demo mode";
+$MESS["MOD_DEMO_END"] = "The trial period is over.";
+$MESS["MOD_UPDATE_BUY"] = "Buy new version";
+$MESS["MOD_UPDATE_BUY_DEMO"] = "Buy";
+$MESS["MOD_INSTALL_ERROR"] = "Error installing solution #CODE#";
+$MESS["MOD_UNINSTALL_ERROR"] = "Error uninstalling solution #CODE#";
+$MESS["MOD_CLEAR_CONFIRM"] = "Are you sure you want to delete the solution #NAME#? It will be completely removed from the website.";
 ?>

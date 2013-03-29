@@ -20,13 +20,14 @@ class CSocServOpenID
 			elseif($step == 1)
 			{
 				if($identity === false)
-					$identity = $_POST['OPENID_IDENTITY_OPENID'];
-		
-				$return_to = CSocServUtil::GetCurUrl("auth_service_id=".urlencode($_REQUEST["auth_service_id"]));
+					$identity = $_REQUEST['OPENID_IDENTITY_OPENID'];
+				CSocServAuthManager::SetUniqueKey();
+				$return_to = CSocServUtil::GetCurUrl("auth_service_id=".urlencode($_REQUEST["auth_service_id"])."&check_key=".$_SESSION["UNIQUE_KEY"], array("SEF_APPLICATION_CUR_PAGE_URL", "auth_service_error", "auth_service_id"));
 
 				if($url = $obOpenID->GetRedirectUrl($identity, $return_to))
 					LocalRedirect($url, true);
 				else
+					LocalRedirect(CSocServUtil::GetCurUrl("auth_service_id=".urlencode($_REQUEST["auth_service_id"])."&auth_service_error=1"));
 					return false;
 			}
 		}
@@ -38,7 +39,8 @@ class CSocServOpenID
 		return '
 <span class="bx-ss-icon openid"></span>
 <span>'.'OpenID:'.'</span>
-<input type="text" name="OPENID_IDENTITY_OPENID" value="'.$arParams["LAST_LOGIN"].'" size="40" />
+<input type="text" name="OPENID_IDENTITY_OPENID" value="'.$arParams["LAST_LOGIN"].'" size="30" />
+<input type="hidden" name="auth_service_error" value="" />
 <input type="submit" class="button" name="" value="'.GetMessage("socserv_openid_login").'" />
 ';
 	}
@@ -49,7 +51,7 @@ class CSocServYandex extends CSocServOpenID
 	public function Authorize($identity=false, $var=false)
 	{
 		if($identity === false)
-			$identity = "http://openid.yandex.ru/".$_POST['OPENID_IDENTITY_YANDEX'];
+			$identity = "http://openid.yandex.ru/".$_REQUEST['OPENID_IDENTITY_YANDEX'];
 			
 		return parent::Authorize($identity, 'OPENID_IDENTITY_YANDEX');
 	}
@@ -61,8 +63,9 @@ class CSocServYandex extends CSocServOpenID
 			$login = $matches[1];
 		return '
 <span class="bx-ss-icon openid"></span>
-<input type="text" name="OPENID_IDENTITY_YANDEX" value="'.htmlspecialchars($login).'" size="20" />
+<input type="text" name="OPENID_IDENTITY_YANDEX" value="'.htmlspecialcharsbx($login).'" size="20" />
 <span>@yandex.ru</span>
+<input type="hidden" name="auth_service_error" value="" />
 <input type="submit" class="button" name="" value="'.GetMessage("socserv_openid_login").'" />
 ';
 	}
@@ -73,8 +76,8 @@ class CSocServMailRu extends CSocServOpenID
 	public function Authorize($identity=false, $var=false)
 	{
 		if($identity === false)
-			$identity = "http://openid.mail.ru/mail/".$_POST['OPENID_IDENTITY_MAILRU'];
-			
+			$identity = "http://openid.mail.ru/mail/".$_REQUEST['OPENID_IDENTITY_MAILRU'];
+
 		return parent::Authorize($identity, 'OPENID_IDENTITY_MAILRU');
 	}
 
@@ -83,10 +86,12 @@ class CSocServMailRu extends CSocServOpenID
 		$login = '';
 		if(preg_match('#openid.mail.ru/mail/([^/$]+)#i', $arParams["~LAST_LOGIN"], $matches))
 			$login = $matches[1];
+
 		return '
 <span class="bx-ss-icon openid"></span>
-<input type="text" name="OPENID_IDENTITY_MAILRU" value="'.htmlspecialchars($login).'" size="20" />
+<input type="text" name="OPENID_IDENTITY_MAILRU" value="'.htmlspecialcharsbx($login).'" size="20" />
 <span>@mail.ru</span>
+<input type="hidden" name="auth_service_error" value="" />
 <input type="submit" class="button" name="" value="'.GetMessage("socserv_openid_login").'" />
 ';
 	}
@@ -97,7 +102,7 @@ class CSocServLivejournal extends CSocServOpenID
 	public function Authorize($identity=false, $var=false)
 	{
 		if($identity === false)
-			$identity = $_POST['OPENID_IDENTITY_LIVEJOURNAL'].".livejournal.com";
+			$identity = $_REQUEST['OPENID_IDENTITY_LIVEJOURNAL'].".livejournal.com";
 			
 		return parent::Authorize($identity, 'OPENID_IDENTITY_LIVEJOURNAL');
 	}
@@ -109,8 +114,9 @@ class CSocServLivejournal extends CSocServOpenID
 			$login = $matches[1];
 		return '
 <span class="bx-ss-icon openid"></span>
-<input type="text" name="OPENID_IDENTITY_LIVEJOURNAL" value="'.htmlspecialchars($login).'" size="20" />
+<input type="text" name="OPENID_IDENTITY_LIVEJOURNAL" value="'.htmlspecialcharsbx($login).'" size="20" />
 <span>.livejournal.com</span>
+<input type="hidden" name="auth_service_error" value="" />
 <input type="submit" class="button" name="" value="'.GetMessage("socserv_openid_login").'" />
 ';
 	}
@@ -121,7 +127,7 @@ class CSocServLiveinternet extends CSocServOpenID
 	public function Authorize($identity=false, $var=false)
 	{
 		if($identity === false)
-			$identity = "http://www.liveinternet.ru/users/".$_POST['OPENID_IDENTITY_LIVEINTERNET']."/";
+			$identity = "http://www.liveinternet.ru/users/".$_REQUEST['OPENID_IDENTITY_LIVEINTERNET']."/";
 			
 		return parent::Authorize($identity, 'OPENID_IDENTITY_LIVEINTERNET');
 	}
@@ -133,9 +139,9 @@ class CSocServLiveinternet extends CSocServOpenID
 			$login = $matches[1];
 		return '
 <span class="bx-ss-icon openid"></span>
-<span>http://www.liveinternet.ru/users/</span>
-<input type="text" name="OPENID_IDENTITY_LIVEINTERNET" value="'.htmlspecialchars($login).'" size="20" />
-<span>/</span>
+<span>liveinternet.ru/users/</span>
+<input type="text" name="OPENID_IDENTITY_LIVEINTERNET" value="'.htmlspecialcharsbx($login).'" size="15" />
+<input type="hidden" name="auth_service_error" value="" />
 <input type="submit" class="button" name="" value="'.GetMessage("socserv_openid_login").'" />
 ';
 	}
@@ -146,7 +152,7 @@ class CSocServBlogger extends CSocServOpenID
 	public function Authorize($identity=false, $var=false)
 	{
 		if($identity === false)
-			$identity = "http://".$_POST['OPENID_IDENTITY_BLOGGER'].".blogspot.com/";
+			$identity = "http://".$_REQUEST['OPENID_IDENTITY_BLOGGER'].".blogspot.com/";
 			
 		return parent::Authorize($identity, 'OPENID_IDENTITY_BLOGGER');
 	}
@@ -158,8 +164,9 @@ class CSocServBlogger extends CSocServOpenID
 			$login = $matches[1];
 		return '
 <span class="bx-ss-icon openid"></span>
-<input type="text" name="OPENID_IDENTITY_BLOGGER" value="'.htmlspecialchars($login).'" size="20" />
+<input type="text" name="OPENID_IDENTITY_BLOGGER" value="'.htmlspecialcharsbx($login).'" size="20" />
 <span>.blogspot.com</span>
+<input type="hidden" name="auth_service_error" value="" />
 <input type="submit" class="button" name="" value="'.GetMessage("socserv_openid_login").'" />
 ';
 	}
@@ -170,7 +177,7 @@ class CSocServRambler extends CSocServOpenID
 	public function Authorize($identity=false, $var=false)
 	{
 		if($identity === false)
-			$identity = "http://id.rambler.ru/users/".$_POST['OPENID_IDENTITY_RAMBLER'];
+			$identity = "http://id.rambler.ru/users/".$_REQUEST['OPENID_IDENTITY_RAMBLER'];
 			
 		return parent::Authorize($identity, 'OPENID_IDENTITY_RAMBLER');
 	}
@@ -182,8 +189,9 @@ class CSocServRambler extends CSocServOpenID
 			$login = $matches[1];
 		return '
 <span class="bx-ss-icon openid"></span>
-<input type="text" name="OPENID_IDENTITY_RAMBLER" value="'.htmlspecialchars($login).'" size="20" />
+<input type="text" name="OPENID_IDENTITY_RAMBLER" value="'.htmlspecialcharsbx($login).'" size="20" />
 <span>@rambler.ru</span>
+<input type="hidden" name="auth_service_error" value="" />
 <input type="submit" class="button" name="" value="'.GetMessage("socserv_openid_login").'" />
 ';
 	}

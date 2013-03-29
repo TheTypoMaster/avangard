@@ -109,3 +109,4 @@ function winPop(uri, name, w, h){ // открывает поп-ап окно: ="return popupWin('/
 	} popupedWin = window.open(uri, name || "pop", "status=no, menubar=no, toolbar=no, resizable=yes, width=" + w + ", height=" + h + posCode); popupedWin.focus(); return false;
 }
 
+;   

@@ -38,9 +38,10 @@ $aTabs[]=array("DIV" => "edit7", "TAB" => GetMessage("FORM_RESTRICTIONS"), "ICON
 if (!$bSimple)
 	$aTabs[]=array("DIV" => "edit3", "TAB" => GetMessage("FORM_TPL"), "ICON" => "form_edit", "TITLE" => GetMessage("FORM_TPL_TITLE"));
 $aTabs[]=array("DIV" => "edit4", "TAB" => GetMessage("FORM_EVENTS"), "ICON" => "form_edit", "TITLE" => GetMessage("FORM_EVENTS_TITLE"));
+$aTabs[]=array("DIV" => "editcrm", "TAB" => GetMessage("FORM_CRM"), "ICON" => "form_edit", "TITLE" => GetMessage("FORM_CRM_TITLE"));
 $aTabs[]=array("DIV" => "edit6", "TAB" => GetMessage("FORM_ACCESS"), "ICON" => "form_edit", "TITLE" => GetMessage("FORM_RIGHTS"));
 
-$tabControl = new CAdminTabControl("tabControl", $aTabs, true, false);
+$tabControl = new CAdminTabControl("tabControl", $aTabs, true, true);
 $message = null;
 /***************************************************************************
                            GET | POST processing
@@ -81,7 +82,7 @@ while ($wr=$w->Fetch())
 {
 	$arGroups[] = array(
 		"ID" => $wr["ID"],
-		"NAME" => "[<a title=\"".GetMessage("FORM_GROUP_EDIT")."\" href=\"/bitrix/admin/group_edit.php?ID=".intval($wr["ID"])."&lang=".LANGUAGE_ID."\">".intval($wr["ID"])."</a>] ".htmlspecialchars($wr["NAME"]),
+		"NAME" => "[<a title=\"".GetMessage("FORM_GROUP_EDIT")."\" href=\"/bitrix/admin/group_edit.php?ID=".intval($wr["ID"])."&lang=".LANGUAGE_ID."\">".intval($wr["ID"])."</a>] ".htmlspecialcharsbx($wr["NAME"]),
 	);
 }
 
@@ -187,13 +188,12 @@ if ((strlen($_REQUEST['save'])>0 || strlen($_REQUEST['apply'])>0) && $_SERVER['R
 		{
 			// structure
 			$FORM_STRUCTURE = $_REQUEST["FORM_STRUCTURE"];
-			
+
 			$arrFS = CheckSerializedData($FORM_STRUCTURE) ? unserialize($FORM_STRUCTURE) : array();
 
 			if (CFormOutput::CheckTemplate($FORM_TEMPLATE, $arrFS))
 			{
 				$GLOBALS['CACHE_MANAGER']->ClearByTag('form_'.$res);
-
 				foreach ($arrFS as $arQuestion)
 				{
 					$arQuestionFields = array(
@@ -217,7 +217,7 @@ if ((strlen($_REQUEST['save'])>0 || strlen($_REQUEST['apply'])>0) && $_SERVER['R
 					{
 						foreach ($arQuestion["structure"] as $arAnswer)
 						{
-							if (empty($arAnswer["MESSAGE"]))
+							if (strlen($arAnswer["MESSAGE"]) <= 0)
 							{
 								if (
 									$arAnswer['ANS_NEW'] != 'Y'
@@ -308,7 +308,20 @@ if ((strlen($_REQUEST['save'])>0 || strlen($_REQUEST['apply'])>0) && $_SERVER['R
 			}
 		}
 
+		if (strlen($strError)<=0 && $ID > 0)
+		{
+			$arCrmParams = array(
+				'CRM_ID' => $_REQUEST['CRM_ID'],
+				'LINK_TYPE' => $_REQUEST['CRM_LINK_TYPE'],
+				'CRM_FIELDS' => $_REQUEST['CRM_FIELD'],
+				'FORM_FIELDS' => $_REQUEST['CRM_FORM_FIELD'],
+			);
+
+			CFormCrm::SetForm($ID, $arCrmParams);
+		}
+
 		$ID = $res;
+
 		if (strlen($strError)<=0)
 		{
 			if (strlen($save)>0)
@@ -376,7 +389,7 @@ $APPLICATION->SetTitle($sDocTitle);
 
 if ($ID > 0)
 {
-	$txt = "(".htmlspecialchars($arForm['SID']).")&nbsp;".htmlspecialchars($str_NAME);
+	$txt = "(".htmlspecialcharsbx($arForm['SID']).")&nbsp;".htmlspecialcharsbx($str_NAME);
 	$link = "form_edit.php?lang=".LANGUAGE_ID."&ID=".$ID;
 	$adminChain->AddItem(array("TEXT"=>$txt, "LINK"=>$link));
 }
@@ -395,7 +408,7 @@ if (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1):
 		echo BeginNote('width="100%"');
 ?>
 	<b><?=GetMessage("FORM_FORM_NAME")?></b>
-	[<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$ID?>'><?=$ID?></a>]&nbsp;(<?=htmlspecialchars($arForm["SID"])?>)&nbsp;<?=htmlspecialchars($arForm["NAME"])?>
+	[<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$ID?>'><?=$ID?></a>]&nbsp;(<?=htmlspecialcharsbx($arForm["SID"])?>)&nbsp;<?=htmlspecialcharsbx($arForm["NAME"])?>
 <?
 		echo EndNote();
 	endif;
@@ -506,30 +519,30 @@ $tabControl->Begin();
 //********************
 $tabControl->BeginNextTab();
 ?>
-	<tr>
-		<td width="40%"><span class="required">*</span><?=GetMessage("FORM_NAME")?></td>
-		<td width="60%"><input type="text" name="NAME" size="60" maxlength="255" value="<?=$str_NAME?>"></td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?=GetMessage("FORM_NAME")?></td>
+		<td width="60%"><input type="text" name="NAME" size="60" maxlength="255" value="<?=htmlspecialcharsbx($str_NAME)?>"></td>
 	</tr>
 	<?if (!$bSimple):?>
-	<tr>
-		<td><span class="required">*</span><?=GetMessage("FORM_SID")?></td>
-		<td><input onchange="javascript:set_event2()" type="text" name="SID" size="30" maxlength="50" value="<?=$str_SID?>"></td>
+	<tr class="adm-detail-required-field">
+		<td><?=GetMessage("FORM_SID")?></td>
+		<td><input onchange="javascript:set_event2()" type="text" name="SID" size="30" maxlength="50" value="<?=htmlspecialcharsbx($str_SID)?>"></td>
 	</tr>
 	<?endif;?>
 	<tr>
 		<td><?=GetMessage("FORM_C_SORT")?></td>
-		<td><input type="text" name="C_SORT" size="5" maxlength="18" value="<?echo $str_C_SORT?>"></td>
+		<td><input type="text" name="C_SORT" size="5" maxlength="18" value="<?echo intval($str_C_SORT)?>"></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("FORM_MENU")?></td>
 		<td>
-			<table border="0" cellspacing="1" cellpadding="2" width="0%"><?
+			<table border="0" cellspacing="1" cellpadding="2" style="width: 0%;"><?
 				reset($arFormMenuLang);
 				foreach ($arFormMenuLang as $arrL):
 				?>
 				<tr>
 					<td width="0%" nowrap><?=$arrL["NAME"]?></td>
-					<td><input type="text" name="MENU_<?=htmlspecialchars($arrL["LID"], ENT_QUOTES)?>" size="30" value="<?=htmlspecialcharsex(${"MENU_".htmlspecialchars($arrL["LID"], ENT_QUOTES)})?>"></td>
+					<td><input type="text" name="MENU_<?=htmlspecialcharsbx($arrL["LID"], ENT_QUOTES)?>" size="30" value="<?=htmlspecialcharsex(${"MENU_".htmlspecialcharsbx($arrL["LID"], ENT_QUOTES)})?>"></td>
 				</tr>
 				<? endforeach; ?>
 			</table></td>
@@ -541,7 +554,7 @@ $tabControl->BeginNextTab();
 		while(list($sid, $arrS) = each($arrSites)):
 			$checked = ((is_array($arSITE) && in_array($sid, $arSITE)) || ($ID<=0 && $def_site_id==$sid)) ? "checked" : "";
 			?>
-			<input type="checkbox" name="arSITE[]" value="<?=htmlspecialcharsex($sid)?>" id="<?=htmlspecialcharsex($sid)?>" <?=$checked?> <?=$disabled?>>
+			<input type="checkbox" name="arSITE[]" value="<?=htmlspecialcharsex($sid)?>" id="<?=htmlspecialcharsex($sid)?>" <?=$checked?>>
 			<label for="<?=$sid?>"><?echo "[<a class=tablebodylink href='/bitrix/admin/site_edit.php?LID=".$sid."&lang=".LANGUAGE_ID."'>".htmlspecialcharsex($sid)."</a>]&nbsp;".htmlspecialcharsex($arrS["NAME"])?></label>
 			<br>
 			<?
@@ -580,7 +593,7 @@ function template_warn()
 ?>
 	<tr>
 		<td><?=GetMessage("FORM_BUTTON")?></td>
-		<td><input type="text" name="BUTTON" size="30" maxlength="255" value="<?=$str_BUTTON?>"></td>
+		<td><input type="text" name="BUTTON" size="30" maxlength="255" value="<?=htmlspecialcharsbx($str_BUTTON)?>"></td>
 	</tr>
 
 	<tr>
@@ -672,7 +685,7 @@ else
 		?>
   arrInputObjects[<?=$i++?>] = new CFormAnswer(
   	'<?=$FIELD_SID?>',
-  	'<?=CUtil::JSEscape(htmlspecialchars($FORM->__admin_ShowInputCaption($FIELD_SID, "tablebodytext", true)))?><?=($arQuestion['ACTIVE'] == 'N' ? ' ('.GetMessage('F_QUESTION_INACTIVE').')' : '')?>',
+  	'<?=CUtil::JSEscape(htmlspecialcharsbx($FORM->__admin_ShowInputCaption($FIELD_SID, "tablebodytext", true)))?><?=($arQuestion['ACTIVE'] == 'N' ? ' ('.GetMessage('F_QUESTION_INACTIVE').')' : '')?>',
   	'<?=($FORM->arQuestions[$FIELD_SID]["TITLE_TYPE"]=="html" ? "Y" : "N")?>',
   	'<?=CUtil::JSEscape($FORM->__admin_ShowInputCaption($FIELD_SID, "tablebodytext", true))?>',
   	'<?=($FORM->arQuestions[$FIELD_SID]["REQUIRED"]=="Y" ? "Y" : "N")?>',
@@ -1083,7 +1096,7 @@ function set_event2()
 					$checked = (is_array($arMAIL_TEMPLATE) && in_array($mail_id, $arMAIL_TEMPLATE)) ? "checked" : "";
 				?>
 					<tr id="ft_<?=$mail_id?>">
-						<td nowrap style="padding:0px"><input type="checkbox" name="arMAIL_TEMPLATE[]" value="<?=htmlspecialcharsex($mail_id)?>" id="<?=htmlspecialcharsex($mail_id)?>" <?=$checked?> <?=$disabled?>><?echo "[<a class=tablebodylink href='/bitrix/admin/message_edit.php?ID=".$mail_id."&lang=".LANGUAGE_ID."'>".htmlspecialcharsex($mail_id). "</a>]";?>&nbsp;<label for="<?=$mail_id?>"><?=htmlspecialcharsex($mail_name)?></label></td>
+						<td nowrap style="padding:0px"><input type="checkbox" name="arMAIL_TEMPLATE[]" value="<?=htmlspecialcharsex($mail_id)?>" id="<?=htmlspecialcharsex($mail_id)?>" <?=$checked?>><?echo "[<a class=tablebodylink href='/bitrix/admin/message_edit.php?ID=".$mail_id."&lang=".LANGUAGE_ID."'>".htmlspecialcharsex($mail_id). "</a>]";?>&nbsp;<label for="<?=$mail_id?>"><?=htmlspecialcharsex($mail_name)?></label></td>
 						<td nowrap style="padding:0px">&nbsp;[&nbsp;<a href="javascript:void(0)" onclick="DeleteMailTemplate('<?=$mail_id?>')"><?=GetMessage("FORM_DELETE_MAIL_TEMPLATE")?></a>&nbsp;]</td>
 					</tr>
 				<?endforeach;?>
@@ -1163,6 +1176,478 @@ $tabControl->BeginNextTab();
 	</tr>
 <?
 //********************
+//CRM Tab
+//********************
+$tabControl->BeginNextTab();
+
+if ($ID <= 0):
+?>
+<tr>
+	<td colspan="2" align="center"><?echo BeginNote(),GetMessage('FORM_CRM_NOT_SAVED'),EndNote();?></td>
+</tr>
+	<?
+else:
+	$arCRMServers = array();
+	$dbRes = CFormCrm::GetList(array('NAME' => 'ASC', 'ID' => 'ASC'), array());
+	while ($arServer = $dbRes->Fetch())
+	{
+		$arCRMServers[] = $arServer;
+	}
+
+	$dbRes = CFormCrm::GetByFormID($ID);
+	$bLinkCreated = false;
+	if ($arFormCrmLink = $dbRes->Fetch())
+	{
+		$bLinkCreated = true;
+
+		$dbRes = CFormCrm::GetFields($arFormCrmLink['ID']);
+		$arFormCrmFields = array();
+		while ($arFld = $dbRes->Fetch())
+		{
+			$arFormCrmFields[] = $arFld;
+		}
+	}
+
+	$dbRes = CFormField::GetList($ID, 'ALL', $by, $order, array(), $is_filtered);
+	$arFormFields = array();
+	while ($arFld = $dbRes->Fetch())
+	{
+		$arFormFields[] = $arFld;
+	}
+
+	if (false && !$bLinkCreated):
+?>
+	<tr>
+		<td colspan="2" align="center"><?echo BeginNote(),GetMessage('FORM_CRM_NOT_SET'),EndNote();?></td>
+	</tr>
+<?
+	else:
+?>
+	<script type="text/javascript">BX.ready(function(){loadCrmFields('<?=$arFormCrmLink['CRM_ID']?>', function() {
+<?
+	if ($bLinkCreated):
+		foreach ($arFormCrmFields as $ar):
+?>
+		addCrmField('<?=CUtil::JSEscape($ar['CRM_FIELD'])?>', '<?=$ar['FIELD_ID'] > 0 ? $ar['FIELD_ID'] : $ar['FIELD_ALT']?>', true);
+<?
+		endforeach;
+	endif;
+?>
+
+	})})</script>
+<?
+	endif;
+
+	CJSCore::Init(array('ajax', 'popup'));
+?>
+<style>
+.form-crm-settings {width: 300px;}
+.form-crm-settings table {width: 100%;}
+.form-crm-settings table td {padding: 4px;}
+.form-crm-settings, .form-crm-settings table {font-size: 11px;}
+.form-crm-settings-hide-auth .form-crm-auth {display: none;}
+.form-crm-settings input {width: 180px;}
+.form-action-button {display: inline-block; height: 17px; width: 17px;}
+.action-edit {background: scroll transparent url(/bitrix/images/form/options_buttons.gif) no-repeat 0 0; }
+.action-delete {background: scroll transparent url(/bitrix/images/form/options_buttons.gif) no-repeat -29px 0; }
+</style>
+<script type="text/javascript">
+function _showPass(el)
+{
+	el.parentNode.replaceChild(BX.create('INPUT', {
+		props: {
+			type: el.type == 'text' ? 'password' : 'text',
+			name: el.name,
+			value: el.value
+		}
+	}), el);
+}
+
+function showCrmForm(data)
+{
+	var popup_id = Math.random();
+
+	data = data || {ID:'new_' + popup_id}
+
+	var content = '<div class="form-crm-settings"><form name="form_'+popup_id+'"><table cellpadding="0" cellspacing="2" border="0"><tr><td align="right"><?=CUtil::JSEscape(GetMessage('FORM_TAB_CRM_ROW_TITLE'))?>:</td><td><input type="text" name="NAME" value="'+(data.NAME||'')+'"></td></tr><tr><td align="right"><?=CUtil::JSEscape(GetMessage('FORM_TAB_CRM_FORM_URL_SERVER'))?>:</td><td><input type="text" name="URL_SERVER" value="'+(data.URL_SERVER||'')+'"></td></tr><tr><td align="right"><?=CUtil::JSEscape(GetMessage('FORM_TAB_CRM_FORM_URL_PATH'))?>:</td><td><input type="text" name="URL_PATH" value="'+(data.URL_PATH||'<?=FORM_CRM_DEFAULT_PATH?>')+'"></td></tr><tr><td colspan="2" align="center"><b><?=CUtil::JSEscape(GetMessage('FORM_TAB_CRM_ROW_AUTH'))?></b></td></tr><tr><td align="right"><?=CUtil::JSEscape(GetMessage('FORM_TAB_CRM_ROW_AUTH_LOGIN'))?>:</td><td><input type="text" name="LOGIN" value="'+(data.LOGIN||'')+'"></td></tr><tr><td align="right"><?=CUtil::JSEscape(GetMessage('FORM_TAB_CRM_ROW_AUTH_PASSWORD'))?>:</td><td><input type="password" name="PASSWORD" value="'+(data.PASSWORD||'')+'"></td></tr><tr><td></td><td><a href="javascript:void(0)" onclick="_showPass(document.forms[\'form_'+popup_id+'\'].PASSWORD); BX.hide(this.parentNode);"><?=CUtil::JSEscape(GetMessage('FORM_TAB_CRM_ROW_AUTH_PASSWORD_SHOW'))?></a></td></tr></table></form></div>';
+
+	var wnd = new BX.PopupWindow('popup_' + popup_id, window, {
+		titleBar: {content: BX.create('SPAN', {text: '<?=CUtil::JSEscape(GetMessage('FORM_CRM_TITLEBAR_NEW'))?>'})},
+		draggable: true,
+		autoHide: false,
+		closeIcon: true,
+		closeByEsc: true,
+		content: content,
+		buttons: [
+			new BX.PopupWindowButton({
+				text : BX.message('JS_CORE_WINDOW_SAVE'),
+				className : "popup-window-button-accept",
+				events : {
+					click : function(){CRMSave(wnd, data, document.forms['form_'+popup_id])}
+				}
+			}),
+			new BX.PopupWindowButtonLink({
+				text : BX.message('JS_CORE_WINDOW_CANCEL'),
+				className : "popup-window-button-link-cancel",
+				events : {
+					click : function() {wnd.close()}
+				}
+			})
+		]
+	});
+
+	wnd.show();
+}
+
+function CRMSave(wnd, data_old, form)
+{
+	var URL = form.URL_SERVER.value;
+	if (URL.substring(URL.length-1,1) != '/' && form.URL_PATH.value.substring(0,1) != '/')
+		URL += '/';
+	URL += form.URL_PATH.value;
+
+	var flds = ['ID', 'NAME', 'URL', 'LOGIN','PASSWORD'],
+		data = {
+			ID: data_old.ID,
+			NAME: form.NAME.value,
+			URL:  URL,
+			LOGIN: !!form.LOGIN ? form.LOGIN.value : '',
+			PASSWORD: !!form.PASSWORD ? form.PASSWORD.value : ''
+		};
+
+	var res = false, r = /^(http|https):\/\/([^\/]+)(.*)$/i;
+	if (data.URL)
+	{
+		res = r.test(data.URL);
+		if (!res)
+		{
+			data.URL = 'http://' + data.URL;
+			res = r.test(data.URL);
+		}
+	}
+
+	if (!res)
+	{
+		alert('<?=CUtil::JSEscape(GetMessage('FORM_TAB_CRM_WRONG_URL'))?>');
+	}
+	else
+	{
+		var query_str = '';
+
+		for (var i = 0; i < flds.length; i++)
+		{
+			query_str += (query_str == '' ? '' : '&') + 'CRM['+data.ID+']['+flds[i]+']='+BX.util.urlencode(data[flds[i]]);
+		}
+
+		BX.ajax({
+			method: 'POST',
+			dataType: 'json',
+			url: '/bitrix/admin/settings.php?mid=form&saveCrm=Y&ajax=Y&<?=bitrix_sessid_get()?>',
+			data: query_str,
+			onsuccess: CRMRedraw
+		});
+
+		if (!!wnd)
+			wnd.close();
+	}
+}
+
+function CRMRedraw(data)
+{
+	var s = document.forms.form1.CRM_ID, i=0;
+	for (i=s.options.length-1; i>1; i--)
+	{
+		s.remove(i);
+	}
+
+	for (i=0; i<data.length;i++)
+	{
+		var o = s.add(new Option(data[i].NAME||'<?=CUtil::JSEscape(GetMessage('FORM_TAB_CRM_UNTITLED'))?>', data[i].ID));
+
+		if (data[i].NEW == 'Y')
+		{
+			s.selectedIndex = i+2;
+			loadCrmFields(data[i].ID, null, {LOGIN:data[i].LOGIN, PASSWORD: data[i].PASSWORD});
+		}
+	}
+}
+
+
+window.crm_fields = [];
+function loadCrmFields(ID, cb, additional)
+{
+	if (ID === 'Y')
+	{
+		showCrmForm();
+		return false;
+	}
+
+	var s = BX('field_crm');
+	if (ID > 0)
+	{
+		BX('crm_settings_heading').style.display = '';
+		//BX('crm_settings_1').style.display = '';
+		BX('crm_settings_2').style.display = '';
+		BX('crm_settings_3').style.display = '';
+
+		BX.ajax.loadJSON('/bitrix/admin/form_crm.php?action=check&ID='+ID+'&<?=bitrix_sessid_get();?>', additional, function(res)
+		{
+			BX.cleanNode(s);
+
+			if (!!res)
+			{
+				if (res.result == 'ok' && !!res.fields)
+				{
+					window.crm_fields = res.fields;
+
+					for (var i = 0; i < res.fields.length; i++)
+					{
+						var t = (res.fields[i].NAME || res.fields[i].ID) + (res.fields[i].REQUIRED == 'true' ? ' *' : '');
+						s.add(new Option(t, res.fields[i].ID));
+					}
+
+					setTimeout(checkCrmRequiredFields, 15);
+				}
+				else
+				{
+					window.crm_fields = [];
+				}
+			}
+			else
+			{
+				window.crm_fields = [];
+			}
+
+			setTimeout(cb, 10);
+		});
+	}
+	else
+	{
+		BX('crm_settings_heading').style.display = 'none';
+		//BX('crm_settings_1').style.display = 'none';
+		BX('crm_settings_2').style.display = 'none';
+		BX('crm_settings_3').style.display = 'none';
+
+		BX.cleanNode(s);
+	}
+}
+
+function checkCrmRequiredFields()
+{
+	var f = document.forms.form1, flds = f['CRM_FIELD[]'], i = 0, current_flds = {};
+	if (!flds)
+		flds = [];
+	else if (BX.type.isDomNode(flds))
+		flds = [flds];
+
+
+	for (i = 0; i<flds.length; i++)
+	{
+		if (flds[i].tagName.toUpperCase() != 'SELECT')
+			current_flds[flds[i].value] = true;
+	}
+
+	var list = '', list_files = '';
+	for(i = 0; i<window.crm_fields.length; i++)
+	{
+		if (window.crm_fields[i].REQUIRED == 'true' && !current_flds[window.crm_fields[i].ID])
+		{
+			addCrmField(window.crm_fields[i].ID, null, true);
+		}
+
+		if (window.crm_fields[i].TYPE == 'file' && current_flds[window.crm_fields[i].ID])
+		{
+			list_files += '<li>'+window.crm_fields[i].NAME+'</li>';
+		}
+	}
+
+	if (list_files.length > 0)
+	{
+		BX('bx_crm_note_content_1').innerHTML = list_files;
+		BX('bx_crm_note_1').style.display = 'block';
+	}
+	else
+	{
+		BX('bx_crm_note_1').style.display = 'none';
+	}
+}
+
+function addCrmField(cv, fv, bSkipCheck)
+{
+	var crm_field = BX('field_crm'), form_field = BX('field_form');
+	if (null == cv)
+	{
+ 		cv = crm_field.value; fv = form_field.value;
+	}
+	else if (null == fv)
+	{
+		fv = BX.clone(form_field);
+		fv.id = null;
+	}
+
+	if (cv && fv)
+	{
+		var t = BX('crm_table'),
+			r = t.tBodies[0].insertRow(t.tBodies[0].rows.length-1),
+			id = '';
+
+		r.appendChild(BX.create('INPUT', {props: {
+			type: 'hidden',
+			name: 'CRM_FIELD['+id+']',
+			value: cv
+		}}));
+		if (!BX.type.isDomNode(fv))
+		{
+			r.appendChild(BX.create('INPUT', {props: {
+				type: 'hidden',
+				name: 'CRM_FORM_FIELD['+id+']',
+				value: fv
+			}}));
+		}
+
+		var t = cv;
+		for (var i = 0; i < crm_field.options.length; i++)
+		{
+			if (crm_field.options[i].value == cv)
+			{
+				t = crm_field.options[i].text; break;
+			}
+		}
+
+		if (t.substring(t.length-2) == ' *')
+		{
+			t = BX.util.htmlspecialchars(t.substring(0, t.length-2)) + '<span class="required">*</span>';
+		}
+		else
+		{
+			t = BX.util.htmlspecialchars(t);
+		}
+
+		r.insertCell(-1).innerHTML = t;
+
+		if (!BX.type.isDomNode(fv))
+		{
+			t = '';
+			for (var i = 0; i < form_field.options.length; i++)
+			{
+				if (form_field.options[i].value == fv)
+				{
+					t = form_field.options[i].text; break;
+				}
+			}
+
+			r.insertCell(-1).innerHTML = BX.util.htmlspecialchars(t);
+		}
+		else
+		{
+			r.insertCell(-1).appendChild(fv);
+			if (crm_field.value == cv)
+				crm_field.selectedIndex = crm_field.selectedIndex+1;
+		}
+
+		r.insertCell(-1).appendChild(BX.create('A', {
+			props: {className: 'form-action-button action-delete'},
+			attrs: {href: 'javascript:void(0)'},
+			events: {
+				click: function(){
+					r.parentNode.removeChild(r);
+
+					// hack
+					try {
+						if (BX.type.isDomNode(document.forms.form1['CRM_FIELD[]']))
+							document.forms.form1['CRM_FIELD[]'] = undefined;
+					} catch(e) {}
+
+					checkCrmRequiredFields();
+				}
+			}
+		}));
+	}
+
+	if (!bSkipCheck)
+		checkCrmRequiredFields();
+}
+</script>
+<tr>
+	<td width="50%"><?=GetMessage('FORM_FIELD_CRM');?>:</td>
+	<td><select name="CRM_ID" onchange="loadCrmFields(this.value)">
+		<option><?=GetMessage('FORM_FIELD_CRM_NO')?></option>
+		<option value="Y"><?=GetMessage('FORM_FIELD_CRM_NEW')?></option>
+<?
+	foreach ($arCRMServers as $arCrm):
+		if (strlen($arCrm['NAME']) <= 0)
+		{
+			$arCrm['NAME'] = GetMessage('FORM_TAB_CRM_UNTITLED');
+		}
+
+?>
+		<option value="<?=intval($arCrm['ID'])?>"<?=$bLinkCreated && $arFormCrmLink['CRM_ID']==$arCrm['ID']?' selected="selected"' : ''?>><?=htmlspecialcharsbx($arCrm['NAME'])?></option>
+<?
+	endforeach;
+?>
+	</select>&nbsp;&nbsp;<a href="/bitrix/admin/settings.php?lang=<?=LANGUAGE_ID?>&amp;mid=form&amp;tabControl_active_tab=edit_crm"><?=GetMessage('FORM_CRM_GOTOLIST')?></a></td>
+</tr>
+<tr id="crm_settings_3"<?=!$bLinkCreated?' style="display:none;"':''?>>
+	<td><?=GetMessage('FORM_FIELD_LINK_TYPE');?>:</td>
+	<td>
+		<input type="radio" name="CRM_LINK_TYPE" value="<?=CFormCrm::LINK_AUTO?>" id="CRM_LINK_TYPE_<?=CFormCrm::LINK_AUTO?>"<?=!$bLinkCreated || $arFormCrmLink['LINK_TYPE']==CFormCrm::LINK_AUTO?' checked="checked"' : ''?> /><label for="CRM_LINK_TYPE_<?=CFormCrm::LINK_AUTO?>"><?=GetMessage('FORM_FIELD_LINK_TYPE_AUTO')?></label>
+		<input type="radio" name="CRM_LINK_TYPE" value="<?=CFormCrm::LINK_MANUAL?>" id="CRM_LINK_TYPE_<?=CFormCrm::LINK_MANUAL?>"<?=$bLinkCreated && $arFormCrmLink['LINK_TYPE']==CFormCrm::LINK_MANUAL?' checked="checked"' : ''?> /><label for="CRM_LINK_TYPE_<?=CFormCrm::LINK_MANUAL?>"><?=GetMessage('FORM_FIELD_LINK_TYPE_MANUAL')?></label>
+	</td>
+</tr>
+<tr class="heading" id="crm_settings_heading"<?=!$bLinkCreated?' style="display:none;"':''?>>
+	<td colspan="2"><?=GetMessage('FORM_FIELD_CRM_FIELDS');?></td>
+</tr>
+<tr id="crm_settings_2"<?=!$bLinkCreated?' style="display:none;"':''?>>
+	<td colspan="2">
+		<div id="bx_crm_note" style="display: none;" align="center"><?=BeginNote();?><?=GetMessage('FORM_CRM_REQUIRED_NOTE')?><blockquote id="bx_crm_note_content"></blockquote><?=EndNote();?></div>
+		<div id="bx_crm_note_1" style="display: none;" align="center"><?=BeginNote();?><?=GetMessage('FORM_CRM_FILES_NOTE')?><blockquote id="bx_crm_note_content_1"></blockquote><?=EndNote();?></div>
+		<table class="internal" cellspacing="0" cellpadding="0" border="0" align="center" width="80%" id="crm_table">
+			<thead>
+				<tr class="heading">
+					<td width="50%"><?=GetMessage('FORM_FIELD_CRM_FIELDS_CRM')?></td>
+					<td width="50%"><?=GetMessage('FORM_FIELD_CRM_FIELDS_FORM')?></td>
+					<td width="17"></td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>
+						<select name="CRM_FIELD[]" id="field_crm" style="width: 270px;"></select>
+					</td>
+					<td>
+						<select name="CRM_FORM_FIELD[]" id="field_form" style="width: 270px;">
+		<option value="FORM_NAME"><?=GetMessage('FORM_FIELD_CRM_FIELDS_FORM_NAME')?></option>
+		<option value="FORM_SID"><?=GetMessage('FORM_FIELD_CRM_FIELDS_FORM_SID')?></option>
+		<option value="SITE_ID"><?=GetMessage('FORM_FIELD_CRM_FIELDS_SITE_ID')?></option>
+		<option value="RESULT_ID"><?=GetMessage('FORM_FIELD_CRM_FIELDS_RESULT_ID')?></option>
+		<option value="FORM_ALL"><?=GetMessage('FORM_FIELD_CRM_FIELDS_FORM_ALL')?></option>
+		<option value="FORM_ALL_HTML"><?=GetMessage('FORM_FIELD_CRM_FIELDS_FORM_ALL_HTML')?></option>
+		<option value="NEW"><?=GetMessage('FORM_FIELD_CRM_FIELDS_NEW')?></option>
+<?
+	foreach ($arFormFields as $arFld):
+?>
+		<option value="<?=$arFld['ID']?>">[<?=htmlspecialcharsbx($arFld['SID'])?>] <?=htmlspecialcharsbx($arFld['TITLE'])?><?=$arFld['REQUIRED']=='Y'? ' *' : ''?></option>
+<?
+	endforeach;
+?>
+	</select>
+					</td>
+					<td></td>
+				</tr>
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="3"><input type="button" onclick="addCrmField(); return false;" value="<?=htmlspecialcharsbx(GetMessage('FORM_CRM_ADD'))?>"></td>
+				</tr>
+			</tfoot>
+		</table>
+	</td>
+</tr>
+
+<?
+endif;
+
+//********************
 //Access Tab
 //********************
 $tabControl->BeginNextTab();
@@ -1217,13 +1702,5 @@ $tabControl->End();
 ?>
 </form>
 <?
-if (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1):
-	echo BeginNote();
-?>
-<span class="required">*</span> - <?echo GetMessage("REQUIRED_FIELDS")?>
-<?
-	echo EndNote();
-endif; //if (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1):
-
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 ?>

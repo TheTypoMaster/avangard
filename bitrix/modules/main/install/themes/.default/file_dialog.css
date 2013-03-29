@@ -6,14 +6,16 @@ div.editor_dialog tr.bxfd-det-list-row td{white-space: nowrap !important; paddin
 div.bxfd-prev-cont{margin: 4px;float: left;border : 1px solid #C6C6C6; width: 160px; height: 150px}
 div#bxfd_selected_element_preview {background-color: #B6B6B8 !important;}
 .fd_select{font-size: 11px;background-color: #F4F4F4;}
-.fd_input {background-color: #F4F4F4; width: 320px; font-size:12px !important;}
+.fd_input {background-color: #F4F4F4; width: 100%; font-size:12px !important;}
 table.fd_tab_title {border-collapse: collapse; border-width: 0px; width:95% !important; padding:0px !important;}
 table.fd_tab_title td {padding:5px !important;}
 table.fd_tab_title td.title {color:#494949 !important; font-family:Arial,helvetica,sans-serif !important; font-size:12px !important; font-weight:bold !important; padding:5px 0px !important; width:100% !important; }
 table.fd_tab_title td.delimiter {background-image: url(/bitrix/images/main/file_dialog/title_dot.gif) !important; background-position:left top !important; background-repeat:repeat-x !important; height:5px !important; padding:0px !important; }
 #BX_file_dialog  div.site_selector_div span{color: #666633 !important; margin: 3px 1px 1px 1px !important;}
 
-#BX_file_dialog div.site_selector_div{border: 1px solid #ADADAD !important; padding-top: 1px !important; color: #666633 !important; width: 26px !important; height: 16px !important; background-position: -203px -22px !important; }
+#BX_file_dialog div.site_selector_div{border: 1px solid #ADADAD !important; padding-top: 1px !important; color: #666633 !important; height: 16px !important; white-space:nowrap}
+
+#BX_file_dialog span.site_selector_div_arrow{width: 16px !important; height: 16px !important; background-position: -219px -22px !important;}
 
 .fd_iconkit{background-image: url(/bitrix/images/main/file_dialog/_fd_iconkit.gif) !important; background-repeat: no-repeat !important;}
 
@@ -112,6 +114,3 @@ table.add2menuTable td, table#add2menuTable_check td {padding: 8px !important;}
 div.bxfd-win-cont{overflow: auto; height: 100%; width: 544px;}
 
 iframe.bxfd-sys-frame{position: absolute; z-index: 2495; left: -2000px; top: -2000px; visibility: hidden;}
-
-
-

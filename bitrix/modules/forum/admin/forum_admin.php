@@ -176,8 +176,7 @@ if (check_bitrix_sessid() && $forumModulePermissions >= "R"):
 		$nameSpace = "bitrix";
 		$arComponentPath = array(
 			$nameSpace.":forum.index", 
-			$nameSpace.":forum.menu", 
-			$nameSpace.":forum.rss", 
+			$nameSpace.":forum.rss",
 			$nameSpace.":forum.search", 
 			$nameSpace.":forum.statistic", 
 			$nameSpace.":forum.topic.active", 

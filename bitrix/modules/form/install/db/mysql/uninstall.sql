@@ -12,3 +12,6 @@ drop table if exists b_form_2_group;
 drop table if exists b_form_status_2_group;
 drop table if exists b_form_status_2_mail_template;
 drop table if exists b_form_status;
+drop table if exists b_form_crm;
+drop table if exists b_form_crm_link;
+drop table if exists b_form_crm_field;

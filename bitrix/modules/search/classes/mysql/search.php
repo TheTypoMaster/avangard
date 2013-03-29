@@ -362,7 +362,7 @@ class CSearch extends CAllSearch
 			WHERE
 				".CSearch::CheckPermissions("sc.ID")."
 				".$strSqlWhere."
-                		".(is_array($this->Query->m_tags_words) && count($this->Query->m_tags_words)>0? "AND stags.NAME in ('".implode("','", $this->Query->m_tags_words)."')": "")."
+				".(is_array($this->Query->m_tags_words) && count($this->Query->m_tags_words)>0? "AND stags.NAME in ('".implode("','", $this->Query->m_tags_words)."')": "")."
 			GROUP BY
 				sc.ID
 			HAVING
@@ -445,7 +445,7 @@ class CSearch extends CAllSearch
 		if($bStem)
 		{
 			if(BX_SEARCH_VERSION > 1)
-				 $strStemList = implode(", ", $this->Query->m_stemmed_words_id);
+				$strStemList = implode(", ", $this->Query->m_stemmed_words_id);
 			else
 				$strStemList = "'".implode("' ,'", $this->Query->m_stemmed_words)."'";
 		}
@@ -1056,10 +1056,11 @@ class CSearch extends CAllSearch
 		static $CACHE_SITE_LANGS = array();
 		$ID = intval($ID);
 
-		$arLang=array();
+		$arLang = array();
 		if(!is_array($arLID))
-			$arLID = Array();
-		foreach($arLID as $site=>$url)
+			$arLID = array();
+
+		foreach($arLID as $site => $url)
 		{
 			if(!array_key_exists($site, $CACHE_SITE_LANGS))
 			{
@@ -1076,6 +1077,7 @@ class CSearch extends CAllSearch
 			if(is_array($CACHE_SITE_LANGS[$site]))
 				$arLang[$CACHE_SITE_LANGS[$site]["LANGUAGE_ID"]] = true;
 		}
+
 		foreach($arLang as $lang=>$value)
 		{
 			$sql_lang = $DB->ForSql($lang);
@@ -1100,25 +1102,48 @@ class CSearch extends CAllSearch
 				";
 				$maxValuesLen = 2048;
 				$strSqlValues = "";
-				foreach($arDoc as $word => $count)
-				{
-					$strSqlValues .= ",\n("
-						.$ID
-						.", '".$sql_lang."'"
-						.", ".(BX_SEARCH_VERSION > 1? CSearch::RegisterStem($word): "'".$DB->ForSQL($word)."'")
-						.", ".number_format(log($count+1)/$logDocLength, 4, ".", "")
-						.(BX_SEARCH_VERSION > 1?
-							", ".number_format($arPos[$word]/$count, 4, ".", ""):
-							""
-						)
-					.")";
 
-					if(strlen($strSqlValues) > $maxValuesLen)
+				if(BX_SEARCH_VERSION > 1)
+				{
+					foreach($arDoc as $word => $count)
 					{
-						$DB->Query($strSqlPrefix.substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);
-						$strSqlValues = "";
+						$stem_id = CSearch::RegisterStem($word);
+						//This is almost impossible, but happens
+						if($stem_id > 0)
+							$strSqlValues .= ",\n("
+								.$ID
+								.", '".$sql_lang."'"
+								.", ".CSearch::RegisterStem($word)
+								.", ".number_format(log($count+1)/$logDocLength, 4, ".", "")
+								.", ".number_format($arPos[$word]/$count, 4, ".", "")
+							.")";
+
+						if(strlen($strSqlValues) > $maxValuesLen)
+						{
+							$DB->Query($strSqlPrefix.substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+							$strSqlValues = "";
+						}
 					}
 				}
+				else
+				{
+					foreach($arDoc as $word => $count)
+					{
+						$strSqlValues .= ",\n("
+							.$ID
+							.", '".$sql_lang."'"
+							.", '".$DB->ForSQL($word)."'"
+							.", ".number_format(log($count+1)/$logDocLength, 4, ".", "")
+						.")";
+
+						if(strlen($strSqlValues) > $maxValuesLen)
+						{
+							$DB->Query($strSqlPrefix.substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+							$strSqlValues = "";
+						}
+					}
+				}
+
 				if(strlen($strSqlValues) > 0)
 				{
 					$DB->Query($strSqlPrefix.substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);

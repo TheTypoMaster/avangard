@@ -200,106 +200,86 @@ function _ShowFilePropertyField($name, $property_fields, $values, $max_file_size
 
 	$bFileman = CModule::IncludeModule('fileman');
 	$bVarsFromForm = false;
-	echo '<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tb'.md5($name).'">';
-	if(!is_array($values)) $values = array();
-	$cols = $property_fields["COL_COUNT"];
 
-	if(!$bCopy)
+	if(!is_array($values) || $bCopy || empty($values))
+		$values = array(
+			"n0" => 0,
+		);
+
+	if($property_fields["MULTIPLE"] == "N")
 	{
+		foreach($values as $key => $val)
+		{
+			if(is_array($val))
+				$file_id = $val["VALUE"];
+			else
+				$file_id = $val;
+
+			if($historyId > 0)
+				echo CFileInput::Show($name."[".$key."]", $file_id, array(
+					"IMAGE" => "Y",
+					"PATH" => "Y",
+					"FILE_SIZE" => "Y",
+					"DIMENSIONS" => "Y",
+					"IMAGE_POPUP" => "Y",
+					"MAX_SIZE" => array("W" => 200, "H"=>200),
+				));
+			else
+				echo CFileInput::Show($name."[".$key."]", $file_id, array(
+					"IMAGE" => "Y",
+					"PATH" => "Y",
+					"FILE_SIZE" => "Y",
+					"DIMENSIONS" => "Y",
+					"IMAGE_POPUP" => "Y",
+					"MAX_SIZE" => array("W" => 200, "H"=>200),
+				), array(
+					'upload' => true,
+					'medialib' => true,
+					'file_dialog' => true,
+					'cloud' => true,
+					'del' => true,
+					'description' => $property_fields["WITH_DESCRIPTION"]=="Y",
+				));
+			break;
+		}
+	}
+	else
+	{
+		$inputName = array();
 		foreach($values as $key=>$val)
 		{
-			echo '<tr><td>';
-			$val_description = "";
-			if(is_array($val) && is_set($val, "VALUE"))
-			{
-				$val_description = $val["DESCRIPTION"];
-				$val = $val["VALUE"];
-			}
-
-			if($bFileman)
-			{
-				if ($historyId > 0)
-					echo CMedialib::InputFile(
-						$name."[".$key."]", $val,
-						array("IMAGE" => "Y", "PATH" => "Y", "FILE_SIZE" => "Y", "DIMENSIONS" => "Y",
-						"IMAGE_POPUP"=>"Y", "MAX_SIZE" => array("W" => 200, "H"=>200)) //info
-					);
-				else
-					echo CMedialib::InputFile(
-						$name."[".$key."]", $val,
-						array("IMAGE" => "Y", "PATH" => "Y", "FILE_SIZE" => "Y", "DIMENSIONS" => "Y",
-						"IMAGE_POPUP"=>"Y", "MAX_SIZE" => array("W" => 200, "H"=>200)), //info
-						array("SIZE"=>$cols), //file
-						array(), //server
-						array(), //media lib
-						($property_fields["WITH_DESCRIPTION"]=="Y"?
-							array("NAME" => "DESCRIPTION_".$name."[".$key."]"):
-							false
-						), //descr
-						array() //delete
-					);
-			}
+			if(is_array($val))
+				$inputName[$name."[".$key."]"] = $val["VALUE"];
 			else
-			{
-				echo CFile::InputFile($name."[".$key."]", $cols, $val, false, 0, "");
-				echo "<br>";
-				if ($historyId > 0)
-					echo CFile::ShowImage($val, 200, 200, "border=0", "", true);
-				else
-					echo CFile::ShowFile($val, $max_file_size_show, 400, 400, true)."<br>";
-				if($property_fields["WITH_DESCRIPTION"]=="Y")
-					echo ' <span title="'.GetMessage("IBLOCK_AT_PROP_DESC").'">'.GetMessage("IBLOCK_AT_PROP_DESC_1").'<input name="DESCRIPTION_'.$name.'['.$key.']" value="'.htmlspecialcharsex($val_description).'" size="18" type="text"></span>';
-			}
-			echo '<br></td></tr>';
-			if($property_fields["MULTIPLE"]!="Y")
-			{
-				$bVarsFromForm = true;
-				break;
-			}
+				$inputName[$name."[".$key."]"] = $val;
 		}
+
+		if($historyId > 0)
+			echo CFileInput::ShowMultiple($inputName, $name."[n#IND#]", array(
+				"IMAGE" => "Y",
+				"PATH" => "Y",
+				"FILE_SIZE" => "Y",
+				"DIMENSIONS" => "Y",
+				"IMAGE_POPUP" => "Y",
+				"MAX_SIZE" => array("W" => 200, "H"=>200),
+			), false);
+		else
+			echo CFileInput::ShowMultiple($inputName, $name."[n#IND#]", array(
+				"IMAGE" => "Y",
+				"PATH" => "Y",
+				"FILE_SIZE" => "Y",
+				"DIMENSIONS" => "Y",
+				"IMAGE_POPUP" => "Y",
+				"MAX_SIZE" => array("W" => 200, "H"=>200),
+			), false, array(
+				'upload' => true,
+				'medialib' => true,
+				'file_dialog' => true,
+				'cloud' => true,
+				'del' => true,
+				'description' => $property_fields["WITH_DESCRIPTION"]=="Y",
+			));
 	}
-
-	if(!$bVarsFromForm)
-	{
-		$MULTIPLE_CNT = IntVal($property_fields["MULTIPLE_CNT"]);
-		$cnt = ($property_fields["MULTIPLE"]=="Y"? ($MULTIPLE_CNT>0 && $MULTIPLE_CNT<=30 ? $MULTIPLE_CNT : 5) + ($bInitDef && strlen($property_fields["DEFAULT_VALUE"])>0?1:0) : 1);
-		for($i=0; $i<$cnt;$i++)
-		{
-			echo '<tr><td>';
-			$val_description = "";
-
-			if($bFileman)
-			{
-				echo CMedialib::InputFile(
-					$name."[n".$i."]", 0,
-					array("IMAGE" => "Y", "PATH" => "Y", "FILE_SIZE" => "Y", "DIMENSIONS" => "Y",
-					"IMAGE_POPUP"=>"Y", "MAX_SIZE" => array("W" => 200, "H"=>200)), //info
-					array("SIZE"=>$cols), //file
-					array(), //server
-					array(), //media lib
-					($property_fields["WITH_DESCRIPTION"]=="Y"?
-						array("NAME" => "DESCRIPTION_".$name."[n".$i."]"):
-						false
-					), //descr
-					array() //delete
-				);
-			}
-			else
-			{
-				echo CFile::InputFile($name."[n".$i."]", $cols, "", false, 0, "");
-				if($property_fields["WITH_DESCRIPTION"]=="Y")
-					echo ' <span title="'.GetMessage("IBLOCK_AT_PROP_DESC").'">'.GetMessage("IBLOCK_AT_PROP_DESC_1").'<input name="DESCRIPTION_'.$name.'[n'.$i.']" value="'.htmlspecialcharsex($val_description).'" size="18" type="text"></span>';
-			}
-			echo '<br></td></tr>';
-		}
-	}
-
-	if($property_fields["MULTIPLE"]=="Y")
-	{
-		echo '<tr><td><input type="button" value="'.GetMessage("IBLOCK_AT_PROP_ADD").'" onClick="addNewRow(\'tb'.md5($name).'\')"></td></tr>';
-	}
-
-	echo '</table>';
 }
 
 function _ShowListPropertyField($name, $property_fields, $values, $bInitDef = false, $def_text = false)
@@ -331,12 +311,12 @@ function _ShowListPropertyField($name, $property_fields, $values, $bInitDef = fa
 
 			$uniq = md5(uniqid(rand(), true));
 			if($multiple=="Y") //multiple
-				$res .= '<input type="checkbox" name="'.$name.'[]" value="'.htmlspecialchars($ar_enum["ID"]).'"'.($sel?" checked":"").' id="'.$uniq.'"><label for="'.$uniq.'">'.htmlspecialcharsex($ar_enum["VALUE"]).'</label><br>';
+				$res .= '<input type="checkbox" name="'.$name.'[]" value="'.htmlspecialcharsbx($ar_enum["ID"]).'"'.($sel?" checked":"").' id="'.$uniq.'"><label for="'.$uniq.'">'.htmlspecialcharsex($ar_enum["VALUE"]).'</label><br>';
 			else //if(MULTIPLE=="Y")
-				$res .= '<input type="radio" name="'.$name.'[]" id="'.$uniq.'" value="'.htmlspecialchars($ar_enum["ID"]).'"'.($sel?" checked":"").'><label for="'.$uniq.'">'.htmlspecialcharsex($ar_enum["VALUE"]).'</label><br>';
+				$res .= '<input type="radio" name="'.$name.'[]" id="'.$uniq.'" value="'.htmlspecialcharsbx($ar_enum["ID"]).'"'.($sel?" checked":"").'><label for="'.$uniq.'">'.htmlspecialcharsex($ar_enum["VALUE"]).'</label><br>';
 
 			if($cnt==1)
-				$res_tmp = '<input type="checkbox" name="'.$name.'[]" value="'.htmlspecialchars($ar_enum["ID"]).'"'.($sel?" checked":"").' id="'.$uniq.'"><br>';
+				$res_tmp = '<input type="checkbox" name="'.$name.'[]" value="'.htmlspecialcharsbx($ar_enum["ID"]).'"'.($sel?" checked":"").' id="'.$uniq.'"><br>';
 		}
 
 
@@ -362,7 +342,7 @@ function _ShowListPropertyField($name, $property_fields, $values, $bInitDef = fa
 				$sel = in_array($ar_enum["ID"], $values);
 			if($sel)
 				$bNoValue = false;
-			$res .= '<option value="'.htmlspecialchars($ar_enum["ID"]).'"'.($sel?" selected":"").'>'.htmlspecialcharsex($ar_enum["VALUE"]).'</option>';
+			$res .= '<option value="'.htmlspecialcharsbx($ar_enum["ID"]).'"'.($sel?" selected":"").'>'.htmlspecialcharsex($ar_enum["VALUE"]).'</option>';
 		}
 
 		if($property_fields["MULTIPLE"]=="Y" && IntVal($property_fields["ROW_COUNT"])<2)
@@ -544,11 +524,11 @@ function _ShowHiddenValue($name, $value)
 	if(is_array($value))
 	{
 		foreach($value as $k => $v)
-			$res .= _ShowHiddenValue($name.'['.htmlspecialchars($k).']', $v);
+			$res .= _ShowHiddenValue($name.'['.htmlspecialcharsbx($k).']', $v);
 	}
 	else
 	{
-		$res .= '<input type="hidden" name="'.$name.'" value="'.htmlspecialchars($value).'">'."\n";
+		$res .= '<input type="hidden" name="'.$name.'" value="'.htmlspecialcharsbx($value).'">'."\n";
 	}
 
 	return $res;
@@ -633,11 +613,11 @@ if(
 function IBlockShowRights($entity_type, $iblock_id, $id, $section_title, $variable_name, $arPossibleRights, $arActualRights, $bDefault = false, $bForceInherited = false, $arSelected = array(), $arHighLight = array())
 {
 	$js_var_name = preg_replace("/[^a-zA-Z0-9_]/", "_", $variable_name);
-	$html_var_name = htmlspecialchars($variable_name);
+	$html_var_name = htmlspecialcharsbx($variable_name);
 
 	$sSelect = '<select name="'.$html_var_name.'[][TASK_ID]" style="vertical-align:middle">';
 	foreach($arPossibleRights as $value => $title)
-		$sSelect .= '<option value="'.htmlspecialchars($value).'">'.htmlspecialcharsex($title).'</option>';
+		$sSelect .= '<option value="'.htmlspecialcharsbx($value).'">'.htmlspecialcharsex($title).'</option>';
 	$sSelect .= '</select>';
 
 	if($bForceInherited != true)
@@ -651,13 +631,7 @@ function IBlockShowRights($entity_type, $iblock_id, $id, $section_title, $variab
 	$href_id = $variable_name."_href";
 
 	CJSCore::Init(array('access'));
-	if($section_title != ""):?>
-	<tr id="<?echo $html_var_name?>_heading" class="heading">
-		<td colspan="2">
-			<?echo $section_title?>
-		</td>
-	</tr>
-	<?endif?>
+	?>
 	<tr>
 		<td colspan="2" align="center">
 			<script type="text/javascript">
@@ -679,7 +653,14 @@ function IBlockShowRights($entity_type, $iblock_id, $id, $section_title, $variab
 					<?=CUtil::PhpToJsObject($arHighLight)?>
 				);
 			</script>
-			<table width="100%" cellpadding="0" cellspacing="10" border="0" id="<?echo htmlspecialchars($table_id)?>" align="center">
+			<table width="100%" class="internal" id="<?echo htmlspecialcharsbx($table_id)?>" align="center">
+			<?if($section_title != ""):?>
+			<tr id="<?echo $html_var_name?>_heading" class="heading">
+				<td colspan="2">
+					<?echo $section_title?>
+				</td>
+			</tr>
+			<?endif?>
 			<?
 			$arNames = array();
 			foreach($arActualRights as $arRightSet)
@@ -693,13 +674,13 @@ function IBlockShowRights($entity_type, $iblock_id, $id, $section_title, $variab
 				if($bForceInherited || $arRightSet["IS_INHERITED"] == "Y")
 				{
 					?>
-					<tr class="<?echo $html_var_name?>_row_for_<?echo htmlspecialchars($arRightSet["GROUP_CODE"])?><?if($arRightSet["IS_OVERWRITED"] == "Y") echo " iblock-strike-out";?>">
-						<td align="right"><?echo htmlspecialcharsex($arNames[$arRightSet["GROUP_CODE"]]["provider"]." ".$arNames[$arRightSet["GROUP_CODE"]]["name"])?>:</td>
+					<tr class="<?echo $html_var_name?>_row_for_<?echo htmlspecialcharsbx($arRightSet["GROUP_CODE"])?><?if($arRightSet["IS_OVERWRITED"] == "Y") echo " iblock-strike-out";?>">
+						<td style="width:40%!important; text-align:right"><?echo htmlspecialcharsex($arNames[$arRightSet["GROUP_CODE"]]["provider"]." ".$arNames[$arRightSet["GROUP_CODE"]]["name"])?>:</td>
 						<td align="left">
 							<?if($arRightSet["IS_OVERWRITED"] != "Y"):?>
-							<input type="hidden" name="<?echo $html_var_name?>[][RIGHT_ID]" value="<?echo htmlspecialchars($RIGHT_ID)?>">
-							<input type="hidden" name="<?echo $html_var_name?>[][GROUP_CODE]" value="<?echo htmlspecialchars($arRightSet["GROUP_CODE"])?>">
-							<input type="hidden" name="<?echo $html_var_name?>[][TASK_ID]" value="<?echo htmlspecialchars($arRightSet["TASK_ID"])?>">
+							<input type="hidden" name="<?echo $html_var_name?>[][RIGHT_ID]" value="<?echo htmlspecialcharsbx($RIGHT_ID)?>">
+							<input type="hidden" name="<?echo $html_var_name?>[][GROUP_CODE]" value="<?echo htmlspecialcharsbx($arRightSet["GROUP_CODE"])?>">
+							<input type="hidden" name="<?echo $html_var_name?>[][TASK_ID]" value="<?echo htmlspecialcharsbx($arRightSet["TASK_ID"])?>">
 							<?endif;?>
 							<?echo htmlspecialcharsex($arPossibleRights[$arRightSet["TASK_ID"]])?>
 						</td>
@@ -715,17 +696,17 @@ function IBlockShowRights($entity_type, $iblock_id, $id, $section_title, $variab
 					if($arRightSet["IS_INHERITED"] <> "Y")
 					{
 					?>
-					<tr valign="top">
-						<td align="right"><?echo htmlspecialcharsex($arNames[$arRightSet["GROUP_CODE"]]["provider"]." ".$arNames[$arRightSet["GROUP_CODE"]]["name"])?>:</td>
+					<tr>
+						<td style="width:40%!important; text-align:right; vertical-align:middle"><?echo htmlspecialcharsex($arNames[$arRightSet["GROUP_CODE"]]["provider"]." ".$arNames[$arRightSet["GROUP_CODE"]]["name"])?>:</td>
 						<td align="left">
-							<input type="hidden" name="<?echo $html_var_name?>[][RIGHT_ID]" value="<?echo htmlspecialchars($RIGHT_ID)?>">
-							<input type="hidden" name="<?echo $html_var_name?>[][GROUP_CODE]" value="<?echo htmlspecialchars($arRightSet["GROUP_CODE"])?>">
+							<input type="hidden" name="<?echo $html_var_name?>[][RIGHT_ID]" value="<?echo htmlspecialcharsbx($RIGHT_ID)?>">
+							<input type="hidden" name="<?echo $html_var_name?>[][GROUP_CODE]" value="<?echo htmlspecialcharsbx($arRightSet["GROUP_CODE"])?>">
 							<select name="<?echo $html_var_name?>[][TASK_ID]" style="vertical-align:middle">
 							<?foreach($arPossibleRights as $value => $title):?>
-								<option value="<?echo htmlspecialchars($value)?>" <?if($value == $arRightSet["TASK_ID"]) echo "selected"?>><?echo htmlspecialcharsex($title)?></option>
+								<option value="<?echo htmlspecialcharsbx($value)?>" <?if($value == $arRightSet["TASK_ID"]) echo "selected"?>><?echo htmlspecialcharsex($title)?></option>
 							<?endforeach?>
 							</select>
-							<a href="javascript:void(0);" onclick="JCIBlockAccess.DeleteRow(this, '<?=htmlspecialchars(CUtil::addslashes($arRightSet["GROUP_CODE"]))?>', '<?=CUtil::JSEscape($variable_name)?>')" class="access-delete"></a>
+							<a href="javascript:void(0);" onclick="JCIBlockAccess.DeleteRow(this, '<?=htmlspecialcharsbx(CUtil::addslashes($arRightSet["GROUP_CODE"]))?>', '<?=CUtil::JSEscape($variable_name)?>')" class="access-delete"></a>
 							<?if($bDefault):?>
 								<span title="<?echo GetMessage("IBLOCK_AT_OVERWRITE_TIP")?>"><?
 								if(
@@ -767,7 +748,7 @@ function IBlockShowRights($entity_type, $iblock_id, $id, $section_title, $variab
 				<tr>
 					<td width="40%" align="right">&nbsp;</td>
 					<td width="60%" align="left">
-						<a href="javascript:void(0)"  id="<?echo htmlspecialchars($href_id)?>" class="bx-action-href"><?echo GetMessage("IBLOCK_AT_PROP_ADD")?></a>
+						<a href="javascript:void(0)"  id="<?echo htmlspecialcharsbx($href_id)?>" class="bx-action-href"><?echo GetMessage("IBLOCK_AT_PROP_ADD")?></a>
 					</td>
 				</tr>
 			</table>
@@ -812,8 +793,25 @@ function IBlockGetHiddenHTML($name, $value)
 	}
 	else
 	{
-		$result = '<input type="hidden" name="'.htmlspecialchars($name).'" value="'.htmlspecialchars($value).'" />'."\n";
+		$result = '<input type="hidden" name="'.htmlspecialcharsbx($name).'" value="'.htmlspecialcharsbx($value).'" />'."\n";
 	}
 	return $result;
+}
+
+function IBlockGetWatermarkPositions()
+{
+	$rs = new CDBResult;
+	$rs->InitFromArray(array(
+		array("reference_id" => "tl", "reference" => GetMessage("IBLOCK_WATERMARK_POSITION_TL")),
+		array("reference_id" => "tc", "reference" => GetMessage("IBLOCK_WATERMARK_POSITION_TC")),
+		array("reference_id" => "tr", "reference" => GetMessage("IBLOCK_WATERMARK_POSITION_TR")),
+		array("reference_id" => "ml", "reference" => GetMessage("IBLOCK_WATERMARK_POSITION_ML")),
+		array("reference_id" => "mc", "reference" => GetMessage("IBLOCK_WATERMARK_POSITION_MC")),
+		array("reference_id" => "mr", "reference" => GetMessage("IBLOCK_WATERMARK_POSITION_MR")),
+		array("reference_id" => "bl", "reference" => GetMessage("IBLOCK_WATERMARK_POSITION_BL")),
+		array("reference_id" => "bc", "reference" => GetMessage("IBLOCK_WATERMARK_POSITION_BC")),
+		array("reference_id" => "br", "reference" => GetMessage("IBLOCK_WATERMARK_POSITION_BR")),
+	));
+	return $rs;
 }
 ?>

@@ -49,7 +49,7 @@ $MESS["VOTE_SAVE_ERROR"] = "Beim Schreiben in die Datenbank ist ein Fehler aufge
 $MESS["VOTE_VOTES_TITLE"] = "Abstimmungen";
 $MESS["VOTE_EDIT_TITLE"] = "Umfrageparameter bearbeiten";
 $MESS["VOTE_YES"] = "Ja";
-$MESS["VOTE_NO"] = "nein";
+$MESS["VOTE_NO"] = "Nein";
 $MESS["VOTE_ALL"] = "(alle)";
 $MESS["VOTE_TITLE"] = "Überschrift";
 $MESS["VOTE_ACTIVE"] = "aktiv";
@@ -59,5 +59,4 @@ $MESS["VOTE_F_TITLE"] = "Überschrift:";
 $MESS["VOTE_TILL"] = "bis";
 $MESS["VOTE_COPY"] = "Kopieren";
 $MESS["VOTE_CONFIRM_COPY"] = "Sind Sie sicher, dass Sie diese Umfrage kopieren wollen?";
-$MESS["VOTE_COPY_FAILED"] = "Beim Kopieren ist ein Fehler aufgetreten.";
 ?>

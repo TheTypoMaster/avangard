@@ -384,25 +384,32 @@ class CAllForm extends CForm_old
 					F.ID = $WEB_FORM_ID
 				";
 			$z = $DB->Query($strSql,false,$err_mess.__LINE__);
+
+			$MAIL_EVENT_TYPE = '';
+			$arrSITE = array();
 			while ($zr = $z->Fetch())
 			{
 				$MAIL_EVENT_TYPE = $zr["MAIL_EVENT_TYPE"];
 				$arrSITE[] = $zr["SITE_ID"];
 			}
+
 			$arReferenceId = array();
 			$arReference = array();
-			$arFilter = Array(
-				"ACTIVE"		=> "Y",
-				"SITE_ID"		=> $arrSITE,
-				"EVENT_NAME"	=> $MAIL_EVENT_TYPE
-				);
-			$e = CEventMessage::GetList($by="id", $order="asc", $arFilter);
-			while ($er=$e->Fetch())
+			if (strlen($MAIL_EVENT_TYPE) > 0)
 			{
-				if (!in_array($er["ID"], $arReferenceId))
+				$arFilter = Array(
+					"ACTIVE"		=> "Y",
+					"SITE_ID"		=> $arrSITE,
+					"EVENT_NAME"	=> $MAIL_EVENT_TYPE
+					);
+				$e = CEventMessage::GetList($by="id", $order="asc", $arFilter);
+				while ($er=$e->Fetch())
 				{
-					$arReferenceId[] = $er["ID"];
-					$arReference[] = "(".$er["LID"].") ".TruncateText($er["SUBJECT"],50);
+					if (!in_array($er["ID"], $arReferenceId))
+					{
+						$arReferenceId[] = $er["ID"];
+						$arReference[] = "(".$er["LID"].") ".TruncateText($er["SUBJECT"],50);
+					}
 				}
 			}
 		}
@@ -520,7 +527,7 @@ class CAllForm extends CForm_old
 		$var_exec_match = "find_".$FID."_exact_match";
 		global $$var, $$var_exec_match;
 		$checked = ($$var_exec_match=="Y") ? "checked" : "";
-		return '<input '.$field_text.' type="text" name="'.$var.'" size="'.$size.'" value="'.htmlspecialchars($$var).'"><input '.$field_checkbox.' type="checkbox" value="Y" name="'.$var.'_exact_match" title="'.GetMessage("FORM_EXACT_MATCH").'" '.$checked.'>'.ShowFilterLogicHelp();
+		return '<input '.$field_text.' type="text" name="'.$var.'" size="'.$size.'" value="'.htmlspecialcharsbx($$var).'"><input '.$field_checkbox.' type="checkbox" value="Y" name="'.$var.'_exact_match" title="'.GetMessage("FORM_EXACT_MATCH").'" '.$checked.'>'.ShowFilterLogicHelp();
 	}
 
 	function GetDateFilter($FID, $form_name="form1", $show_select="Y", $field_select="class=\"inputselect\"", $field_input="class=\"inputtext\"")
@@ -554,7 +561,7 @@ class CAllForm extends CForm_old
 			return $res;
 		}
 		else
-			return CalendarPeriod($var1, htmlspecialchars($$var1), $var2, htmlspecialchars($$var2), $form_name, $show_select, $field_select, $field_input);
+			return CalendarPeriod($var1, htmlspecialcharsbx($$var1), $var2, htmlspecialcharsbx($$var2), $form_name, $show_select, $field_select, $field_input);
 	}
 
 	function GetNumberFilter($FID, $size="10", $field="class=\"inputtext\"")
@@ -563,7 +570,7 @@ class CAllForm extends CForm_old
 		$var1 = "find_".$FID."_1";
 		$var2 = "find_".$FID."_2";
 		global $$var1, $$var2;
-		return '<input '.$field.' type="text" name="'.$var1.'" size="'.$size.'" value="'.htmlspecialchars($$var1).'">&nbsp;'.GetMessage("FORM_TILL").'&nbsp;<input '.$field.' type="text" name="'.$var2.'" size="'.$size.'" value="'.htmlspecialchars($$var2).'">';
+		return '<input '.$field.' type="text" name="'.$var1.'" size="'.$size.'" value="'.htmlspecialcharsbx($$var1).'">&nbsp;'.GetMessage("FORM_TILL").'&nbsp;<input '.$field.' type="text" name="'.$var2.'" size="'.$size.'" value="'.htmlspecialcharsbx($$var2).'">';
 	}
 
 	function GetExistFlagFilter($FID, $field="class=\"inputcheckbox\"")
@@ -572,6 +579,14 @@ class CAllForm extends CForm_old
 		$var = "find_".$FID;
 		global $$var;
 		return InputType("checkbox", $var, "Y", $$var, false, "", $field);
+	}
+
+	function GetCrmFlagFilter($FID, $field="class=\"inputselect\"")
+	{
+		$var = "find_".$FID;
+		global $$var;
+		$arr = array("reference_id"=>array('Y', 'N'), "reference"=>array(GetMessage('MAIN_YES'), GetMessage('MAIN_NO')));
+		return SelectBoxFromArray($var, $arr, $$var, GetMessage("FORM_ALL"), $field);
 	}
 
 	function GetDropDownFilter($ID, $PARAMETER_NAME, $FID, $field="class=\"inputselect\"")
@@ -651,31 +666,31 @@ class CAllForm extends CForm_old
 	function GetTextField($FIELD_NAME, $VALUE="", $SIZE="", $PARAM="")
 	{
 		if (strlen($PARAM)<=0) $PARAM = " class=\"inputtext\" ";
-		return "<input type=\"text\" ".$PARAM." name=\"form_text_".$FIELD_NAME."\" value=\"".htmlspecialchars($VALUE)."\" size=\"".$SIZE."\" />";
+		return "<input type=\"text\" ".$PARAM." name=\"form_text_".$FIELD_NAME."\" value=\"".htmlspecialcharsbx($VALUE)."\" size=\"".$SIZE."\" />";
 	}
 
 	function GetHiddenField($FIELD_NAME, $VALUE="", $PARAM="")
 	{
-		return "<input type=\"hidden\" ".$PARAM." name=\"form_hidden_".$FIELD_NAME."\" value=\"".htmlspecialchars($VALUE)."\" />";
+		return "<input type=\"hidden\" ".$PARAM." name=\"form_hidden_".$FIELD_NAME."\" value=\"".htmlspecialcharsbx($VALUE)."\" />";
 	}
 
 
 	function GetEmailField($FIELD_NAME, $VALUE="", $SIZE="", $PARAM="")
 	{
 		if (strlen($PARAM)<=0) $PARAM = " class=\"inputtext\" ";
-		return "<input type=\"text\" ".$PARAM." name=\"form_email_".$FIELD_NAME."\" value=\"".htmlspecialchars($VALUE)."\" size=\"".$SIZE."\" />";
+		return "<input type=\"text\" ".$PARAM." name=\"form_email_".$FIELD_NAME."\" value=\"".htmlspecialcharsbx($VALUE)."\" size=\"".$SIZE."\" />";
 	}
 
 	function GetUrlField($FIELD_NAME, $VALUE="", $SIZE="", $PARAM="")
 	{
 		if (strlen($PARAM)<=0) $PARAM = " class=\"inputtext\" ";
-		return "<input type=\"text\" ".$PARAM." name=\"form_url_".$FIELD_NAME."\" value=\"".htmlspecialchars($VALUE)."\" size=\"".$SIZE."\" />";
+		return "<input type=\"text\" ".$PARAM." name=\"form_url_".$FIELD_NAME."\" value=\"".htmlspecialcharsbx($VALUE)."\" size=\"".$SIZE."\" />";
 	}
 
 	function GetPasswordField($FIELD_NAME, $VALUE="", $SIZE="", $PARAM="")
 	{
 		if (strlen($PARAM)<=0) $PARAM = " class=\"inputtext\" ";
-		return "<input type=\"password\" ".$PARAM." name=\"form_password_".$FIELD_NAME."\" value=\"".htmlspecialchars($VALUE)."\" size=\"".$SIZE."\" />";
+		return "<input type=\"password\" ".$PARAM." name=\"form_password_".$FIELD_NAME."\" value=\"".htmlspecialcharsbx($VALUE)."\" size=\"".$SIZE."\" />";
 	}
 
 	function GetDropDownValue($FIELD_NAME, $arDropDown, $arrVALUES=false)
@@ -753,7 +768,8 @@ class CAllForm extends CForm_old
 		global $APPLICATION;
 		//if (strlen($PARAM)<=0) $PARAM = " class=\"inputtext\" ";
 
-		$res = "<input type=\"text\" ".$PARAM." name=\"form_date_".$FIELD_NAME."\" value=\"".htmlspecialchars($VALUE)."\" size=\"".$FIELD_WIDTH."\" />";
+		$rid = RandString(8);
+		$res = "<input type=\"text\" ".$PARAM." name=\"form_date_".$FIELD_NAME."\" id=\"form_date_".$rid."\" value=\"".htmlspecialcharsbx($VALUE)."\" size=\"".$FIELD_WIDTH."\" />";
 
 		ob_start();
 		$APPLICATION->IncludeComponent(
@@ -762,7 +778,7 @@ class CAllForm extends CForm_old
 			array(
 				'SHOW_INPUT' => 'N',
 				'FORM_NAME' => $FORM_NAME,
-				'INPUT_NAME' => "form_date_".$FIELD_NAME,
+				'INPUT_NAME' => "form_date_".$rid,
 				'SHOW_TIME' => 'N',
 			),
 			null,
@@ -837,7 +853,7 @@ class CAllForm extends CForm_old
 	function GetTextAreaField($FIELD_NAME, $WIDTH="", $HEIGHT="", $PARAM="", $VALUE="")
 	{
 		if (strlen($PARAM)<=0) $PARAM = " class=\"inputtextarea\" ";
-		return "<textarea name=\"form_textarea_".$FIELD_NAME."\" cols=\"".$WIDTH."\" rows=\"".$HEIGHT."\" ".$PARAM.">".htmlspecialchars($VALUE)."</textarea>";
+		return "<textarea name=\"form_textarea_".$FIELD_NAME."\" cols=\"".$WIDTH."\" rows=\"".$HEIGHT."\" ".$PARAM.">".htmlspecialcharsbx($VALUE)."</textarea>";
 	}
 
 	function GetFileField($FIELD_NAME, $WIDTH="", $FILE_TYPE="IMAGE", $MAX_FILE_SIZE=0, $VALUE="", $PARAM_FILE="", $PARAM_CHECKBOX="")
@@ -1140,7 +1156,7 @@ class CAllForm extends CForm_old
 											$fname = "form_".$FIELD_TYPE."_".$arAnswer["ID"];
 											$fname_del = $arrVALUES["form_".$FIELD_TYPE."_".$arAnswer["ID"]."_del"];
 											$ANSWER_ID = intval($arAnswer["ID"]);
-											$arIMAGE = is_set($fname, $arrVALUES) ? $arrVALUES[$fname] : $HTTP_POST_FILES[$fname];
+											$arIMAGE = isset($arrVALUES[$fname]) ? $arrVALUES[$fname] : $HTTP_POST_FILES[$fname];
 											if (is_array($arIMAGE) && strlen($arIMAGE["tmp_name"])>0)
 											{
 												$arIMAGE["MODULE_ID"] = "form";
@@ -1176,7 +1192,7 @@ class CAllForm extends CForm_old
 
 											$fname = "form_".$FIELD_TYPE."_".$arAnswer["ID"];
 											$fname_del = $arrVALUES["form_".$FIELD_TYPE."_".$arAnswer["ID"]."_del"];
-											$arFILE = is_set($fname, $arrVALUES) ? $arrVALUES[$fname] : $HTTP_POST_FILES[$fname];
+											$arFILE = isset($arrVALUES[$fname]) ? $arrVALUES[$fname] : $HTTP_POST_FILES[$fname];
 											if (is_array($arFILE) && strlen($arFILE["tmp_name"])>0)
 											{
 												$arAnswerValues[] = $arFILE;
@@ -1793,7 +1809,6 @@ class CAllForm extends CForm_old
 
 			$z = CLanguage::GetList($v1, $v2);
 			$OLD_MESS = $MESS;
-			$MESS = array();
 			while ($arLang = $z->Fetch())
 			{
 				IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/admin/form_mail.php", $arLang["LID"]);
@@ -1999,7 +2014,7 @@ http://#SERVER_NAME#/bitrix/admin/form_result_view.php?lang=".$arrSiteLang[$sid]
 				"ICON"	=> $current_section == 'form' ? 'btn_current' : '',
 				"TEXT"	=> GetMessage("FORM_MENU_EDIT"),
 				"LINK"	=> "/bitrix/admin/form_edit.php?lang=".LANGUAGE_ID."&ID=".$WEB_FORM_ID,
-				"TITLE"	=> htmlspecialchars(str_replace("#NAME#", $arForm["NAME"], GetMessage("FORM_MENU_EDIT_TITLE")))
+				"TITLE"	=> htmlspecialcharsbx(str_replace("#NAME#", $arForm["NAME"], GetMessage("FORM_MENU_EDIT_TITLE")))
 			);
 
 			$arForm['ADMIN_MENU'][] = array(
@@ -2007,7 +2022,7 @@ http://#SERVER_NAME#/bitrix/admin/form_result_view.php?lang=".$arrSiteLang[$sid]
 				"TEXT"	=> GetMessage("FORM_MENU_RESULTS")
 					." (".CFormResult::GetCount($WEB_FORM_ID).")",
 				"LINK"	=> "/bitrix/admin/form_result_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID,
-				"TITLE"	=> htmlspecialchars(str_replace("#NAME#", $arForm["NAME"], GetMessage("FORM_MENU_RESULTS_TITLE")))
+				"TITLE"	=> htmlspecialcharsbx(str_replace("#NAME#", $arForm["NAME"], GetMessage("FORM_MENU_RESULTS_TITLE")))
 			);
 
 			$arForm['ADMIN_MENU'][] = array(
@@ -2015,7 +2030,7 @@ http://#SERVER_NAME#/bitrix/admin/form_result_view.php?lang=".$arrSiteLang[$sid]
 				"TEXT"	=> GetMessage("FORM_MENU_QUESTIONS")
 					." (".($bSimple ? $arForm["QUESTIONS"] + $arForm["C_FIELDS"] : $arForm["QUESTIONS"]).")",
 				"LINK"	=> "/bitrix/admin/form_field_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID,
-				"TITLE"	=> htmlspecialchars(str_replace("#NAME#", $arForm["NAME"], GetMessage("FORM_MENU_QUESTIONS_TITLE")))
+				"TITLE"	=> htmlspecialcharsbx(str_replace("#NAME#", $arForm["NAME"], GetMessage("FORM_MENU_QUESTIONS_TITLE")))
 			);
 
 			if (!$bSimple)
@@ -2025,7 +2040,7 @@ http://#SERVER_NAME#/bitrix/admin/form_result_view.php?lang=".$arrSiteLang[$sid]
 					"TEXT"	=> GetMessage("FORM_MENU_FIELDS")
 						." (".$arForm["C_FIELDS"].")",
 					"LINK"	=> "/bitrix/admin/form_field_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID."&additional=Y",
-					"TITLE"	=> htmlspecialchars(str_replace("#NAME#", $arForm["NAME"], GetMessage("FORM_MENU_FIELDS_TITLE")))
+					"TITLE"	=> htmlspecialcharsbx(str_replace("#NAME#", $arForm["NAME"], GetMessage("FORM_MENU_FIELDS_TITLE")))
 				);
 
 				$arForm['ADMIN_MENU'][] = array(
@@ -2033,7 +2048,7 @@ http://#SERVER_NAME#/bitrix/admin/form_result_view.php?lang=".$arrSiteLang[$sid]
 					"TEXT"	=> GetMessage("FORM_MENU_STATUSES")
 						." (".$arForm["STATUSES"].")",
 					"LINK"	=> "/bitrix/admin/form_status_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID,
-					"TITLE"	=> htmlspecialchars(str_replace("#NAME#", $arForm["NAME"], GetMessage("FORM_MENU_STATUSES_TITLE")))
+					"TITLE"	=> htmlspecialcharsbx(str_replace("#NAME#", $arForm["NAME"], GetMessage("FORM_MENU_STATUSES_TITLE")))
 				);
 			}
 

@@ -36,7 +36,8 @@
 								$strSupportErrorText .= "debug_backtrace:\n".print_r($trace, True)."\n";
 							}
 							?>
-							<input type="hidden" name="last_error_query" value="<?= htmlspecialchars($strSupportErrorText) ?>">
+							<input type="hidden" name="last_error_query" value="<?= htmlspecialcharsbx($strSupportErrorText) ?>">
+							<?echo bitrix_sessid_post();?>
 							<input type="submit" value="Send error report to support">
 						</form>
 					<?endif;?>
@@ -44,5 +45,5 @@
 			</tr>
 		</table></td>
 	</tr>
-</table>	
+</table>
 <br><br><br>

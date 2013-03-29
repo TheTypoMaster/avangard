@@ -5,7 +5,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.
 __IncludeLang($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/map.google.search/lang/'.LANGUAGE_ID.'/settings.php');
 
 //if(!$USER->IsAdmin())
-//	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED")); 
+//	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 $obJSPopup = new CJSPopup('',
 	array(
@@ -32,8 +32,8 @@ var arPositionData = <?echo is_array($arData) && count($arData) > 0 ? CUtil::Php
 window._global_BX_UTF = <?echo defined('BX_UTF') && BX_UTF == true ? 'true' : 'false'?>;
 BX.message({
 	google_noname: '<?echo CUtil::JSEscape(GetMessage('MYMV_SET_NONAME'))?>',
-	google_MAP_VIEW_ROADMAP: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_MAP'))?>', 
-	google_MAP_VIEW_SATELLITE: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_SATELLITE'))?>', 
+	google_MAP_VIEW_ROADMAP: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_MAP'))?>',
+	google_MAP_VIEW_SATELLITE: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_SATELLITE'))?>',
 	google_MAP_VIEW_HYBRID: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_HYBRID'))?>',
 	google_MAP_VIEW_TERRAIN: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_TERRAIN'))?>',
 	google_current_view: '<?echo CUtil::JSEscape($_REQUEST['INIT_MAP_TYPE'])?>',
@@ -70,10 +70,10 @@ $APPLICATION->IncludeComponent('bitrix:map.google.system', '', array(
 	<div class="bx-google-map-controls-group">
 		<b><?echo GetMessage('MYMV_SET_START_POS')?></b><br />
 			<ul id="bx_google_position">
-				<li><?echo GetMessage('MYMV_SET_START_POS_LAT')?>: <span class="bx-google-map-controls-value" id="bx_google_lat_value"></span><input type="hidden" name="bx_google_lat" value="<?echo $arData['google_lat']?>" /></li>
-				<li><?echo GetMessage('MYMV_SET_START_POS_LON')?>: <span class="bx-google-map-controls-value" id="bx_google_lon_value"></span><input type="hidden" name="bx_google_lon" value="<?echo $arData['google_lon']?>" /></li>
-				<li><?echo GetMessage('MYMV_SET_START_POS_SCALE')?>: <span class="bx-google-map-controls-value" id="bx_google_scale_value"></span><input type="hidden" name="bx_google_scale" value="<?echo $arData['google_scale']?>" /></li>
-				<li><?echo GetMessage('MYMV_SET_START_POS_VIEW')?>: <span class="bx-google-map-controls-value" id="bx_google_view_value"></span><input type="hidden" name="bx_google_view" value="<?echo htmlspecialchars($_REQUEST['INIT_MAP_TYPE'])?>" /></li>
+				<li><?echo GetMessage('MYMV_SET_START_POS_LAT')?>: <span class="bx-google-map-controls-value" id="bx_google_lat_value"></span><input type="hidden" name="bx_google_lat" value="<?echo htmlspecialcharsbx($arData['google_lat'])?>" /></li>
+				<li><?echo GetMessage('MYMV_SET_START_POS_LON')?>: <span class="bx-google-map-controls-value" id="bx_google_lon_value"></span><input type="hidden" name="bx_google_lon" value="<?echo htmlspecialcharsbx($arData['google_lon'])?>" /></li>
+				<li><?echo GetMessage('MYMV_SET_START_POS_SCALE')?>: <span class="bx-google-map-controls-value" id="bx_google_scale_value"></span><input type="hidden" name="bx_google_scale" value="<?echo htmlspecialcharsbx($arData['google_scale'])?>" /></li>
+				<li><?echo GetMessage('MYMV_SET_START_POS_VIEW')?>: <span class="bx-google-map-controls-value" id="bx_google_view_value"></span><input type="hidden" name="bx_google_view" value="<?echo htmlspecialcharsbx($_REQUEST['INIT_MAP_TYPE'])?>" /></li>
 				<li><input type="checkbox" id="bx_google_position_fix" name="bx_google_position_fix" value="Y"<?if ($arData['google_scale']):?> checked="checked"<?endif;?> onclick="jsGoogleCE.setFixedFlag(this.checked)" /> <label for="bx_google_position_fix"><?echo GetMessage('MYMV_SET_START_POS_FIX')?></label>&nbsp;|&nbsp;<a href="javascript:void(0)" id="bx_restore_position"><?echo GetMessage('MYMV_SET_START_POS_RESTORE')?></a>
 			</ul>
 	</div>

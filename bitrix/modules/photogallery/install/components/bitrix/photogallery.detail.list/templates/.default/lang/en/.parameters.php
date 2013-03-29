@@ -17,8 +17,8 @@ $MESS["TP_CBIV_RATING"] = "Rating value";
 $MESS["TP_CBIV_RATING_MAIN"] = "Rating (Kernel module)";
 $MESS["RATING_MAIN_TYPE"] = "Rating buttons design (Kernel module)";
 $MESS["RATING_MAIN_TYPE_CONFIG"] = "default";
-$MESS["RATING_MAIN_TYPE_STANDART_TEXT"] = "I like it/I don't like it (text)";
-$MESS["RATING_MAIN_TYPE_STANDART_GRAPHIC"] = "I like it/I don't like it (image)";
-$MESS["RATING_MAIN_TYPE_LIKE_TEXT"] = "I like it (text)";
-$MESS["RATING_MAIN_TYPE_LIKE_GRAPHIC"] = "I like it (image)";
+$MESS["RATING_MAIN_TYPE_STANDART_TEXT"] = "Like/Unlike (text)";
+$MESS["RATING_MAIN_TYPE_STANDART_GRAPHIC"] = "Like/Unlike (image)";
+$MESS["RATING_MAIN_TYPE_LIKE_TEXT"] = "Like (text)";
+$MESS["RATING_MAIN_TYPE_LIKE_GRAPHIC"] = "Like (image)";
 ?>

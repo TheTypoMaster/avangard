@@ -5,11 +5,11 @@ class CUserTypeEntity extends CAllUserTypeEntity
 {
 	function CreatePropertyTables($entity_id)
 	{
-		global $DB;
+		global $DB, $APPLICATION;
 		if(!$DB->TableExists("b_utm_".strtolower($entity_id)))
 		{
 			if(defined("MYSQL_TABLE_TYPE"))
-				$DB->Query("SET table_type = '".MYSQL_TABLE_TYPE."'", true);
+				$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 			$rs = $DB->Query("
 				create table b_utm_".strtolower($entity_id)." (
 					ID int(11) not null auto_increment,
@@ -27,7 +27,7 @@ class CUserTypeEntity extends CAllUserTypeEntity
 			if(!$rs)
 			{
 				$APPLICATION->ThrowException(GetMessage("USER_TYPE_TABLE_CREATION_ERROR",array(
-					"#ENTITY_ID#"=>htmlspecialchars($entity_id),
+					"#ENTITY_ID#"=>htmlspecialcharsbx($entity_id),
 				)));
 				return false;
 			}
@@ -35,7 +35,7 @@ class CUserTypeEntity extends CAllUserTypeEntity
 		if(!$DB->TableExists("b_uts_".strtolower($entity_id)))
 		{
 			if(defined("MYSQL_TABLE_TYPE"))
-				$DB->Query("SET table_type = '".MYSQL_TABLE_TYPE."'", true);
+				$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 
 			$rs = $DB->Query("
 				create table b_uts_".strtolower($entity_id)." (
@@ -46,7 +46,7 @@ class CUserTypeEntity extends CAllUserTypeEntity
 			if(!$rs)
 			{
 				$APPLICATION->ThrowException(GetMessage("USER_TYPE_TABLE_CREATION_ERROR",array(
-					"#ENTITY_ID#"=>htmlspecialchars($entity_id),
+					"#ENTITY_ID#"=>htmlspecialcharsbx($entity_id),
 				)));
 				return false;
 			}
@@ -105,6 +105,16 @@ class CSQLWhere extends CAllSQLWhere
 	function _StringNotIN($field, $sql_values)
 	{
 		return "(".$field." IS NULL OR ".$field." not in ('".implode("', '", $sql_values)."'))";
+	}
+
+	function _ExprEQ($field, CSQLWhereExpression $val)
+	{
+		return $field." = ".$val->compile();
+	}
+
+	function _ExprNotEQ($field, CSQLWhereExpression $val)
+	{
+		return "(".$field." IS NULL OR ".$field." <> ".$val->compile().")";
 	}
 }
 

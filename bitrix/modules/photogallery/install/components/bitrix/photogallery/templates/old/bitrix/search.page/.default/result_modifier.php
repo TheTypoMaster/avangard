@@ -11,14 +11,14 @@ $URL_NAME_DEFAULT = array(
 		"sections_top" => "",
 		"detail" => "PAGE_NAME=detail&SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#",
 	);
-	
+
 foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 {
 	$arParams[strToUpper($URL)."_URL"] = trim($arParams[strToUpper($URL)."_URL"]);
 	if (empty($arParams[strToUpper($URL)."_URL"]))
 		$arParams[strToUpper($URL)."_URL"] = $GLOBALS["APPLICATION"]->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "AJAX_CALL", "tags"));
 	$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-	$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+	$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 }
 $arParams["ITEM_URL"] = CComponentEngine::MakePathFromTemplate($arParams["DETAIL_URL"], array("SECTION_ID" => 0, "ELEMENT_ID" => "#ITEM_ID#"));
 $arResult["SECTION_TOP_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["SECTIONS_TOP_URL"], array());
@@ -66,15 +66,15 @@ if (is_array($arResult["SEARCH"]))
 	}
 	if ($arParams["PERMISSION"] >= "W")
 		$arResult["USER_HAVE_ACCESS"] = true;
-	
-	
+
+
 	$arMargin = array();
 	if ($arParams["PERMISSION"] < "W")
 	{
 		$db_res = CIBlockSection::GetList(Array(), array("IBLOCK_ID" => $arParams["IBLOCK_ID"], "ACTIVE" => "Y"), false, array("UF_PASSWORD"));
 		if ($db_res && $res = $db_res->Fetch())
 		{
-			do 
+			do
 			{
 				if (!empty($res["UF_PASSWORD"]) && ($res["UF_PASSWORD"] != $_SESSION['PHOTOGALLERY']['SECTION'][$res["ID"]]))
 				{
@@ -83,9 +83,9 @@ if (is_array($arResult["SEARCH"]))
 			}while ($res = $db_res->Fetch());
 		}
 	}
-	
+
 	foreach($arResult["SEARCH"] as $key => $arItem):
-		// WHAT	
+		// WHAT
 		$arSelect = array(	"ID",			"CODE",
 							"IBLOCK_ID",	"IBLOCK_SECTION_ID",
 							"NAME",			"PREVIEW_PICTURE",
@@ -112,7 +112,7 @@ if (is_array($arResult["SEARCH"]))
 			$arElement["URL"] = str_replace("#ITEM_ID#", $arItem["ITEM_ID"], $arParams["ITEM_URL"]);
 			$arResult["SEARCH"][$key]["ELEMENT"] = $arElement;
 		}
-		else 
+		else
 		{
 			$arResult["SEARCH"][$key] = array();
 		}

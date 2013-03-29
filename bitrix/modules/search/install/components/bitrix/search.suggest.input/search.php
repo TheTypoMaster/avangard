@@ -19,7 +19,7 @@ if(CModule::IncludeModule("search"))
 			$arParams[$key] = $val;
 		}
 
- 		$obSearchSuggest = new CSearchSuggest($arParams["md5"], $search);
+		$obSearchSuggest = new CSearchSuggest($arParams["md5"], $search);
 
 		$db_res = $obSearchSuggest->GetList($arParams["pe"]);
 		if($db_res)

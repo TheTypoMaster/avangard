@@ -91,16 +91,20 @@ $APPLICATION->SetTitle($seotitle);
 		</tr>
 	</table>
 	<br />
-	<?if($arResult["DETAIL_TEXT"]): ?>
-		<br /><?=$arResult["DETAIL_TEXT"] ?><br />
-	<?elseif($arResult["PREVIEW_TEXT"]): ?>
-		<br /><?=$arResult["PREVIEW_TEXT"] ?><br />
-	<?endif; ?>
-	<br />
-	<?if(($arResult["PROPERTIES"]["ACTIA_DESCRIPTION"]["VALUE"]) || ($arResult["PROPERTIES"]["NOVELTY_DESCRIPTION"]["VALUE"]) ||
-			($arResult["PROPERTIES"]["NOVELTY_DESCRIPTION"]["VALUE"]))
-		$width_td = ' width="100%"';
-	?>
+<table width="100%"><tr><td>
+<? if($arResult["PROPERTIES"]["HREF_3D"]["VALUE"]) echo '<a href="/catalog/vybor_tkani.php?id='.$arResult["PROPERTIES"]["HREF_3D"]["VALUE"].'" target="_blank"><img src="/images/btn3D.png" alt="Переодевание 3D" border=0></a>';?>
+</td><td></td></tr></table>
+
+<br />
+<table class="s" cellspacing="1" cellpadding="1" border="0" align="left"> 
+    <tr><td style="vertical-align :center; padding:6px;">Модель можно купить в любом из салонов</td>
+        <td style="vertical-align :center; padding:6px;">или в интернет-магазине при фабрике</td></tr> 
+    <tr><td><a href="/redesign/where_buy/" ><img  src="/images/msk_shop.png" style="border-style:none; height:24px;" /></a></td>
+        <td><a href="/shop/catalog/divan<?=$arResult["ID"] ?>.htm" ><img src="/images/i_shop.png" style="border-style:none; height:24px;" /></a></td></tr> 
+    <tr><td></td>
+        <td style="vertical-align :center; padding:6px;">посмотреть цену в интернет-магазине</td></tr> 
+</table>
+<div style="clear: left"></div>
 	<table width="100%">
 		<tr>
 			<td<?=$width_td ?>>
@@ -149,7 +153,7 @@ $APPLICATION->SetTitle($seotitle);
 							<td bgcolor="#f8f8f8" align="center"><b>Спальное место</b></td>
 							<td bgcolor="#f8f8f8" align="center"><b>Механизм трансформации</b></td>
 							<td bgcolor="#f8f8f8" align="center"><b>Цена</b> от (руб.)</td>
-							<td bgcolor="#f8f8f8" align="center" style= "border-right: solid #e8e8e8 1px;"><b>Рассчитать цену</b></td>
+							<td bgcolor="#f8f8f8" align="center" style= "border-right: solid #e8e8e8 1px;"><b>Цена со скидкой</b> от (руб.)</td>
 						</tr>
 						<?
 						$cnt = 0;
@@ -158,9 +162,9 @@ $APPLICATION->SetTitle($seotitle);
 							?>
 							<tr>
 								<td height="25" bgcolor="#ffffff"><?echo($arResC["NAME"]) ?></td>
-								<td bgcolor="#ffffff" align="right"><?=$arResult["PROPERTIES"]["LENGTH"]["VALUE"][$cnt] ?></td>
-								<td bgcolor="#ffffff" align="right"><?=$arResult["PROPERTIES"]["WIDTH"]["VALUE"][$cnt] ?></td>
-								<td bgcolor="#ffffff" align="right"><?=$arResult["PROPERTIES"]["HEIGHT"]["VALUE"][$cnt] ?></td>
+								<td bgcolor="#ffffff" align="center"><?=$arResult["PROPERTIES"]["LENGTH"]["VALUE"][$cnt] ?></td>
+								<td bgcolor="#ffffff" align="center"><?=$arResult["PROPERTIES"]["WIDTH"]["VALUE"][$cnt] ?></td>
+								<td bgcolor="#ffffff" align="center"><?=$arResult["PROPERTIES"]["HEIGHT"]["VALUE"][$cnt] ?></td>
 								<td bgcolor="#ffffff" align="center"><?=$arResult["PROPERTIES"]["PLACES"]["VALUE"][$cnt] ?></td>
 								<td bgcolor="#ffffff" align="center">
 									<?
@@ -168,8 +172,14 @@ $APPLICATION->SetTitle($seotitle);
 									$arResTRANSFORMATION = GetIBlockElement($id_TRANSFORMATION);
 									echo($arResTRANSFORMATION["NAME"]);
 									?></td>
-								<td bgcolor="#ffffff"></td>
-								<td bgcolor="#ffffff" style= "border-right: solid #e8e8e8 1px;"></td>
+								<td bgcolor="#ffffff" align="center"><?=$arResult["PROPERTIES"]["PRICE"]["VALUE"][$cnt] ?></td>
+								<td bgcolor="#ffffff" align="center" style= "border-right: solid #e8e8e8 1px;">
+									<?
+									if ($arResult["PROPERTIES"]["PRICE"]["VALUE"][$cnt]!='' && $arResult["PROPERTIES"]["SKIDKA"]["VALUE"]!='') {
+									  $skidka = round(intval($arResult["PROPERTIES"]["PRICE"]["VALUE"][$cnt])/100*intval($arResult["PROPERTIES"]["SKIDKA"]["VALUE"]));
+									  echo intval($arResult["PROPERTIES"]["PRICE"]["VALUE"][$cnt])-$skidka;
+									}
+									?></td>
 							</tr>
 
 
@@ -181,6 +191,17 @@ $APPLICATION->SetTitle($seotitle);
 			</td>
 		</tr>
 	</table>
+	<br />
+	<?if($arResult["DETAIL_TEXT"]): ?>
+		<br /><?=$arResult["DETAIL_TEXT"] ?><br />
+	<?elseif($arResult["PREVIEW_TEXT"]): ?>
+		<br /><?=$arResult["PREVIEW_TEXT"] ?><br />
+	<?endif; ?>
+	<br />
+	<?if(($arResult["PROPERTIES"]["ACTIA_DESCRIPTION"]["VALUE"]) || ($arResult["PROPERTIES"]["NOVELTY_DESCRIPTION"]["VALUE"]) ||
+			($arResult["PROPERTIES"]["NOVELTY_DESCRIPTION"]["VALUE"]))
+		$width_td = ' width="100%"';
+	?>
 	<br>
 	<strong><a style="color: #000000;" target="_new" href="/mebel_sal.php?all_models=<?=$arResult["ID"] ?>">Данная модель во всех салонах Москвы и Московской области</a></strong>
 	<br>

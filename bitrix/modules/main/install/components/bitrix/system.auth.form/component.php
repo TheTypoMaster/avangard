@@ -50,7 +50,7 @@ if(!$USER->IsAuthorized())
 	$arRes = array();
 	foreach($arResult as $key=>$value)
 	{
-		$arRes[$key] = htmlspecialchars($value);
+		$arRes[$key] = htmlspecialcharsbx($value);
 		$arRes['~'.$key] = $value;
 	}
 	$arResult = $arRes;
@@ -60,7 +60,7 @@ if(!$USER->IsAuthorized())
 	foreach($_POST as $vname=>$vvalue)
 	{
 		if(!array_key_exists($vname, $arVarExcl) && !is_array($vvalue))
-			$arResult["POST"][htmlspecialchars($vname)] = htmlspecialchars($vvalue);
+			$arResult["POST"][htmlspecialcharsbx($vname)] = htmlspecialcharsbx($vvalue);
 	}
 
 	if(defined("HTML_PAGES_FILE") && !defined("ERROR_404"))
@@ -68,13 +68,12 @@ if(!$USER->IsAuthorized())
 	else
 		$arResult["~USER_LOGIN"] = $_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"];
 
-	$arResult["USER_LOGIN"] = $arResult["LAST_LOGIN"] = htmlspecialchars($arResult["~USER_LOGIN"]);
+	$arResult["USER_LOGIN"] = $arResult["LAST_LOGIN"] = htmlspecialcharsbx($arResult["~USER_LOGIN"]);
 	$arResult["~LAST_LOGIN"] = $arResult["~USER_LOGIN"];
 
 	$arResult["AUTH_SERVICES"] = false;
 	$arResult["CURRENT_SERVICE"] = false;
-	$arResult["AUTH_SERVICES_HTML"] = '';
-	if(!$USER->IsAuthorized() && $arResult["NEW_USER_REGISTRATION"] == "Y" && CModule::IncludeModule("socialservices"))
+	if(!$USER->IsAuthorized() && CModule::IncludeModule("socialservices"))
 	{
 		$oAuthManager = new CSocServAuthManager();
 		$arServices = $oAuthManager->GetActiveAuthServices($arResult);
@@ -133,18 +132,18 @@ else //if(!$USER->IsAuthorized())
 	$arRes = array();
 	foreach($arResult as $key=>$value)
 	{
-		$arRes[$key] = htmlspecialchars($value);
+		$arRes[$key] = htmlspecialcharsbx($value);
 		$arRes['~'.$key] = $value;
 	}
 	$arResult = $arRes;
 
-	$arResult["USER_NAME"] = htmlspecialcharsEx($USER->GetFullName());
+	$arResult["USER_NAME"] = htmlspecialcharsEx($USER->GetFormattedName(false),false);
 	$arResult["USER_LOGIN"] = htmlspecialcharsEx($USER->GetLogin());
 
 	$arResult["GET"] = array();
 	foreach($_GET as $vname=>$vvalue)
 		if(!is_array($vvalue) && $vname!="backurl" && $vname != "login" && $vname != "auth_service_id")
-			$arResult["GET"][htmlspecialchars($vname)] = htmlspecialchars($vvalue);
+			$arResult["GET"][htmlspecialcharsbx($vname)] = htmlspecialcharsbx($vvalue);
 }
 
 $this->IncludeComponentTemplate();

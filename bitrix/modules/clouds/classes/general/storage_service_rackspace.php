@@ -107,7 +107,7 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 			$verb,
 			$Host,
 			$Port,
-			$Urn.CCloudUtil::URLEncode("/".$bucket.$file_name.$params, LANG_CHARSET),
+			$Urn.CCloudUtil::URLEncode("/".$bucket.$file_name.$params, "UTF-8"),
 			$content,
 			$Proto
 		);
@@ -168,7 +168,11 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 				if(is_object($obCDNRequest))
 				{
 					if($obCDNRequest->status == 204)
-						$result = $obCDNRequest->headers;
+					{
+						$result = array();
+						foreach($obCDNRequest->headers as $key => $value)
+							$result[strtolower($key)] = $value;
+					}
 				}
 			}
 
@@ -176,15 +180,23 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 				$obCache->EndDataCache($result);
 
 			if(is_array($result))
-				$host = $result["X-CDN-URI"];
+				$host = $result["x-cdn-uri"];
 			else
 				return "/404.php";
 		}
 
 		if(is_array($arFile))
-			return $host."/".($arBucket["PREFIX"]? $arBucket["PREFIX"].'/': '').ltrim($arFile["SUBDIR"]."/".$arFile["FILE_NAME"], "/");
+			$URI = ltrim($arFile["SUBDIR"]."/".$arFile["FILE_NAME"], "/");
 		else
-			return $host."/".($arBucket["PREFIX"]? $arBucket["PREFIX"].'/': '').ltrim($arFile, "/");
+			$URI = ltrim($arFile, "/");
+
+		if($arBucket["PREFIX"])
+		{
+			if(substr($URI, 0, strlen($arBucket["PREFIX"])+1) !== $arBucket["PREFIX"]."/")
+				$URI = $arBucket["PREFIX"]."/".$URI;
+		}
+
+		return $host."/".CCloudUtil::URLEncode($URI, "UTF-8");
 	}
 }
 ?>

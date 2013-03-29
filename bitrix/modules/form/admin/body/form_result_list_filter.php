@@ -4,18 +4,18 @@
 <form name="form1" method="GET" action="<?=$APPLICATION->GetCurPage()?>?">
 <input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
 <input type="hidden" name="WEB_FORM_ID" value="<?=$WEB_FORM_ID?>">
-<tr> 
+<tr>
 	<td class="tablebody"><font class="tablefieldtext"><?=GetMessage("FORM_F_ID")?></font></td>
 	<td class="tablebody"><?=CForm::GetTextFilter("id")?></td>
 </tr>
 <?if ($SHOW_STATUS=="Y"):?>
-<tr> 
+<tr>
 	<td class="tablebody" valign="top"><font class="tablefieldtext"><?echo GetMessage("FORM_F_STATUS")?></font></td>
 	<td class="tablebody"><?
-		echo SelectBox("find_status", CFormStatus::GetDropdown($WEB_FORM_ID, array("VIEW")), GetMessage("FORM_ALL"), htmlspecialchars($find_status));
+		echo SelectBox("find_status", CFormStatus::GetDropdown($WEB_FORM_ID, array("VIEW")), GetMessage("FORM_ALL"), htmlspecialcharsbx($find_status));
 		?></td>
 </tr>
-<tr> 
+<tr>
 	<td class="tablebody" valign="top">
 		<font class="tablefieldtext"><?echo GetMessage("FORM_F_STATUS_ID")?></font></td>
 	<td class="tablebody"><?
@@ -32,32 +32,32 @@
 	<td class="tablebody" width="0%" nowrap><font class="tablefieldtext"><?=CForm::GetDateFilter("timestamp", "form1", "Y", "class=\"typeselect\"", "class=\"inputtype\"")?></font></td>
 </tr>
 <?if ($F_RIGHT>=25):?>
-<tr> 
+<tr>
 	<td class="tablebody">
 		<font class="tablefieldtext"><?echo GetMessage("FORM_F_REGISTERED")?></font></td>
 	<td class="tablebody">
 		<?
 		$arr = array("reference"=>array(GetMessage("FORM_YES"), GetMessage("FORM_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_registered", $arr, htmlspecialchars($find_registered), GetMessage("FORM_ALL"));
+		echo SelectBoxFromArray("find_registered", $arr, htmlspecialcharsbx($find_registered), GetMessage("FORM_ALL"));
 		?></td>
 </tr>
-<tr> 
+<tr>
 	<td class="tablebody"><font class="tablefieldtext"><?echo GetMessage("FORM_F_AUTH")?></font></td>
 	<td class="tablebody"><?
 		$arr = array("reference"=>array(GetMessage("FORM_YES"), GetMessage("FORM_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_user_auth", $arr, htmlspecialchars($find_user_auth), GetMessage("FORM_ALL"));
+		echo SelectBoxFromArray("find_user_auth", $arr, htmlspecialcharsbx($find_user_auth), GetMessage("FORM_ALL"));
 		?></td>
 </tr>
-<tr> 
+<tr>
 	<td class="tablebody"><font class="tablefieldtext"><?echo GetMessage("FORM_F_USER")?></font></td>
 	<td class="tablebody"><?=CForm::GetTextFilter("user_id")?></td>
 </tr>
 <?if (CModule::IncludeModule("statistic")) :?>
-<tr> 
+<tr>
 	<td class="tablebody"><font class="tablefieldtext"><?echo GetMessage("FORM_F_GUEST")?></font></td>
 	<td class="tablebody"><?=CForm::GetTextFilter("guest_id")?></td>
 </tr>
-<tr> 
+<tr>
 	<td class="tablebody"><font class="tablefieldtext"><?echo GetMessage("FORM_F_SESSION")?></font></td>
 	<td class="tablebody"><?=CForm::GetTextFilter("session_id")?></td>
 </tr>
@@ -77,13 +77,13 @@ if (count($arrFORM_FILTER)>0) :
 endif;
 
 while (list($key, $arrFILTER) = each($arrFORM_FILTER)) :
-
+	reset($arrFILTER);
 	while (list($key, $arrF) = each($arrFILTER)) :
 
 	$fname = $arrF["SID"];
 
 	if (!is_array($arrNOT_SHOW_FILTER) || !in_array($fname,$arrNOT_SHOW_FILTER)):
-	
+
 	if (($arrF["ADDITIONAL"]=="Y" && $SHOW_ADDITIONAL=="Y") || $arrF["ADDITIONAL"]!="Y"):
 	$i++;
 	if ($fname!=$prev_fname) :
@@ -95,10 +95,10 @@ while (list($key, $arrFILTER) = each($arrFORM_FILTER)) :
 	<td class="tablebody" valign="top" width="40%"><font class="tablefieldtext"><?
 	if (strlen($arrF["FILTER_TITLE"])<=0)
 	{
-		$title = ($arrF["TITLE_TYPE"]=="html" ? strip_tags($arrF["TITLE"]) : htmlspecialchars($arrF["TITLE"]));
+		$title = ($arrF["TITLE_TYPE"]=="html" ? strip_tags($arrF["TITLE"]) : htmlspecialcharsbx($arrF["TITLE"]));
 		echo $title;
 	}
-	else echo htmlspecialchars($arrF["FILTER_TITLE"]);
+	else echo htmlspecialcharsbx($arrF["FILTER_TITLE"]);
 
 	if ($arrF["FILTER_TYPE"]=="date") echo " (".CSite::GetDateFormat("SHORT").")";
 	?></font></td>
@@ -121,12 +121,12 @@ while (list($key, $arrFILTER) = each($arrFORM_FILTER)) :
 			echo CForm::GetExistFlagFilter($arrF["FID"], "");
 			break;
 	endswitch;
-	if ($arrF["PARAMETER_NAME"]=="ANSWER_TEXT") 
+	if ($arrF["PARAMETER_NAME"]=="ANSWER_TEXT")
 	{
 		echo "&nbsp;<sup>[<font class='anstext'>...</font>]</sup>";
 		$f_anstext = "Y";
 	}
-	elseif ($arrF["PARAMETER_NAME"]=="ANSWER_VALUE") 
+	elseif ($arrF["PARAMETER_NAME"]=="ANSWER_VALUE")
 	{
 		echo "&nbsp;<sup>(<font class='ansvalue'>...</font>)</sup>";
 		$f_ansvalue = "Y";

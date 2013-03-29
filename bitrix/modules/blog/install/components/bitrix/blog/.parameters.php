@@ -26,7 +26,17 @@ if (!empty($arRes))
 	foreach ($arRes as $key => $val)
 		$postProp[$val["FIELD_NAME"]] = (strLen($val["EDIT_FORM_LABEL"]) > 0 ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
 }
-
+unset($postProp["UF_BLOG_POST_DOC"]);
+unset($postProp["UF_BLOG_POST_FILE"]);
+$arRes = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("BLOG_COMMENT", 0, LANGUAGE_ID);
+$commentProp = array();
+if (!empty($arRes))
+{
+	foreach ($arRes as $key => $val)
+		$commentProp[$val["FIELD_NAME"]] = (strLen($val["EDIT_FORM_LABEL"]) > 0 ? $val["EDIT_FORM_LABEL"] : $val["FIELD_NAME"]);
+}
+unset($commentProp["UF_BLOG_COMMENT_DOC"]);
+unset($commentProp["UF_BLOG_COMMENT_FILE"]);
 $arComponentParameters = array(
 	"GROUPS" => Array(
 		"COMMENT" => array("NAME" => GetMessage("BLOG_COMMENT_SETTINGS")),
@@ -265,6 +275,14 @@ $arComponentParameters = array(
 			"MULTIPLE" => "Y",
 			"DEFAULT" => array(),	
 		),
+		"COMMENT_PROPERTY"=>array(
+			"PARENT" => "ADDITIONAL_SETTINGS",
+			"NAME" => GetMessage("COMMENT_PROPERTY"),
+			"TYPE" => "LIST",
+			"VALUES" => $commentProp,
+			"MULTIPLE" => "Y",
+			"DEFAULT" => array(),	
+		),
 		"USE_ASC_PAGING" => Array(
 		  	"NAME" => GetMessage("BC_USE_ASC_PAGING"),
 			"TYPE" => "CHECKBOX",
@@ -371,7 +389,7 @@ $arComponentParameters = array(
 		"COMMENT_ALLOW_VIDEO" => Array(
 				"NAME" => GetMessage("BPC_COMMENT_ALLOW_VIDEO"),
 				"TYPE" => "CHECKBOX",
-				"DEFAULT" => "N",
+				"DEFAULT" => "Y",
 				"PARENT" => "COMMENT",
 			),
 		"COMMENT_ALLOW_IMAGE_UPLOAD" => Array(
@@ -383,7 +401,7 @@ $arComponentParameters = array(
 						"N" => GetMessage("BPC_ALLOW_IMAGE_UPLOAD_N"),
 					),
 				"MULTIPLE" => "N",
-				"DEFAULT" => "N",
+				"DEFAULT" => "A",
 				"PARENT" => "COMMENT",
 			),
 		"SHOW_SPAM" => Array(

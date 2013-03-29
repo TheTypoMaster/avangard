@@ -13,7 +13,7 @@ endif;
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "FID", "TID", "UID", BX_AJAX_PARAM_ID));
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 // *****************************************************************************************
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
@@ -26,16 +26,16 @@ endif;
 	if (!empty($arParams["CONTENT"]))
 	{
 		$arParams["FILE_NAME"] = $_SERVER["DOCUMENT_ROOT"].$arParams["CONTENT"];
-	    if (is_file($arParams["FILE_NAME"]))
-	    {
+		if (is_file($arParams["FILE_NAME"]))
+		{
 			$arResult["TEXT_MESSAGE"] = $GLOBALS["APPLICATION"]->GetFileContent($arParams["FILE_NAME"]);
-	    }
+		}
 	}
 	if (empty($arResult["TEXT_MESSAGE"]))
 	{
 		$txtParams = array();
 		if (isset($_SERVER['SERVER_NAME']))
-			$txtParams = array("#SERVER_NAME#" => htmlspecialchars($_SERVER['SERVER_NAME']));
+			$txtParams = array("#SERVER_NAME#" => htmlspecialcharsbx($_SERVER['SERVER_NAME']));
 		$arResult["TEXT_MESSAGE"] = GetMessage("F_CONTENT", $txtParams);
 	}
 // *****************************************************************************************

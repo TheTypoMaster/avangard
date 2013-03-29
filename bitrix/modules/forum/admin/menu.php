@@ -9,8 +9,8 @@ function __forum_chapter_menu_gen()
 	$db_res = CFilterDictionary::GetList();
 	while ($res = $db_res->Fetch())
 	{
-	 	$Dict[$res["TYPE"]][] = array(
-	 		"text" => htmlspecialcharsEx($res["TITLE"]),
+		$Dict[$res["TYPE"]][] = array(
+			"text" => htmlspecialcharsEx($res["TITLE"]),
 			"url" => "/bitrix/admin/forum_".($res["TYPE"]=="T"?"letter":"words").".php?DICTIONARY_ID=".$res["ID"]."&amp;lang=".LANG,
 			"more_url" => array(
 					"/bitrix/admin/forum_".($res["TYPE"]=="T"?"letter":"words").".php?DICTIONARY_ID=".$res["ID"]."&lang=".LANG,
@@ -27,13 +27,12 @@ if($APPLICATION->GetGroupRight("forum") != "D")
 	{
 		$Dict = __forum_chapter_menu_gen();
 	}
-	
+
 	$aMenu = array(
 		"parent_menu" => "global_menu_services",
 		"section" => "forum",
 		"sort" => 550,
 		"text" => GetMessage("FORUM_CONTROL"),
-		"url"  => "/bitrix/admin/forum_index.php?lang=".LANG,
 		"title"=> GetMessage("FORUM_CONTROL"),
 		"icon" => "forum_menu_icon",
 		"page_icon" => "forum_page_icon",
@@ -42,7 +41,7 @@ if($APPLICATION->GetGroupRight("forum") != "D")
 			array(
 				"text" => GetMessage("FORUM_LIST"),
 				"url" => "/bitrix/admin/forum_admin.php?lang=".LANG,
-				"more_url" => array("/bitrix/admin/forum_edit.php", "/bitrix/admin/forum_mod.php"),
+				"more_url" => array("/bitrix/admin/forum_edit.php"),
 				"title" => GetMessage("FORUM_CONTROL_ALT")
 			),
 			array(
@@ -88,7 +87,6 @@ if($APPLICATION->GetGroupRight("forum") != "D")
 				"items_id" => "menu_forum_filter",
 				"url" => "/bitrix/admin/forum_dictionary.php?TYPE=W&amp;lang=".LANG,
 				"more_url" =>Array(
-					"/bitrix/admin/forum_filter.php",
 					"/bitrix/admin/forum_dictionary.php"),
 				"title" => GetMessage("FORUM_MENU_FILTER_ALT"),
 				"items" => array(

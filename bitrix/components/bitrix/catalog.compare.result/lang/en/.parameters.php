@@ -1,8 +1,8 @@
 <?
 $MESS["IBLOCK_PRICES"] = "Prices";
 $MESS["T_IBLOCK_DESC_ELEMENT_BOX"] = "Display element list";
-$MESS["IBLOCK_TYPE"] = "Info-block type";
-$MESS["IBLOCK_IBLOCK"] = "Info-block";
+$MESS["IBLOCK_TYPE"] = "Infoblock type";
+$MESS["IBLOCK_IBLOCK"] = "Infoblock";
 $MESS["IBLOCK_PROPERTY"] = "Properties";
 $MESS["IBLOCK_SORT_SHOWS"] = "average shows";
 $MESS["IBLOCK_SORT_SORT"] = "sorting index";
@@ -30,4 +30,6 @@ $MESS["IBLOCK_FIELD"] = "Fields";
 $MESS["IBLOCK_VAT_INCLUDE"] = "Include tax rate in price";
 $MESS["CP_BCCR_OFFERS_FIELD_CODE"] = "SKU Fields";
 $MESS["CP_BCCR_OFFERS_PROPERTY_CODE"] = "SKU Properties";
+$MESS["CP_BCCR_CONVERT_CURRENCY"] = "Use only one currency to show prices";
+$MESS["CP_BCCR_CURRENCY_ID"] = "Convert all prices to currency";
 ?>

@@ -1,8 +1,8 @@
 <?
 $MESS["IBLOCK_PRICES"] = "Prices";
 $MESS["IBLOCK_LINK"] = "Linked elements settings";
-$MESS["IBLOCK_TYPE"] = "Info-block type";
-$MESS["IBLOCK_IBLOCK"] = "Info-block";
+$MESS["IBLOCK_TYPE"] = "Infoblock type";
+$MESS["IBLOCK_IBLOCK"] = "Infoblock";
 $MESS["IBLOCK_PROPERTY"] = "Properties";
 $MESS["IBLOCK_SECTION_URL"] = "URL of the page with the section contents";
 $MESS["IBLOCK_PRICE_CODE"] = "Price type";
@@ -33,11 +33,15 @@ $MESS["CP_BCE_PRODUCT_QUANTITY_VARIABLE"] = "Product Quantity Parameter Name";
 $MESS["CP_BCE_PRODUCT_PROPS_VARIABLE"] = "Product Properties Parameter Name";
 $MESS["CP_BCE_USE_PRODUCT_QUANTITY"] = "Enable Product Quantity Field";
 $MESS["CP_BCE_PRODUCT_PROPERTIES"] = "Product Properties";
-$MESS["IBLOCK_SORT_ASC"] = "ascending";
-$MESS["IBLOCK_SORT_DESC"] = "descending";
 $MESS["CP_BCE_OFFERS_FIELD_CODE"] = "SKU Fields";
 $MESS["CP_BCE_OFFERS_PROPERTY_CODE"] = "SKU Properties";
 $MESS["CP_BCE_OFFERS_SORT_FIELD"] = "Sort SKU By Field";
 $MESS["CP_BCE_OFFERS_SORT_ORDER"] = "SKU Sort Order";
 $MESS["CP_BCE_OFFERS_CART_PROPERTIES"] = "SKU Properties In Shopping Cart";
+$MESS["IBLOCK_SORT_ASC"] = "ascending";
+$MESS["IBLOCK_SORT_DESC"] = "descending";
+$MESS["CP_BCE_CONVERT_CURRENCY"] = "Use only one currency to show prices";
+$MESS["CP_BCE_CURRENCY_ID"] = "Convert all prices to currency";
+$MESS["CP_BCE_OFFERS_LIMIT"] = "Maximum SKU's to Show (use 0 to show all)";
+$MESS["CP_BCE_USE_ELEMENT_COUNTER"] = "Use view counter";
 ?>

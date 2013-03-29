@@ -46,7 +46,7 @@ $lAdmin->InitFilter($arFilterFields);
 
 
 /***************************************************************************
-								  Functions
+Functions
 ***************************************************************************/
 function CheckFilter($arFilterFields) // checking input fields
 {
@@ -111,7 +111,7 @@ if($lAdmin->EditAction() && $isAdmin) // if saving from list
 	}
 }
 
-// Actions 
+// Actions
 if(($arID = $lAdmin->GroupAction()) && $isAdmin)
 {
 	if($_REQUEST['action_target']=='selected')
@@ -191,7 +191,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$strSITE_ID = '';
 	$db_LID = CEventMessage::GetLang($f_ID);
 	while($ar_LID = $db_LID->Fetch())
-		$strSITE_ID .= htmlspecialchars($ar_LID["LID"])."<br>";
+		$strSITE_ID .= htmlspecialcharsbx($ar_LID["LID"])."<br>";
 
 	$row->AddViewField("LID", $strSITE_ID);
 	$row->AddCheckField("ACTIVE");
@@ -231,7 +231,7 @@ $lAdmin->AddGroupActionTable(Array(
 
 
 //			$arr = array("REFERENCE" => $event_type_ref, "REFERENCE_ID" => $event_type_ref_id);
-//			echo SelectBoxFromArray("EVENT_NAME", $arr, htmlspecialchars($find_type_id));
+//			echo SelectBoxFromArray("EVENT_NAME", $arr, htmlspecialcharsbx($find_type_id));
 
 
 // contextual menu (add, go_to_list)
@@ -275,7 +275,7 @@ $oFilter->Begin();
 <tr>
 	<td><b><?=GetMessage("F_SEARCH")?></b></td>
 	<td nowrap>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("F_SEARCH_TITLE")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("F_SEARCH_TITLE")?>">
 		<select name="find_type">
 			<option value="subject"<?if($find_type=="subject") echo " selected"?>><?=GetMessage('F_THEME')?></option>
 			<option value="from"<?if($find_type=="from") echo " selected"?>><?=GetMessage('F_FROM')?></option>
@@ -286,66 +286,66 @@ $oFilter->Begin();
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_ID")?></td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_EVENT_TYPE")?></td>
-	<td><input type="text" name="find_event_type" size="47" value="<?echo htmlspecialchars($find_event_type)?>"><?=ShowFilterLogicHelp()?><br><?
+	<td><input type="text" name="find_event_type" size="47" value="<?echo htmlspecialcharsbx($find_event_type)?>"><?=ShowFilterLogicHelp()?><br><?
 		$event_type_ref = array();
 		$event_type_ref_id = array();
 		$ref_en = array();
 		$rsType = CEventType::GetList(array("LID"=>LANGUAGE_ID), array("sort"=>"asc", "name"=>"asc"));
 		while($arType = $rsType->Fetch())
 		{
-			$event_type_ref[] = $arType["NAME"].($arType["NAME"] == ''?  '' : ' ')."[".$arType["EVENT_NAME"]."]";
+			$event_type_ref[] = $arType["NAME"].($arType["NAME"] == ''? '' : ' ')."[".$arType["EVENT_NAME"]."]";
 			$event_type_ref_id[] = $arType["EVENT_NAME"];
 		}
 
 		$arr = array("REFERENCE" => $event_type_ref, "REFERENCE_ID" => $event_type_ref_id);
-		echo SelectBoxFromArray("find_type_id", $arr, htmlspecialchars($find_type_id), GetMessage("MAIN_ALL"));
+		echo SelectBoxFromArray("find_type_id", $arr, htmlspecialcharsbx($find_type_id), GetMessage("MAIN_ALL"));
 	?></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_F_TIMESTAMP")." (".CLang::GetDateFormat("SHORT")."):"?></td>
-	<td><?echo CalendarPeriod("find_timestamp_1", htmlspecialchars($find_timestamp_1), "find_timestamp_2", htmlspecialchars($find_timestamp_2), "find_form","Y")?></td>
+	<td><?echo GetMessage("MAIN_F_TIMESTAMP").":"?></td>
+	<td><?echo CalendarPeriod("find_timestamp_1", htmlspecialcharsbx($find_timestamp_1), "find_timestamp_2", htmlspecialcharsbx($find_timestamp_2), "find_form","Y")?></td>
 </tr>
 <tr>
 	<td><?=GetMessage("MAIN_F_LID")?></td>
-	<td><?echo CLang::SelectBox("find_lid", htmlspecialchars($find_lid), GetMessage("MAIN_ALL")); ?></td>
+	<td><?echo CLang::SelectBox("find_lid", htmlspecialcharsbx($find_lid), GetMessage("MAIN_ALL")); ?></td>
 </tr>
 <tr>
 	<td><?=GetMessage("F_ACTIVE")?></td>
 	<td><?
 		$arr = array("reference"=>array(GetMessage("MAIN_YES"), GetMessage("MAIN_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_active", $arr, htmlspecialchars($find_active), GetMessage("MAIN_ALL"));
+		echo SelectBoxFromArray("find_active", $arr, htmlspecialcharsbx($find_active), GetMessage("MAIN_ALL"));
 		?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_FROM")?></td>
-	<td><input type="text" name="find_from" size="47" value="<?echo htmlspecialchars($find_from)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_from" size="47" value="<?echo htmlspecialcharsbx($find_from)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_TO")?></td>
-	<td><input type="text" name="find_to" size="47" value="<?echo htmlspecialchars($find_to)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_to" size="47" value="<?echo htmlspecialcharsbx($find_to)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_BCC")?></td>
-	<td><input type="text" name="find_bcc" size="47" value="<?echo htmlspecialchars($find_bcc)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_bcc" size="47" value="<?echo htmlspecialcharsbx($find_bcc)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("F_SUBJECT")?></td>
-	<td><input type="text" name="find_subject" size="47" value="<?echo htmlspecialchars($find_subject)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_subject" size="47" value="<?echo htmlspecialcharsbx($find_subject)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?=GetMessage("MAIN_F_BODY_TYPE")?></td>
 	<td><?
 		$arr = array("reference"=>array(GetMessage("MAIN_TEXT"), GetMessage("MAIN_HTML")), "reference_id"=>array("text","html"));
-		echo SelectBoxFromArray("find_body_type", $arr, htmlspecialchars($find_body_type), GetMessage("MAIN_ALL"));
+		echo SelectBoxFromArray("find_body_type", $arr, htmlspecialcharsbx($find_body_type), GetMessage("MAIN_ALL"));
 		?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_MESSAGE_BODY")?></td>
-	<td><input type="text" name="find_body" size="47" value="<?echo htmlspecialchars($find_body)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_body" size="47" value="<?echo htmlspecialcharsbx($find_body)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage(), "form"=>"find_form"));

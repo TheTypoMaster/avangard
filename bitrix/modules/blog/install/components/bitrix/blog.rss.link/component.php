@@ -66,13 +66,13 @@ if(strLen($arParams["POST_VAR"])<=0)
 
 $arParams["PATH_TO_RSS"] = trim($arParams["PATH_TO_RSS"]);
 if(strlen($arParams["PATH_TO_RSS"])<=0)
-	$arParams["PATH_TO_RSS"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=rss&".$arParams["BLOG_VAR"]."=#blog#"."&type=#type#");
+	$arParams["PATH_TO_RSS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=rss&".$arParams["BLOG_VAR"]."=#blog#"."&type=#type#");
 if(strlen($arParams["PATH_TO_POST_RSS"])<=0)
-	$arParams["PATH_TO_POST_RSS"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post_rss&".$arParams["BLOG_VAR"]."=#blog#"."&type=#type#&".$arParams["POST_VAR"]."=#post_id#");
+	$arParams["PATH_TO_POST_RSS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post_rss&".$arParams["BLOG_VAR"]."=#blog#"."&type=#type#&".$arParams["POST_VAR"]."=#post_id#");
 	
 $arParams["PATH_TO_RSS_ALL"] = trim($arParams["PATH_TO_RSS_ALL"]);
 if(strlen($arParams["PATH_TO_RSS_ALL"])<=0)
-	$arParams["PATH_TO_RSS_ALL"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=rss_all&type=#type#&".$arParams["GROUP_VAR"]."=#group_id#");
+	$arParams["PATH_TO_RSS_ALL"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=rss_all&type=#type#&".$arParams["GROUP_VAR"]."=#group_id#");
 $arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
 
 if($arParams["MODE"] == "S")
@@ -129,7 +129,7 @@ elseif($arParams["MODE"] == "C")
 	if($bSoNet)
 	{
 		$arFilterblg = Array(
-		    "ACTIVE" => "Y",
+			"ACTIVE" => "Y",
 			"GROUP_ID" => $arParams["PARAM_GROUP_ID"],
 			"GROUP_SITE_ID" => SITE_ID,
 			);
@@ -189,7 +189,7 @@ else
 	{
 		$blogOwnerID = $arParams["USER_ID"];
 		$arFilterblg = Array(
-		    "ACTIVE" => "Y",
+			"ACTIVE" => "Y",
 			"GROUP_ID" => $arParams["PARAM_GROUP_ID"],
 			"GROUP_SITE_ID" => SITE_ID,
 			"USE_SOCNET" => "Y",

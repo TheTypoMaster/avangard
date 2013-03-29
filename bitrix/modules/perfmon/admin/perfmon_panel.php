@@ -23,8 +23,8 @@ if(isset($_REQUEST["test"]) && $_REQUEST["test"] === "Y")
 			BX('mark_result_in_note').innerHTML = '<b><?echo GetMessage("PERFMON_PANEL_MARK_RESULT", array("#result#" => $result)), "<span class=\"required\"><sup>1</sup></span>"?></b>';
 			BX('page_rate_result').innerHTML = '<b><?echo $result?></b>';
 			BX('page_time_result').innerHTML = '<?echo $sec_per_page?>';
-			BX('tab_perfomance').innerHTML = '<?echo GetMessage("PERFMON_PANEL_PERF_NAME")." (".$result.")"?>';
-			jsUtils.FindChildObject(BX('perfomance'), 'td', 'title', true).innerHTML = '<?echo GetMessage("PERFMON_PANEL_PERF_TITLE2", array("#TOTAL_MARK_DATE#" => COption::GetOptionString("perfmon", "mark_php_page_date"), "#TOTAL_MARK_VALUE#" => $result));?>';
+			BX('tab_cont_perfomance').innerHTML = '<?echo GetMessage("PERFMON_PANEL_PERF_NAME")." (".$result.")"?>';
+			jsUtils.FindChildObject(BX('perfomance'), 'div', 'adm-detail-title', true).innerHTML = '<?echo GetMessage("PERFMON_PANEL_PERF_TITLE2", array("#TOTAL_MARK_DATE#" => COption::GetOptionString("perfmon", "mark_php_page_date"), "#TOTAL_MARK_VALUE#" => $result));?>';
 		</script><?
 	}
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
@@ -145,7 +145,7 @@ elseif(isset($_REQUEST["test"]) && $_REQUEST["test"] === "cluster")
 			<div style="text-align:center;">
 			&nbsp;
 			<table border="0" cellpadding="0" cellspacing="0" class="internal" width="100%">
-			<tr class="heading" valign="top">
+			<tr class="heading">
 				<td align="center"><?echo GetMessage("PERFMON_PANEL_CLUSTER_NN")?></td>
 				<td align="center"><?echo GetMessage("PERFMON_PANEL_CLUSTER_CONCURRENCY")?></td>
 				<td align="center"><?echo GetMessage("PERFMON_PANEL_CLUSTER_HITS")?></td>
@@ -162,13 +162,13 @@ elseif(isset($_REQUEST["test"]) && $_REQUEST["test"] === "cluster")
 				$i++;
 			?>
 			<tr>
-				<td align="right"><?echo $i?></td>
-				<td align="right"><?echo intval($ar["THREADS"])?></td>
-				<td align="right"><?echo intval($ar["HITS"])?></td>
-				<td align="right"><?echo intval($ar["ERRORS"])?></td>
-				<td align="right"><?echo number_format($ar["PAGES_PER_SECOND"], 2, ".", " ")?></td>
-				<td align="right"><?echo number_format($ar["PAGE_EXEC_TIME"], 6, ".", " ")?></td>
-				<td align="right"><?echo number_format($ar["PAGE_RESP_TIME"], 6, ".", " ")?></td>
+				<td class="bx-digit-cell"><?echo $i?></td>
+				<td class="bx-digit-cell"><?echo intval($ar["THREADS"])?></td>
+				<td class="bx-digit-cell"><?echo intval($ar["HITS"])?></td>
+				<td class="bx-digit-cell"><?echo intval($ar["ERRORS"])?></td>
+				<td class="bx-digit-cell"><?echo number_format($ar["PAGES_PER_SECOND"], 2, ".", " ")?></td>
+				<td class="bx-digit-cell"><?echo number_format($ar["PAGE_EXEC_TIME"], 6, ".", " ")?></td>
+				<td class="bx-digit-cell"><?echo number_format($ar["PAGE_RESP_TIME"], 6, ".", " ")?></td>
 			</tr>
 			<?endwhile;?>
 			<?if(!$bFinish):?>
@@ -386,8 +386,8 @@ elseif(isset($_REQUEST["test"]))
 					$i--;
 				?>
 					<tr>
-						<td><a href="perfmon_hit_list.php?lang=<?echo LANGUAGE_ID?>&amp;set_filter=Y&amp;find_script_name=<?echo urlencode(htmlspecialchars($ar["SCRIPT_NAME"]))?>"><?echo $ar["SCRIPT_NAME"]?></a></td>
-						<td align="right" id="err_count_<?echo $i?>"><?
+						<td><a href="perfmon_hit_list.php?lang=<?echo LANGUAGE_ID?>&amp;set_filter=Y&amp;find_script_name=<?echo urlencode(htmlspecialcharsbx($ar["SCRIPT_NAME"]))?>"><?echo $ar["SCRIPT_NAME"]?></a></td>
+						<td class="bx-digit-cell" id="err_count_<?echo $i?>"><?
 							$rsHit = CPerfomanceHit::GetList(array("COUNT" => "DESC"), array(
 								'=SCRIPT_NAME' => $ar["SCRIPT_NAME"],
 								'=IS_ADMIN' => 'N',
@@ -415,7 +415,7 @@ elseif(isset($_REQUEST["test"]))
 								while($arHit = $rsHit->Fetch())
 								{
 									if($arHit["COUNT"] >= $ar["COUNT"])
-										$arComps[] = htmlspecialchars($arHit["COMPONENT_NAME"]);
+										$arComps[] = htmlspecialcharsbx($arHit["COMPONENT_NAME"]);
 								}
 							}
 
@@ -424,7 +424,7 @@ elseif(isset($_REQUEST["test"]))
 								$err_count++;
 								$sHint .= '<tr><td nowrap><b>'.GetMessage("PERFMON_PANEL_DEV_WARN2").' '.GetMessage("PERFMON_PANEL_DEV_WARN2_DESC").'</b> <ul style="font-size:100%">';
 								foreach($arComps as $component_name)
-									$sHint .= '<li><a href="perfmon_comp_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_hit_script_name='.urlencode(htmlspecialchars($ar["SCRIPT_NAME"])).'&amp;find_component_name='.urlencode($component_name).'">'.$component_name.'</a></li>';
+									$sHint .= '<li><a href="perfmon_comp_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_hit_script_name='.urlencode(htmlspecialcharsbx($ar["SCRIPT_NAME"])).'&amp;find_component_name='.urlencode($component_name).'">'.$component_name.'</a></li>';
 								$sHint .= '</ul></td></tr>';
 							}
 
@@ -444,7 +444,7 @@ elseif(isset($_REQUEST["test"]))
 									$sHint .= '<tr><td nowrap><b>'.GetMessage("PERFMON_PANEL_DEV_WARN3").'</b> '.GetMessage("PERFMON_PANEL_DEV_WARN3_DESC").'<ul style="font-size:100%">';
 									$bFirst = false;
 								}
-								$sHint .= '<li>'.CFile::FormatSize($arHit["MAX_CACHE_SIZE"], 0).' <a href="perfmon_comp_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_hit_script_name='.urlencode(htmlspecialchars($ar["SCRIPT_NAME"])).'&amp;find_component_name='.urlencode(htmlspecialchars($arHit["COMPONENT_NAME"])).'">'.htmlspecialchars($arHit["COMPONENT_NAME"]).'</a></li>';
+								$sHint .= '<li>'.CFile::FormatSize($arHit["MAX_CACHE_SIZE"], 0).' <a href="perfmon_comp_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_hit_script_name='.urlencode(htmlspecialcharsbx($ar["SCRIPT_NAME"])).'&amp;find_component_name='.urlencode(htmlspecialcharsbx($arHit["COMPONENT_NAME"])).'">'.htmlspecialcharsbx($arHit["COMPONENT_NAME"]).'</a></li>';
 							}
 
 							if(!$bFirst)
@@ -463,9 +463,9 @@ elseif(isset($_REQUEST["test"]))
 								&nbsp;
 							<?endif;?>
 						</td>
-						<td align="right"><?echo number_format($ar["PERCENT"], 2)?>%</td>
-						<td align="right"><?echo number_format($ar["COUNT"], 0, ".", " ")?></td>
-						<td align="right"><?echo number_format($ar["AVG_PAGE_TIME"], 4, ".", " ")?></td>
+						<td class="bx-digit-cell"><?echo number_format($ar["PERCENT"], 2)?>%</td>
+						<td class="bx-digit-cell"><?echo number_format($ar["COUNT"], 0, ".", " ")?></td>
+						<td class="bx-digit-cell"><?echo number_format($ar["AVG_PAGE_TIME"], 4, ".", " ")?></td>
 					</tr>
 				<?endwhile;?>
 				</table>
@@ -474,14 +474,14 @@ elseif(isset($_REQUEST["test"]))
 				<script>
 					CloseWaitWindow();
 					BX('calc').disabled = false;
-					jsUtils.FindChildObject(BX('dev'), 'td', 'title', true).innerHTML = '<?echo
+					jsUtils.FindChildObject(BX('dev'), 'div', 'adm-detail-title', true).innerHTML = '<?echo
 						GetMessage("PERFMON_PANEL_DEV_TITLE2", array(
 							"#mark_value#" => COption::GetOptionString("perfmon", "total_mark_value"),
 							"#hits#" => COption::GetOptionString("perfmon", "total_mark_hits"),
 							"#duration#" => COption::GetOptionString("perfmon", "total_mark_duration"),
 							"#mark_time#" => COption::GetOptionString("perfmon", "total_mark_time"),
 						));?>';
-					BX('tab_dev').innerHTML = '<?echo GetMessage("PERFMON_PANEL_DEV_NAME")." (".COption::GetOptionString("perfmon", "total_mark_value").")";?>';
+					BX('tab_cont_dev').innerHTML = '<?echo GetMessage("PERFMON_PANEL_DEV_NAME")." (".COption::GetOptionString("perfmon", "total_mark_value").")";?>';
 				</script>
 			<?endif;
 			break;
@@ -997,7 +997,7 @@ function ThreadsTest(threads)
 }
 function ThreadsUpdateImage(id, threads_from, threads_to)
 {
-	var img = BX.findChild(BX(id), {'TAG':'IMG'},true);
+	var img = BX.findChild(BX(id), {'tag':'IMG'},true);
 	if(img)
 	{
 		var src = img.src;
@@ -1071,17 +1071,17 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_PAGE_RATE")?></td>
 			<?if($mark_value == "measure"):?>
-				<td align="right"><b>
+				<td class="bx-digit-cell"><b>
 					<script>setTimeout('MeasureAll();', 500);</script>
 					<div id="page_rate_result_hidden" style="display:none"></div>
 					<div id="page_rate_result"><?echo GetMessage("PERFMON_PANEL_MEASURE")?></div>
 				</b></td>
 			<?elseif(strlen($mark_value) > 0):?>
-				<td align="right"><b><?echo $mark_value?></b></td>
+				<td class="bx-digit-cell"><b><?echo $mark_value?></b></td>
 			<?else:?>
-				<td align="right"><b><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></b></td>
+				<td class="bx-digit-cell"><b><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></b></td>
 			<?endif?>
-			<td align="right">30</td>
+			<td class="bx-digit-cell">30</td>
 			<td>&nbsp;</td>
 		</tr>
 		<?
@@ -1090,13 +1090,13 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_PAGE_TIME")?></td>
 			<?if($mark_value == "measure"):?>
-				<td align="right" id="page_time_result"><?echo GetMessage("PERFMON_PANEL_MEASURE")?></td>
+				<td class="bx-digit-cell" id="page_time_result"><?echo GetMessage("PERFMON_PANEL_MEASURE")?></td>
 			<?elseif(strlen($mark_value) > 0):?>
-				<td align="right" id="page_time_result"><?echo $mark_value?></td>
+				<td class="bx-digit-cell" id="page_time_result"><?echo $mark_value?></td>
 			<?else:?>
-				<td align="right" id="page_time_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
+				<td class="bx-digit-cell" id="page_time_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
 			<?endif?>
-			<td align="right">0.0330</td>
+			<td class="bx-digit-cell">0.0330</td>
 			<td><?echo GetMessage("PERFMON_PANEL_PAGE_TIME_UNITS")?></td>
 		</tr>
 		<?
@@ -1105,11 +1105,11 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_CPU")?></td>
 			<?if(strlen($mark_value) > 0):?>
-				<td align="right" id="mark_php_cpu_value_result"><?echo $mark_value?></td>
+				<td class="bx-digit-cell" id="mark_php_cpu_value_result"><?echo $mark_value?></td>
 			<?else:?>
-				<td align="right" id="mark_php_cpu_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
+				<td class="bx-digit-cell" id="mark_php_cpu_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
 			<?endif?>
-			<td align="right">9.0</td>
+			<td class="bx-digit-cell">9.0</td>
 			<td><?echo GetMessage("PERFMON_PANEL_CPU_UNITS")?></td>
 		</tr>
 		<?
@@ -1118,11 +1118,11 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_FILES")?></td>
 			<?if(strlen($mark_value) > 0):?>
-				<td align="right" id="mark_php_files_value_result"><?echo $mark_value?></td>
+				<td class="bx-digit-cell" id="mark_php_files_value_result"><?echo $mark_value?></td>
 			<?else:?>
-				<td align="right" id="mark_php_files_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
+				<td class="bx-digit-cell" id="mark_php_files_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
 			<?endif?>
-			<td align="right">10 000</td>
+			<td class="bx-digit-cell">10 000</td>
 			<td><?echo GetMessage("PERFMON_PANEL_FILES_UNITS")?></td>
 		</tr>
 		<?
@@ -1131,11 +1131,11 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_MAIL")?></td>
 			<?if(strlen($mark_value) > 0):?>
-				<td align="right" id="mark_php_mail_value_result"><?echo $mark_value?></td>
+				<td class="bx-digit-cell" id="mark_php_mail_value_result"><?echo $mark_value?></td>
 			<?else:?>
-				<td align="right" id="mark_php_mail_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
+				<td class="bx-digit-cell" id="mark_php_mail_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
 			<?endif?>
-			<td align="right">0.0100</td>
+			<td class="bx-digit-cell">0.0100</td>
 			<td><?echo GetMessage("PERFMON_PANEL_MAIL_UNITS")?></td>
 		</tr>
 		<?
@@ -1144,13 +1144,13 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_SESSION")?><div id="session_time_result_hidden" style="display:none"></div></td>
 			<?if($mark_value == -1):?>
-				<td align="right" id="session_time_result"><?echo GetMessage("PERFMON_PANEL_SESSION_ERR")?><span class="required"><sup>3</sup></td>
+				<td class="bx-digit-cell" id="session_time_result"><?echo GetMessage("PERFMON_PANEL_SESSION_ERR")?><span class="required"><sup>3</sup></td>
 			<?elseif(strlen($mark_value) > 0):?>
-				<td align="right" id="session_time_result"><?echo $mark_value?></td>
+				<td class="bx-digit-cell" id="session_time_result"><?echo $mark_value?></td>
 			<?else:?>
-				<td align="right" id="session_time_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
+				<td class="bx-digit-cell" id="session_time_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
 			<?endif?>
-			<td align="right">0.0002</td>
+			<td class="bx-digit-cell">0.0002</td>
 			<td><?echo GetMessage("PERFMON_PANEL_SESSION_UNITS")?></td>
 		</tr>
 		<?
@@ -1159,11 +1159,11 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_PHP")?></td>
 			<?if(strlen($mark_value) > 0):?>
-				<td align="right" id="mark_php_is_good_result"><?echo ($mark_value == "N"? "<span class=\"errortext\">".GetMessage("PERFMON_PANEL_MARK_PHP_IS_NO_GOOD")."</span>": GetMessage("PERFMON_PANEL_MARK_PHP_IS_GOOD"))?></td>
+				<td class="bx-digit-cell" id="mark_php_is_good_result"><?echo ($mark_value == "N"? "<span class=\"errortext\">".GetMessage("PERFMON_PANEL_MARK_PHP_IS_NO_GOOD")."</span>": GetMessage("PERFMON_PANEL_MARK_PHP_IS_GOOD"))?></td>
 			<?else:?>
-				<td align="right" id="mark_php_is_good_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
+				<td class="bx-digit-cell" id="mark_php_is_good_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
 			<?endif?>
-			<td align="right"><?echo GetMessage("PERFMON_PANEL_MARK_PHP_IS_GOOD")?></td>
+			<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_MARK_PHP_IS_GOOD")?></td>
 			<td><a href="perfmon_php.php?lang=<?echo LANGUAGE_ID?>"><?echo GetMessage("PERFMON_PANEL_PHP_REC")?></a></td>
 		</tr>
 		<?
@@ -1179,11 +1179,11 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_MARK_DB_INSERT_VALUE", array("#database_type#" => $db_type))?></td>
 			<?if(strlen($mark_value) > 0):?>
-				<td align="right" id="mark_db_insert_value_result"><?echo $mark_value?></td>
+				<td class="bx-digit-cell" id="mark_db_insert_value_result"><?echo $mark_value?></td>
 			<?else:?>
-				<td align="right" id="mark_db_insert_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
+				<td class="bx-digit-cell" id="mark_db_insert_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
 			<?endif?>
-			<td align="right">5 600</td>
+			<td class="bx-digit-cell">5 600</td>
 			<td><?echo GetMessage("PERFMON_PANEL_MARK_DB_INSERT_UNITS")?></td>
 		</tr>
 		<?
@@ -1192,11 +1192,11 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_MARK_DB_READ_VALUE", array("#database_type#" => $db_type))?></td>
 			<?if(strlen($mark_value) > 0):?>
-				<td align="right" id="mark_db_read_value_result"><?echo $mark_value?></td>
+				<td class="bx-digit-cell" id="mark_db_read_value_result"><?echo $mark_value?></td>
 			<?else:?>
-				<td align="right" id="mark_db_read_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
+				<td class="bx-digit-cell" id="mark_db_read_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
 			<?endif?>
-			<td align="right">7 800</td>
+			<td class="bx-digit-cell">7 800</td>
 			<td><?echo GetMessage("PERFMON_PANEL_MARK_DB_READ_UNITS")?></td>
 		</tr>
 		<?
@@ -1205,11 +1205,11 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_MARK_DB_UPDATE_VALUE", array("#database_type#" => $db_type))?></td>
 			<?if(strlen($mark_value) > 0):?>
-				<td align="right" id="mark_db_update_value_result"><?echo $mark_value?></td>
+				<td class="bx-digit-cell" id="mark_db_update_value_result"><?echo $mark_value?></td>
 			<?else:?>
-				<td align="right" id="mark_db_update_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
+				<td class="bx-digit-cell" id="mark_db_update_value_result"><?echo GetMessage("PERFMON_PANEL_UNKNOWN")?></td>
 			<?endif?>
-			<td align="right">5 800</td>
+			<td class="bx-digit-cell">5 800</td>
 			<td><?echo GetMessage("PERFMON_PANEL_MARK_DB_UPDATE_UNITS")?></td>
 		</tr>
 		</table>
@@ -1217,9 +1217,10 @@ else
 	</tr>
 	<tr>
 		<td>
+	<br>
 	<?echo bitrix_sessid_post();?>
 	<input type="hidden" name="lang" value="<?echo LANGUAGE_ID?>">
-	<input type="submit" name="calc" id="calc" value="<?echo GetMessage("PERFMON_PANEL_BTN_TEST")?>" <?if($RIGHT < "W" || COption::GetOptionString("perfmon", "total_mark_value") == "measure") echo "disabled"?>>
+	<input type="submit" name="calc" id="calc" value="<?echo GetMessage("PERFMON_PANEL_BTN_TEST")?>" <?if($RIGHT < "W" || COption::GetOptionString("perfmon", "total_mark_value") == "measure") echo "disabled"?> class="adm-btn-save">
 		</td>
 	</tr>
 <?$tabControl->BeginNextTab();?>
@@ -1234,19 +1235,19 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_COMPONENT_CACHE")?></td>
 			<?if($bComponentCache):?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_COMPONENT_CACHE_ON")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_COMPONENT_CACHE_ON")?></td>
 				<td>&nbsp;</td>
 			<?else:?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_COMPONENT_CACHE_OFF")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_COMPONENT_CACHE_OFF")?></td>
 				<td><a href="cache.php?lang=<?echo LANGUAGE_ID?>"><?echo GetMessage("PERFMON_PANEL_COMPONENT_CACHE_REC")?></a></td>
 			<?endif?>
 		</tr>
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_HTML_CACHE")?></td>
 			<?if($bHTMLCache):?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_HTML_CACHE_ON")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_HTML_CACHE_ON")?></td>
 			<?else:?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_HTML_CACHE_OFF")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_HTML_CACHE_OFF")?></td>
 			<?endif?>
 			<?if($bExtraModule || $bHTMLCache):?>
 				<td>&nbsp;</td>
@@ -1258,10 +1259,10 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_STAT_SAVE_PATH")?></td>
 			<?if($statistic_path):?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_STAT_SAVE_PATH_ON")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_STAT_SAVE_PATH_ON")?></td>
 				<td><a href="settings.php?lang=<?echo LANGUAGE_ID?>&amp;mid=statistic&amp;tabControl_active_tab=edit2&amp;back_url_settings=<?echo urlencode($APPLICATION->GetCurPageParam("tabControl_active_tab=bitrix", array("tabControl_active_tab")))?>"><?echo GetMessage("PERFMON_PANEL_STAT_SAVE_PATH_REC")?></a></td>
 			<?else:?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_STAT_SAVE_PATH_OFF")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_STAT_SAVE_PATH_OFF")?></td>
 				<td>&nbsp;</td>
 			<?endif?>
 		</tr>
@@ -1270,10 +1271,10 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS")?></td>
 			<?if($adv_banners_fix_shows):?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS_ON")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS_ON")?></td>
 				<td><a href="settings.php?lang=<?echo LANGUAGE_ID?>&amp;mid=advertising&amp;back_url_settings=<?echo urlencode($APPLICATION->GetCurPageParam("tabControl_active_tab=bitrix", array("tabControl_active_tab")))?>"><?echo GetMessage("PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS_REC")?></a></td>
 			<?else:?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS_OFF")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS_OFF")?></td>
 				<td>&nbsp;</td>
 			<?endif?>
 		</tr>
@@ -1282,10 +1283,10 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_SEARCH_STEM")?></td>
 			<?if($search_is_ok):?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_SEARCH_STEM_ON")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_SEARCH_STEM_ON")?></td>
 				<td>&nbsp;</td>
 			<?else:?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_SEARCH_STEM_OFF")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_SEARCH_STEM_OFF")?></td>
 				<td><a href="settings.php?lang=<?echo LANGUAGE_ID?>&amp;mid=search&amp;back_url_settings=<?echo urlencode($APPLICATION->GetCurPageParam("tabControl_active_tab=bitrix", array("tabControl_active_tab")))?>"><?echo GetMessage("PERFMON_PANEL_SEARCH_STEM_REC")?></a></td>
 			<?endif?>
 		</tr>
@@ -1314,16 +1315,16 @@ else
 				break;
 			}
 			?>
-			<td align="right"><?echo $cache_type?></td>
+			<td class="bx-digit-cell"><?echo $cache_type?></td>
 			<td><?echo GetMessage("PERFMON_PANEL_CACHE_STORAGE_REC");?></td>
 		</tr>
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_MANAGED_CACHE")?></td>
 			<?if($bManagedCache):?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_MANAGED_CACHE_ON")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_MANAGED_CACHE_ON")?></td>
 				<td>&nbsp;</td>
 			<?else:?>
-				<td align="right"><a href="javascript:void()" OnClick="BX('managed_cache_details').style.display='block';return false;"><?echo GetMessage("PERFMON_PANEL_MANAGED_CACHE_OFF")?></a><div id="managed_cache_details" style="display:none"><?echo implode("<br>", $arConstants)?></div></td>
+				<td class="bx-digit-cell"><a href="javascript:void()" OnClick="BX('managed_cache_details').style.display='block';return false;"><?echo GetMessage("PERFMON_PANEL_MANAGED_CACHE_OFF")?></a><div id="managed_cache_details" style="display:none"><?echo implode("<br>", $arConstants)?></div></td>
 				<td><?echo GetMessage("PERFMON_PANEL_MANAGED_CACHE_REC", array(
 					"#file#" => (
 						IsModuleInstalled('fileman') && ($USER->CanDoOperation('fileman_admin_files') || $USER->CanDoOperation('fileman_edit_existent_files'))?
@@ -1337,10 +1338,10 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_ENC_MODULES")?></td>
 			<?if($bEncodedModules):?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_ENC_MODULES_OFF")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_ENC_MODULES_OFF")?></td>
 				<td>&nbsp;</td>
 			<?else:?>
-				<td align="right"><a href="javascript:void()" OnClick="BX('encoded_modules_details').style.display='block';return false;"><?echo GetMessage("PERFMON_PANEL_ENC_MODULES_ON")?></a><div id="encoded_modules_details" style="display:none"><?echo implode("<br>", $arEncodedModules)?></div></td>
+				<td class="bx-digit-cell"><a href="javascript:void()" OnClick="BX('encoded_modules_details').style.display='block';return false;"><?echo GetMessage("PERFMON_PANEL_ENC_MODULES_ON")?></a><div id="encoded_modules_details" style="display:none"><?echo implode("<br>", $arEncodedModules)?></div></td>
 				<td><?echo GetMessage("PERFMON_PANEL_ENC_MODULES_REC");?></td>
 			<?endif?>
 		</tr>
@@ -1348,10 +1349,10 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_DB_OPTIMIZE")?></td>
 			<?if($bOptimized):?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_DB_OPTIMIZE_IS_OK")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_DB_OPTIMIZE_IS_OK")?></td>
 				<td>&nbsp;</td>
 			<?else:?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_DB_OPTIMIZE_NEEDED")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_DB_OPTIMIZE_NEEDED")?></td>
 				<td><a href="repair_db.php?lang=<?echo LANGUAGE_ID?>&amp;optimize_tables=Y"><?echo GetMessage("PERFMON_PANEL_DB_OPTIMIZE_REC")?></a></td>
 			<?endif?>
 		</tr>
@@ -1359,10 +1360,10 @@ else
 		<tr>
 			<td nowrap><?echo GetMessage("PERFMON_PANEL_COMPRESSION")?></td>
 			<?if($bCompression):?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_COMPRESSION_IS_OK")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_COMPRESSION_IS_OK")?></td>
 				<td>&nbsp;</td>
 			<?else:?>
-				<td align="right"><?echo GetMessage("PERFMON_PANEL_COMPRESSION_NEEDED")?></td>
+				<td class="bx-digit-cell"><?echo GetMessage("PERFMON_PANEL_COMPRESSION_NEEDED")?></td>
 				<td><a href="module_admin.php?lang=<?echo LANGUAGE_ID?>"><?echo GetMessage("PERFMON_PANEL_COMPRESSION_REC")?></a></td>
 			<?endif?>
 		</tr>
@@ -1391,7 +1392,7 @@ else
 			?>
 		<?else:?>
 			<table border="0" cellpadding="0" cellspacing="0" class="internal" width="100%">
-			<tr class="heading" valign="top">
+			<tr class="heading">
 				<td width="40%" align="center"><?echo GetMessage("PERFMON_PANEL_DEV_SCRIPT_NAME")?></td>
 				<td width="0%" align="center"><?echo GetMessage("PERFMON_PANEL_DEV_WARNINGS"),"<span class=\"required\"><sup>2</sup></span>"?></td>
 				<td width="20%" align="center"><?echo GetMessage("PERFMON_PANEL_DEV_PERCENT")?></td>
@@ -1407,8 +1408,8 @@ else
 				$i--;
 			?>
 			<tr>
-				<td><a href="perfmon_hit_list.php?lang=<?echo LANGUAGE_ID?>&amp;set_filter=Y&amp;find_script_name=<?echo urlencode(htmlspecialchars($ar["SCRIPT_NAME"]))?>"><?echo $ar["SCRIPT_NAME"]?></a></td>
-				<td align="right" id="err_count_<?echo $i?>"><?
+				<td><a href="perfmon_hit_list.php?lang=<?echo LANGUAGE_ID?>&amp;set_filter=Y&amp;find_script_name=<?echo urlencode(htmlspecialcharsbx($ar["SCRIPT_NAME"]))?>"><?echo $ar["SCRIPT_NAME"]?></a></td>
+				<td class="bx-digit-cell" id="err_count_<?echo $i?>"><?
 					$rsHit = CPerfomanceHit::GetList(array("COUNT" => "DESC"), array(
 						'=SCRIPT_NAME' => $ar["SCRIPT_NAME"],
 						'=IS_ADMIN' => 'N',
@@ -1436,7 +1437,7 @@ else
 						while($arHit = $rsHit->Fetch())
 						{
 							if($arHit["COUNT"] >= $ar["COUNT"])
-								$arComps[] = htmlspecialchars($arHit["COMPONENT_NAME"]);
+								$arComps[] = htmlspecialcharsbx($arHit["COMPONENT_NAME"]);
 						}
 					}
 
@@ -1445,7 +1446,7 @@ else
 						$err_count++;
 						$sHint .= '<tr><td nowrap><b>'.GetMessage("PERFMON_PANEL_DEV_WARN2").' '.GetMessage("PERFMON_PANEL_DEV_WARN2_DESC").'</b> <ul style="font-size:100%">';
 						foreach($arComps as $component_name)
-							$sHint .= '<li><a href="perfmon_comp_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_hit_script_name='.urlencode(htmlspecialchars($ar["SCRIPT_NAME"])).'&amp;find_component_name='.urlencode($component_name).'">'.$component_name.'</a></li>';
+							$sHint .= '<li><a href="perfmon_comp_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_hit_script_name='.urlencode(htmlspecialcharsbx($ar["SCRIPT_NAME"])).'&amp;find_component_name='.urlencode($component_name).'">'.$component_name.'</a></li>';
 						$sHint .= '</ul></td></tr>';
 					}
 
@@ -1465,7 +1466,7 @@ else
 							$sHint .= '<tr><td nowrap><b>'.GetMessage("PERFMON_PANEL_DEV_WARN3").'</b> '.GetMessage("PERFMON_PANEL_DEV_WARN3_DESC").'<ul style="font-size:100%">';
 							$bFirst = false;
 						}
-						$sHint .= '<li>'.CFile::FormatSize($arHit["MAX_CACHE_SIZE"], 0).' <a href="perfmon_comp_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_hit_script_name='.urlencode(htmlspecialchars($ar["SCRIPT_NAME"])).'&amp;find_component_name='.urlencode(htmlspecialchars($arHit["COMPONENT_NAME"])).'">'.htmlspecialchars($arHit["COMPONENT_NAME"]).'</a></li>';
+						$sHint .= '<li>'.CFile::FormatSize($arHit["MAX_CACHE_SIZE"], 0).' <a href="perfmon_comp_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_hit_script_name='.urlencode(htmlspecialcharsbx($ar["SCRIPT_NAME"])).'&amp;find_component_name='.urlencode(htmlspecialcharsbx($arHit["COMPONENT_NAME"])).'">'.htmlspecialcharsbx($arHit["COMPONENT_NAME"]).'</a></li>';
 					}
 
 					if(!$bFirst)
@@ -1484,9 +1485,9 @@ else
 						&nbsp;
 					<?endif;?>
 				</td>
-				<td align="right"><?echo number_format($ar["PERCENT"], 2)?>%</td>
-				<td align="right"><?echo number_format($ar["COUNT"], 0, ".", " ")?></td>
-				<td align="right"><?echo number_format($ar["AVG_PAGE_TIME"], 4, ".", " ")?></td>
+				<td class="bx-digit-cell"><?echo number_format($ar["PERCENT"], 2)?>%</td>
+				<td class="bx-digit-cell"><?echo number_format($ar["COUNT"], 0, ".", " ")?></td>
+				<td class="bx-digit-cell"><?echo number_format($ar["AVG_PAGE_TIME"], 4, ".", " ")?></td>
 			</tr>
 			<?endwhile;?>
 			</table>
@@ -1497,43 +1498,43 @@ else
 	</tr>
 <?$tabControl->BeginNextTab();
 	?>
-			<tr>
-				<td nowrap><?echo GetMessage("PERFMON_PANEL_CLUSTER_THREADS_FROM")?></td>
-				<td><input type="text" size="3" value="<?echo COption::GetOptionInt("perfmon", "test_threads_from")?>" id="threads_from"></td>
-			</tr>
-			<tr>
-				<td nowrap><?echo GetMessage("PERFMON_PANEL_CLUSTER_THREADS_TO")?></td>
-				<td><input type="text" size="3" value="<?echo COption::GetOptionInt("perfmon", "test_threads_to")?>" id="threads_to"></td>
-			</tr>
-			<tr>
-				<td nowrap><?echo GetMessage("PERFMON_PANEL_CLUSTER_THREADS_STEP")?></td>
-				<td><input type="text" size="3" value="<?echo COption::GetOptionInt("perfmon", "test_threads_step")?>" id="threads_step"></td>
-			</tr>
-			<tr>
-				<td nowrap><?echo GetMessage("PERFMON_PANEL_CLUSTER_SERVER_NAME")?></td>
-				<td><input type="text" size="35" value="<?echo htmlspecialchars(COption::GetOptionString("perfmon", "test_server_name"))?>" id="server_name"></td>
-			</tr>
-			<tr>
-				<td nowrap><?echo GetMessage("PERFMON_PANEL_CLUSTER_SERVER_URL")?></td>
-				<td><input type="text" size="35" value="<?echo htmlspecialchars(COption::GetOptionString("perfmon", "test_server_url"))?>" id="server_url"></td>
-			</tr>
-			<tr>
-				<td nowrap><?echo GetMessage("PERFMON_PANEL_CLUSTER_THREADS_DURATION")?></td>
-				<td><input type="text" size="3" value="<?echo COption::GetOptionInt("perfmon", "test_threads_duration")?>" id="threads_duration"></td>
-			</tr>
-			<tr>
-				<td colspan="2"><input type="button" id="threads_button" value="<?echo GetMessage("PERFMON_PANEL_CLUSTER_START")?>" onclick="ThreadsTest()"></td>
-			</tr>
-			<tr class="heading">
-				<td colspan="2"><?echo GetMessage("PERFMON_PANEL_CLUSTER_RESULTS")?></td>
-			</tr>
+	<tr>
+		<td nowrap width="40%"><?echo GetMessage("PERFMON_PANEL_CLUSTER_THREADS_FROM")?></td>
+		<td width="60%"><input type="text" size="3" value="<?echo COption::GetOptionInt("perfmon", "test_threads_from")?>" id="threads_from"></td>
+	</tr>
+	<tr>
+		<td nowrap><?echo GetMessage("PERFMON_PANEL_CLUSTER_THREADS_TO")?></td>
+		<td><input type="text" size="3" value="<?echo COption::GetOptionInt("perfmon", "test_threads_to")?>" id="threads_to"></td>
+	</tr>
+	<tr>
+		<td nowrap><?echo GetMessage("PERFMON_PANEL_CLUSTER_THREADS_STEP")?></td>
+		<td><input type="text" size="3" value="<?echo COption::GetOptionInt("perfmon", "test_threads_step")?>" id="threads_step"></td>
+	</tr>
+	<tr>
+		<td nowrap><?echo GetMessage("PERFMON_PANEL_CLUSTER_SERVER_NAME")?></td>
+		<td><input type="text" size="35" value="<?echo htmlspecialcharsbx(COption::GetOptionString("perfmon", "test_server_name"))?>" id="server_name"></td>
+	</tr>
+	<tr>
+		<td nowrap><?echo GetMessage("PERFMON_PANEL_CLUSTER_SERVER_URL")?></td>
+		<td><input type="text" size="35" value="<?echo htmlspecialcharsbx(COption::GetOptionString("perfmon", "test_server_url"))?>" id="server_url"></td>
+	</tr>
+	<tr>
+		<td nowrap><?echo GetMessage("PERFMON_PANEL_CLUSTER_THREADS_DURATION")?></td>
+		<td><input type="text" size="3" value="<?echo COption::GetOptionInt("perfmon", "test_threads_duration")?>" id="threads_duration"></td>
+	</tr>
+	<tr>
+		<td colspan="2"><input type="button" id="threads_button" value="<?echo GetMessage("PERFMON_PANEL_CLUSTER_START")?>" onclick="ThreadsTest()"></td>
+	</tr>
+	<tr class="heading">
+		<td colspan="2"><?echo GetMessage("PERFMON_PANEL_CLUSTER_RESULTS")?></td>
+	</tr>
 
-	<tr valign="top">
-		<td id="threads_result">
+	<tr>
+		<td id="threads_result" class="adm-detail-valign-top">
 			<div style="text-align:center;">
 			&nbsp;
 			<table border="0" cellpadding="0" cellspacing="0" class="internal" width="100%">
-			<tr class="heading" valign="top">
+			<tr class="heading">
 				<td align="center"><?echo GetMessage("PERFMON_PANEL_CLUSTER_NN")?></td>
 				<td align="center"><?echo GetMessage("PERFMON_PANEL_CLUSTER_CONCURRENCY")?></td>
 				<td align="center"><?echo GetMessage("PERFMON_PANEL_CLUSTER_HITS")?></td>
@@ -1550,13 +1551,13 @@ else
 				$i++;
 			?>
 			<tr>
-				<td align="right"><?echo $i?></td>
-				<td align="right"><?echo intval($ar["THREADS"])?></td>
-				<td align="right"><?echo intval($ar["HITS"])?></td>
-				<td align="right"><?echo intval($ar["ERRORS"])?></td>
-				<td align="right"><?echo number_format($ar["PAGES_PER_SECOND"], 2, ".", " ")?></td>
-				<td align="right"><?echo number_format($ar["PAGE_EXEC_TIME"], 6, ".", " ")?></td>
-				<td align="right"><?echo number_format($ar["PAGE_RESP_TIME"], 6, ".", " ")?></td>
+				<td class="bx-digit-cell"><?echo $i?></td>
+				<td class="bx-digit-cell"><?echo intval($ar["THREADS"])?></td>
+				<td class="bx-digit-cell"><?echo intval($ar["HITS"])?></td>
+				<td class="bx-digit-cell"><?echo intval($ar["ERRORS"])?></td>
+				<td class="bx-digit-cell"><?echo number_format($ar["PAGES_PER_SECOND"], 2, ".", " ")?></td>
+				<td class="bx-digit-cell"><?echo number_format($ar["PAGE_EXEC_TIME"], 6, ".", " ")?></td>
+				<td class="bx-digit-cell"><?echo number_format($ar["PAGE_RESP_TIME"], 6, ".", " ")?></td>
 			</tr>
 			<?endwhile;?>
 			<?if($i==0):?>
@@ -1567,14 +1568,14 @@ else
 			</table>
 			</div>
 		</td><?$width = 400; $height = 200;?>
-		<td width="<?echo $width?>">
-			<div id="img_PAGES_PER_SECOND" style="text-align:center">
-			<?echo GetMessage("PERFMON_PANEL_CLUSTER_PAGES_PER_SECOND")?>
+		<td width="<?echo $width?>" align="center" class="adm-detail-valign-top">
+			<div id="img_PAGES_PER_SECOND">
+			<?echo GetMessage("PERFMON_PANEL_CLUSTER_PAGES_PER_SECOND")?><br>
 			<img class="graph" src="/bitrix/admin/perfmon_cluster_graph.php?rand=<?=rand()?>&amp;find_data_type=PAGES_PER_SECOND&amp;width=<?echo $width?>&amp;height=<?echo $height?>&amp;lang=<?echo LANGUAGE_ID?>" width="<?echo $width?>" height="<?echo $height?>">
 			</div>
 			<br />
-			<div id="img_PAGE_EXEC_TIME" style="text-align:center">
-			<?echo GetMessage("PERFMON_PANEL_CLUSTER_PAGE_TIME")?>
+			<div id="img_PAGE_EXEC_TIME">
+			<?echo GetMessage("PERFMON_PANEL_CLUSTER_PAGE_TIME")?><br>
 			<img class="graph" src="/bitrix/admin/perfmon_cluster_graph.php?rand=<?=rand()?>&amp;find_data_type=PAGE_EXEC_TIME&amp;width=<?echo $width?>&amp;height=<?echo $height?>&amp;lang=<?echo LANGUAGE_ID?>" width="<?echo $width?>" height="<?echo $height?>">
 			</div>
 		</td>

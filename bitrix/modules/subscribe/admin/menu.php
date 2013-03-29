@@ -9,7 +9,6 @@ if($APPLICATION->GetGroupRight("subscribe")!="D")
 		"sort" => 200,
 		"text" => GetMessage("mnu_sect"),
 		"title" => GetMessage("mnu_sect_title"),
-		"url" => "subscr_index.php?lang=".LANGUAGE_ID,
 		"icon" => "subscribe_menu_icon",
 		"page_icon" => "subscribe_page_icon",
 		"items_id" => "menu_subscribe",

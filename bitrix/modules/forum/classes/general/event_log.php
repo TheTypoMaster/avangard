@@ -90,7 +90,7 @@ class CEventForum
 		{
 			if (!COption::GetOptionString("forum", "LOGS", "Q") <= "A")
 			{
-			    $arFilter["FORUM"] = GetMessage("LOG_FORUM");
+				$arFilter["FORUM"] = GetMessage("LOG_FORUM");
 			}
 		}
 		return  $arFilter;
@@ -143,7 +143,7 @@ class CEventForum
 						$EventPrint = GetMessage("LOG_FORUM_MESSAGE_DELETE");
 						break;
 				}
-	        }
+			}
 			else
 	// topics
 			{

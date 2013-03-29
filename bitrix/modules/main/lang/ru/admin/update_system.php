@@ -169,7 +169,7 @@ $MESS["SUP_SUBA_UI_LOGIN_EXIST"] = "Логин существующего пользователя";
 $MESS["SUP_SUBA_CONFIRM_ERROR"] = "Не введены обязательные поля!";
 $MESS["SUP_MYSQL_L4111"] = "Вы используете версию MySql #VERS#, продукту для работы требуется версия не ниже 4.1.11. Пожалуйста, обновите MySql или обратитесь в службу технической поддержки.";
 $MESS["SUP_MSSQL_L4111"] = "Вы используете версию MSSql #VERS#, продукту для работы требуется версия не ниже 9.0 (Microsoft SQL Server 2005 и выше). Пожалуйста, обновите MSSql или обратитесь в службу технической поддержки.";
-$MESS["SUP_PHP_L439"] = "Вы используете версию PHP #VERS#, продукту для работы требуется версия не ниже 5.0.0. Пожалуйста, обновите PHP или обратитесь в службу технической поддержки вашего хостинга.";
+$MESS["SUP_PHP_L439"] = "Вы используете версию PHP #VERS#, продукту для работы требуется версия не ниже 5.3.0. Пожалуйста, обновите PHP или обратитесь в службу технической поддержки вашего хостинга.";
 $MESS["SUP_MYSQL_LCP_ERROR"] = "Кодировка используемой вами базы данных MySql '#CP1#', системе обновлений необходима кодировка '#CP#'. Обратитесь к администратору MySql для выполнения запроса alter database #DB# default character set #CP#";
 $MESS["SUP_MYSQL_COLL_ERROR"] = "Collation используемой вами базы данных MySql '#CD#' не совпадает с collation соединения '#CC#'";
 $MESS["SUP_CHECK_UPDATES_PARTNER"] = "Обновления партнерских модулей";
@@ -178,7 +178,7 @@ $MESS["SUP_USERS_IS_NOT_LIMITED"] = "Лицензирование по пользователям не производ
 $MESS["SUP_CURRENT_NUMBER_OF_USERS1"] = "Активных пользователей: <a href=\"/bitrix/admin/user_admin.php?lang=ru&find_intranet_users=Y&set_filter=Y\">#NUM#</a>.";
 $MESS["SUP_RESERVED_KEY_HINT"] = "Перед использованием системы обновлений вам необходимо активировать ваш лицензионный ключ.";
 $MESS["SUP_SYSTEM_MESSAGE"] = "Внимание";
-$MESS["SUP_CANT_LOCK_UPDATES"] = "Система обновлений должна быть запущена в одном окне браузера.";
+$MESS["SUP_CANT_LOCK_UPDATES"] = "Система обновлений должна быть запущена в одном окне браузера";
 $MESS["SUP_NEW_UPDATE_SYSTEM_HINT"] = "Вам необходимо обновить систему обновлений";
 $MESS["SUP_HTTP_BX_MASTER"] = "Кластер можно обновлять только с мастер-копии по адресу <a href=\"#ADDR#\">#ADDR#</a>";
 $MESS["SUP_CHECK_LIC"] = "<a href=\"http://www.1c-bitrix.ru/support/key_info.php?license_key=#LICENSE_KEY#\" target=\"_blank\">Проверить ключ</a>";

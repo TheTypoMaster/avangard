@@ -209,7 +209,12 @@ function JsTc(oHandler, sParams, sParser) // TC = TagCloud
 
 			oDiv.onmouseover = function(){t.Init(); this.className='search-popup-row-active';};
 			oDiv.onmouseout = function(){t.Init(); this.className='search-popup-row';};
-			oDiv.onclick = function(){t.oActive = this.id};
+			oDiv.onclick = function(e){
+					t.oActive = this.id; 
+					t.Replace(); 
+					t.Destroy(); 					
+					BX.PreventDefault(e);
+				};
 
 			oSpan = oDiv.appendChild(document.createElement("DIV"));
 			oSpan.id = oDiv.id + '_NAME';

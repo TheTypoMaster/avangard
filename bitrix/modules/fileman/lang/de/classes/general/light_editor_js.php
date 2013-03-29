@@ -87,4 +87,5 @@ $MESS["AddLITitle"] = "Einen Listenpunkt hinzufügen (Enter)";
 $MESS["DelListItem"] = "Einen Listenpunkt löschen";
 $MESS["ResizerTitle"] = "Die Größe ändern";
 $MESS["CodeDel"] = "Klicken Sie auf Shift+Del, um das ganze Code-Fragment zu löschen";
+$MESS["OnPasteProcessing"] = "Neuer Text wird verarbeitet...";
 ?>

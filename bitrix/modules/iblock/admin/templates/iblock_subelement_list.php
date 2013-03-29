@@ -5,31 +5,31 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 global $APPLICATION;
 
 /*
- * B_ADMIN_SUBELEMENTS
- * if defined and equal 1 - working, another die
- * B_ADMIN_SUBELEMENTS_LIST - true/false
- * if not defined - die
- * if equal true - get list mode
- * 	include prolog and epilog
- * other - get simple html
- *
- * need variables
- * 		$strSubElementAjaxPath - path for ajax
- * 		$strSubIBlockType - iblock type
- * 		$arSubIBlockType - iblock type array
- * 		$intSubIBlockID - iblock ID
- * 		$arSubIBlock	- array with info about iblock
- *		$boolSubWorkFlow - workflow and iblock in workflow
- *		$boolSubBizproc - business process and iblock in business
- *		$boolSubCatalog - catalog and iblock in catalog
- *		$arSubCatalog - info about catalog (with product_iblock_id iand sku_property_id info)
- *		$intSubPropValue - ID for filter
- *		$strSubTMP_ID - string identifier for link with new product ($intSubPropValue = 0, in edit form send -1)
- *
- *
- *created variables
- *		$arSubElements - array subelements for product with ID = 0
- */
+* B_ADMIN_SUBELEMENTS
+* if defined and equal 1 - working, another die
+* B_ADMIN_SUBELEMENTS_LIST - true/false
+* if not defined - die
+* if equal true - get list mode
+* 	include prolog and epilog
+* other - get simple html
+*
+* need variables
+* 		$strSubElementAjaxPath - path for ajax
+* 		$strSubIBlockType - iblock type
+* 		$arSubIBlockType - iblock type array
+* 		$intSubIBlockID - iblock ID
+* 		$arSubIBlock	- array with info about iblock
+*		$boolSubWorkFlow - workflow and iblock in workflow
+*		$boolSubBizproc - business process and iblock in business
+*		$boolSubCatalog - catalog and iblock in catalog
+*		$arSubCatalog - info about catalog (with product_iblock_id iand sku_property_id info)
+*		$intSubPropValue - ID for filter
+*		$strSubTMP_ID - string identifier for link with new product ($intSubPropValue = 0, in edit form send -1)
+*
+*
+*created variables
+*		$arSubElements - array subelements for product with ID = 0
+*/
 if ((false == defined('B_ADMIN_SUBELEMENTS')) || (1 != B_ADMIN_SUBELEMENTS))
 	return '';
 if (false == defined('B_ADMIN_SUBELEMENTS_LIST'))
@@ -63,9 +63,9 @@ IncludeModuleLangFile(__FILE__);
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/iblock/classes/general/subelement.php');
 
-$dbrFProps = CIBlockProperty::GetList(array("SORT"=>"ASC","NAME"=>"ASC"),array("IBLOCK_ID"=>$intSubIBlockID,"ACTIVE"=>"Y"));
+$dbrFProps = CIBlockProperty::GetList(array("SORT"=>"ASC","NAME"=>"ASC"),array("IBLOCK_ID"=>$intSubIBlockID,"ACTIVE"=>"Y", "CHECK_PERMISSIONS" => "N"));
 
-$arProps = Array();
+$arProps = array();
 while($arProp = $dbrFProps->GetNext())
 {
 	$arProp["PROPERTY_USER_TYPE"] = (0 < strlen($arProp["USER_TYPE"]) ? CIBlockProperty::GetUserType($arProp["USER_TYPE"]) : array());
@@ -73,10 +73,9 @@ while($arProp = $dbrFProps->GetNext())
 }
 
 $sTableID = "tbl_iblock_sub_element_".md5($strSubIBlockType.".".$intSubIBlockID);
-$oSort = new CAdminSubSorting($sTableID, "id", "asc",'by','order',$strSubElementAjaxPath);
+
 $arHideFields = array('PROPERTY_'.$arCatalog['SKU_PROPERTY_ID']);
-$lAdmin = new CAdminSubList($sTableID, $oSort,$strSubElementAjaxPath,$arHideFields);
-//$lAdmin->bMultipart = true;
+$lAdmin = new CAdminSubList($sTableID,false,$strSubElementAjaxPath,$arHideFields);
 
 // only sku property filter
 $arFilterFields = Array(
@@ -122,10 +121,10 @@ if ((true == defined('B_ADMIN_SUBELEMENTS_LIST')) && (true == B_ADMIN_SUBELEMENT
 				continue;
 			$subID = IntVal($subID);
 
-	   		$arRes = CIBlockElement::GetByID($subID);
-	   		$arRes = $arRes->Fetch();
-	   		if (!$arRes)
-	   			continue;
+			$arRes = CIBlockElement::GetByID($subID);
+			$arRes = $arRes->Fetch();
+			if (!$arRes)
+				continue;
 
 			$WF_ID = $subID;
 			if ($boolSubWorkFlow)
@@ -157,10 +156,6 @@ if ((true == defined('B_ADMIN_SUBELEMENTS_LIST')) && (true == B_ADMIN_SUBELEMENT
 
 			if (
 				$boolSubWorkFlow
-/*				&& (
-					CIBlockElementRights::UserHasRightTo($intSubIBlockID, $subID, "element_edit")
-					&& !CIBlockElementRights::UserHasRightTo($intSubIBlockID, $subID, "element_edit_any_wf_status")
-				) */
 			)
 			{
 				if (!CIBlockElementRights::UserHasRightTo($intSubIBlockID, $subID, "element_edit"))
@@ -190,12 +185,6 @@ if ((true == defined('B_ADMIN_SUBELEMENTS_LIST')) && (true == B_ADMIN_SUBELEMENT
 			}
 			elseif ($bBizproc)
 			{
-/*				$bCanWrite = CIBlockDocument::CanUserOperateDocument(
-					CBPCanUserOperateOperation::WriteDocument,
-					$USER->GetID(),
-					$subID,
-					array("IBlockId" => $intSubIBlockID)
-				); */
 				$bCanWrite = CIBlockDocument::CanUserOperateDocument(
 					CBPCanUserOperateOperation::WriteDocument,
 					$USER->GetID(),
@@ -303,6 +292,7 @@ if ((true == defined('B_ADMIN_SUBELEMENTS_LIST')) && (true == B_ADMIN_SUBELEMENT
 				{
 					$CATALOG_QUANTITY = $arFields["CATALOG_QUANTITY"];
 					$CATALOG_QUANTITY_TRACE = $arFields["CATALOG_QUANTITY_TRACE"];
+					$CATALOG_WEIGHT = $arFields["CATALOG_WEIGHT"];
 
 					if (!CCatalogProduct::GetByID($subID))
 					{
@@ -310,7 +300,9 @@ if ((true == defined('B_ADMIN_SUBELEMENTS_LIST')) && (true == B_ADMIN_SUBELEMENT
 						if (strlen($CATALOG_QUANTITY) > 0)
 							$arCatalogQuantity["QUANTITY"] = $CATALOG_QUANTITY;
 						if (strlen($CATALOG_QUANTITY_TRACE) > 0)
-							$arCatalogQuantity["QUANTITY_TRACE"] = ($CATALOG_QUANTITY_TRACE == "Y") ? "Y" : "N";
+							$arCatalogQuantity["QUANTITY_TRACE"] = (($CATALOG_QUANTITY_TRACE == "Y") ? "Y" : (($CATALOG_QUANTITY_TRACE == "D") ? "D" : "N"));
+						if (strlen($CATALOG_WEIGHT) > 0)
+							$arCatalogQuantity['WEIGHT'] = $CATALOG_WEIGHT;
 						CCatalogProduct::Add($arCatalogQuantity);
 					}
 					else
@@ -319,7 +311,9 @@ if ((true == defined('B_ADMIN_SUBELEMENTS_LIST')) && (true == B_ADMIN_SUBELEMENT
 						if (strlen($CATALOG_QUANTITY) > 0)
 							$arCatalogQuantity["QUANTITY"] = $CATALOG_QUANTITY;
 						if (strlen($CATALOG_QUANTITY_TRACE) > 0)
-							$arCatalogQuantity["QUANTITY_TRACE"] = ($CATALOG_QUANTITY_TRACE == "Y") ? "Y" : "N";
+							$arCatalogQuantity["QUANTITY_TRACE"] = (($CATALOG_QUANTITY_TRACE == "Y") ? "Y" : (($CATALOG_QUANTITY_TRACE == "D") ? "D" : "N"));
+						if (strlen($CATALOG_WEIGHT) > 0)
+							$arCatalogQuantity['WEIGHT'] = $CATALOG_WEIGHT;
 						if (!empty($arCatalogQuantity))
 							CCatalogProduct::Update($subID, $arCatalogQuantity);
 					}
@@ -486,11 +480,11 @@ if ((true == defined('B_ADMIN_SUBELEMENTS_LIST')) && (true == B_ADMIN_SUBELEMENT
 			if (strlen($subID)<=0)
 				continue;
 
-	   		$subID = IntVal($subID);
-	   		$arRes = CIBlockElement::GetByID($subID);
-	   		$arRes = $arRes->Fetch();
-	   		if (!$arRes)
-	   			continue;
+			$subID = IntVal($subID);
+			$arRes = CIBlockElement::GetByID($subID);
+			$arRes = $arRes->Fetch();
+			if (!$arRes)
+				continue;
 
 			$WF_ID = $subID;
 			if ($boolSubWorkFlow)
@@ -662,17 +656,6 @@ if ((true == defined('B_ADMIN_SUBELEMENTS_LIST')) && (true == B_ADMIN_SUBELEMENT
 
 CUtil::InitJSCore(array('translit'));
 
-if (!(defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1))
-{
-	$APPLICATION->SetAdditionalCSS('/bitrix/themes/.default/sub.css');
-	$APPLICATION->AddHeadScript('/bitrix/js/iblock/subelement.js');
-}
-elseif (defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1)
-{
-	?><script type="text/javascript" bxrunfirst="yes" src="/bitrix/js/iblock/subelement.js"></script>
-	<script type="text/javascript" bxrunfirst="yes">BX.loadCSS('/bitrix/themes/.default/sub-public.css');</script><?
-}
-
 $CAdminCalendar_ShowScript = '';
 if (true == B_ADMIN_SUBELEMENTS_LIST)
 	$CAdminCalendar_ShowScript = CAdminCalendar::ShowScript();
@@ -715,7 +698,8 @@ foreach ($arProps as &$arFProps)
 	if ($arSubCatalog['SKU_PROPERTY_ID'] != $arFProps['ID'])
 		$arHeader[] = array("id"=>"PROPERTY_".$arFProps['ID'], "content"=>$arFProps['NAME'], "align"=>($arFProps["PROPERTY_TYPE"]=='N'?"right":"left"), "sort" => ($arFProps["MULTIPLE"]!='Y'? "PROPERTY_".$arFProps['ID'] : ""));
 }
-unset($arFProps);
+if (isset($arFProps))
+	unset($arFProps);
 
 $arWFStatus = Array();
 if ($boolSubWorkFlow)
@@ -737,6 +721,12 @@ if ($boolSubCatalog)
 		"id" => "CATALOG_QUANTITY_TRACE",
 		"content" => GetMessage("IBEL_CATALOG_QUANTITY_TRACE"),
 		"align" => "right",
+	);
+	$arHeader[] = array(
+		"id" => "CATALOG_WEIGHT",
+		"content" => GetMessage("IBEL_CATALOG_WEIGHT"),
+		"align" => "right",
+		"sort" => "CATALOG_WEIGHT",
 	);
 
 	$arCatGroup = Array();
@@ -842,6 +832,9 @@ $arSelectedFields[] = "SITE_ID";
 $arSelectedFields[] = "CODE";
 $arSelectedFields[] = "EXTERNAL_ID";
 
+if (in_array("CATALOG_QUANTITY_TRACE", $arSelectedFields))
+	$arSelectedFields[] = "CATALOG_QUANTITY_TRACE_ORIG";
+
 $arSelectedFieldsMap = array();
 foreach ($arSelectedFields as $field)
 	$arSelectedFieldsMap[$field] = true;
@@ -891,90 +884,8 @@ if ($boolSubCatalog)
 	}
 }
 
-//We need javascript not in excel mode
-if (($_REQUEST["mode"]=='list' || $_REQUEST["mode"]=='frame') && $boolSubCatalog && $boolSubCurrency)
-{
-	?><script type="text/javascript">
-		top.arSubCatalogShowedGroups = new Array();
-		top.arSubExtra = new Array();
-		top.arSubCatalogGroups = new Array();
-		top.SubBaseIndex = "";
-	<?
-	if (is_array($arCatGroup) && !empty($arCatGroup))
-	{
-		$i = 0;
-		$j = 0;
-		foreach ($arCatGroup as &$CatalogGroups)
-		{
-			if (in_array("CATALOG_GROUP_".$CatalogGroups["ID"], $arSelectedFields))
-			{
-				echo "top.arSubCatalogShowedGroups[".$i."]=".$CatalogGroups["ID"].";\n";
-				$i++;
-			}
-			if ($CatalogGroups["BASE"] != "Y")
-			{
-				echo "top.arSubCatalogGroups[".$j."]=".$CatalogGroups["ID"].";\n";
-				$j++;
-			}
-			else
-			{
-				echo "top.SubBaseIndex=".$CatalogGroups["ID"].";\n";
-			}
-		}
-		unset($CatalogGroups);
-	}
-	if (is_array($arCatExtra) && !empty($arCatExtra))
-	{
-		$i = 0;
-		foreach ($arCatExtra as &$CatExtra)
-		{
-			echo "top.arSubExtra[".$CatExtra["ID"]."]=".$CatExtra["PERCENTAGE"].";\n";
-			$i++;
-		}
-		unset($CatExtra);
-	}
-		?>
-		top.SubChangeBasePrice = function(id)
-		{
-			for (var i = 0, cnt = top.arSubCatalogShowedGroups.length; i < cnt; i++)
-			{
-				var pr = top.document.getElementById("CATALOG_PRICE["+id+"]"+"["+top.arSubCatalogShowedGroups[i]+"]");
-				if (pr.disabled)
-				{
-					var price = top.document.getElementById("CATALOG_PRICE["+id+"]"+"["+top.SubBaseIndex+"]").value;
-					if (price > 0)
-					{
-						var extraId = document.getElementById("CATALOG_EXTRA["+id+"]"+"["+top.arSubCatalogShowedGroups[i]+"]").value;
-						var esum = parseFloat(price) * (1 + top.arSubExtra[extraId] / 100);
-						var eps = 1.00/Math.pow(10, 6);
-						esum = Math.round((esum+eps)*100)/100;
-					}
-					else
-						var esum = "";
-
-					pr.value = esum;
-				}
-			}
-		}
-
-		top.SubChangeBaseCurrency = function(id)
-		{
-			var currency = top.document.getElementById("CATALOG_CURRENCY["+id+"]["+top.SubBaseIndex+"]");
-			for (var i = 0, cnt = top.arSubCatalogShowedGroups.length; i < cnt; i++)
-			{
-				var pr = top.document.getElementById("CATALOG_CURRENCY["+id+"]["+top.arSubCatalogShowedGroups[i]+"]");
-				if (pr.disabled)
-				{
-					pr.selectedIndex = currency.selectedIndex;
-				}
-			}
-		}
-	</script>
-	<?
-}
 if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 {
-
 	$wf_status_id = "";
 	/*if ($boolSubWorkFlow && (strpos($find_el_status_id, "-") !== false))
 	{
@@ -1036,20 +947,23 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 		$rsData->SetTableID($sTableID);
 		$wf_status_id = false;
 	} */
+	if(isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "excel")
+		$arNavParams = false;
+	else
+		$arNavParams = array("nPageSize"=>CAdminSubResult::GetNavSize($sTableID, 20, $lAdmin->GetListUrl(true)));
 
 	$rsData = CIBlockElement::GetList(
 		array($by=>$order),
 		$arFilter,
 		false,
-		//Array("nPageSize"=>CAdminResult::GetNavSize($sTableID)),
-		false,
+		$arNavParams,
 		$arSelectedFields
 	);
-	$rsData->SetTableID($sTableID);
+	$rsData = new CAdminSubResult($rsData, $sTableID, $lAdmin->GetListUrl(true));
 	$wf_status_id = false;
 
-	//$rsData->NavStart();
-	//$lAdmin->NavText($rsData->GetNavPrint(htmlspecialchars($arSubIBlock["ELEMENTS_NAME"])));
+	$rsData->NavStart();
+	$lAdmin->NavText($rsData->GetNavPrint(htmlspecialcharsbx($arSubIBlock["ELEMENTS_NAME"])));
 
 	function GetElementName($ID)
 	{
@@ -1086,7 +1000,7 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 	{
 		$arRes_orig = $arRes;
 		// in workflow mode show latest changes
- 		if ($boolSubWorkFlow)
+		if ($boolSubWorkFlow)
 		{
 			$LAST_ID = CIBlockElement::WF_GetLast($arRes['ID']);
 			if ($LAST_ID!=$arRes['ID'])
@@ -1128,6 +1042,12 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 			$lockStatus = "";
 		}
 
+		if (in_array("CATALOG_QUANTITY_TRACE", $arSelectedFields))
+		{
+			$arRes['CATALOG_QUANTITY_TRACE'] = $arRes['CATALOG_QUANTITY_TRACE_ORIG'];
+			$f_CATALOG_QUANTITY_TRACE = $f_CATALOG_QUANTITY_TRACE_ORIG;
+		}
+
 		$arRes['lockStatus'] = $lockStatus;
 		$arRes["orig"] = $arRes_orig;
 
@@ -1156,9 +1076,9 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 				$lamp_alt = GetMessage("IBLOCK_RED_ALT");
 
 			if ($lockStatus=='red' && $arRes_orig['LOCKED_USER_NAME']!='')
-				$row->AddViewField("LOCK_STATUS", '<table cellpadding="0" cellspacing="0" border="0"><tr><td><img hspace="4" src="'.$lamp.'" alt="'.htmlspecialchars($lamp_alt).'" title="'.htmlspecialchars($lamp_alt).'" /></td><td>'.$arRes_orig['LOCKED_USER_NAME'].$unlock.'</td></tr></table>');
+				$row->AddViewField("LOCK_STATUS", '<table cellpadding="0" cellspacing="0" border="0"><tr><td><img hspace="4" src="'.$lamp.'" alt="'.htmlspecialcharsbx($lamp_alt).'" title="'.htmlspecialcharsbx($lamp_alt).'" /></td><td>'.$arRes_orig['LOCKED_USER_NAME'].$unlock.'</td></tr></table>');
 			else
-				$row->AddViewField("LOCK_STATUS", '<img src="'.$lamp.'" hspace="4" alt="'.htmlspecialchars($lamp_alt).'" title="'.htmlspecialchars($lamp_alt).'" />');
+				$row->AddViewField("LOCK_STATUS", '<img src="'.$lamp.'" hspace="4" alt="'.htmlspecialcharsbx($lamp_alt).'" title="'.htmlspecialcharsbx($lamp_alt).'" />');
 		}
 
 		if ($bSubBizproc)
@@ -1467,7 +1387,7 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 								if (intval($arRes["CATALOG_EXTRA_ID_".$CatGroup["ID"]])>0)
 									$selectCur .= ' disabled="disabled" readonly="readonly"';
 								if ($CatGroup["BASE"]=="Y")
-									$selectCur .= ' OnChange="SubChangeBaseCurrency('.$f_ID.')"';
+									$selectCur .= ' onchange="top.SubChangeBaseCurrency('.$f_ID.')"';
 								$selectCur .= '>';
 								foreach ($arCurrencyList as &$arOneCurrency)
 								{
@@ -1491,7 +1411,7 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 						{
 							$sHTML = '<input type="text" size="5" id="CATALOG_PRICE['.$f_ID.']['.$CatGroup["ID"].']" name="CATALOG_PRICE['.$f_ID.']['.$CatGroup["ID"].']" value="'.$arRes["CATALOG_PRICE_".$CatGroup["ID"]].'"';
 							if ($CatGroup["BASE"]=="Y")
-								$sHTML .= ' OnChange="SubChangeBasePrice('.$f_ID.')"';
+								$sHTML .= ' onchange="top.SubChangeBasePrice('.$f_ID.')"';
 							if (intval($arRes["CATALOG_EXTRA_ID_".$CatGroup["ID"]])>0)
 								$sHTML .= ' disabled readonly';
 							$sHTML .= '> '.$selectCur;
@@ -1538,7 +1458,7 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 					continue;
 
 				$arStr1[$vv["TEMPLATE_ID"]] = $vv["TEMPLATE_NAME"];
-				$arStr[$vv["TEMPLATE_ID"]] .= "<a href=\"bizproc_log.php?ID=".$kk."\">".(strlen($vv["STATE_TITLE"]) > 0 ? $vv["STATE_TITLE"] : $vv["STATE_NAME"])."</a><br />";
+				$arStr[$vv["TEMPLATE_ID"]] .= "<a href=\"/bitrix/admin/bizproc_log.php?ID=".$kk."\">".(strlen($vv["STATE_TITLE"]) > 0 ? $vv["STATE_TITLE"] : $vv["STATE_NAME"])."</a><br />";
 
 				if (strlen($vv["ID"]) > 0)
 				{
@@ -1562,6 +1482,13 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 	}
 
 	$boolIBlockElementAdd = CIBlockSectionRights::UserHasRightTo($intSubIBlockID, $find_section_section, "section_element_bind");
+
+$availQuantityTrace = COption::GetOptionString("catalog", "default_quantity_trace", 'N');
+$arQuantityTrace = array(
+	"D" => GetMessage("IBEL_DEFAULT_VALUE")." (".($availQuantityTrace=='Y' ? GetMessage("IBEL_YES_VALUE") : GetMessage("IBEL_NO_VALUE")).")",
+	"Y" => GetMessage("IBEL_YES_VALUE"),
+	"N" => GetMessage("IBEL_NO_VALUE"),
+);
 
 	$arElementOps = CIBlockElementRights::UserHasRightTo(
 		$intSubIBlockID,
@@ -1624,7 +1551,7 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 				if ($row->arRes["PREVIEW_TEXT_TYPE"]=="html")
 					$sHTML .= ' checked';
 				$sHTML .= '><label for="'.$f_ID.'PREVIEWhtml">html</label><br>';
-				$sHTML .= '<textarea rows="10" cols="50" name="FIELDS['.$f_ID.'][PREVIEW_TEXT]">'.htmlspecialchars($row->arRes["PREVIEW_TEXT"]).'</textarea>';
+				$sHTML .= '<textarea rows="10" cols="50" name="FIELDS['.$f_ID.'][PREVIEW_TEXT]">'.htmlspecialcharsbx($row->arRes["PREVIEW_TEXT"]).'</textarea>';
 				$row->AddEditField("PREVIEW_TEXT", $sHTML);
 			}
 			if (array_key_exists("DETAIL_TEXT", $arSelectedFieldsMap))
@@ -1638,7 +1565,7 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 					$sHTML .= ' checked';
 				$sHTML .= '><label for="'.$f_ID.'DETAILhtml">html</label><br>';
 
-				$sHTML .= '<textarea rows="10" cols="50" name="FIELDS['.$f_ID.'][DETAIL_TEXT]">'.htmlspecialchars($row->arRes["DETAIL_TEXT"]).'</textarea>';
+				$sHTML .= '<textarea rows="10" cols="50" name="FIELDS['.$f_ID.'][DETAIL_TEXT]">'.htmlspecialcharsbx($row->arRes["DETAIL_TEXT"]).'</textarea>';
 				$row->AddEditField("DETAIL_TEXT", $sHTML);
 			}
 			foreach ($row->arRes['props'] as $prop_id => $arEditHTML)
@@ -1647,12 +1574,14 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 			if (isset($arElementOps[$f_ID]["element_edit_price"]) && $USER->CanDoOperation('catalog_price'))
 			{
 				$row->AddInputField("CATALOG_QUANTITY");
-				$row->AddCheckField("CATALOG_QUANTITY_TRACE");
+				$row->AddSelectField("CATALOG_QUANTITY_TRACE", $arQuantityTrace);
+				$row->AddInputField("CATALOG_WEIGHT");
 			}
 			elseif ($USER->CanDoOperation('catalog_read'))
 			{
-				$row->AddInputField("CATALOG_QUANTITY",false);
-				$row->AddCheckField("CATALOG_QUANTITY_TRACE",false);
+				$row->AddInputField("CATALOG_QUANTITY", false);
+				$row->AddCheckField("CATALOG_QUANTITY_TRACE", $arQuantityTrace, false);
+				$row->AddInputField("CATALOG_WEIGHT", false);
 			}
 		}
 		else
@@ -1670,7 +1599,8 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 			if ($boolSubCatalog)
 			{
 				$row->AddInputField("CATALOG_QUANTITY", false);
-				$row->AddCheckField("CATALOG_QUANTITY_TRACE", false);
+				$row->AddSelectField("CATALOG_QUANTITY_TRACE", $arQuantityTrace, false);
+				$row->AddInputField("CATALOG_WEIGHT", false);
 			}
 		}
 
@@ -1696,7 +1626,7 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 				"ICON" => "unlock",
 				"TEXT" => GetMessage("IBEL_A_UNLOCK"),
 				"TITLE" => GetMessage("IBLOCK_UNLOCK_ALT"),
-				"ACTION" => "if (confirm('".GetMessage("IBLOCK_UNLOCK_CONFIRM")."')) ".$lAdmin->ActionDoGroup($row->arRes['orig']['ID'], "unlock", $sThisSectionUrl)
+				"ACTION" => "if (confirm('".GetMessageJS("IBLOCK_UNLOCK_CONFIRM")."')) ".$lAdmin->ActionDoGroup($row->arRes['orig']['ID'], "unlock", $sThisSectionUrl)
 			);
 
 			if ($row->arRes['orig']['LOCK_STATUS'] == "red")
@@ -1722,13 +1652,13 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 						"ICON" => "edit",
 						"TEXT" => GetMessage("IBEL_A_CHANGE"),
 						"DEFAULT" => true,
-						"ACTION"=>"javascript:(new BX.CAdminDialog({
-			    			'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=".CUtil::JSEscape(htmlspecialchars($strSubIBlockType))."&IBLOCK_ID=".$intSubIBlockID."&lang=".LANGUAGE_ID."&PRODUCT_ID=".$ID."&ID=".$row->arRes['orig']['ID']."&TMP_ID=".urlencode($strSubTMP_ID).$sThisSectionUrl."',
-			    			'content_post': '".(!(defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1) ? '&bxsku=Y' : '')."&bxpublic=Y',
+						"ACTION"=>"(new BX.CAdminDialog({
+							'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=".CUtil::JSEscape(htmlspecialcharsbx($strSubIBlockType))."&IBLOCK_ID=".$intSubIBlockID."&lang=".LANGUAGE_ID."&PRODUCT_ID=".$ID."&ID=".$row->arRes['orig']['ID']."&TMP_ID=".urlencode($strSubTMP_ID).$sThisSectionUrl.'&'.bitrix_sessid_get()."',
+							'content_post': '".(!(defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1) ? '&bxsku=Y' : '')."&bxpublic=Y',
 							'draggable': true,
 							'resizable': true,
 							'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
-							})).Show();",
+						})).Show();",
 					);
 				}
 
@@ -1739,13 +1669,13 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 					$arActions[] = array(
 						"ICON" => "copy",
 						"TEXT" => GetMessage("IBEL_A_COPY_ELEMENT"),
-						"ACTION"=>"javascript:(new BX.CAdminDialog({
-			    			'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=".CUtil::JSEscape(htmlspecialchars($strSubIBlockType))."&IBLOCK_ID=".$intSubIBlockID."&lang=".LANGUAGE_ID."&PRODUCT_ID=".$ID."&ID=".$row->arRes['orig']['ID']."&TMP_ID=".urlencode($strSubTMP_ID)."&action=copy".$sThisSectionUrl."',
-			    			'content_post': '".(!(defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1) ? '&bxsku=Y' : '')."&bxpublic=Y',
+						"ACTION"=>"(new BX.CAdminDialog({
+							'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=".CUtil::JSEscape(htmlspecialcharsbx($strSubIBlockType))."&IBLOCK_ID=".$intSubIBlockID."&lang=".LANGUAGE_ID."&PRODUCT_ID=".$ID."&ID=".$row->arRes['orig']['ID']."&TMP_ID=".urlencode($strSubTMP_ID)."&action=copy".$sThisSectionUrl.'&'.bitrix_sessid_get()."',
+							'content_post': '".(!(defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1) ? '&bxsku=Y' : '')."&bxpublic=Y',
 							'draggable': true,
 							'resizable': true,
 							'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
-							})).Show();",
+						})).Show();",
 					);
 				}
 
@@ -1772,7 +1702,7 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 							"ICON" => "delete",
 							"TEXT" => GetMessage('MAIN_DELETE'),
 							"TITLE" => GetMessage("IBLOCK_DELETE_ALT"),
-							"ACTION" => "if (confirm('".GetMessage('IBLOCK_CONFIRM_DEL_MESSAGE')."')) ".$lAdmin->ActionDoGroup($row->arRes['orig']['ID'], "delete", $sThisSectionUrl)
+							"ACTION" => "if (confirm('".GetMessageJS('IBLOCK_CONFIRM_DEL_MESSAGE')."')) ".$lAdmin->ActionDoGroup($row->arRes['orig']['ID'], "delete", $sThisSectionUrl)
 						);
 
 					}
@@ -1826,7 +1756,7 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 						"ICON" => "unlock",
 						"TEXT" => GetMessage("IBEL_A_UNLOCK"),
 						"TITLE" => GetMessage("IBEL_A_UNLOCK_ALT"),
-						"ACTION" => "if (confirm('".GetMessage("IBEL_A_UNLOCK_CONFIRM")."')) ".$lAdmin->ActionDoGroup($f_ID, "unlock", $sThisSectionUrl),
+						"ACTION" => "if (confirm('".GetMessageJS("IBEL_A_UNLOCK_CONFIRM")."')) ".$lAdmin->ActionDoGroup($f_ID, "unlock", $sThisSectionUrl),
 					);
 				}
 			}
@@ -1836,25 +1766,25 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 					"ICON" => "edit",
 					"TEXT" => GetMessage("IBEL_A_CHANGE"),
 					"DEFAULT" => true,
-					"ACTION"=>"javascript:(new BX.CAdminDialog({
-			    		'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=".CUtil::JSEscape(htmlspecialchars($strSubIBlockType))."&IBLOCK_ID=".$intSubIBlockID."&lang=".LANGUAGE_ID."&PRODUCT_ID=".$ID."&ID=".$row->arRes['orig']['ID']."&TMP_ID=".urlencode($strSubTMP_ID).$sThisSectionUrl."',
-			    		'content_post': '".(!(defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1) ? '&bxsku=Y' : '')."&bxpublic=Y',
+					"ACTION"=>"(new BX.CAdminDialog({
+						'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=".CUtil::JSEscape(htmlspecialcharsbx($strSubIBlockType))."&IBLOCK_ID=".$intSubIBlockID."&lang=".LANGUAGE_ID."&PRODUCT_ID=".$ID."&ID=".$row->arRes['orig']['ID']."&TMP_ID=".urlencode($strSubTMP_ID).$sThisSectionUrl.'&'.bitrix_sessid_get()."',
+						'content_post': '".(!(defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1) ? '&bxsku=Y' : '')."&bxpublic=Y',
 						'draggable': true,
 						'resizable': true,
 						'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
-						})).Show();",
+					})).Show();",
 				);
 
 				$arActions[] = array(
 					"ICON" => "copy",
 					"TEXT" => GetMessage("IBEL_A_COPY_ELEMENT"),
-					"ACTION"=>"javascript:(new BX.CAdminDialog({
-			    		'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=".CUtil::JSEscape(htmlspecialchars($strSubIBlockType))."&IBLOCK_ID=".$intSubIBlockID."&lang=".LANGUAGE_ID."&PRODUCT_ID=".$ID."&ID=".$row->arRes['orig']['ID']."&TMP_ID=".urlencode($strSubTMP_ID)."&action=copy".$sThisSectionUrl."',
-			    		'content_post': '".(!(defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1) ? '&bxsku=Y' : '')."&bxpublic=Y',
+					"ACTION"=>"(new BX.CAdminDialog({
+						'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=".CUtil::JSEscape(htmlspecialcharsbx($strSubIBlockType))."&IBLOCK_ID=".$intSubIBlockID."&lang=".LANGUAGE_ID."&PRODUCT_ID=".$ID."&ID=".$row->arRes['orig']['ID']."&TMP_ID=".urlencode($strSubTMP_ID)."&action=copy".$sThisSectionUrl.'&'.bitrix_sessid_get()."',
+						'content_post': '".(!(defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1) ? '&bxsku=Y' : '')."&bxpublic=Y',
 						'draggable': true,
 						'resizable': true,
 						'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
-						})).Show();",
+					})).Show();",
 				);
 
 /*			$arActions[] = array(
@@ -1869,7 +1799,7 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 					"ICON" => "delete",
 					"TEXT" => GetMessage('MAIN_DELETE'),
 					"TITLE" => GetMessage("IBLOCK_DELETE_ALT"),
-					"ACTION" => "if (confirm('".GetMessage('IBLOCK_CONFIRM_DEL_MESSAGE')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete", $sThisSectionUrl),
+					"ACTION" => "if (confirm('".GetMessageJS('IBLOCK_CONFIRM_DEL_MESSAGE')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete", $sThisSectionUrl),
 				);
 			}
 		}
@@ -1884,13 +1814,13 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 					"ICON" => "edit",
 					"TEXT" => GetMessage("IBEL_A_CHANGE"),
 					"DEFAULT" => true,
-					"ACTION"=>"javascript:(new BX.CAdminDialog({
-			    		'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=".CUtil::JSEscape(htmlspecialchars($strSubIBlockType))."&IBLOCK_ID=".$intSubIBlockID."&lang=".LANGUAGE_ID."&PRODUCT_ID=".$ID."&ID=".$row->arRes['orig']['ID']."&TMP_ID=".urlencode($strSubTMP_ID).$sThisSectionUrl."',
-			    		'content_post': '".(!(defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1) ? '&bxsku=Y' : '')."&bxpublic=Y',
+					"ACTION"=>"(new BX.CAdminDialog({
+						'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=".CUtil::JSEscape(htmlspecialcharsbx($strSubIBlockType))."&IBLOCK_ID=".$intSubIBlockID."&lang=".LANGUAGE_ID."&PRODUCT_ID=".$ID."&ID=".$row->arRes['orig']['ID']."&TMP_ID=".urlencode($strSubTMP_ID).$sThisSectionUrl.'&'.bitrix_sessid_get()."',
+						'content_post': '".(!(defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1) ? '&bxsku=Y' : '')."&bxpublic=Y',
 						'draggable': true,
 						'resizable': true,
 						'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
-						})).Show();",
+					})).Show();",
 				);
 			}
 
@@ -1900,13 +1830,13 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 				$arActions[] = array(
 					"ICON" => "copy",
 					"TEXT" => GetMessage("IBEL_A_COPY_ELEMENT"),
-					"ACTION"=>"javascript:(new BX.CAdminDialog({
-			    		'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=".CUtil::JSEscape(htmlspecialchars($strSubIBlockType))."&IBLOCK_ID=".$intSubIBlockID."&lang=".LANGUAGE_ID."&PRODUCT_ID=".$ID."&ID=".$row->arRes['orig']['ID']."&TMP_ID=".urlencode($strSubTMP_ID)."&action=copy".$sThisSectionUrl."',
-			    		'content_post': '".(!(defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1) ? '&bxsku=Y' : '')."&bxpublic=Y',
+					"ACTION"=>"(new BX.CAdminDialog({
+						'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=".CUtil::JSEscape(htmlspecialcharsbx($strSubIBlockType))."&IBLOCK_ID=".$intSubIBlockID."&lang=".LANGUAGE_ID."&PRODUCT_ID=".$ID."&ID=".$row->arRes['orig']['ID']."&TMP_ID=".urlencode($strSubTMP_ID)."&action=copy".$sThisSectionUrl.'&'.bitrix_sessid_get()."',
+						'content_post': '".(!(defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1) ? '&bxsku=Y' : '')."&bxpublic=Y',
 						'draggable': true,
 						'resizable': true,
 						'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
-						})).Show();",
+					})).Show();",
 				);
 			}
 
@@ -1920,7 +1850,7 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 					"ICON" => "delete",
 					"TEXT" => GetMessage('MAIN_DELETE'),
 					"TITLE" => GetMessage("IBLOCK_DELETE_ALT"),
-					"ACTION" => "if (confirm('".GetMessage('IBLOCK_CONFIRM_DEL_MESSAGE')."')) ".$lAdmin->ActionDoGroup($row->arRes['orig']['ID'], "delete", $sThisSectionUrl)
+					"ACTION" => "if (confirm('".GetMessageJS('IBLOCK_CONFIRM_DEL_MESSAGE')."')) ".$lAdmin->ActionDoGroup($row->arRes['orig']['ID'], "delete", $sThisSectionUrl)
 				);
 			}
 		}
@@ -1955,7 +1885,7 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 		}
 	}
 
-	$arParams = array('disable_action_target' => true);
+	$arParams = array('disable_action_sub_target' => true);
 	if ($bWorkFlow)
 	{
 		$arGroupActions["unlock"] = GetMessage("IBEL_A_UNLOCK_ACTION");
@@ -1974,7 +1904,7 @@ if (!((false == B_ADMIN_SUBELEMENTS_LIST) && ($bCopy)))
 
 	$lAdmin->AddGroupActionTable($arGroupActions, $arParams);
 
-?><script "text/javascript">
+?><script type="text/javascript">
 function CheckProductName(id)
 {
 	if (!id)
@@ -2008,15 +1938,103 @@ function ShowNewOffer(id)
 		PostParams.PRODUCT_NAME = mxProductName;
 		PostParams.sessid = BX.bitrix_sessid();
 		(new BX.CAdminDialog({
-		    'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=<? echo CUtil::JSEscape(htmlspecialchars($strSubIBlockType)); ?>&IBLOCK_ID=<? echo $intSubIBlockID; ?>&lang=<? echo LANGUAGE_ID; ?>&PRODUCT_ID=<? echo $intSubPropValue; ?>&ID=0&TMP_ID=<? echo urlencode($strSubTMP_ID).$sThisSectionUrl; ?>',
-		    'content_post': PostParams,
+			'content_url': '/bitrix/admin/iblock_subelement_edit.php?WF=Y&type=<? echo CUtil::JSEscape(htmlspecialcharsbx($strSubIBlockType)); ?>&IBLOCK_ID=<? echo $intSubIBlockID; ?>&lang=<? echo LANGUAGE_ID; ?>&PRODUCT_ID=<? echo $intSubPropValue; ?>&ID=0&TMP_ID=<? echo urlencode($strSubTMP_ID).$sThisSectionUrl; ?>',
+			'content_post': PostParams,
 			'draggable': true,
 			'resizable': true,
 			'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
-			})).Show();
+		})).Show();
 	}
 }
 </script><?
+
+	if (true == B_ADMIN_SUBELEMENTS_LIST)
+	{
+		echo $CAdminCalendar_ShowScript;
+	}
+
+	//We need javascript not in excel mode
+	if (($_REQUEST["mode"]=='list' || $_REQUEST["mode"]=='frame') && $boolSubCatalog && $boolSubCurrency)
+	{
+		?><script type="text/javascript">
+		top.arSubCatalogShowedGroups = new Array();
+		top.arSubExtra = new Array();
+		top.arSubCatalogGroups = new Array();
+		top.SubBaseIndex = "";
+		<?
+		if (is_array($arCatGroup) && !empty($arCatGroup))
+		{
+			$i = 0;
+			$j = 0;
+			foreach ($arCatGroup as &$CatalogGroups)
+			{
+				if (in_array("CATALOG_GROUP_".$CatalogGroups["ID"], $arSelectedFields))
+				{
+					echo "top.arSubCatalogShowedGroups[".$i."]=".$CatalogGroups["ID"].";\n";
+					$i++;
+				}
+				if ($CatalogGroups["BASE"] != "Y")
+				{
+					echo "top.arSubCatalogGroups[".$j."]=".$CatalogGroups["ID"].";\n";
+					$j++;
+				}
+				else
+				{
+					echo "top.SubBaseIndex=".$CatalogGroups["ID"].";\n";
+				}
+			}
+			unset($CatalogGroups);
+		}
+		if (is_array($arCatExtra) && !empty($arCatExtra))
+		{
+			$i = 0;
+			foreach ($arCatExtra as &$CatExtra)
+			{
+				echo "top.arSubExtra[".$CatExtra["ID"]."]=".$CatExtra["PERCENTAGE"].";\n";
+				$i++;
+			}
+			unset($CatExtra);
+		}
+		?>
+		top.SubChangeBasePrice = function(id)
+		{
+			for (var i = 0, cnt = top.arSubCatalogShowedGroups.length; i < cnt; i++)
+			{
+				var pr = top.document.getElementById("CATALOG_PRICE["+id+"]"+"["+top.arSubCatalogShowedGroups[i]+"]");
+				if (pr.disabled)
+				{
+					var price = top.document.getElementById("CATALOG_PRICE["+id+"]"+"["+top.SubBaseIndex+"]").value;
+					if (price > 0)
+					{
+						var extraId = top.document.getElementById("CATALOG_EXTRA["+id+"]"+"["+top.arSubCatalogShowedGroups[i]+"]").value;
+						var esum = parseFloat(price) * (1 + top.arSubExtra[extraId] / 100);
+						var eps = 1.00/Math.pow(10, 6);
+						esum = Math.round((esum+eps)*100)/100;
+					}
+					else
+						var esum = "";
+
+					pr.value = esum;
+				}
+			}
+		}
+
+		top.SubChangeBaseCurrency = function(id)
+		{
+			var currency = top.document.getElementById("CATALOG_CURRENCY["+id+"]["+top.SubBaseIndex+"]");
+			for (var i = 0, cnt = top.arSubCatalogShowedGroups.length; i < cnt; i++)
+			{
+				var pr = top.document.getElementById("CATALOG_CURRENCY["+id+"]["+top.arSubCatalogShowedGroups[i]+"]");
+				if (pr.disabled)
+				{
+					pr.selectedIndex = currency.selectedIndex;
+				}
+			}
+		}
+	</script>
+	<?
+	}
+
 	$aContext = array();
 	if ($boolIBlockElementAdd)
 	{
@@ -2034,17 +2052,9 @@ function ShowNewOffer(id)
 		"TITLE"=>GetMessage("IB_SE_L_REFRESH_ELEMENTS_DESCR"),
 	);
 
-	if (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1)
-		$lAdmin->AddAdminContextMenu($aContext);
-	else
-		$lAdmin->AddAdminContextMenu($aContext,false,false);
+	$lAdmin->AddAdminContextMenu($aContext);
 
 	$lAdmin->CheckListMode();
-
-	if (true == B_ADMIN_SUBELEMENTS_LIST)
-	{
-		echo $CAdminCalendar_ShowScript;
-	}
 
 	$lAdmin->DisplayList(B_ADMIN_SUBELEMENTS_LIST);
 }

@@ -13,4 +13,5 @@ $MESS["F_ERR_UPOAD_FILES_IS_LOST"] = "The attachement(s) #FILE_ID# was not found
 $MESS["F_ATTACHED_FILES"] = "Attached files:";
 $MESS["F_SONET_MESSAGE_TITLE"] = "added a post in the topic \"#TITLE#\"";
 $MESS["F_SONET_TOPIC_TITLE"] = "created a topic in the forum \"#TITLE#\"";
+$MESS["F_ERR_INVALID_FORUM_ID"] = "Invalid forum ID.";
 ?>

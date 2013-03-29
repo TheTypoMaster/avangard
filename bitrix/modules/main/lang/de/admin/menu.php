@@ -99,4 +99,10 @@ $MESS["MAIN_MENU_UPDATES_MARKET_CATALOG_ALT"] = "Lösungen";
 $MESS["MAIN_MENU_CHECKLIST"] = "Checkliste der Qualitätssicherung";
 $MESS["MAIN_MENU_SHORT_URLS"] = "Kurze URLs";
 $MESS["MAIN_MENU_SHORT_URLS_ALT"] = "Parameter kurzer URLs";
+$MESS["MAIN_MENU_HOTKEYS"] = "Tastenkombinationen";
+$MESS["MAIN_MENU_HOTKEYS_ALT"] = "Tastenkombinationen anpassen";
+$MESS["MAIN_MENU_MP_CATEGORY"] = "Lösungen in der Kategorie";
+$MESS["MAIN_MENU_DUMP_NEW"] = "Sicherungskopie erstellen";
+$MESS["MAIN_MENU_DUMP_LIST"] = "Vorhandene Sicherungskopien anzeigen";
+$MESS["MAIN_MENU_DUMP_AUTO"] = "Zeitplan einstellen";
 ?>

@@ -29,6 +29,14 @@ function NeedRootUser()
 		document.getElementById("line2").style.display='none';
 		document.getElementById("line3").style.display='none';
 	}
+
+	var existDB = document.getElementById("db_exists");
+	var newDB = document.getElementById("db_new");
+	if(existDB && newDB)
+	{
+		existDB.style.display = !createDB.checked? 'block': 'none';
+		newDB.style.display = createDB.checked? 'block': 'none';
+	}
 }
 
 function NeedUTFSection(dbType)
@@ -37,7 +45,8 @@ function NeedUTFSection(dbType)
 	{
 		document.getElementById("utf-row-two").style.display='none';
 		document.getElementById("utf-row-one").style.display='none';
-		
+		document.getElementById("utf8_inst").checked=false;
+		document.getElementsByName("__wiz_utf8")[0].value="";
 	}
 	else
 	{
@@ -170,7 +179,7 @@ CAjaxForm.prototype.HideError = function()
 
 	while (errorText.firstChild)
 		errorText.removeChild(errorText.firstChild);
-	
+
 	errorContainer.style.display = 'none';
 
 	var waitWindow = document.getElementById("wait");

@@ -174,20 +174,20 @@ $lAdmin->AddHeaders($arHeader);
 $arSelectedFields = $lAdmin->GetVisibleHeaderColumns();
 
 $arSelectedProps = Array();
-for($i=0; $i<count($arProps); $i++)
+foreach($arProps as $prop)
 {
-	if(in_array("PROPERTY_".$arProps[$i]['ID'], $arSelectedFields))
+	if(in_array("PROPERTY_".$prop['ID'], $arSelectedFields))
 	{
-		$arSelectedProps[] = $arProps[$i];
-		$arSelect[$arProps[$i]['ID']] = Array();
-		$props = CIBlockProperty::GetPropertyEnum($arProps[$i]['ID']);
+		$arSelectedProps[] = $prop;
+		$arSelect[$prop['ID']] = Array();
+		$props = CIBlockProperty::GetPropertyEnum($prop['ID']);
 		while($res = $props->Fetch())
-			$arSelect[$arProps[$i]['ID']][$res["ID"]] = $res["VALUE"];
+			$arSelect[$prop['ID']][$res["ID"]] = $res["VALUE"];
 	}
 
-	if($arProps[$i]["MULTIPLE"]=='Y')
+	if($prop["MULTIPLE"]=='Y')
 	{
-		if($key = array_search("PROPERTY_".$arProps[$i]['ID'], $arSelectedFields))
+		if($key = array_search("PROPERTY_".$prop['ID'], $arSelectedFields))
 			unset($arSelectedFields[$key]);
 	}
 }
@@ -243,10 +243,10 @@ function GetIBlockTypeID($IBLOCK_ID)
 	if(!array_key_exists($IBLOCK_ID, $cache))
 	{
 		$rsIBlock = CIBlock::GetByID($IBLOCK_ID);
-		if(!($cache[$ID] = $rsIBlock->GetNext()))
-			$cache[$ID] = array("IBLOCK_TYPE_ID"=>"");
+		if(!($cache[$IBLOCK_ID] = $rsIBlock->GetNext()))
+			$cache[$IBLOCK_ID] = array("IBLOCK_TYPE_ID"=>"");
 	}
-	return $cache[$ID]["IBLOCK_TYPE_ID"];
+	return $cache[$IBLOCK_ID]["IBLOCK_TYPE_ID"];
 }
 
 if($IBLOCK_ID <= 0)
@@ -269,14 +269,14 @@ while($arRes = $rsData->GetNext())
 
 	$row =& $lAdmin->AddRow($arRes["ID"], $arRes);
 
-	$row->AddViewField("NAME", $arRes["NAME"]."<input type=hidden name='n".$arRes["ID"]."' id='name_".$arRes["ID"]."' value='".CUtil::JSEscape(htmlspecialchars($arRes["NAME"]))."'>");
+	$row->AddViewField("NAME", $arRes["NAME"]."<input type=hidden name='n".$arRes["ID"]."' id='name_".$arRes["ID"]."' value='".CUtil::JSEscape(htmlspecialcharsbx($arRes["NAME"]))."'>");
 	$row->AddViewField("USER_NAME", "[<a target=\"_blank\" href=\"user_edit.php?lang=".LANGUAGE_ID."&ID=".$arRes["MODIFIED_BY"]."\">".$arRes["MODIFIED_BY"]."</a>]&nbsp;".$arRes["USER_NAME"]);
 	$row->AddCheckField("ACTIVE");
 	$row->AddViewField("CREATED_USER_NAME", "[<a target=\"_blank\" href=\"user_edit.php?lang=".LANGUAGE_ID."&ID=".$arRes["CREATED_BY"]."\">".$arRes["CREATED_BY"]."</a>]&nbsp;".$arRes["CREATED_USER_NAME"]);
 	$row->AddViewField("PREVIEW_PICTURE", CFile::ShowFile($arRes["PREVIEW_PICTURE"], 100000, 50, 50, true));
 	$row->AddViewField("DETAIL_PICTURE", CFile::ShowFile($arRes["DETAIL_PICTURE"], 100000, 50, 50, true));
 
-	$row->AddViewField("WF_STATUS_ID", htmlspecialchars(CIBlockElement::WF_GetStatusTitle($arRes["WF_STATUS_ID"]))."<input type=hidden name='n".$arRes["ID"]."' value='".CUtil::JSEscape($arRes["NAME"])."'>");
+	$row->AddViewField("WF_STATUS_ID", htmlspecialcharsbx(CIBlockElement::WF_GetStatusTitle($arRes["WF_STATUS_ID"]))."<input type=hidden name='n".$arRes["ID"]."' value='".CUtil::JSEscape($arRes["NAME"])."'>");
 	$row->AddViewField("LOCKED_USER_NAME", '&nbsp;<a href="user_edit.php?lang='.LANG.'&ID='.$arRes["WF_LOCKED_BY"].'" title="'.GetMessage("IBLOCK_ELSEARCH_USERINFO").'">'.$arRes["LOCKED_USER_NAME"].'</a>');
 
 	foreach($arSelectedProps as $aProp)
@@ -298,7 +298,7 @@ while($arRes = $rsData->GetNext())
 					$dbPropEl = CIBlockSection::GetList(Array(), Array("ID"=>$arRes["PROPERTY_".$aProp['ID']]));
 					if($arPropEl = $dbPropEl->GetNext())
 					{
-						$PropV = $arPropEl['NAME'].' [<a href="iblock_section_edit.php?type='.GetIBlockTypeID($arPropEl['IBLOCK_ID']).'&IBLOCK_ID='.$arPropEl['IBLOCK_ID'].'&ID='.$arPropEl['ID'].'&amp;lang='.$lang.'" title="'.GetMessage("IBLOCK_ELSEARCH_SECTION_EDIT").'">'.$arPropEl['ID'].'</a>]';
+						$PropV = $arPropEl['NAME'].' [<a href="'.htmlspecialcharsbx(CIBlock::GetAdminSectionEditLink($arPropEl['IBLOCK_ID'], $arPropEl['ID'])).'" title="'.GetMessage("IBLOCK_ELSEARCH_SECTION_EDIT").'">'.$arPropEl['ID'].'</a>]';
 					}
 				}
 				$row->AddViewField("PROPERTY_".$aProp['ID'], $PropV);
@@ -307,7 +307,7 @@ while($arRes = $rsData->GetNext())
 			{
 				if($t = GetElementName($arRes["PROPERTY_".$aProp['ID']]))
 				{
-					$row->AddViewField("PROPERTY_".$aProp['ID'], $t['NAME'].' [<a href="iblock_element_edit.php?type='.GetIBlockTypeID($t['IBLOCK_ID']).'&IBLOCK_ID='.$t['IBLOCK_ID'].'&ID='.$t['ID'].'&amp;lang='.$lang.'" title="'.GetMessage("IBLOCK_ELSEARCH_ELEMENT_EDIT").'">'.$t['ID'].'</a>]');
+					$row->AddViewField("PROPERTY_".$aProp['ID'], $t['NAME'].' [<a href="'.htmlspecialcharsbx(CIBlock::GetAdminElementEditLink($t['IBLOCK_ID'], $t['ID'])).'" title="'.GetMessage("IBLOCK_ELSEARCH_ELEMENT_EDIT").'">'.$t['ID'].'</a>]');
 				}
 			}
 		}
@@ -326,13 +326,13 @@ while($arRes = $rsData->GetNext())
 				{
 					$t = CIBlockSection::GetByID($arPVals['VALUE']);
 					if($t = $t->GetNext())
-						$res = $t['NAME'].' [<a href="iblock_section_edit.php?type='.GetIBlockTypeID($t['IBLOCK_ID']).'&IBLOCK_ID='.$t['IBLOCK_ID'].'&ID='.$t['ID'].'&amp;lang='.$lang.'" title="'.GetMessage("IBLOCK_ELSEARCH_SECTION_EDIT").'">'.$t['ID'].'</a>]';
+						$res = $t['NAME'].' [<a href="'.htmlspecialcharsbx(CIBlock::GetAdminSectionEditLink($t['IBLOCK_ID'], $t['ID'])).'" title="'.GetMessage("IBLOCK_ELSEARCH_SECTION_EDIT").'">'.$t['ID'].'</a>]';
 				}
 				elseif($aProp['PROPERTY_TYPE']=='E')
 				{
 					if($t = GetElementName($arPVals['VALUE']))
 					{
-						$res = $t['NAME'].' [<a href="iblock_element_edit.php?type='.GetIBlockTypeID($t['IBLOCK_ID']).'&IBLOCK_ID='.$t['IBLOCK_ID'].'&ID='.$t['ID'].'&amp;lang='.$lang.'" title="'.GetMessage("IBLOCK_ELSEARCH_ELEMENT_EDIT").'">'.$t['ID'].'</a>]';
+						$res = $t['NAME'].' [<a href="'.htmlspecialcharsbx(CIBlock::GetAdminElementEditLink($t['IBLOCK_ID'], $t['ID'])).'" title="'.GetMessage("IBLOCK_ELSEARCH_ELEMENT_EDIT").'">'.$t['ID'].'</a>]';
 					}
 				}
 				else
@@ -358,10 +358,10 @@ while($arRes = $rsData->GetNext())
 }
 
 $lAdmin->AddFooter(
-        array(
-                array("title"=>GetMessage("MAIN_ADMIN_LIST_SELECTED"), "value"=>$rsData->SelectedRowsCount()),
-                array("counter"=>true, "title"=>GetMessage("MAIN_ADMIN_LIST_CHECKED"), "value"=>"0"),
-        )
+	array(
+		array("title"=>GetMessage("MAIN_ADMIN_LIST_SELECTED"), "value"=>$rsData->SelectedRowsCount()),
+		array("counter"=>true, "title"=>GetMessage("MAIN_ADMIN_LIST_CHECKED"), "value"=>"0"),
+	)
 );
 
 if($m)
@@ -404,7 +404,7 @@ function _ShowGroupPropertyField($name, $property_fields, $values)
 		}
 		$res .= '>'.str_repeat(" . ", $ar["DEPTH_LEVEL"]).$ar["NAME"].'</option>';
 	}
-	echo '<select name="'.$name.'[]" size="1">';
+	echo '<select name="'.$name.'[]">';
 	echo '<option value=""'.(!$bWas?' selected':'').'>'.GetMessage("IBLOCK_ELSEARCH_NOT_SET").'</option>';
 	echo $res;
 	echo '</select>';
@@ -426,37 +426,36 @@ $arFindFields["act"] = GetMessage("IBLOCK_ELSEARCH_F_ACTIVE");
 $arFindFields["tit"] = GetMessage("IBLOCK_ELSEARCH_F_TITLE");
 $arFindFields["dsc"] = GetMessage("IBLOCK_ELSEARCH_F_DSC");
 
-for($i=0; $i<count($arProps); $i++)
-	if($arProps[$i]["FILTRABLE"]=="Y" && $arProps[$i]["PROPERTY_TYPE"]!="F")
-		$arFindFields["p".$arProps[$i]["ID"]] = $arProps[$i]["NAME"];
+foreach($arProps as $prop)
+	if($prop["FILTRABLE"]=="Y" && $prop["PROPERTY_TYPE"]!="F")
+		$arFindFields["p".$prop["ID"]] = $prop["NAME"];
 
 $oFilter = new CAdminFilter($sTableID."_filter", $arFindFields);
 
 $oFilter->Begin();
 
 ?>
-<script language="JavaScript">
-<!--
+<script type="text/javascript">
 function SelEl(id, name)
 {
-<?php
+<?
 	if ('' != $lookup)
 	{
 		if ('' != $m)
 		{
-			?>window.opener.<?php echo $lookup; ?>.AddValue(id);<?php
+			?>window.opener.<? echo $lookup; ?>.AddValue(id);<?
 		}
 		else
 		{
 			?>
-	window.opener.<?php echo $lookup; ?>.AddValue(id);
-	window.close();<?php
+	window.opener.<? echo $lookup; ?>.AddValue(id);
+	window.close();<?
 		}
 	}
 	else
 	{
 		?><?if($m):?>
-	window.opener.InS<?echo md5($n)?>(id, name);
+	window.opener.InS<? echo md5($n)?>(id, name);
 	<?else:?>
 	el = window.opener.document.getElementById('<?echo $n?>[<?echo $k?>]');
 	if(!el)
@@ -470,10 +469,12 @@ function SelEl(id, name)
 	el = window.opener.document.getElementById('sp_<?echo md5($n)?>_<?echo $k?>');
 	if(!el)
 		el = window.opener.document.getElementById('sp_<?echo $n?>');
+	if(!el)
+		el = window.opener.document.getElementById('<?echo $n?>_link');
 	if(el)
 		el.innerHTML = name;
 	window.close();
-		<?endif;?><?php
+		<?endif;?><?
 	}
 	?>
 }
@@ -507,8 +508,6 @@ function SelAll()
 		window.close();
 	}
 }
-
-//-->
 </script>
 	<tr>
 		<td><b><?echo GetMessage("IBLOCK_ELSEARCH_IBLOCK")?></b></td>
@@ -527,7 +526,7 @@ function SelAll()
 	</tr>
 
 	<tr>
-		<td  nowrap><? echo GetMessage("IBLOCK_FIELD_TIMESTAMP_X")." (".CLang::GetDateFormat("SHORT")."):"?></td>
+		<td  nowrap><? echo GetMessage("IBLOCK_FIELD_TIMESTAMP_X").":"?></td>
 		<td nowrap><? echo CalendarPeriod("filter_timestamp_from", htmlspecialcharsex($filter_timestamp_from), "filter_timestamp_to", htmlspecialcharsex($filter_timestamp_to), "form1")?></td>
 	</tr>
 
@@ -598,46 +597,45 @@ function SelAll()
 	<tr>
 		<td nowrap><?echo GetMessage("IBLOCK_FIELD_NAME")?>:</td>
 		<td nowrap>
-		   <input type="text" name="filter_name" value="<?echo htmlspecialcharsex($filter_name)?>" size="30">
+			<input type="text" name="filter_name" value="<?echo htmlspecialcharsex($filter_name)?>" size="30">
 		</td>
 	</tr>
 	<tr>
 		<td nowrap><?echo GetMessage("IBLOCK_ELSEARCH_DESC")?></td>
 		<td nowrap>
-		   <input type="text" name="filter_intext" size="50" value="<?echo htmlspecialcharsex($filter_intext)?>" size="30">&nbsp;<?=ShowFilterLogicHelp()?>
+			<input type="text" name="filter_intext" size="50" value="<?echo htmlspecialcharsex($filter_intext)?>" size="30">&nbsp;<?=ShowFilterLogicHelp()?>
 		</td>
 	</tr>
 	<?
-	for($i=0; $i<count($arProps); $i++):
-		if($arProps[$i]["FILTRABLE"]!="Y" || $arProps[$i]["PROPERTY_TYPE"]=="F")
+	foreach($arProps as $prop):
+		if($prop["FILTRABLE"]!="Y" || $prop["PROPERTY_TYPE"]=="F")
 			continue;
-		$arFProps = $arProps[$i];
 	?>
 	<tr>
-		<td><?=$arFProps["NAME"]?>:</td>
+		<td><?=$prop["NAME"]?>:</td>
 		<td>
-			<?if($arFProps["PROPERTY_TYPE"]=='L'):?>
-				<select name="find_el_property_<?=$arFProps["ID"]?>">
+			<?if($prop["PROPERTY_TYPE"]=='L'):?>
+				<select name="find_el_property_<?=$prop["ID"]?>">
 					<option value=""><?echo GetMessage("IBLOCK_VALUE_ANY")?></option><?
-					$dbrPEnum = CIBlockPropertyEnum::GetList(Array("SORT"=>"ASC", "NAME"=>"ASC"), Array("PROPERTY_ID"=>$arFProps["ID"]));
+					$dbrPEnum = CIBlockPropertyEnum::GetList(Array("SORT"=>"ASC", "NAME"=>"ASC"), Array("PROPERTY_ID"=>$prop["ID"]));
 					while($arPEnum = $dbrPEnum->GetNext()):
 					?>
-						<option value="<?=$arPEnum["ID"]?>"<?if(${"find_el_property_".$arFProps["ID"]} == $arPEnum["ID"])echo " selected"?>><?=$arPEnum["VALUE"]?></option>
+						<option value="<?=$arPEnum["ID"]?>"<?if(${"find_el_property_".$prop["ID"]} == $arPEnum["ID"])echo " selected"?>><?=$arPEnum["VALUE"]?></option>
 					<?
 					endwhile;
 			?></select>
 			<?
-			elseif($arFProps["PROPERTY_TYPE"]=='G'):
-				_ShowGroupPropertyField('find_el_property_'.$arFProps["ID"], $arFProps, ${'find_el_property_'.$arFProps["ID"]});
+			elseif($prop["PROPERTY_TYPE"]=='G'):
+				_ShowGroupPropertyField('find_el_property_'.$prop["ID"], $prop, ${'find_el_property_'.$prop["ID"]});
 			else:
 				?>
-				<input type="text" name="find_el_property_<?=$arFProps["ID"]?>" value="<?echo htmlspecialcharsex(${"find_el_property_".$arFProps["ID"]})?>" size="30">&nbsp;<?=ShowFilterLogicHelp()?>
+				<input type="text" name="find_el_property_<?=$prop["ID"]?>" value="<?echo htmlspecialcharsex(${"find_el_property_".$prop["ID"]})?>" size="30">&nbsp;<?=ShowFilterLogicHelp()?>
 				<?
 			endif;
 			?>
 		</td>
 	</tr>
-	<?endfor;?>
+	<?endforeach;?>
 
 <?
 $oFilter->Buttons(array(

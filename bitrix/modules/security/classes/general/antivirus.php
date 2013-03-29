@@ -1,5 +1,6 @@
 <?
 IncludeModuleLangFile(__FILE__);
+
 /*
 Here is testing code:
 $s=<<<EOT
@@ -11,7 +12,7 @@ cmodule::includemodule('security');
 $Antivirus = new CSecurityAntiVirus("pre");
 $Antivirus->replace=1;
 $Antivirus->Analyze($s);
-echo htmlspecialchars($s),'<hr><pre>',htmlspecialchars(print_r($Antivirus,1));
+echo htmlspecialcharsbx($s),'<hr><pre>',htmlspecialcharsbx(print_r($Antivirus,1));
 */
 
 class CSecurityAntiVirus
@@ -35,6 +36,7 @@ class CSecurityAntiVirus
 	var $type = ''; //тип блока
 	var $body = ''; // тело блока.
 	var $bodylines = false; // массив строк из body
+	var $bodyWOquotes = '';
 
 	var $atributes = ''; // дополнительные атрибуты (вместе с src)
 
@@ -43,12 +45,9 @@ class CSecurityAntiVirus
 	var $prev = '';
 	var $next = '';
 
-	function __construct($place = "body")
-	{
-		return $this->CSecurityAntiVirus($place);
-	}
+	private $quotes = array();
 
-	function CSecurityAntiVirus($place = "body")
+	function __construct($place = "body")
 	{
 		$this->place = $place;
 		global $BX_SECURITY_AV_ACTION;
@@ -107,11 +106,14 @@ class CSecurityAntiVirus
 
 	function OnPageStart()
 	{
+		if (self::isSafetyRequest()) //Check only GET and POST request
+			return;
+
 		global $APPLICATION, $DB, $BX_SECURITY_AV_TIMEOUT, $BX_SECURITY_AV_ACTION;
 		$BX_SECURITY_AV_TIMEOUT = COption::GetOptionInt("security", "antivirus_timeout");
 		$BX_SECURITY_AV_ACTION = COption::GetOptionInt("security", "antivirus_action");
 
-		//пользовательский белый список
+		//user white list
 		global $BX_SECURITY_AV_WHITE_LIST, $CACHE_MANAGER;
 		if($CACHE_MANAGER->Read(36000, "b_sec_white_list"))
 		{
@@ -143,7 +145,7 @@ class CSecurityAntiVirus
 			}
 		}
 
-		//инициируем наблюдение за выводом, который может быть подключен после отработки антивируса.
+		//Initiate monitoring of output that can be after working antivirus.
 		register_shutdown_function(array('CSecurityAntiVirus', 'PHPShutdown'));
 
 		//Check notification from previous hit
@@ -177,7 +179,7 @@ class CSecurityAntiVirus
 
 					CSecurityDB::UnlockTable($table_lock);
 
-					unlink($fname);
+					@unlink($fname);
 				}
 			}
 		}
@@ -185,6 +187,9 @@ class CSecurityAntiVirus
 
 	function OnEndBufferContent(&$content)
 	{
+		if (self::isSafetyRequest()) //Check only GET and POST request
+			return;
+
 		//Обработка основного вывода
 		$Antivirus = new CSecurityAntiVirus("body");
 		$Antivirus->Analyze($content);
@@ -192,7 +197,10 @@ class CSecurityAntiVirus
 
 	function OnAfterEpilog()
 	{
-		//начинаем наблюдение за выводом, который может быть подключен после отработки антивируса.
+		if (self::isSafetyRequest()) //Check only GET and POST request
+			return;
+
+		//start monitoring of output that can be after working antivirus.
 		ob_start();
 		define("BX_SECURITY_AV_AFTER_EPILOG", true);
 	}
@@ -244,7 +252,7 @@ class CSecurityAntiVirus
 		if(strpos($this->atributes, 'src="/bitrix/') !== false)
 			return 1;
 
-		if(preg_match('#src="http://(api-maps\\.yandex\\.ru|maps\\.google\\.com|apis\\.google\\.com|stg\\.odnoklassniki\\.ru)/#', $this->atributes))
+		if(preg_match('#src="http[s]?://(api-maps\\.yandex|maps\\.google|apis\\.google|stg\\.odnoklassniki)\\.[a-z]{2,3}/#', $this->atributes))
 			return 2;
 
 		if(strpos($this->body, 'BX_DEBUG_INFO') !== false)
@@ -253,22 +261,22 @@ class CSecurityAntiVirus
 		if(preg_match('#(google-analytics\\.com/ga\\.js|openstat\\.net/cnt\\.js|autocontext\\.begun\\.ru/autocontext\\.js|counter\\.yadro\\.ru/hit)#', $this->body))
 			return 4;
 
-		if(preg_match('/var\s+(cmt|jsMnu_toolbar_|hint|desktopPage|arStructure|current_selected)/', $this->body))
+		if(preg_match('/var\s+(cmt|jsMnu_toolbar_|hint|desktopPage|arStructure|current_selected|arCrmSelected|arKernelCSS|lastUsers|arStore)/', $this->body))
 			return 5;
 
 		if(preg_match('/(arFDDirs|arFDFiles|arPropFieldsList|PROP)\[/', $this->body))
 			return 6;
 
-		if(preg_match('/(addPathRow|MoveProgress|Import|DoNext|JCMenu|AttachFile|CloseDialog|_processData|showComment|ShowWarnings|SWFObject|deliveryCalcProceed|structReload|addForumImagesShow|rsasec_form_bind|BX_YMapAddPolyline|BX_YMapAddPlacemark)\(/', $this->body))
+		if(preg_match('/(addPathRow|MoveProgress|Import|DoNext|JCMenu|AttachFile|CloseDialog|_processData|showComment|ShowWarnings|SWFObject|deliveryCalcProceed|structReload|addForumImagesShow|rsasec_form_bind|BX_YMapAddPolyline|BX_YMapAddPlacemark|CloseWaitWindow|DoChangeExternalSaleId|AjaxSend|readFileChunk|EndDump|createMenu)\(/', $this->body))
 			return 7;
 
 		if(strpos($this->body, 'window.operation_success = true;') !== false)
 			return 8;
 
-		if(preg_match('/(jsAjaxUtil|jsUtils|jsPopup|elOnline|jsAdminChain|jsEvent|jsAjaxHistory|bxSession)\./', $this->body))
+		if(preg_match('/(jsAjaxUtil|jsUtils|jsPopup|elOnline|jsAdminChain|jsEvent|jsAjaxHistory|bxSession|BXHotKeys|oSearchDialog)\./', $this->body))
 			return 9;
 
-		if(preg_match('/new\s+(PopupMenu|JCAdminFilter|JCAdminMenu|BXHint|ViewTabControl|BXHTMLEditor|JCTitleSearch|JCWDTitleSearch|BxInterfaceForm|Date)/', $this->body))
+		if(preg_match('/new\s+(PopupMenu|JCAdminFilter|JCSmartFilter|JCAdminMenu|BXHint|ViewTabControl|BXHTMLEditor|JCTitleSearch|JCWDTitleSearch|BxInterfaceForm|Date|JCEmployeeSelectControl)/', $this->body))
 			return 10;
 
 		if(strpos($this->body, 'document\.write(\'<link href="/bitrix/templates/') !== false)
@@ -283,7 +291,7 @@ class CSecurityAntiVirus
 		if(preg_match('/(iblock_element_edit|iblock_element_search|posting_admin|fileman_file_view|sale_print|get_message|user_edit)\.php/', $this->body))
 			return 14;
 
-		if(preg_match('/BX\.(WindowManager|reload|message|browser|ready|tooltip|admin|hint_replace|CDebugDialog|adjust|ajax|bind|loadScript|addCustomEvent|timeman|Finder|Access|loadCSS)/', $this->body))
+		if(preg_match('/BX\.(WindowManager|reload|message|browser|ready|tooltip|admin|hint_replace|CDebugDialog|adjust|ajax|bind|loadScript|addCustomEvent|timeman|Finder|Access|loadCSS|CrmProductEditor|COpener|file_input|setKernelJS)/', $this->body))
 			return 15;
 
 		if(preg_match('/window\.parent\.(InitActionProps|Tree|buildNoMenu)/', $this->body))
@@ -292,23 +300,20 @@ class CSecurityAntiVirus
 		if(preg_match('/document\.forms\.meeting_edit/', $this->body))
 			return 17;
 
-		if(preg_match('/top\.(jsBXAC|bx_req_res|BX|bxiu_simple_res|bxiu_wm_img_res|SetForumAjaxPostTmp|SetReviewsAjaxPostTmp|bxBlogImageError|replaceKeys|FILE_UPLOADER_CALLBACK)/', $this->body))
+		if(preg_match('/top\.(jsBXAC|bx_req_res|BX|bxiu_simple_res|bxiu_wm_img_res|SetForumAjaxPostTmp|SetVoteAjaxPostTmp|SetReviewsAjaxPostTmp|bxBlogImageError|replaceKeys|FILE_UPLOADER_CALLBACK|setAuthResult)/', $this->body))
 			return 18;
 
 		if(preg_match('/var\s+dates\s+=\s+new\s+Array/', $this->body))
 			return 19;
 
-		if(preg_match('/(updateURL|bx_incl_area|basketTotalWeight|iNoOnSelectionChange|arGDGroups)\s+=/', $this->body))
+		if(preg_match('/(updateURL|bx_incl_area|basketTotalWeight|iNoOnSelectionChange|arGDGroups|phpVars)\s+=/', $this->body))
 			return 20;
 
 		if(preg_match('/^\s*__status\s+=\s+true;\s*$/', $this->body))
 			return 21;
 
-		if(preg_match('/window\.(bx_load_items_res|oPhotoEditIconDialogError|bxph_error|bxph_action|bxphres|bx_req_res|MLSearchResult|arUsedCSS|arComp2Templates|arComp2TemplateProps|arComp2TemplateLists|arComp1Elements|arSnippets|JCCalendarViewMonth|JCCalendarViewWeek|JCCalendarViewDay|_bx_result|_bx_new_event|_bx_plann_mr|_bx_ar_events|_bx_calendar|_bx_plann_events|_bx_existent_event|_ml_items_colls|MLCollections|fmsBtimeout|fmsResult|arSnGroups|BXFM_result|BXFM_NoCopyToDir|oPhotoEditAlbumDialogError|structOptions|__bxst_result|_bx_def_calendar|GLOBAL_arMapObjects|autosave_|oPhotoEditDialogError|bxPlayerOnload|LHE_MESS|MLItems)/', $this->body))
+		if(preg_match('/window\.(bx_load_items_res|oPhotoEditIconDialogError|bxph_error|bxph_action|bxphres|bx_req_res|MLSearchResult|arUsedCSS|arComp2Templates|arComp2TemplateProps|arComp2TemplateLists|arComp2Elements|arSnippets|JCCalendarViewMonth|JCCalendarViewWeek|JCCalendarViewDay|_bx_result|_bx_new_event|_bx_plann_mr|_bx_ar_events|_bx_calendar|_bx_plann_events|_bx_existent_event|_ml_items_colls|MLCollections|fmsBtimeout|fmsResult|arSnGroups|BXFM_result|BXFM_NoCopyToDir|oPhotoEditAlbumDialogError|structOptions|__bxst_result|_bx_def_calendar|GLOBAL_arMapObjects|autosave_|oPhotoEditDialogError|bxPlayerOnload|LHE_MESS|MLItems|fmPackTimeout|fmUnpackSuccess|BXFM_archiveExists)/', $this->body))
 			return 22;
-
-		if(preg_match('/^\s*alert\s*\(\s*\'[^\']*\'\s*\)\s*;*\s*$/', $this->body))
-			return 23;
 
 		if(preg_match('/\s*(self|window)\.close\s*\(\s*\)\s*;*\s*$/', $this->body))
 			return 24;
@@ -334,17 +339,49 @@ class CSecurityAntiVirus
 		if(preg_match('/function\s+twitter_click_\d+\(longUrl\)/', $this->body))
 			return 31;
 
-		if(strpos($this->body, 'parent.document.getElementById("COUNTERS_UPDATED").innerHTML') !== false)
+		if(preg_match('/(window\.)*parent\.document\.getElementById\(["\'](COUNTERS_UPDATED|div_PROPERTY_DEFAULT_VALUE)["\']\)\.innerHTML/',$this->body))
 			return 32;
 
+		if(preg_match('/(TasksUsers|IntranetUsers).arEmployees/',$this->body))
+			return 35;
+	
+		if(preg_match('/window\.location\s*=\s*[\'"]\/bitrix\/admin\/iblock_bizproc_workflow_edit.php/', $this->body))
+			return 36;
+
+		if(preg_match('/window\.parent\.location\.href\s*=\s*[\'"]\/bitrix\/admin\/sale_order_new.php/', $this->body))
+			return 43;
+
+		if(preg_match('/^window\.open\(/', $this->body))
+			return 44;
+		
+		if(strpos($this->body, 'showFLVPlayer') !== false)
+			return 37;
+
+		if(preg_match('/var\s+formSettingsDialogCRM_(LEAD|DEAL|COMPANY|CONTACT)_SHOW/', $this->body))
+			return 38;
+		
+		if(preg_match('/parent\.(FILE_UPLOADER_CALLBACK)/', $this->body))
+			return 39;
+		
+		if(preg_match('/bxForm_CRM/', $this->body))
+			return 40;
+		
+		if(preg_match('/\$\(([\'"])[^\'"]*[\'"]\)/', $this->body))
+			return 41;
+
+		if(preg_match('/document\.documentElement\.className/i', $this->body))
+			return 42;
+		
 		if($this->type === "script")
 		{
-			$bodyWOquotes = trim(CSecurityXSSDetect::remove_quoted_strings($this->body), " \t\n\r");
-			$bodyWOquotes = preg_replace("/\\s*(top|window)\\.location\\s*=\\s*(\"\"|''|\\s*\\+\\s*)+;\\s*/", "", $bodyWOquotes);
-			$bodyWOquotes = preg_replace("/\\s*alert\\s*\\((\"\"|''|\\s*\\+\\s*)+\\)\\s*;\\s*/", "", $bodyWOquotes);
-			$bodyWOquotes = trim($bodyWOquotes, "\n\r\t ");
+			$filter = new CSecurityXSSDetect(array("action" => "none", "log" => "N"));
+			$this->bodyWOquotes = trim($filter->removeQuotedStrings($this->body, false), " \t\n\r");
+			$this->bodyWOquotes = preg_replace("/\\s*(window\\.top|top|window|window\\.document|document)\\.(strWarning|location\\.href|location|action_warning|__bx_res_sn_filename|title|title[\\d]+\\s*=\\s*title[\\d]+|text[\\d]+\\s*=\\s*text[\\d]+)\\s*=\\s*(|\\s*\\+\\s*)+;{0,1}\\s*/s", "", $this->bodyWOquotes, -1, $count);
+			$this->bodyWOquotes = preg_replace("/\\s*(alert|SelFile)\\s*\\((|[0-9]+|\\s*\\+\\s*)+\\)\\s*;{0,1}\\s*/", "", $this->bodyWOquotes);
+			$this->bodyWOquotes = trim($this->bodyWOquotes, "\n\r\t ");
+			$this->bodyWOquotes = preg_replace("/^\\/\\/[^\n]*\$/", "", $this->bodyWOquotes);
 
-			if($bodyWOquotes === "")
+			if($this->bodyWOquotes === "")
 				return 33;
 		}
 
@@ -485,9 +522,8 @@ class CSecurityAntiVirus
 	{
 		static $arLocalCache = array();
 
-		$content_len = defined("BX_UTF")? mb_strlen($content, 'latin1'): strlen($content);
-		if(intval(ini_get("pcre.backtrack_limit")) <= $content_len)
-			@ini_set("pcre.backtrack_limit", $content_len+1);
+		$content_len = CUtil::BinStrlen($content) * 2;
+		CUtil::AdjustPcreBacktrackLimit($content_len);
 
 		$this->stylewithiframe = preg_match("/<style.*>\s*iframe/", $content);
 
@@ -1648,9 +1684,9 @@ class CSecurityAntiVirus
 
 	function getnames($str)
 	{
-		$flt = new CSecurityXSSDetect;
-		$flt->remove_quoted_strings($str);
-		$this->quotes = $flt->quotes;
+		$flt = new CSecurityXSSDetect(array("action" => "none", "log" => "N"));
+		$flt->removeQuotedStrings($str);
+		$this->quotes = $flt->getQuotes();
 
 		$r = array('f'=>array(), 'n'=>array(), 's'=>array());
 
@@ -1659,7 +1695,7 @@ class CSecurityAntiVirus
 			$added = array();
 			foreach($ret[1] as $k => $v)
 			{
-				if(!$added[$v])
+				if(!array_key_exists($v ,$added))
 				{
 					if($ret[2][$k] == '(')
 						$r['f'][] = $v;
@@ -1737,6 +1773,11 @@ class CSecurityAntiVirus
 		if(preg_match("/<script.*?>((\s*<!\-\-)|(<!\[CDATA\[))?\s*(.*?)\s*((\/\/\s*\-\->\s*)|(\/\/\s*\]\s*\]\s*))?<\/script.*>/is", $str, $ret))
 			return $ret[4];
 		return $str;
+	}
+
+	function isSafetyRequest()
+	{
+		return (!in_array($_SERVER['REQUEST_METHOD'],array('GET','POST')));
 	}
 }
 ?>

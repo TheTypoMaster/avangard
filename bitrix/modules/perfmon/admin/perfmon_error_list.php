@@ -211,7 +211,7 @@ $oFilter = new CAdminFilter(
 <tr>
 	<td><b><?=GetMessage("PERFMON_ERR_FIND")?>:</b></td>
 	<td>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("PERFMON_ERR_FIND")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("PERFMON_ERR_FIND")?>">
 		<?
 		$arr = array(
 			"reference" => array(
@@ -231,7 +231,7 @@ $oFilter = new CAdminFilter(
 </tr>
 <tr>
 	<td><?=GetMessage("PERFMON_ERR_HIT_ID")?></td>
-	<td><input type="text" name="find_hit_id" size="47" value="<?echo htmlspecialchars($find_hit_id)?>"></td>
+	<td><input type="text" name="find_hit_id" size="47" value="<?echo htmlspecialcharsbx($find_hit_id)?>"></td>
 </tr>
 <tr>
 	<td><?=GetMessage("PERFMON_ERR_NO")?></td>
@@ -243,11 +243,11 @@ $oFilter = new CAdminFilter(
 </tr>
 <tr>
 	<td><?=GetMessage("PERFMON_ERR_FILE")?></td>
-	<td><input type="text" name="find_errfile" size="47" value="<?echo htmlspecialchars($find_errfile)?>"></td>
+	<td><input type="text" name="find_errfile" size="47" value="<?echo htmlspecialcharsbx($find_errfile)?>"></td>
 </tr>
 <tr>
 	<td><?=GetMessage("PERFMON_ERR_TEXT")?></td>
-	<td><input type="text" name="find_errstr" size="47" value="<?echo htmlspecialchars($find_errstr)?>"></td>
+	<td><input type="text" name="find_errstr" size="47" value="<?echo htmlspecialcharsbx($find_errstr)?>"></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage(), "form"=>"find_form"));

@@ -22,107 +22,44 @@ $arParams["SHOW_VOTE"] = ($arParams["SHOW_VOTE"] == "Y" && IsModuleInstalled("vo
 ********************************************************************/
 
 if ($arResult["VIEW"] == "Y"):
-?><a name="postform"></a>
-<div class="forum-header-box">
-	<div class="forum-header-title"><span><?=GetMessage("F_VIEW")?></span></div>
-</div>
-<div class="forum-info-box forum-post-preview">
-	<div class="forum-info-box-inner">
-		<div class="forum-post-text"><?=$arResult["MESSAGE_VIEW"]["TEXT"]?></div>
-<?
-	if (!empty($arResult["MESSAGE_VIEW"]["FILES"])):
-?>
-			<div class="forum-post-attachments">
-				<label><?=GetMessage("F_ATTACH_FILES")?></label>
-<?
-		foreach ($arResult["MESSAGE_VIEW"]["FILES"] as $arFile): 
-?>
-				<div class="forum-post-attachment">
-<?
-			?><?$GLOBALS["APPLICATION"]->IncludeComponent(
-				"bitrix:forum.interface", "show_file",
-				Array(
-					"FILE" => $arFile,
-					"WIDTH" => $arParams["IMAGE_SIZE"],
-					"HEIGHT" => $arParams["IMAGE_SIZE"],
-					"CONVERT" => "N",
-					"FAMILY" => "FORUM",
-					"SINGLE" => "Y",
-					"RETURN" => "N",
-					"SHOW_LINK" => "Y"),
-				null,
-				array("HIDE_ICONS" => "Y"));
-?>
-				</div>
-<?
-		endforeach;
-?>
-			</div>
-<?
-	endif;
-?>
-	</div>
-</div>
-<?
+?><?$GLOBALS["APPLICATION"]->IncludeComponent(
+	"bitrix:forum.message.template",
+	".preview",
+	Array(
+		"MESSAGE" => $arResult["MESSAGE_VIEW"],
+		"ATTACH_MODE" => $arParams["ATTACH_MODE"],
+		"ATTACH_SIZE" => $arParams["ATTACH_SIZE"],
+		"arResult" => $arResult,
+		"arParams" => $arParams
+	),
+	$component->__parent,
+	array("HIDE_ICONS" => "Y")
+);?><?
 elseif ($arResult["SHOW_MESSAGE_FOR_AJAX"] == "Y"):
-
 	ob_end_clean();
 	ob_start();
 	$GLOBALS["bShowImageScriptPopup"] = true;
-?>
-<div class="forum-post-text" id="message_text_<?=$arResult["MESSAGE"]["ID"]?>"><?=$arResult["MESSAGE"]["POST_MESSAGE_TEXT"]?></div>
-<?
-if (!empty($arResult["MESSAGE"]["FILES"])):
-?>
-	<div class="forum-post-attachments">
-		<label><?=GetMessage("F_ATTACH_FILES")?></label>
-<?
-	foreach ($arResult["MESSAGE"]["FILES"] as $arFile): 
-?>
-		<div class="forum-post-attachment"><?
-		?><?$GLOBALS["APPLICATION"]->IncludeComponent(
-			"bitrix:forum.interface", "show_file",
-			Array(
-				"FILE" => $arFile,
-				"WIDTH" => $arParams["IMAGE_SIZE"],
-				"HEIGHT" => $arParams["IMAGE_SIZE"],
-				"CONVERT" => "N",
-				"FAMILY" => "FORUM",
-				"SINGLE" => "Y",
-				"RETURN" => "N",
-				"SHOW_LINK" => "Y"),
-			null,
-			array("HIDE_ICONS" => "Y"));
-		?></div>
-<?
-	endforeach;
-?>
-	</div>
-<?
-endif;
-
-if (!empty($arResult["MESSAGE"]["EDITOR_NAME"])):
-?><div class="forum-post-lastedit">
-	<span class="forum-post-lastedit"><?=GetMessage("F_EDIT_HEAD")?>
-		<span class="forum-post-lastedit-user"><?
-	if (!empty($arResult["MESSAGE"]["EDITOR_LINK"])):
-		?><noindex><a rel="nofollow" href="<?=$arResult["MESSAGE"]["EDITOR_LINK"]?>"><?=$arResult["MESSAGE"]["EDITOR_NAME"]?></a></noindex><?
-	else:
-		?><?=$arResult["MESSAGE"]["EDITOR_NAME"]?><?
-	endif;
-	?></span> - <span class="forum-post-lastedit-date"><?=$arResult["MESSAGE"]["EDIT_DATE"]?></span>
-	<span class="forum-post-lastedit-reason">(<span><?=$arResult["MESSAGE"]["EDIT_REASON"]?></span>)</span></span>
-</div><?
-endif;
-	
-	if(!function_exists("__ConverData"))
+	?><?$GLOBALS["APPLICATION"]->IncludeComponent(
+		"bitrix:forum.message.template",
+		".preview",
+		Array(
+			"MESSAGE" => $arResult["MESSAGE"],
+			"ATTACH_MODE" => $arParams["ATTACH_MODE"],
+			"ATTACH_SIZE" => $arParams["ATTACH_SIZE"],
+			"arResult" => $arResult,
+			"arParams" => $arParams
+		),
+		$component->__parent,
+		array("HIDE_ICONS" => "Y")
+	);?><?
+	if(!function_exists("__ConvertData"))
 	{
-		function __ConverData(&$item, $key)
+		function __ConvertData(&$item, $key)
 		{
 			static $search = array("&#92;");
 			static $replace = array("&amp;#92;");
 			if(is_array($item))
-				array_walk($item, "__ConverData");
+				array_walk($item, "__ConvertData");
 			else
 			{
 				$item = htmlspecialcharsEx($item);
@@ -131,17 +68,12 @@ endif;
 		}
 	}
 	
-	$post = ob_get_contents();
-	ob_end_clean();
-	$res = array(
-		"id" => $arParams["MID"],
-		"post" => $post);
+	$post =
+	$res = array("id" => $arParams["MID"], "post" => ob_get_clean());
 	if ($_REQUEST["CONVERT_DATA"] == "Y")
-		array_walk($res, "__ConverData");
-		
-	$GLOBALS["APPLICATION"]->RestartBuffer();
-	?><?=CUtil::PhpToJSObject($res)?><?
-	die();
-
+		array_walk($res, "__ConvertData");
+$GLOBALS["APPLICATION"]->RestartBuffer();
+?><?=CUtil::PhpToJSObject($res)?><?
+die();
 endif;
 ?>

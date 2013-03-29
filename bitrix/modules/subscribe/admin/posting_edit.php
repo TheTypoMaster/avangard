@@ -18,6 +18,7 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
+CModule::IncludeModule("fileman");
 $ID = intval($ID);		// Id of the edited record
 $bCopy = ($action == "copy");
 $message = null;
@@ -27,19 +28,19 @@ if($REQUEST_METHOD == "POST" && ($save.$apply.$Send.$Resend.$Continue!="") && $P
 {
 	$posting = new CPosting();
 	$arFields = Array(
-		"FROM_FIELD"	=> $FROM_FIELD,
-		"TO_FIELD"	=> $TO_FIELD,
-		"BCC_FIELD"	=> $BCC_FIELD,
-		"EMAIL_FILTER"	=> $EMAIL_FILTER,
-		"SUBJECT"	=> $SUBJECT,
-		"BODY_TYPE"	=> ($BODY_TYPE <> "html"? "text":"html"),
-		"BODY"		=> $BODY,
-		"DIRECT_SEND"	=> ($DIRECT_SEND <> "Y"? "N":"Y"),
-		"CHARSET"	=> $CHARSET,
-		"SUBSCR_FORMAT"	=> ($SUBSCR_FORMAT<>"html" && $SUBSCR_FORMAT<>"text"? false:$SUBSCR_FORMAT),
-		"RUB_ID"	=> $RUB_ID,
-		"GROUP_ID"	=> $GROUP_ID,
-		"AUTO_SEND_TIME"=> ($AUTO_SEND_FLAG<>"Y"? false: $AUTO_SEND_TIME),
+		"FROM_FIELD"	=> $_REQUEST["FROM_FIELD"],
+		"TO_FIELD"	=> $_REQUEST["TO_FIELD"],
+		"BCC_FIELD"	=> $_REQUEST["BCC_FIELD"],
+		"EMAIL_FILTER"	=> $_REQUEST["EMAIL_FILTER"],
+		"SUBJECT"	=> $_REQUEST["SUBJECT"],
+		"BODY_TYPE"	=> ($_REQUEST["BODY_TYPE"] <> "html"? "text":"html"),
+		"BODY"		=> $_REQUEST["BODY"],
+		"DIRECT_SEND"	=> ($_REQUEST["DIRECT_SEND"] <> "Y"? "N":"Y"),
+		"CHARSET"	=> $_REQUEST["CHARSET"],
+		"SUBSCR_FORMAT"	=> ($_REQUEST["SUBSCR_FORMAT"]<>"html" && $_REQUEST["SUBSCR_FORMAT"]<>"text"? false: $_REQUEST["SUBSCR_FORMAT"]),
+		"RUB_ID"	=> $_REQUEST["RUB_ID"],
+		"GROUP_ID"	=> $_REQUEST["GROUP_ID"],
+		"AUTO_SEND_TIME"=> ($_REQUEST["AUTO_SEND_FLAG"]<>"Y"? false: $_REQUEST["AUTO_SEND_TIME"]),
 	);
 
 	if($STATUS <> "")
@@ -73,13 +74,30 @@ if($REQUEST_METHOD == "POST" && ($save.$apply.$Send.$Resend.$Continue!="") && $P
 		//New files
 		$arFiles = array();
 
+		//Brandnew
+		if(is_array($_FILES["NEW_FILE"]))
+		{
+			foreach($_FILES["NEW_FILE"] as $attribute=>$files)
+			{
+				if(is_array($files))
+					foreach($files as $index=>$value)
+						$arFiles[$index][$attribute]=$value;
+			}
+
+			foreach($arFiles as $index => $file)
+			{
+				if(!is_uploaded_file($file["tmp_name"]))
+					unset($arFiles[$index]);
+			}
+		}
+
 		//Copy
 		if(array_key_exists("FILES", $_POST) && is_array($_POST["FILES"]))
 		{
 			if(intval($COPY_ID) > 0)
 			{
 				//Files from posting_edit.php
-				foreach($_POST["FILES"] as $key => $file_id)
+				foreach(array_reverse($_POST["FILES"], true) as $key => $file_id)
 				{
 					//skip "deleted"
 					if(is_array($FILE_ID) && array_key_exists($key, $FILE_ID))
@@ -90,7 +108,7 @@ if($REQUEST_METHOD == "POST" && ($save.$apply.$Send.$Resend.$Continue!="") && $P
 						$rsFile = CPosting::GetFileList($COPY_ID, $file_id);
 						if($ar = $rsFile->Fetch())
 						{
-							$arFiles[] = CFile::MakeFileArray($ar["ID"]);
+							array_unshift($arFiles, CFile::MakeFileArray($ar["ID"]));
 						}
 					}
 				}
@@ -98,18 +116,19 @@ if($REQUEST_METHOD == "POST" && ($save.$apply.$Send.$Resend.$Continue!="") && $P
 			else
 			{
 				//Files from template_test.php
-				foreach($_POST["FILES"] as $arFile)
-					if(is_array($arFile))
-						$arFiles[] = $arFile;
+				foreach(array_reverse($_POST["FILES"], true) as $file)
+				{
+					if(
+						is_array($file)
+						&& strlen($file["tmp_name"]) > 0
+						&& $APPLICATION->GetFileAccessPermission($file["tmp_name"]) >= "W"
+					)
+					{
+						array_unshift($arFiles, $file);
+					}
+				}
 			}
 		}
-
-		//Brandnew
-		if(is_array($_FILES["NEW_FILE"]))
-			foreach($_FILES["NEW_FILE"] as $attribute=>$files)
-				if(is_array($files))
-					foreach($files as $index=>$value)
-						$arFiles[$index][$attribute]=$value;
 
 		foreach($arFiles as $file)
 		{
@@ -149,7 +168,7 @@ if($REQUEST_METHOD == "POST" && ($save.$apply.$Send.$Resend.$Continue!="") && $P
 ClearVars();
 $str_STATUS = "D";
 $str_DIRECT_SEND = "Y";
-$str_BODY_TYPE = (COption::GetOptionString("subscribe", "posting_use_editor")=="Y"? "html":"text");
+$str_BODY_TYPE = "text";
 $str_FROM_FIELD = COption::GetOptionString("subscribe", "default_from");
 $str_TO_FIELD = COption::GetOptionString("subscribe", "default_to");
 $str_AUTO_SEND_FLAG = "N";
@@ -298,24 +317,21 @@ else
 	<tr class="heading">
 		<td colspan="2"><?echo GetMessage("post_fields")?></td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span><?echo GetMessage("post_fields_from")?></td>
+	<tr class="">
+		<td><?echo GetMessage("post_fields_from")?></td>
 		<td><input type="text" name="FROM_FIELD" value="<?echo $str_FROM_FIELD;?>" size="30" maxlength="255"></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("post_fields_to")?></td>
 		<td><input type="text" name="TO_FIELD" value="<?echo $str_TO_FIELD;?>" size="30" maxlength="255"></td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span><?echo GetMessage("post_fields_subj")?></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("post_fields_subj")?></td>
 		<td><input type="text" name="SUBJECT" value="<?echo $str_SUBJECT;?>" size="30" maxlength="255"></td>
 	</tr>
-	<tr class="heading">
-		<td colspan="2"><span class="required">*</span><?echo GetMessage("post_fields_text")?><span class="required"><sup>1</sup></span></td>
+	<tr class="heading adm-detail-required-field">
+		<td colspan="2"><?echo GetMessage("post_fields_text")?><span class="required"><sup>1</sup></span></td>
 	</tr>
-	<?
-	if(COption::GetOptionString("subscribe", "posting_use_editor")=="Y" && CModule::IncludeModule("fileman")):
-	?>
 	<tr>
 		<td colspan="2">
 		<?
@@ -323,24 +339,6 @@ else
 		?>
 		</td>
 	</tr>
-	<?
-	else:
-	?>
-	<tr>
-		<td colspan="2">
-		<input type="radio" id="BODY_TYPE_1" name="BODY_TYPE" value="text"<?if($str_BODY_TYPE=="text")echo " checked"?>>
-		<label for="BODY_TYPE_1"><?echo GetMessage("post_format_text")?></label>
-		&nbsp;/&nbsp;
-		<input type="radio" id="BODY_TYPE_2" name="BODY_TYPE" value="html"<?if($str_BODY_TYPE=="html")echo " checked"?>>
-		<label for="BODY_TYPE_2">HTML</label>
-		</td>
-	</tr>
-	<tr>
-		<td colspan="2">
-		<textarea name="BODY" style="width:100%; height:400px"><?echo $str_BODY;?></textarea>
-		</td>
-	</tr>
-	<?endif;?>
 <?
 //********************
 //Receipients
@@ -351,11 +349,14 @@ $tabControl->BeginNextTab();
 		<td colspan="2"><?echo GetMessage("post_subscr")?></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("post_rub")?></td>
+		<td class="adm-detail-valign-top"><?echo GetMessage("post_rub")?></td>
 		<td>
-			<input type="checkbox" id="RUB_ID_ALL" name="RUB_ID_ALL" value="Y" OnClick="CheckAll('RUB_ID', true)">
-			<label for="RUB_ID_ALL"><?echo GetMessage("MAIN_ALL")?></label><br>
-		<?
+			<div class="adm-list">
+				<div class="adm-list-item">
+					<div class="adm-list-control"><input type="checkbox" id="RUB_ID_ALL" name="RUB_ID_ALL" value="Y" OnClick="CheckAll('RUB_ID', true)"></div>
+					<div class="adm-list-label"><label for="RUB_ID_ALL"><?echo GetMessage("MAIN_ALL")?></label></div>
+				</div>
+			<?
 			$aPostRub = array();
 			if($ID>0)
 			{
@@ -368,11 +369,12 @@ $tabControl->BeginNextTab();
 			$rub = CRubric::GetList(array("LID"=>"ASC", "SORT"=>"ASC", "NAME"=>"ASC"), array("ACTIVE"=>"Y"));
 			while($ar = $rub->GetNext()):
 			?>
-				<input type="checkbox" id="RUB_ID_<?echo $ar["ID"]?>" name="RUB_ID[]" value="<?echo $ar["ID"]?>"<?if(in_array($ar["ID"], ($bVarsFromForm? $RUB_ID:$aPostRub))) echo " checked"?> OnClick="CheckAll('RUB_ID')">
-				<label for="RUB_ID_<?echo $ar["ID"]?>"><?echo "[".$ar["LID"]."] ".$ar["NAME"]?></label><br>
-			<?
-			endwhile;
-		?>
+				<div class="adm-list-item">
+					<div class="adm-list-control"><input type="checkbox" id="RUB_ID_<?echo $ar["ID"]?>" name="RUB_ID[]" value="<?echo $ar["ID"]?>"<?if(in_array($ar["ID"], ($bVarsFromForm? $RUB_ID:$aPostRub))) echo " checked"?> OnClick="CheckAll('RUB_ID')"></div>
+					<div class="adm-list-label"><label for="RUB_ID_<?echo $ar["ID"]?>"><?echo "[".$ar["LID"]."] ".$ar["NAME"]?></label></div>
+				</div>
+			<?endwhile;?>
+			</div>
 		</td>
 	</tr>
 	<tr>
@@ -389,10 +391,14 @@ $tabControl->BeginNextTab();
 		<td colspan="2"><?echo GetMessage("post_users")?></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("post_groups")?></td>
+		<td class="adm-detail-valign-top"><?echo GetMessage("post_groups")?></td>
 		<td>
-			<input type="checkbox" id="GROUP_ID_ALL" name="GROUP_ID_ALL" value="Y" OnClick="CheckAll('GROUP_ID', true)">
-			<label for="GROUP_ID_ALL"><?echo GetMessage("MAIN_ALL")?></label><br>
+			<div class="adm-list">
+				<div class="adm-list-item">
+					<div class="adm-list-control"><input type="checkbox" id="GROUP_ID_ALL" name="GROUP_ID_ALL" value="Y" OnClick="CheckAll('GROUP_ID', true)"></div>
+					<div class="adm-list-label"><label for="GROUP_ID_ALL"><?echo GetMessage("MAIN_ALL")?></label></div>
+				</div>
+
 		<?
 			$aPostGrp = array();
 			if($ID>0)
@@ -406,12 +412,15 @@ $tabControl->BeginNextTab();
 			$group = CGroup::GetList(($by="sort"), ($order="asc"));
 			while($ar = $group->GetNext()):
 			?>
-				<input type="checkbox" id="GROUP_ID_<?echo $ar["ID"]?>" name="GROUP_ID[]" value="<?echo $ar["ID"]?>"<?if(in_array($ar["ID"], ($bVarsFromForm? $GROUP_ID: $aPostGrp))) echo " checked"?> OnClick="CheckAll('GROUP_ID')">
-				<label for="GROUP_ID_<?echo $ar["ID"]?>"><?echo $ar["NAME"]?>&nbsp;[<a href="/bitrix/admin/group_edit.php?ID=<?echo $ar["ID"]?>&amp;lang=<?echo LANGUAGE_ID?>"><?echo $ar["ID"]?></a>]</label><br>
+				<div class="adm-list-item">
+					<div class="adm-list-control"><input type="checkbox" id="GROUP_ID_<?echo $ar["ID"]?>" name="GROUP_ID[]" value="<?echo $ar["ID"]?>"<?if(in_array($ar["ID"], ($bVarsFromForm? $GROUP_ID: $aPostGrp))) echo " checked"?> OnClick="CheckAll('GROUP_ID')"></div>
+					<div class="adm-list-label"><label for="GROUP_ID_<?echo $ar["ID"]?>"><?echo $ar["NAME"]?>&nbsp;[<a href="/bitrix/admin/group_edit.php?ID=<?echo $ar["ID"]?>&amp;lang=<?echo LANGUAGE_ID?>"><?echo $ar["ID"]?></a>]</label></div>
+				</div>
 			<?
 				$n++;
 			endwhile;
 		?>
+			</div>
 		</td>
 	</tr>
 	<tr class="heading">
@@ -513,7 +522,7 @@ if(COption::GetOptionString("subscribe", "attach_images")=="Y" && $str_BODY<>"" 
 	if(count($tools->aMatches)>0):
 ?>
 	<tr>
-		<td width="40%" valign="top"><?=GetMessage("post_images_list")?>:</td>
+		<td width="40%" class="adm-detail-valign-top"><?=GetMessage("post_images_list")?>:</td>
 		<td width="60%">
 			<table border="0" cellspacing="0" cellpadding="0" class="internal">
 			<tr class="heading">
@@ -540,7 +549,7 @@ endif;
 ?>
 	<?if($ID > 0 && ($rsFiles = CPosting::GetFileList($ID)) && ($arFile = $rsFiles->GetNext())):?>
 	<tr>
-		<td valign="top"><?=GetMessage("post_attachments_list")?>:</td>
+		<td class="adm-detail-valign-top"><?=GetMessage("post_attachments_list")?>:</td>
 		<td>
 		<table border="0" cellpadding="0" cellspacing="0" class="internal">
 		<tr class="heading">
@@ -569,12 +578,12 @@ endif;
 	</tr>
 	<?endif;?>
 	<tr>
-		<td valign="top"><?=GetMessage("post_attachments_load")?>:</td>
+		<td class="adm-detail-valign-top"><?=GetMessage("post_attachments_load")?>:</td>
 		<td>
 			<table border="0" cellpadding="0" cellspacing="0">
-			<tr><td><?echo CFile::InputFile("NEW_FILE[n0]", 40, 0)?></td></tr>
-			<tr><td><?echo CFile::InputFile("NEW_FILE[n1]", 40, 0)?></td></tr>
-			<tr><td><?echo CFile::InputFile("NEW_FILE[n2]", 40, 0)?></td></tr>
+			<tr><td><?echo CFile::InputFile("NEW_FILE[n0]", 40, 0)?><br><br></td></tr>
+			<tr><td><?echo CFile::InputFile("NEW_FILE[n1]", 40, 0)?><br><br></td></tr>
+			<tr><td><?echo CFile::InputFile("NEW_FILE[n2]", 40, 0)?><br><br></td></tr>
 			</table>
 		</td>
 	</tr>
@@ -594,7 +603,7 @@ $tabControl->BeginNextTab();
 		<?
 		$aCharset = explode(",", COption::GetOptionString("subscribe", "posting_charset"));
 		foreach($aCharset as $strCharset):
-			?><option value="<?echo htmlspecialchars($strCharset)?>"<?if($ID > 0 && $post_arr["CHARSET"]==$strCharset) echo " selected"?>><?echo htmlspecialcharsex($strCharset)?></option><?
+			?><option value="<?echo htmlspecialcharsbx($strCharset)?>"<?if($ID > 0 && $post_arr["CHARSET"]==$strCharset) echo " selected"?>><?echo htmlspecialcharsex($strCharset)?></option><?
 		endforeach;
 		?>
 		</select>
@@ -617,7 +626,7 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("post_send_time"). " (".FORMAT_DATETIME."):"?><span class="required"><sup>2</sup></span></td>
+		<td><?echo GetMessage("post_send_time"). ":"?><span class="required"><sup>2</sup></span></td>
 		<td><?echo CalendarDate("AUTO_SEND_TIME", $str_AUTO_SEND_TIME, "post_form", "20")?></td>
 	</tr>
 <script language="JavaScript">
@@ -637,7 +646,7 @@ EnableAutoSend();
 		<td><? echo ($str_AUTO_SEND_FLAG == "Y"?GetMessage("post_yes"):GetMessage("post_no"))?></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("post_send_time"). " (".FORMAT_DATETIME."):"?><span class="required"><sup>2</sup></span>
+		<td><?echo GetMessage("post_send_time"). ":"?><span class="required"><sup>2</sup></span>
 		<input type="hidden" name="AUTO_SEND_FLAG" value="<?echo $str_AUTO_SEND_FLAG?>">
 		<input type="hidden" name="AUTO_SEND_TIME" value="<?echo $str_AUTO_SEND_TIME?>">
 		</td>
@@ -679,8 +688,6 @@ $tabControl->ShowWarnings("post_form", $message);
 ?>
 
 <?echo BeginNote();?>
-<span class="required">*</span><?echo GetMessage("REQUIRED_FIELDS")?><br>
-<br>
 <span class="required"><sup>1</sup></span><?echo GetMessage("post_note")?><br>
 <br>
 <span class="required"><sup>2</sup></span><?echo GetMessage("post_send_msg")?><br>

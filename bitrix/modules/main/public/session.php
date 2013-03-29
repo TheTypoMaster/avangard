@@ -20,7 +20,7 @@ if($_SESSION["BX_SESSION_COUNTER"] > 1)
 elseif($USER->IsAuthorized())
 {
 	$cookie_prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
-	$salt = $_COOKIE[$cookie_prefix.'_UIDH']."|".$_SERVER["REMOTE_ADDR"]."|".@filemtime($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/version.php")."|".LICENSE_KEY;
+	$salt = $_COOKIE[$cookie_prefix.'_UIDH']."|".$_SERVER["REMOTE_ADDR"]."|".@filemtime($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/version.php")."|".LICENSE_KEY."|".CMain::GetServerUniqID();
 	if($_REQUEST["k"] == md5($_REQUEST["sessid"].$salt))
 	{
 		bitrix_sessid_set($_REQUEST['sessid']);

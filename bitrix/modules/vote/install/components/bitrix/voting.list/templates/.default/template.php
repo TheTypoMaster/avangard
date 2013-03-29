@@ -70,7 +70,7 @@ foreach ($arResult["VOTES"] as $arVote):
 <?
 		if ($arVote["DATE_START"]):
 ?>
-			<span class="vote-item-date-start"><?=$arVote["DATE_START"]?></span>
+			<span class="vote-item-date-start"><?=FormatDate($DB->DateFormatToPHP(CSite::GetDateFormat('FULL')), MakeTimeStamp($arVote["DATE_START"]))?></span>
 <?
 
 		endif;
@@ -81,7 +81,7 @@ foreach ($arResult["VOTES"] as $arVote):
 <?
 			endif;
 ?>
-			<span class="vote-item-date-end"><?=$arVote["DATE_END"]?></span>
+			<span class="vote-item-date-end"><?=FormatDate($DB->DateFormatToPHP(CSite::GetDateFormat('FULL')), MakeTimeStamp($arVote["DATE_END"]))?></span>
 <?
 		endif;
 ?>

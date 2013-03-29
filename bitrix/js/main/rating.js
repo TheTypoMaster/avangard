@@ -440,3 +440,4 @@ Rating.PopupScroll = function(voteId, action)
 		}
 	});
 }
+;   

@@ -1,7 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetPageProperty("title", "Диван с ортопедическим матрасом");
-$APPLICATION->SetTitle("Диван с ортопедическим матрасом");
+$APPLICATION->SetTitle("Диван с ортопедическим основанием. Матрасы с пружинами.");
 ?> <?$APPLICATION->IncludeComponent(
 	"bitrix:catalog.element",
 	"template_statii_det",

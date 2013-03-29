@@ -1632,24 +1632,24 @@ $tabControl->BeginNextTab();
 if ($tabStep == 1):
 	if ($isSubscribed):
 		?>
-		<tr>
-			<td valign="top" width="30%"><span class="required">*</span><?= GetMessage("MFC1_F_PWD") ?>:<br></td>
-			<td valign="top" width="70%"><input type="password" name="crc_password" style="width:80%;"><?echo BeginNote().GetMessage("MFCW_INT_PASS_SUBSCR").EndNote();?></td>
+		<tr class="adm-detail-required-field">
+			<td class="adm-detail-valign-top" width="30%" style="padding-top:16px;"><?= GetMessage("MFC1_F_PWD") ?>:<br></td>
+			<td width="70%"><input type="password" name="crc_password" style="width:80%;"><?echo BeginNote().GetMessage("MFCW_INT_PASS_SUBSCR").EndNote();?></td>
 		</tr>
 		<?
 	elseif ($RIGHT_SIGN):
 		?>
-		<tr>
-			<td valign="top" width="30%"><span class="required">*</span><?= GetMessage("MFC1_F_PWD") ?>:<br></td>
-			<td valign="top" width="70%"><input type="password" name="crc_password" style="width:80%;"><?echo BeginNote().GetMessage("MFCW_INT_PASS_NOTSUBSCR").EndNote();?></td>
+		<tr class="adm-detail-required-field">
+			<td class="adm-detail-valign-top" width="30%" style="padding-top:16px;"><?= GetMessage("MFC1_F_PWD") ?>:<br></td>
+			<td width="70%"><input type="password" name="crc_password" style="width:80%;"><?echo BeginNote().GetMessage("MFCW_INT_PASS_NOTSUBSCR").EndNote();?></td>
 		</tr>
-		<tr>
-			<td valign="top"><span class="required">*</span><?= GetMessage("MFC1_F_PWD_CONF") ?>:</td>
-			<td valign="top"><input type="password" name="crc_password_check" style="width:80%;"></td>
+		<tr class="adm-detail-required-field">
+			<td><?= GetMessage("MFC1_F_PWD_CONF") ?>:</td>
+			<td><input type="password" name="crc_password_check" style="width:80%;"></td>
 		</tr>
-		<tr>
-			<td valign="top"><span class="required">*</span><?= GetMessage("MFC1_F_KEY") ?>:</td>
-			<td valign="top"><input type="text" name="crc_key" style="width:80%;" value=""><?echo BeginNote().GetMessage("MFCW_INT_KEY_HINT_NOT_SUBSCR").EndNote();?></td>
+		<tr class="adm-detail-required-field">
+			<td class="adm-detail-valign-top" style="padding-top:16px;"><?= GetMessage("MFC1_F_KEY") ?>:</td>
+			<td><input type="text" name="crc_key" style="width:80%;" value=""><?echo BeginNote().GetMessage("MFCW_INT_KEY_HINT_NOT_SUBSCR").EndNote();?></td>
 		</tr>
 		<?
 	endif;
@@ -1659,9 +1659,9 @@ $tabControl->BeginNextTab();
 if ($tabStep == 2):
 ?>
 
-	<tr>
-		<td valign="top" width="30%"><span class="required">*</span><?= GetMessage("MFC1_F_ACT") ?>:<br></td>
-		<td valign="top" width="70%">
+	<tr class="adm-detail-required-field">
+		<td class="adm-detail-valign-top" width="30%"><?= GetMessage("MFC1_F_ACT") ?>:<br></td>
+		<td width="70%">
 			<?if($RIGHT_VERIFY):?>
 			<input type="radio" name="action" value="verify" id="action_verify" checked><label for="action_verify"><?= GetMessage("MFC1_F_ACT_VERIFY") ?></label><br />
 			<?endif?>
@@ -1692,18 +1692,20 @@ if ($tabStep > 2 && $action == "verify" && $RIGHT_VERIFY)
 						if (!confirm("<?= GetMessage("MFC1_F_DELETE_CONFIRM") ?>"))
 							return;
 
-						CHttpRequest.Action = function(result)
-						{
-							result = FCPrepareString(result);
-							var o = document.getElementById("cf_select_dfile_" + result);
-							if (o)
-								o.disabled = true;
-							var o1 = document.getElementById("cf_tr_select_dfile_" + result);
-							if (o1)
-								o1.disabled = true;
-						}
-
-						CHttpRequest.Send("/bitrix/admin/security_file_verifier.php?fcajax=df&df=" + ts + "&<?= bitrix_sessid_get() ?>");
+						BX.ajax.post(
+							"/bitrix/admin/security_file_verifier.php",
+							"fcajax=df&df=" + ts + "&<?= bitrix_sessid_get() ?>",
+							function(result)
+							{
+								result = FCPrepareString(result);
+								var o = document.getElementById("cf_select_dfile_" + result);
+								if (o)
+									o.disabled = true;
+								var o1 = document.getElementById("cf_tr_select_dfile_" + result);
+								if (o1)
+									o1.disabled = true;
+							}
+						);
 					}
 				//-->
 				</script>
@@ -1736,9 +1738,9 @@ if ($tabStep > 2 && $action == "verify" && $RIGHT_VERIFY)
 						{
 							?>
 							<tr onclick="CFTrClick('<?= $arFile["TIMESTAMP_X"] ?>')" id="cf_tr_select_dfile_<?= $arFile["TIMESTAMP_X"] ?>">
-								<td valign="top"><input type="radio" name="cf_select_dfile" id="cf_select_dfile_<?= $arFile["TIMESTAMP_X"] ?>"<?= $f ? " checked" : "" ?> value="<?= $arFile["TIMESTAMP_X"] ?>"></td>
-								<td valign="top"><?= Date(CDatabase::DateFormatToPHP(FORMAT_DATETIME), $arFile["TIMESTAMP_X"]) ?></td>
-								<td valign="top"><?
+								<td style="text-align: center;"><input type="radio" name="cf_select_dfile" id="cf_select_dfile_<?= $arFile["TIMESTAMP_X"] ?>"<?= $f ? " checked" : "" ?> value="<?= $arFile["TIMESTAMP_X"] ?>"></td>
+								<td style="text-align: center;"><?= Date(CDatabase::DateFormatToPHP(FORMAT_DATETIME), $arFile["TIMESTAMP_X"]) ?></td>
+								<td style="text-align: center;"><?
 								if (($arFile["REGION"] & BX_FILE_CHECKER_REGION_KERNEL) != 0)
 									echo GetMessage("MFC1_R_KERNEL")." ( /bitrix/modules )<br />";
 								if (($arFile["REGION"] & BX_FILE_CHECKER_REGION_ROOT) != 0)
@@ -1748,8 +1750,8 @@ if ($tabStep > 2 && $action == "verify" && $RIGHT_VERIFY)
 								if (($arFile["REGION"] & BX_FILE_CHECKER_REGION_PUBLIC) != 0)
 									echo GetMessage("MFC1_R_PUBLIC")."<br />";
 								?></td>
-								<td valign="top"><?= Implode(", ", $arFile["EXTENTIONS"]) ?></td>
-								<td valign="top"><a href="javascript:CFDeleteLog('<?= $arFile["TIMESTAMP_X"] ?>')"><?= GetMessage("MFC1_ACT_DODELETE") ?></a></td>
+								<td style="text-align: center;"><?= Implode(", ", $arFile["EXTENTIONS"]) ?></td>
+								<td style="text-align: center;"><a href="javascript:CFDeleteLog('<?= $arFile["TIMESTAMP_X"] ?>')"><?= GetMessage("MFC1_ACT_DODELETE") ?></a></td>
 							</tr>
 							<?
 							$f = false;
@@ -1771,13 +1773,13 @@ if ($tabStep > 2 && $action == "verify" && $RIGHT_VERIFY)
 			<td colspan="2"><br><br><b><?= GetMessage("MFC1_F_FILE_SUBTITLE2") ?></b></td>
 		</tr>
 		<tr>
-			<td valign="top" width="30%"><?= GetMessage("MFC1_F_LOAD_FILE") ?>:<br></td>
-			<td valign="top" width="70%">
+			<td width="30%"><?= GetMessage("MFC1_F_LOAD_FILE") ?>:<br></td>
+			<td width="70%">
 				<input type="hidden" name="MAX_FILE_SIZE" value="1000000000">
 				<input type="file" name="crc_file" size="40">
 			</td>
 		</tr>
-		<input type="hidden" name="action" value="<?= htmlspecialchars($action) ?>">
+		<input type="hidden" name="action" value="<?= htmlspecialcharsbx($action) ?>">
 		<?
 	endif;
 	$tabControl->EndTab();
@@ -1786,9 +1788,9 @@ if ($tabStep > 2 && $action == "verify" && $RIGHT_VERIFY)
 $tabControl->BeginNextTab();
 if ($tabStep == 3 && $action == "collect" && $RIGHT_COLLECT):
 ?>
-	<tr>
-		<td valign="top" width="30%"><span class="required">*</span><?= GetMessage("MFC1_F_COLLECT_REGION") ?>:<br></td>
-		<td valign="top" width="70%">
+	<tr class="adm-detail-required-field">
+		<td class="adm-detail-valign-top" width="30%"><?= GetMessage("MFC1_F_COLLECT_REGION") ?>:<br></td>
+		<td width="70%">
 			<input type="checkbox" name="checker_region_kernel" id="id_checker_region_kernel" <?if(COption::GetOptionString("security", "checker_region_kernel")=="Y") echo "checked";?> value="Y"><label for="id_checker_region_kernel"><?= GetMessage("MFC1_R_KERNEL") ?> ( /bitrix/modules )</label><br />
 			<input type="checkbox" name="checker_region_root" id="id_checker_region_root" <?if(COption::GetOptionString("security", "checker_region_root")=="Y") echo "checked";?> value="Y"><label for="id_checker_region_root"><?= GetMessage("MFC1_R_SYSTEM") ?> ( /bitrix )</label><br />
 			<?if (BX_PERSONAL_ROOT != BX_ROOT):?>
@@ -1797,42 +1799,42 @@ if ($tabStep == 3 && $action == "collect" && $RIGHT_COLLECT):
 			<input type="checkbox" name="checker_region_public" id="id_checker_region_public" <?if(COption::GetOptionString("security", "checker_region_public")=="Y") echo "checked";?> value="Y"><label for="id_checker_region_public"><?= GetMessage("MFC1_R_PUBLIC") ?></label><br />
 		</td>
 	</tr>
-	<tr>
-		<td valign="top" width="30%"><span class="required">*</span><?= GetMessage("MFC1_F_EXTS") ?>:<br></td>
-		<td valign="top" width="70%">
-			<input type="text" name="checker_exts" value="<?echo htmlspecialchars(COption::GetOptionString("security", "checker_exts"));?>">
+	<tr class="adm-detail-required-field">
+		<td width="30%"><?= GetMessage("MFC1_F_EXTS") ?>:<br></td>
+		<td width="70%">
+			<input type="text" name="checker_exts" value="<?echo htmlspecialcharsbx(COption::GetOptionString("security", "checker_exts"));?>">
 		</td>
 	</tr>
-	<tr>
-		<td valign="top" width="30%"><span class="required">*</span><?= GetMessage("MFC1_F_CRY_PWD") ?>:<br></td>
-		<td valign="top" width="70%">
+	<tr class="adm-detail-required-field">
+		<td width="30%"><?= GetMessage("MFC1_F_CRY_PWD") ?>:<br></td>
+		<td width="70%">
 			<input type="password" name="checker_pwd" value="">
 		</td>
 	</tr>
 	<tr>
-		<td valign="top" width="30%"><?= GetMessage("MFC1_F_C_STEP") ?>:<br></td>
-		<td valign="top" width="70%">
+		<td width="30%"><?= GetMessage("MFC1_F_C_STEP") ?>:<br></td>
+		<td width="70%">
 			<input type="text" name="checker_time" value="<?echo COption::GetOptionInt("security", "checker_time");?>">
 		</td>
 	</tr>
-	<input type="hidden" name="action" value="<?= htmlspecialchars($action) ?>">
+	<input type="hidden" name="action" value="<?= htmlspecialcharsbx($action) ?>">
 
 <?elseif ($tabStep == 4 && $action == "verify" && $RIGHT_VERIFY):?>
 
-	<tr>
-		<td valign="top" width="30%"><span class="required">*</span><?= GetMessage("MFC1_F_DEC_PWD") ?>:<br></td>
-		<td valign="top" width="70%">
+	<tr class="adm-detail-required-field">
+		<td width="30%"><?= GetMessage("MFC1_F_DEC_PWD") ?>:<br></td>
+		<td width="70%">
 			<input type="password" name="checker_pwd" value="">
 		</td>
 	</tr>
 	<tr>
-		<td valign="top" width="30%"><?= GetMessage("MFC1_F_V_STEP") ?>:<br></td>
-		<td valign="top" width="70%">
+		<td width="30%"><?= GetMessage("MFC1_F_V_STEP") ?>:<br></td>
+		<td width="70%">
 			<input type="text" name="checker_time" value="30">
 		</td>
 	</tr>
-	<input type="hidden" name="action" value="<?= htmlspecialchars($action) ?>">
-	<input type="hidden" name="cf_select_dfile" value="<?= htmlspecialchars($cf_select_dfile) ?>">
+	<input type="hidden" name="action" value="<?= htmlspecialcharsbx($action) ?>">
+	<input type="hidden" name="cf_select_dfile" value="<?= htmlspecialcharsbx($cf_select_dfile) ?>">
 
 <?
 endif;
@@ -1865,18 +1867,20 @@ if(
 
 		function __FCCollectData(ts, completed, startPoint)
 		{
-			CHttpRequest.Action = function(result)
+			callback = function(result)
 			{
 				result = FCPrepareString(result);
 				__FCLoadCollectDataResult(result);
 			}
 
 			updRand++;
+			data = null;
 			<?if ($action == "verify"):?>
-				CHttpRequest.Send("/bitrix/admin/security_file_verifier.php?fcajax=vf&df=<?= IntVal($cf_select_dfile) ?>&pwd=<?= UrlEncode($_REQUEST['checker_pwd']) ?>&tm=<?= IntVal($_REQUEST['checker_time']) ?>&<?= bitrix_sessid_get() ?>&ts=" + ts + "&completed=" + completed + "&startpoint=" + startPoint + "&updRand=" + updRand);
+				data = "fcajax=vf&df=<?= IntVal($cf_select_dfile) ?>&pwd=<?= UrlEncode($_REQUEST['checker_pwd']) ?>&tm=<?= IntVal($_REQUEST['checker_time']) ?>&<?= bitrix_sessid_get() ?>&ts=" + ts + "&completed=" + completed + "&startpoint=" + startPoint + "&updRand=" + updRand;
 			<?elseif ($action == "collect"):?>
-				CHttpRequest.Send("/bitrix/admin/security_file_verifier.php?fcajax=cl&region=<?= IntVal($region) ?>&exts=<?= UrlEncode($_REQUEST['checker_exts']) ?>&pwd=<?= UrlEncode($_REQUEST['checker_pwd']) ?>&tm=<?= IntVal($_REQUEST['checker_time']) ?>&<?= bitrix_sessid_get() ?>&ts=" + ts + "&completed=" + completed + "&startpoint=" + startPoint + "&updRand=" + updRand);
+				data = "fcajax=cl&region=<?= IntVal($region) ?>&exts=<?= UrlEncode($_REQUEST['checker_exts']) ?>&pwd=<?= UrlEncode($_REQUEST['checker_pwd']) ?>&tm=<?= IntVal($_REQUEST['checker_time']) ?>&<?= bitrix_sessid_get() ?>&ts=" + ts + "&completed=" + completed + "&startpoint=" + startPoint + "&updRand=" + updRand;
 			<?endif;?>
+			BX.ajax.post("/bitrix/admin/security_file_verifier.php", data, callback);
 		}
 
 		function __FCLoadCollectDataResult(result)
@@ -1938,29 +1942,11 @@ if(
 	<tr>
 		<td colspan="2">
 			<div id="fc_progress_bar_div" style="display:none">
-				<script language="JavaScript">
-				<!--
-				var ns4 = (document.layers) ? true : false;
-
-				var txt = '';
-				if (ns4)
-				{
-					txt += '<table border=0 cellpadding=0 cellspacing=0><tr><td>';
-					txt += '<layer width="300" height="15" bgcolor="#365069" top="0" left="0"></layer>';
-					txt += '<layer width="298" height="13" bgcolor="#ffffff" top="1" left="1"></layer>';
-					txt += '<layer name="FCPBdone" width="298" height="13" bgcolor="#D5E7F3" top="1" left="1"></layer>';
-					txt += '</td></tr></table>';
-				}
-				else
-				{
-					txt += '<div style="top:0px; left:0px; width:300; height:15px; background-color:#365069; font-size:1px;">';
-					txt += '<div style="position:relative; top:1px; left:1px; width:298px; height:13px; background-color:#ffffff; font-size:1px;">';
-					txt += '<div id="FCPBdone" style="position:relative; top:0px; left:0px; width:0px; height:13px; background-color:#D5E7F3; font-size:1px;">';
-					txt += '</div></div></div>';
-				}
-				document.write(txt);
-				//-->
-				</script>
+				<div style="top:0px; left:0px; width:300px; height:15px; background-color:#365069; font-size:1px;">
+					<div style="position:relative; top:1px; left:1px; width:298px; height:13px; background-color:#ffffff; font-size:1px;">
+						<div id="FCPBdone" style="position:relative; top:0px; left:0px; width:0px; height:13px; background-color:#D5E7F3; font-size:1px;"></div>
+					</div>
+				</div>
 				<?= GetMessage("MFC1_SLEEP_A_MINUTE") ?>
 			</div>
 
@@ -1975,7 +1961,7 @@ if(
 	<script language="JavaScript">
 	<!--
 	var fcProgressBarDiv;
-	var FCPBdone = (ns4) ? findlayer('FCPBdone', document) : document.getElementById('FCPBdone');
+	var FCPBdone = document.getElementById('FCPBdone');
 
 	function __FCProgressInit()
 	{
@@ -1990,14 +1976,6 @@ if(
 
 	function __FCProgressSet(val)
 	{
-		if (ns4)
-		{
-			FCPBdone.clip.left = 0;
-			FCPBdone.clip.top = 0;
-			FCPBdone.clip.right = val*298/100;
-			FCPBdone.clip.bottom = 13;
-		}
-		else
 			FCPBdone.style.width = (val*298/100) + 'px';
 	}
 

@@ -172,7 +172,7 @@ function BXBlogTabShow(id, type)
 	</div>
 	<?
 	if(strlen($arResult["PATH_TO_HISTORY"]) <= 0)
-		$arResult["PATH_TO_HISTORY"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arResult["ALIASES"]["page"]."=history");
+		$arResult["PATH_TO_HISTORY"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arResult["ALIASES"]["page"]."=history");
 	?>
 	<noindex>
 	<div style="text-align:right;"><a href="<?=$arResult["PATH_TO_HISTORY"]?>" rel="nofollow"><?=GetMessage("BC_ALL_POSTS")?></a></div>

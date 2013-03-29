@@ -143,54 +143,77 @@ class CForumTopic extends CAllForumTopic
 			endif;
 		}
 
+		$arSQL = array("select" => "", "join" => "");
+		if (!empty($arAddParams["sNameTemplate"]))
+		{
+			$arSQL = array_merge_recursive(
+				CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+					$arAddParams, array(
+					"sUserTablePrefix" => "U_START.",
+					"sForumUserTablePrefix" => "FU_START.",
+					"sFieldName" => "USER_START_NAME_FRMT",
+					"sUserIDFieldName" => "FT.USER_START_ID"))),
+				CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+					$arAddParams, array(
+					"sUserTablePrefix" => "U_LAST.",
+					"sForumUserTablePrefix" => "FU_LAST.",
+					"sFieldName" => "LAST_POSTER_NAME_FRMT",
+					"sUserIDFieldName" => "FT.LAST_POSTER_ID"))),
+				CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+					$arAddParams, array(
+					"sUserTablePrefix" => "U_ABS_LAST.",
+					"sForumUserTablePrefix" => "FU_ABS_LAST.",
+					"sFieldName" => "ABS_LAST_POSTER_NAME_FRMT",
+					"sUserIDFieldName" => "FT.ABS_LAST_POSTER_ID"))));
+			$arSQL["select"] = ",\n\t".implode(",\n\t", $arSQL["select"]);
+			$arSQL["join"] = "\n".implode("\n", $arSQL["join"]);
+		}
+
 		if ($UseGroup)
 		{
 			$strSql = 
-				"SELECT F_T.*, FT.FORUM_ID, FT.TOPIC_ID, FT.TITLE, FT.TAGS, FT.DESCRIPTION, FT.ICON_ID, 
-					FT.STATE, FT.APPROVED, FT.SORT, FT.VIEWS, FT.USER_START_ID, FT.USER_START_NAME, 
-					".$DB->DateToCharFunction("FT.START_DATE", "FULL")." as START_DATE, 
-					FT.POSTS, FT.LAST_POSTER_ID, FT.LAST_POSTER_NAME, 
-					".$DB->DateToCharFunction("FT.LAST_POST_DATE", "FULL")." as LAST_POST_DATE, 
-					FT.LAST_POST_DATE AS LAST_POST_DATE_ORIGINAL, FT.LAST_MESSAGE_ID, 
-					FT.POSTS_UNAPPROVED, FT.ABS_LAST_POSTER_ID, FT.ABS_LAST_POSTER_NAME, 
-					".$DB->DateToCharFunction("FT.ABS_LAST_POST_DATE", "FULL")." as ABS_LAST_POST_DATE, 
-					FT.ABS_LAST_POST_DATE AS ABS_LAST_POST_DATE_ORIGINAL, FT.ABS_LAST_MESSAGE_ID, 
-					FT.SOCNET_GROUP_ID, FT.OWNER_ID, FT.HTML
-				FROM 
-					(
-						SELECT FT.ID".$strSqlSelect."
-						FROM b_forum_topic FT 
-						WHERE 1 = 1 
-							".$strSqlSearch." 
-						GROUP BY FT.ID".$strSqlGroup."
-					) F_T
-				INNER JOIN b_forum_topic FT ON (F_T.ID = FT.ID)
-				".$strSqlOrder;
+				" SELECT F_T.*, FT.FORUM_ID, FT.TOPIC_ID, FT.TITLE, FT.TAGS, FT.DESCRIPTION, FT.ICON_ID, \n".
+				"	FT.STATE, FT.APPROVED, FT.SORT, FT.VIEWS, FT.USER_START_ID, FT.USER_START_NAME, \n".
+				"	".$DB->DateToCharFunction("FT.START_DATE", "FULL")." as START_DATE, \n".
+				"	FT.POSTS, FT.LAST_POSTER_ID, FT.LAST_POSTER_NAME, \n".
+				"	".$DB->DateToCharFunction("FT.LAST_POST_DATE", "FULL")." as LAST_POST_DATE, \n".
+				"	FT.LAST_POST_DATE AS LAST_POST_DATE_ORIGINAL, FT.LAST_MESSAGE_ID, \n".
+				"	FT.POSTS_UNAPPROVED, FT.ABS_LAST_POSTER_ID, FT.ABS_LAST_POSTER_NAME, \n".
+				"	".$DB->DateToCharFunction("FT.ABS_LAST_POST_DATE", "FULL")." as ABS_LAST_POST_DATE, \n".
+				"	FT.ABS_LAST_POST_DATE AS ABS_LAST_POST_DATE_ORIGINAL, FT.ABS_LAST_MESSAGE_ID, \n".
+				"	FT.SOCNET_GROUP_ID, FT.OWNER_ID, FT.HTML".$arSQL["select"]." \n".
+				" FROM ( \n".
+				"		SELECT FT.ID".$strSqlSelect." \n".
+				"		FROM b_forum_topic FT \n".
+				"		WHERE 1 = 1 ".$strSqlSearch." \n".
+				"		GROUP BY FT.ID ".$strSqlGroup." \n".
+				" ) F_T \n".
+				" INNER JOIN b_forum_topic FT ON (F_T.ID = FT.ID) ".$arSQL["join"]." \n".
+				$strSqlOrder;
 		}
 		else
 		{
 			$strSql = 
-				"SELECT FT.ID, FT.FORUM_ID, FT.TOPIC_ID, FT.TITLE, FT.TAGS, FT.DESCRIPTION, FT.ICON_ID, 
-					FT.STATE, FT.APPROVED, FT.SORT, FT.VIEWS, FT.USER_START_ID, FT.USER_START_NAME, 
-					".$DB->DateToCharFunction("FT.START_DATE", "FULL")." as START_DATE, 
-					FT.POSTS, FT.LAST_POSTER_ID, FT.LAST_POSTER_NAME, 
-					".$DB->DateToCharFunction("FT.LAST_POST_DATE", "FULL")." as LAST_POST_DATE, 
-					FT.LAST_POST_DATE AS LAST_POST_DATE_ORIGINAL, FT.LAST_MESSAGE_ID, 
-					FT.POSTS_UNAPPROVED, FT.ABS_LAST_POSTER_ID, FT.ABS_LAST_POSTER_NAME, 
-					".$DB->DateToCharFunction("FT.ABS_LAST_POST_DATE", "FULL")." as ABS_LAST_POST_DATE, 
-					FT.ABS_LAST_POST_DATE AS ABS_LAST_POST_DATE_ORIGINAL, FT.ABS_LAST_MESSAGE_ID, 
-					FT.SOCNET_GROUP_ID, FT.OWNER_ID, FT.HTML".$strSqlSelect."
-				FROM b_forum_topic FT 
-				WHERE 1 = 1 
-					".$strSqlSearch."
-				".$strSqlOrder;
+				" SELECT FT.ID, FT.FORUM_ID, FT.TOPIC_ID, FT.TITLE, FT.TAGS, FT.DESCRIPTION, FT.ICON_ID, \n".
+				"	FT.STATE, FT.APPROVED, FT.SORT, FT.VIEWS, FT.USER_START_ID, FT.USER_START_NAME, \n".
+				"	".$DB->DateToCharFunction("FT.START_DATE", "FULL")." as START_DATE, \n".
+				"	FT.POSTS, FT.LAST_POSTER_ID, FT.LAST_POSTER_NAME, \n".
+				"	".$DB->DateToCharFunction("FT.LAST_POST_DATE", "FULL")." as LAST_POST_DATE, \n".
+				"	FT.LAST_POST_DATE AS LAST_POST_DATE_ORIGINAL, FT.LAST_MESSAGE_ID, \n".
+				"	FT.POSTS_UNAPPROVED, FT.ABS_LAST_POSTER_ID, FT.ABS_LAST_POSTER_NAME, \n".
+				"	".$DB->DateToCharFunction("FT.ABS_LAST_POST_DATE", "FULL")." as ABS_LAST_POST_DATE, \n".
+				"	FT.ABS_LAST_POST_DATE AS ABS_LAST_POST_DATE_ORIGINAL, FT.ABS_LAST_MESSAGE_ID, \n".
+				"	FT.SOCNET_GROUP_ID, FT.OWNER_ID, FT.HTML".$strSqlSelect.$arSQL["select"]." \n".
+				" FROM b_forum_topic FT ".$arSQL["join"]. " \n".
+				" WHERE 1 = 1 ".$strSqlSearch." \n".
+				$strSqlOrder;
 		}
-		
+
 		$iNum = intVal($iNum);
 		if ($iNum > 0 || intVal($arAddParams["nTopCount"]) > 0)
 		{
 			$iNum = ($iNum > 0) ? $iNum : intVal($arAddParams["nTopCount"]);
-			$strSql .= " LIMIT 0,".$iNum;
+			$strSql .= "\nLIMIT 0,".$iNum;
 		}
 		
 		if (!$iNum && is_set($arAddParams, "bDescPageNumbering") && intVal($arAddParams["nTopCount"]) <= 0)
@@ -202,12 +225,9 @@ class CForumTopic extends CAllForumTopic
 		{
 			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
-		
-		if ((COption::GetOptionString("forum", "FILTER", "Y") == "N") || 
-			(is_set($arAddParams, 'NoFilter') && $arAddParams['NoFilter'] == true))
+		if (is_set($arAddParams, 'NoFilter') && $arAddParams['NoFilter'] == true)
 			return $db_res;
-		$db_res = new _CTopicDBResult($db_res);
-		return $db_res;
+		return new _CTopicDBResult($db_res, $arAddParams);
 	}
 
 	function GetListEx($arOrder = Array("SORT"=>"ASC"), $arFilter = Array(), $bCount = false, $iNum = 0, $arAddParams = array())
@@ -286,8 +306,7 @@ class CForumTopic extends CAllForumTopic
 					break;
 				case "USER_ID":
 					$arSqlSelect["LAST_VISIT"] = $DB->DateToCharFunction("FUT.LAST_VISIT", "FULL");
-					$arSqlFrom["FUT"] = "
-					LEFT JOIN b_forum_user_topic FUT ON (".(
+					$arSqlFrom["FUT"] = "LEFT JOIN b_forum_user_topic FUT ON (".(
 							strlen($val) <= 0 ? 
 								($strNegative=="Y"?"NOT":"")."(FUT.USER_ID IS NULL)"
 								:
@@ -297,8 +316,8 @@ class CForumTopic extends CAllForumTopic
 				case "RENEW_TOPIC":
 						if ((strlen($val)>0) && array_key_exists("FUT", $arSqlFrom))
 						{
-							$arSqlSearch[] = "
-								((FT.LAST_POST_DATE ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "FULL").") AND 
+							$arSqlSearch[] =
+								"((FT.LAST_POST_DATE ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "FULL").") AND
 									(
 										(LAST_VISIT IS NULL) OR
 										(LAST_VISIT < ".$DB->CharToDateFunction($DB->ForSql($val), "FULL").")
@@ -324,13 +343,12 @@ class CForumTopic extends CAllForumTopic
 							$val_int[] = intVal($v);
 						$val = implode(", ", $val_int);
 					endif;
-					
-					$arSqlFrom["FPP"] = "
-						INNER JOIN (
-							SELECT FPP.FORUM_ID, MAX(FPP.PERMISSION) AS PERMISSION 
-							FROM b_forum_perms FPP 
-							WHERE FPP.GROUP_ID IN (".$DB->ForSql($val).") AND FPP.PERMISSION > 'A'
-							GROUP BY FPP.FORUM_ID) FPP ON (FPP.FORUM_ID = FT.FORUM_ID) ";
+					$arSqlFrom["FPP"] =
+						" INNER JOIN ( \n".
+						"	SELECT FPP.FORUM_ID, MAX(FPP.PERMISSION) AS PERMISSION \n".
+						"	FROM b_forum_perms FPP \n".
+						"	WHERE FPP.GROUP_ID IN (".$DB->ForSql($val).") AND FPP.PERMISSION > 'A' \n".
+						"	GROUP BY FPP.FORUM_ID) FPP ON (FPP.FORUM_ID = FT.FORUM_ID) ";
 					$arSqlSelect[] = "FPP.PERMISSION AS PERMISSION";
 				break;
 				case "RENEW":
@@ -346,14 +364,11 @@ class CForumTopic extends CAllForumTopic
 					elseif (is_set($arFilter, "APPROVED") && $arFilter["APPROVED"] == "Y"):
 						$perms = "ONLY_APPROVED";
 					endif;
-					
-					$arSqlFrom["FUT"] = "
-					LEFT JOIN b_forum_user_topic FUT ON (FUT.USER_ID=".intVal($val["USER_ID"])." AND FUT.FORUM_ID = FT.FORUM_ID AND FUT.TOPIC_ID = FT.ID)";
-					$arSqlFrom["FUF"] = "
-					LEFT JOIN b_forum_user_forum FUF ON (FUF.USER_ID=".$val["USER_ID"]." AND FUF.FORUM_ID = FT.FORUM_ID)";
-					$arSqlFrom["FUF_ALL"] = "
-					LEFT JOIN b_forum_user_forum FUF_ALL ON (FUF_ALL.USER_ID=".$val["USER_ID"]." AND FUF_ALL.FORUM_ID = 0)";
-					
+
+					$arSqlFrom["FUT"] = "LEFT JOIN b_forum_user_topic FUT ON (FUT.USER_ID=".intVal($val["USER_ID"])." AND FUT.FORUM_ID = FT.FORUM_ID AND FUT.TOPIC_ID = FT.ID)";
+					$arSqlFrom["FUF"] = "LEFT JOIN b_forum_user_forum FUF ON (FUF.USER_ID=".$val["USER_ID"]." AND FUF.FORUM_ID = FT.FORUM_ID)";
+					$arSqlFrom["FUF_ALL"] = "LEFT JOIN b_forum_user_forum FUF_ALL ON (FUF_ALL.USER_ID=".$val["USER_ID"]." AND FUF_ALL.FORUM_ID = 0)";
+
 					$arSqlSearch[] = "FT.STATE != 'L'";
 					$arSqlSearch[] = "
 					(
@@ -453,7 +468,7 @@ class CForumTopic extends CAllForumTopic
 			$strSqlSelect = ", ".implode(", ", $res);
 		}
 		if (count($arSqlFrom) > 0)
-			$strSqlFrom = implode(" ", $arSqlFrom);
+			$strSqlFrom = implode("\n", $arSqlFrom);
 		if ($UseGroup)
 		{
 			foreach ($arSqlSelect as $key => $val)
@@ -496,7 +511,7 @@ class CForumTopic extends CAllForumTopic
 			$arCountSqlFrom = $arSqlFrom;
 			if (isset($arSqlFrom['FUT']) && (strpos($strSqlSearch, "FUT.") === false))
 				unset($arCountSqlFrom['FUT']);
-			$strSqlCountFrom = implode(" ", $arCountSqlFrom);
+			$strSqlCountFrom = implode("\n", $arCountSqlFrom);
 
 			$strSql .= $strSqlCountFrom . " WHERE 1 = 1 ".$strSqlSearch;
 
@@ -509,68 +524,90 @@ class CForumTopic extends CAllForumTopic
 			if ($bCount)
 				return $iCnt;
 		}
+		$arSQL = array("select" => "", "join" => "");
+		if (!empty($arAddParams["sNameTemplate"]))
+		{
+			$arSQL = array_merge_recursive(
+				CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+					$arAddParams, array(
+					"sUserTablePrefix" => "U_START.",
+					"sForumUserTablePrefix" => "FU_START.",
+					"sFieldName" => "USER_START_NAME_FRMT",
+					"sUserIDFieldName" => "FT.USER_START_ID"))),
+				CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+					$arAddParams, array(
+					"sUserTablePrefix" => "U_LAST.",
+					"sForumUserTablePrefix" => "FU_LAST.",
+					"sFieldName" => "LAST_POSTER_NAME_FRMT",
+					"sUserIDFieldName" => "FT.LAST_POSTER_ID"))),
+				CForumUser::GetFormattedNameFieldsForSelect(array_merge(
+					$arAddParams, array(
+					"sUserTablePrefix" => "U_ABS_LAST.",
+					"sForumUserTablePrefix" => "FU_ABS_LAST.",
+					"sFieldName" => "ABS_LAST_POSTER_NAME_FRMT",
+					"sUserIDFieldName" => "FT.ABS_LAST_POSTER_ID"))));
+			$arSQL["select"] = ",\n\t".implode(",\n\t", $arSQL["select"]);
+			$arSQL["join"] = "\n".implode("\n", $arSQL["join"]);
+		}
 
 		if ($UseGroup)
 		{
 			$strSql =
-				"SELECT F_T.*, FT.FORUM_ID, FT.TOPIC_ID, FT.TITLE, FT.TAGS, FT.DESCRIPTION, FT.ICON_ID, 
-					FT.STATE, FT.APPROVED, FT.SORT, FT.VIEWS, FT.USER_START_ID, FT.USER_START_NAME, 
-					".$DB->DateToCharFunction("FT.START_DATE", "FULL")." as START_DATE, 
-					FT.POSTS, FT.LAST_POSTER_ID, FT.LAST_POSTER_NAME, 
-					".$DB->DateToCharFunction("FT.LAST_POST_DATE", "FULL")." as LAST_POST_DATE, 
-					FT.LAST_POST_DATE AS LAST_POST_DATE_ORIGINAL, FT.LAST_MESSAGE_ID, 
-					FT.POSTS_UNAPPROVED, FT.ABS_LAST_POSTER_ID, FT.ABS_LAST_POSTER_NAME, 
-					".$DB->DateToCharFunction("FT.ABS_LAST_POST_DATE", "FULL")." as ABS_LAST_POST_DATE, 
-					FT.ABS_LAST_POST_DATE AS ABS_LAST_POST_DATE_ORIGINAL, FT.ABS_LAST_MESSAGE_ID, 
-					FT.SOCNET_GROUP_ID, FT.OWNER_ID, FT.HTML, 
-					F.NAME as FORUM_NAME,
-					FS.IMAGE, '' as IMAGE_DESCR
-				FROM 
-					(
-						SELECT FT.ID".$strSqlSelect."
-						FROM b_forum_topic FT 
-							LEFT JOIN b_forum F ON (FT.FORUM_ID = F.ID) 
-							".$strSqlFrom."
-						WHERE 1 = 1 
-							".$strSqlSearch." 
-						GROUP BY FT.ID".$strSqlGroup."
-					) F_T
-				INNER JOIN b_forum_topic FT ON (F_T.ID = FT.ID)
-				LEFT JOIN b_forum F ON (FT.FORUM_ID = F.ID)
-				LEFT JOIN b_forum_smile FS ON (FT.ICON_ID = FS.ID) 
-				".$strSqlOrder;
+				" SELECT F_T.*, FT.FORUM_ID, FT.TOPIC_ID, FT.TITLE, FT.TAGS, FT.DESCRIPTION, FT.ICON_ID, \n".
+				"	FT.STATE, FT.APPROVED, FT.SORT, FT.VIEWS, FT.USER_START_ID, FT.USER_START_NAME, \n".
+				"	".$DB->DateToCharFunction("FT.START_DATE", "FULL")." as START_DATE, \n".
+				"	FT.POSTS, FT.LAST_POSTER_ID, FT.LAST_POSTER_NAME, \n".
+				"	".$DB->DateToCharFunction("FT.LAST_POST_DATE", "FULL")." as LAST_POST_DATE, \n".
+				"	FT.LAST_POST_DATE AS LAST_POST_DATE_ORIGINAL, FT.LAST_MESSAGE_ID, \n".
+				"	FT.POSTS_UNAPPROVED, FT.ABS_LAST_POSTER_ID, FT.ABS_LAST_POSTER_NAME, \n".
+				"	".$DB->DateToCharFunction("FT.ABS_LAST_POST_DATE", "FULL")." as ABS_LAST_POST_DATE, \n".
+				"	FT.ABS_LAST_POST_DATE AS ABS_LAST_POST_DATE_ORIGINAL, FT.ABS_LAST_MESSAGE_ID, \n".
+				"	FT.SOCNET_GROUP_ID, FT.OWNER_ID, FT.HTML, \n".
+				"	F.NAME as FORUM_NAME, \n".
+				"	FS.IMAGE, '' as IMAGE_DESCR ".$arSQL["select"]." \n".
+				" FROM \n".
+				"	( \n".
+				"		SELECT FT.ID".$strSqlSelect." \n".
+				"		FROM b_forum_topic FT \n".
+				"			LEFT JOIN b_forum F ON (FT.FORUM_ID = F.ID) \n".
+				"			".$strSqlFrom." \n".
+				"		WHERE 1 = 1 ".$strSqlSearch." \n".
+				"		GROUP BY FT.ID".$strSqlGroup." \n".
+				"	) F_T \n".
+				" INNER JOIN b_forum_topic FT ON (F_T.ID = FT.ID) \n".
+				" LEFT JOIN b_forum F ON (FT.FORUM_ID = F.ID) \n".
+				" LEFT JOIN b_forum_smile FS ON (FT.ICON_ID = FS.ID) ".$arSQL["join"]." \n".
+				$strSqlOrder;
 		}
 		else
 		{
 			$strSql = 
-				"SELECT FT.ID, FT.FORUM_ID, FT.TOPIC_ID, FT.TITLE, FT.TAGS, FT.DESCRIPTION, FT.ICON_ID, 
-					FT.STATE, FT.APPROVED, FT.SORT, FT.VIEWS, FT.USER_START_ID, FT.USER_START_NAME, 
-					".$DB->DateToCharFunction("FT.START_DATE", "FULL")." as START_DATE, 
-					FT.POSTS, FT.LAST_POSTER_ID, FT.LAST_POSTER_NAME, 
-					".$DB->DateToCharFunction("FT.LAST_POST_DATE", "FULL")." as LAST_POST_DATE, 
-					FT.LAST_POST_DATE AS LAST_POST_DATE_ORIGINAL, FT.LAST_MESSAGE_ID, 
-					FT.POSTS_UNAPPROVED, FT.ABS_LAST_POSTER_ID, FT.ABS_LAST_POSTER_NAME, 
-					".$DB->DateToCharFunction("FT.ABS_LAST_POST_DATE", "FULL")." as ABS_LAST_POST_DATE, 
-					FT.ABS_LAST_POST_DATE AS ABS_LAST_POST_DATE_ORIGINAL, FT.ABS_LAST_MESSAGE_ID, 
-					FT.SOCNET_GROUP_ID, FT.OWNER_ID, FT.HTML, 
-					F.NAME as FORUM_NAME,
-					FS.IMAGE, '' as IMAGE_DESCR".$strSqlSelect."
-				FROM b_forum_topic FT 
-					LEFT JOIN b_forum F ON (FT.FORUM_ID = F.ID) 
-					LEFT JOIN b_forum_smile FS ON (FT.ICON_ID = FS.ID) 
-					".$strSqlFrom."
-				WHERE 1 = 1 
-					".$strSqlSearch." 
-				".$strSqlOrder;
+				" SELECT FT.ID, FT.FORUM_ID, FT.TOPIC_ID, FT.TITLE, FT.TAGS, FT.DESCRIPTION, FT.ICON_ID, \n".
+				"	FT.STATE, FT.APPROVED, FT.SORT, FT.VIEWS, FT.USER_START_ID, FT.USER_START_NAME, \n".
+				"	".$DB->DateToCharFunction("FT.START_DATE", "FULL")." as START_DATE, \n".
+				"	FT.POSTS, FT.LAST_POSTER_ID, FT.LAST_POSTER_NAME, \n".
+				"	".$DB->DateToCharFunction("FT.LAST_POST_DATE", "FULL")." as LAST_POST_DATE, \n".
+				"	FT.LAST_POST_DATE AS LAST_POST_DATE_ORIGINAL, FT.LAST_MESSAGE_ID, \n".
+				"	FT.POSTS_UNAPPROVED, FT.ABS_LAST_POSTER_ID, FT.ABS_LAST_POSTER_NAME, \n".
+				"	".$DB->DateToCharFunction("FT.ABS_LAST_POST_DATE", "FULL")." as ABS_LAST_POST_DATE, \n".
+				"	FT.ABS_LAST_POST_DATE AS ABS_LAST_POST_DATE_ORIGINAL, FT.ABS_LAST_MESSAGE_ID, \n".
+				"	FT.SOCNET_GROUP_ID, FT.OWNER_ID, FT.HTML, \n".
+				"	F.NAME as FORUM_NAME, \n".
+				"	FS.IMAGE, '' as IMAGE_DESCR".$strSqlSelect.$arSQL["select"]." \n".
+				" FROM b_forum_topic FT \n".
+				"	LEFT JOIN b_forum F ON (FT.FORUM_ID = F.ID) \n".
+				"	LEFT JOIN b_forum_smile FS ON (FT.ICON_ID = FS.ID) \n".
+				"	".$strSqlFrom.$arSQL["join"]." \n".
+				" WHERE 1 = 1 ".$strSqlSearch." \n".
+				$strSqlOrder;
 		}
 
 		$iNum = intVal($iNum);
 		if ($iNum > 0 || intVal($arAddParams["nTopCount"]) > 0)
 		{
 			$iNum = ($iNum > 0) ? $iNum : intVal($arAddParams["nTopCount"]);
-			$strSql .= " LIMIT 0,".$iNum;
+			$strSql .= "\nLIMIT 0,".$iNum;
 		}
-		
 		if (!$iNum && is_set($arAddParams, "bDescPageNumbering") && intVal($arAddParams["nTopCount"]) <= 0)
 		{
 			$db_res =  new CDBResult();
@@ -580,13 +617,9 @@ class CForumTopic extends CAllForumTopic
 		{
 			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
-		
-		if ((COption::GetOptionString("forum", "FILTER", "Y") == "N") || 
-			(is_set($arAddParams, 'NoFilter') && $arAddParams['NoFilter'] == true)):
+		if (is_set($arAddParams, 'NoFilter') && $arAddParams['NoFilter'] == true)
 			return $db_res;
-		endif;
-		$db_res = new _CTopicDBResult($db_res);
-		return $db_res;
+		return new _CTopicDBResult($db_res, $arAddParams);
 	}
 }
 ?>

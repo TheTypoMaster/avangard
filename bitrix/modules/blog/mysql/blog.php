@@ -72,7 +72,7 @@ class CBlog extends CAllBlog
 			if (CModule::IncludeModule("search"))
 			{
 				$arBlog = CBlog::GetByID($ID);
-				if ($arBlog["ACTIVE"] == "Y" && $arBlog["SEARCH_INDEX"] == "Y")
+				if ($arBlog["ACTIVE"] == "Y" && $arBlog["SEARCH_INDEX"] == "Y" && $arBlog["USE_SOCNET"] != "Y")
 				{
 					$arGroup = CBlogGroup::GetByID($arBlog["GROUP_ID"]);
 
@@ -103,8 +103,6 @@ class CBlog extends CAllBlog
 						"TITLE" => $arBlog["NAME"],
 						"BODY" => ((strlen($arBlog["DESCRIPTION"]) > 0) ? $arBlog["DESCRIPTION"] : $arBlog["NAME"]),
 					);
-					if($arBlog["USE_SOCNET"] == "Y")
-						unset($arSearchIndex["PERMISSIONS"]);
 					CSearch::Index("blog", "B".$ID, $arSearchIndex);
 				}
 			}
@@ -141,7 +139,6 @@ class CBlog extends CAllBlog
 			return false;
 		elseif(!$GLOBALS["USER_FIELD_MANAGER"]->CheckFields("BLOG_BLOG", $ID, $arFields))
 			return false;
-
 
 		$db_events = GetModuleEvents("blog", "OnBeforeBlogUpdate");
 		while ($arEvent = $db_events->Fetch())
@@ -200,39 +197,43 @@ class CBlog extends CAllBlog
 				}
 				elseif ($arBlog["ACTIVE"] == "Y" && $arBlog["SEARCH_INDEX"] == "Y")
 				{
-					$arGroup = CBlogGroup::GetByID($arBlog["GROUP_ID"]);
-					if(strlen($path) > 0)
+					if($arBlog["USE_SOCNET"] == "Y")
 					{
-						$path = str_replace("#blog_url#", $arBlog["URL"], $path);
-						$arPostSite = array($arGroup["SITE_ID"] => $path);
+						CSearch::DeleteIndex("blog", "B".$ID);
 					}
 					else
 					{
-						$arPostSite = array(
-							$arGroup["SITE_ID"] => CBlog::PreparePath(
-									$arBlog["URL"],
-									$arGroup["SITE_ID"],
-									false,
-									$arBlog["OWNER_ID"],
-									$arBlog["SOCNET_GROUP_ID"]
-								)
+						$arGroup = CBlogGroup::GetByID($arBlog["GROUP_ID"]);
+						if(strlen($path) > 0)
+						{
+							$path = str_replace("#blog_url#", $arBlog["URL"], $path);
+							$arPostSite = array($arGroup["SITE_ID"] => $path);
+						}
+						else
+						{
+							$arPostSite = array(
+								$arGroup["SITE_ID"] => CBlog::PreparePath(
+										$arBlog["URL"],
+										$arGroup["SITE_ID"],
+										false,
+										$arBlog["OWNER_ID"],
+										$arBlog["SOCNET_GROUP_ID"]
+									)
+							);
+						}
+
+
+						$arSearchIndex = array(
+							"SITE_ID" => $arPostSite,
+							"LAST_MODIFIED" => $arBlog["DATE_UPDATE"],
+							"PARAM1" => "BLOG",
+							"PARAM2" => $arBlog["OWNER_ID"],
+							"PERMISSIONS" => array(2),
+							"TITLE" => $arBlog["NAME"],
+							"BODY" => ((strlen($arBlog["DESCRIPTION"]) > 0) ? $arBlog["DESCRIPTION"] : $arBlog["NAME"]),
 						);
+						CSearch::Index("blog", "B".$ID, $arSearchIndex);
 					}
-
-
-					$arSearchIndex = array(
-						"SITE_ID" => $arPostSite,
-						"LAST_MODIFIED" => $arBlog["DATE_UPDATE"],
-						"PARAM1" => "BLOG",
-						"PARAM2" => $arBlog["OWNER_ID"],
-						"PERMISSIONS" => array(2),
-						"TITLE" => $arBlog["NAME"],
-						"BODY" => ((strlen($arBlog["DESCRIPTION"]) > 0) ? $arBlog["DESCRIPTION"] : $arBlog["NAME"]),
-					);
-					if($arBlog["USE_SOCNET"] == "Y")
-						unset($arSearchIndex["PERMISSIONS"]);
-
-					CSearch::Index("blog", "B".$ID, $arSearchIndex);
 				}
 			}
 		}
@@ -354,7 +355,7 @@ class CBlog extends CAllBlog
 			if (strlen($arSqls["GROUPBY"]) > 0)
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!1!=".htmlspecialchars($strSql)."<br>";
+			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($arRes = $dbRes->Fetch())
@@ -362,7 +363,6 @@ class CBlog extends CAllBlog
 			else
 				return False;
 		}
-
 
 		$strSql =
 			"SELECT ".$arSqls["SELECT"]." ".
@@ -399,7 +399,7 @@ class CBlog extends CAllBlog
 			if (strlen($arSqls["GROUPBY"]) > 0)
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!2.1!=".htmlspecialchars($strSql_tmp)."<br>";
+			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
@@ -415,7 +415,7 @@ class CBlog extends CAllBlog
 
 			$dbRes = new CDBResult();
 
-			//echo "!2.2!=".htmlspecialchars($strSql)."<br>";
+			//echo "!2.2!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes->SetUserFields($USER_FIELD_MANAGER->GetUserFields("BLOG_BLOG"));
 			$dbRes->NavQuery($strSql, $cnt, $arNavStartParams);
@@ -423,14 +423,14 @@ class CBlog extends CAllBlog
 		else
 		{
 			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) > 0)
-				$strSql .= "LIMIT ".$arNavStartParams["nTopCount"];
+				$strSql .= "LIMIT ".IntVal($arNavStartParams["nTopCount"]);
 
-			//echo "!3!=".htmlspecialchars($strSql)."<br>";
+			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$dbRes->SetUserFields($USER_FIELD_MANAGER->GetUserFields("BLOG_BLOG"));
 		}
-		//echo "!4!=".htmlspecialchars($strSql)."<br>";
+		//echo "!4!=".htmlspecialcharsbx($strSql)."<br>";
 
 		return $dbRes;
 	}
@@ -452,6 +452,5 @@ class CBlog extends CAllBlog
 		
 		return false;
 	}
-
 }
 ?>

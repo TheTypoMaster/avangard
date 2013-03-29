@@ -12,9 +12,19 @@ if($arParams["POPUP"] === "Y" || $arParams["POPUP"] === true)
 	$arParams["POPUP"] = true;
 else
 	$arParams["POPUP"] = false;
-	
-if(!$USER->IsAuthorized())
-{
+
+if(!isset($arParams["~SHOW_TITLES"]))
+	$arParams["~SHOW_TITLES"] = 'Y';
+
+if(!isset($arParams["~FOR_SPLIT"]))
+	$arParams["~FOR_SPLIT"] = 'N';
+
+if(!isset($arParams["~AUTH_LINE"]))
+	$arParams["~AUTH_LINE"] = 'Y';
+
+$arParams["FORIE"] = false;
+if(isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false))
+		$arParams["FORIE"] = true;
+
 	$this->IncludeComponentTemplate();
-}
 ?>

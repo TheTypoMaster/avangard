@@ -110,3 +110,4 @@ document.onmousedown=selectmouse;
 document.onmouseup=new Function("isdrag=false");
 
 
+;   

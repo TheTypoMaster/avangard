@@ -1,0 +1,14 @@
+<?
+$MESS["SALE_PRODUCT_ENTITY_ID_FIELD"] = "ID";
+$MESS["SALE_PRODUCT_ENTITY_QUANTITY_FIELD"] = "Left in stock";
+$MESS["SALE_PRODUCT_ENTITY_NAME_FIELD"] = "Name";
+$MESS["SALE_PRODUCT_ENTITY_ACTIVE_FIELD"] = "Active";
+$MESS["SALE_PRODUCT_ENTITY_PRICE_IN_SITE_CURRENCY_FIELD"] = "Base price in website currency";
+$MESS["SALE_PRODUCT_ENTITY_SUMMARY_PRICE_IN_SITE_CURRENCY_FIELD"] = "Total left in stock (in base price and website currency)";
+$MESS["SALE_PRODUCT_ENTITY_VIEWS_IN_PERIOD_BY_SHOP_FIELD"] = "Views for specified reporting period";
+$MESS["SALE_PRODUCT_ENTITY_ORDERS_IN_PERIOD_BY_SHOP_FIELD"] = "Orders for specified reporting period";
+$MESS["SALE_PRODUCT_ENTITY_SALED_PRODUCTS_IN_PERIOD_BY_SHOP_FIELD"] = "Product sales for specified reporting period";
+$MESS["SALE_PRODUCT_ENTITY_CONVERSION_FIELD"] = "Conversion (%)";
+$MESS["SALE_PRODUCT_ENTITY_WEIGHT_FIELD"] = "Weight, g.";
+$MESS["SALE_PRODUCT_ENTITY_WEIGHT_IN_SITE_UNITS_FIELD"] = "Weight, website units";
+?>

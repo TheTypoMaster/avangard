@@ -27,7 +27,7 @@ $MESS["CLO_STORAGE_LIST_MOVE_IN_PROGRESS"] = "Dateien werden jetzt in den Cloud-
 $MESS["CLO_STORAGE_LIST_MOVE_DONE"] = "Dateien wurden in den Cloud-Speicher verschoben.";
 $MESS["CLO_STORAGE_LIST_MOVE_PROGRESS"] = "
 Gesamt Dateien verarbeitet: <b>#total#</b>.<br>
-Dateien verschoben: <b>#moved# (#bytes#)</b>, Dateien übersprungen: <b>#skiped#<b>.
+Dateien verschoben: <b>#moved# (#bytes#)</b>, Dateien übersprungen: <b>#skiped#</b>.
 ";
 $MESS["CLO_STORAGE_LIST_STOP"] = "Stop";
 $MESS["CLO_STORAGE_LIST_DOWNLOAD_IN_PROGRESS"] = "Dateien werden nun von dem Cloud-Speicher heruntergeladen.";
@@ -35,4 +35,5 @@ $MESS["CLO_STORAGE_LIST_DOWNLOAD_PROGRESS"] = "
 <b>#remain# (#bytes#)</b> verbleibend.
 ";
 $MESS["CLO_STORAGE_LIST_DOWNLOAD_DONE"] = "Dateien wurden von dem Cloud-Speicher heruntergeladen.";
+$MESS["CLO_STORAGE_LIST_MOVE_FILE_ERROR"] = "Fehler beim Verschieben der Datei in den Cloud-Speicher.";
 ?>

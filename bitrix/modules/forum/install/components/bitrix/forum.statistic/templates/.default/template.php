@@ -4,56 +4,60 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/themes/blue/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/styles/additional.css');
 endif;
-if ($arResult["ALL"] <= 0)
-	return 0;
 /********************************************************************
 				Input params
 ********************************************************************/
-$arParams["SEO_USER"] = ($arParams["SEO_USER"] == "Y" ? "Y" : "N");
+$arParams["SEO_USER"] = (in_array($arParams["SEO_USER"], array("Y", "N", "TEXT")) ? $arParams["SEO_USER"] : "Y");
+$arParams["USER_TMPL"] = '<noindex><a rel="nofollow" href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a></noindex>';
+if ($arParams["SEO_USER"] == "N") $arParams["USER_TMPL"] = '<a href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a>';
+elseif ($arParams["SEO_USER"] == "TEXT") $arParams["USER_TMPL"] = '#NAME#';
 /********************************************************************
 				/Input params
 ********************************************************************/
 
-if (in_array("USERS_ONLINE", $arParams["SHOW"])):
+if (in_array("USERS_ONLINE", $arParams["SHOW"]))
+{
+	$arMsg = array();
+	if (!empty($arResult["GUEST"]))
+		$arMsg[] = GetMessage("F_NOW_ONLINE_1", array("#GUESTS#" => "<span>".intVal($arResult["GUEST"])."</span>"));
+	if (!empty($arResult["REGISTER"]))
+		$arMsg[] = GetMessage("F_NOW_ONLINE_2", array("#USERS#" => "<span>".intVal($arResult["REGISTER"])."</span>"));
+	if (!empty($arResult["USERS_HIDDEN"]))
+		$arMsg[] = GetMessage("F_NOW_ONLINE_3", array("#HIDDEN_USERS#" => "<span>".count($arResult["USERS_HIDDEN"])."</span>"));
 
-if ($arParams["TID"] > 0):
-	$text = GetMessage("F_NOW_TOPIC_READ");
-else: 
-	$text = GetMessage("F_NOW_FORUM");
-endif;
-
-$text .= " ".str_replace(
-	array("#TIME_INTERVAL#", "#COUNT_USERS#", "#GUESTS#", "#USERS#", "#HIDDEN_USERS#"),
-	array("<span>".intVal($arParams["PERIOD"] / 60)."</span>", "<span>".$arResult["ALL"]."</span>", 
-		"<span>".intVal($arResult["GUEST"])."</span>", "<span>".intVal($arResult["REGISTER"])."</span>", 
-		"<span>".count($arResult["USERS_HIDDEN"])."</span>"),
-	GetMessage("F_NOW_ONLINE"));
+	$text = ($arParams["TID"] > 0 ? GetMessage("F_NOW_TOPIC_READ") : GetMessage("F_NOW_FORUM")).
+		(!empty($arMsg) ? " (".implode(", ", $arMsg).") " : "");
 ?>
 <div class="forum-info-box forum-users-online">
 	<div class="forum-info-box-inner">
-		<span class="forum-users-online"><?=$text?> <?
+		<span class="forum-users-online"><?=$text?></span><?
 $first = true;
 foreach ($arResult["USERS"] as $res)
 {
-	?><?=(!$first ? ", ": "")?><?
-	if ($arParams["SEO_USER"] == "Y"):
-	?><noindex><a rel="nofollow" href="<?=$res["profile_view"]?>" title="<?=GetMessage("F_USER_PROFILE")?>"><?
-		if(($arParams["WORD_WRAP_CUT"] > 0) && (strLen($res["~SHOW_NAME"])>$arParams["WORD_WRAP_CUT"]))
-			$res["SHOW_NAME"] = htmlspecialcharsEx(subStr($res["~SHOW_NAME"], 0, $arParams["WORD_WRAP_CUT"]))."...";
-		?><?=$res["SHOW_NAME"]?></a></noindex><?
-	else:
-	?><a href="<?=$res["profile_view"]?>" title="<?=GetMessage("F_USER_PROFILE")?>"><?
-		if(($arParams["WORD_WRAP_CUT"] > 0) && (strLen($res["~SHOW_NAME"])>$arParams["WORD_WRAP_CUT"]))
-			$res["SHOW_NAME"] = htmlspecialcharsEx(subStr($res["~SHOW_NAME"], 0, $arParams["WORD_WRAP_CUT"]))."...";
-		?><?=$res["SHOW_NAME"]?></a><?
-	endif;
+	if($arParams["WORD_WRAP_CUT"] > 0 && strLen($res["~SHOW_NAME"])>$arParams["WORD_WRAP_CUT"])
+		$res["SHOW_NAME"] = htmlspecialcharsEx(subStr($res["~SHOW_NAME"], 0, $arParams["WORD_WRAP_CUT"]))."...";
+	?><?=(!$first ? ", ": "")?><span class="forum-user-online"><?
+		?><?=str_replace(array("#URL#", "#NAME#"), array($res["profile_view"], $res["SHOW_NAME"]), $arParams["USER_TMPL"])
+	?></span><?
 	$first = false;
 }
-		?></span>
+if ($GLOBALS["USER"]->IsAdmin() && !empty($arResult["USERS_HIDDEN"]))
+{
+	foreach ($arResult["USERS_HIDDEN"] as $res)
+	{
+		if($arParams["WORD_WRAP_CUT"] > 0 && strLen($res["~SHOW_NAME"])>$arParams["WORD_WRAP_CUT"])
+			$res["SHOW_NAME"] = htmlspecialcharsEx(subStr($res["~SHOW_NAME"], 0, $arParams["WORD_WRAP_CUT"]))."...";
+		?><?=(!$first ? ", ": "")?><span class="forum-user-online-hidden"><?
+			?><?=str_replace(array("#URL#", "#NAME#"), array($res["profile_view"], $res["SHOW_NAME"]), $arParams["USER_TMPL"])
+		?></span><?
+		$first = false;
+	}
+}
+		?>
 	</div>
 </div>
 <?
-endif;
+}
 
 if (in_array("BIRTHDAY", $arParams["SHOW"]) && !empty($arResult["USERS_BIRTHDAY"])):
 ?>
@@ -64,12 +68,8 @@ $first = true;
 foreach ($arResult["USERS_BIRTHDAY"] as $res)
 {
 	?><?=((!$first)? ", ":"")?><?
-	if ($arParams["SEO_USER"] == "Y"):
-	?><noindex><a rel="nofollow" href="<?=$res["profile_view"]?>" title="<?=GetMessage("F_USER_PROFILE")?>"><?=$res["SHOW_NAME"]?></a></noindex><?
-	else:
-	?><a href="<?=$res["profile_view"]?>" title="<?=GetMessage("F_USER_PROFILE")?>"><?=$res["SHOW_NAME"]?></a> <?
-	endif;
-		?>(<span><?=$res["AGE"]?></span>)<?
+	?><?=str_replace(array("#URL#", "#NAME#"), array($res["profile_view"], $res["SHOW_NAME"]), $arParams["USER_TMPL"])
+	?>(<span><?=$res["AGE"]?></span>)<?
 	$first = false;
 }
 		?></span>

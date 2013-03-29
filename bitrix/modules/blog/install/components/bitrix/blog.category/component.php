@@ -75,7 +75,7 @@ if ($arBlog = CBlog::GetByUrl($arParams["BLOG_URL"]))
 				if(strlen($_POST["BACK_URL"])>0)
 					$arResult["BACK_URL"] = $_POST["BACK_URL"];
 				else
-					$arResult["BACK_URL"] = htmlspecialchars($APPLICATION->GetCurPageParam());
+					$arResult["BACK_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam());
 
 				$res=CBlogCategory::GetList(Array("NAME" => "ASC"), Array("BLOG_ID" => $arBlog["ID"]));
 				while ($arCategory=$res->GetNext())

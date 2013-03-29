@@ -167,7 +167,7 @@ $MESS["SUP_SUBA_UI_LOGIN_EXIST"] = "Der Loginname existiert bereits";
 $MESS["SUP_SUBA_CONFIRM_ERROR"] = "Pflichtfelder wurden nicht ausgefüllt";
 $MESS["SUP_MYSQL_L4111"] = "Sie benutzen die MySql Version #VERS#. Das Produkt benötigt eine Version nich kleiner als 4.1.11. Bitte aktualisieren Sie Ihre MySql Version oder wenden Sie sich an den Technischen Support.";
 $MESS["SUP_MSSQL_L4111"] = "Sie verwenden die Version  MSSql #VERS#,  das Produkt benötigt für seine Arbeit die Version ab 9.0 (Microsoft SQL Server 2005  und höher). Bitte aktualisieren Sie  MSSql oder wenden Sie Sich an den technischen Support.";
-$MESS["SUP_PHP_L439"] = "Sie benutzen die PHP Version #VERS#. Das Produnkt benötigt eine Version nich kleiner als 5.0.0. Bitte aktualisieren Sie Ihre PHP Version oder wenden Sie sich an den Technischen Support.";
+$MESS["SUP_PHP_L439"] = "Sie benutzen die PHP Version #VERS#. Das Produnkt benötigt eine Version nich kleiner als 5.3.0. Bitte aktualisieren Sie Ihre PHP Version oder wenden Sie sich an den Technischen Support.";
 $MESS["SUP_MYSQL_LCP_ERROR"] = "Die Datenbank Codierung der von Ihnen eingesetzten MySql Datenbank ist '#CP1#', das Updatesystem setzt die '#CP#' Codierung voraus. Wenden Sie sich an den MySql Administrator, um die Anfrage \"alter database #DB# default character set #CP#\" auszuführen.";
 $MESS["SUP_MYSQL_COLL_ERROR"] = "Kollation Ihrer MySQL-Datenbank '#CD#' stimmt mit der Kollation der Verbindung '#CC#' nicht überein.";
 $MESS["SUP_CHECK_UPDATES_PARTNER"] = "Updates der Partnermodule";
@@ -175,7 +175,7 @@ $MESS["SUP_CURRENT_NUMBER_OF_USERS"] = "; bisherige Nutzer: <a href=\"/bitrix/ad
 $MESS["SUP_USERS_IS_NOT_LIMITED"] = "Ihre Lizenz sieht keine Beschränkung für eine maximale Nutzeranzahl vor.";
 $MESS["SUP_RESERVED_KEY_HINT"] = "Sie müssen Ihren Lizenzschlüssel aktivieren, bevor Sie das Update-System benutzen können.";
 $MESS["SUP_SYSTEM_MESSAGE"] = "Achtung";
-$MESS["SUP_CANT_LOCK_UPDATES"] = "Das Update-System muss nur in einem Browserfenster gestartet werden.";
+$MESS["SUP_CANT_LOCK_UPDATES"] = "Das Update-System muss nur in einem Browserfenster gestartet werden";
 $MESS["SUP_NEW_UPDATE_SYSTEM_HINT"] = "Das Update-System muss aktualisiert werden.";
 $MESS["SUP_HTTP_BX_MASTER"] = "Der Cluster kann nur von einer Master-Kopie unter <a href=\"#ADDR#\">#ADDR#</a> aktualisiert werden";
 $MESS["SUP_SUAC_COUP1"] = "Aktivieren Sie Ihren Gutschein";

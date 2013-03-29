@@ -88,9 +88,9 @@ class CIBlockFormatProperties
 				{
 					$arFiles[] = $arFile;
 					if(IsModuleInstalled("statistic"))
-						$arDisplayValue[] =  '<a href="'.htmlspecialchars("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode($arFile["SRC"])."&event3=".urlencode($arFile["ORIGINAL_NAME"])."&goto=".urlencode($arFile["SRC"])).'">'.GetMessage('IBLOCK_DOWNLOAD').'</a>';
+						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode($arFile["SRC"])."&event3=".urlencode($arFile["ORIGINAL_NAME"])."&goto=".urlencode($arFile["SRC"])).'">'.GetMessage('IBLOCK_DOWNLOAD').'</a>';
 					else
-						$arDisplayValue[] =  '<a href="'.htmlspecialchars($arFile["SRC"]).'">'.GetMessage('IBLOCK_DOWNLOAD').'</a>';
+						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx($arFile["SRC"]).'">'.GetMessage('IBLOCK_DOWNLOAD').'</a>';
 				}
 			}
 			else
@@ -99,16 +99,16 @@ class CIBlockFormatProperties
 				if(strpos($trimmed, "http")===0)
 				{
 					if(IsModuleInstalled("statistic"))
-						$arDisplayValue[] =  '<a href="'.htmlspecialchars("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode($trimmed)."&event3=".urlencode($arItem["NAME"])."&goto=".urlencode($trimmed)).'">'.$trimmed.'</a>';
+						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode($trimmed)."&event3=".urlencode($arItem["NAME"])."&goto=".urlencode($trimmed)).'">'.$trimmed.'</a>';
 					else
-						$arDisplayValue[] =  '<a href="'.htmlspecialchars($trimmed).'">'.$trimmed.'</a>';
+						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx($trimmed).'">'.$trimmed.'</a>';
 				}
 				elseif(strpos($trimmed, "www")===0)
 				{
 					if(IsModuleInstalled("statistic"))
-						$arDisplayValue[] =  '<a href="'.htmlspecialchars("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode("http://".$trimmed)."&event3=".urlencode($arItem["NAME"])."&goto=".urlencode("http://".$trimmed)).'">'.$trimmed.'</a>';
+						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("/bitrix/redirect.php?event1=".urlencode($event1)."&event2=".urlencode("http://".$trimmed)."&event3=".urlencode($arItem["NAME"])."&goto=".urlencode("http://".$trimmed)).'">'.$trimmed.'</a>';
 					else
-						$arDisplayValue[] =  '<a href="'.htmlspecialchars("http://".$val).'">'.$val.'</a>';
+						$arDisplayValue[] =  '<a href="'.htmlspecialcharsbx("http://".$val).'">'.$val.'</a>';
 				}
 				else
 					$arDisplayValue[] = $val;
@@ -137,7 +137,17 @@ class CIBlockFormatProperties
 
 	function DateFormat($format, $timestamp)
 	{
-		return FormatDate($format, $timestamp);
+		global $DB;
+
+		switch($format)
+		{
+		case "SHORT":
+			return FormatDate($DB->dateFormatToPHP(FORMAT_DATE), $timestamp);
+		case "FULL":
+			return FormatDate($DB->dateFormatToPHP(FORMAT_DATETIME), $timestamp);
+		default:
+			return FormatDate($format, $timestamp);
+		}
 	}
 }
 ?>

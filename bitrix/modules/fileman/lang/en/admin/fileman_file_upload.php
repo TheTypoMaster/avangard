@@ -1,6 +1,6 @@
 <?
-$MESS ['FILEMAN_FILEUPLOAD_NAME'] = "File name:";
-$MESS ['FILEMAN_FILEUPLOAD_FILE'] = "Upload file:";
+$MESS ['FILEMAN_FILEUPLOAD_NAME'] = "File name";
+$MESS ['FILEMAN_FILEUPLOAD_FILE'] = "Upload file";
 $MESS ['FILEMAN_FILEUPLOAD_UPLOAD'] = "Upload files";
 $MESS ['FILEMAN_FILEUPLOAD_ACCESS_DENIED'] = "Not enough permissions to create a file";
 $MESS ['FILEMAN_FILEUPLOAD_SIZE_ERROR'] = "Maximum allowed file size exceeded for uploaded file: \"#FILE_NAME#\"";

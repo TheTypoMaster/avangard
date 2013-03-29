@@ -111,4 +111,4 @@ function CBXSession()
 	}
 }
 
-var bxSession = new CBXSession();
+var bxSession = new CBXSession();;   

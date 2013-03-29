@@ -33,6 +33,7 @@ $MESS ['MAIN_BFSD_FTYPE_TXT'] = "Текстовый документ";
 $MESS ['MAIN_BFSD_FTYPE_XML'] = "Документ XML";
 $MESS ['MAIN_BFSD_FTYPE_CSV'] = "Файл CSV";
 $MESS ['MAIN_BFSD_FTYPE_SWF'] = "Flash файл";
+$MESS ['MAIN_BFSD_FTYPE_ARC'] = "Архив";
 $MESS ['MAIN_BFSD_FTYPE_NA'] = "Файл";
 $MESS ['MAIN_BFSD_FLTR_PIC'] = "Рисунки";
 $MESS ['MAIN_BFSD_FLTR_DAT'] = "Файлы данных";

@@ -1,9 +1,17 @@
-(function(){if(window.JCClock)return;
+(function(){
+
+if(window.JCClock)
+	return;
 
 function JCClock(config)
 {
+	if(typeof(BX) != "undefined")
+		BX.onCustomEvent("onJCClockInit", [config]);
+
 	this.config = config;
-	this.config.AmPmMode = false;
+	this.config.AmPmMode = BX.isAmPmMode();
+//	this.config.AmPmMode = false;
+	this.config.AmPm = '';
 	this.deltaHour = 0;
 	this.MESS = this.config.MESS;
 	this.bCreated = false;
@@ -16,16 +24,25 @@ Create: function(cont)
 	this.pInput = document.getElementById(this.config.inputId);
 	this.pIcon = document.getElementById(this.config.iconId);
 
-	if (cont && (cont = document.getElementById(cont))) 
+	if (cont && (cont = document.getElementById(cont)))
 	{
 		this.bInline = true;
 		this.oDiv = cont;
-		this.oDiv.className = 'bx-clock-div bx-clock-div-inline';
+		this.oDiv.className = 'bx-clock-div bx-clock-div-inline' + (this.config.AmPmMode ? '_am_pm' : '');
 		this.oDiv.style.position = 'relative';
 	}
 	else
 	{
-		this.oDiv = jsUtils.CreateElement('DIV', {className: 'bx-clock-div', id: this.config.inputId + '_div'}, {zIndex: 150});
+        var zIndex = 150;
+        if(typeof(this.config['zIndex']) != 'undefined')
+        {
+            zIndex = parseInt(this.config['zIndex']);
+            if(zIndex <= 0)
+            {
+                zIndex = 150;
+            }
+        }
+		this.oDiv = jsUtils.CreateElement('DIV', {className: 'bx-clock-div', id: this.config.inputId + '_div'}, { zIndex: zIndex });
 		document.body.appendChild(this.oDiv);
 	}
 	// Create div
@@ -54,8 +71,16 @@ CreateControls: function()
 		arMinutes = [],
 		_this = this;
 
-	for (i = 0; i < 24; i++)
-		arHours.push(this.Int2Str(i));
+	if (this.config.AmPmMode)
+	{
+		for (i = 0; i < 12; i++)
+			arHours.push(this.Hour2Str(i, true));
+	}
+	else
+	{
+		for (i = 0; i < 24; i++)
+			arHours.push(this.Int2Str(i));
+	}
 
 	for (i = 0; i < 60; i += this.config.step)
 		arMinutes[i] = (this.Int2Str(i));
@@ -66,13 +91,13 @@ CreateControls: function()
 	this.minSelect = oSelM.pSelect;
 
 	this.hourSelect.onchange = function(){
-		if (!this.value || isNaN(this.value)) 
-			this.value = 0; 
+		if (!this.value || isNaN(this.value))
+			this.value = 0;
 		_this.SetTime(this.value, _this.curMin, true);
 	}
 	this.minSelect.onchange = function(){
-		if (!this.value || isNaN(this.value)) 
-			this.value = 0; 
+		if (!this.value || isNaN(this.value))
+			this.value = 0;
 		_this.SetTime(_this.curHour, this.value, true);
 	}
 	this.minSelect.onfocus = function(){_this.lastArrow = 'min';};
@@ -90,27 +115,46 @@ CreateControls: function()
 
 	var span = jsUtils.CreateElement('SPAN', {className: 'double-dot'});
 	span.innerHTML = ':';
-	oSelH.pWnd.style.marginLeft = '15px';
+	oSelH.pWnd.style.marginLeft = '11px';
 	this.ControlsCont.appendChild(oSelH.pWnd);
 	this.ControlsCont.appendChild(span);
 	this.ControlsCont.appendChild(oSelM.pWnd);
 
 	if (this.config.AmPmMode)
 	{
-		this.AmPm = jsUtils.CreateElement('IMG', {src: '/bitrix/images/1.gif', className: 'bxc-iconkit-c bxc-am', title: 'a.m.'});
-		this.AmPm.onclick = function(){};
+		this.AmPm = jsUtils.CreateElement('SPAN', {className: 'bxc-am-pm', title: 'a.m.'});
+		this.AmPm.innerHTML = 'am';
+
+		this.AmPm.onclick = function(){
+			if (this.title == 'a.m.')
+			{
+				this.title = 'p.m.';
+				this.innerHTML = 'pm';
+
+				_this.config.AmPm = ' pm';
+			}
+			else
+			{
+				this.title = 'a.m.';
+				this.innerHTML = 'am';
+				_this.config.AmPm = ' am';
+			}
+			_this.SetTime(_this.curHour, _this.curMin, true);
+		};
+
+
 		this.ControlsCont.appendChild(this.AmPm);
 	}
-	
+
 	if (!this.bInline)
 	{
 		this.ControlsCont.appendChild(insBut);
 		this.ControlsCont.appendChild(closeImg);
 
 		this.pTitle = this.ControlsCont.appendChild(jsUtils.CreateElement('DIV', {className: 'bxc-title'}));
-		this.pTitle.onmousedown = function(e) {jsFloatDiv.StartDrag(e, _this.oDiv); _this.bRecalculateCoordinates = true;};
+		this.pTitle.onmousedown = function(e) {jsFloatDiv.StartDrag(e, _this.oDiv);_this.bRecalculateCoordinates = true;};
 	}
-	
+
 	this.oDiv.appendChild(this.ControlsCont);
 },
 
@@ -120,16 +164,18 @@ CalculateCoordinates: function()
 	var pos = jsUtils.GetRealPos(this.oDiv);
 	this.top = pos.top;
 	this.left = pos.left;
-	this.centerX = pos.left + 55;
-	this.centerY = pos.top + (this.bInline ? 55 : 71);
+
+	this.centerX = pos.left + (this.bInline ? JCClock.getOption("centerXInline", 55) : JCClock.getOption("centerX", 55));
+	this.centerY = pos.top + (this.bInline ? JCClock.getOption("centerYInline", 55) : JCClock.getOption("centerY", 71));
 
 	var
 		_this = this,
-		mal = 32, // minute arrow length (in px)
-		hal = 25, // hour arrow length (in px)
+
+		mal = JCClock.getOption("minuteLength", 32), // minute arrow length (in px)
+		hal = JCClock.getOption("hourLength", 25), // hour arrow length (in px)
 		x = this.centerX, y = this.centerY, // Coordinates of center
 		i, deg, xi, yi, abs_x, abs_y, xi1, yi1, abs_x1, abs_y1,
-		delta = 8; // inaccuracy
+		delta = JCClock.getOption("inaccuracy", 8); // inaccuracy
 
 	this.arHourCoords = [];
 	this.bJumpByMinArrow30 = false;
@@ -199,6 +245,17 @@ Show: function(cont)
 			startValue = this.config.initTime;
 	}
 	var arT = startValue.split(':');
+	arT[1] = arT[1].split(' ');
+	if (arT[1][1] != undefined)
+	{
+		arT[0] = parseInt(arT[0], 10);
+		if (arT[1][1] == 'pm' && arT[0] < 12)
+			arT[0] = arT[0] + 12;
+		else if (arT[1][1] == 'am' && arT[0] == 12)
+				arT[0] = 0;
+
+		arT[1] = arT[1][0];
+	}
 	this.SetTime(parseInt(arT[0], 10) || 0, parseInt(arT[1], 10) || 0);
 
 	if (this.bInline)
@@ -210,12 +267,12 @@ Show: function(cont)
 		var pos = this.AlignToPos(jsUtils.GetRealPos(this.pIcon));
 		this.top = pos.top;
 		this.left = pos.left;
-		
+
 		jsFloatDiv.Show(this.oDiv, this.left, this.top);
 		this.oDiv.style.display = 'block';
 		jsFloatDiv.AdjustShadow(this.oDiv);
 	}
-	
+
 	var _this = this;
 	setTimeout(function() {
 		_this.CalculateCoordinates();
@@ -231,8 +288,7 @@ Show: function(cont)
 AlignToPos: function(pos)
 {
 	var
-		w = 110,
-		h = 170,
+		h = JCClock.getOption("popupHeight", 170),
 		x = pos.left,
 		y = pos.top - h,
 		//size = jsUtils.GetWindowInnerSize(),
@@ -257,11 +313,12 @@ Close: function()
 
 Submit: function()
 {
-	var value = this.Int2Str(this.curHour) + ':' + this.Int2Str(this.curMin);
+	var mt = this.config.AmPmMode ? this.config.AmPm : '';
+	var value = this.Hour2Str(this.curHour, this.config.AmPmMode) + ':' + this.Int2Str(this.curMin) + mt;
 	this.pInput.value = value;
 	if (this.pInput.onchange && typeof this.pInput.onchange == 'function')
 		this.pInput.onchange.apply(this.pInput, []);
-	
+
 	if (!this.bInline)
 		this.Close();
 },
@@ -269,8 +326,28 @@ Submit: function()
 SetTime: function(h, m, bDontSetDigClock, bJumpByHourArrow)
 {
 	h = parseInt(h, 10);
-	if (h < 0 || h > 23)
-		h = 0;
+	if (this.config.AmPmMode)
+	{
+		if (h >= 12)
+		{
+			if (h > 12)
+				h = h - 12;
+			if (this.config.AmPm == '')
+				this.config.AmPm = ' pm';
+		}
+		else if (this.config.AmPm == '')
+		{
+			this.config.AmPm = ' am';
+		}
+		if (h < 1 || h > 12)
+		{
+			h = 12;
+			this.config.AmPm = ' am';
+		}
+	}
+	else
+		if (h < 0 || h > 23)
+			h = 0;
 
 	m = parseInt(m, 10);
 	var step = this.config.step;
@@ -286,8 +363,8 @@ SetTime: function(h, m, bDontSetDigClock, bJumpByHourArrow)
 	this.curHour = h;
 
 	if (this.pTitle)
-		this.pTitle.innerHTML = this.Int2Str(h) + ':' + this.Int2Str(m);
-	
+		this.pTitle.innerHTML = this.Hour2Str(h, this.config.AmPmMode) + ':' + this.Int2Str(m);
+
 	this.SetTimeAn(h, m);
 	if (!bDontSetDigClock)
 		this.SetTimeDig(h, m);
@@ -357,6 +434,7 @@ SetTimeAnM: function(h, m)
 SetTimeAn: function(h, m)
 {
 	h = parseInt(h, 10);
+
 	if (isNaN(h))
 		h = 0;
 	m = parseInt(m, 10);
@@ -375,16 +453,19 @@ SetTimeAn: function(h, m)
 
 CreateSelect: function(arValues, step, title)
 {
+	var bAmPmMode = !!this.config.AmPmMode;
 	var select = jsUtils.CreateElement('INPUT', {type: 'text', className: 'bxc-cus-sel', size: "1", title: title});
 	var spinStop = function(d)
 	{
 		select._bxmousedown = false;
-		clearInterval(window.bxinterval);
+		if (window.bxinterval)
+			clearTimeout(window.bxinterval);
 	}
 	var spinChange = function(d)
 	{
 		if (!select._bxmousedown)
 			return spinStop();
+
 		var k = parseInt(select.value, 10);
 
 		if (isNaN(k))
@@ -401,22 +482,40 @@ CreateSelect: function(arValues, step, title)
 		{
 			k -= d; // return old value
 			select.value = k - (d > 0 ? 1 : -1); // one step in reverse direction
-			spinChange(d); // try again
+			return spinChange(d); // try again
 		}
 		else
 		{
-			select.value = arValues[k];
+			// hacks for AM/PM 00->12
+			if (select.value == '11' && arValues[k] == '00' || select.value == '01' && arValues[k] == '00' && bAmPmMode)
+			{
+				select.value = '12';
+			}
+			else if (select.value == '12' && arValues[k] == '00')
+			{
+				select.value = '01';
+			}
+			else
+				select.value = arValues[k];
 			select.onchange();
 		}
+
+		if (window.bxinterval)
+			clearTimeout(window.bxinterval);
+		window.bxinterval = setTimeout(function(){spinChange(d);}, 100);
 	}
 	var spinStart = function(d)
 	{
 		if (window.bxinterval)
 			spinStop();
-		window.bxinterval = setInterval(function(){spinChange(d);}, 150);
 		select._bxmousedown = true;
 		jsUtils.addEvent(document, "mouseup", spinStop);
+
 		spinChange(d);
+
+		if (window.bxinterval)
+			clearTimeout(window.bxinterval);
+		window.bxinterval = setTimeout(function(){spinChange(d);}, 800);
 	};
 	select.onkeydown = function(e)
 	{
@@ -443,7 +542,7 @@ CreateSelect: function(arValues, step, title)
 	//c.setAttribute("rowSpan", "2");
 	c.rowSpan = 2;
 	c.appendChild(select);
-	
+
 
 	c = r.insertCell(-1);
 	c.appendChild(jsUtils.CreateElement('IMG', {src: '/bitrix/images/1.gif', className: 'bxc-slide-up bxc-iconkit-c'}));
@@ -461,9 +560,23 @@ CreateSelect: function(arValues, step, title)
 
 SetTimeDig: function(h, m)
 {
-	this.hourSelect.value = this.Int2Str(h);
+	this.hourSelect.value = this.Hour2Str(h, this.config.AmPmMode);
 	this.minSelect.value = this.Int2Str(m);
-	
+
+	if (this.config.AmPmMode)
+	{
+		if (this.config.AmPm == ' pm')
+		{
+			this.AmPm.title = 'p.m.';
+			this.AmPm.innerHTML = 'pm';
+		}
+		else
+		{
+			this.AmPm.title = 'a.m.';
+			this.AmPm.innerHTML = 'am';
+		}
+	}
+
 	if (this.bInline)
 		this.Submit();
 },
@@ -621,11 +734,19 @@ Int2Str: function(i)
 	return i < 10 ? '0' + i.toString() : i.toString();
 },
 
+Hour2Str: function(i, ampm)
+{
+	i = parseInt(i, 10);
+	if (isNaN(i))
+		i = 0;
+	return i < 10 && !ampm ? '0' + i.toString() : i.toString();
+},
+
 CheckClick: function(e)
 {
-	if (this.bRecalculateCoordinates || this.bInline)
+	if (this.bRecalculateCoordinates || this.bInline || JCClock.getOption("cancelCheckClick", false))
 		return;
-	if(!e) e = window.event
+	if(!e) e = window.event;
 	if(!e) return;
 	var
 		windowSize = jsUtils.GetWindowSize(),
@@ -642,6 +763,25 @@ OnKeyDown: function(e)
 	if(e.keyCode == 27)
 		this.Close();
 }
-}
+};
+
+
+JCClock.options = {};
+JCClock.setOptions = function(options)
+{
+	if (!options || typeof(options) != "object")
+		return;
+
+	for (var option in options)
+		JCClock.options[option] = options[option];
+};
+
+JCClock.getOption = function(option, defaultValue)
+{
+	if (typeof(JCClock.options[option]) != "undefined")
+		return JCClock.options[option];
+	else
+		return defaultValue;
+};
 
 window.JCClock=JCClock;})();

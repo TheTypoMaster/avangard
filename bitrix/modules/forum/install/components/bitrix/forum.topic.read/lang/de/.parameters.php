@@ -13,7 +13,6 @@ $MESS["F_MESSAGE_MOVE_TEMPLATE"] = "Seite zum Versenden der Nachrichten";
 $MESS["F_TOPIC_NEW_TEMPLATE"] = "Seite zum Erstellen eines neuen Themas";
 $MESS["F_MESSAGES_PER_PAGE"] = "Beiträge pro Seite";
 $MESS["F_PAGE_NAVIGATION_WINDOW"] = "Anzahl Seiten in der Seitennavigation";
-$MESS["F_PAGEN"] = "Reihenfolge der Seitennavigation";
 $MESS["F_DEFAULT_PATH_TO_SMILE"] = "Pfad zum Ordner mit Smileys relativ zum Root";
 $MESS["F_PM_EDIT_TEMPLATE"] = "Seite mit privaten Nachrichten";
 $MESS["F_PROFILE_VIEW_TEMPLATE"] = "Seite mit dem Userprofil";

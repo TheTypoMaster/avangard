@@ -6,7 +6,7 @@ define("ADMIN_MODULE_NAME", "clouds");
 /*.require_module 'bitrix_main_include_prolog_admin_before';.*/
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
-if(!$USER->IsAdmin())
+if(!$USER->CanDoOperation("clouds_config"))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 /*.require_module 'bitrix_clouds_include';.*/
@@ -175,9 +175,9 @@ function editAddRule()
 {
 	var tbl = BX('tblRULES');
 	var oRow = tbl.insertRow(-1);
-	var oCell1 = oRow.insertCell(0); oCell1.innerHTML = '<input name="MODULE[]" type="text">';
-	var oCell2 = oRow.insertCell(1); oCell2.innerHTML = '<input name="EXTENSION[]" type="text">';
-	var oCell3 = oRow.insertCell(2); oCell3.innerHTML = '<input name="SIZE[]" type="text">';
+	var oCell1 = oRow.insertCell(0); oCell1.innerHTML = '<input name="MODULE[]" type="text" style="width:100%">';
+	var oCell2 = oRow.insertCell(1); oCell2.innerHTML = '<input name="EXTENSION[]" type="text" style="width:100%">';
+	var oCell3 = oRow.insertCell(2); oCell3.innerHTML = '<input name="SIZE[]" type="text" style="width:100%">';
 	var oCell4 = oRow.insertCell(3); oCell4.innerHTML = '<img src="/bitrix/themes/.default/images/actions/delete_button.gif" onclick="editDeleteRule(this) "/>';
 
 	if (document.forms.editform.BXAUTOSAVE)
@@ -216,7 +216,7 @@ $tabControl->BeginNextTab();
 		</tr>
 	<?}?>
 	<tr>
-		<td><?echo GetMessage("CLO_STORAGE_EDIT_ACTIVE")?>:</td>
+		<td width="40%"><?echo GetMessage("CLO_STORAGE_EDIT_ACTIVE")?>:</td>
 		<td width="60%"><input type="hidden" name="ACTIVE" value="N"><input type="checkbox" name="ACTIVE" value="Y"<?if($arRes["ACTIVE"] === "Y") echo " checked"?>></td>
 	</tr>
 	<tr>
@@ -239,10 +239,10 @@ $tabControl->BeginNextTab();
 				}
 			}
 			?>
-			<input type="hidden" name="SERVICE_ID" value="<?echo htmlspecialchars($arRes["SERVICE_ID"]);?>">
+			<input type="hidden" name="SERVICE_ID" value="<?echo htmlspecialcharsbx($arRes["SERVICE_ID"]);?>">
 			</td>
 		</tr>
-		<tr id="LOCATION_<?echo htmlspecialchars($arRes["SERVICE_ID"])?>" class="location-tr">
+		<tr id="LOCATION_<?echo htmlspecialcharsbx($arRes["SERVICE_ID"])?>" class="location-tr">
 			<td><?echo GetMessage("CLO_STORAGE_EDIT_LOCATION")?>:</td>
 			<td>
 			<?
@@ -252,7 +252,7 @@ $tabControl->BeginNextTab();
 					echo htmlspecialcharsex($LOCATION_NAME);
 			}
 			?>
-			<input type="hidden" name="LOCATION[<?echo htmlspecialchars($arRes["SERVICE_ID"]);?>]" value="<?echo htmlspecialchars($arRes["LOCATION"]);?>">
+			<input type="hidden" name="LOCATION[<?echo htmlspecialcharsbx($arRes["SERVICE_ID"]);?>]" value="<?echo htmlspecialcharsbx($arRes["LOCATION"]);?>">
 			</td>
 		</tr>
 		<?if(is_object($obService)) echo $obService->GetSettingsHTML($arRes, true, $arRes["SERVICE_ID"], $bVarsFromForm);?>
@@ -267,7 +267,7 @@ $tabControl->BeginNextTab();
 			$bServiceSet = false;
 			foreach(CCloudStorage::GetServiceList() as $SERVICE_ID => $obService)
 			{
-				?><option value="<?echo htmlspecialchars($SERVICE_ID)?>"<?if($arRes["SERVICE_ID"] === $SERVICE_ID) echo " selected"?>><?echo htmlspecialcharsex($obService->GetName())?></option><?
+				?><option value="<?echo htmlspecialcharsbx($SERVICE_ID)?>"<?if($arRes["SERVICE_ID"] === $SERVICE_ID) echo " selected"?>><?echo htmlspecialcharsex($obService->GetName())?></option><?
 				if($arRes["SERVICE_ID"] === $SERVICE_ID)
 					$bServiceSet = true;
 			}
@@ -277,14 +277,14 @@ $tabControl->BeginNextTab();
 		</tr>
 		<?foreach(CCloudStorage::GetServiceList() as $SERVICE_ID => $obService)
 		{?>
-		<tr id="LOCATION_<?echo htmlspecialchars($SERVICE_ID)?>" style="display:<?echo $arRes["SERVICE_ID"] === $SERVICE_ID || !$bServiceSet? "": "none"?>" class="location-tr">
+		<tr id="LOCATION_<?echo htmlspecialcharsbx($SERVICE_ID)?>" style="display:<?echo $arRes["SERVICE_ID"] === $SERVICE_ID || !$bServiceSet? "": "none"?>" class="location-tr">
 			<td><?echo GetMessage("CLO_STORAGE_EDIT_LOCATION")?>:</td>
 			<td>
-			<select name="LOCATION[<?echo htmlspecialchars($SERVICE_ID)?>]">
+			<select name="LOCATION[<?echo htmlspecialcharsbx($SERVICE_ID)?>]">
 			<?
 			foreach(CCloudStorage::GetServiceLocationList($SERVICE_ID) as $LOCATION_ID => $LOCATION_NAME)
 			{
-				?><option value="<?echo htmlspecialchars($LOCATION_ID)?>"<?if($arRes["SERVICE_ID"] === $LOCATION_ID) echo " selected"?>><?echo htmlspecialcharsex($LOCATION_NAME)?></option><?
+				?><option value="<?echo htmlspecialcharsbx($LOCATION_ID)?>"<?if($arRes["SERVICE_ID"] === $LOCATION_ID) echo " selected"?>><?echo htmlspecialcharsex($LOCATION_NAME)?></option><?
 			}
 			?>
 			</select>
@@ -296,26 +296,26 @@ $tabControl->BeginNextTab();
 	<?}?>
 	<?if($ID > 0)
 	{?>
-		<tr>
-			<td><span class="required">*</span><?echo GetMessage("CLO_STORAGE_EDIT_BUCKET")?>:</td>
-			<td><input type="hidden" name="BUCKET" value="<?echo htmlspecialchars($arRes["BUCKET"])?>"><?echo htmlspecialcharsex($arRes["BUCKET"])?></td>
+		<tr class="adm-detail-required-field">
+			<td><?echo GetMessage("CLO_STORAGE_EDIT_BUCKET")?>:</td>
+			<td><input type="hidden" name="BUCKET" value="<?echo htmlspecialcharsbx($arRes["BUCKET"])?>"><?echo htmlspecialcharsex($arRes["BUCKET"])?></td>
 		</tr>
 	<?
 	}
 	else
 	{?>
-		<tr>
-			<td><span class="required">*</span><?echo GetMessage("CLO_STORAGE_EDIT_BUCKET")?>:</td>
-			<td><input type="text" size="55" name="BUCKET" value="<?echo htmlspecialchars($arRes["BUCKET"])?>"></td>
+		<tr class="adm-detail-required-field">
+			<td><?echo GetMessage("CLO_STORAGE_EDIT_BUCKET")?>:</td>
+			<td><input type="text" size="55" name="BUCKET" value="<?echo htmlspecialcharsbx($arRes["BUCKET"])?>"></td>
 		</tr>
 	<?}?>
 	<tr>
 		<td><?echo GetMessage("CLO_STORAGE_EDIT_READ_ONLY")?>:</td>
-		<td width="60%"><input type="hidden" name="READ_ONLY" value="N"><input type="checkbox" name="READ_ONLY" value="Y"<?if($arRes["READ_ONLY"] === "Y") echo " checked"?>></td>
+		<td><input type="hidden" name="READ_ONLY" value="N"><input type="checkbox" name="READ_ONLY" value="Y"<?if($arRes["READ_ONLY"] === "Y") echo " checked"?>></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("CLO_STORAGE_EDIT_CNAME")?>:</td>
-		<td><input type="text" size="55" name="CNAME" value="<?echo htmlspecialchars($arRes["CNAME"])?>"></td>
+		<td><input type="text" size="55" name="CNAME" value="<?echo htmlspecialcharsbx($arRes["CNAME"])?>"></td>
 	</tr>
 <?
 $tabControl->BeginNextTab();
@@ -345,9 +345,9 @@ if(!is_array($arRules))
 	{
 	?>
 			<tr>
-				<td><input name="MODULE[]" type="text" value="<?echo htmlspecialchars($rule["MODULE"])?>"></td>
-				<td><input name="EXTENSION[]" type="text" value="<?echo htmlspecialchars($rule["EXTENSION"])?>"></td>
-				<td><input name="SIZE[]" type="text" value="<?echo htmlspecialchars($rule["SIZE"])?>"></td>
+				<td><input name="MODULE[]" type="text" value="<?echo htmlspecialcharsbx($rule["MODULE"])?>" style="width:100%"></td>
+				<td><input name="EXTENSION[]" type="text" value="<?echo htmlspecialcharsbx($rule["EXTENSION"])?>" style="width:100%"></td>
+				<td><input name="SIZE[]" type="text" value="<?echo htmlspecialcharsbx($rule["SIZE"])?>" style="width:100%"></td>
 				<td><img src="/bitrix/themes/.default/images/actions/delete_button.gif" onclick="editDeleteRule(this)" /></td>
 			</tr>
 	<?
@@ -357,9 +357,9 @@ if(!is_array($arRules))
 	{
 		?>
 			<tr>
-				<td><input name="MODULE[]" type="text"></td>
-				<td><input name="EXTENSION[]" type="text"></td>
-				<td><input name="SIZE[]" type="text"></td>
+				<td><input name="MODULE[]" type="text" style="width:100%"></td>
+				<td><input name="EXTENSION[]" type="text" style="width:100%"></td>
+				<td><input name="SIZE[]" type="text" style="width:100%"></td>
 				<td><img src="/bitrix/themes/.default/images/actions/delete_button.gif" onclick="editDeleteRule(this)" /></td>
 			</tr>
 		<?
@@ -377,8 +377,8 @@ BX.ready(function() {
 		}
 	});
 });
-</script>
-		<a href="javascript:void(0)" onclick="editAddRule(this)" hidefocus="true" class="bx-action-href"><?echo GetMessage("CLO_STORAGE_EDIT_ADD_FILE_RULE")?></a>
+</script><br>
+		<a class="adm-btn" href="javascript:void(0)" onclick="editAddRule(this)" hidefocus="true" class="bx-action-href"><?echo GetMessage("CLO_STORAGE_EDIT_ADD_FILE_RULE")?></a>
 	</td></tr>
 	<tr><td>
 		<?echo

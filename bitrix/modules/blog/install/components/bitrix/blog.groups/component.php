@@ -32,7 +32,7 @@ if(strLen($arParams["PAGE_VAR"])<=0)
 	
 $arParams["PATH_TO_GROUP"] = trim($arParams["PATH_TO_GROUP"]);
 if(strlen($arParams["PATH_TO_GROUP"])<=0)
-	$arParams["PATH_TO_GROUP"] = htmlspecialchars($APPLICATION->GetCurPageParam($arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#", Array($arParams["PAGE_VAR"], $arParams["GROUP_VAR"])));
+	$arParams["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam($arParams["PAGE_VAR"]."=group&".$arParams["GROUP_VAR"]."=#group_id#", Array($arParams["PAGE_VAR"], $arParams["GROUP_VAR"])));
 
 $cache = new CPHPCache;
 $cache_id = "blog_blog_groups_".serialize($arParams);

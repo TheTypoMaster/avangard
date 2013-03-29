@@ -23,3 +23,19 @@ margin:0 5px 0 0;
 padding:5px;
 width:180px;
 }
+
+.product_table .left_block {
+float: left;
+width: 150px;
+margin-top: 15px;
+}
+
+.product_table .right_block {
+float: left;
+width: 150px;
+margin-top: 15px;
+}
+
+.product_table .right_block .credit_button {
+margin-top: 8px;
+}

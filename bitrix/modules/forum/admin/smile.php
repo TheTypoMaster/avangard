@@ -114,7 +114,7 @@ while ($arForum = $dbResultList->NavNext(true, "f_"))
 	if (in_array("NAME", $arVisibleColumns))
 	{
 		$arSmileLang = CForumSmile::GetLangByID($f_ID, LANG);
-		$fieldShow = htmlspecialchars($arSmileLang["NAME"]);
+		$fieldShow = htmlspecialcharsbx($arSmileLang["NAME"]);
 		$row->AddViewField("NAME", '<a title="'.GetMessage("FORUM_EDIT_DESCR").'" href="'."forum_smile_edit.php?ID=".$f_ID."&lang=".LANG."&".GetFilterParams("filter_").'">'.$fieldShow.'</a>');
 	}
 

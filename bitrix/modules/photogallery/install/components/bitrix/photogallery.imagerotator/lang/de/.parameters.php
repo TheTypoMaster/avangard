@@ -48,4 +48,5 @@ $MESS["P_IR_TR_FLASH"] = "Flash";
 $MESS["P_IR_TR_FLUIDS"] = "Flüssigkeiten";
 $MESS["P_IR_TR_LINES"] = "Linien";
 $MESS["P_IR_TR_SLOWFADE"] = "Langsames Ausblenden";
+$MESS["P_IR_SHUFFLE"] = "Elemente gemischt anzeigen";
 ?>

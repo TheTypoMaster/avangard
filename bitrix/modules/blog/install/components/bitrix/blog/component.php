@@ -49,7 +49,8 @@ $componentPage = "";
 $arComponentVariables = array("user_id", "post_id", "blog", "group_id", "type", "category", "day", "month", "year", "title", "url", "excerpt", "blog_name", "page");
 
 if (strlen(trim($arParams["NAME_TEMPLATE"])) <= 0)
-	$arParams["NAME_TEMPLATE"] = GetMessage('BC_NAME_TEMPLATE_DEFAULT');
+	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
+	
 $arParams['SHOW_LOGIN'] = $arParams['SHOW_LOGIN'] != "N" ? "Y" : "N";	
 
 if (IsModuleInstalled('intranet') && !array_key_exists("PATH_TO_CONPANY_DEPARTMENT", $arParams))
@@ -136,14 +137,14 @@ else
 		$componentPage = "auth";
 
 	if(strlen($arResult["PATH_TO_SEARCH"])<=0)
-		$arResult["PATH_TO_SEARCH"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arVariableAliases["page"]."=search");
+		$arResult["PATH_TO_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arVariableAliases["page"]."=search");
 
 }
 
 if(strlen($arResult["PATH_TO_BLOG_EDIT"])>0)
 	$blogEdit = $arResult["PATH_TO_BLOG_EDIT"];
 else
-	$blogEdit = htmlspecialchars($APPLICATION->GetCurPage()."?".$arVariableAliases["page"]."=blog_edit&".$arVariableAliases["blog"]."=#blog#");
+	$blogEdit = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arVariableAliases["page"]."=blog_edit&".$arVariableAliases["blog"]."=#blog#");
 
 $arResult["PATH_TO_NEW_BLOG"] = CComponentEngine::MakePathFromTemplate($blogEdit, array("blog" => "new"));
 

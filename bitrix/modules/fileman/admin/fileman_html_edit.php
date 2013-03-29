@@ -10,10 +10,6 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/prolog.php");
 
-$ext_html_editor = COption::GetOptionString("fileman", "ext_html_editor", "");
-if($ext_html_editor=="always" || ($ext_html_editor=="not_admin" && !$USER->IsAdmin()))
-	LocalRedirect("/bitrix/admin/fileman_fck_edit.php?".$_SERVER["QUERY_STRING"] + "&" + bitrix_sessid_get());
-
 $addUrl = 'lang='.LANGUAGE_ID.($logical == "Y"?'&logical=Y':'');
 
 if (!($USER->CanDoOperation('fileman_admin_files') || $USER->CanDoOperation('fileman_edit_existent_files')))
@@ -35,11 +31,11 @@ while($arSiteTemplate = $rsSiteTemplates->Fetch())
 }
 
 $io = CBXVirtualIo::GetInstance();
-
-$path = $io->CombinePath("/", $path);
+$path = $path_list = $io->CombinePath("/", $path);
 
 $bVarsFromForm = false; //  if 'true' - we will get content  and variables from form, if 'false' - from saved file
 $filename = isset($_REQUEST['filename']) ? $_REQUEST['filename'] : '';
+$oldname = isset($_REQUEST['oldname']) ? $_REQUEST['oldname'] : '';
 
 if (strlen($filename) > 0 && ($mess = CFileMan::CheckFileName($filename)) !== true)
 {
@@ -50,8 +46,9 @@ if (strlen($filename) > 0 && ($mess = CFileMan::CheckFileName($filename)) !== tr
 }
 
 $originalPath = $path;
+$new = (isset($new) && strtolower($new) == 'y') ? 'y' : '';
 
-if (strlen($new) > 0 && strtolower($new) == 'y' && strlen($filename) > 0)
+if ($new == 'y' && strlen($filename) > 0)
 	$path = $path."/".$filename;
 
 $site = CFileMan::__CheckSite($site);
@@ -62,12 +59,15 @@ $DOC_ROOT = CSite::GetSiteDocRoot($site);
 $abs_path = $io->CombinePath($DOC_ROOT, $path);
 $arPath = Array($site, $path);
 
-if((strlen($new) <= 0 || strtolower($new) != 'y' || strlen($filename) <= 0) && !$io->FileExists($abs_path))
+if(GetFileType($abs_path) == "IMAGE")
+	$strWarning = GetMessage("FILEMAN_FILEEDIT_FILE_IMAGE_ERROR");
+
+if(($new == '' || (strlen($filename) <= 0) && strlen($oldname) <= 0) && !$io->FileExists($abs_path))
 {
 	$p = strrpos($path, "/");
-	if($p!==false)
+	if($p !== false)
 	{
-		$new = "Y";
+		$new = "y";
 		$filename = substr($path, $p+1);
 		$path = substr($path, 0, $p);
 	}
@@ -77,13 +77,13 @@ $bFullPHP = ($full_src == "Y") && $USER->CanDoOperation('edit_php');
 $NEW_ROW_CNT = 1;
 
 $arParsedPath = CFileMan::ParsePath(Array($site, $path), true, false, "", $logical == "Y");
-$isScriptExt = in_array(CFileman::GetFileExtension($path), CFileMan::GetScriptFileExt());
+$isScriptExt = HasScriptExtension($path);
 
 //Check access to file
 if
 (
 	(
-		strlen($new) > 0
+		$new == 'y'
 		&&
 		!(
 			$USER->CanDoOperation('fileman_admin_files')
@@ -93,7 +93,7 @@ if
 	)
 	||
 	(
-		strlen($new) < 0
+		$new == ''
 		&&
 		!(
 			$USER->CanDoOperation('fileman_edit_existent_files')
@@ -105,9 +105,10 @@ if
 {
 	$strWarning = GetMessage("ACCESS_DENIED");
 }
-else
+elseif(strlen($strWarning) <= 0)
 {
-	if(strlen($new) > 0 && strtolower($new) == 'y' && strlen($filename) > 0 && $io->FileExists($abs_path))// если мы хотим создать новый файл, но уже такой есть - ругаемся
+	if($new == 'y' && strlen($filename) > 0 && $io->FileExists($abs_path)) // if we want to create new file, but the file with same name is alredy exists - lets abuse
+
 	{
 		$strWarning = GetMessage("FILEMAN_FILEEDIT_FILE_EXISTS");
 		$bEdit = false;
@@ -125,7 +126,7 @@ else
 		$arParsedPath = CFileMan::ParsePath($path, true, false, "", $logical == "Y");
 		$abs_path = $io->CombinePath($DOC_ROOT, $path);
 	}
-	elseif(strtolower($new) == 'y')
+	elseif($new == 'y')
 	{
 		if (strlen($filename) < 0)
 			$strWarning = GetMessage("FILEMAN_FILEEDIT_FILENAME_EMPTY");
@@ -174,13 +175,14 @@ if(strlen($strWarning)<=0)
 	{
 		$oFile = $io->GetFile($abs_path);
 		$filesrc_tmp = $oFile->GetContents();
-		//$filesrc_tmp = $APPLICATION->GetFileContent($abs_path);
 	}
 	else
 	{
 		$arTemplates = CFileman::GetFileTemplates(LANGUAGE_ID, array($site_template));
-		if(strlen($template)>0)
-			for ($i = 0; $i < count($arTemplates); $i++)
+		if(strlen($template) > 0)
+		{
+			$len = count($arTemplates);
+			for ($i = 0; $i < $len; $i++)
 			{
 				if($arTemplates[$i]["file"] == $template)
 				{
@@ -188,8 +190,11 @@ if(strlen($strWarning)<=0)
 					break;
 				}
 			}
+		}
 		else
+		{
 			$filesrc_tmp = CFileman::GetTemplateContent($arTemplates[0]["file"], LANGUAGE_ID, array($site_template));
+		}
 	}
 
 	if($REQUEST_METHOD=="POST" && strlen($save)>0 && strlen($propeditmore)<=0)
@@ -203,7 +208,7 @@ if(strlen($strWarning)<=0)
 		{
 			$strWarning = GetMessage("FILEMAN_FILEEDIT_CHANGE");
 			$bVarsFromForm = true;
-			if(strlen($new) > 0 && strlen($filename) > 0)
+			if($new == 'y' && strlen($filename) > 0)
 			{
 				$bEdit = false;
 				$path = $io->CombinePath("/", $arParsedPath["PREV"]);
@@ -291,7 +296,7 @@ if(strlen($strWarning)<=0)
 				if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 				{
 					$res_log['path'] = substr($path, 1);
-					if (strlen($new) > 0 && strtolower($new) == 'y' && strlen($filename) > 0)
+					if ($new == 'y' && strlen($filename) > 0)
 						CEventLog::Log(
 							"content",
 							"FILE_ADD",
@@ -308,10 +313,10 @@ if(strlen($strWarning)<=0)
 							serialize($res_log)
 						);
 				}
-				// сохранение меню
+				// menu saving
 				if($add_to_menu=="Y" && strlen($menutype)>0 && $USER->CanDoOperation('fileman_add_element_to_menu') && $USER->CanDoFileOperation('fm_add_to_menu',$arPath))
 				{
-					$menu_path = $io->CombinePath($arParsedPath["PREV"], $menutype.".menu.php");
+					$menu_path = $io->CombinePath($arParsedPath["PREV"], ".".$menutype.".menu.php");
 					if($USER->CanDoFileOperation('fm_edit_existent_file',Array($site,$menu_path)))
 					{
 						$res = CFileMan::GetMenuArray($DOC_ROOT.$menu_path);
@@ -319,20 +324,20 @@ if(strlen($strWarning)<=0)
 						$sMenuTemplateTmp = $res["sMenuTemplate"];
 
 						$menuitem = IntVal($menuitem);
-						if($itemtype=="e") //значит в существующий пункт
+						if($itemtype=="e") //means in exist item
 						{
 							$menuitem = $menuitem - 1;
-							if($menuitem < count($aMenuLinksTmp)) //номер пункта должен быть в пределах количества текущего меню
+							if($menuitem < count($aMenuLinksTmp)) // number of item must be in bounds of amount of current menu
 								$aMenuLinksTmp[$menuitem][2][] = $path;
 						}
-						else //иначе в новый
+						else //else in new
 						{
 							$menuitem = $newppos-1;
-							//если номер пункта выходит за пределы количества текущего меню
+							// if number of item goes out from bounds of amount of current menu
 							if($menuitem < 0 || $menuitem >= count($aMenuLinksTmp))
 								$menuitem = count($aMenuLinksTmp);
 
-							for($i=count($aMenuLinksTmp)-1; $i>=$menuitem; $i--)//сдвинем вправо все пункты > нашего
+							for($i=count($aMenuLinksTmp)-1; $i>=$menuitem; $i--)//shift to the right all items > our
 								$aMenuLinksTmp[$i+1] = $aMenuLinksTmp[$i];
 							$aMenuLinksTmp[$menuitem] = Array($newp, $path, Array(), Array(), "");
 						}
@@ -375,7 +380,7 @@ if(strlen($propeditmore) > 0)
 $bEditProps = false;
 if(!$bVarsFromForm)
 {
-	if(!$bEdit && strlen($filename)<=0)
+	if(!$bEdit && strlen($filename) <= 0)
 		$filename = ($USER->CanDoOperation('edit_php') || $limit_php_access) ? "untitled.php" : "untitled.html";
 
 	if(!$bFullPHP)
@@ -396,7 +401,7 @@ if(!$bVarsFromForm)
 				for ($n = 0; $n<$l; $n++)
 				{
 					$start = $arPHP[$n][0];
-					$new_filesrc .= substr($filesrc,$end,$start-$end);
+					$new_filesrc .= substr($filesrc, $end, $start - $end);
 					$end = $arPHP[$n][1];
 
 					//Trim php tags
@@ -435,7 +440,7 @@ elseif($prop_edit=="Y")
 	$bEditProps = true;
 
 if($bEdit)
-	$APPLICATION->SetTitle(GetMessage("FILEMAN_FILEEDIT_PAGE_TITLE")." \"".htmlspecialchars($arParsedPath["LAST"])."\"");
+	$APPLICATION->SetTitle(GetMessage("FILEMAN_FILEEDIT_PAGE_TITLE")." \"".htmlspecialcharsbx($arParsedPath["LAST"])."\"");
 else
 	$APPLICATION->SetTitle(GetMessage("FILEMAN_NEWFILEEDIT_TITLE"));
 
@@ -464,7 +469,15 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 <?CAdminMessage::ShowMessage($strWarning);?>
 
 <?if(strlen($strWarning) <=0 || $bVarsFromForm):
-$aMenu = array();
+//$aMenu = array();
+$aMenu = array(
+	array(
+		"TEXT" => GetMessage("FILEMAN_BACK"),
+		"LINK" => "fileman_admin.php?".$addUrl."&site=".$site."&path=".UrlEncode($path_list),
+		"ICON" => "btn_list"
+	)
+);
+
 if ($bEdit)
 {
 	$aMenu[] = array(
@@ -480,7 +493,7 @@ if (!$ismenu)
 {
 	$aDDMenuEdit[] = array(
 		"TEXT" => GetMessage("FILEMAN_FILEEDIT_AS_TXT"),
-		"ACTION" => "window.location='fileman_file_edit.php?".$addUrl."&amp;site=".Urlencode($site)."&amp;path=".UrlEncode($path).(strlen($new)>0? "&amp;new=Y":"").(strlen($back_url)>0? "&amp;back_url=".urlencode($back_url):"").(strlen($template)>0? "&amp;template=".urlencode($template):"").(strlen($template)>0? "&amp;template=".urlencode($template):"").(strlen($templateID)>0? "&amp;templateID=".urlencode($templateID):"")."';",
+		"ACTION" => "window.location='fileman_file_edit.php?".$addUrl."&amp;site=".Urlencode($site)."&amp;path=".UrlEncode($path).($new == 'y' ? "&amp;new=Y":"").(strlen($back_url)>0? "&amp;back_url=".urlencode($back_url):"").(strlen($template)>0? "&amp;template=".urlencode($template):"").(strlen($template)>0? "&amp;template=".urlencode($template):"").(strlen($templateID)>0? "&amp;templateID=".urlencode($templateID):"")."';",
 	);
 }
 
@@ -488,7 +501,7 @@ if($USER->CanDoOperation('edit_php'))
 {
 	$aDDMenuEdit[] = array(
 		"TEXT" => GetMessage("FILEMAN_FILEEDIT_AS_PHP"),
-		"ACTION" => "window.location='fileman_file_edit.php?".$addUrl."&amp;site=".Urlencode($site)."&amp;path=".UrlEncode($path)."&amp;full_src=Y".(strlen($new)>0? "&amp;new=Y":"").(strlen($back_url)>0? "&amp;back_url=".urlencode($back_url):"").(strlen($template)>0? "&amp;template=".urlencode($template):"").(strlen($template)>0? "&amp;template=".urlencode($template):"").(strlen($templateID)>0? "&amp;templateID=".urlencode($templateID):"")."';",
+		"ACTION" => "window.location='fileman_file_edit.php?".$addUrl."&amp;site=".Urlencode($site)."&amp;path=".UrlEncode($path)."&amp;full_src=Y".($new == 'y' ? "&amp;new=Y":"").(strlen($back_url)>0? "&amp;back_url=".urlencode($back_url):"").(strlen($template)>0? "&amp;template=".urlencode($template):"").(strlen($template)>0? "&amp;template=".urlencode($template):"").(strlen($templateID)>0? "&amp;templateID=".urlencode($templateID):"")."';",
 	);
 }
 
@@ -496,7 +509,7 @@ if ($ismenu)
 {
 	$aDDMenuEdit[] = array(
 		"TEXT" => GetMessage("FILEMAN_FILEEDIT_AS_MENU"),
-		"ACTION" => "window.location='fileman_menu_edit.php?".$addUrl."&amp;site=".Urlencode($site)."&amp;path=".UrlEncode($arParsedPath["PREV"])."&amp;name=".UrlEncode($regs[1]).(strlen($new)>0? "&amp;new=Y":"").(strlen($back_url)>0? "&amp;back_url=".urlencode($back_url):"")."';"
+		"ACTION" => "window.location='fileman_menu_edit.php?".$addUrl."&amp;site=".Urlencode($site)."&amp;path=".UrlEncode($arParsedPath["PREV"])."&amp;name=".UrlEncode($regs[1]).($new == 'y' ? "&amp;new=Y":"").(strlen($back_url)>0? "&amp;back_url=".urlencode($back_url):"")."';"
 	);
 }
 
@@ -523,10 +536,7 @@ if($bEdit)
 		);
 	}
 
-	if(($USER->CanDoFileOperation('fm_download_file', $arPath) &&
-	!(in_array(CFileman::GetFileExtension($path), CFileMan::GetScriptFileExt()) ||
-	substr(CFileman::GetFileName($path), 0, 1)==".")) ||
-	$USER->CanDoOperation('edit_php'))
+	if(($USER->CanDoFileOperation('fm_download_file', $arPath) && !(HasScriptExtension($path) || substr(CFileman::GetFileName($path), 0, 1)==".")) || $USER->CanDoOperation('edit_php'))
 	{
 		$aMenu[] = array(
 			"TEXT"=>GetMessage("FILEMAN_FILEEDIT_DOWNLOAD"),
@@ -556,12 +566,12 @@ $__fd_path = $bEdit ? $arParsedPath["PREV"] : $path;
 $arContextTemplates = Array();
 
 $arTemplates = CFileman::GetFileTemplates(LANGUAGE_ID, array($site_template));
-
-for($i=0; $i<count($arTemplates); $i++)
+$cntTempl = count($arTemplates);
+for($i = 0; $i < $cntTempl; $i++)
 {
 	$arContextTemplates[] = Array(
-			"TEXT"=>htmlspecialchars($arTemplates[$i]["name"]),
-			"ONCLICK" => "__NewDocTempl('".AddSlashes(htmlspecialchars($arTemplates[$i]["file"]))."')",
+			"TEXT"=>htmlspecialcharsbx($arTemplates[$i]["name"]),
+			"ONCLICK" => "__NewDocTempl('".AddSlashes(htmlspecialcharsbx($arTemplates[$i]["file"]))."')",
 		);
 }
 
@@ -571,29 +581,38 @@ CAdminFileDialog::ShowScript(Array
 	(
 		"event" => "__bx_fd_save_as",
 		"arResultDest" => Array("FUNCTION_NAME" => "OnSaveAs"),
-		"arPath" => Array('SITE'=>$site, 'PATH'=>$path),
+		"arPath" => Array('SITE'=>$site, 'PATH'=>$_REQUEST['path']), //http://jabber.bx/view.php?id=27769
 		"select" => 'F',
 		"operation" => 'S',
 		"showUploadTab" => false,
 		"showAddToMenuTab" => true,
 		"fileFilter" => 'php,html,htm,phtml',
 		"allowAllFiles" => true,
-		"SaveConfig" => true
+		"saveConfig" => false
 	)
 );
 
+?>
+<script type="text/javascript">
+BX.addCustomEvent(window, 'onAfterFileDialogShow', function(){
+	var _filenameDialogInput = BX("__bx_file_path_bar");
+	var _filenamePageInput = BX('filename');
+	if(_filenamePageInput && _filenameDialogInput)
+		_filenameDialogInput.value = _filenamePageInput.value;
+});
+</script>
+<?
 $u->Show();
 ?>
-
 <form action="fileman_html_edit.php?lang=<?=LANG?>" method="post" enctype="multipart/form-data" name="ffilemanedit" id="ffilemanedit">
-<input type="hidden" name="site" id="site" value="<?=htmlspecialchars($site)?>">
-<input type="hidden" name="path" id="path" value="<?=htmlspecialchars($originalPath)?>">
-<input type="hidden" name="logical" value="<?=htmlspecialchars($logical)?>">
+<input type="hidden" name="site" id="site" value="<?=htmlspecialcharsbx($site)?>">
+<input type="hidden" name="path" id="path" value="<?=htmlspecialcharsbx($originalPath)?>">
+<input type="hidden" name="logical" value="<?=htmlspecialcharsbx($logical)?>">
 <span style="display:none;"><input type="submit" name="saveb" value="Y" style="width:0px;height:0px"></span>
 <input type="hidden" name="save" value="Y">
 <input type="hidden" name="fullscreen" id="fullscreen" value="<?=($bFullScreen?"Y":"N")?>">
-<input type="hidden" name="template" value="<?= htmlspecialchars($template)?>">
-<input type="hidden" name="back_url" value="<?=htmlspecialchars($back_url)?>">
+<input type="hidden" name="template" value="<?= htmlspecialcharsbx($template)?>">
+<input type="hidden" name="back_url" value="<?=htmlspecialcharsbx($back_url)?>">
 <?=bitrix_sessid_post()?>
 <?
 $tabControl->Begin();
@@ -607,40 +626,51 @@ $tabControl->BeginNextTab();
 		<td>
 		<input type="hidden" name="new" id="new" value="y">
 		<?$arTemplates = CFileman::GetFileTemplates(LANGUAGE_ID, array($site_template));?>
+
 		<script>
 		function templateOnChange(_this)
 		{
 			var _name = BX('filename').value;
 			if (_name)
-				_name = '&oldname='+escape(_name);
+				_name = '&oldname='+encodeURIComponent(_name);
+
 			var _title = BX('title').value;
 			if (_title)
-				_title = '&oldtitle='+escape(_title);
+				_title = '&oldtitle='+encodeURIComponent(_title);
 
-			window.location='/bitrix/admin/fileman_html_edit.php?lang=<?= LANG?>&site=<?=Urlencode($site)?>&path=<?= UrlEncode($path)?>&new=y&template='+escape(_this[_this.selectedIndex].value)+_name+_title;
+			<?
+			$logic = ( $logical == "Y"  ? '&logical=Y' : '' );
+
+			$folderPath = $_REQUEST['path'];
+			?>
+
+			window.location='/bitrix/admin/fileman_html_edit.php?lang=<?= LANG?><?=$logic?>&site=<?=Urlencode($site)?>&path=<?= UrlEncode($folderPath)?>&new=y&template='+encodeURIComponent(_this[_this.selectedIndex].value)+_name+_title;
 		}
 		</script>
+
 		<?
 		if (isset($_GET['oldtitle']) && strlen($_GET['oldtitle']) > 0 && !$bVarsFromForm)
-			$title = $_GET['oldtitle'];
+			$title = $GLOBALS["APPLICATION"]->ConvertCharset($_GET['oldtitle'], "UTF-8", LANG_CHARSET);
 		if (isset($_GET['oldname']) && strlen($_GET['oldname']) > 0 && !$bVarsFromForm)
-			$filename = $_GET['oldname'];
+			$filename = $GLOBALS["APPLICATION"]->ConvertCharset($_GET['oldname'], "UTF-8", LANG_CHARSET);
 		?>
 		<select id="bx_template" name="template" onchange="templateOnChange(this);">
-			<?for($i=0; $i<count($arTemplates); $i++):?>
-			<option value="<?= htmlspecialchars($arTemplates[$i]["file"])?>"<?if($template==$arTemplates[$i]["file"])echo " selected"?>><?= htmlspecialchars($arTemplates[$i]["name"])?></option>
+			<?
+			$cntTemp = count($arTemplates);
+			for($i = 0; $i < $cntTemp; $i++):?>
+			<option value="<?= htmlspecialcharsbx($arTemplates[$i]["file"])?>"<?if($template==$arTemplates[$i]["file"])echo " selected"?>><?= htmlspecialcharsbx($arTemplates[$i]["name"])?></option>
 			<?endfor;?>
 		</select></td></tr>
 		<tr>
 			<td width="30%"><label for="title"><?= GetMessage("FILEMAN_FILEEDIT_TITLE")?></label></td>
-			<td width="70%"><input type="text" id="title" name="title" size="60" maxlength="255" value="<?= htmlspecialchars($title)?>"></td>
+			<td width="70%"><input type="text" id="title" name="title" size="60" maxlength="255" value="<?= htmlspecialcharsbx($title)?>"></td>
 		</tr>
 		<tr>
 			<td><label for="filename"><?= GetMessage("FILEMAN_FILEEDIT_NAME")?></td>
 			<td>
 				<?if (isset($filename2))
 					$filename = $filename2;?>
-				<input type="text" name="filename" id="filename" style="float: left;" size="60" maxlength="255" value="<?= htmlspecialchars($filename)?>" />
+				<input type="text" name="filename" id="filename" style="float: left;" size="60" maxlength="255" value="<?= htmlspecialcharsbx($filename)?>" />
 			</td>
 		</tr>
 		<tr><td style="padding: 0!important;"></td><td style="padding: 0!important;">
@@ -669,11 +699,11 @@ $tabControl->BeginNextTab();
 	<?else:?>
 		<tr>
 			<td width="30%"><label for="title"><?= GetMessage("FILEMAN_FILEEDIT_TITLE")?></label></td>
-			<td width="70%"><input type="text" id="title" name="title" size="60" maxlength="255" value="<?= htmlspecialchars($title)?>">
+			<td width="70%"><input type="text" id="title" name="title" size="60" maxlength="255" value="<?= htmlspecialcharsbx($title)?>">
 
 			<input type="hidden" name="new" id="new" value="n">
-			<input type="hidden" name="filename" id="filename" value="<?=htmlspecialchars($arParsedPath["LAST"])?>">
-			<input type="hidden" name="ofp_id" id="ofp_id" value="<?=htmlspecialchars($ofp_id)?>">
+			<input type="hidden" name="filename" id="filename" value="<?=htmlspecialcharsbx($arParsedPath["LAST"])?>">
+			<input type="hidden" name="ofp_id" id="ofp_id" value="<?=htmlspecialcharsbx($ofp_id)?>">
 			</td>
 		</tr>
 	<tr>
@@ -916,20 +946,20 @@ $tabControl->BeginNextTab();
 				unset($arPropTypes_tmp);
 				unset($arAllPropFields_tmp);
 				unset($arDefProps);
-
-				for($i=0; $i<count($arAllPropFields); $i++)
+				$cntProp = count($arAllPropFields);
+				for($i = 0; $i < $cntProp; $i++)
 				{
 					$arProp = $arAllPropFields[$i];
 					?>
 					<tr>
 						<td  valign="top" >
-							<input type="hidden" id="H_CODE_<?=$i;?>" name="H_CODE_<?=$i;?>" value="<?=htmlspecialchars($arProp["CODE"])?>">
+							<input type="hidden" id="H_CODE_<?=$i;?>" name="H_CODE_<?=$i;?>" value="<?=htmlspecialcharsbx($arProp["CODE"])?>">
 							<?if($arProp["NAME"]):?>
-								<input type="hidden" id="CODE_<?=$i;?>" name="CODE_<?=$i;?>" value="<?=htmlspecialchars($arProp["CODE"])?>">
-								<input type="hidden" id="NAME_<?=$i;?>" name="NAME_<?=$i;?>" value="<?=htmlspecialchars($arProp["NAME"]);?>">
-								<?=htmlspecialchars($arProp["NAME"]);?>:
+								<input type="hidden" id="CODE_<?=$i;?>" name="CODE_<?=$i;?>" value="<?=htmlspecialcharsbx($arProp["CODE"])?>">
+								<input type="hidden" id="NAME_<?=$i;?>" name="NAME_<?=$i;?>" value="<?=htmlspecialcharsbx($arProp["NAME"]);?>">
+								<?=htmlspecialcharsbx($arProp["NAME"]);?>:
 							<?else:?>
-								<input type="text" name="CODE_<?=$i?>" id="CODE_<?=$i?>" value="<?echo htmlspecialchars((isset($_POST["CODE_$i"])) ? $_POST["CODE_$i"] : $arProp["CODE"]);?>" size="30">:
+								<input type="text" name="CODE_<?=$i?>" id="CODE_<?=$i?>" value="<?echo htmlspecialcharsbx((isset($_POST["CODE_$i"])) ? $_POST["CODE_$i"] : $arProp["CODE"]);?>" size="30">:
 							<?endif;?>
 						</td>
 						<td>
@@ -938,11 +968,11 @@ $tabControl->BeginNextTab();
 							if($arProp["CODE"] == $tag_prop_name && $search_exist):
 								echo InputTags("VALUE_".$i, $value_, array(), 'size="55"', "VALUE_".$i);
 							else:?>
-								<input type="text" name="VALUE_<?=$i?>" id="VALUE_<?=$i?>" value="<?=htmlspecialchars($value_);?>" size="60">
+								<input type="text" name="VALUE_<?=$i?>" id="VALUE_<?=$i?>" value="<?=htmlspecialcharsbx($value_);?>" size="60">
 							<?endif;
 							if($APPLICATION->GetDirProperty($arProp["CODE"], Array($site, $path)))
 							{
-								?><br><small><b><?=GetMessage("FILEMAN_FILE_EDIT_FOLDER_PROP")?></b> <?echo htmlspecialchars($APPLICATION->GetDirProperty($arProp["CODE"], Array($site, $path)));?></small><?
+								?><br><small><b><?=GetMessage("FILEMAN_FILE_EDIT_FOLDER_PROP")?></b> <?echo htmlspecialcharsbx($APPLICATION->GetDirProperty($arProp["CODE"], Array($site, $path)));?></small><?
 							}?>
 						</td>
 					</tr>
@@ -989,10 +1019,11 @@ $tabControl->BeginNextTab();
 					if(!is_array($aMenuLinksTmp))
 						$aMenuLinksTmp = Array();
 					$itemcnt = 0;
-					for($j = 0; $j < count($aMenuLinksTmp); $j++)
+					$cntMenu = count($aMenuLinksTmp);
+					for($j = 0; $j < $cntMenu; $j++)
 					{
 						$aMenuLinksItem = $aMenuLinksTmp[$j];
-						$arItems[] = htmlspecialchars($aMenuLinksItem[0]);
+						$arItems[] = htmlspecialcharsbx($aMenuLinksItem[0]);
 					}
 					$arAllItems[$key] = $arItems;
 					if($strSelected=="")
@@ -1032,7 +1063,8 @@ function __heAddToMenu()
 $arTypes = array_keys($arAllItems);
 $strTypes = "";
 $strItems = "";
-for($i = 0; $i < count($arTypes); $i++)
+$cntTypes = count($arTypes);
+for($i = 0; $i < $cntTypes; $i++)
 {
 	if($i>0)
 	{
@@ -1042,7 +1074,8 @@ for($i = 0; $i < count($arTypes); $i++)
 	$strTypes .= "'".CUtil::JSEscape($arTypes[$i])."'";
 	$arItems = $arAllItems[$arTypes[$i]];
 	$strItems .= "[";
-	for($j = 0; $j < count($arItems); $j++)
+	$cntItems = count($arItems);
+	for($j = 0; $j < $cntItems; $j++)
 	{
 		if($j > 0)
 			$strItems .= ",";
@@ -1172,15 +1205,16 @@ BX.ready(function() {
 </tr>
 <tr id="e1"<?if($_REQUEST['add_to_menu']!='Y')echo ' style="display:none;"';?>>
 	<td><?echo GetMessage("FILEMAN_H_EDIT_MENU_NEW_NAME")?></td>
-	<td><input type="text" name="newp" id="newp" value="<?if(isset($_POST['newp'])) echo htmlspecialchars($_POST['newp']);?>"></td>
+	<td><input type="text" name="newp" id="newp" value="<?if(isset($_POST['newp'])) echo htmlspecialcharsbx($_POST['newp']);?>"></td>
 </tr>
 <tr id="e2"<?if($_REQUEST['add_to_menu']!='Y')echo ' style="display:none;"';?>>
 	<td><?echo GetMessage("FILEMAN_H_EDIT_MENU_INS_BEFORE")?></td>
 	<td>
 		<select name="newppos" id="newppos"><?
 			$arItems = $arAllItems[$strSelected];
-			for($i=0; $i<count($arItems); $i++):
-				?><option value="<?echo $i+1?>" <?if(isset($_POST['newppos']) && $_POST['newppos'] == $i+1) echo 'selected';?>><?echo $arItems[$i]?></option><?
+			$l = count($arItems);
+			for($i = 0; $i < $l; $i++):
+				?><option value="<?= $i + 1?>" <?if(isset($_POST['newppos']) && $_POST['newppos'] == $i + 1) echo 'selected';?>><?= $arItems[$i]?></option><?
 			endfor;
 			?><option value="0" <?if(isset($_POST['newppos']) && $_POST['newppos'] == 0) echo 'selected';?>><?echo GetMessage("FILEMAN_H_EDIT_MENU_LAST")?></option>
 		</select>
@@ -1191,8 +1225,9 @@ BX.ready(function() {
 	<td>
 		<select name="menuitem" id="menuitem"><?
 			$arItems = $arAllItems[$strSelected];
-			for($i=0; $i<count($arItems); $i++):
-			?><option value="<?echo $i+1?>" <?if(isset($_POST['menuitem']) && $_POST['menuitem'] == $i+1) echo 'selected';?>><?echo $arItems[$i]?></option><?
+			$l = count($arItems);
+			for($i = 0; $i < $l; $i++):
+			?><option value="<?= $i + 1?>" <?if(isset($_POST['menuitem']) && $_POST['menuitem'] == $i + 1) echo 'selected';?>><?= $arItems[$i]?></option><?
 			endfor;
 		?></select>
 			<input type="hidden" name="apply2" id="apply2" value="">

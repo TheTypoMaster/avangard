@@ -60,7 +60,7 @@ if(
 			continue;
 
 		$arResult["CATEGORIES"][$i] = array(
-			"TITLE" => htmlspecialchars($category_title),
+			"TITLE" => htmlspecialcharsbx($category_title),
 			"ITEMS" => array()
 		);
 
@@ -107,7 +107,7 @@ if(
 				{
 					$arResult["CATEGORIES"][$i]["ITEMS"][] = array(
 						"NAME" => $ar["NAME"],
-						"URL" => htmlspecialchars($ar["URL"]),
+						"URL" => htmlspecialcharsbx($ar["URL"]),
 						"MODULE_ID" => $ar["MODULE_ID"],
 						"PARAM1" => $ar["PARAM1"],
 						"PARAM2" => $ar["PARAM2"],
@@ -145,7 +145,7 @@ if(
 	if($arParams["SHOW_OTHERS"] === "Y")
 	{
 		$arResult["CATEGORIES"]["others"] = array(
-			"TITLE" => htmlspecialchars($arParams["CATEGORY_OTHERS_TITLE"]),
+			"TITLE" => htmlspecialcharsbx($arParams["CATEGORY_OTHERS_TITLE"]),
 			"ITEMS" => array(),
 		);
 
@@ -171,7 +171,7 @@ if(
 				{
 					$arResult["CATEGORIES"]["others"]["ITEMS"][] = array(
 						"NAME" => $ar["NAME"],
-						"URL" => htmlspecialchars($ar["URL"]),
+						"URL" => htmlspecialcharsbx($ar["URL"]),
 						"MODULE_ID" => $ar["MODULE_ID"],
 						"PARAM1" => $ar["PARAM1"],
 						"PARAM2" => $ar["PARAM2"],
@@ -230,14 +230,14 @@ if(
 	}
 }
 
-$arResult["FORM_ACTION"] = htmlspecialchars(str_replace("#SITE_DIR#", SITE_DIR, $arParams["PAGE"]));
+$arResult["FORM_ACTION"] = htmlspecialcharsbx(str_replace("#SITE_DIR#", SITE_DIR, $arParams["PAGE"]));
 
 if (
-    $_REQUEST["ajax_call"] === "y"
-    && (
+	$_REQUEST["ajax_call"] === "y"
+	&& (
 		!isset($_REQUEST["INPUT_ID"])
 		|| $_REQUEST["INPUT_ID"] == $arParams["INPUT_ID"]
-    )
+	)
 )
 {
 	$APPLICATION->RestartBuffer();

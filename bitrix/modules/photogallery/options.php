@@ -4,11 +4,11 @@ if ($RIGHTS > "D"):
 	$arSights = array();
 	$counter = 0;
 	$bVarsFromForm = false;
-	
+
 	$arSights = @unserialize(COption::GetOptionString("photogallery", "pictures"));
 	if (!is_array($arSights))
 		$arSights = array();
-		
+
 	$arLangs = array();
 	$db_res = CLanguage::GetList($by, $order, array());
 	while($res = $db_res->Fetch())
@@ -24,7 +24,7 @@ if ($RIGHTS > "D"):
 				$val = strToLower(trim($val));
 				if (preg_match("/[0-9]/", substr($val, 0, 1), $matches))
 					continue;
-					
+
 				if (!empty($val) && intVal($_REQUEST["SIZE"][$key]) > 0 && ($_REQUEST["DROP"][$key] != "Y"))
 				{
 					$_REQUEST["SIGHTS"][$key] = (empty($_REQUEST["SIGHTS"][$key]) ? $val : $_REQUEST["SIGHTS"][$key]);
@@ -37,7 +37,7 @@ if ($RIGHTS > "D"):
 			}
 		}
 		COption::SetOptionString("photogallery", "pictures", serialize($arSights));
-		
+
 		if($apply!="")
 			LocalRedirect("/bitrix/admin/settings.php?&lang=".LANG."&back_url=".urlencode($back_url)."&mid=photogallery");
 		elseif($back_url)
@@ -47,7 +47,7 @@ if ($RIGHTS > "D"):
 	}
 	//*****************************************************************************************************************
 ?><form method="POST" action="<?=$APPLICATION->GetCurPage()?>?mid=photogallery&lang=<?=LANGUAGE_ID?>" id="FORMACTION">
-<input type="hidden" name="back_url" value="<?=htmlspecialchars($back_url)?>" />
+<input type="hidden" name="back_url" value="<?=htmlspecialcharsbx($back_url)?>" />
 <?=bitrix_sessid_post()?><?
 
 $aTabs = array(array("DIV" => "edit1", "TAB" => GetMessage("MAIN_TAB_SET"), "TITLE" => GetMessage("MAIN_TAB_TITLE_SET")));
@@ -64,7 +64,7 @@ $handle = opendir($path);
 $file_exist = false;
 if ($handle)
 {
-	while($file = readdir($handle)) 
+	while($file = readdir($handle))
 	{
 		if ($file == "." || $file == ".." || !is_file($path.$file))
 			continue;
@@ -85,7 +85,7 @@ if (!$file_exist)
 	<table cellpadding="0" cellspacing="5">
 		<tr class="heading">
 			<td><?=GetMessage("P_TITLE")?></td>
-			<td><span class="required">*</span><?=GetMessage("P_CODE")?><sup>2</sup></td>
+			<td><?=GetMessage("P_CODE")?><sup>2</sup></td>
 			<td><?=GetMessage("P_SIZE")?></td>
 			<td><?=GetMessage("P_QUALITY")?></td>
 			<td><?=GetMessage("P_DROP")?></td>
@@ -94,21 +94,21 @@ if (!$file_exist)
 foreach ($arSights as $key => $val):
 	$counter++;
 ?><tr>
-	<td><input type="text" name="SIGHTS[<?=$counter?>]" value="<?=htmlspecialchars($val["title"])?>" /></td>
-	<td><input type="text" name="CODE[<?=$counter?>]" value="<?=htmlspecialchars($val["code"])?>" size="10" /></td>
-	<td><input type="text" name="SIZE[<?=$counter?>]" value="<?=htmlspecialchars($val["size"])?>" size="10" /></td>
-	<td><input type="text" name="QUALITY[<?=$counter?>]" value="<?=htmlspecialchars($val["quality"])?>" size="10" /></td>
-	<td><input type="checkbox" name="DROP[<?=$counter?>]" value="Y" /></td>
+	<td style="text-align: center !important;"><input type="text" name="SIGHTS[<?=$counter?>]" value="<?=htmlspecialcharsbx($val["title"])?>" /></td>
+	<tdstyle="text-align: center !important;"><input type="text" name="CODE[<?=$counter?>]" value="<?=htmlspecialcharsbx($val["code"])?>" size="10" /></td>
+	<td style="text-align: center !important;"><input type="text" name="SIZE[<?=$counter?>]" value="<?=htmlspecialcharsbx($val["size"])?>" size="10" /></td>
+	<td style="text-align: center !important;"><input type="text" name="QUALITY[<?=$counter?>]" value="<?=htmlspecialcharsbx($val["quality"])?>" size="10" /></td>
+	<td style="text-align: center !important;"><input type="checkbox" name="DROP[<?=$counter?>]" value="Y" /></td>
 </tr><?
 endforeach;
 for ($ii = 0; $ii < 5; $ii++):
 	$counter++;
 ?><tr>
-	<td><input type="text" name="SIGHTS[<?=$counter?>]" value="" /></td>
-	<td><input type="text" name="CODE[<?=$counter?>]" value="" size="10" /></td>
-	<td><input type="text" name="SIZE[<?=$counter?>]" value="" size="10" /></td>
-	<td><input type="text" name="QUALITY[<?=$counter?>]" value="95" size="10" /></td>
-	<td></td>
+	<td style="text-align: center !important;"><input type="text" name="SIGHTS[<?=$counter?>]" value="" /></td>
+	<td style="text-align: center !important;"><input type="text" name="CODE[<?=$counter?>]" value="" size="10" /></td>
+	<td style="text-align: center !important;"><input type="text" name="SIZE[<?=$counter?>]" value="" size="10" /></td>
+	<td style="text-align: center !important;"><input type="text" name="QUALITY[<?=$counter?>]" value="95" size="10" /></td>
+	<td style="text-align: center !important;"></td>
 </tr><?
 endfor;
 ?></table></td></tr><?
@@ -122,7 +122,7 @@ $tabControl->End();
 <?=str_replace(
 	array(
 		"#FILEMAN_ADMIN#",
-		"#FILEMAN_FILE_UPLOAD#"), 
+		"#FILEMAN_FILE_UPLOAD#"),
 	array(
 		"/bitrix/admin/fileman_admin.php?site=&path=/bitrix/modules/photogallery/fonts/",
 		"/bitrix/admin/fileman_file_upload.php?path=/bitrix/modules/photogallery/fonts/"),

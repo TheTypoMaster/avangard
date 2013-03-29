@@ -45,6 +45,7 @@ $APPLICATION->IncludeComponent(
 				"GROUP_ID" 			=> $arParams["GROUP_ID"],
 				"IMAGE_MAX_WIDTH" => $arParams["IMAGE_MAX_WIDTH"],
 				"IMAGE_MAX_HEIGHT" => $arParams["IMAGE_MAX_HEIGHT"],
+				"POST_PROPERTY_LIST"	=> $arParams["POST_PROPERTY_LIST"],
 			),
 		$component 
 	);

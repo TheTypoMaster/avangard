@@ -418,33 +418,90 @@ function JCAdminCalendar()
 		var val;
 		var str = (format? format : (this.bTime? top.phpVars.FORMAT_DATETIME : top.phpVars.FORMAT_DATE));
 		str = str.replace(/YYYY/ig, date.getFullYear());
+		str = str.replace(/MMMM/ig, this.Number(date.getMonth()+1));
 		str = str.replace(/MM/ig, this.Number(date.getMonth()+1));
-		str = str.replace(/DD/ig, this.Number(date.getDate()));
-		str = str.replace(/HH/ig, this.Number(date.getHours()));
 		str = str.replace(/MI/ig, this.Number(date.getMinutes()));
+		str = str.replace(/M/ig, this.Number(date.getMonth()+1));
+		str = str.replace(/DD/ig, this.Number(date.getDate()));
+		str = str.replace(/GG/ig, this.Number(date.getHours()));
+		str = str.replace(/HH/ig, this.Number(date.getHours()));
+
+		if (BX.isAmPmMode())
+		{
+			var hour = this.Number(date.getHours());
+			var amPm = 'am';
+			if (hour > 12)
+			{
+				hour = hour - 12;
+				amPm = 'pm';
+			}
+			else if (hour == 12)
+				amPm = 'pm';
+
+			str = str.replace(/G/ig, hour);
+			str = str.replace(/H/ig, hour);
+			str = str.replace(/TT/ig, amPm);
+			str = str.replace(/T/ig, amPm);
+		}
+
 		str = str.replace(/SS/ig, this.Number(date.getSeconds()));
 		return str;
 	}
 
 	this.ParseDate = function(str)
 	{
-		var aDate = str.split(/\D/ig);
-		var aFormat = top.phpVars.FORMAT_DATE.split(/\W/ig);
+		var aDate = str.split(/[^\w]/ig);
+		var aFormat = top.phpVars.FORMAT_DATE.split(/[^\w]/ig);
 		if(aDate.length > aFormat.length)
-			aFormat = top.phpVars.FORMAT_DATETIME.split(/\W/ig);
+			aFormat = top.phpVars.FORMAT_DATETIME.split(/[^\w]/ig);
 
 		var i, cnt;
 		var aDateArgs=[], aFormatArgs=[];
 		for(i = 0, cnt = aDate.length; i < cnt; i++)
 			if(top.jsUtils.trim(aDate[i]) != '')
 				aDateArgs[aDateArgs.length] = aDate[i];
+
 		for(i = 0, cnt = aFormat.length; i < cnt; i++)
 			if(top.jsUtils.trim(aFormat[i]) != '')
 				aFormatArgs[aFormatArgs.length] = aFormat[i];
-
 		var aResult={};
 		for(i = 0, cnt = aFormatArgs.length; i < cnt; i++)
-			aResult[aFormatArgs[i].toUpperCase()] = parseInt(aDateArgs[i], 10);
+		{
+			if (aDateArgs[i] != undefined && aDateArgs[i].match(/[a-z]/gi) != null)
+				{
+					aResult[aFormatArgs[i].toUpperCase()] = aDateArgs[i];
+				}
+			else
+				{
+					aResult[aFormatArgs[i].toUpperCase()] = parseInt(aDateArgs[i], 10);
+				}
+		}
+
+		if (aResult['MM'] == undefined && (aResult['M'] != undefined || aResult['MMMM'] != undefined))
+		{
+			if (aResult['M'] != undefined)
+			{
+				if (typeof(aResult['M']) == 'string')
+				{
+					aResult['MM'] = BX.getNumMonth(aResult['M']);
+				}
+				else
+				{
+					aResult['MM'] = aResult['M'];
+				}
+			}
+			else
+			{
+				if (typeof(aResult['MMMM']) == 'string')
+				{
+					aResult['MM'] = BX.getNumMonth(aResult['MMMM']);
+				}
+				else
+				{
+					aResult['MM'] = aResult['MMMM'];
+				}
+			}
+		}
 
 		if(aResult['DD'] > 0 && aResult['MM'] > 0 && aResult['YYYY'] > 0)
 		{
@@ -454,6 +511,21 @@ function JCAdminCalendar()
 			d.setMonth(aResult['MM']-1);
 			d.setDate(aResult['DD']);
 			d.setHours(0, 0, 0);
+
+			if (aResult['HH'] == undefined && (aResult['H'] != undefined || aResult['G'] != undefined || aResult['G'] != undefined))
+			{
+				if (aResult['H'] != undefined)
+					aResult['HH'] = aResult['H'];
+				else if (aResult['G'] != undefined)
+					aResult['HH'] = aResult['G'];
+				else aResult['HH'] = aResult['GG'];
+
+				if (aResult['TT'] != undefined && aResult['TT'].toLowerCase() == 'pm')
+					aResult['HH'] = aResult['HH'] + 12;
+				else if (aResult['T'] != undefined && aResult['T'].toLowerCase() == 'pm')
+					aResult['HH'] = aResult['HH'] + 12;
+			}
+
 			if(!isNaN(aResult['HH']) && !isNaN(aResult['MI']) && !isNaN(aResult['SS']))
 			{
 				this.bTime = true;

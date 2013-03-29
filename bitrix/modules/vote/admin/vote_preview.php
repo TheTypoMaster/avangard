@@ -87,16 +87,16 @@ echo ShowError($strError);
 	<tr>
 		<td><b><?=GetMessage("VOTE_VOTE")?></b></td>
 		<td>[<a href="vote_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$VOTE_ID?>"><?echo $VOTE_ID?></a>]&nbsp;<?
-		if (strlen($zr["TITLE"])>0) echo htmlspecialchars($zr["TITLE"]);
+		if (strlen($zr["TITLE"])>0) echo htmlspecialcharsbx($zr["TITLE"]);
 		elseif ($zr["DESCRIPTION_TYPE"]=="html")
-			echo htmlspecialchars(TruncateText(strip_tags($zr["DESCRIPTION"]),200));
+			echo htmlspecialcharsbx(TruncateText(strip_tags($zr["DESCRIPTION"]),200));
 		else
-			echo htmlspecialchars(TruncateText($zr["DESCRIPTION"],200));
+			echo htmlspecialcharsbx(TruncateText($zr["DESCRIPTION"],200));
 		?></td>
 	</tr>
 	<tr>
 		<td><b><?=GetMessage("VOTE_CHANNEL")?></b></td>
-		<td><?="[<a class='tablebodylink' href='vote_channel_edit.php?ID=".$zr["CHANNEL_ID"]."&lang=".LANGUAGE_ID."'>".$zr["CHANNEL_ID"]."</a>] ".htmlspecialchars($tr["TITLE"])?></td>
+		<td><?="[<a class='tablebodylink' href='vote_channel_edit.php?ID=".$zr["CHANNEL_ID"]."&lang=".LANGUAGE_ID."'>".$zr["CHANNEL_ID"]."</a>] ".htmlspecialcharsbx($tr["TITLE"])?></td>
 	</tr>
 </table>
 <?
@@ -107,7 +107,7 @@ if ($old_module_version=="Y"):?>
 	<input type="hidden" name="VOTE_ID" value="<?=intval($VOTE_ID)?>">
 	<input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
 	<?=GetMessage("VOTE_TEMPLATE")?><?
-	echo SelectBoxFromArray("TEMPLATE", GetTemplateList(), htmlspecialchars($TEMPLATE), "","",true);
+	echo SelectBoxFromArray("TEMPLATE", GetTemplateList(), htmlspecialcharsbx($TEMPLATE), "","",true);
 	?>&nbsp;<input <?if ($VOTE_RIGHT<"W") echo "disabled"?> type="submit" name="save" value="<?=GetMessage("VOTE_SAVE")?>">
 	<?echo bitrix_sessid_post()?>
 	</form>

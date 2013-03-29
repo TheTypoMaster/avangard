@@ -56,13 +56,13 @@ foreach ($arResult["QUESTIONS"] as $questionKey => $arQuestion):
 			case 4://text field
 				if (!empty($_REQUEST["vote_field_".$arAnswer["ID"]])):
 					$bFountActive = true;
-					$arAnswer["FIELD_TEXT"] = htmlspecialchars($_REQUEST["vote_field_".$arAnswer["ID"]]);
+					$arAnswer["FIELD_TEXT"] = htmlspecialcharsbx($_REQUEST["vote_field_".$arAnswer["ID"]]);
 				endif;
 			break;
 			case 5://memo
 				if (!empty($_REQUEST["vote_memo_".$arAnswer["ID"]])):
 					$bFountActive = true;
-					$arAnswer["FIELD_TEXT"] = htmlspecialchars($_REQUEST["vote_memo_".$arAnswer["ID"]]);
+					$arAnswer["FIELD_TEXT"] = htmlspecialcharsbx($_REQUEST["vote_memo_".$arAnswer["ID"]]);
 				endif;
 			break;
 		endswitch;

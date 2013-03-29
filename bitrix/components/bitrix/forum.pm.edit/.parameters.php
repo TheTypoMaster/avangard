@@ -69,6 +69,15 @@ $arComponentParameters = Array(
 			"NAME" => GetMessage("F_SET_NAVIGATION"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "Y"),
+		"NAME_TEMPLATE" => array(
+			"TYPE" => "LIST",
+			"NAME" => GetMessage("F_NAME_TEMPLATE"),
+			"VALUES" => CComponentUtil::GetDefaultNameTemplates(),
+			"MULTIPLE" => "N",
+			"ADDITIONAL_VALUES" => "Y",
+			"DEFAULT" => "",
+			"PARENT" => "ADDITIONAL_SETTINGS",
+		),
 		
 		"CACHE_TIME" => Array(),
 		"SET_TITLE" => Array(),

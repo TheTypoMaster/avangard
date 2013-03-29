@@ -12,6 +12,7 @@ $MESS["CLO_STORAGE_LIST_BUCKET"] = "Контейнер";
 $MESS["CLO_STORAGE_LIST_FILE_COUNT"] = "Файлов";
 $MESS["CLO_STORAGE_LIST_FILE_SIZE"] = "Объем";
 $MESS["CLO_STORAGE_LIST_EDIT"] = "Изменить";
+$MESS["CLO_STORAGE_LIST_MOVE_FILE_ERROR"] = "Ошибка перемещения файла в облачное хранилище";
 $MESS["CLO_STORAGE_LIST_START_MOVE_FILES"] = "Переместить файлы в облачное хранилище";
 $MESS["CLO_STORAGE_LIST_CONT_MOVE_FILES"] = "Продолжить перемещение файлов в облачное хранилище";
 $MESS["CLO_STORAGE_LIST_MOVE_LOCAL"] = "Вернуть файлы из облачного хранилища";
@@ -27,7 +28,7 @@ $MESS["CLO_STORAGE_LIST_MOVE_IN_PROGRESS"] = "Идет перенос файлов в облачное хра
 $MESS["CLO_STORAGE_LIST_MOVE_DONE"] = "Перенос файлов в облачное хранилище завершен.";
 $MESS["CLO_STORAGE_LIST_MOVE_PROGRESS"] = "
 Всего обработано <b>#total#</b> файлов.<br>
-Из них перемещено <b>#moved# (#bytes#)</b> и пропущено <b>#skiped#<b>.
+Из них перемещено <b>#moved# (#bytes#)</b> и пропущено <b>#skiped#</b>.
 ";
 $MESS["CLO_STORAGE_LIST_STOP"] = "Остановить";
 $MESS["CLO_STORAGE_LIST_DOWNLOAD_IN_PROGRESS"] = "Идет выгрузка файлов из облачного хранилища.";

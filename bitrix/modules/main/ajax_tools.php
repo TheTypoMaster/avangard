@@ -39,7 +39,6 @@ class CAjax
 			if($iSrcLine > 0 && $sSrcFile <> "")
 			{
 				// try to covert absolute path to file within DOCUMENT_ROOT
-				//$doc_root = strtolower(str_replace("\\", "/", $_SERVER["DOCUMENT_ROOT"]));
 				$doc_root = rtrim(str_replace(Array("\\\\", "//", "\\"), Array("\\", "/", "/"), realpath($_SERVER["DOCUMENT_ROOT"])), "\\/");
 				$doc_root = strtolower($doc_root);
 
@@ -141,12 +140,12 @@ class CAjax
 	// $text - no htmlspecialchars
 	function GetLink($url, $text, $container_id, $additional = '')
 	{
-		return CAjax::GetLinkEx($url, false, htmlspecialchars($text), htmlspecialchars($container_id), $additional);
+		return CAjax::GetLinkEx($url, false, htmlspecialcharsbx($text), htmlspecialcharsbx($container_id), $additional);
 	}
 
 	function GetForm($form_params, $container_id, $ajax_id, $bReplace = true, $bShadow = true)
 	{
-		$rnd = rand(0, 1000);
+		$rnd = rand(0, 100000);
 		return '
 <form '.trim($form_params).'><input type="hidden" name="'.BX_AJAX_PARAM_ID.'" id="'.BX_AJAX_PARAM_ID.'_'.$ajax_id.'_'.$rnd.'" value="'.$ajax_id.'" /><input type="hidden" name="AJAX_CALL" value="Y" /><script type="text/javascript">
 function _processform_'.$rnd.'(){
@@ -170,13 +169,13 @@ else
 
 	function GetFormEvent($container_id)
 	{
-		return 'onsubmit="BX.ajax.submitComponentForm(this, \''.htmlspecialchars(CUtil::JSEscape($container_id)).'\');"';
+		return 'onsubmit="BX.ajax.submitComponentForm(this, \''.htmlspecialcharsbx(CUtil::JSEscape($container_id)).'\', true);"';
 	}
 
 	function GetFormEventValue($container_id, $bReplace = true, $bShadow = true, $event_delimiter = '\'')
 	{
 		$delimiter = $event_delimiter == '\'' ? '"' : '\'';
-		return 'BX.ajax.submitComponentForm(this, '.$delimiter.CUtil::JSEscape($container_id).$delimiter.')';
+		return 'BX.ajax.submitComponentForm(this, '.$delimiter.CUtil::JSEscape($container_id).$delimiter.', true)';
 		//return 'jsAjaxUtil.'.($bReplace ? 'Insert' : 'Append').'FormDataToNode(this, '.$delimiter.$container_id.$delimiter.', '.($bShadow ? 'true' : 'false').')';
 	}
 

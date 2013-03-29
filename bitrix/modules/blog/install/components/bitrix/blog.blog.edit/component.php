@@ -18,10 +18,10 @@ if(strLen($arParams["PAGE_VAR"])<=0)
 	$arParams["PAGE_VAR"] = "page";
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
 if(strlen($arParams["PATH_TO_BLOG"])<=0)
-	$arParams["PATH_TO_BLOG"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 $arParams["PATH_TO_BLOG_EDIT"] = trim($arParams["PATH_TO_BLOG_EDIT"]);
 if(strlen($arParams["PATH_TO_BLOG_EDIT"])<=0)
-	$arParams["PATH_TO_BLOG_EDIT"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog_edit&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_BLOG_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog_edit&".$arParams["BLOG_VAR"]."=#blog#");
 $blogModulePermissions = $APPLICATION->GetGroupRight("blog");
 
 if (!$USER->IsAuthorized())
@@ -151,7 +151,7 @@ else
 									}
 									else
 									{
-										$arResult["ERROR_MESSAGE"][] = GetMessage("BLOG_GROUP_EXIST", Array("#GROUP_NAME#" => htmlspecialchars($v)));
+										$arResult["ERROR_MESSAGE"][] = GetMessage("BLOG_GROUP_EXIST", Array("#GROUP_NAME#" => htmlspecialcharsbx($v)));
 									}
 								}
 								else
@@ -169,7 +169,7 @@ else
 								}
 								else
 								{
-									$arResult["ERROR_MESSAGE"][] = GetMessage("BLOG_GROUP_EXIST", Array("#GROUP_NAME#" => htmlspecialchars($v)));
+									$arResult["ERROR_MESSAGE"][] = GetMessage("BLOG_GROUP_EXIST", Array("#GROUP_NAME#" => htmlspecialcharsbx($v)));
 								}
 							}
 						}
@@ -235,13 +235,13 @@ else
 						{
 							foreach($v as $k1 => $v1)
 							{
-								$arResult["BLOG"][$k1] = htmlspecialchars($v1);
+								$arResult["BLOG"][$k1] = htmlspecialcharsbx($v1);
 								$arResult["BLOG"]['~'.$k1] = $v1;
 							}
 						}
 						else
 						{
-							$arResult["BLOG"][$k] = htmlspecialchars($v);
+							$arResult["BLOG"][$k] = htmlspecialcharsbx($v);
 							$arResult["BLOG"]['~'.$k] = $v;						
 						}
 					}

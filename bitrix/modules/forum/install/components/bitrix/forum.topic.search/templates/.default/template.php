@@ -30,7 +30,7 @@ if ($arParams["AJAX_CALL"] == "Y"):
 	{
 		?><?=CUtil::PhpToJSObject(array(
 			"TOPIC_ID" => $arResult["TID"],
-			"TOPIC_TITLE" => '&laquo;<a href="'.$arResult["TOPIC"]["LINK"].'">'.htmlspecialChars($arResult["TOPIC"]["~TITLE"]).
+			"TOPIC_TITLE" => '&laquo;<a href="'.$arResult["TOPIC"]["LINK"].'">'.htmlspecialcharsbx($arResult["TOPIC"]["~TITLE"]).
 				'</a>&raquo; ( '.GetMessage("FMM_ON_FORUM").': <a href="'.$arResult["FORUM"]["LINK"].'">'.$arResult["FORUM"]["NAME"].'</a>)'));
 		?><?
 		
@@ -39,7 +39,7 @@ if ($arParams["AJAX_CALL"] == "Y"):
 	{
 		?><?=CUtil::PhpToJSObject(array(
 			"TOPIC_ID" => $arResult["TID"],
-			"TOPIC_TITLE" => '&laquo;<a href="'.$arResult["TOPIC"]["LINK"].'">'.htmlspecialChars($arResult["TOPIC"]["~TITLE"]).
+			"TOPIC_TITLE" => '&laquo;<a href="'.$arResult["TOPIC"]["LINK"].'">'.htmlspecialcharsbx($arResult["TOPIC"]["~TITLE"]).
 				'</a>&raquo; ( '.GetMessage("FMM_ON_FORUM").': <a href="'.$arResult["FORUM"]["LINK"].'">'.$arResult["FORUM"]["NAME"].'</a>)'));
 		?><?
 	}
@@ -63,7 +63,7 @@ endif;
 	<script type="text/javascript">
 		opener.document.MESSAGES['newTID'].value = '<?=$arResult["TID"]?>';
 		opener.document.getElementById('TOPIC_INFO').innerHTML = '<?=CUtil::JSEscape(
-			'&laquo;<a href="'.$arResult["TOPIC"]["LINK"].'">'.htmlspecialChars($arResult["TOPIC"]["~TITLE"]).
+			'&laquo;<a href="'.$arResult["TOPIC"]["LINK"].'">'.htmlspecialcharsbx($arResult["TOPIC"]["~TITLE"]).
 			'</a>&raquo; ( '.GetMessage("FMM_ON_FORUM").': <a href="'.$arResult["FORUM"]["LINK"].'">'.$arResult["FORUM"]["NAME"].'</a>)')?>';
 		self.close();
 	</script>
@@ -75,8 +75,9 @@ else:
 <div class="forum-info-box forum-filter">
 	<div class="forum-info-box-inner">
 <?
-	$APPLICATION->IncludeComponent("bitrix:forum.interface", "filter_simple", 
+	$APPLICATION->IncludeComponent("bitrix:forum.interface", "filter_simple",
 		array(
+			"FORM_METHOD_GET" => 'Y',
 			"FIELDS" => array(
 				array(
 					"NAME" => "PAGE_NAME",
@@ -89,7 +90,7 @@ else:
 				array(
 					"TITLE" => GetMessage("FMM_SEARCH"),
 					"NAME" => "search_template",
-					"CLASS" => "search-input", 
+					"CLASS" => "search-input",
 					"TYPE" => "TEXT",
 					"VALUE" => $_REQUEST["search_template"]),
 				array(

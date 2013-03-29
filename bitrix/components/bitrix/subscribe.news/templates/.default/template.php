@@ -5,7 +5,7 @@
 foreach($arResult["IBLOCKS"] as $arIBlock):
 	if(count($arIBlock["ITEMS"]) > 0):
 ?>
-        <tr><td><h1><?=$arIBlock['NAME']?></h1></td></tr>
+	<tr><td><h1><?=$arIBlock['NAME']?></h1></td></tr>
 <?
 	foreach($arIBlock["ITEMS"] as $arItem):
 

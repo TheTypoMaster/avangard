@@ -1,6 +1,6 @@
 <?
 $MESS ['SQL_PAGE_TITLE'] = "SQL запрос";
-$MESS ['SQL_EXECUTE'] = "Выполнить запрос (alt+x)";
+$MESS ['SQL_EXECUTE'] = "Выполнить запрос";
 $MESS ['SQL_CONFIRM_EXECUTE'] = "Вы уверены что хотите выполнить SQL запрос к базе?";
 $MESS ['SQL_RESET'] = "Сбросить";
 $MESS ['SQL_QUERY_ERROR_1'] = "Ошибка во время выполнения запроса:";

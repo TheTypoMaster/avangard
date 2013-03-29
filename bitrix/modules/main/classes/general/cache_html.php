@@ -217,7 +217,7 @@ class CHTMLPagesCache
 				if(is_dir($file_path))
 				{
 					$bytes += CHTMLPagesCache::deleteRecursive($path.$file."/");
-					rmdir($file_path);
+					@rmdir($file_path);
 				}
 				elseif(is_file($file_path))
 				{

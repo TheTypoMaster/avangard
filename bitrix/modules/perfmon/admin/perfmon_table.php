@@ -14,8 +14,6 @@ $RIGHT = $APPLICATION->GetGroupRight("perfmon");
 if($RIGHT=="D" || !$obTable->IsExists())
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-
-
 if(
 	$_SERVER["REQUEST_METHOD"] === "GET"
 	&& isset($_GET["ajax_tooltip"]) && $_GET["ajax_tooltip"] === "y"
@@ -57,13 +55,7 @@ if($lAdmin->GroupAction() && $RIGHT>="W")
 	{
 	case "delete":
 		//Gather columns from request
-		$arRowPK = array();
-		foreach($_REQUEST as $key=>$value)
-		{
-			if(strlen($value) && preg_match("/^del_pk_(.+)$/", $key, $match))
-				$arRowPK[$match[1]] = $value;
-		}
-
+		$arRowPK = is_array($_REQUEST["pk"])? $_REQUEST["pk"]: array();
 		if(count($arRowPK))
 		{
 			foreach($arUniqueIndexes as $arIndexColumns)
@@ -104,7 +96,7 @@ foreach($arFields as $FIELD_NAME=>$FIELD_TYPE)
 			isset($find_type) && $find_type==$FIELD_NAME
 			&& isset($find) && strlen($find)
 		)
-			$arFilter[$FIELD_NAME] = $find;
+			$arFilter["=%".$FIELD_NAME] = $find;
 		elseif(
 			isset($GLOBALS["find_".$FIELD_NAME]) && strlen($GLOBALS["find_".$FIELD_NAME])
 		)
@@ -194,7 +186,7 @@ while($arRes = $rsData->Fetch()):
 			}
 			else
 			{
-				$val = htmlspecialchars($arRes[$FIELD_NAME]);
+				$val = htmlspecialcharsbx($arRes[$FIELD_NAME]);
 			}
 
 			if(array_key_exists($FIELD_NAME, $arParents) && $DB->TableExists($arParents[$FIELD_NAME]["PARENT_TABLE"]))
@@ -205,7 +197,7 @@ while($arRes = $rsData->Fetch()):
 
 			if($bDelete && in_array($FIELD_NAME, $arPKColumns))
 			{
-				$arRowPK[] = urlencode("del_pk_".$FIELD_NAME)."=".urlencode($arRes[$FIELD_NAME]);
+				$arRowPK[] = urlencode("pk[".$FIELD_NAME."]")."=".urlencode($arRes[$FIELD_NAME]);
 			}
 
 		}
@@ -214,6 +206,12 @@ while($arRes = $rsData->Fetch()):
 	$arActions = array();
 	if($bDelete && (count($arPKColumns) == count($arRowPK)))
 	{
+		$arActions[] = array(
+			"ICON" => "edit",
+			"DEFAULT" => true,
+			"TEXT" => GetMessage("MAIN_EDIT"),
+			"ACTION" => $lAdmin->ActionRedirect("perfmon_row_edit.php?lang=".LANGUAGE_ID."&table_name=".urlencode($table_name)."&".implode("&", $arRowPK)),
+		);
 		$arActions[] = array(
 			"ICON" => "delete",
 			"DEFAULT" => false,
@@ -264,17 +262,20 @@ unset($arLastTables[$table_name]);
 if(count($arLastTables) > 0)
 {
 	$ar = array(
-		"TEXT" => GetMessage("PERFMON_TABLE_RECENTLY_BROWSED", array("#COUNT#" => count($arLastTables))),
 		"MENU" => array(),
 	);
 	ksort($arLastTables);
 	foreach($arLastTables as $table => $flag)
 	{
-		$ar["MENU"][] = array(
-			"TEXT" => $table,
-			"ACTION" => $lAdmin->ActionRedirect("perfmon_table.php?table_name=".$table),
-		);
+		if($DB->TableExists($table))
+			$ar["MENU"][] = array(
+				"TEXT" => $table,
+				"ACTION" => $lAdmin->ActionRedirect("perfmon_table.php?table_name=".$table),
+			);
+		else
+			unset($arLastTables[$table]);
 	}
+	$ar["TEXT"] = GetMessage("PERFMON_TABLE_RECENTLY_BROWSED", array("#COUNT#" => count($arLastTables)));
 	$aContext[] = $ar;
 }
 
@@ -343,12 +344,12 @@ function removeTimer(p_href)
 }
 </script>
 <form name="find_form" method="get" action="<?echo $APPLICATION->GetCurPage();?>">
-<input type="hidden" value="<?echo htmlspecialchars($table_name)?>" name="table_name">
+<input type="hidden" value="<?echo htmlspecialcharsbx($table_name)?>" name="table_name">
 <?$oFilter->Begin();?>
 <tr>
 	<td><b><?=GetMessage("PERFMON_TABLE_FIND")?>:</b></td>
 	<td>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("PERFMON_TABLE_FIND")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("PERFMON_TABLE_FIND")?>">
 		<?
 		$arr = array(
 			"reference" => array_keys($arFilter),
@@ -361,8 +362,8 @@ function removeTimer(p_href)
 <?foreach($arFields as $FIELD_NAME => $FIELD_TYPE):?>
 	<?if($FIELD_TYPE!="unknown"):?>
 		<tr>
-			<td><?echo htmlspecialchars($FIELD_NAME)?></td>
-			<td><input type="text" name="find_<?echo htmlspecialchars($FIELD_NAME)?>" size="47" value="<?echo htmlspecialchars(${"find_".$FIELD_NAME})?>"></td>
+			<td><?echo htmlspecialcharsbx($FIELD_NAME)?></td>
+			<td><input type="text" name="find_<?echo htmlspecialcharsbx($FIELD_NAME)?>" size="47" value="<?echo htmlspecialcharsbx(${"find_".$FIELD_NAME})?>"></td>
 		</tr>
 	<?endif?>
 <?endforeach?>

@@ -21,7 +21,7 @@ $MESS["SITE_SENDPWD"] = "Send Password by Email form";
 $MESS["SITE_REGISTER"] = "New User form";
 $MESS["MAIN_SITE_DEFINITIONS"] = "Parameters to identify a site in the public section";
 $MESS["MAIN_SITE_DOMAIN"] = "Domain:";
-$MESS["MAIN_SITE_PARAMS"] = "Parameters:";
+$MESS["MAIN_SITE_PARAMS"] = "Parameters";
 $MESS["MAIN_SITE_LANG"] = "Language:";
 $MESS["MAIN_SITE_NAME"] = "Website name:";
 $MESS["MAIN_SERVER_URL"] = "Server URL (without http://):";
@@ -63,4 +63,7 @@ $MESS["M_START_SITE_WIZARD_Y"] = "Run Solution Install Wizard";
 $MESS["M_START_SITE_WIZARD_N"] = "Choose A Template";
 $MESS["M_START_SITE_WIZARD_REWRITE"] = "Replace current solution if applicable";
 $MESS["START_SITE_WIZARD_REWRITE_ERROR"] = "The folder where the solution will be installed is not empty.  Indicate a different folder or check the 'Replace current solution if applicable' option.";
+$MESS["SITE_EDIT_WEEK_START_DEFAULT"] = "0";
+$MESS["SITE_EDIT_WEEK_START"] = "First day of the week:";
+$MESS["FORMAT_NAME"] = "Name format:";
 ?>

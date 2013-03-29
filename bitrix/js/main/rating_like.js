@@ -55,8 +55,7 @@ RatingLike.Init = function(likeId)
 	if (BXRL[likeId].available)
 	{
 		
-		BX.bind(BXRL[likeId].template == 'standart'? BXRL[likeId].button: BXRL[likeId].buttonText, 'click' , function()
-		{		
+		BX.bind(BXRL[likeId].template == 'standart'? BXRL[likeId].button: BXRL[likeId].buttonText, 'click' ,function(e) {		
 			clearTimeout(BXRL[likeId].likeTimeout);
 			if (BX.hasClass(BXRL[likeId].template == 'standart'? this: BXRL[likeId].count, 'bx-you-like'))
 			{
@@ -81,10 +80,12 @@ RatingLike.Init = function(likeId)
 				}, 1000);
 			}
 			BX.removeClass(this.box, 'bx-ilike-button-hover');
+			BX.PreventDefault(e);
 		});
 		// Hover/unHover like-button
 		BX.bind(BXRL[likeId].box, 'mouseover', function() {BX.addClass(this, 'bx-ilike-button-hover')});
 		BX.bind(BXRL[likeId].box, 'mouseout', function() {BX.removeClass(this, 'bx-ilike-button-hover')});
+		
 	}
 	else
 	{
@@ -138,12 +139,25 @@ RatingLike.OpenWindow = function(likeId)
 	
 	if (BXRL[likeId].popup == null)	
 	{
-		BXRL[likeId].popup = new BX.PopupWindow('ilike-popup-'+likeId, (BXRL[likeId].template == 'standart'? BXRL[likeId].count: BXRL[likeId].box), { 	content:BX('bx-ilike-popup-cont-'+likeId), lightShadow:true, autoHide:true, zIndex: 2500 });			
+		BXRL[likeId].popup = new BX.PopupWindow('ilike-popup-'+likeId, (BXRL[likeId].template == 'standart'? BXRL[likeId].count: BXRL[likeId].box), {
+			lightShadow : true,
+			offsetLeft: 5,
+			autoHide: true,
+			closeByEsc: true,
+			zIndex: 2005,
+			bindOptions: {position: "top"},
+			events : {
+				onPopupClose : function() { BXRLW = null; },
+				onPopupDestroy : function() {  }
+			},
+			content : BX('bx-ilike-popup-cont-'+likeId)
+		});
+		BXRL[likeId].popup.setAngle({});
+
 		BX.bind(BX('ilike-popup-'+likeId), 'mouseout' , function() {
 			clearTimeout(BXRL[likeId].popupTimeout);
 			BXRL[likeId].popupTimeout = setTimeout(function(){
 				BXRL[likeId].popup.close();
-				BXRLW = null;
 			}, 1000);		
 		});
 		
@@ -151,31 +165,13 @@ RatingLike.OpenWindow = function(likeId)
 			clearTimeout(BXRL[likeId].popupTimeout);
 		});
 	}
-	else if(BX('ilike-popup-'+likeId).style.display == "block")
-	{
-		BXRL[likeId].popup.close();
-		BXRLW = null;
-		return false
-	}
-	
+
 	if (BXRLW != null)
 		BXRL[BXRLW].popup.close();
 	
-	BXRL[likeId].popup.show();
 	BXRLW = likeId;
-	
-	if (BXRL[likeId].template == 'standart')
-		BXRL[likeId].popup.setAngle({
-			position:'bottom',
-			offset:function(){
-			  return (((BXRL[likeId].popup.popupContainer.offsetWidth - BXRL[likeId].count.offsetWidth)) - 8);
-			}()
-		});
-	else
-		BXRL[likeId].popup.setAngle({
-			position:'bottom'
-		});
-		
+	BXRL[likeId].popup.show();
+
 	RatingLike.AdjustWindow(likeId);
 }
 
@@ -197,7 +193,7 @@ RatingLike.Vote = function(likeId, voteAction)
 			BXRL[likeId].popupContent.appendChild(spanTag0);
 			RatingLike.AdjustWindow(likeId);
 			
-			if(BX('ilike-popup-'+likeId).style.display == "block")
+			if(BX('ilike-popup-'+likeId) && BX('ilike-popup-'+likeId).style.display == "block")
 				RatingLike.List(likeId, null);
 		},
 		onfailure: function(data)	{} 
@@ -266,48 +262,12 @@ RatingLike.List = function(likeId, page)
 
 RatingLike.AdjustWindow = function(likeId)
 {
-	children = BX.findChild(BXRL[likeId].popupContent, {className:'bx-ilike-popup-img'}, true, true);
-	if (children !== null)
+	if (BXRL[likeId].popup != null)
 	{
-		iOffsetHeight = BX.browser.IsIE()? 5: 0;
-		for (var i in children) {	
-			iOffsetHeight += children[i].offsetHeight;
-		}
+		BXRL[likeId].popup.bindOptions.forceBindPosition = true;
+		BXRL[likeId].popup.adjustPosition();	
+		BXRL[likeId].popup.bindOptions.forceBindPosition = false;
 	}
-	else 
-		iOffsetHeight = BX.browser.IsIE()? 35: 30;
-
-	if (iOffsetHeight < 121)
-		BXRL[likeId].popupContent.style.height = iOffsetHeight+'px';
-	else
-		BXRL[likeId].popupContent.style.height = '121px';
-
-
-	var offsetTop = 5;
-	if (BXRL[likeId].template == 'light')
-		offsetTop = 0;
-		
-	arScroll = BX.GetWindowScrollPos();
-	iLeft = (BXRL[likeId].template == 'standart'? BXRL[likeId].popup.bindElementPos.left-BXRL[likeId].popup.popupContainer.offsetWidth+BXRL[likeId].count.offsetWidth+8: (BXRL[likeId].popup.bindElementPos.left-7));
-	iLeftAngle = (BXRL[likeId].template == 'standart'? (((BXRL[likeId].popup.popupContainer.offsetWidth - BXRL[likeId].box.offsetWidth) / 2 + BXRL[likeId].box.offsetWidth) - BX.findChild(BXRL[likeId].box, {className:'bx-ilike-right-wrap'}, true, false).offsetWidth / 2) - 8: 0);
-	iWindow = iLeft+BXRL[likeId].popup.popupContainer.offsetWidth;
-	iBody = document.body.clientWidth + arScroll.scrollLeft;
-	
-	if (iWindow>iBody)
-	{
-		iLeft = iLeft-(iWindow-iBody);
-		BXRL[likeId].popup.setAngle({ offset : (iWindow-iBody)+iLeftAngle });
-	} 
-	else if (iLeft<0)
-	{
-		BXRL[likeId].popup.setAngle({ offset : (iLeft)+iLeftAngle });
-		iLeft = 0;
-	}
-	
-	BX.adjust(BX('ilike-popup-'+likeId), {	style: {	
-		top: BXRL[likeId].popup.bindElementPos.top-(BXRL[likeId].popup.popupContainer.offsetHeight+offsetTop) + "px",
-		left: iLeft+"px"
-	}});
 }
 
 RatingLike.PopupScroll = function(likeId)
@@ -319,4 +279,4 @@ RatingLike.PopupScroll = function(likeId)
 			BX.unbindAll(this);
 		}
 	});
-}
+};   

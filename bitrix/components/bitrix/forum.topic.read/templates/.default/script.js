@@ -49,7 +49,7 @@ function forumActionComment(link, action)
 					tmpDIV.appendChild(tbl);
 					if (!!footer && !!lastMessage)
 						lastMessage.appendChild(footer);
-					
+
 					BX.fx.hide(tmpDIV, 'scroll', {time: 0.35, callback_complete: function() {
 						BX.remove(tmpDIV);
 						var posts = BX.findChild(document, {'class': 'forum-post-table'}, true, true);
@@ -84,17 +84,6 @@ function forumActionComment(link, action)
 	});
 	return false;
 }
-
-function SelectPost(table)
-{
-	if (table == null)
-		return;
-
-	if(table.className.match(/forum-post-selected/))
-		table.className = table.className.replace(/\s*forum-post-selected/i, '');
-	else
-		table.className += ' forum-post-selected';
-}
 var __forum_messages_selected = false;
 function SelectPosts(iIndex)
 {
@@ -120,7 +109,7 @@ function SelectPosts(iIndex)
 			if (items[ii].checked)
 				table.className += ' forum-post-selected';
 			else
-				table.className = table.className.replace(/\s*forum-post-selected/i, '');
+				table.className = table.className.replace(/\s*forum-post-selected/gi, '');
 		}
 	}
 }

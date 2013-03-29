@@ -29,13 +29,14 @@ if ($arParams["USE_WATERMARK"] == "Y")
 		if ($_SERVER['REQUEST_METHOD'] == "POST")
 		{
 			$file = $_FILES['watermark_img'];
+			$checkImgMsg = CFile::CheckImageFile($file);
 			if ($file['error'] != 0)
 			{
 				$UploadError = "[IU_WM01] ".GetMessage("P_WM_IMG_ERROR01");
 			}
-			elseif(strpos($file['type'], 'image') === false)
+			elseif(strlen($checkImgMsg) > 0 || $checkImgMsg === "")
 			{
-				$UploadError = "[IU_WM02] ".GetMessage("P_WM_IMG_ERROR02");
+				$UploadError = "[IU_WM02] ".($checkImg === "" ? GetMessage("P_WM_IMG_ERROR02") : $checkImg);
 			}
 			else
 			{
@@ -46,8 +47,12 @@ if ($arParams["USE_WATERMARK"] == "Y")
 					$height = $imgArray[1];
 				}
 
-				$pathto = CTempFile::GetFileName("watermark_".GetFileName($file["name"]));
-				if(!copy($file["tmp_name"], $_SERVER["DOCUMENT_ROOT"].$pathto))
+				$pathto = CTempFile::GetDirectoryName(1).'/'."watermark_".GetFileName($file["name"]);
+				CheckDirPath($pathto);
+
+				$pathtoRel = substr($pathto, strlen($_SERVER["DOCUMENT_ROOT"]));
+
+				if(!move_uploaded_file($file["tmp_name"], $pathto))
 					$UploadError = "[IU_WM03] ".GetMessage("P_WM_IMG_ERROR03");
 			}
 		}
@@ -55,7 +60,7 @@ if ($arParams["USE_WATERMARK"] == "Y")
 		?>
 			<script>
 			<?if ($UploadError === false && $pathto != ''):?>
-				top.bxiu_wm_img_res = {path: '<?= CUtil::JSEscape($pathto)?>', width: '<?= $width?>', height: '<?= $height?>'};
+				top.bxiu_wm_img_res = {path: '<?= CUtil::JSEscape($pathtoRel)?>', width: '<?= $width?>', height: '<?= $height?>'};
 			<?elseif($UploadError !== false):?>
 				top.bxiu_wm_img_res = {error: '<?= $UploadError?>'};
 			<?endif;?>
@@ -80,6 +85,19 @@ if (!isset($arParams["UPLOADER_TYPE"]))
 {
 	$arParams["UPLOADER_TYPE"] = 'applet';
 	$arParams["APPLET_LAYOUT"] = $arParams["TEMPLATE"] == "LIGHT-APPLET" ? 'simple' : 'extended';
+}
+
+if (ini_get_bool("magic_quotes_gpc") && $arParams["UPLOADER_TYPE"] == 'flash')
+{
+	if ($USER->CanDoOperation('edit_php'))
+	{
+		$arParams["SHOW_MAGIC_QUOTES_NOTICE_ADMIN"] = true;
+	}
+	else
+	{
+		$arParams["SHOW_MAGIC_QUOTES_NOTICE"] = true;
+		$arParams["UPLOADER_TYPE"] = 'applet';
+	}
 }
 
 // Check layout
@@ -120,7 +138,7 @@ if ($arParams["UPLOADER_TYPE"] == 'applet')
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 
 	$arParams["SUCCESS_URL"] = CHTTP::urlDeleteParams(CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"], array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arParams["SECTION_ID"])), array("sessid", "uploader_redirect"), true);
@@ -214,22 +232,36 @@ if ($arParams["UPLOADER_TYPE"] == 'applet')
 		if (!$arParams["PATH_TO_FONT"])
 			$arParams["PATH_TO_FONT"] = "default.ttf";
 
-		if ($arParams["PATH_TO_FONT"] && strlen($arParams["PATH_TO_FONT"]) > 0)
+		$arParams["PATH_TO_FONT"] = str_replace(array("\\", "//"), "/", trim($arParams["PATH_TO_FONT"]));
+		if(file_exists($_SERVER['DOCUMENT_ROOT'].$arParams["PATH_TO_FONT"]))
+		{
+			$arParams["PATH_TO_FONT"] = $_SERVER['DOCUMENT_ROOT'].$arParams["PATH_TO_FONT"];
+		}
+		else
 		{
 			$arParams["PATH_TO_FONT"] = str_replace(array("\\", "//"), "/", $_SERVER['DOCUMENT_ROOT']."/".BX_ROOT."/modules/photogallery/fonts/".trim($arParams["PATH_TO_FONT"]));
 			$arParams["PATH_TO_FONT"] = (file_exists($arParams["PATH_TO_FONT"]) ? $arParams["PATH_TO_FONT"] : "");
 		}
-		else
-		{
-			$arParams["PATH_TO_FONT"] = "";
-		}
 
 		$arParams["WATERMARK_COLOR"] = '#'.trim($arParams["WATERMARK_COLOR"], ' #');
 		$arParams["WATERMARK_SIZE"] = intVal($arParams["WATERMARK_SIZE"]);
-		$arParams["WATERMARK_FILE"] = str_replace(array("\\", "//"), "/", $_SERVER['DOCUMENT_ROOT']."/".trim($arParams["WATERMARK_FILE"]));
+		$arParams["WATERMARK_FILE_REL"] = '/'.trim($arParams["WATERMARK_FILE"], ' /');
+		$arParams["WATERMARK_FILE"] = str_replace(array("\\", "//"), "/", $_SERVER['DOCUMENT_ROOT'].$arParams["WATERMARK_FILE_REL"]);
 		$arParams["WATERMARK_FILE"] = (file_exists($arParams["WATERMARK_FILE"]) ? $arParams["WATERMARK_FILE"] : "");
 		$arParams["WATERMARK_FILE_ORDER"] = strtolower($arParams["WATERMARK_FILE_ORDER"]);
 		$arParams["WATERMARK_POSITION"] = trim($arParams["WATERMARK_POSITION"]);
+
+		if ($arParams["WATERMARK_FILE"] && CFile::IsImage($arParams["WATERMARK_FILE"]))
+		{
+			$imgArray = CFile::GetImageSize($arParams["WATERMARK_FILE"]);
+			$arParams["WATERMARK_FILE_WIDTH"] = $imgArray[0];
+			$arParams["WATERMARK_FILE_HEIGHT"] = $imgArray[1];
+		}
+		else
+		{
+			$arParams["WATERMARK_FILE"] = "";
+			$arParams["WATERMARK_FILE_REL"] = "";
+		}
 
 		$arPositions = array("TopLeft", "TopCenter", "TopRight", "CenterLeft", "Center", "CenterRight", "BottomLeft", "BottomCenter", "BottomRight");
 		$arPositions2 = array("tl", "tc", "tr", "ml", "mc", "mr", "bl", "bc", "br");
@@ -330,8 +362,6 @@ if ($_REQUEST["uploader_redirect"] == "Y" && check_bitrix_sessid())
 /********************************************************************
 				Main data
 ********************************************************************/
-$cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]."/");
-
 $oPhoto = new CPGalleryInterface(
 	array(
 		"IBlockID" => $arParams["IBLOCK_ID"],
@@ -339,8 +369,6 @@ $oPhoto = new CPGalleryInterface(
 		"Permission" => $arParams["PERMISSION_EXTERNAL"]),
 	array(
 		"cache_time" => $arParams["CACHE_TIME"],
-		"cache_path" => $cache_path_main,
-		"show_error" => "Y",
 		"set_404" => $arParams["SET_STATUS_404"]
 		)
 	);
@@ -395,7 +423,7 @@ $arResult["URL"] = array(
 foreach ($arResult["URL"] as $key => $val)
 {
 	$arResult["URL"]["~".$key] = $val;
-	$arResult["URL"][$key] = htmlspecialchars($val);
+	$arResult["URL"][$key] = htmlspecialcharsbx($val);
 }
 $bVarsFromForm = false;
 $arConverters = array(
@@ -443,10 +471,10 @@ $arParams['converters'] = $arConverters;
 if (($_REQUEST["save_upload"] == "Y" && $_REQUEST["uploader_redirect"] != "Y" && $_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST)) || isset($_POST["PackageGuid"]))
 {
 	// TODO: Check sessid
-	CUtil::JSPostUnEscape();
 
 	if ($arParams["UPLOADER_TYPE"] == 'flash' && $arParams["VIEW_MODE"] == 'applet')
 	{
+		CUtil::JSPostUnEscape();
 		CFlashUploader::UploadFileHandler("handleFile", array(
 			'convCount' => count($arConverters),
 			'pathToTmp' => $arParams["PATH_TO_TMP"],
@@ -459,6 +487,7 @@ if (($_REQUEST["save_upload"] == "Y" && $_REQUEST["uploader_redirect"] != "Y" &&
 	}
 	elseif($arParams["UPLOADER_TYPE"] == 'applet' && $arParams["VIEW_MODE"] == 'applet')
 	{
+		CUtil::JSPostUnEscape();
 		CImageUploader::UploadFileHandler('handleFile', array(
 			'convCount' => count($arConverters),
 			'pathToTmp' => $arParams["PATH_TO_TMP"],

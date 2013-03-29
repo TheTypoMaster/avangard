@@ -1,5 +1,4 @@
-<?
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+<?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $forumPermissions = $APPLICATION->GetGroupRight("forum");
 if ($forumPermissions == "D")
@@ -12,21 +11,20 @@ IncludeModuleLangFile(__FILE__);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
 
 $ID = IntVal($ID);
-
-$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"));
 $langCount = 0;
+$arSysLangs = $arSysLangNames = array();
+$db_lang = CLangAdmin::GetList(($b="sort"), ($o="asc"));
+$arError = array();
+$message = false;
+$bInitVars = false;
 while ($arLang = $db_lang->Fetch())
 {
 	$arSysLangs[$langCount] = $arLang["LID"];
-	$arSysLangNames[$langCount] = htmlspecialchars($arLang["NAME"]);
+	$arSysLangNames[$langCount] = htmlspecialcharsbx($arLang["NAME"]);
 	$langCount++;
 }
 $arGroups = CForumGroup::GetByLang(LANGUAGE_ID);
 array_unshift($arGroups, array("ID" => 0, "NAME" => "..."));
-
-$arError = array();
-$message = false;
-$bInitVars = false;
 if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $forumPermissions=="W" && check_bitrix_sessid())
 {
 	$arFields = array(
@@ -224,16 +222,16 @@ if ($ID > 0):?>
 	<tr class="heading">
 		<td colspan="2">[<?echo $arSysLangs[$i];?>] <?echo $arSysLangNames[$i];?></td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span><?echo GetMessage("FORUM_NAME")?>:</td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("FORUM_NAME")?>:</td>
 		<td>
-			<input type="text" name="FORUM_GROUP[LANG][<?=$arSysLangs[$i]?>][NAME]" value="<?=htmlspecialchars($str_NAME)?>" size="40">
+			<input type="text" name="FORUM_GROUP[LANG][<?=$arSysLangs[$i]?>][NAME]" value="<?=htmlspecialcharsbx($str_NAME)?>" size="40">
 		</td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("FORUM_DESCR")?>:</td>
 		<td>
-			<input type="text" name="FORUM_GROUP[LANG][<?=$arSysLangs[$i]?>][DESCRIPTION]" value="<?=htmlspecialchars($str_DESCRIPTION)?>" size="40">
+			<input type="text" name="FORUM_GROUP[LANG][<?=$arSysLangs[$i]?>][DESCRIPTION]" value="<?=htmlspecialcharsbx($str_DESCRIPTION)?>" size="40">
 		</td>
 	</tr>
 	<?endfor;
@@ -249,6 +247,5 @@ $tabControl->End();
 
 $tabControl->ShowWarnings("fform", $message);
 ?>
-
 </form>
 <?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>

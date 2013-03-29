@@ -14,12 +14,6 @@ else
 	$obJSPopup = new CJSPopup($APPLICATION->GetTitle(false, true));
 }
 
-$adminPage = new CAdminPage();
-echo $adminPage->ShowPopupCSS();
-echo $adminPage->ShowScript();
-$APPLICATION->ShowHeadScripts();
-$APPLICATION->ShowHeadStrings();
-
 $obJSPopup->ShowTitlebar();
 ?>
 <div id="bx_admin_form">

@@ -21,6 +21,7 @@ ClearVars();
 
 $strError = '';
 $strNote = '';
+$aMenu = array();
 
 IncludeModuleLangFile(__FILE__);
 $err_mess = "File: ".__FILE__."<br>Line: ";
@@ -51,7 +52,7 @@ if ($RESULT_ID > 0)
 		require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 		die();
 	}
-	
+
 	$WEB_FORM_ID = intval($arrResult["FORM_ID"]);
 }
 else
@@ -116,11 +117,11 @@ if ($old_module_version=="Y")
 		{
 			$arrVALUES = $_REQUEST;
 			$error = CForm::Check($WEB_FORM_ID, $arrVALUES, $RESULT_ID);
-			
+
 			if (strlen($error)<=0)
 			{
 				CFormResult::Update($RESULT_ID, $arrVALUES, $EDIT_ADDITIONAL);
-				
+
 				if (strlen($web_form_submit)>0) LocalRedirect("form_result_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID);
 			}
 			else $strError .= $error;
@@ -138,9 +139,9 @@ $arForm = CForm::GetByID_admin($WEB_FORM_ID);
 if ($old_module_version != 'Y' && $_SERVER['REQUEST_METHOD'] == "POST" && intval($WEB_FORM_ID)>0 && (strlen($save)>0 || strlen($apply)>0) && check_bitrix_sessid())
 {
 	$arrVALUES = $_REQUEST;
-	
+
 	$error = CForm::Check($WEB_FORM_ID, $arrVALUES, $RESULT_ID);
-	
+
 	if (strlen($error)<=0)
 	{
 		$bUpdate = true;
@@ -148,22 +149,22 @@ if ($old_module_version != 'Y' && $_SERVER['REQUEST_METHOD'] == "POST" && intval
 		{
 			$default_status = CFormStatus::GetDefault($WEB_FORM_ID);
 			$status_tmp = $arrVALUES['status_'.$arForm['SID']];
-			
+
 			$arrVALUES['status_'.$arForm['SID']] = $default_status;
 
 			$RESULT_ID = CFormResult::Add($WEB_FORM_ID, $arrVALUES, 'Y', intval($arrVALUES['USER_ID']) > 0 ? intval($arrVALUES['USER_ID']) : false);
-			
+
 			$arrVALUES['status_'.$arForm['SID']] = $status_tmp == $default_status ? 'NOT_REF' : $status_tmp;
-			
+
 			$bUpdate = $RESULT_ID > 0 && $EDIT_ADDITIONAL == 'Y';
-			
+
 			// little hack to prevent doubling of status notification message
 		}
-		
+
 		// second update needed to set additional fields
 		if ($bUpdate && strlen($strError) <= 0)
-			CFormResult::Update($RESULT_ID, $arrVALUES, $EDIT_ADDITIONAL); 
-		
+			CFormResult::Update($RESULT_ID, $arrVALUES, $EDIT_ADDITIONAL);
+
 		if (strlen($strError) <= 0)
 		{
 			if (strlen($apply)>0) LocalRedirect("/bitrix/admin/form_result_edit.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=".$WEB_FORM_ID."&RESULT_ID=".$RESULT_ID);
@@ -176,7 +177,8 @@ if ($old_module_version != 'Y' && $_SERVER['REQUEST_METHOD'] == "POST" && intval
 if ($EDIT_RESULT_TEMPLATE=="") $EDIT_RESULT_TEMPLATE=$arForm["EDIT_RESULT_TEMPLATE"];
 
 $APPLICATION->SetTitle($RESULT_ID > 0 ? str_replace("#RESULT_ID#", $RESULT_ID, GetMessage("FORM_PAGE_TITLE")) : GetMessage('FORM_PAGE_TITLE_ADD'));
-$APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/main.calendar/templates/.default/style.css');
+
+CJSCore::Init(array('date'));
 
 $arTabs = array(array("DIV" => "edit1", "TAB" => GetMessage('FORM_RESULT_EDIT_TAB_TITLE'), "ICON" => "form_edit", "TITLE" => GetMessage('FORM_RESULT_EDIT_TAB_DESCRIPTION'.($RESULT_ID > 0 ? '' : '_ADD'))));
 
@@ -191,7 +193,7 @@ $context->Show();
 
 echo BeginNote('width="100%"');
 ?>
-<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialchars($arForm["SID"])?>)&nbsp;<?=htmlspecialchars($arForm["NAME"])?>
+<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialcharsbx($arForm["SID"])?>)&nbsp;<?=htmlspecialcharsbx($arForm["NAME"])?>
 <?
 echo EndNote();
 
@@ -243,7 +245,7 @@ if ($can_edit) :
 			<tr>
 				<td><b><?=GetMessage("FORM_FORM_NAME")?></b></td>
 				<td><?
-				echo "[<a href='form_edit.php?lang=".LANGUAGE_ID."&ID=".$WEB_FORM_ID."'>". $WEB_FORM_ID."</a>]&nbsp;(".htmlspecialchars($arForm["SID"]).")&nbsp;".htmlspecialchars($arForm["NAME"]);
+				echo "[<a href='form_edit.php?lang=".LANGUAGE_ID."&ID=".$WEB_FORM_ID."'>". $WEB_FORM_ID."</a>]&nbsp;(".htmlspecialcharsbx($arForm["SID"]).")&nbsp;".htmlspecialcharsbx($arForm["NAME"]);
 				?></td>
 			</tr>
 			<?endif;?>
@@ -263,7 +265,7 @@ if ($can_edit) :
 					if ($F_RIGHT>=25):
 						?>&nbsp;&nbsp;&nbsp;<?
 						if (intval($arrResult["USER_ID"])>0) :
-							echo "[<a title='".GetMessage("FORM_EDIT_USER")."' href='user_edit.php?lang=".LANGUAGE_ID."&ID=".$arrResult["USER_ID"]."'>".$arrResult["USER_ID"]."</a>] (".htmlspecialchars($arrResult["LOGIN"]).") ".htmlspecialchars($arrResult["USER_NAME"])."";
+							echo "[<a title='".GetMessage("FORM_EDIT_USER")."' href='user_edit.php?lang=".LANGUAGE_ID."&ID=".$arrResult["USER_ID"]."'>".$arrResult["USER_ID"]."</a>] (".htmlspecialcharsbx($arrResult["LOGIN"]).") ".htmlspecialcharsbx($arrResult["USER_NAME"])."";
 							echo ($arrResult["USER_AUTH"]=="N") ? " ".GetMessage("FORM_NOT_AUTH")."" : "";
 						else :
 							echo "".GetMessage("FORM_NOT_REGISTERED")."";
@@ -299,7 +301,7 @@ if ($can_edit) :
 		<input type="hidden" name="RESULT_ID" value="<?=intval($RESULT_ID)?>">
 		<input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
 		<?=GetMessage("FORM_EDIT_RESULT_TEMPLATE")?><?
-		echo SelectBoxFromArray("EDIT_RESULT_TEMPLATE", CForm::GetTemplateList("EDIT_RESULT"), htmlspecialchars($EDIT_RESULT_TEMPLATE), "","class='typeselect'",true);
+		echo SelectBoxFromArray("EDIT_RESULT_TEMPLATE", CForm::GetTemplateList("EDIT_RESULT"), htmlspecialcharsbx($EDIT_RESULT_TEMPLATE), "","class='typeselect'",true);
 		?>&nbsp;<input <?if ($F_RIGHT<30) echo "disabled"?> type="submit" name="save" value="<?=GetMessage("FORM_SAVE")?>">
 		</form>
 		<?endif;?>
@@ -343,7 +345,7 @@ if ($can_edit) :
 	{
 		$rsUser = CUser::GetByID($arrVALUES["USER_ID"]);
 	}
-	
+
 	if (null != $rsUser)
 		$arUser = $rsUser->Fetch();
 
@@ -351,18 +353,18 @@ if ($can_edit) :
 	if ($EDIT_STATUS == 'Y' && $bResultStatusChangeAccess)
 	{
 		$dbStatusList = CFormStatus::GetDropdown($WEB_FORM_ID, array("MOVE"), $arUser['ID']);
-		
+
 		if ($RESULT_ID > 0)
 		{
 			$RESULT_STATUS_FORM .= '<input type="radio" value="NOT_REF" id="status_'.$arForm['SID'].'_NOT_REF" name="status_'.$arForm['SID'].'" checked="checked" /><label for="status_'.$arForm['SID'].'_NOT_REF">'.GetMessage('FORM_RESULT_EDIT_STATUS_DONTCHANGE').'</label><br />';
-		
+
 			$i = 1;
 		}
 		else
 		{
 			$i = 0;
 		}
-		
+
 		while ($arStatus = $dbStatusList->Fetch())
 		{
 			$arStatus['REFERENCE'] = str_replace(
@@ -370,9 +372,9 @@ if ($can_edit) :
 				'[<a href="/bitrix/admin/form_status_edit.php?lang='.LANG.'&WEB_FORM_ID='.$WEB_FORM_ID.'&ID='.$arStatus['REFERENCE_ID'].'">'.$arStatus['REFERENCE_ID'].'</a>]',
 				htmlspecialcharsEx($arStatus['REFERENCE'])
 			);
-			
+
 			$RESULT_STATUS_FORM .= '<input type="radio" value="'.$arStatus['REFERENCE_ID'].'" id="status_'.$arForm['SID'].'_'.$arStatus['REFERENCE_ID'].'" name="status_'.$arForm['SID'].'" '.($RESULT_ID <= 0 && ($i++ == 0) ? 'checked="checked"' : '').' /><label for="status_'.$arForm['SID'].'_'.$arStatus['REFERENCE_ID'].'">'.$arStatus['REFERENCE'].'</label><br />';
-			
+
 		}
 	}
 
@@ -398,7 +400,7 @@ if ($can_edit) :
 ?>
 	<tr>
 		<td><?echo GetMessage('FORM_RESULT_EDIT_FORM')?>: </td>
-		<td>[<a href="/bitrix/admin/form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>"><?=$WEB_FORM_ID?></a>]&nbsp;<a href="/bitrix/admin/form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>"><?=htmlspecialchars($arForm["NAME"])?> (<?=htmlspecialchars($arForm["SID"])?>)</a></td>
+		<td>[<a href="/bitrix/admin/form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>"><?=$WEB_FORM_ID?></a>]&nbsp;<a href="/bitrix/admin/form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>"><?=htmlspecialcharsbx($arForm["NAME"])?> (<?=htmlspecialcharsbx($arForm["SID"])?>)</a></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage('FORM_RESULT_EDIT_AUTHOR')?>:</td>
@@ -408,7 +410,7 @@ if ($can_edit) :
 		echo FindUserID("USER_ID", $arUser['ID']);
 	elseif (is_array($arUser)):
 ?>
-			[<a title="<?echo GetMessage('FORM_RESULT_EDIT_USER')?>" href='/bitrix/admin/user_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$arUser["ID"]?>'><?=$arUser['ID']?></a>] <a title="<?echo GetMessage('FORM_RESULT_EDIT_USER')?>" href='/bitrix/admin/user_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$arUser["ID"]?>'><?=htmlspecialchars($arUser["NAME"])?> <?=htmlspecialchars($arUser["LAST_NAME"])?> (<?=htmlspecialchars($arUser['LOGIN'])?>)</a><?if($arrResult["RESULT_USER_AUTH"] == "N"): ?>&nbsp;<?echo GetMessage('FORM_RESULT_EDIT_USER_NOTAUTH')?><?endif;?>
+			[<a title="<?echo GetMessage('FORM_RESULT_EDIT_USER')?>" href='/bitrix/admin/user_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$arUser["ID"]?>'><?=$arUser['ID']?></a>] <a title="<?echo GetMessage('FORM_RESULT_EDIT_USER')?>" href='/bitrix/admin/user_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$arUser["ID"]?>'><?=htmlspecialcharsbx($arUser["NAME"])?> <?=htmlspecialcharsbx($arUser["LAST_NAME"])?> (<?=htmlspecialcharsbx($arUser['LOGIN'])?>)</a><?if($arrResult["RESULT_USER_AUTH"] == "N"): ?>&nbsp;<?echo GetMessage('FORM_RESULT_EDIT_USER_NOTAUTH')?><?endif;?>
 <?
 	else:
 ?>
@@ -482,10 +484,10 @@ if ($can_edit) :
 			else
 				$arAdditionalFields[$key] = $arQuestion;
 		}
-		
+
 		$arQuestions = array_merge($arAdditionalFields, $arQuestionsNew);
 	}
-	
+
 	$q = 0;
 	foreach ($arQuestions as $key => $arQuestion)
 	{
@@ -493,7 +495,7 @@ if ($can_edit) :
 		$arQuestion['TITLE'] = trim($arQuestion['TITLE']);
 		if (strlen($arQuestion['TITLE']) <= 0)
 			$arQuestion['TITLE'] = $arQuestion['SID'];
-		
+
 		if ($arQuestion['ADDITIONAL'] == 'Y' && ($q++) == 0):
 ?>
 	<tr class="heading">
@@ -502,11 +504,10 @@ if ($can_edit) :
 <?
 			endif;
 ?>
-	<tr>
+	<tr<?=$arQuestion["REQUIRED"] == "Y" ? ' class="adm-detail-required-field"' : ''?>>
 		<td valign="top">
 <?
-		echo $arQuestion["REQUIRED"] == "Y" ? "<span class=\"required\">*</span>" : '';
-		echo $arQuestion["TITLE_TYPE"] == "html" ? $arQuestion["TITLE"] : nl2br(htmlspecialchars(trim($arQuestion["TITLE"])));
+		echo $arQuestion["TITLE_TYPE"] == "html" ? $arQuestion["TITLE"] : nl2br(htmlspecialcharsbx(trim($arQuestion["TITLE"])));
 ?>
 		</td><td>
 <?
@@ -518,22 +519,22 @@ if ($can_edit) :
 			foreach ($arAnswers[$FIELD_SID] as $key => $arAnswer)
 			{
 				$arAnswer['MESSAGE'] = trim($arAnswer['MESSAGE']);
-				
+
 				if ($arAnswer["FIELD_TYPE"]=="dropdown" && $show_dropdown=="Y") continue;
 				if ($arAnswer["FIELD_TYPE"]=="multiselect" && $show_multiselect=="Y") continue;
-				
-				switch ($arAnswer["FIELD_TYPE"]) 
+
+				switch ($arAnswer["FIELD_TYPE"])
 				{
 					case "radio":
 						$arAnswer["FIELD_PARAM"] .= " id=\"".$arAnswer['ID']."\"";
-					
+
 						$value = CForm::GetRadioValue($FIELD_SID, $arAnswer, $arrVALUES);
 						$input = CForm::GetRadioField(
 							$FIELD_SID,
 							$arAnswer["ID"],
 							$value,
 							$arAnswer["FIELD_PARAM"]);
-						
+
 						echo $input;
 						echo "<label for=\"".$arAnswer['ID']."\">".$arAnswer["MESSAGE"]."</label><br />";
 
@@ -547,7 +548,7 @@ if ($can_edit) :
 							$arAnswer["ID"],
 							$value,
 							$arAnswer["FIELD_PARAM"]);
-						
+
 						echo $input."<label for=\"".$arAnswer['ID']."\">".$arAnswer["MESSAGE"]."</label><br />";
 
 					break;
@@ -555,7 +556,7 @@ if ($can_edit) :
 						if ($show_dropdown != "Y")
 						{
 							$value = CForm::GetDropDownValue($FIELD_SID, $arDropDown, $arrVALUES);
-							
+
 							echo CForm::GetDropDownField(
 								$FIELD_SID,
 								$arDropDown[$FIELD_SID],
@@ -563,13 +564,13 @@ if ($can_edit) :
 								$arAnswer["FIELD_PARAM"]).'<br />';
 							$show_dropdown = "Y";
 						}
-						
+
 					break;
 					case "multiselect":
 						if ($show_multiselect!="Y")
 						{
 							$value = CForm::GetMultiSelectValue($FIELD_SID, $arMultiSelect, $arrVALUES);
-							
+
 							echo CForm::GetMultiSelectField(
 								$FIELD_SID,
 								$arMultiSelect[$FIELD_SID],
@@ -578,7 +579,7 @@ if ($can_edit) :
 								$arAnswer["FIELD_PARAM"]).'<br />';
 							$show_multiselect = "Y";
 						}
-						
+
 					break;
 					case "text":
 						echo $arAnswer["MESSAGE"] ? $arAnswer['MESSAGE'].'<br />' : '';
@@ -598,22 +599,22 @@ if ($can_edit) :
 							$arAnswer["ID"],
 							$value,
 							$arAnswer["FIELD_PARAM"]);
-						
+
 						$input = str_replace('type="hidden"', 'type="text"', $input).'&nbsp;'.GetMessage('FORM_RESULT_EDIT_HIDDEN');
-						
+
 						echo $input.'<br />';
-						
+
 					break;
 					case "password":
 						echo $arAnswer["MESSAGE"] ? $arAnswer['MESSAGE'].'<br />' : '';
-						
+
 						$value = CForm::GetPasswordValue($arAnswer["ID"], $arAnswer, $arrVALUES);
 						echo CForm::GetPasswordField(
 							$arAnswer["ID"],
 							$value,
 							$arAnswer["FIELD_WIDTH"],
 							$arAnswer["FIELD_PARAM"]).'<br />';
-						
+
 					break;
 					case "email":
 						echo $arAnswer["MESSAGE"] ? $arAnswer['MESSAGE'].'<br />' : '';
@@ -634,14 +635,14 @@ if ($can_edit) :
 							$value,
 							$arAnswer["FIELD_WIDTH"],
 							$arAnswer["FIELD_PARAM"]).'<br />';
-							
+
 						break;
 					case "textarea":
 						echo $arAnswer["MESSAGE"] ? $arAnswer['MESSAGE'].'<br />' : '';
-						
+
 						if (intval($arAnswer["FIELD_WIDTH"]) <= 0) $arAnswer["FIELD_WIDTH"] = "40";
 						if (intval($arAnswer["FIELD_HEIGHT"]) <= 0) $arAnswer["FIELD_HEIGHT"] = "5";
-						
+
 						$value = CForm::GetTextAreaValue($arAnswer["ID"], $arAnswer, $arrVALUES);
 						echo CForm::GetTextAreaField(
 							$arAnswer["ID"],
@@ -650,7 +651,7 @@ if ($can_edit) :
 							$arAnswer["FIELD_PARAM"],
 							$value
 							).'<br />';
-						
+
 						break;
 					case "date":
 						echo $arAnswer["MESSAGE"] ? $arAnswer['MESSAGE'].'<br />' : '';
@@ -662,22 +663,22 @@ if ($can_edit) :
 							$value,
 							$arAnswer["FIELD_WIDTH"],
 							$arAnswer["FIELD_PARAM"]).'<br />';
-							
+
 						break;
 					case "image":
 						if ($arFile = CFormResult::GetFileByAnswerID($RESULT_ID, $arAnswer["ID"]))
 						{
 							if (intval($arFile["USER_FILE_ID"])>0)
 							{
-								if ($arFile["USER_FILE_IS_IMAGE"]=="Y") 
+								if ($arFile["USER_FILE_IS_IMAGE"]=="Y")
 								{
 									echo CFile::ShowImage($arFile["USER_FILE_ID"], 0, 0, "border=0", "", true);
-									echo "<br />"; 
+									echo "<br />";
 									echo '<input type="checkbox" value="Y" name="form_image_'.$arAnswer['ID'].'_del" id="form_image_'.$arAnswer['ID'].'_del" /><label for="form_image_'.$arAnswer['ID'].'_del">'.GetMessage('FORM_DELETE_FILE').'</label><br />';
 								} //endif;
 							} //endif;
 						} // endif
-					
+
 						echo CForm::GetFileField(
 							$arAnswer["ID"],
 							$arAnswer["FIELD_WIDTH"],
@@ -685,15 +686,15 @@ if ($can_edit) :
 							0,
 							"",
 							$arAnswer["FIELD_PARAM"]).'<br />';
-						
+
 						break;
 					case "file":
-						
+
 						if ($arFile = CFormResult::GetFileByAnswerID($RESULT_ID, $arAnswer["ID"]))
 						{
 							if (intval($arFile["USER_FILE_ID"])>0)
 							{
-								echo "<a title=\"".GetMessage("FORM_VIEW_FILE")."\" target=\"_blank\" class=\"tablebodylink\" href=\"/bitrix/tools/form_show_file.php?rid=".$RESULT_ID."&hash=".$arFile["USER_FILE_HASH"]."&lang=".LANGUAGE_ID."\">".htmlspecialchars($arFile["USER_FILE_NAME"])."</a>&nbsp;(";
+								echo "<a title=\"".GetMessage("FORM_VIEW_FILE")."\" target=\"_blank\" class=\"tablebodylink\" href=\"/bitrix/tools/form_show_file.php?rid=".$RESULT_ID."&hash=".$arFile["USER_FILE_HASH"]."&lang=".LANGUAGE_ID."\">".htmlspecialcharsbx($arFile["USER_FILE_NAME"])."</a>&nbsp;(";
 								$a = array("b", "Kb", "Mb", "Gb");
 								$pos = 0;
 								$size = $arFile["USER_FILE_SIZE"];
@@ -701,12 +702,12 @@ if ($can_edit) :
 								echo round($size,2)." ".$a[$pos];
 								echo ")&nbsp;&nbsp;[&nbsp;<a title=\"".str_replace("#FILE_NAME#", $arFile["USER_FILE_NAME"], GetMessage("FORM_DOWNLOAD_FILE"))."\" class=\"tablebodylink\" href=\"/bitrix/tools/form_show_file.php?rid=".$RESULT_ID."&hash=".$arFile["USER_FILE_HASH"]."&lang=".LANGUAGE_ID."&action=download\">".GetMessage("FORM_DOWNLOAD")."</a>&nbsp;]<br />";
 								echo '<input type="checkbox" value="Y" name="form_file_'.$arAnswer['ID'].'_del" id="form_file_'.$arAnswer['ID'].'_del" /><label for="form_file_'.$arAnswer['ID'].'_del">'.GetMessage('FORM_DELETE_FILE').'</label><br />';
-								
-								echo "<br />"; 
+
+								echo "<br />";
 							} //endif;
 						} //endif;
-						
-						
+
+
 						echo CForm::GetFileField(
 							$arAnswer["ID"],
 							$arAnswer["FIELD_WIDTH"],
@@ -714,7 +715,7 @@ if ($can_edit) :
 							0,
 							"",
 							$arAnswer["FIELD_PARAM"]).'<br />';
-							
+
 						break;
 				} //endswitch;
 			} //endwhile;
@@ -732,14 +733,14 @@ if ($can_edit) :
 						"",
 						$value
 						).'<br />';
-						
+
 					break;
 				case "integer":
 					$value = CForm::GetTextValue("ADDITIONAL_".$arQuestions[$FIELD_SID]["ID"], array(), $arrVALUES);
 					echo CForm::GetTextField(
-						"ADDITIONAL_".$arQuestions[$FIELD_SID]["ID"], 
+						"ADDITIONAL_".$arQuestions[$FIELD_SID]["ID"],
 						$value).'<br />';
-					
+
 					break;
 				case "date":
 					$value = CForm::GetDateValue("ADDITIONAL_".$arQuestions[$FIELD_SID]["ID"], array(), $arrVALUES);
@@ -747,7 +748,7 @@ if ($can_edit) :
 						"ADDITIONAL_".$arQuestions[$FIELD_SID]["ID"],
 						'form1',
 						$value).'<br />';
-					
+
 					break;
 			} //endswitch;
 		}

@@ -1,5 +1,5 @@
 <?
-class CPHPCacheAPC
+class CPHPCacheAPC implements ICacheBackend
 {
 	var $sid = "";
 	//cache stats

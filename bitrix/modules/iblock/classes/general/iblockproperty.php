@@ -26,8 +26,15 @@ class CAllIBlockProperty
 			case "ACTIVE":
 			case "SEARCHABLE":
 			case "FILTRABLE":
+			case "IS_REQUIRED":
+			case "MULTIPLE":
+			case "FILTRABLE":
 				if($val=="Y" || $val=="N")
 					$arSqlSearch[] = "BP.".$key." = '".$val."'";
+				break;
+			case "?CODE":
+			case "?NAME":
+				$arSqlSearch[] = CIBlock::FilterCreate("BP.".substr($key, 1), $val, "string", "E");
 				break;
 			case "CODE":
 			case "NAME":
@@ -48,6 +55,14 @@ class CAllIBlockProperty
 				$arSqlSearch[] = "(BP.TMP_ID IS NULL OR NOT (BP.TMP_ID LIKE '".$val."'))";
 				break;
 			case "PROPERTY_TYPE":
+				$ar = explode(":", $val);
+				if(count($ar) == 2)
+				{
+					$val = $ar[0];
+					$arSqlSearch[] = "BP.USER_TYPE = '".$val[1]."'";
+				}
+				$arSqlSearch[] = "BP.".$key." = '".$val."'";
+				break;
 			case "USER_TYPE":
 				$arSqlSearch[] = "BP.".$key." = '".$val."'";
 				break;
@@ -133,6 +148,8 @@ class CAllIBlockProperty
 		if(!CIBlockPropertyEnum::DeleteByPropertyID($ID, true))
 			return false;
 
+		CIBlockSectionPropertyLink::DeleteByProperty($ID);
+
 		$rsProperty = CIBlockProperty::GetByID($ID);
 		$arProperty = $rsProperty->Fetch();
 		if($arProperty["VERSION"] == 2)
@@ -163,8 +180,8 @@ class CAllIBlockProperty
 				return false;
 			$strSql = "
 				DELETE
-				FROM	b_iblock_element_prop_m".$arProperty["IBLOCK_ID"]."
-				WHERE	IBLOCK_PROPERTY_ID=".$ID."
+				FROM b_iblock_element_prop_m".$arProperty["IBLOCK_ID"]."
+				WHERE IBLOCK_PROPERTY_ID=".$ID."
 			";
 			if(!$DB->Query($strSql))
 				return false;
@@ -195,6 +212,7 @@ class CAllIBlockProperty
 	function Add($arFields)
 	{
 		global $DB;
+
 		if(is_set($arFields, "ACTIVE") && $arFields["ACTIVE"]!="Y")
 			$arFields["ACTIVE"]="N";
 		if(!isset($arFields["SEARCHABLE"]) || $arFields["SEARCHABLE"] != "Y")
@@ -238,19 +256,20 @@ class CAllIBlockProperty
 			}
 			$ID = $DB->Add("b_iblock_property", $arFields, array('USER_TYPE_SETTINGS'), "iblock");
 
-			if(is_set($arFields, "VALUES"))
-				$this->UpdateEnum($ID, $arFields["VALUES"]);
-
 			if($arFields["VERSION"]==2)
 			{
-			 	if($this->_Add($ID, $arFields))
+				if($this->_Add($ID, $arFields))
 				{
 					$Result = $ID;
 					$arFields["ID"] = &$ID;
 				}
 				else
 				{
-					$this->LAST_ERROR = GetMessage("IBLOCK_PROPERTY_ADD_ERROR",array("#ID#"=>$ID,"#CODE#"=>"14"));
+					$DB->Query("DELETE FROM b_iblock_property WHERE ID = ".intval($ID));
+					$this->LAST_ERROR = GetMessage("IBLOCK_PROPERTY_ADD_ERROR",array(
+						"#ID#"=>$ID,
+						"#CODE#"=>"[14]".$DB->GetErrorSQL(),
+					));
 					$Result = false;
 					$arFields["RESULT_MESSAGE"] = &$this->LAST_ERROR;
 				}
@@ -259,6 +278,21 @@ class CAllIBlockProperty
 			{
 				$Result = $ID;
 				$arFields["ID"] = &$ID;
+			}
+
+			if($Result)
+			{
+				if(array_key_exists("VALUES", $arFields))
+					$this->UpdateEnum($ID, $arFields["VALUES"]);
+
+				if(CIBlock::GetArrayByID($arFields["IBLOCK_ID"], "SECTION_PROPERTY") === "Y")
+				{
+					if(
+						!array_key_exists("SECTION_PROPERTY", $arFields)
+						|| $arFields["SECTION_PROPERTY"] !== "N"
+					)
+						CIBlockSectionPropertyLink::Add(0, $ID, array("SMART_FILTER" => $arFields["SMART_FILTER"]));
+				}
 			}
 		}
 
@@ -420,6 +454,19 @@ class CAllIBlockProperty
 			if(is_set($arFields, "VALUES"))
 				$this->UpdateEnum($ID, $arFields["VALUES"]);
 
+			if(
+				array_key_exists("IBLOCK_ID", $arFields)
+				&& CIBlock::GetArrayByID($arFields["IBLOCK_ID"], "SECTION_PROPERTY") === "Y"
+			)
+			{
+				CIBlockSectionPropertyLink::Delete(0, $ID);
+				if(
+					!array_key_exists("SECTION_PROPERTY", $arFields)
+					|| $arFields["SECTION_PROPERTY"] !== "N"
+				)
+					CIBlockSectionPropertyLink::Add(0, $ID, array("SMART_FILTER" => $arFields["SMART_FILTER"]));
+			}
+
 			global $BX_IBLOCK_PROP_CACHE;
 			if(is_set($arFields, "IBLOCK_ID"))
 				UnSet($BX_IBLOCK_PROP_CACHE[$arFields["IBLOCK_ID"]]);
@@ -570,79 +617,77 @@ class CAllIBlockProperty
 		return $arr;
 	}
 
-	function GetPropertyEnum($PROP_ID, $arOrder = Array("SORT"=>"asc"), $arFilter = Array())
+	function GetPropertyEnum($PROP_ID, $arOrder = array("SORT"=>"asc"), $arFilter = array())
 	{
 		global $DB;
 
-		$arSqlSearch = Array();
-		$filter_keys = array_keys($arFilter);
-		for($i=0; $i<count($filter_keys); $i++)
-		{
-			$val = $DB->ForSql($arFilter[$filter_keys[$i]]);
-			switch(strtoupper($filter_keys[$i]))
-			{
-			case "ID":
-				$arSqlSearch[] = "BPE.ID=".IntVal($val);
-				break;
-			case "IBLOCK_ID":
-				$arSqlSearch[] = "BP.IBLOCK_ID=".IntVal($val);
-				break;
-			case "VALUE":
-				$arSqlSearch[] = "BPE.VALUE LIKE '".$val."'";
-				break;
-			case "EXTERNAL_ID": case "XML_ID":
-				$arSqlSearch[] = "BPE.XML_ID LIKE '".$val."'";
-				break;
-			}
-		}
-
-
 		$strSqlSearch = "";
-		for($i=0; $i<count($arSqlSearch); $i++)
-			$strSqlSearch .= " AND (".$arSqlSearch[$i].") ";
-
-		$arSqlOrder = Array();
-		foreach($arOrder as $by=>$order)
+		if(is_array($arFilter))
 		{
-			$by = strtolower($by);
-			$order = strtolower($order);
-			if ($order!="asc") $order = "desc";
-
-			if ($by == "value")		$arSqlOrder[] = " BPE.VALUE ".$order." ";
-			elseif ($by == "id")	$arSqlOrder[] = " BPE.ID ".$order." ";
-			elseif ($by == "external_id")	$arSqlOrder[] = " BPE.XML_ID ".$order." ";
-			else
+			foreach($arFilter as $key => $val)
 			{
-				$arSqlOrder[] = " BPE.SORT ".$order." ";
-				$by = "sort";
+				$key = strtoupper($key);
+				switch($key)
+				{
+				case "ID":
+					$strSqlSearch .= "AND (BPE.ID=".intval($val).")\n";
+					break;
+				case "IBLOCK_ID":
+					$strSqlSearch .= "AND (BP.IBLOCK_ID=".intval($val).")\n";
+					break;
+				case "VALUE":
+					$strSqlSearch .= "AND (BPE.VALUE LIKE '".$DB->ForSql($val)."')\n";
+					break;
+				case "EXTERNAL_ID":
+				case "XML_ID":
+					$strSqlSearch .= "AND (BPE.XML_ID LIKE '".$DB->ForSql($val)."')\n";
+					break;
+				}
 			}
 		}
 
-		$strSqlOrder = "";
-		DelDuplicateSort($arSqlOrder); for ($i=0; $i<count($arSqlOrder); $i++)
+		$arSqlOrder = array();
+		if(is_array($arOrder))
 		{
-			if($i==0)
-				$strSqlOrder = " ORDER BY ";
-			else
-				$strSqlOrder .= ",";
+			foreach($arOrder as $by => $order)
+			{
+				$by = strtolower($by);
+				$order = strtolower($order);
+				if ($order!="asc")
+					$order = "desc";
 
-			$strSqlOrder .= $arSqlOrder[$i];
+				if ($by == "value")
+					$arSqlOrder["BPE.VALUE"] = "BPE.VALUE ".$order;
+				elseif ($by == "id")
+					$arSqlOrder["BPE.ID"] = "BPE.ID ".$order;
+				elseif ($by == "external_id")
+					$arSqlOrder["BPE.XML_ID"] = "BPE.XML_ID ".$order;
+				elseif ($by == "xml_id")
+					$arSqlOrder["BPE.XML_ID"] = "BPE.XML_ID ".$order;
+				else
+					$arSqlOrder["BPE.SORT"] = "BPE.SORT ".$order;
+			}
 		}
 
-		$strSql =
-			"SELECT BPE.*, BPE.XML_ID as EXTERNAL_ID ".
-			"FROM b_iblock_property_enum BPE, b_iblock_property BP ".
-			"WHERE BPE.PROPERTY_ID=BP.ID ".
-			(is_numeric(substr($PROP_ID, 0, 1))
-			?
-				"	AND BP.ID=".IntVal($PROP_ID)
-			:
-				"	AND BP.CODE='".$DB->ForSql($PROP_ID)."' "
-			)." ".
-			$strSqlSearch.
-			$strSqlOrder;
+		if(empty($arSqlOrder))
+			$strSqlOrder = "";
+		else
+			$strSqlOrder = " ORDER BY ".implode(", ", $arSqlOrder);
 
-		$res = $DB->Query($strSql);
+		$res = $DB->Query($s = "
+			SELECT BPE.*, BPE.XML_ID as EXTERNAL_ID
+			FROM
+				b_iblock_property_enum BPE
+				INNER JOIN b_iblock_property BP ON BP.ID = BPE.PROPERTY_ID
+			WHERE
+			".(
+				is_numeric(substr($PROP_ID, 0, 1))?
+				"BP.ID = ".intval($PROP_ID):
+				"BP.CODE = '".$DB->ForSql($PROP_ID)."'"
+			)."
+			".$strSqlSearch."
+			".$strSqlOrder."
+		");
 
 		return $res;
 	}
@@ -816,20 +861,21 @@ class CAllIBlockProperty
 			$CACHE_MANAGER->CleanDir("b_iblock_property_enum");
 	}
 
-	function GetUserType($USER_TYPE=false)
+	function GetUserType($USER_TYPE = false)
 	{
-		static $CACHE=false;
-		if(!is_array($CACHE))
+		static $CACHE = null;
+
+		if(!isset($CACHE))
 		{
 			$CACHE = array();
-			$db_events = GetModuleEvents("iblock", "OnIBlockPropertyBuildList");
-			while($arEvent = $db_events->Fetch())
+			foreach(GetModuleEvents("iblock", "OnIBlockPropertyBuildList", true) as $arEvent)
 			{
 				$res = ExecuteModuleEventEx($arEvent);
 				$CACHE[$res["USER_TYPE"]] = $res;
 			}
 		}
-		if($USER_TYPE!==false)
+
+		if($USER_TYPE !== false)
 		{
 			if(array_key_exists($USER_TYPE, $CACHE))
 				return $CACHE[$USER_TYPE];
@@ -837,7 +883,9 @@ class CAllIBlockProperty
 				return array();
 		}
 		else
+		{
 			return $CACHE;
+		}
 	}
 
 	function FormatUpdateError($ID, $CODE)
@@ -848,6 +896,139 @@ class CAllIBlockProperty
 	function FormatNotFoundError($ID)
 	{
 		return GetMessage("IBLOCK_PROPERTY_NOT_FOUND",array("#ID#"=>$ID));
+	}
+
+	function _DateTime_GetUserTypeDescription()
+	{
+		return array(
+			"PROPERTY_TYPE" => "S",
+			"USER_TYPE" => "DateTime",
+			"DESCRIPTION" => GetMessage("IBLOCK_PROP_DATETIME_DESC"),
+			//optional handlers
+			"GetPublicViewHTML" => array("CIBlockPropertyDateTime","GetPublicViewHTML"),
+			"GetPublicEditHTML" => array("CIBlockPropertyDateTime","GetPublicEditHTML"),
+			"GetAdminListViewHTML" => array("CIBlockPropertyDateTime","GetAdminListViewHTML"),
+			"GetPropertyFieldHtml" => array("CIBlockPropertyDateTime","GetPropertyFieldHtml"),
+			"CheckFields" => array("CIBlockPropertyDateTime","CheckFields"),
+			"ConvertToDB" => array("CIBlockPropertyDateTime","ConvertToDB"),
+			"ConvertFromDB" => array("CIBlockPropertyDateTime","ConvertFromDB"),
+			"GetSettingsHTML" => array("CIBlockPropertyDateTime","GetSettingsHTML"),
+			"GetAdminFilterHTML" => array("CIBlockPropertyDateTime","GetAdminFilterHTML"),
+			"GetPublicFilterHTML" => array("CIBlockPropertyDateTime","GetPublicFilterHTML"),
+			"AddFilterFields" => array("CIBlockPropertyDateTime","AddFilterFields"),
+		);
+	}
+
+	function _XmlID_GetUserTypeDescription()
+	{
+		return array(
+			"PROPERTY_TYPE"		=>"S",
+			"USER_TYPE"		=>"ElementXmlID",
+			"DESCRIPTION"		=>GetMessage("IBLOCK_PROP_XMLID_DESC"),
+			"GetPublicViewHTML"	=>array("CIBlockPropertyXmlID","GetPublicViewHTML"),
+			"GetAdminListViewHTML"	=>array("CIBlockPropertyXmlID","GetAdminListViewHTML"),
+			"GetPropertyFieldHtml"	=>array("CIBlockPropertyXmlID","GetPropertyFieldHtml"),
+			"GetSettingsHTML"	=>array("CIBlockPropertyXmlID","GetSettingsHTML"),
+		);
+	}
+
+	function _FileMan_GetUserTypeDescription()
+	{
+		return array(
+			"PROPERTY_TYPE"		=>"S",
+			"USER_TYPE"		=>"FileMan",
+			"DESCRIPTION"		=>GetMessage("IBLOCK_PROP_FILEMAN_DESC"),
+			"GetPropertyFieldHtml"	=>array("CIBlockPropertyFileMan","GetPropertyFieldHtml"),
+			"GetPropertyFieldHtmlMulty" => array('CIBlockPropertyFileMan','GetPropertyFieldHtmlMulty'),
+			"ConvertToDB"		=>array("CIBlockPropertyFileMan","ConvertToDB"),
+			"ConvertFromDB"		=>array("CIBlockPropertyFileMan","ConvertFromDB"),
+			"GetSettingsHTML" => array("CIBlockPropertyFileMan","GetSettingsHTML"),
+		);
+	}
+
+	function _HTML_GetUserTypeDescription()
+	{
+		return array(
+			"PROPERTY_TYPE" => "S",
+			"USER_TYPE" => "HTML",
+			"DESCRIPTION" => GetMessage("IBLOCK_PROP_HTML_DESC"),
+			"GetPublicViewHTML" => array("CIBlockPropertyHTML","GetPublicViewHTML"),
+			"GetPublicEditHTML" => array("CIBlockPropertyHTML","GetPublicEditHTML"),
+			"GetAdminListViewHTML" => array("CIBlockPropertyHTML","GetAdminListViewHTML"),
+			"GetPropertyFieldHtml" => array("CIBlockPropertyHTML","GetPropertyFieldHtml"),
+			"ConvertToDB" => array("CIBlockPropertyHTML","ConvertToDB"),
+			"ConvertFromDB" => array("CIBlockPropertyHTML","ConvertFromDB"),
+			"GetLength" =>array("CIBlockPropertyHTML","GetLength"),
+			"PrepareSettings" =>array("CIBlockPropertyHTML","PrepareSettings"),
+			"GetSettingsHTML" =>array("CIBlockPropertyHTML","GetSettingsHTML"),
+		);
+	}
+
+	function _ElementList_GetUserTypeDescription()
+	{
+		return array(
+			"PROPERTY_TYPE" => "E",
+			"USER_TYPE" => "EList",
+			"DESCRIPTION" => GetMessage("IBLOCK_PROP_ELIST_DESC"),
+			"GetPropertyFieldHtml" => array("CIBlockPropertyElementList","GetPropertyFieldHtml"),
+			"GetPropertyFieldHtmlMulty" => array("CIBlockPropertyElementList","GetPropertyFieldHtmlMulty"),
+			"GetPublicEditHTML" => array("CIBlockPropertyElementList","GetPropertyFieldHtml"),
+			"GetPublicEditHTMLMulty" => array("CIBlockPropertyElementList","GetPropertyFieldHtmlMulty"),
+			"GetPublicViewHTML" => array("CIBlockPropertyElementList", "GetPublicViewHTML"),
+			"GetAdminFilterHTML" => array("CIBlockPropertyElementList","GetAdminFilterHTML"),
+			"PrepareSettings" =>array("CIBlockPropertyElementList","PrepareSettings"),
+			"GetSettingsHTML" =>array("CIBlockPropertyElementList","GetSettingsHTML"),
+		);
+	}
+
+	function _Sequence_GetUserTypeDescription()
+	{
+		return array(
+			"PROPERTY_TYPE" => "N",
+			"USER_TYPE" => "Sequence",
+			"DESCRIPTION" => GetMessage("IBLOCK_PROP_SEQUENCE_DESC"),
+			"GetPropertyFieldHtml" => array("CIBlockPropertySequence","GetPropertyFieldHtml"),
+			"GetPublicEditHTML" => array("CIBlockPropertySequence","GetPropertyFieldHtml"),
+			"PrepareSettings" =>array("CIBlockPropertySequence","PrepareSettings"),
+			"GetSettingsHTML" =>array("CIBlockPropertySequence","GetSettingsHTML"),
+			"GetAdminFilterHTML" => array("CIBlockPropertySequence","GetPublicFilterHTML"),
+			"GetPublicFilterHTML" => array("CIBlockPropertySequence","GetPublicFilterHTML"),
+			"AddFilterFields" => array("CIBlockPropertySequence","AddFilterFields"),
+		);
+	}
+
+	function _ElementAutoComplete_GetUserTypeDescription()
+	{
+		return array(
+			"PROPERTY_TYPE" => "E",
+			"USER_TYPE" => "EAutocomplete",
+			"DESCRIPTION" => GetMessage("IBLOCK_PROP_EAUTOCOMPLETE_DESC"),
+			"GetPropertyFieldHtml" => array("CIBlockPropertyElementAutoComplete", "GetPropertyFieldHtml"),
+			"GetPropertyFieldHtmlMulty" => array('CIBlockPropertyElementAutoComplete','GetPropertyFieldHtmlMulty'),
+			"GetAdminListViewHTML" => array("CIBlockPropertyElementAutoComplete","GetAdminListViewHTML"),
+			"GetPublicViewHTML" => array("CIBlockPropertyElementAutoComplete", "GetPublicViewHTML"),
+			"GetAdminFilterHTML" => array('CIBlockPropertyElementAutoComplete','GetAdminFilterHTML'),
+			"GetSettingsHTML" => array('CIBlockPropertyElementAutoComplete','GetSettingsHTML'),
+			"PrepareSettings" => array('CIBlockPropertyElementAutoComplete','PrepareSettings'),
+			"AddFilterFields" => array('CIBlockPropertyElementAutoComplete','AddFilterFields'),
+		);
+	}
+
+	function _SKU_GetUserTypeDescription()
+	{
+		return array(
+			"PROPERTY_TYPE" => "E",
+			"USER_TYPE" =>"SKU",
+			"DESCRIPTION" => GetMessage('IBLOCK_PROP_SKU_DESC'),
+			"GetPropertyFieldHtml" => array("CIBlockPropertySKU", "GetPropertyFieldHtml"),
+			"GetPublicViewHTML" => array("CIBlockPropertySKU", "GetPublicViewHTML"),
+			"GetAdminListViewHTML" => array("CIBlockPropertySKU","GetAdminListViewHTML"),
+			"GetAdminFilterHTML" => array('CIBlockPropertySKU','GetAdminFilterHTML'),
+			"GetSettingsHTML" => array('CIBlockPropertySKU','GetSettingsHTML'),
+			"PrepareSettings" => array('CIBlockPropertySKU','PrepareSettings'),
+			"AddFilterFields" => array('CIBlockPropertySKU','AddFilterFields'),
+			//"GetOffersFieldHtml" => array('CIBlockPropertySKU','GetOffersFieldHtml'),
+		);
 	}
 }
 ?>

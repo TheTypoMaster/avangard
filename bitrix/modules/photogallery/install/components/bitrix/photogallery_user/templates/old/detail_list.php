@@ -14,7 +14,7 @@
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage().($URL == "index" ? "" : "?");
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 /********************************************************************
 				/Input params
@@ -26,13 +26,13 @@
 	{
 		if (!empty($_REQUEST["SEF_APPLICATION_CUR_PAGE_URL"]))
 			$url = $_REQUEST["SEF_APPLICATION_CUR_PAGE_URL"];
-		else 
-			$url = $APPLICATION->GetCurPageParam("", array("photo_from", "photo_to", "group_photo", 
+		else
+			$url = $APPLICATION->GetCurPageParam("", array("photo_from", "photo_to", "group_photo",
 				"photo_filter_reset", "order", "mode"));
 		$url = str_replace(array("&group_photo=Y", "&amp;group_photo=Y"), "", $url);
 		LocalRedirect($url);
 	}
-	
+
 	$arResult["ORDER"] = array("date_create", "shows");
 	if ($arParams["USE_RATING"] == "Y")
 		$arResult["ORDER"][] = "rating";
@@ -43,7 +43,7 @@
 	$arResult["PERIOD_FROM"] = trim($_REQUEST["photo_from"]);
 	$arResult["PERIOD_TO"] = trim($_REQUEST["photo_to"]);
 	$arResult["GROUP_BY_DATE_CREATE"] = ($_REQUEST["group_photo"] == "Y" ? "Y" : "N");
-	
+
 	$arResult["MODE"] = ($_REQUEST["mode"] == "public" || $_REQUEST["mode"] == "active" ? $_REQUEST["mode"] : "simple");
 	$arResult["SHOW_FILTER"] = ((!empty($arResult["PERIOD_FROM"]) || !empty($arResult["PERIOD_TO"]) || $arResult["GROUP_BY_DATE_CREATE"] == "Y" ||
 		$arResult["MODE"] != "simple") ? "Y" : "N");
@@ -61,20 +61,20 @@ if (!$GLOBALS['USER']->IsAuthorized()):
 endif;
 ?>
 <div class="photo-controls photo-view only-on-main"><noindex>
-	<a rel="nofollow" href="<?=$GLOBALS['APPLICATION']->GetCurPageParam("&order=date_create", array("order"))?>" 
+	<a rel="nofollow" href="<?=$GLOBALS['APPLICATION']->GetCurPageParam("&order=date_create", array("order"))?>"
 		title="<?=GetMessage("P_PHOTO_SORT_ID_TITLE")?>" class="photo-view order-date-create<?=
 		($arResult["ORDER_BY"] == "date_create" ? " active" : "")?>"><?=GetMessage("P_PHOTO_SORT_ID")?></a>
-	<a rel="nofollow" href="<?=$GLOBALS['APPLICATION']->GetCurPageParam("&order=shows", array("order"))?>" 
+	<a rel="nofollow" href="<?=$GLOBALS['APPLICATION']->GetCurPageParam("&order=shows", array("order"))?>"
 		title="<?=GetMessage("P_PHOTO_SORT_SHOWS_TITLE")?>" class="photo-view order-shows<?=
 		($arResult["ORDER_BY"] == "shows" ? " active" : "")?>"><?=GetMessage("P_PHOTO_SORT_SHOWS")?></a>
 <?
 if (in_array("rating", $arResult["ORDER"])):
-?>	<a rel="nofollow" href="<?=$GLOBALS['APPLICATION']->GetCurPageParam("&order=rating", array("order"))?>" 
+?>	<a rel="nofollow" href="<?=$GLOBALS['APPLICATION']->GetCurPageParam("&order=rating", array("order"))?>"
 		title="<?=GetMessage("P_PHOTO_SORT_RATING_TITLE")?>" class="photo-view order-rating<?=
 		($arResult["ORDER_BY"] == "rating" ? " active" : "")?>"><?=GetMessage("P_PHOTO_SORT_RATING")?></a><?
 endif;
 if (in_array("comments", $arResult["ORDER"])):
-?>	<a rel="nofollow" href="<?=$GLOBALS['APPLICATION']->GetCurPageParam("&order=comments", array("order"))?>" 
+?>	<a rel="nofollow" href="<?=$GLOBALS['APPLICATION']->GetCurPageParam("&order=comments", array("order"))?>"
 		title="<?=GetMessage("P_PHOTO_SORT_COMMENTS_TITLE")?>" class="photo-view order-comments<?=
 		($arResult["ORDER_BY"] == "comments" ? " active" : "")?>"><?=GetMessage("P_PHOTO_SORT_COMMENTS")?></a><?
 endif;
@@ -86,7 +86,7 @@ endif;
 	<div id="photo-filter-switcher" class="<?=($arResult["SHOW_FILTER"] == "Y" ? "filter-opened" : "filter-closed")?>" <?
 		?>onclick="if(this.className=='filter-opened'){this.className='filter-closed';document.getElementById('photo-filter-container').style.display='none';document.getElementById('photo-filter-switcher-href').innerHTML='<?=CUtil::JSEscape(GetMessage("P_OPEN_FILTER"))?>';}else{this.className='filter-opened';document.getElementById('photo-filter-container').style.display='block';document.getElementById('photo-filter-switcher-href').innerHTML='<?=CUtil::JSEscape(GetMessage("P_CLOSE_FILTER"))?>';}"><a href="javascript:void(0);" id="photo-filter-switcher-href"><?=
 		($arResult["SHOW_FILTER"] == "Y" ? GetMessage("P_CLOSE_FILTER") : GetMessage("P_OPEN_FILTER"))?></a></div>
-	
+
 	<div id="photo-filter-container" style="display:<?=($arResult["SHOW_FILTER"] == "Y" ? "block" : "none")?>;">
 		<div class="photo-filter-fields">
 			<form action="" id="photo_filter_form" class="photo_form" method="get">
@@ -94,7 +94,7 @@ endif;
 				<input type="hidden" name="order" value="<?=$arResult["ORDER_BY"]?>" />
 				<div class="photo-filter-field photo-filter-field-period">
 					<label for="photo_from"><?=GetMessage("P_SELECT_PHOTO_FROM_PERIOD")?></label>
-					<?$APPLICATION->IncludeComponent("bitrix:main.calendar", ".default", 
+					<?$APPLICATION->IncludeComponent("bitrix:main.calendar", ".default",
 						Array(
 							"SHOW_INPUT"	=>	"Y",
 							"INPUT_NAME"	=>	"photo_from",
@@ -147,15 +147,15 @@ if ($arParams["PERMISSION"] >= "U" && $arResult["MODE"] == "public"):
 		$arFilter["PROPERTY_PUBLIC_ELEMENT"] = "Y";
 	endif;
 	$arFilter["PROPERTY_APPROVE_ELEMENT"] = "X";
-	
+
 elseif ($arParams["PERMISSION"] >= "U" && $arResult["MODE"] == "active"):
 
 	$arFilter["ACTIVE"] = "N";
-	
+
 elseif ($arParams["PERMISSION"] >= "U" && $arResult["MODE"] == "simple"):
 
 	$arFilter["ACTIVE"] = "Y";
-	
+
 elseif ($_REQUEST["AJAX_CALL"] == "Y"):
 	if ($arParams["SHOW_ONLY_PUBLIC"] == "Y"):
 		$arFilter["PROPERTY_PUBLIC_ELEMENT"] = "Y";
@@ -216,7 +216,7 @@ function to_show_pannel()
 		}catch(e){error = true;}
 	}
 	if (error || window.__photo_counter > 10) {
-//		document.getElementById('photogallery_hidden_actions').style.display = 'block'; 
+//		document.getElementById('photogallery_hidden_actions').style.display = 'block';
 		return false;}
 	setTimeout(to_show_pannel, 100);
 }
@@ -254,7 +254,7 @@ function act(action)
 		input.name = 'from_detail_list';
 		input.value = '<?=CUtil::JSEscape($APPLICATION->GetCurPageParam("", array("ACTION", "sessid", "edit", "photo_filter_submit")))?>';
 		form.appendChild(input);
-		form.elements['ACTION'].value = action; 
+		form.elements['ACTION'].value = action;
 		form.submit();
 	}
 	return false;
@@ -269,8 +269,8 @@ endif;
 
 ob_start();
 ?><?$APPLICATION->IncludeComponent(
-	"bitrix:photogallery.detail.list", 
-	($_REQUEST["AJAX_CALL"] == "Y" ? "ascetic" : $arParams["TEMPLATE_LIST"]), 
+	"bitrix:photogallery.detail.list",
+	($_REQUEST["AJAX_CALL"] == "Y" ? "ascetic" : $arParams["TEMPLATE_LIST"]),
 	Array(
 		"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
@@ -278,7 +278,7 @@ ob_start();
 		"SECTION_CODE" => "",
 		"USER_ALIAS" => "",
 		"BEHAVIOUR" => "USER",
-	
+
 		"ELEMENTS_LAST_COUNT" => "",
 		"ELEMENT_LAST_TYPE" => (!empty($arResult["PERIOD_FROM"]) || !empty($arResult["PERIOD_TO"]) ? "period" : ""),
 		"ELEMENTS_LAST_TIME_FROM"	=>	$arResult["PERIOD_FROM"],
@@ -293,35 +293,35 @@ ob_start();
 		"DETAIL_SLIDE_SHOW_URL"	=>	$arResult["URL_TEMPLATES"]["detail_slide_show"],
 		"DETAIL_URL"	=>	$arResult["URL_TEMPLATES"]["detail"],
 		"SEARCH_URL"	=>	$arResult["URL_TEMPLATES"]["search"],
-		
+
 		"USE_PERMISSIONS" => $arParams["USE_PERMISSIONS"],
 		"GROUP_PERMISSIONS" => $arParams["GROUP_PERMISSIONS"],
-		
+
 		"USE_DESC_PAGE"	=>	$arParams["ELEMENTS_USE_DESC_PAGE"],
 		"PAGE_ELEMENTS"	=>	($_REQUEST["AJAX_CALL"] == "Y" ? "10" : $arParams["ELEMENTS_PAGE_ELEMENTS"]),
 		"PAGE_NAVIGATION_TEMPLATE" => $arParams["PAGE_NAVIGATION_TEMPLATE"],
-		
- 		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
+
+		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
 		"COMMENTS_TYPE" => $arParams["COMMENTS_TYPE"],
-		
+
 		"ADDITIONAL_SIGHTS" => $arParams["~ADDITIONAL_SIGHTS"],
 		"PICTURES_SIGHT"	=>	"standart",
 		"GALLERY_SIZE" => $arParams["GALLERY_SIZE"],
 		"GET_GALLERY_INFO" => "Y",
 		"SHOW_PHOTO_USER" => $arParams["SHOW_PHOTO_USER"],
 		"GALLERY_AVATAR_SIZE" => $arParams["GALLERY_AVATAR_SIZE"],
-		
+
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"SET_TITLE" => $arParams["SET_TITLE"],
-		
+
 		"THUMBS_SIZE"	=>	$arParams["THUMBS_SIZE"],
 		"SHOW_PAGE_NAVIGATION"	=>	($_REQUEST["AJAX_CALL"] == "Y" ? "none" : "bottom"),
-		
+
 		"SHOW_CONTROLS"	=>	"N",
 		"SHOW_INPUTS" => ($arParams["PERMISSION"] >= "U" && ($arResult["MODE"] == "public" || $arResult["MODE"] == "active")),
 		"CELL_COUNT"	=>	$arParams["CELL_COUNT"],
-		
+
 		"SHOW_TAGS" => $arParams["SHOW_TAGS"],
 		"SHOW_RATING" => $arParams["USE_RATING"],
 		"SHOW_COMMENTS" => $arParams["USE_COMMENTS"],
@@ -329,7 +329,7 @@ ob_start();
 		"SHOW_DATE" => $arResult["GROUP_BY_DATE_CREATE"],
 		"NEW_DATE_TIME_FORMAT" => (empty($arParams["DATE_FORMAT"]) ? $arParams["DATE_TIME_FORMAT_DETAIL"] : $arParams["DATE_FORMAT"]),
 		"SET_STATUS_404" => "N",
-		
+
 		"MAX_VOTE" => $arParams["MAX_VOTE"],
 		"VOTE_NAMES" => $arParams["VOTE_NAMES"],
 		"DISPLAY_AS_RATING" => $arParams["DISPLAY_AS_RATING"]

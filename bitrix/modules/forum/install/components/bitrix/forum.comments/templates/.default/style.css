@@ -54,12 +54,12 @@ div.comments-post-table .comment-post-info, div.comments-post-table div.comment-
 div.comments-post-table .comment-post-info, div.comments-post-table div.comment-content div.comments-message-img { padding-top: 1em; }
 div.comments-post-table .comment-post-info .message-post-date { font-size: 0.85em; }
 div.comments-post-table .comment-post-info .comment-avatar {
-    background-color: #ECEAEC;
-    border: 1px solid #C4C4C4;
-    float: left;
-    height: 30px;
-    margin-right: 0.5em;
-    width: 30px;
+	background-color: #ECEAEC;
+	border: 1px solid #C4C4C4;
+	float: left;
+	height: 30px;
+	margin-right: 0.5em;
+	width: 30px;
 }
 div.comments-post-table .comment-post-info .review-rating { float: right; }
 div.comments-post-table .comment-post-info .review-rating .rating-vote { line-height: 24px; }
@@ -152,7 +152,7 @@ div.comments-reply-field-user {width: 100%; }
 div.comments-reply-field-author, div.comments-reply-field-email { float:left; width:39%; }
 div.comments-reply-field-user-sep { width:2%; float: left;}
 div.comments-reply-field-author input, div.comments-reply-field-email input { width:100%; }
-div.comments-reply-field-captcha input { width: 180px;}*/
+div.comments-reply-field-captcha input { width: 180px;}
 div.comments-reply-field-settings input, div.comments-uploaded-file input { width:1.55em; height:1.55em; margin:0 0 0 -0.25em; vertical-align: middle; font-size:1em; }
 div.comments-reply-field-settings label, div.comments-uploaded-file a { vertical-align: middle; }
 div.comments-reply-field-upload a { outline: none;}
@@ -194,14 +194,14 @@ form.comments-form {
 }
 
 div.comments-text table.forum-quote {
-    background: url("images/font_quote.gif") no-repeat scroll left top #F8F2D4;
-    border-color: #EEE9CC;
-    color: #4A483F;
+	background: url("images/font_quote.gif") no-repeat scroll left top #F8F2D4;
+	border-color: #EEE9CC;
+	color: #4A483F;
 }
 div.comments-text table.forum-quote thead { display: none; }
 div.comments-text table.forum-code thead { display: table-cell; }
 div.comments-text table.forum-quote, div.comments-text table.forum-spoiler, div.comments-text table.forum-code, div.comments-text div.forum-code-box {
-    border: 1px solid #dddddd;
+	border: 1px solid #dddddd;
 	padding: 3px;
 	width: 100%;
 	table-layout:fixed;
@@ -211,7 +211,7 @@ div.comments-text table.forum-code pre {
 	overflow:auto;
 }
 div.comments-text table.forum-quote td, div.comments-text table.forum-spoiler td, div.comments-text table.forum-code td,div.comments-text  div.forum-code-box ol {
-    color: #696969;
+	color: #696969;
 }
 div.comments-text table.forum-quote th, div.comments-text table.forum-spoiler th, div.comments-text table.forum-code th, div.comments-text div.forum-code-box {
 	font-weight:bold;
@@ -224,8 +224,8 @@ div.comments-text table.forum-code td, div.comments-text div.forum-code-box td{
 }
 div.comments-collapse { width:100%; }
 div.comments-collapse a {
-    line-height: 55px;
-    margin-right: 30px;
+	line-height: 55px;
+	margin-right: 30px;
 	/*padding: 0.462em;*/
 }
 div.comments-expanded {
@@ -247,17 +247,17 @@ div.comments-reply-field  td.lhe-resize-row img {height: 0px !important; border-
 div.comments-post-entry table.forum-quote thead { display: none; }
 div.comments-post-entry table.forum-code thead { display: table-cell; }
 div.comments-post-entry table.forum-quote {
-    background: url("images/font_quote.gif") no-repeat scroll left top #F8F2D4;
-    border-color: #EEE9CC;
-    color: #4A483F;
+	background: url("images/font_quote.gif") no-repeat scroll left top #F8F2D4;
+	border-color: #EEE9CC;
+	color: #4A483F;
 }
 div.comments-post-entry table.forum-quote, div.comments-post-entry table.forum-spoiler, div.comments-post-entry table.forum-code, div.comments-post-entry div.forum-code-box {
-    border: 1px solid #dddddd;
+	border: 1px solid #dddddd;
 	padding: 3px;
 	width: 100%;
 }
 div.comments-post-entry table.forum-quote td, div.comments-post-entry table.forum-spoiler td, div.comments-post-entry table.forum-code td, div.comments-post-entry  div.forum-code-box ol {
-    color: #696969;
+	color: #696969;
 }
 div.comments-post-entry table.forum-quote th, div.comments-post-entry table.forum-spoiler th, div.comments-post-entry table.forum-code th, div.comments-post-entry div.forum-code-box {
 	font-weight:bold;
@@ -265,13 +265,13 @@ div.comments-post-entry table.forum-quote th, div.comments-post-entry table.foru
 	color: #888;
 }
 div.forum-popup-image div.empty {
-    background-image: url("images/close.gif");
-    background-position: center center;
-    background-repeat: no-repeat;
-    cursor: pointer;
-    height: 14px;
-    margin: 0;
-    width: 14px;
+	background-image: url("images/close.gif");
+	background-position: center center;
+	background-repeat: no-repeat;
+	cursor: pointer;
+	height: 14px;
+	margin: 0;
+	width: 14px;
 }
 .comments-reply-form textarea.post_message {
 	height: 80px;
@@ -290,39 +290,39 @@ a.postFormAutosave {
 .forum-notify-bar {
 	width: 100%;
 	height: 2em;
-	background: url("/bitrix/js/main/core/images/panel/sprite03.png") repeat-x scroll 0 -1178px #FFEB8D !important;
+	background: url("/bitrix/js/main/core/images/panel/sprite04.png") repeat-x scroll 0 -1178px #FFEB8D !important;
 	position:relative;
 }
 .forum-notify-close {
-    display: block !important;
-    height: 12px !important;
-    margin: 3px 6px 0 0;
-    padding: 0 !important;
-    position: absolute !important;
-    right: 5px !important;
-    top: 5px !important;
-    width: 12px !important;
+	display: block !important;
+	height: 12px !important;
+	margin: 3px 6px 0 0;
+	padding: 0 !important;
+	position: absolute !important;
+	right: 5px !important;
+	top: 5px !important;
+	width: 12px !important;
 }
 .forum-notify-close a {
-    background: url("/bitrix/js/main/core/images/panel/sprite03.png") no-repeat scroll -268px -243px transparent !important;
-    display: block !important;
-    height: 12px !important;
-    width: 12px !important;
+	background: url("/bitrix/js/main/core/images/panel/sprite04.png") no-repeat scroll -268px -243px transparent !important;
+	display: block !important;
+	height: 12px !important;
+	width: 12px !important;
 	cursor:pointer;
 }
 .forum-notify-text {
-    color: #000000 !important;
-    margin: 0 !important;
-    padding: 3px 20px 5px !important;
-    text-align: center !important;
+	color: #000000 !important;
+	margin: 0 !important;
+	padding: 3px 20px 5px !important;
+	text-align: center !important;
 }
 .forum-notify-text a.postFormAutorestore {
 	position:relative;
-    color: #ff0000;
+	color: #ff0000;
 	cursor:pointer;
 	text-decoration:underline;
-    margin-right: 9px;
-    margin-top: 5px;
+	margin-right: 9px;
+	margin-top: 5px;
 	z-index:2;
 }
 .comments-post-reply-buttons .bx-rating span, .comments-post-reply-buttons .bx-rating a {  font-size: 11px;}

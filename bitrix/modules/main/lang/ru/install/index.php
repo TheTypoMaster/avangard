@@ -3,7 +3,7 @@ $MESS["MAIN_ADMIN_GROUP_NAME"] = "Администраторы";
 $MESS["MAIN_ADMIN_GROUP_DESC"] = "Полный доступ к управлению сайтом.";
 $MESS["MAIN_EVERYONE_GROUP_NAME"] = "Все пользователи (в том числе неавторизованные)";
 $MESS["MAIN_EVERYONE_GROUP_DESC"] = "Все пользователи, включая неавторизованных.";
-$MESS["MAIN_VOTE_RATING_GROUP_NAME"] = "Пользователи имеющие право голосовать за рейтинг";
+$MESS["MAIN_VOTE_RATING_GROUP_NAME"] = "Пользователи, имеющие право голосовать за рейтинг";
 $MESS["MAIN_VOTE_RATING_GROUP_DESC"] = "В эту группу пользователи добавляются автоматически.";
 $MESS["MAIN_VOTE_AUTHORITY_GROUP_NAME"] = "Пользователи имеющие право голосовать за авторитет";
 $MESS["MAIN_VOTE_AUTHORITY_GROUP_DESC"] = "В эту группу пользователи добавляются автоматически.";
@@ -21,9 +21,11 @@ $MESS["MAIN_DEFAULT_SITE_NAME"] = "Сайт по умолчанию";
 $MESS["MAIN_DEFAULT_LANGUAGE_NAME"] = "Russian";
 $MESS["MAIN_DEFAULT_LANGUAGE_FORMAT_DATE"] = "DD.MM.YYYY";
 $MESS["MAIN_DEFAULT_LANGUAGE_FORMAT_DATETIME"] = "DD.MM.YYYY HH:MI:SS";
+$MESS["MAIN_DEFAULT_LANGUAGE_FORMAT_NAME"] = "#NAME# #LAST_NAME#";
 $MESS["MAIN_DEFAULT_LANGUAGE_FORMAT_CHARSET"] = "windows-1251";
 $MESS["MAIN_DEFAULT_SITE_FORMAT_DATE"] = "DD.MM.YYYY";
 $MESS["MAIN_DEFAULT_SITE_FORMAT_DATETIME"] = "DD.MM.YYYY HH:MI:SS";
+$MESS["MAIN_DEFAULT_SITE_FORMAT_NAME"] = "#NAME# #LAST_NAME#";
 $MESS["MAIN_DEFAULT_SITE_FORMAT_CHARSET"] = "windows-1251";
 $MESS["MAIN_MODULE_NAME"] = "Главный модуль";
 $MESS["MAIN_MODULE_DESC"] = "Ядро системы";
@@ -101,7 +103,7 @@ $MESS["MAIN_USER_INFO_EVENT_DESC"] = "Информационное сообщение сайта #SITE_NAME#
 Ваша регистрационная информация:
 
 ID пользователя: #USER_ID#
-Статус бюджета: #STATUS#
+Статус профиля: #STATUS#
 Login: #LOGIN#
 
 Вы можете изменить пароль, перейдя по следующей ссылке:
@@ -120,7 +122,7 @@ http://#SERVER_NAME#/auth/index.php?change_password=yes&lang=ru&USER_CHECKWORD=#
 Ваша регистрационная информация:
 
 ID пользователя: #USER_ID#
-Статус бюджета: #STATUS#
+Статус профиля: #STATUS#
 Login: #LOGIN#
 
 Сообщение сгенерировано автоматически.";
@@ -133,7 +135,7 @@ $MESS["MAIN_USER_PASS_CHANGED_EVENT_DESC"] = "Информационное сообщение сайта #SI
 Ваша регистрационная информация:
 
 ID пользователя: #USER_ID#
-Статус бюджета: #STATUS#
+Статус профиля: #STATUS#
 Login: #LOGIN#
 
 Сообщение сгенерировано автоматически.";
@@ -153,7 +155,7 @@ http://#SERVER_NAME#/auth/index.php?confirm_registration=yes&confirm_user_id=#US
 Вы также можете ввести код для подтверждения регистрации на странице:
 http://#SERVER_NAME#/auth/index.php?confirm_registration=yes&confirm_user_id=#USER_ID#
 
-Внимание! Ваш бюджет не будет активным, пока вы не подтвердите свою регистрацию.
+Внимание! Ваш профиль не будет активным, пока вы не подтвердите свою регистрацию.
 
 ---------------------------------------------------------------------
 

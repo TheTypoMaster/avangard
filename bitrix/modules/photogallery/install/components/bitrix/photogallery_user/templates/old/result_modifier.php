@@ -12,22 +12,24 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_REQUEST["from_detail_list"]
 		foreach ($_REQUEST["items"] as $item):
 			$db_res = CIBlockElement::GetList(array(), array("IBLOCK_ID" => $arParams["IBLOCK_ID"], "ID" => $item), false, false, 
 				array("ID", "ACTIVE", "IBLOCK_SECTION_ID", "PROPERTY_REAL_PICTURE"));
-			if (!($db_res && $res = $db_res->Fetch())):
+			if (!($db_res && $res = $db_res->Fetch()))
 				continue;
-			endif;
 
 			if ($_REQUEST["ACTION"] == "approve" || $_REQUEST["ACTION"] == "not_approve")
 			{
-				if ($_REQUEST["ACTION"] == "approve"):
+				if ($_REQUEST["ACTION"] == "approve")
+				{
 					CIBlockElement::SetPropertyValues($item, $arParams["IBLOCK_ID"], "Y", "APPROVE_ELEMENT");
 					CIBlockElement::SetPropertyValues($item, $arParams["IBLOCK_ID"], "Y", "PUBLIC_ELEMENT");
-				else:
+				}
+				else
+				{
 					CIBlockElement::SetPropertyValues($item, $arParams["IBLOCK_ID"], "N", "APPROVE_ELEMENT");
-				endif;
-				if ($res["ACTIVE"] != "Y"):
+				}
+				if ($res["ACTIVE"] != "Y")
 					$_REQUEST["ACTION"] = "active";
-				endif;
-				PClearComponentCache(array("photogallery.detail.list", "photogallery.detail", "photogallery.detail.comment"));
+
+				PClearComponentCacheEx($arParams["IBLOCK_ID"], array($res["IBLOCK_SECTION_ID"]));
 			}
 			
 			if ($_REQUEST["ACTION"] == "active" || $_REQUEST["ACTION"] == "drop")
@@ -76,17 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_REQUEST["from_detail_list"]
 					$bs = new CIBlockSection;
 					$bs->Update($gallery["ID"], $arFields, false, false);
 				endif;
-				PClearComponentCache(array(
-					"search.page",
-					"search.tags.cloud", 
-					"photogallery.detail", 
-					"photogallery.detail.comment", 
-					"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/0", 
-					"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/".$res["ID"], 
-					"photogallery.section/".$arParams["IBLOCK_ID"]."/section".$res["ID"], 
-					"photogallery.section/".$arParams["IBLOCK_ID"]."/section".$res["IBLOCK_SECTION_ID"], 
-					"photogallery.section.list/".$arParams["IBLOCK_ID"]."/sections0", 
-					"photogallery.section.list/".$arParams["IBLOCK_ID"]."/sections".$res["IBLOCK_SECTION_ID"]));
+				PClearComponentCacheEx($arParams["IBLOCK_ID"], array($res["ID"], $res["IBLOCK_SECTION_ID"]));
 			}
 		endforeach;
 		LocalRedirect($_REQUEST["from_detail_list"]);

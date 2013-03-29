@@ -242,3 +242,4 @@ function dw_getLayerOffset(el, oCont, sOff) {
     if ( el[clientOff] ) val += el[clientOff];
     return val;
 }
+;   

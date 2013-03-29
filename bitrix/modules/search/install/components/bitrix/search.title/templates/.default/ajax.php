@@ -31,5 +31,5 @@ if(!empty($arResult["CATEGORIES"])):?>
 		</tr>
 	</table><div class="title-search-fader"></div>
 <?endif;
-//echo "<pre>",htmlspecialchars(print_r($arResult,1)),"</pre>";
+//echo "<pre>",htmlspecialcharsbx(print_r($arResult,1)),"</pre>";
 ?>

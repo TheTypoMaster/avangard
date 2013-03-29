@@ -262,7 +262,7 @@ $oFilter->Begin();
 <tr>
 	<td><b><?=GetMessage("MAIN_AGENT_FLT_SEARCH")?></b></td>
 	<td nowrap>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("MAIN_AGENT_FLT_SEARCH_TITLE")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("MAIN_AGENT_FLT_SEARCH_TITLE")?>">
 		<select name="find_type">
 			<option value="id"<?if($find_type=="id") echo " selected"?>><?=GetMessage("MAIN_AGENT_FLT_ID")?></option>
 			<option value="module_id"<?if($find_type=="module_id") echo " selected"?>><?=GetMessage("MAIN_AGENT_FLT_MODULE_ID")?></option>
@@ -272,42 +272,42 @@ $oFilter->Begin();
 	</td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_AGENT_FLT_ID")?></td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>"></td>
+	<td><?echo GetMessage("MAIN_AGENT_FLT_ID")?>:</td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_AGENT_FLT_MODULE_ID")?></td>
-	<td><input type="text" name="find_module_id" size="47" value="<?echo htmlspecialchars($find_module_id)?>"></td>
+	<td><?echo GetMessage("MAIN_AGENT_FLT_MODULE_ID")?>:</td>
+	<td><input type="text" name="find_module_id" size="47" value="<?echo htmlspecialcharsbx($find_module_id)?>"></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_AGENT_FLT_USER_ID")?></td>
-	<td><input type="text" name="find_user_id" size="47" value="<?echo htmlspecialchars($find_user_id)?>"></td>
+	<td><?echo GetMessage("MAIN_AGENT_FLT_USER_ID")?>:</td>
+	<td><input type="text" name="find_user_id" size="47" value="<?echo htmlspecialcharsbx($find_user_id)?>"></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_AGENT_FLT_NAME")?></td>
-	<td><input type="text" name="find_name" size="47" value="<?echo htmlspecialchars($find_name)?>"></td>
+	<td><?echo GetMessage("MAIN_AGENT_FLT_NAME")?>:</td>
+	<td><input type="text" name="find_name" size="47" value="<?echo htmlspecialcharsbx($find_name)?>"></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_AGENT_FLT_ACTIVE")?></td>
+	<td><?echo GetMessage("MAIN_AGENT_FLT_ACTIVE")?>:</td>
 	<td><?
 		$arr = array("reference"=>array(GetMessage("MAIN_YES"), GetMessage("MAIN_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_active", $arr, htmlspecialchars($find_active), GetMessage('MAIN_ALL'));
+		echo SelectBoxFromArray("find_active", $arr, htmlspecialcharsbx($find_active), GetMessage('MAIN_ALL'));
 		?>
 	</td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_AGENT_FLT_LAST_EXEC")." (".CLang::GetDateFormat("SHORT")."):"?></td>
-	<td><?echo CalendarDate("find_last_exec", htmlspecialchars($find_last_exec), "find_form")?></td>
+	<td><?echo GetMessage("MAIN_AGENT_FLT_LAST_EXEC")?>:</td>
+	<td><?echo CalendarDate("find_last_exec", htmlspecialcharsbx($find_last_exec), "find_form")?></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_AGENT_FLT_NEXT_EXEC")." (".CLang::GetDateFormat("SHORT")."):"?></td>
-	<td><?echo CalendarDate("find_next_exec", htmlspecialchars($find_next_exec), "find_form")?></td>
+	<td><?echo GetMessage("MAIN_AGENT_FLT_NEXT_EXEC")?>:</td>
+	<td><?echo CalendarDate("find_next_exec", htmlspecialcharsbx($find_next_exec), "find_form")?></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_AGENT_FLT_IS_PERIOD")?></td>
+	<td><?echo GetMessage("MAIN_AGENT_FLT_IS_PERIOD")?>:</td>
 	<td><?
 		$arr = array("reference"=>array(GetMessage("MAIN_YES"), GetMessage("MAIN_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_is_period", $arr, htmlspecialchars($find_is_period), GetMessage('MAIN_ALL'));
+		echo SelectBoxFromArray("find_is_period", $arr, htmlspecialcharsbx($find_is_period), GetMessage('MAIN_ALL'));
 		?>
 	</td>
 </tr>

@@ -143,20 +143,17 @@ $arPlan = false;
 $cData = new CPerfomanceSQL;
 $rsSQL = $cData->GetList(array("ID", "SQL_TEXT"), array("=ID" => $ID), array(), false);
 $arSQL = $rsSQL->Fetch();
-if($arSQL && preg_match("#^\s*(SELECT|DELETE)\s+#i", $arSQL["SQL_TEXT"]))
-{
-	if(preg_match("#^\s*DELETE\s+#i", $arSQL["SQL_TEXT"]))
-		$strSQL = preg_replace("#^\s*(DELETE.*?FROM)#is", "select * from", $arSQL["SQL_TEXT"]);
-	else
-		$strSQL = $arSQL["SQL_TEXT"];
 
+$strSQL = CPerfQuery::transform2select($arSQL["SQL_TEXT"]);
+if($strSQL)
+{
 	if($DBType == "mysql")
 	{
-		$rsData = $DB->Query("explain ".$strSQL);
+		$rsData = $DB->Query("explain ".$strSQL, true);
 	}
 	elseif($DBType == "oracle")
 	{
-		$rsData = $DB->Query("explain plan for ".$strSQL);
+		$rsData = $DB->Query("explain plan for ".$strSQL, true);
 		if($rsData)
 		{
 			$rsData = $DB->Query("select * from plan_table order by ID");
@@ -187,7 +184,7 @@ if($rsData)
 		echo "<p>".str_replace(
 			array(" ", "\n"),
 			array(" &nbsp;", "<br>"),
-			htmlspecialchars($SQL_TEXT)
+			htmlspecialcharsbx($SQL_TEXT)
 		)."</p>";
 	}
 	if($arPlan["OPTIMIZER"])
@@ -210,7 +207,6 @@ else
 }
 
 $Comment = "";
-
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 

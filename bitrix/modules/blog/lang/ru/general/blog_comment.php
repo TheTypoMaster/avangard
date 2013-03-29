@@ -14,4 +14,5 @@ $MESS["BLG_GCM_EMPTY_TITLE"] = "Не указан заголовок комментария";
 $MESS["BLG_GCM_RSS_TITLE"] = "Комментарии в блоге \"#BLOG_NAME#\" на \"#POST_TITLE#\"";
 $MESS["BLG_GCM_COMMENT_TITLE"] = "Комментарии на \"#POST_TITLE#\" от #COMMENT_AUTHOR#";
 $MESS["BLG_SONET_COMMENT_TITLE"] = "добавил(а) комментарий к сообщению \"#TITLE#\" в блоге";
+$MESS["BLG_GCM_RSS_TITLE_SOCNET"] = "#AUTHOR_NAME#: комментарии к сообщению \"#POST_TITLE#\"";
 ?>

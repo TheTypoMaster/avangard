@@ -176,11 +176,11 @@ $tabControl->Begin();
 
 $tabControl->BeginNextTab();
 ?>
-	<tr valign="top">
-		<td width="40%"><span class="required">*</span><?echo GetMessage("MAIN_TEMPLATE_LOAD_FILE")?></td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?echo GetMessage("MAIN_TEMPLATE_LOAD_FILE")?></td>
 		<td width="60%"><input type="file" size="35" name="tpath_file" onChange="NewFileName(this)"></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td></td>
 		<td><?
 echo BeginNote();
@@ -191,15 +191,15 @@ else
 echo EndNote();
 ?></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("MAIN_TEMPLATE_LOAD_ID")?></td>
 		<td><input type="text" name="ID" Id="ID" size="20" maxlength="255" value="<? echo $str_ID?>"></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("MAIN_TEMPLATE_LOAD_SITE_ID")?></td>
 		<td><?=CSite::SelectBox("SITE_ID", $str_SITE_ID, GetMessage("MAIN_TEMPLATE_LOAD_SITE_ID_N"))?></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("MAIN_TEMPLATE_LOAD_GOTO_EDIT")?></td>
 		<td><input type="checkbox" name="goto_edit" value="Y"></td>
 	</tr>
@@ -207,14 +207,10 @@ echo EndNote();
 $tabControl->Buttons();
 ?>
 	<input type="hidden" name="action" value="import">
-	<input <?if(!$isAdmin) echo "disabled" ?> type="submit" name="import" value="<?echo GetMessage("MAIN_TEMPLATE_LOAD_SUBMIT")?>">
+	<input <?if(!$isAdmin) echo "disabled" ?> type="submit" name="import" value="<?echo GetMessage("MAIN_TEMPLATE_LOAD_SUBMIT")?>" class="adm-btn-save">
 <?
 $tabControl->End();
 ?>
 </form>
-
-<?echo BeginNote();?>
-<span class="required">*</span> <?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote();?>
 
 <?require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");?>

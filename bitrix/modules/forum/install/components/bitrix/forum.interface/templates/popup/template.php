@@ -1,5 +1,5 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-$GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/js/main/utils.js"></script>', true);
+$GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/main/utils.js");
 $arParams["RETURN"] = ($arParams["RETURN"] == "Y" ? "Y" : "N");
 if (!empty($arResult["data"])):
 ?><script type="text/javascript">

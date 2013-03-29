@@ -7,7 +7,6 @@ $MESS["F_DEFAULT_TID"] = "Topic ID";
 $MESS["F_DEFAULT_MID"] = "Message ID";
 $MESS["F_DEFAULT_PAGE_NAME"] = "Caller component ID";
 $MESS["F_LIST_TEMPLATE"] = "Topics List page";
-$MESS["F_SMILE_TABLE_COLS"] = "Smileys per row";
 $MESS["F_MESSAGE_TEMPLATE"] = "Message view page";
 $MESS["F_RULES_TEMPLATE"] = "Forum rules page";
 $MESS["F_HELP_TEMPLATE"] = "Forums Help page";

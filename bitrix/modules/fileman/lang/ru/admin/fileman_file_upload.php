@@ -1,6 +1,6 @@
 <?
-$MESS ['FILEMAN_FILEUPLOAD_NAME'] = "Имя файла:";
-$MESS ['FILEMAN_FILEUPLOAD_FILE'] = "Файл для загрузки:";
+$MESS ['FILEMAN_FILEUPLOAD_NAME'] = "Имя файла";
+$MESS ['FILEMAN_FILEUPLOAD_FILE'] = "Файл для загрузки";
 $MESS ['FILEMAN_FILEUPLOAD_UPLOAD'] = "Загрузить файлы";
 $MESS ['FILEMAN_FILEUPLOAD_ACCESS_DENIED'] = "Недостаточно прав для создания файла";
 $MESS ['FILEMAN_FILEUPLOAD_SIZE_ERROR'] = "Превышен максимальный допустимый размер для загружаемого файла: \"#FILE_NAME#\"";

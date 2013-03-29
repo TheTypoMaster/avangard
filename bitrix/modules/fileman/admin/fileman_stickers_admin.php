@@ -2,8 +2,6 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/prolog.php");
 
-?><script type="text/javascript" src="/bitrix/js/fileman/medialib/core_admin.js"></script><?
-
 IncludeModuleLangFile(__FILE__);
 CModule::IncludeModule("fileman");
 
@@ -75,7 +73,7 @@ foreach ($arGroups as $group)
 ?>
 
 <form method="POST" action="<?= $APPLICATION->GetCurPage()?>?lang=<?= LANGUAGE_ID?>" name="st_access_form">
-<input type="hidden" name="site" value="<?= htmlspecialchars($site) ?>">
+<input type="hidden" name="site" value="<?= htmlspecialcharsbx($site) ?>">
 <input type="hidden" name="saveperm" value="Y">
 <input type="hidden" id="bxst_clear_all" name="clear_all" value="N">
 <input type="hidden" name="lang" value="<?= LANGUAGE_ID?>">
@@ -95,34 +93,34 @@ $tabControl->Begin();
 <?$tabControl->BeginNextTab();?>
 <tr>
 	<td colspan="2">
-		<table class="edit-table">
+		<table>
 		<tr>
-			<td class="field-name" width="50%">
+			<td class="adm-detail-content-cell-l" width="40%">
 				<input type="checkbox" name="set_hide_bottom" id="set_hide_bottom" value="Y" <? if (COption::GetOptionString("fileman", "stickers_hide_bottom", "Y") == "Y") {echo "checked";}?>/>
 			</td>
-			<td width="50%"><label for="set_hide_bottom"><?= GetMessage('FM_ST_SET_HIDE_BOTTOM')?></label></td>
+			<td class="adm-detail-content-cell-r" width="60%"><label for="set_hide_bottom"><?= GetMessage('FM_ST_SET_HIDE_BOTTOM')?></label></td>
 		</tr>
 		<tr style="display: none;">
-			<td class="field-name" width="50%">
+			<td class="adm-detail-content-cell-l">
 				<input type="checkbox" name="set_supafly" id="set_supafly" value="Y"/>
 			</td>
-			<td width="50%"><label for="set_supafly"><?= GetMessage('FM_ST_SET_SUPAFLY')?></label></td>
+			<td class="adm-detail-content-cell-r"><label for="set_supafly"><?= GetMessage('FM_ST_SET_SUPAFLY')?></label></td>
 		</tr>
 		<tr style="display: none;">
-			<td class="field-name" width="50%">
+			<td class="adm-detail-content-cell-l">
 				<input type="checkbox" name="set_smart_marker" id="set_smart_marker" value="Y" />
 			</td>
-			<td width="50%"><label for="set_smart_marker"><?= GetMessage('FM_ST_SET_SMART_MARKER')?></label></td>
+			<td class="adm-detail-content-cell-r"><label for="set_smart_marker"><?= GetMessage('FM_ST_SET_SMART_MARKER')?></label></td>
 		</tr>
 		<tr>
-			<td class="field-name" width="50%">
+			<td class="adm-detail-content-cell-l">
 				<input type="checkbox" name="use_hotkeys" id="use_hotkeys" value="Y" <?if(COption::GetOptionString("fileman", "stickers_use_hotkeys", "Y") == "Y"){echo "checked";}?>/>
 			</td>
-			<td width="50%"><label for="use_hotkeys"><?= GetMessage('FM_ST_USE_HOTKEYS')?></label></td>
+			<td class="adm-detail-content-cell-r"><label for="use_hotkeys"><?= GetMessage('FM_ST_USE_HOTKEYS')?></label></td>
 		</tr>
 		<tr>
-			<td class="field-name" width="50%"><label for="set_sizes"><?= GetMessage('FM_ST_SET_SIZES')?>:</label></td>
-			<td  width="50%">
+			<td class="adm-detail-content-cell-l"><label for="set_sizes"><?= GetMessage('FM_ST_SET_SIZES')?>:</label></td>
+			<td class="adm-detail-content-cell-r">
 				<?$size = COption::GetOptionString("fileman", "stickers_start_sizes", "350_200");?>
 				<select name="set_sizes" id="set_sizes">
 					<option value="280_160" <? if ($size == "280_160") {echo "selected";}?>>280 x 160</option>
@@ -133,7 +131,7 @@ $tabControl->Begin();
 		</tr>
 
 		<tr>
-			<td colSpan="2">
+			<td colSpan="2" class="adm-detail-content-cell-r">
 				<a href="javascript: void('');" onclick="if (confirm('<?= GetMessage('FM_ST_CLEAR_ALL_CONFIRM');?>')) {BX('bxst_clear_all').value='Y'; document.forms.st_access_form.submit(); return false;}"><?= GetMessage('FM_ST_CLEAR_ALL');?></a>
 			</td>
 		</tr>

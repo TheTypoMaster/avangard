@@ -77,7 +77,7 @@ class CAllSiteMap extends CDBResult
 			$SERVER_NAME = trim($arSite["SERVER_NAME"]);
 			if(strlen($SERVER_NAME) <= 0)
 			{
-				$this->m_error=GetMessage("SEARCH_ERROR_SERVER_NAME", array("#SITE_ID#" => '<a href="site_edit.php?LID='.urlencode($site_id).'&lang='.urlencode(LANGUAGE_ID).'">'.htmlspecialchars($site_id).'</a>'))."<br>";
+				$this->m_error=GetMessage("SEARCH_ERROR_SERVER_NAME", array("#SITE_ID#" => '<a href="site_edit.php?LID='.urlencode($site_id).'&lang='.urlencode(LANGUAGE_ID).'">'.htmlspecialcharsbx($site_id).'</a>'))."<br>";
 				return false;
 			}
 			//Cache events

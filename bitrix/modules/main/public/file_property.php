@@ -39,7 +39,7 @@ $absoluteFilePath = $documentRoot.$path;
 
 //Check permissions
 if (!$io->FileExists($absoluteFilePath) && !$io->DirectoryExists($absoluteFilePath))
-	$popupWindow->ShowError(GetMessage("PAGE_PROP_FILE_NOT_FOUND")." (".htmlspecialchars($path).")");
+	$popupWindow->ShowError(GetMessage("PAGE_PROP_FILE_NOT_FOUND")." (".htmlspecialcharsbx($path).")");
 elseif (!$USER->CanDoFileOperation('fm_edit_existent_file',Array($site, $path)))
 	$popupWindow->ShowError(GetMessage("PAGE_PROP_ACCESS_DENIED"));
 
@@ -181,7 +181,7 @@ if ($strWarning != "")
 	$popupWindow->ShowValidationError($strWarning);
 ?>
 
-<p><?=GetMessage("PAGE_PROP_WINDOW_TITLE")?> <b><?=htmlspecialchars($path)?></b></p>
+<p><?=GetMessage("PAGE_PROP_WINDOW_TITLE")?> <b><?=htmlspecialcharsbx($path)?></b></p>
 
 <?if (IsModuleInstalled("fileman")):?>
 	<p><a href="/bitrix/admin/fileman_html_edit.php?lang=<?=urlencode($lang)?>&site=<?=urlencode($site)?>&path=<?=urlencode($path)?>&back_url=<?=urlencode($back_url)?>"><?=GetMessage("PAGE_PROP_EDIT_IN_ADMIN")?></a></p>

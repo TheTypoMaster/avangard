@@ -16,7 +16,7 @@ var bxForm_<?=$arParams["FORM_ID"]?> = null;
 <form name="form_<?=$arParams["FORM_ID"]?>" id="form_<?=$arParams["FORM_ID"]?>" action="<?=POST_FORM_ACTION_URI?>" method="POST" enctype="multipart/form-data">
 
 <?=bitrix_sessid_post();?>
-<input type="hidden" id="<?=$arParams["FORM_ID"]?>_active_tab" name="<?=$arParams["FORM_ID"]?>_active_tab" value="<?=htmlspecialchars($arResult["SELECTED_TAB"])?>">
+<input type="hidden" id="<?=$arParams["FORM_ID"]?>_active_tab" name="<?=$arParams["FORM_ID"]?>_active_tab" value="<?=htmlspecialcharsbx($arResult["SELECTED_TAB"])?>">
 <?endif?>
 			<table cellspacing="0" class="bx-edit-tabs" width="100%">
 				<tr>
@@ -26,11 +26,11 @@ $nTabs = count($arResult["TABS"]);
 foreach($arResult["TABS"] as $tab):
 	$bSelected = ($tab["id"] == $arResult["SELECTED_TAB"]);
 ?>
-					<td title="<?=htmlspecialchars($tab["title"])?>" id="tab_cont_<?=$tab["id"]?>" class="bx-tab-container<?=($bSelected? "-selected":"")?>" onclick="bxForm_<?=$arParams["FORM_ID"]?>.SelectTab('<?=$tab["id"]?>');" onmouseover="if(bxForm_<?=$arParams["FORM_ID"]?>){bxForm_<?=$arParams["FORM_ID"]?>.HoverTab('<?=$tab["id"]?>', true);}" onmouseout="if(bxForm_<?=$arParams["FORM_ID"]?>){bxForm_<?=$arParams["FORM_ID"]?>.HoverTab('<?=$tab["id"]?>', false);}">
+					<td title="<?=htmlspecialcharsbx($tab["title"])?>" id="tab_cont_<?=$tab["id"]?>" class="bx-tab-container<?=($bSelected? "-selected":"")?>" onclick="bxForm_<?=$arParams["FORM_ID"]?>.SelectTab('<?=$tab["id"]?>');" onmouseover="if(bxForm_<?=$arParams["FORM_ID"]?>){bxForm_<?=$arParams["FORM_ID"]?>.HoverTab('<?=$tab["id"]?>', true);}" onmouseout="if(bxForm_<?=$arParams["FORM_ID"]?>){bxForm_<?=$arParams["FORM_ID"]?>.HoverTab('<?=$tab["id"]?>', false);}">
 						<table cellspacing="0">
 							<tr>
 								<td class="bx-tab-left<?=($bSelected? "-selected":"")?>" id="tab_left_<?=$tab["id"]?>"><div class="empty"></div></td>
-								<td class="bx-tab<?=($bSelected? "-selected":"")?>" id="tab_<?=$tab["id"]?>"><?=htmlspecialchars($tab["name"])?></td>
+								<td class="bx-tab<?=($bSelected? "-selected":"")?>" id="tab_<?=$tab["id"]?>"><?=htmlspecialcharsbx($tab["name"])?></td>
 								<td class="bx-tab-right<?=($bSelected? "-selected":"")?>" id="tab_right_<?=$tab["id"]?>"><div class="empty"></div></td>
 							</tr>
 						</table>
@@ -38,13 +38,13 @@ foreach($arResult["TABS"] as $tab):
 <?
 endforeach;
 ?>
-					<td width="100%"<?if($USER->IsAuthorized() && $arParams["SHOW_SETTINGS"] == true):?> ondblclick="bxForm_<?=$arParams["FORM_ID"]?>.ShowSettings()"<?endif?>>
-<a href="javascript:void(0)" onclick="bxForm_<?=$arParams["FORM_ID"]?>.menu.ShowMenu(this, bxForm_<?=$arParams["FORM_ID"]?>.settingsMenu);" title="<?echo GetMessage("interface_form_settings")?>" class="bx-context-button bx-form-menu"><span></span></a>
+					<td width="100%"<?if($USER->IsAuthorized() && $arParams["SHOW_SETTINGS"] == true):?> ondblclick="bxForm_<?=$arParams["FORM_ID"]?>.ShowSettings()"<?endif?> style="white-space:nowrap; text-align:right">
 <?
 if(count($arResult["TABS"]) > 1 && $arParams["CAN_EXPAND_TABS"] == true):
 ?>
 <a href="javascript:void(0)" onclick="bxForm_<?=$arParams["FORM_ID"]?>.ToggleTabs();" title="<?echo GetMessage("interface_form_show_all")?>" id="bxForm_<?=$arParams["FORM_ID"]?>_expand_link" class="bx-context-button bx-down"><span></span></a>
 <?endif?>
+<a href="javascript:void(0)" onclick="bxForm_<?=$arParams["FORM_ID"]?>.menu.ShowMenu(this, bxForm_<?=$arParams["FORM_ID"]?>.settingsMenu);" title="<?echo GetMessage("interface_form_settings")?>" class="bx-context-button bx-form-menu"><span></span></a>
 					</td>
 				</tr>
 			</table>
@@ -64,18 +64,18 @@ foreach($arResult["TABS"] as $tab):
 	<?
 		if($tab["icon"] <> ""):
 	?>
-			<td class="bx-icon"><div class="<?=htmlspecialchars($tab["icon"])?>"></div></td>
+			<td class="bx-icon"><div class="<?=htmlspecialcharsbx($tab["icon"])?>"></div></td>
 	<?
 		endif
 	?>
-			<td class="bx-form-title"><?=htmlspecialchars($tab["title"])?></td>
+			<td class="bx-form-title"><?=htmlspecialcharsbx($tab["title"])?></td>
 		</tr>
 	</table>
 	</div>
 <?endif;?>
 
 <div class="bx-edit-table">
-<table cellpadding="0" cellspacing="0" border="0" class="bx-edit-table" id="<?=$tab["id"]?>_edit_table">
+<table cellpadding="0" cellspacing="0" border="0" class="bx-edit-table <?=(isset($tab["class"]) ? $tab['class'] : '')?>" id="<?=$tab["id"]?>_edit_table">
 <?
 $i = 0;
 $cnt = count($tab["fields"]);
@@ -97,7 +97,7 @@ foreach($tab["fields"] as $field):
 <?
 if($field["type"] == 'section'):
 ?>
-		<td colspan="2" class="bx-heading"><?=htmlspecialchars($field["name"])?></td>
+		<td colspan="2" class="bx-heading"><?=htmlspecialcharsbx($field["name"])?></td>
 <?
 else:
 	$val = (isset($field["value"])? $field["value"] : $arParams["~DATA"][$field["id"]]);
@@ -122,7 +122,7 @@ else:
 		if($field["params"]["size"] == '')
 			$field["params"]["size"] = "10";
 	}
-	
+
 	$params = '';
 	if(is_array($field["params"]) && $field["type"] <> 'file')
 	{
@@ -165,7 +165,7 @@ else:
 					$val = array($val);
 				foreach($field["items"] as $k=>$v):
 ?>
-	<option value="<?=htmlspecialchars($k)?>"<?=(in_array($k, $val)? ' selected':'')?>><?=htmlspecialchars($v)?></option>
+	<option value="<?=htmlspecialcharsbx($k)?>"<?=(in_array($k, $val)? ' selected':'')?>><?=htmlspecialcharsbx($v)?></option>
 <?
 				endforeach;
 ?>
@@ -178,7 +178,7 @@ else:
 			foreach($arDefParams as $k=>$v)
 				if(!array_key_exists($k, $field["params"]))
 					$field["params"][$k] = $v;
-	
+
 			echo CFile::InputFile($field["id"], $field["params"]["size"], $val);
 			if($val <> '')
 				echo '<br>'.CFile::ShowImage($val, $field["params"]["iMaxW"], $field["params"]["iMaxH"], $field["params"]["sParams"], $field["params"]["strImageUrl"], $field["params"]["bPopup"], $field["params"]["sPopupTitle"]);
@@ -194,6 +194,7 @@ else:
 		"INPUT_NAME"=>$field["id"],
 		"INPUT_VALUE"=>$val,
 		"INPUT_ADDITIONAL_ATTR"=>$params,
+		"SHOW_TIME" => 'Y',
 	),
 	$component,
 	array("HIDE_ICONS"=>true)
@@ -234,7 +235,7 @@ if(isset($arParams["BUTTONS"])):
 	<?endif?>
 	<input type="submit" name="apply" value="<?echo GetMessage("interface_form_apply")?>" title="<?echo GetMessage("interface_form_apply_title")?>" />
 	<?if($arParams["BUTTONS"]["back_url"] <> ''):?>
-	<input type="button" value="<?echo GetMessage("interface_form_cancel")?>" name="cancel" onclick="window.location='<?=htmlspecialchars(CUtil::addslashes($arParams["~BUTTONS"]["back_url"]))?>'" title="<?echo GetMessage("interface_form_cancel_title")?>" />
+	<input type="button" value="<?echo GetMessage("interface_form_cancel")?>" name="cancel" onclick="window.location='<?=htmlspecialcharsbx(CUtil::addslashes($arParams["~BUTTONS"]["back_url"]))?>'" title="<?echo GetMessage("interface_form_cancel_title")?>" />
 	<?endif?>
 <?endif?>
 <?=$arParams["~BUTTONS"]["custom_html"]?>
@@ -358,10 +359,9 @@ bxForm_<?=$arParams["FORM_ID"]?>.settingsMenu = [
 <?else:?>
 	{'TEXT': '<?=CUtil::JSEscape(GetMessage("intarface_form_mnu_off"))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("intarface_form_mnu_off_title"))?>', 'ONCLICK': 'bxForm_<?=$arParams["FORM_ID"]?>.EnableSettings(false)', 'DISABLED':<?=($USER->IsAuthorized()? 'false':'true')?>, 'ICONCLASS':'form-settings-off'},
 <?endif;?>
-	{'SEPARATOR':true},
 <?endif?>
 <?endif?>
-	{'TEXT': '<?=CUtil::JSEscape(GetMessage("interface_form_colors"))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("interface_form_colors_title"))?>', 'MENU':[
+	{'TEXT': '<?=CUtil::JSEscape(GetMessage("interface_form_colors"))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("interface_form_colors_title"))?>', 'CLASS': 'bx-grid-themes-menu-item', 'MENU':[
 <?
 $i = 0;
 foreach($arThemes as $theme):

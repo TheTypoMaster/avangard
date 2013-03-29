@@ -1,6 +1,6 @@
 function BXFMSearch(Params)
 {
-	this.bInited = this.Init(Params);
+	this.Init(Params);
 }
 
 BXFMSearch.prototype = {
@@ -52,8 +52,7 @@ BXFMSearch.prototype = {
 		this.pSearchSubdir.onclick =
 		this.pSearchDirsToo.onclick =
 		this.pSearchEntire.onclick =
-		this.pSearchCase.onclick =
-			function(e){_this.SaveConfig();};
+		this.pSearchCase.onclick = function(){_this.SaveConfig();};
 
 		this.pAddLink.onclick = function(e)
 		{
@@ -79,7 +78,6 @@ BXFMSearch.prototype = {
 				var
 					D1 = new Date(),
 					oDate = new Date(),
-					date = oDate.getDate(),
 					month = oDate.getMonth(),
 					year = oDate.getFullYear(),
 					hours = oDate.getHours(),
@@ -140,7 +138,7 @@ BXFMSearch.prototype = {
 				_this.pSearchSizeFrom.value = "500";
 				_this.pSearchSizeTo.value = "";
 			}
-		}
+		};
 
 		this.pInRes.onclick = function()
 		{
@@ -183,7 +181,8 @@ BXFMSearch.prototype = {
 
 		// Clean old enties in search result table
 		this.Request('clean_old', {}, false, false);
-		return true;
+
+		this.bInited = true;
 	},
 
 	OnOpen: function(Params)
@@ -251,6 +250,9 @@ BXFMSearch.prototype = {
 		if (!e)
 			e = window.event;
 
+		if (window.oBXFileDialog && window.oBXFileDialog.bOpened)
+			return;
+
 		if (oSearchDialog.isOpen && e.keyCode == 13)
 			return this.Search();
 	},
@@ -261,7 +263,7 @@ BXFMSearch.prototype = {
 			_this = this,
 			postParams = this.GetPostParams();
 
-		var onResult = function(result)
+		var onResult = function()
 		{
 			if (!_this.oCountResDialog.isOpen)
 				return;
@@ -366,7 +368,7 @@ BXFMSearch.prototype = {
 			_this = this,
 			postParams = this.GetPostParams();
 
-		var onResult = function(result)
+		var onResult = function()
 		{
 			if (!_this.oSearchResDialog.isOpen || _this.bSearchDenied)
 				return;
@@ -443,8 +445,14 @@ BXFMSearch.prototype = {
 				_this.oSearchResIntCount = 0;
 
 				// Disable "Stop search" button cause it already finished
-				_this.oSearchResDialog.PARAMS.buttons[1].disable();
+				//_this.oSearchResDialog.PARAMS.buttons[1].disable();
+
+				var stopButton = BX("stop");
+				if(stopButton)
+					stopButton.disabled = true;
+
 				BX.removeClass(_this.pSearchResDiv, 'bxfm-wait');
+				_this.oSearchResDialog.PARAMS.buttons[0].enable();
 				_this.oSearchResDialog.SetTitle(FM_MESS.SearchEnded);
 			}
 
@@ -493,6 +501,7 @@ BXFMSearch.prototype = {
 								_this.xhr.abort();
 
 							BX.removeClass(_this.pSearchResDiv, 'bxfm-wait');
+							_this.oSearchResDialog.PARAMS.buttons[0].enable();
 							_this.oSearchResDialog.SetTitle(FM_MESS.SearchEnded);
 						}
 					}),
@@ -578,23 +587,17 @@ BXFMSearch.prototype = {
 		BX.addCustomEvent(this.oSearchResDialog, 'onWindowResizeExt', function(oSize)
 		{
 			var
-				w = oSize.width - 22,
-				h = oSize.height - 48;
+				w = oSize.width - 35;
+
+
 
 			if (BX.browser.IsIE())
 			{
 				w -= 5;
-				h -= 1;
 			}
-
-			if (_this.pSearchPhrase.value != "")
-				h -= 15;
 
 			if (w > 0)
 				_this.pSearchRes.style.width = w + "px";
-
-			if (h > 0)
-				_this.pSearchRes.style.height = h + "px";
 		});
 	},
 
@@ -680,8 +683,14 @@ BXFMSearch.prototype = {
 				_this.oReplResIntCount = 0;
 
 				// Disable "Stop replace" button cause it already finished
-				_this.oReplaceResDialog.PARAMS.buttons[1].disable();
+				//_this.oReplaceResDialog.PARAMS.buttons[1].disable();
+
+				var stopButton = BX("stop");
+				if(stopButton)
+					stopButton.disabled = true;
+
 				BX.removeClass(_this.pReplResDiv, 'bxfm-wait');
+				_this.oReplaceResDialog.PARAMS.buttons[0].enable();
 				_this.oReplaceResDialog.SetTitle(FM_MESS.ReplEnded);
 			}
 
@@ -730,6 +739,7 @@ BXFMSearch.prototype = {
 								_this.replace_xhr.abort();
 
 							BX.removeClass(_this.pReplResDiv, 'bxfm-wait');
+							_this.oReplaceResDialog.PARAMS.buttons[0].enable();
 							_this.oReplaceResDialog.SetTitle(FM_MESS.ReplEnded);
 						}
 					}),
@@ -810,10 +820,8 @@ BXFMSearch.prototype = {
 		BX.addCustomEvent(this.oReplaceResDialog, 'onWindowResizeExt', function(oSize)
 		{
 			var
-				w = oSize.width - 21,
-				h = oSize.height - 62;
+				w = oSize.width - 35;
 			_this.pReplRes.style.width = w + "px";
-			_this.pReplRes.style.height = h + "px";
 		});
 	},
 
@@ -939,11 +947,6 @@ BXFMSearch.prototype = {
 				dirs_too: this.pSearchDirsToo.checked ? 1 : 0
 			},
 		false, false);
-	},
-
-	SavePrintedPath: function(path)
-	{
-
 	}
 };
 
@@ -952,7 +955,7 @@ function BXFMServerPerm(Params)
 	this.Params = Params;
 	this.Params.bWindows = false;
 	this.Init();
-};
+}
 
 BXFMServerPerm.prototype = {
 	Init: function()
@@ -1010,12 +1013,11 @@ BXFMServerPerm.prototype = {
 		this.pResVal = BX('bxsp_res_value');
 
 		this.pResVal.onblur = BX.proxy(this.SetValue2Checkboxes, this);
-		var _this = this;
 		this.pResVal.onkeyup = function()
 		{
 			if (this.value.length >= 3)
 				_this.SetValue2Checkboxes();
-		}
+		};
 
 		for (i = 0; i < 3; i++)
 		{
@@ -1056,7 +1058,7 @@ BXFMServerPerm.prototype = {
 	SetValue2Checkboxes: function()
 	{
 		var
-			i, k, val, resVal2 = '',
+			i, k, val, resVal2 = '',binVal,
 			resVal = this.pResVal.value || '';
 
 		if (resVal.length != 3)
@@ -1145,7 +1147,7 @@ BXFMServerPerm.prototype = {
 				return;
 
 			var
-				i, l = window.spResult.length, r, c, el, bHandeled,
+				i, l = window.spResult.length, r, c, el, bHandeled, valHtml,
 				pRow, pStatusCell, pNextRow, newRowIndex, pNewRow, pNameCell,
 				j, itemPath, n = _this.Params.arFiles.length;
 
@@ -1220,9 +1222,8 @@ BXFMServerPerm.prototype = {
 
 function BXFMCopy(Params)
 {
-	//this.Params = Params;
-	this.bInited = this.Init(Params);
-};
+	this.Init(Params);
+}
 
 BXFMCopy.prototype = {
 	Init: function(Params)
@@ -1232,8 +1233,8 @@ BXFMCopy.prototype = {
 
 		this.oCopyDialog = Params.oCopyDialog;
 		BX.addClass(this.oCopyDialog.PARTS.CONTENT, "bx-fm-copy-dialog");
-		BX.cleanNode(this.oCopyDialog.PARTS.CONTENT);
-		this.oCopyDialog.PARTS.CONTENT.appendChild(BX('bx_copy_dialog'));
+		BX.cleanNode(this.oCopyDialog.PARTS.CONTENT_DATA);
+		this.oCopyDialog.PARTS.CONTENT_DATA.appendChild(BX('bx_copy_dialog'));
 		this.arLastPathes = Params.arLastPathes;
 
 		var _this = this;
@@ -1253,7 +1254,7 @@ BXFMCopy.prototype = {
 			if (this.checked)
 				_this.caseOption = this.value;
 			_this.SaveConfig();
-		}
+		};
 
 		this.lang = Params.lang;
 		this.site = Params.site;
@@ -1275,7 +1276,7 @@ BXFMCopy.prototype = {
 			Items: this.arLastPathes
 		});
 
-		this.pAddLink.onclick = function(e)
+		this.pAddLink.onclick = function()
 		{
 			var
 				cn = 'bx-copy-cont-tbl-add-hide',
@@ -1324,12 +1325,11 @@ BXFMCopy.prototype = {
 
 		BX.addCustomEvent(this.oCopyDialog, 'onWindowUnRegister', BX.proxy(this.OnClose, this));
 
-		return true;
+		this.bInited = true;
 	},
 
 	OnOpen: function(Params)
 	{
-		var _this = this;
 		this.bCopy = Params.bCopy;
 		this.arFiles = [];
 		this.curPath = Params.path;
@@ -1354,7 +1354,7 @@ BXFMCopy.prototype = {
 
 		// Clean filelist
 		BX.cleanNode(this.pFilelist);
-		var path, i, l = this.arFiles.length;
+		var i, l = this.arFiles.length;
 
 		for (i = 0; i < l; i++)
 		{
@@ -1386,6 +1386,9 @@ BXFMCopy.prototype = {
 		if (!e)
 			e = window.event;
 
+		if (window.oBXFileDialog && window.oBXFileDialog.bOpened)
+			return;
+
 		if (this.oCopyDialog.isOpen && e.keyCode == 13 && (!this.oAskUserDialog || !this.oAskUserDialog.isOpen))
 			return this.Process();
 	},
@@ -1394,7 +1397,7 @@ BXFMCopy.prototype = {
 	{
 		var
 			_this = this,
-			action = this.bCopy ? 'copy' : 'move'
+			action = this.bCopy ? 'copy' : 'move',
 			postParams = {
 				case_option: this.caseOption,
 				files: this.arFiles,
@@ -1451,6 +1454,7 @@ BXFMCopy.prototype = {
 						_this.oCopyDialog.Close();
 					}
 				}
+
 			};
 
 		if (Params)
@@ -1485,7 +1489,7 @@ BXFMCopy.prototype = {
 	GetViewUrl: function(path)
 	{
 		var
-			name = this.GetFileName(path)
+			name = this.GetFileName(path),
 			bDir = name.indexOf(".") === -1;
 
 		return (bDir ? this.viewFolderPath : this.viewFilePath).replace('#PATH#', BX.util.urlencode(path));
@@ -1532,7 +1536,7 @@ BXFMCopy.prototype = {
 				title : "",
 				content: "&nbsp;",
 				height: 240,
-				width: 500,
+				width: 600,
 				resizable: false
 			});
 
@@ -1541,6 +1545,7 @@ BXFMCopy.prototype = {
 				{
 					title: FM_MESS.Replace,
 					name: 'replace',
+					id: 'ask_replace',
 					action: function(){_this.UserAnswer('replace');}
 				}),
 				new BX.CWindowButton(
@@ -1570,6 +1575,8 @@ BXFMCopy.prototype = {
 
 				_this.pAskToAllCont = pAskPialog.appendChild(BX.create("DIV", {props: {className: "bx-copy-to-all" }, html: "<table><tr><td><input type='checkbox' id='bx_copy_ask_to_all'></td><td><label  for='bx_copy_ask_to_all'>" + FM_MESS.ToAll + "</label></td></tr></table>"}));
 				_this.oAskUserDialog.adjustSizeEx();
+
+				BX.adminPanel.modifyFormElements(pAskPialog);
 			}, 50);
 
 			this.pAskFileName = BX("bx_copy_ask_file_name");
@@ -1597,6 +1604,7 @@ BXFMCopy.prototype = {
 			{
 				_this.oCopyTo.bDenyOpenPopup = false;
 			});
+
 		}
 
 		this.oAskUserDialog.Show();
@@ -1607,10 +1615,13 @@ BXFMCopy.prototype = {
 
 		this.oAskUserDialog.SetTitle(Params.fileNew.bDir ? FM_MESS.FolderExistTitle : FM_MESS.FileExistTitle);
 		// Copy to the same directory - disable "Replace" button
-		if (this.curPath.replace(/[\s\r\n\/]+$/g, '') == this.pCopyTo.value.replace(/[\s\r\n\/]+$/g, ''))
-			this.oAskUserDialog.PARAMS.buttons[0].disable();
+
+		var replaceButton = BX("ask_replace");
+
+		if (this.curPath.replace(/[\s\r\n\/]+$/g, '') == this.pCopyTo.value.replace(/[\s\r\n\/]+$/g, '') && replaceButton)
+			replaceButton.disabled = true;
 		else
-			this.oAskUserDialog.PARAMS.buttons[0].enable();
+			replaceButton.disabled = false;
 
 		if (this.arFiles.length <= 1) // Hide skip button
 			this.oAskUserDialog.PARAMS.buttons[1].btn.style.display = "none";
@@ -1687,7 +1698,7 @@ BXFMCopy.prototype = {
 			}
 		}, 100);
 	}
-}
+};
 
 var BXFMInpSel = function(Params)
 {
@@ -1729,7 +1740,7 @@ var BXFMInpSel = function(Params)
 		return BX.PreventDefault(e);
 	};
 
-	this.pInput.onfocus = function(e)
+	this.pInput.onfocus = function()
 	{
 		if (this.value == _this.NoValueMess)
 		{
@@ -1764,7 +1775,658 @@ var BXFMInpSel = function(Params)
 			return _this.CheckValue(true);
 	};
 	this.pInput.onkeydown = function(e){return _this.OnKeyDown(e);};
+};
+
+function BXFMPack(Params)
+{
+	this.Init(Params);
 }
+
+BXFMPack.prototype =
+{
+	Init: function(Params)
+	{
+		if (this.bInited)
+			return true;
+
+		this.oPackDialog = Params.oPackDialog;
+		BX.addClass(this.oPackDialog.PARTS.CONTENT, "bx-fm-pack-dialog");
+		BX.cleanNode(this.oPackDialog.PARTS.CONTENT_DATA);
+		this.oPackDialog.PARTS.CONTENT_DATA.appendChild(BX('bx_pack_dialog'));
+		this.arLastPathes = Params.arLastPathes;
+
+		this.pPackCancel = BX("cancel-pack");
+		this.pPackCancel.onclick = function()
+		{
+			if (_this.bPacking)
+			{
+				_this.oPackDialog.SetTitle(FM_MESS.PackFinishing);
+				_this.bStopPacking = true;
+
+				//if 'replace' dialog was shown, simply close the form
+				if (_this.Params && _this.Params.fileOld)
+				{
+					_this.Params.fileOld = null;
+					_this.bPacking = false;
+					_this.oPackDialog.Close();
+				}
+			}
+			else
+			{
+				_this.oPackDialog.Close();
+			}
+		};
+
+		var _this = this;
+		this.pCopyTbl = BX('bx_pack_table');
+		this.pFilelist = BX('bx_pack_file_list');
+
+		this.pPackTo = BX('bx_pack_to');
+
+		// Case options
+		this.pCaseReplace = BX("bx_pack_replace");
+		this.pCaseSkip = BX("bx_pack_skip");
+
+		this.pCaseReplace.onclick = this.pCaseSkip.onclick = function()
+		{
+			if (this.checked)
+				_this.caseOption = this.value;
+		};
+
+		this.lang = Params.lang;
+		this.site = Params.site;
+		this.sessid_get = Params.sessid_get;
+		BX('bx_pack_dialog').style.display = "block";
+
+		this.viewFilePath = Params.viewFilePath;
+		this.viewFolderPath = Params.viewFolderPath;
+
+		//archive type selector
+		this.oArcTypeSel = new BXFMArcTypeSel({
+				id: 'arc_type_pack',
+				pDiv: BX('bx_pack_arc_type'),
+				types: Params.arTypes,
+				bPack: true,
+				typeChangeCallback: function(newtype) {_this.ChangeType(newtype)}
+		});
+
+		this.oPackTo = new BXFMInpSel({
+			id: 'cm_pack_to',
+			pInput : this.pPackTo,
+			Items: this.arLastPathes
+		});
+
+		this.caseOption = 'skip';
+		BX.removeClass(_this.pCopyTbl, 'bx-pack-cont-tbl-add-hide');
+
+		switch(this.caseOption)
+		{
+			case "replace":
+				this.pCaseReplace.checked = true;
+				break;
+			case "skip":
+				this.pCaseSkip.checked = true;
+				break;
+		}
+
+		BX.addCustomEvent(this.oPackDialog, 'onWindowUnRegister', BX.proxy(this.OnClose, this));
+
+		this.pCaseSkip = BX("bx_pack_skip");
+		this.pCaseReplace.onclick = this.pCaseSkip.onclick = function()
+		{
+			if (this.checked)
+				_this.caseOption = this.value;
+		};
+
+		BX.addCustomEvent(this.oPackDialog, 'onBeforeWindowClose', function(){
+
+			_this.oPackDialog.denyClose = false;
+
+			if (_this.bPacking)
+			{
+				if (!_this.forceClose)
+				{
+					_this.oPackDialog.SetTitle(FM_MESS.PackFinishing);
+					_this.bStopPacking = true;
+
+					//if we tried to rename file...
+					if (_this.Params && _this.Params.fileOld)
+						_this.Params.fileOld = null;
+					else
+						_this.oPackDialog.denyClose = true;
+				}
+			}
+
+		});
+
+		this.bInited = true;
+	},
+
+	OnOpen: function(Params)
+	{
+		this.bPack = Params.bPack;
+		this.arFiles = [];
+		this.curPath = Params.path;
+		this.bStopPacking = false;
+		this.bPacking = false;
+		this.forceClose = false;
+
+		this.bSearch = !!Params.bSearch;
+		this.searchSess = Params.ssess;
+
+		if (typeof Params.arFiles == 'object')
+			this.arFiles = Params.arFiles;
+
+		//cancel button
+		var cancelBut = this.oPackDialog.PARAMS.buttons[1];
+		cancelBut.btn.value = FM_MESS.PackCancel;
+
+		clearInterval(this.counterID);
+
+		//generate name where to pack or unpack (/test/test.tar.gz or /test/)
+		this.pPackTo.value = this.GeneratePath(this.bPack, this.arFiles, "." + this.oArcTypeSel.value.toLowerCase());
+
+		var oBut = this.oPackDialog.PARAMS.buttons[0];
+		if (this.bPack)
+		{
+			this.oPackDialog.SetTitle(FM_MESS.PackTitle);
+			oBut.btn.value = oBut.title = FM_MESS.Pack;
+
+			//when showing the pack dialog - make archive type selector clickable again
+			if (this.oArcTypeSel.arcTypes.length == 1)
+			{
+				BX.addClass(this.oArcTypeSel.pDiv,"bx-fm-non-selectable");
+				BX.unbindAll(this.oArcTypeSel.pDiv);
+			}
+			else
+			{
+				BX.removeClass(this.oArcTypeSel.pDiv,"bx-fm-non-selectable");
+				BX.bind(this.oArcTypeSel.pDiv, "click", BX.proxy(this.oArcTypeSel.ShowPopup, this.oArcTypeSel));
+			}
+
+			BX('bxfm-arctype-line').style.display = "table-row";
+
+			//rewriting options: set default value and hide unnecessary choices
+			BX('bxfm-pack-option-replace').style.display = "none";
+			BX('bxfm-pack-option-skip').style.display = "none";
+			BX('bx-pack-d-title-label').style.display = "none";
+			this.pCaseSkip.checked = true;
+			this.caseOption = "ask";
+		}
+		else
+		{
+			this.oPackDialog.SetTitle(FM_MESS.UnpackTitle);
+			oBut.btn.value = oBut.title = FM_MESS.Unpack;
+
+			BX('bxfm-arctype-line').style.display = "none";
+
+			//remove unnecessary rewriting options
+			BX('bx-pack-d-title-label').style.display = "table-row";
+			BX('bxfm-pack-option-skip').style.display = "table-row";
+			BX('bxfm-pack-option-replace').style.display = "table-row";
+			this.pCaseSkip.checked = true;
+			this.caseOption = "skip";
+		}
+		//set 'Archive' button active
+		BX('ok-pack').disabled = false;
+
+		// Clean filelist
+		BX.cleanNode(this.pFilelist);
+		var i, l = this.arFiles.length;
+
+		for (i = 0; i < l; i++)
+		{
+			this.pFilelist.appendChild(BX.create("A", {props: {href: this.GetViewUrl(this.arFiles[i]), target: '_blank'}, text: this.GetFileName(this.arFiles[i])}));
+
+			if (i == 1 && l > 3)
+			{
+				this.pFilelist.appendChild(document.createTextNode(" (" + FM_MESS.More.replace("#COUNT#", parseInt(l - i - 1)) + ")"));
+				break;
+			}
+			else if (i < l - 1)
+			{
+				this.pFilelist.appendChild(document.createTextNode(", "));
+			}
+		}
+
+		this.oPackDialog.adjustSizeEx();
+
+		BX.bind(BX.browser.IsIE() ? document.body : window, "keydown", BX.proxy(this.OnKeyDown, this));
+	},
+
+	OnClose: function()
+	{
+		clearInterval(this.counterID);
+		BX.unbind(BX.browser.IsIE() ? document.body : window, "keydown", BX.proxy(this.OnKeyDown, this));
+	},
+
+	OnKeyDown: function(e)
+	{
+		if (!e)
+			e = window.event;
+
+		if (window.oBXFileDialog && window.oBXFileDialog.bOpened)
+			return;
+
+		if (this.oPackDialog.isOpen && e.keyCode == 13 && (!this.oAskUserDialog || !this.oAskUserDialog.isOpen))
+			return this.Process();
+	},
+
+	Process: function(Params)
+	{
+		var bPackReplace = null;
+
+		if (Params)
+		{
+			switch(Params.userCase)
+			{
+				case "rename":
+					var tmpName = this.GetFolderPath(this.pPackTo.value);
+					this.pPackTo.value = tmpName + Params.newName;
+					break;
+				case "replace":
+					bPackReplace = "replace";
+					break;
+			}
+		}
+
+		var
+			_this = this,
+			action = this.bPack ? 'pack' : 'unpack',
+			postParams =
+			{
+				case_option: this.caseOption,
+				files: this.arFiles,
+				packTo: this.pPackTo.value,
+				startFile: '',
+				quickPath: BX('quick_path').value,
+				arcType: this.oArcTypeSel.value,
+				bPackReplace: bPackReplace
+			};
+
+			//stop progress bar
+			if (this.counterID)
+				clearInterval(this.counterID);
+
+			//disable archive button
+			BX('ok-pack').disabled = true;
+
+			//progress bar blinking ... notification
+			this.counterID = setInterval(function()
+			{
+				if ((_this.oPackDialog.PARAMS.title.split('.').length - 1) < 3)
+				{
+					this.oPackDialog.SetTitle(_this.oPackDialog.PARAMS.title + ' .');
+				}
+				else
+				{
+					this.oPackDialog.SetTitle(_this.oPackDialog.PARAMS.title.split(' .')[0]);
+				}
+			}, 500);
+
+			var onResult = function()
+			{
+				if (!_this.oPackDialog.isOpen)
+					return;
+
+				if (_this.bStopPacking)
+				{
+					if (!window.BXFM_archiveExists)
+					{
+						var fileID = _this.GetFileName(postParams.packTo),
+							filePath = _this.GetFolderPath(postParams.packTo),
+							deleteFileUrl = "/bitrix/admin/fileman_admin.php?action=delete&ID="
+							 + fileID + "&path=" + filePath + "&" + _this.sessid_get + "&lang=" + _this.lang + "&site=" + _this.site;
+
+						_this.bStopPacking = false;
+						tbl_fileman_admin.GetAdminList(deleteFileUrl, function(){
+							_this.forceClose = true;
+							_this.oPackDialog.Close();
+						}
+						);
+						return;
+					}
+					else
+					{
+						_this.forceClose = true;
+						_this.oPackDialog.Close();
+						return;
+					}
+				}
+
+				if (window.BXFM_archivePermsError)
+				{
+					alert(FM_MESS.PackPermsError);
+					BX('ok-pack').disabled = false;
+					window.BXFM_archivePermsError = null;
+					_this.oPackDialog.Close();
+				}
+				else if (window.BXFM_archiveExists)
+				{
+					_this.ShowAskUserDialog(window.BXFM_archiveExists);
+					window.BXFM_archiveExists = null;
+					//set Archive button as active again
+					BX('ok-pack').disabled = false;
+				}
+				else if (window.BXFM_archiveFNameError)
+				{
+					alert(FM_MESS.PackFNameError);
+					BX('ok-pack').disabled = false;
+					window.BXFM_archiveFNameError = null;
+					_this.forceClose = true;
+					_this.oPackDialog.Close();
+				}
+				else
+				{
+					switch(action)
+					{
+						case "pack":
+							if (window.fmPackTimeout)
+							{
+								postParams.startFile = window.fmPackLastFile;
+							}
+							else
+							{
+								//successfull packing
+								if (window.fmPackSuccess)
+								{
+									_this.forceClose = true;
+									_this.oPackDialog.Close();
+
+									var redirectPath = _this.GetFolderPath(postParams.packTo);
+									window.location = _this.viewFolderPath.replace('#PATH#', redirectPath);
+
+									return;
+								}
+								else
+								{
+									if (window.fmPackErrors)
+										alert(FM_MESS.PackError + ": " + window.fmPackErrors);
+									else
+										alert(FM_MESS.PackError);
+									BX.closeWait();
+									_this.forceClose = true;
+									_this.oPackDialog.Close();
+									return;
+								}
+							}
+							/*
+							possible: update progress bar
+							_this.pDiv.innerHTML = window.fmPackLastFile;
+							Current path: /bigfile/bigfile.flv
+							*/
+						break;
+						case "unpack":
+							//successful unpacking
+							if (window.fmUnpackSuccess)
+							{
+								_this.forceClose = true;
+								_this.oPackDialog.Close();
+								window.location = _this.viewFolderPath.replace('#PATH#', postParams.packTo);
+								return;
+							}
+							else
+							{
+								if (window.fmUnpackErrors)
+									alert(FM_MESS.UnpackError + ": " + window.fmUnpackErrors);
+								else
+									alert(FM_MESS.UnpackError);
+								BX.closeWait();
+								_this.forceClose = true;
+								_this.oPackDialog.Close();
+								return;
+							}
+						break;
+					}
+
+					if (action == "pack")
+					{
+						if (_this.rq)
+							_this.rq.abort();
+
+						_this.rq = _this.Request(action, postParams, onResult);
+					}
+
+				}
+			};
+
+		this.bPacking = true;
+		this.rq = this.Request(action, postParams, onResult);
+	},
+
+	GetFolderPath: function(fullpath)
+	{
+		var tmpPath = fullpath;
+
+		var i = tmpPath.lastIndexOf('/');
+		if (i != '-1')
+		{
+			tmpPath = tmpPath.slice(0,i);
+		}
+
+		if (tmpPath != "/")
+			tmpPath += "/";
+
+		return tmpPath;
+	},
+
+	GetFileName: function(path)
+	{
+		var
+			name = path,
+			i = path.lastIndexOf("/");
+
+		if (i !== -1)
+			name = path.substr(i + 1);
+
+		return name;
+	},
+
+	MakeArchiveName: function (str)
+	{
+		/* 	INPUT:
+			/test1/test2
+			/test1/myfile.doc
+			/test/file.tar.gz
+			/.access.php
+			/.top.menu_ext.php
+			/.htaccess
+
+			OUTPUT:
+			test2
+			myfile
+			file
+			.access
+			.top_menu_ext
+			.htaccess
+		*/
+
+		//get only the last part of the name
+		var tmp = str.substr(str.lastIndexOf('/') + 1);
+
+		//check for .tar.gz
+		if (tmp.slice(-7) == ".tar.gz")
+		{
+			tmp = tmp.slice(0,-7);
+		}
+		//else remove extension if exists
+		else
+		{
+			if (tmp.lastIndexOf('.') != -1 && tmp.lastIndexOf('.') != 0)
+				tmp = tmp.slice(0,tmp.lastIndexOf('.'))
+		}
+
+		return tmp;
+	},
+
+	GeneratePath: function(bpack, files, ext)
+	{
+		//returns /path/name.ext
+		if (bpack && files.length > 0)
+		{
+			var tmpname = files.length == 1 ? files[0] : "archive";
+			return this.GetFolderPath(this.arFiles[0]) + this.MakeArchiveName(tmpname) + ext;
+		}
+
+		if (!bpack)
+		{
+			/*
+			INPUT: /test2/test1/test.tar.gz /test2/test1/test.zip
+			OUTPUT: /test2/test1/
+			*/
+			var pth = files[0];
+
+			return this.GetFolderPath(pth);
+		}
+	},
+
+	ChangeType: function(newext)
+	{
+
+		newext = newext.toLowerCase();
+
+		if (this.arFiles)
+			this.pPackTo.value = this.GeneratePath(this.bPack, this.arFiles, "." + newext);
+
+	},
+
+	GetViewUrl: function(path)
+	{
+		var
+			name = this.GetFileName(path),
+			bDir = name.indexOf(".") === -1;
+
+		return (bDir ? this.viewFolderPath : this.viewFilePath).replace('#PATH#', BX.util.urlencode(path));
+	},
+
+	//packing
+	Request : function(action, postParams, callBack, bShowWaitWin)
+	{
+		bShowWaitWin = bShowWaitWin !== false;
+
+		if (bShowWaitWin)
+			BX.showWait();
+
+		var actionUrl = '/bitrix/admin/fileman_admin.php?lang=' + this.lang
+			+ "&fu_action=" + action + "&site=" + this.site + "&"
+			+ this.sessid_get;
+
+		//lock archive type selector if already packing
+		if (action == "pack")
+		{
+			BX.addClass(this.oArcTypeSel.pDiv,"bx-fm-non-selectable");
+			BX.unbindAll(this.oArcTypeSel.pDiv);
+		}
+
+		return BX.ajax.post(actionUrl, postParams || {},
+			function(result)
+			{
+				if (bShowWaitWin)
+					BX.closeWait();
+
+				if(callBack)
+					setTimeout(function(){callBack(result);}, 100);
+			}
+		);
+	},
+
+	//packing
+	ShowAskUserDialog: function(Params)
+	{
+		var _this = this;
+		_this.Params = Params;
+
+		if (!this.oAskUserDialog)
+		{
+			this.oAskUserDialog = new BX.CAdminDialog({
+				title : "",
+				content: "&nbsp;",
+				height: 240,
+				width: 500,
+				resizable: false
+			});
+
+			this.oAskUserDialog.SetButtons([
+				new BX.CWindowButton(
+				{
+					title: FM_MESS.Replace,
+					name: 'replace',
+					action: function(){_this.UserAnswer('replace');}
+				}),
+				new BX.CWindowButton(
+				{
+					title: FM_MESS.Rename,
+					name: 'rename',
+					action: function()
+					{
+						var newName = prompt(FM_MESS.AskNewName, _this.Params.fileOld.name);
+						_this.Params.fileOld.name = null;
+						if (newName)
+							_this.UserAnswer('rename', newName);
+					}
+				}),
+				this.oAskUserDialog.btnCancel
+			]);
+
+			BX.addClass(this.oAskUserDialog.PARTS.CONTENT, "bx-fm-pack-dialog");
+			BX.addClass(this.oAskUserDialog.PARTS.FOOT, "bx-core-dialog-foot-ask");
+			//BX.cleanNode(this.oAskUserDialog.PARTS.CONTENT);
+
+			setTimeout(function()
+			{
+				var pAskPialog = BX('bx_pack_ask_dialog');
+				_this.oAskUserDialog.SetContent(pAskPialog);
+				pAskPialog.style.display = "block";
+
+				// _this.pAskToAllCont = pAskPialog.appendChild(BX.create("DIV", {props: {className: "bx-pack-to-all" }, html: "<table><tr><td><input type='checkbox' id='bx_copy_ask_to_all'></td><td><label  for='bx_copy_ask_to_all'>" + FM_MESS.ToAll + "</label></td></tr></table>"}));
+				_this.oAskUserDialog.adjustSizeEx();
+			}, 50);
+
+			this.pAskFileName = BX("bx_pack_ask_file_name");
+			this.pAskFolderName = BX("bx_pack_ask_folder");
+			this.pAskSizeRow = BX("bx_pack_ask_size_row");
+
+			this.pAskFileOld = {pName: BX("bx_pack_ask_file2"), pSize:  BX("bx_pack_ask_size2"), pDate:  BX("bx_pack_ask_date2")};
+
+			this.pRenBut = this.oAskUserDialog.PARAMS.buttons[2].btn;
+
+			BX.addCustomEvent(this.oAskUserDialog, 'onWindowUnRegister', function()
+			{
+				_this.oPackTo.bDenyOpenPopup = false;
+			});
+		}
+
+		this.oAskUserDialog.Show();
+
+		if (_this.counterID)
+				clearInterval(_this.counterID);
+
+		this.oPackTo.bDenyOpenPopup = true;
+		this.oAskUserDialog.adjustSizeEx();
+
+		//this.oAskUserDialog.PARTS.CONTENT.style.height = BX.browser.IsIE() ? "160px" : "170px";
+		this.oAskUserDialog.SetTitle(FM_MESS.FileExistTitle);
+
+		this.pAskFileName.innerHTML = Params.fileOld.name;
+		this.pAskFolderName.innerHTML = _this.GetFolderPath(this.pPackTo.value);
+		this.pAskFileOld.pName.innerHTML = this.pAskFileOld.pName.title = Params.fileOld.name;
+		this.pAskFileOld.pName.href = this.GetViewUrl(Params.fileOld.path);
+		this.pAskFileOld.pDate.innerHTML = Params.fileOld.date;
+		this.pAskFileOld.pSize.innerHTML = Params.fileOld.size;
+	},
+
+	UserAnswer: function(userCase, newName)
+	{
+		if (userCase == "replace")
+			this.Params = null;
+
+		this.Process({
+			userCase: userCase,
+			newName: newName
+		});
+		this.oAskUserDialog.Close();
+	}
+};
 
 BXFMInpSel.prototype = {
 	ShowPopup: function(bSelectInput)
@@ -1814,7 +2476,7 @@ BXFMInpSel.prototype = {
 	CreatePopup: function()
 	{
 		var
-			_this = this, el,
+			_this = this,
 			pRow, i, l = this.Items.length;
 
 		this.Popup = document.body.appendChild(BX.create("DIV", {props:{className: "bxfm-is-popup"}}));
@@ -1930,6 +2592,9 @@ BXFMInpSel.prototype = {
 	{
 		if (this.bDenyOpenPopup)
 			return true;
+
+		if (window.oBXFileDialog && window.oBXFileDialog.bOpened)
+			return;
 
 		this.bCheckValue = true;
 
@@ -2068,7 +2733,7 @@ BXFMSiteSel.prototype = {
 		BX.bind(document, 'keydown', BX.proxy(this.OnKeyDown, this));
 	},
 
-	ClosePopup: function(bCheck)
+	ClosePopup: function()
 	{
 		BX.unbind(document, "click", BX.proxy(this.ClosePopup, this));
 		BX.unbind(document, 'keydown', BX.proxy(this.OnKeyDown, this));
@@ -2087,14 +2752,14 @@ BXFMSiteSel.prototype = {
 			_this = this, site,
 			pRow, i, l = this.sites.length;
 
-		this.Popup = document.body.appendChild(BX.create("DIV", {props:{className: "bxfm-is-popup"}}));
+		this.Popup = document.body.appendChild(BX.create("DIV", {props:{className: "bxfm-at-is-popup"}}));
 		this.Popup.style.width = "200px";
 		this.bCreated = true;
 
 		for (i = 0; i < l; i++)
 		{
 			site = this.sites[i];
-			pRow = this.Popup.appendChild(BX.create("DIV", {
+			pRow = this.Popup.appendChild(BX.create("SPAN", {
 				props: {id: 'bx_' + this.id + '_' + i, title: BX.util.htmlspecialchars(site.text), className: 'bxfm-site-sel-it'},
 				events: {
 					mouseover: function(){BX.addClass(this, 'bxfm-ss-over');},
@@ -2115,7 +2780,7 @@ BXFMSiteSel.prototype = {
 		}
 	},
 
-	SetSite: function(ind, bRefresh)
+	SetSite: function(ind)
 	{
 		var site = this.sites[ind];
 		if (!site)
@@ -2140,12 +2805,145 @@ BXFMSiteSel.prototype = {
 	{
 		if (!e)
 			e = window.event;
+		if (window.oBXFileDialog && window.oBXFileDialog.bOpened)
+			return;
 		if (e.keyCode == 27)
 			return this.ClosePopup();
 	}
 };
 
+/* archive type selector */
+var BXFMArcTypeSel = function(Params)
+{
+	this.pDiv = Params.pDiv;
+	this.arcTypes = Params.types;
+	this.bPack = Params.bPack;
+	this.typeChangeCallback = Params.typeChangeCallback;
 
+	var l = this.arcTypes.length;
 
+	//if only one archive type is available, show it without selector
+	if (l == 1)
+	{
+		this.bOne = true;
+		BX.addClass(this.pDiv,"bx-fm-non-selectable");
+		this.pDiv.innerHTML = this.arcTypes[0].text.toUpperCase();
+		return this.SetArcType(0, false);
+	}
 
+	this.pTitle = this.pDiv.appendChild(BX.create("DIV"));
+	BX.bind(this.pDiv, "click", BX.proxy(this.ShowPopup, this));
 
+	this.id = Params.id || "arc_type_pack";
+
+	//default
+	this.SetArcType(0, false);
+};
+
+BXFMArcTypeSel.prototype = {
+
+	ShowPopup: function()
+	{
+		if (this.bShowed)
+			return this.ClosePopup();
+
+		this.bShowed = true;
+
+		var _this = this;
+		if (!this.bCreated)
+			this.CreatePopup();
+
+		var pos = BX.pos(this.pDiv);
+
+		this.Popup.style.display = 'block';
+		this.Popup.style.zIndex = 1200;
+		this.Popup.style.top = (pos.top + 18) + "px";
+		this.Popup.style.left = pos.left  + "px";
+
+		BX.WindowManager.disableKeyCheck();
+		setTimeout(function(){BX.bind(document, "click", BX.proxy(_this.ClosePopup, _this));}, 100);
+		BX.bind(document, 'keydown', BX.proxy(this.OnKeyDown, this));
+	},
+
+	ClosePopup: function()
+	{
+		BX.unbind(document, "click", BX.proxy(this.ClosePopup, this));
+		BX.unbind(document, 'keydown', BX.proxy(this.OnKeyDown, this));
+		setTimeout(function(){BX.WindowManager.enableKeyCheck();}, 200);
+
+		if (!this.Popup)
+			return;
+
+		this.Popup.style.display = 'none';
+		this.bShowed = false;
+	},
+
+	CreatePopup: function()
+	{
+		var
+			_this = this, arctype,
+			pRow, i, l = this.arcTypes.length;
+
+		this.Popup = document.body.appendChild(BX.create("DIV", {props:{className: "bxfm-at-is-popup"}}));
+		this.Popup.style.width = "260px";
+		this.bCreated = true;
+
+		for (i = 0; i < l; i++)
+		{
+			arctype = this.arcTypes[i];
+
+			pRow = this.Popup.appendChild(BX.create("DIV", {
+				props: {id: 'bx_' + this.id + '_' + i, title: BX.util.htmlspecialchars(arctype.text), className: 'bxfm-arc-type-it'},
+				events: {
+					mouseover: function(){BX.addClass(this, 'bxfm-at-over');},
+					mouseout: function(){BX.removeClass(this, 'bxfm-at-over');},
+					click: function()
+					{
+						var ind = this.id.substr(('bx_' + _this.id + '_').length);
+						_this.SetArcType(parseInt(ind), true);
+						_this.ClosePopup();
+					}
+				}
+			}));
+			pRow.appendChild(BX.create("DIV", {props: {className: 'bxfm-text-overflow'}, text: arctype.text}));
+
+			if (this.curArcTypeInd === i)
+				BX.addClass(pRow, "bxfm-at-checked");
+			this.arcTypes[i].row = pRow;
+		}
+	},
+
+	SetArcType: function(ind)
+	{
+		var arctype = this.arcTypes[ind];
+		if (!arctype)
+			return;
+
+		if (!this.bOne && typeof this.curArcTypeInd != 'undefined' && this.arcTypes[this.curArcTypeInd] && this.arcTypes[this.curArcTypeInd].row)
+			BX.removeClass(this.arcTypes[this.curArcTypeInd].row, "bxfm-at-checked");
+
+		this.value = arctype.id;
+		this.curArcTypeInd = ind;
+
+		if (this.bOne)
+			return;
+
+		this.pTitle.innerHTML = arctype.text.toUpperCase();
+
+		if (this.bPack)
+			this.typeChangeCallback(this.pTitle.innerHTML);
+
+		if (this.arcTypes[ind].row)
+			BX.addClass(this.arcTypes[ind].row, "bxfm-at-checked");
+	},
+
+	OnKeyDown: function(e)
+	{
+		if (!e)
+			e = window.event;
+		if (window.oBXFileDialog && window.oBXFileDialog.bOpened)
+			return;
+		if (e.keyCode == 27)
+			return this.ClosePopup();
+	}
+};

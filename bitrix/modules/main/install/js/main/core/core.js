@@ -2,19 +2,28 @@
 /*********** Bitrix JS Core library ver 0.9.0 beta ********************/
 /**********************************************************************/
 
-;(function(window){
-if (window.BX) return;
+;(function(){
 
+if (!!window.BX && !!window.BX.extend)
+	return;
 
-var BX = function(node, bCache)
+var _bxtmp;
+if (!!window.BX)
+{
+	_bxtmp = window.BX;
+}
+
+window.BX = function(node, bCache)
 {
 	if (BX.type.isNotEmptyString(node))
 	{
 		var ob;
 
-		if (!!bCache && null != NODECACHE[node]) ob = NODECACHE[node];
+		if (!!bCache && null != NODECACHE[node])
+			ob = NODECACHE[node];
 		ob = ob || document.getElementById(node);
-		if (!!bCache) NODECACHE[node] = ob;
+		if (!!bCache)
+			NODECACHE[node] = ob;
 
 		return ob;
 	}
@@ -24,10 +33,47 @@ var BX = function(node, bCache)
 		return BX.ready(node);
 
 	return null;
-},
+};
 
-/* language messages */
-MESS = {},
+// language utility
+BX.message = function(mess)
+{
+	if (BX.type.isString(mess))
+	{
+		if (typeof BX.message[mess] == 'undefined')
+			BX.debug('message undefined: ' + mess);
+		return BX.message[mess];
+	}
+	else
+	{
+		for (var i in mess)
+		{
+			BX.message[i]=mess[i];
+		}
+		return true;
+	}
+};
+
+if(!!_bxtmp)
+{
+	for(var i in _bxtmp)
+	{
+		if(!BX[i])
+		{
+			BX[i]=_bxtmp[i];
+		}
+		else if(i=='message')
+		{
+			for(var j in _bxtmp[i])
+			{
+				BX.message[j]=_bxtmp[i][j];
+			}
+		}
+		_bxtmp = null;
+	}
+}
+
+var
 
 /* ready */
 __readyHandler = null,
@@ -35,8 +81,10 @@ readyBound = false,
 readyList = [],
 
 /* list of registered proxy functions */
+proxySalt = Math.random(),
 proxyId = 1,
 proxyList = [],
+deferList = [],
 
 /* getElementById cache */
 NODECACHE = {},
@@ -53,9 +101,17 @@ customEvents = {},
 /* list of external garbage collectors */
 garbageCollectors = [],
 
+/* list of loaded CSS files */
+cssList = [],
+
+/* list of loaded JS kernel files */
+arKernelJS = [],
+
 /* browser detection */
 bOpera = navigator.userAgent.toLowerCase().indexOf('opera') != -1,
 bSafari = navigator.userAgent.toLowerCase().indexOf('webkit') != -1,
+bFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') != -1,
+bChrome = navigator.userAgent.toLowerCase().indexOf('chrome') != -1,
 bIE = document.attachEvent && !bOpera,
 
 /* regexps */
@@ -65,7 +121,7 @@ r = {
 	space: /\s+/,
 	ltrim: /^[\s\r\n]+/g,
 	rtrim: /[\s\r\n]+$/g,
-	style: /<link.*?(rel="stylesheet"|type="text\/css")[^>]*/i,
+	style: /<link.*?(rel="stylesheet"|type="text\/css")[^>]*>/i,
 	style_href: /href=["\']([^"\']+)["\']/i
 },
 
@@ -76,10 +132,18 @@ eventTypes = {
 	mousemove: 'MouseEvent',
 	mouseout: 'MouseEvent',
 	mouseover: 'MouseEvent',
-	mouseup: 'MouseEvent'
+	mouseup: 'MouseEvent',
+	focus: 'MouseEvent',
+	blur: 'MouseEvent'
 },
 
-lastWait = [];
+lastWait = [],
+
+CHECK_FORM_ELEMENTS = {tagName: /^INPUT|SELECT|TEXTAREA|BUTTON$/i};
+
+BX.MSLEFT = 1;
+BX.MSMIDDLE = 2;
+BX.MSRIGHT = 4;
 
 BX.ext = function(ob) {for (var i in ob) this[i] = ob[i];}
 
@@ -99,12 +163,12 @@ BX.extend = function(child, parent)
 	}
 }
 
-BX.debug = function(mess)
+BX.debug = function()
 {
 	if (window.BXDEBUG)
 	{
 		if (console && console.log)
-			console.log(mess);
+			console.log('BX.debug: ', arguments.length > 0 ? arguments : arguments[0]);
 	}
 }
 
@@ -119,26 +183,7 @@ BX.is_subclass_of = function(ob, parent_class)
 	return false;
 }
 
-// language utility
-BX.message = function(mess)
-{
-	if (BX.type.isString(mess))
-	{
-		if (typeof MESS[mess] == 'undefined')
-			BX.debug('message undefined: ' + mess);
-		return MESS[mess];
-	}
-	else
-	{
-		for (var i in mess)
-		{
-			MESS[i] = mess[i];
-		}
-		return true;
-	}
-}
-
-BX.bitrix_sessid = function() {return MESS.bitrix_sessid;}
+BX.bitrix_sessid = function() {return BX.message.bitrix_sessid;}
 
 /* DOM manipulation */
 BX.create = function(tag, data, context)
@@ -179,6 +224,8 @@ BX.adjust = function(elem, data)
 		{
 			if (j == 'class' || j == 'className')
 				elem.className = data.attrs[j];
+			else if (j == 'for')
+				elem.htmlFor = data.attrs[j];
 			else if(data.attrs[j] == "")
 				elem.removeAttribute(j);
 			else
@@ -259,11 +306,19 @@ BX.addClass = function(ob, value)
 	var classNames;
 	ob = BX(ob)
 
+	value = BX.util.trim(value);
+	if (value == '')
+		return ob;
+
 	if (ob)
 	{
 		if (!ob.className)
 		{
 			ob.className = value
+		}
+		else if (!!ob.classList && value.indexOf(' ') < 0)
+		{
+			ob.classList.add(value);
 		}
 		else
 		{
@@ -288,17 +343,24 @@ BX.removeClass = function(ob, value)
 	ob = BX(ob);
 	if (ob)
 	{
-		if (ob.className)
+		if (ob.className && !!value)
 		{
 			if (BX.type.isString(value))
 			{
-				var classNames = value.split(r.space), className = " " + ob.className + " ";
-				for (var j = 0, cl = classNames.length; j < cl; j++)
+				if (!!ob.classList && value.indexOf(' ') < 0)
 				{
-					className = className.replace(" " + classNames[j] + " ", " ");
+					ob.classList.remove(value);
 				}
+				else
+				{
+					var classNames = value.split(r.space), className = " " + ob.className + " ";
+					for (var j = 0, cl = classNames.length; j < cl; j++)
+					{
+						className = className.replace(" " + classNames[j] + " ", " ");
+					}
 
-				ob.className = BX.util.trim(className);
+					ob.className = BX.util.trim(className);
+				}
 			}
 			else
 			{
@@ -337,17 +399,24 @@ BX.toggleClass = function(ob, value)
 	}
 	else if (BX.type.isNotEmptyString(value))
 	{
-		className = ob.className;
-		if (BX.hasClass(ob, value))
+		if (!!ob.classList)
 		{
-			className = (' ' + className + ' ').replace(' ' + value + ' ', ' ');
+			ob.classList.toggle(value);
 		}
 		else
 		{
-			className += ' ' + value;
-		}
+			className = ob.className;
+			if (BX.hasClass(ob, value))
+			{
+				className = (' ' + className + ' ').replace(' ' + value + ' ', ' ');
+			}
+			else
+			{
+				className += ' ' + value;
+			}
 
-		ob.className = BX.util.trim(className);
+			ob.className = BX.util.trim(className);
+		}
 	}
 
 	return ob;
@@ -355,9 +424,23 @@ BX.toggleClass = function(ob, value)
 
 BX.hasClass = function(el, className)
 {
-	if (!el.className)
+	if (!el || !BX.type.isDomNode(el))
+	{
+		BX.debug(el);
 		return false;
-	return ((" " + el.className + " ").indexOf(" " + className + " ")) >= 0;
+	}
+
+	if (!el.className || !className)
+	{
+		return false;
+	}
+
+	if (!!el.classList && !!className && className.indexOf(' ') < 0)
+	{
+		return el.classList.contains(BX.util.trim(className));
+	}
+	else
+		return ((" " + el.className + " ").indexOf(" " + className + " ")) >= 0;
 }
 
 BX.hoverEvents = function(el)
@@ -400,10 +483,18 @@ BX.styleIEPropertyName = function(name)
 		name = BX.browser.IsIE() ? 'styleFloat' : 'cssFloat';
 	else
 	{
-		var reg = /(\-([a-z]){1})/g;
-		if (reg.test(name))
+		var res = BX.browser.isPropertySupported(name);
+		if (res)
 		{
-			name = name.replace(reg, function () {return arguments[2].toUpperCase();});
+			name = res;
+		}
+		else
+		{
+			var reg = /(\-([a-z]){1})/g;
+			if (reg.test(name))
+			{
+				name = name.replace(reg, function () {return arguments[2].toUpperCase();});
+			}
 		}
 	}
 	return name;
@@ -418,10 +509,17 @@ BX.style = function(el, property, value)
 	if (value == null)
 	{
 		var res;
+
 		if(el.currentStyle)
 			res = el.currentStyle[BX.styleIEPropertyName(property)];
 		else if(window.getComputedStyle)
+		{
+			var q = BX.browser.isPropertySupported(property, true);
+			if (!!q)
+				property = q;
+
 			res = BX.GetContext(el).getComputedStyle(el, null).getPropertyValue(property);
+		}
 
 		if(!res)
 			res = '';
@@ -445,6 +543,50 @@ BX.focus = function(el)
 	{
 		return false;
 	}
+}
+
+BX.firstChild = function(el)
+{
+	var e = el.firstChild;
+	while (e && !BX.type.isElementNode(e))
+	{
+		e = e.nextSibling;
+	}
+
+	return e;
+}
+
+BX.lastChild = function(el)
+{
+	var e = el.lastChild;
+	while (e && !BX.type.isElementNode(e))
+	{
+		e = e.previousSibling;
+	}
+
+	return e;
+}
+
+BX.previousSibling = function(el)
+{
+	var e = el.previousSibling;
+	while (e && !BX.type.isElementNode(e))
+	{
+		var e = e.previousSibling;
+	}
+
+	return e;
+}
+
+BX.nextSibling = function(el)
+{
+	var e = el.nextSibling;
+	while (e && !BX.type.isElementNode(e))
+	{
+		var e = e.nextSibling;
+	}
+
+	return e;
 }
 
 /*
@@ -501,7 +643,7 @@ BX.findChild = function(obj, params, recursive, get_all)
 		return null;
 }
 
-BX.findParent = function(obj, params)
+BX.findParent = function(obj, params, maxParent)
 {
 	if(!obj)
 		return null;
@@ -515,6 +657,22 @@ BX.findParent = function(obj, params)
 			return parent;
 
 		o = parent;
+
+		if (!!maxParent &&
+			(BX.type.isFunction(maxParent)
+				|| typeof maxParent == 'object'))
+		{
+			if (BX.type.isElementNode(maxParent))
+			{
+				if (o == maxParent)
+					break;
+			}
+			else
+			{
+				if (_checkNode(o, maxParent))
+					break;
+			}
+		}
 	}
 	return null;
 }
@@ -548,6 +706,28 @@ BX.findPreviousSibling = function(obj, params)
 		o = sibling;
 	}
 	return null;
+}
+
+BX.findFormElements = function(form)
+{
+	if (BX.type.isString(form))
+		form = document.forms[form]||BX(form);
+
+	var res = [];
+
+	if (BX.type.isElementNode(form))
+	{
+		if (form.tagName.toUpperCase() == 'FORM')
+		{
+			res = form.elements;
+		}
+		else
+		{
+			res = BX.findChildren(form, CHECK_FORM_ELEMENTS, true);
+		}
+	}
+
+	return res;
 }
 
 BX.clone = function(obj, bCopyObj)
@@ -613,6 +793,13 @@ BX.bind = function(el, evname, func)
 
 	if (evname === 'mousewheel')
 		BX.bind(el, 'DOMMouseScroll', func);
+	else if (evname === 'transitionend')
+	{
+		BX.bind(el, 'webkitTransitionEnd', func);
+		BX.bind(el, 'msTransitionEnd', func);
+		BX.bind(el, 'oTransitionEnd', func);
+		// IE8-9 doesn't support this feature!
+	}
 
 	if (el.addEventListener)
 		el.addEventListener(evname, func, false);
@@ -638,6 +825,29 @@ BX.unbind = function(el, evname, func)
 		el.detachEvent("on" + evname, BX.proxy(func, el));
 	else
 		el["on" + evname] = null;
+}
+
+BX.getEventButton = function(e)
+{
+	e = e || window.event;
+
+	var flags = 0;
+
+	if (typeof e.which != 'undefined')
+	{
+		switch (e.which)
+		{
+			case 1: flags = flags|BX.MSLEFT; break;
+			case 2: flags = flags|BX.MSMIDDLE; break;
+			case 3: flags = flags|BX.MSRIGHT; break;
+		}
+	}
+	else if (typeof e.button != 'undefined')
+	{
+		flags = event.button;
+	}
+
+	return flags || BX.MSLEFT;
 }
 
 BX.unbindAll = function(el)
@@ -694,35 +904,48 @@ BX.CaptureEventsGet = function()
 	}
 }
 
+// Don't even try to use it for submit event!
 BX.fireEvent = function(ob,ev)
 {
-	var result = true;
-	if (document.createEventObject)
+	var result = false;
+	if (BX.type.isDomNode(ob))
 	{
-		// IE
-		var e = document.createEventObject();
-		result = ob.fireEvent('on' + ev, e)
-		if (ob[ev])
-			ob[ev]();
-	}
-	else
-	{
-		// non-IE
-		var e = null;
-
-		switch (eventTypes[ev])
+		result = true;
+		if (document.createEventObject)
 		{
-			case 'MouseEvent':
-				e = document.createEvent('MouseEvent');
-				e.initMouseEvent(ev, true, true, top, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, null);
-			break;
-			default:
-				e = document.createEvent('Event');
-				e.initEvent(ev, true, true);
-		}
+			// IE
+			if (eventTypes[ev] != 'MouseEvent')
+			{
+				var e = document.createEventObject();
+				e.type = ev;
+				result = ob.fireEvent('on' + ev, e);
+			}
 
-		result = ob.dispatchEvent(e);
-    }
+			if (ob[ev])
+			{
+				ob[ev]();
+			}
+		}
+		else
+		{
+			// non-IE
+			var e = null;
+
+			switch (eventTypes[ev])
+			{
+				case 'MouseEvent':
+					e = document.createEvent('MouseEvent');
+					e.initMouseEvent(ev, true, true, top, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, null);
+				break;
+				default:
+					e = document.createEvent('Event');
+					e.initEvent(ev, true, true);
+			}
+
+			result = ob.dispatchEvent(e);
+		}
+	}
+
 	return result;
 }
 
@@ -763,33 +986,70 @@ BX.delegateLater = function (func_name, thisObject, contextObject)
 	}
 }
 
+BX._initObjectProxy = function(thisObject)
+{
+	if (typeof thisObject['__proxy_id_' + proxySalt] == 'undefined')
+	{
+		thisObject['__proxy_id_' + proxySalt] = proxyList.length;
+		proxyList[thisObject['__proxy_id_' + proxySalt]] = {};
+	}
+}
+
 BX.proxy = function(func, thisObject)
 {
 	if (!func || !thisObject)
 		return func;
 
-	if (null == thisObject.__proxy_id)
+	BX._initObjectProxy(thisObject)
+
+	if (typeof func['__proxy_id_' + proxySalt] == 'undefined')
+		func['__proxy_id_' + proxySalt] = proxyId++;
+
+	if (!proxyList[thisObject['__proxy_id_' + proxySalt]][func['__proxy_id_' + proxySalt]])
+		proxyList[thisObject['__proxy_id_' + proxySalt]][func['__proxy_id_' + proxySalt]] = BX.delegate(func, thisObject);
+
+	return proxyList[thisObject['__proxy_id_' + proxySalt]][func['__proxy_id_' + proxySalt]];
+}
+
+BX.defer = function(func, thisObject)
+{
+	if (!!thisObject)
+		return BX.defer_proxy(func, thisObject);
+	else
+		return function() {
+			var arg = arguments;
+			setTimeout(function(){func.apply(this,arg)}, 10);
+		};
+}
+
+BX.defer_proxy = function(func, thisObject)
+{
+	if (!func || !thisObject)
+		return func;
+
+	var f = BX.proxy(func, thisObject);
+
+	this._initObjectProxy(thisObject);
+
+	if (typeof func['__defer_id_' + proxySalt] == 'undefined')
+		func['__defer_id_' + proxySalt] = proxyId++;
+
+	if (!proxyList[thisObject['__proxy_id_' + proxySalt]][func['__defer_id_' + proxySalt]])
 	{
-		proxyList[thisObject.__proxy_id = proxyList.length] = {};
+		proxyList[thisObject['__proxy_id_' + proxySalt]][func['__defer_id_' + proxySalt]] = BX.defer(BX.delegate(func, thisObject));
 	}
 
-	if (null == func.__proxy_id)
-		func.__proxy_id = proxyId++;
-
-	if (null == proxyList[thisObject.__proxy_id][func.__proxy_id])
-		proxyList[thisObject.__proxy_id][func.__proxy_id] = BX.delegate(func, thisObject);
-
-	return proxyList[thisObject.__proxy_id][func.__proxy_id];
+	return proxyList[thisObject['__proxy_id_' + proxySalt]][func['__defer_id_' + proxySalt]];
 }
 
 BX.bindDelegate = function (elem, eventName, isTarget, handler)
 {
-	var h = BX.delegateEvent(elem, isTarget, handler);
+	var h = BX.delegateEvent(isTarget, handler);
 	BX.bind(elem, eventName, h);
 	return h;
 }
 
-BX.delegateEvent = function(el, isTarget, handler)
+BX.delegateEvent = function(isTarget, handler)
 {
 	return function(e)
 	{
@@ -802,8 +1062,10 @@ BX.delegateEvent = function(el, isTarget, handler)
 			{
 				return handler.call(target, e);
 			}
-
-			target = target.parentNode;
+			if (target && target.parentNode)
+				target = target.parentNode;
+			else
+				break;
 		}
 	}
 }
@@ -842,7 +1104,7 @@ BX.fixEventPageX = function(event)
 {
 	if (event.pageX == null && event.clientX != null)
 	{
-    	event.pageX =
+		event.pageX =
 			event.clientX +
 			(document.documentElement && document.documentElement.scrollLeft || document.body && document.body.scrollLeft || 0) -
 			(document.documentElement.clientLeft || 0);
@@ -984,7 +1246,7 @@ BX.onCustomEvent = function(eventObject, eventName, arEventParams)
 	}
 }
 
-BX.parseJSON = function(data)
+BX.parseJSON = function(data, context)
 {
 	var result = null;
 	if (BX.type.isString(data))
@@ -994,7 +1256,9 @@ BX.parseJSON = function(data)
 				eval('result = ' + data);
 			else
 				result = (new Function("return " + data))();
-		}catch(e){}
+		} catch(e) {
+			BX.onCustomEvent(context, 'onParseJSONFailure', [data, context])
+		}
 	}
 
 	return result;
@@ -1006,13 +1270,20 @@ BX.ready = function(handler)
 {
 	bindReady();
 
-	if (BX.isReady)
-		handler.call(document);
-	else if (readyList)
-		readyList.push(handler);
+	if (!BX.type.isFunction(handler))
+	{
+		BX.debug('READY: not a function! ', handler);
+	}
+	else
+	{
+		if (BX.isReady)
+			handler.call(document);
+		else if (readyList)
+			readyList.push(handler);
+	}
 }
 
-BX.submit = function(obForm, action_name, action_value)
+BX.submit = function(obForm, action_name, action_value, onAfterSubmit)
 {
 	action_name = action_name || 'save';
 	if (!obForm['BXFormSubmit_' + action_name])
@@ -1029,7 +1300,10 @@ BX.submit = function(obForm, action_name, action_value)
 		}));
 	}
 
-	BX.fireEvent(obForm['BXFormSubmit_' + action_name], 'click');
+	if (obForm.sessid)
+		obForm.sessid.value = BX.bitrix_sessid();
+
+	setTimeout(BX.delegate(function() {BX.fireEvent(this, 'click'); if (onAfterSubmit) onAfterSubmit();}, obForm['BXFormSubmit_' + action_name]), 10);
 }
 
 
@@ -1051,6 +1325,11 @@ BX.browser = {
 		return !!document.documentMode && document.documentMode >= 9;
 	},
 
+	IsIE10: function()
+	{
+		return !!document.documentMode && document.documentMode >= 10;
+	},
+
 	IsOpera: function()
 	{
 		return bOpera;
@@ -1059,6 +1338,16 @@ BX.browser = {
 	IsSafari: function()
 	{
 		return bSafari;
+	},
+
+	IsFirefox: function()
+	{
+		return bFirefox;
+	},
+
+	IsChrome: function()
+	{
+		return bChrome;
 	},
 
 	IsMac: function()
@@ -1089,8 +1378,58 @@ BX.browser = {
 		return false;
 	},
 
-	SupportLocalStorage: function() {
+	SupportLocalStorage: function()
+	{
 		return !!BX.localStorage && !!BX.localStorage.checkBrowser()
+	},
+
+	addGlobalClass: function() {
+		if(BX.browser.IsIOS())
+		{
+			BX.addClass(document.documentElement, 'bx-ios');
+		}
+
+		if(/AppleWebKit/.test(navigator.userAgent))
+		{
+			BX.addClass(document.documentElement, 'bx-chrome');
+		}
+		else if(/MSIE 8/.test(navigator.userAgent))
+		{
+			BX.addClass(document.documentElement, 'bx-ie bx-ie8'
+				 + (!BX.browser.IsDoctype() ? ' bx-quirks' : ''));
+		}
+		else if(/MSIE 9/.test(navigator.userAgent))
+		{
+			BX.addClass(document.documentElement, 'bx-ie bx-ie9'
+				 + (!BX.browser.IsDoctype() ? ' bx-quirks' : ''));
+		}
+		else if(/MSIE 10/.test(navigator.userAgent))
+		{
+			// it seems IE10 doesn't have any specific bugs like others event in quirks mode
+			BX.addClass(document.documentElement, 'bx-ie bx-ie10');
+		}
+		else if(/Opera/.test(navigator.userAgent))
+		{
+			BX.addClass(document.documentElement, 'bx-opera');
+		}
+		else if(/Gecko/.test(navigator.userAgent))
+		{
+			BX.addClass(document.documentElement, 'bx-firefox');
+		}
+
+		BX.browser.addGlobalClass = BX.DoNothing;
+	},
+
+	isPropertySupported: function(property, bReturnCSSName)
+	{
+		switch (property)
+		{
+			case 'transform':
+				return GetTransformProperty(bReturnCSSName);
+			case 'transition':
+				return GetTransitionProperty(bReturnCSSName);
+		}
+
 	}
 }
 
@@ -1252,6 +1591,23 @@ BX.util = {
 		return -1;
 	},
 
+	object_search_key: function(needle, haystack)
+	{
+		if (haystack[needle])
+			return haystack[needle];
+
+		for(var i in haystack)
+		{
+			if (typeof haystack[i] == "object")
+			{
+				var result = BX.util.object_search_key(needle, haystack[i]);
+				if (result !== false)
+					return result;
+			}
+		}
+		return false;
+	},
+
 	trim: function(s)
 	{
 		if (BX.type.isString(s))
@@ -1346,6 +1702,11 @@ BX.util = {
 		return input;
 	},
 
+	strip_tags: function(str)
+	{
+		return str.split(/<[^>]+>/g).join('')
+	},
+
 	popup: function(url, width, height)
 	{
 		var w, h;
@@ -1360,6 +1721,85 @@ BX.util = {
 			h = screen.height;
 		}
 		window.open(url, '', 'status=no,scrollbars=yes,resizable=yes,width='+width+',height='+height+',top='+Math.floor((h - height)/2-14)+',left='+Math.floor((w - width)/2-5));
+	},
+
+	// BX.util.objectSort(object, sortBy, sortDir) - Sort object by property
+	// function params: 1 - object for sort, 2 - sort by property, 3 - sort direction (asc/desc)
+	// return: sort array [[objectElement], [objectElement]] in sortDir direction
+
+	// example: BX.util.objectSortBy({'L1': {'name': 'Last'}, 'F1': {'name': 'First'}}, 'name', 'asc');
+	// return: [{'name' : 'First'}, {'name' : 'Last'}]
+	objectSort: function(object, sortBy, sortDir)
+	{
+		sortDir = sortDir == 'asc'? 'asc': 'desc';
+
+		var arItems = Array();
+		for (var i in object)
+			if (object[i][sortBy])
+				arItems.push([i, object[i][sortBy]]);
+
+		if (sortDir == 'asc')
+		{
+			arItems.sort(function(i, ii) {
+				if (!isNaN(i[1]) && !isNaN(ii[1]))
+				{
+					var s1 = parseInt(i[1]); var s2 = parseInt(ii[1]);
+				}
+				else
+				{
+					var s1 = i[1].toString().toLowerCase(); var s2 = ii[1].toString().toLowerCase();
+				}
+				if (s1 > s2) return 1; else if (s1 < s2) return -1; else return 0;
+			});
+		}
+		else
+		{
+			arItems.sort(function(i, ii) {
+				if (!isNaN(i[1]) && !isNaN(ii[1]))
+				{
+					var s1 = parseInt(i[1]);
+					var s2 = parseInt(ii[1]);
+				}
+				else
+				{
+					var s1 = i[1].toString().toLowerCase();
+					var s2 = ii[1].toString().toLowerCase();
+				}
+				if (s1 < s2) return 1; else if (s1 > s2) return -1; else return 0;
+			});
+		}
+
+		var arReturnArray = Array();
+		for (var i = 0; i < arItems.length; i++)
+			arReturnArray.push(object[arItems[i][0]]);
+
+		return arReturnArray;
+	},
+
+	// #fdf9e5 => {r=253, g=249, b=229}
+	hex2rgb: function(color)
+	{
+		var rgb = color.replace(/[# ]/g,"").replace(/^(.)(.)(.)$/,'$1$1$2$2$3$3').match(/.{2}/g);
+		for (var i=0;  i<3; i++)
+		{
+			rgb[i] = parseInt(rgb[i], 16);
+		}
+		return {'r':rgb[0],'g':rgb[1],'b':rgb[2]};
+	},
+
+	remove_url_param: function(url, param)
+	{
+		if (BX.type.isArray(param))
+		{
+			for (var i=0; i<param.length; i++)
+				url = BX.util.remove_url_param(url, param[i])
+		}
+		else
+		{
+			url = url.replace(new RegExp('([?&])'+param+'=[^&]*[&]*', 'i'), '$1');
+		}
+
+		return url;
 	}
 }
 
@@ -1371,7 +1811,7 @@ BX.type = {
 		return BX.type.isString(item) ? item.length > 0 : false;
 	},
 	isBoolean: function(item) {
-		return item === false || item === false;
+		return item === true || item === false;
 	},
 	isNumber: function(item) {
 		return item === 0 ? true : (item ? (typeof (item) == "number" || item instanceof Number) : false);
@@ -1380,7 +1820,8 @@ BX.type = {
 		return item === null ? false : (typeof (item) == "function" || item instanceof Function);
 	},
 	isElementNode: function(item) {
-		return item && typeof (item) == "object" && "nodeType" in item && item.nodeType == 1; //document.body.ELEMENT_NODE;
+		//document.body.ELEMENT_NODE;
+		return item && typeof (item) == "object" && "nodeType" in item && item.nodeType == 1 && item.tagName && item.tagName.toUpperCase() != 'SCRIPT' && item.tagName.toUpperCase() != 'STYLE' && item.tagName.toUpperCase() != 'LINK';
 	},
 	isDomNode: function(item) {
 		return item && typeof (item) == "object" && "nodeType" in item;
@@ -1397,6 +1838,16 @@ BX.isNodeInDom = function(node)
 {
 	return node === document ? true :
 		(node.parentNode ? BX.isNodeInDom(node.parentNode) : false);
+}
+
+BX.isNodeHidden = function(node)
+{
+	if (node === document)
+		return false;
+	else if (BX.style(node, 'display') == 'none')
+		return true;
+	else
+		return (node.parentNode ? BX.isNodeHidden(node.parentNode) : true);
 }
 
 BX.evalPack = function(code)
@@ -1439,11 +1890,11 @@ BX.evalGlobal = function(data)
 
 BX.processHTML = function(HTML, scriptsRunFirst)
 {
-	var matchScript, scripts = [], data = HTML;
+	var matchScript, scripts = [], styles = [], data = HTML;
 
 	while ((matchScript = data.match(r.script)) !== null)
 	{
-		var end = data.search('<\/script>', 'i');
+		var end = data.search(/<\/script>/i);
 		if (end == -1)
 			break;
 
@@ -1463,22 +1914,17 @@ BX.processHTML = function(HTML, scriptsRunFirst)
 		data = data.substr(0, matchScript.index) + data.substr(end+9);
 	}
 
-	var res = {'HTML': data, 'SCRIPT': scripts, 'STYLE': []};
-
-	if (BX.browser.IsIE()/* && !BX.browser.IsIE9()*/)
+	while ((matchStyle = data.match(r.style)) !== null)
 	{
-		while ((matchStyle = data.match(r.style)) !== null)
+		var matchHref;
+		if ((matchHref = matchStyle[0].match(r.style_href)) !== null && matchStyle[0].indexOf('media="') < 0)
 		{
-			var matchHref;
-			if ((matchHref = matchStyle[0].match(r.style_href)) !== null)
-			{
-				res.STYLE.push(matchHref[1]);
-			}
-			data = data.replace(matchStyle[0], '');
+			styles.push(matchHref[1]);
 		}
+		data = data.replace(matchStyle[0], '');
 	}
 
-	return res;
+	return {'HTML': data, 'SCRIPT': scripts, 'STYLE': styles};
 }
 
 BX.garbage = function(call, thisObject)
@@ -1616,6 +2062,12 @@ BX.is_float = function(el)
 	return p == 'right' || p == 'left';
 }
 
+BX.is_fixed = function(el)
+{
+	var p = BX.style(el, 'position');
+	return p == 'fixed';
+}
+
 BX.pos = function(el, bRelative)
 {
 	var r = { top: 0, right: 0, bottom: 0, left: 0, width: 0, height: 0 };
@@ -1674,8 +2126,14 @@ BX.pos = function(el, bRelative)
 	return r;
 }
 
-BX.align = function(pos, w, h)
+
+BX.align = function(pos, w, h, type)
 {
+	if (type)
+		type = type.toLowerCase();
+	else
+		type = '';
+
 	var pDoc = document;
 	if (BX.type.isElementNode(pos))
 	{
@@ -1696,9 +2154,9 @@ BX.align = function(pos, w, h)
 			x = scroll.scrollLeft;
 	}
 
-	if((size.innerHeight + scroll.scrollTop) - (pos["bottom"] + h) < 0)
+	if(((size.innerHeight + scroll.scrollTop) - (pos["bottom"] + h) < 0) || ~type.indexOf('top'))
 	{
-		if(pos["top"] - h >= 0)
+		if(pos["top"] - h >= 0 || ~type.indexOf('top'))
 			y = pos["top"] - h;
 		else
 			y = scroll.scrollTop;
@@ -1744,7 +2202,15 @@ BX.showWait = function(node, msg)
 
 BX.closeWait = function(node, obMsg)
 {
-	obMsg = obMsg || node && (node.bxmsg || BX('wait_' + node.id)) || lastWait.pop();
+	if(node && !obMsg)
+		obMsg = node.bxmsg;
+	if(node && !obMsg && BX.hasClass(node, 'bx-core-waitwindow'))
+		obMsg = node;
+	if(node && !obMsg)
+		obMsg = BX('wait_' + node.id);
+	if(!obMsg)
+		obMsg = lastWait.pop();
+
 	if (obMsg && obMsg.parentNode)
 	{
 		for (var i=0,len=lastWait.length;i<len;i++)
@@ -1760,6 +2226,17 @@ BX.closeWait = function(node, obMsg)
 		if (node) node.bxmsg = null;
 		BX.cleanNode(obMsg, true);
 	}
+}
+
+BX.setKernelJS = function(scripts)
+{
+	if (BX.type.isArray(scripts))
+		arKernelJS = scripts;
+}
+
+BX.getKernelJS = function()
+{
+	return arKernelJS;
 }
 
 BX.loadScript = function(script, callback, doc)
@@ -1783,30 +2260,50 @@ BX.loadScript = function(script, callback, doc)
 	}
 	var load_js = function(ind)
 	{
-		if (ind >= script.length)
+		if(ind >= script.length)
 			return _callback();
 
-		var oHead = doc.getElementsByTagName("head")[0] || doc.documentElement;
-		var oScript = doc.createElement('script');
-		oScript.src = script[ind];
-
-		var bLoaded = false;
-		oScript.onload = oScript.onreadystatechange = function()
+		if(!!script[ind])
 		{
-			if (!bLoaded && (!oScript.readyState || oScript.readyState == "loaded" || oScript.readyState == "complete"))
-			{
-				bLoaded = true;
-				setTimeout(function (){load_js(++ind);}, 50);
+			var oHead = doc.getElementsByTagName("head")[0] || doc.documentElement;
+			var oScript = doc.createElement('script');
+			oScript.src = script[ind];
 
-				oScript.onload = oScript.onreadystatechange = null;
-				if (oHead && oScript.parentNode)
+			var verInd = script[ind].indexOf('.js?');
+			if(verInd>0)
+				fileSrc = script[ind].substr(0, verInd + 3);
+			else
+				fileSrc = script[ind];
+
+			if(_isScriptLoaded(fileSrc))
+			{
+				load_js(++ind);
+			}
+			else
+			{
+				var bLoaded = false;
+				oScript.onload = oScript.onreadystatechange = function()
 				{
-					oHead.removeChild(oScript);
+					if (!bLoaded && (!oScript.readyState || oScript.readyState == "loaded" || oScript.readyState == "complete"))
+					{
+						bLoaded = true;
+						setTimeout(function (){load_js(++ind);}, 50);
+
+						oScript.onload = oScript.onreadystatechange = null;
+						if (oHead && oScript.parentNode)
+						{
+							oHead.removeChild(oScript);
+						}
+					}
 				}
+
+				return oHead.insertBefore(oScript, oHead.firstChild);
 			}
 		}
-
-		return oHead.insertBefore(oScript, oHead.firstChild);
+		else
+		{
+			load_js(++ind);
+		}
 	}
 
 	load_js(0);
@@ -1828,31 +2325,44 @@ BX.loadCSS = function(arCSS, doc, win)
 		var bSingle = true;
 		arCSS = [arCSS];
 	}
-	var i, l = arCSS.length, pLnk = [];
+	var i = 0,
+		l = arCSS.length,
+		lnk = null,
+		pLnk = [];
 
 	if (l == 0)
 		return null;
 
 	doc = doc || document;
-	win = win ||window;
+	win = win || window;
+
+	_checkCssList();
 
 	if (!win.bxhead)
 	{
 		var heads = doc.getElementsByTagName('HEAD');
 		win.bxhead = heads[0];
-	}
 
-	if (!win.bxhead)
-		return null;
+		if (!win.bxhead)
+		{
+			return null;
+		}
+	}
 
 	for (i = 0; i < l; i++)
 	{
-		var lnk = document.createElement('LINK');
+		var _check = arCSS[i].replace(/\.css(\?\d*)/, '.css');
+		if (BX.util.in_array(_check, cssList))
+			continue;
+
+		lnk = document.createElement('LINK');
 		lnk.href = arCSS[i];
 		lnk.rel = 'stylesheet';
 		lnk.type = 'text/css';
 		win.bxhead.appendChild(lnk);
+
 		pLnk.push(lnk);
+		cssList.push(_check);
 	}
 
 	if (bSingle)
@@ -1904,8 +2414,13 @@ BX.clearCache = function()
 BX.template = function(tpl, callback, bKillTpl)
 {
 	BX.ready(function() {
-		_processTpl(BX(tpl), callback, bKillTpl); 
+		_processTpl(BX(tpl), callback, bKillTpl);
 	});
+}
+
+BX.isAmPmMode = function()
+{
+	return BX.message('FORMAT_DATETIME').match('T') == null ? false : true;
 }
 
 BX.formatDate = function(date, format)
@@ -1919,6 +2434,7 @@ BX.formatDate = function(date, format)
 		);
 
 	return str.replace(/YYYY/ig, date.getFullYear())
+		.replace(/MMMM/ig, BX.util.str_pad_left((date.getMonth()+1).toString(), 2, '0'))
 		.replace(/MM/ig, BX.util.str_pad_left((date.getMonth()+1).toString(), 2, '0'))
 		.replace(/DD/ig, BX.util.str_pad_left(date.getDate().toString(), 2, '0'))
 		.replace(/HH/ig, BX.util.str_pad_left(date.getHours().toString(), 2, '0'))
@@ -1926,42 +2442,314 @@ BX.formatDate = function(date, format)
 		.replace(/SS/ig, BX.util.str_pad_left(date.getSeconds().toString(), 2, '0'));
 }
 
+BX.getNumMonth = function(month)
+{
+	var wordMonthCut = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+	var wordMonth = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+
+	var q = month.toUpperCase();
+	for (i = 1; i <= 12; i++)
+	{
+		if (q == BX.message('MON_'+i).toUpperCase() || q == BX.message('MONTH_'+i).toUpperCase() || q == wordMonthCut[i-1].toUpperCase() || q == wordMonth[i-1].toUpperCase())
+		{
+			return i;
+		}
+	}
+	return month;
+}
+
 BX.parseDate = function(str)
 {
-	var aDate = str.split(/\D/ig);
-	var aFormat = BX.message('FORMAT_DATE').split(/\W/ig);
-	if(aDate.length > aFormat.length)
-		aFormat = BX.message('FORMAT_DATETIME').split(/\W/ig);
-
-	var i, cnt;
-	var aDateArgs=[], aFormatArgs=[];
-	for(i = 0, cnt = aDate.length; i < cnt; i++)
-		if(BX.util.trim(aDate[i]) != '')
-			aDateArgs[aDateArgs.length] = aDate[i];
-	for(i = 0, cnt = aFormat.length; i < cnt; i++)
-		if(BX.util.trim(aFormat[i]) != '')
-			aFormatArgs[aFormatArgs.length] = aFormat[i];
-
-	var aResult={};
-	for(i = 0, cnt = aFormatArgs.length; i < cnt; i++)
-		aResult[aFormatArgs[i].toUpperCase()] = parseInt(aDateArgs[i], 10);
-
-	if(aResult['DD'] > 0 && aResult['MM'] > 0 && aResult['YYYY'] > 0)
+	if (BX.type.isNotEmptyString(str))
 	{
-		var d = new Date();
-		d.setDate(1);
-		d.setFullYear(aResult['YYYY']);
-		d.setMonth(aResult['MM']-1);
-		d.setDate(aResult['DD']);
-		d.setHours(0, 0, 0);
-		if(!isNaN(aResult['HH']) && !isNaN(aResult['MI']) && !isNaN(aResult['SS']))
+		var regMonths = '';
+		for (i = 1; i <= 12; i++)
 		{
-			d.setHours(aResult['HH'], aResult['MI'], aResult['SS']);
+			regMonths = regMonths + '|' + BX.message('MON_'+i);
 		}
-		return d;
+
+		var expr = new RegExp('([0-9]+|[a-z]+' + regMonths + ')', 'ig');
+		var aDate = str.match(expr),
+			aFormat = BX.message('FORMAT_DATE').match(/(DD|MI|MMMM|MM|M|YYYY)/ig),
+			i, cnt,
+			aDateArgs=[], aFormatArgs=[],
+			aResult={};
+
+		if (!aDate)
+			return null;
+
+		if(aDate.length > aFormat.length)
+		{
+			aFormat = BX.message('FORMAT_DATETIME').match(/(DD|MI|MMMM|MM|M|YYYY|HH|H|SS|TT|T|GG|G)/ig);
+		}
+
+		for(i = 0, cnt = aDate.length; i < cnt; i++)
+		{
+			if(BX.util.trim(aDate[i]) != '')
+			{
+				aDateArgs[aDateArgs.length] = aDate[i];
+			}
+		}
+
+		for(i = 0, cnt = aFormat.length; i < cnt; i++)
+		{
+			if(BX.util.trim(aFormat[i]) != '')
+			{
+				aFormatArgs[aFormatArgs.length] = aFormat[i];
+			}
+		}
+
+
+		var m = BX.util.array_search('MMMM', aFormatArgs)
+		if (m > 0)
+		{
+			aDateArgs[m] = BX.getNumMonth(aDateArgs[m]);
+			aFormatArgs[m] = "MM";
+		}
+		else
+		{
+			m = BX.util.array_search('M', aFormatArgs)
+			if (m > 0)
+			{
+				aDateArgs[m] = BX.getNumMonth(aDateArgs[m]);
+				aFormatArgs[m] = "MM";
+			}
+		}
+
+		for(i = 0, cnt = aFormatArgs.length; i < cnt; i++)
+		{
+			var k = aFormatArgs[i].toUpperCase();
+			aResult[k] = k == 'T' || k == 'TT' ? aDateArgs[i] : parseInt(aDateArgs[i], 10);
+		}
+
+		if(aResult['DD'] > 0 && aResult['MM'] > 0 && aResult['YYYY'] > 0)
+		{
+			var d = new Date();
+			d.setDate(1);
+			d.setFullYear(aResult['YYYY']);
+			d.setMonth(aResult['MM']-1);
+			d.setDate(aResult['DD']);
+			d.setHours(0, 0, 0);
+
+			if(
+				(!isNaN(aResult['HH']) || !isNaN(aResult['GG']) || !isNaN(aResult['H']) || !isNaN(aResult['G']))
+					&& !isNaN(aResult['MI'])
+			)
+			{
+				if (!isNaN(aResult['H']) || !isNaN(aResult['G']))
+				{
+					var bPM = (aResult['T']||aResult['TT']||'am').toUpperCase()=='PM';
+					aResult['HH'] = parseInt(aResult['H']||aResult['G']||0, 10) + (bPM ? 12 : 0);
+				}
+				else
+				{
+					aResult['HH'] = parseInt(aResult['HH']||aResult['GG']||0, 10);
+				}
+
+				if (isNaN(aResult['SS']))
+					aResult['SS'] = 00;
+
+				d.setHours(aResult['HH'], aResult['MI'], aResult['SS']);
+			}
+
+			return d;
+		}
 	}
+
 	return null;
 }
+
+BX.selectUtils =
+{
+	addNewOption: function(oSelect, opt_value, opt_name, do_sort, check_unique)
+	{
+		oSelect = BX(oSelect);
+		if(oSelect)
+		{
+			var n = oSelect.length;
+			if(check_unique !== false)
+			{
+				for(var i=0;i<n;i++)
+				{
+					if(oSelect[i].value==opt_value)
+					{
+						return;
+					}
+				}
+			}
+
+			var newoption = new Option(opt_name, opt_value, false, false);
+			oSelect.options[n]=newoption;
+		}
+
+		if(do_sort === true)
+		{
+			this.sortSelect(select_id);
+		}
+	},
+
+	deleteOption: function(oSelect, opt_value)
+	{
+		oSelect = BX(oSelect);
+		if(oSelect)
+		{
+			for(var i=0;i<oSelect.length;i++)
+			{
+				if(oSelect[i].value==opt_value)
+				{
+					oSelect.remove(i);
+					break;
+				}
+			}
+		}
+	},
+
+	deleteSelectedOptions: function(select_id)
+	{
+		var oSelect = BX(select_id);
+		if(oSelect)
+		{
+			var i=0;
+			while(i<oSelect.length)
+			{
+				if(oSelect[i].selected)
+				{
+					oSelect[i].selected=false;
+					oSelect.remove(i);
+				}
+				else
+				{
+					i++;
+				}
+			}
+		}
+	},
+
+	deleteAllOptions: function(oSelect)
+	{
+		oSelect = BX(oSelect);
+		if(oSelect)
+		{
+			for(var i=oSelect.length-1; i>=0; i--)
+			{
+				oSelect.remove(i);
+			}
+		}
+	},
+
+	optionCompare: function(record1, record2)
+	{
+		var value1 = record1.optText.toLowerCase();
+		var value2 = record2.optText.toLowerCase();
+		if (value1 > value2) return(1);
+		if (value1 < value2) return(-1);
+		return(0);
+	},
+
+	sortSelect: function(oSelect)
+	{
+		oSelect = BX(select_id);
+		if(oSelect)
+		{
+			var myOptions = [];
+			var n = oSelect.options.length;
+			for (var i=0;i<n;i++)
+			{
+				myOptions[i] = {
+					optText:oSelect[i].text,
+					optValue:oSelect[i].value
+				};
+			}
+			myOptions.sort(this.optionCompare);
+			oSelect.length=0;
+			n = myOptions.length;
+			for(var i=0;i<n;i++)
+			{
+				var newoption = new Option(myOptions[i].optText, myOptions[i].optValue, false, false);
+				oSelect[i]=newoption;
+			}
+		}
+	},
+
+	selectAllOptions: function(oSelect)
+	{
+		oSelect = BX(select_id);
+		if(oSelect)
+		{
+			var n = oSelect.length;
+			for(var i=0;i<n;i++)
+			{
+				oSelect[i].selected=true;
+			}
+		}
+	},
+
+	selectOption: function(oSelect, opt_value)
+	{
+		oSelect = BX(select_id);
+		if(oSelect)
+		{
+			var n = oSelect.length;
+			for(var i=0;i<n;i++)
+			{
+				oSelect[i].selected = (oSelect[i].value == opt_value);
+			}
+		}
+	},
+
+	addSelectedOptions: function(oSelect, to_select_id, check_unique, do_sort)
+	{
+		oSelect = BX(oSelect);
+		if(!oSelect)
+			return;
+		var n = oSelect.length;
+		for(var i=0; i<n; i++)
+			if(oSelect[i].selected)
+				this.addNewOption(to_select_id, oSelect[i].value, oSelect[i].text, do_sort, check_unique);
+	},
+
+	moveOptionsUp: function(oSelect)
+	{
+		oSelect = BX(oSelect)
+		if(!oSelect)
+			return;
+		var n = oSelect.length;
+		for(var i=0; i<n; i++)
+		{
+			if(oSelect[i].selected && i>0 && oSelect[i-1].selected == false)
+			{
+				var option1 = new Option(oSelect[i].text, oSelect[i].value);
+				var option2 = new Option(oSelect[i-1].text, oSelect[i-1].value);
+				oSelect[i] = option2;
+				oSelect[i].selected = false;
+				oSelect[i-1] = option1;
+				oSelect[i-1].selected = true;
+			}
+		}
+	},
+
+	moveOptionsDown: function(oSelect)
+	{
+		oSelect = BX(oSelect);
+		if(!oSelect)
+			return;
+		var n = oSelect.length;
+		for(var i=n-1; i>=0; i--)
+		{
+			if(oSelect[i].selected && i<n-1 && oSelect[i+1].selected == false)
+			{
+				var option1 = new Option(oSelect[i].text, oSelect[i].value);
+				var option2 = new Option(oSelect[i+1].text, oSelect[i+1].value);
+				oSelect[i] = option2;
+				oSelect[i].selected = false;
+				oSelect[i+1] = option1;
+				oSelect[i+1].selected = true;
+			}
+		}
+	}
+}
+
+
 
 /******* HINT ***************/
 // if function has 2 params - the 2nd one is hint html. otherwise hint_html is third and hint_title - 2nd;
@@ -2444,7 +3232,12 @@ function runReady()
 			var fn, i = 0;
 			while (readyList && (fn = readyList[i++]))
 			{
-				fn.call(document);
+				try{
+					fn.call(document);
+				}
+				catch(e){
+					BX.debug('BX.ready error: ', e);
+				}
 			}
 
 			readyList = null;
@@ -2465,41 +3258,6 @@ function doScrollCheck()
 	runReady();
 }
 /* \ready */
-
-/* garbage collector */
-function Trash()
-{
-	var i,len;
-
-	for (i = 0, len = garbageCollectors.length; i<len; i++)
-	{
-		garbageCollectors[i].callback.apply(garbageCollectors[i].context || window);
-
-		try {
-			delete garbageCollectors[i];
-			garbageCollectors[i] = null;
-		} catch (e) {}
-	}
-
-	for (i = 0, len = proxyList.length; i < len; i++)
-	{
-		try {
-			delete proxyList[i];
-			proxyList[i] = null;
-		} catch (e) {}
-	}
-
-	try {BX.unbindAll();} catch(e) {}
-
-	NODECACHE = null;
-	garbageCollectors = null;
-	proxyList = null;
-	eventsList = null;
-	readyList = null;
-	deniedEvents = null;
-	customEvents = null;
-	__readyHandler = null;
-}
 
 function _adjustWait()
 {
@@ -2676,6 +3434,112 @@ function _checkNode(obj, params)
 	return true;
 }
 
+function _checkCssList()
+{
+	var links = document.getElementsByTagName('LINK');
+
+	if(!!window.arKernelCSS && BX.type.isArray(arKernelCSS))
+		links = BX.util.array_merge(links, arKernelCSS);
+
+	for (var i = 0; i < links.length; i++)
+	{
+		var href = BX.type.isDomNode(links[i]) ? links[i].getAttribute('href') : links[i];
+		if (!!href && href.replace)
+		{
+			cssList.push(href.replace(/\.css(\?\d*)/, '.css'));
+		}
+	}
+	_checkCssList = BX.DoNothing;
+}
+
+/******** CSS properties handlers ************/
+function GetTransformProperty(bReturnCSSName)
+{
+	var obj = document.body || document.documentElement;
+
+	if(typeof(obj.style.transform) != 'undefined')
+		return 'transform';
+	if(typeof(obj.style.OTransform) != 'undefined')
+		return !!bReturnCSSName ? '-o-transform' : 'OTransform';
+	if(typeof(obj.style.msTransform) != 'undefined')
+		return !!bReturnCSSName ? '-ms-transform' : 'msTransform';
+	if(typeof(obj.style.MozTransform) != 'undefined')
+		return !!bReturnCSSName ? '-moz-transform' : 'MozTransform';
+	if(typeof(obj.style.WebkitTransform) != 'undefined')
+		return !!bReturnCSSName ? '-webkit-transform' : 'WebkitTransform';
+	return false;
+}
+
+function GetTransitionProperty(bReturnCSSName)
+{
+	var obj = document.body || document.documentElement;
+
+	if(typeof(obj.style.transition) != 'undefined')
+		return 'transition';
+	if(typeof(obj.style.OTransition) != 'undefined')
+		return !!bReturnCSSName ? '-o-transition' : 'OTransition';
+	if(typeof(obj.style.msTransition) != 'undefined')
+		return !!bReturnCSSName ? '-ms-transition' : 'msTransition';
+	if(typeof(obj.style.MozTransition) != 'undefined')
+		return !!bReturnCSSName ? '-moz-transition' : 'MozTransition';
+	if(typeof(obj.style.WebkitTransition) != 'undefined')
+		return !!bReturnCSSName ? '-webkit-transition' : 'WebkitTransition';
+	return false;
+}
+
+/********* Check for currently loaded core scripts ***********/
+function _isScriptLoaded(fileSrc)
+{
+	return (
+		BX.util.in_array(fileSrc, arKernelJS)
+		||fileSrc.indexOf('/core/core.js') > 0
+		||fileSrc.indexOf('/core_access.js') >= 0 && !!BX.Access
+		||fileSrc.indexOf('/core_admin.js') >= 0 && !!BX.admin
+		||fileSrc.indexOf('/core_admin_interface.js') >= 0 && !!BX.adminPanel
+		||fileSrc.indexOf('/core_admin_login.js') >= 0 && !!BX.adminLogin
+		||fileSrc.indexOf('/core_ajax.js') >= 0 && !!BX.ajax
+		||fileSrc.indexOf('/core_autosave.js') >= 0 && !!BX.CAutoSave
+		||fileSrc.indexOf('/core_date.js') >= 0 && !!BX.date
+		||fileSrc.indexOf('/core_finder.js') >= 0 && !!BX.Finder
+		||fileSrc.indexOf('/core_fx.js') >= 0 && !!BX.easing
+		||fileSrc.indexOf('/core_image.js') >= 0 && !!BX.CImageView
+		||fileSrc.indexOf('/core_ls.js') >= 0 && !!BX.localStorage
+		||fileSrc.indexOf('/core_popup.js') >= 0 && !!BX.PopupWindowManager
+		||fileSrc.indexOf('/core_tags.js') >= 0 && !!BX.TagsWindowArea
+		||fileSrc.indexOf('/core_timer.js') >= 0 && !!BX.timer
+		||fileSrc.indexOf('/core_tooltip.js') >= 0 && !!BX.tooltip
+		||fileSrc.indexOf('/core_translit.js') >= 0 && !!BX.translit
+		||fileSrc.indexOf('/core_window.js') >= 0 && !!BX.WindowManager
+		||fileSrc.indexOf('/jquery-') >= 0 && !!window.jQuery
+	);
+}
+
+/* garbage collector */
+function Trash()
+{
+	var i,len;
+
+	for (i = 0, len = garbageCollectors.length; i<len; i++)
+	{
+		try {
+			garbageCollectors[i].callback.apply(garbageCollectors[i].context || window);
+			delete garbageCollectors[i];
+			garbageCollectors[i] = null;
+		} catch (e) {}
+	}
+
+	try {BX.unbindAll();} catch(e) {}
+/*
+	for (i = 0, len = proxyList.length; i < len; i++)
+	{
+		try {
+			delete proxyList[i];
+			proxyList[i] = null;
+		} catch (e) {}
+	}
+*/
+}
+
 if(window.attachEvent) // IE
 	window.attachEvent("onunload", Trash);
 else if(window.addEventListener) // Gecko / W3C
@@ -2686,6 +3550,5 @@ else
 
 // set empty ready handler
 BX(BX.DoNothing);
-
 window.BX = BX;
 })(window)

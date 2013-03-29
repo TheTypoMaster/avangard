@@ -147,6 +147,7 @@ class CAllDiskQuota
 					}
 				}
 			}
+			@closedir($handle);
 		}
 		else
 		{
@@ -207,7 +208,7 @@ class CAllDiskQuota
 					}
 				}
 			}
-			@closedir($handler);
+			@closedir($handle);
 		}
 		return array("tree" => $res, "status" => "done", "last_file" => $path.$file, "size" => $size);
 	}

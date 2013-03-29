@@ -46,3 +46,8 @@ drop table if exists b_checklist;
 drop table if exists b_short_uri;
 drop table if exists b_user_access;
 drop table if exists b_user_access_check;
+drop table if exists b_user_counter;
+drop table if exists b_hot_keys;
+drop table if exists b_hot_keys_code;
+drop table if exists b_admin_notify;
+drop table if exists b_filters;

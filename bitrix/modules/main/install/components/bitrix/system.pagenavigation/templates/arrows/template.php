@@ -189,26 +189,29 @@ endif;
 ?>
 	</div>
 </div>
+<?CJSCore::Init();?>
 <script type="text/javascript">
-document.onkeydown = function(event)
-{
-   if (window.event)
-      event = window.event;
+	BX.bind(document, "keydown", function (event) {
 
-   if (event.ctrlKey)
-   {
-      var key = (event.keyCode ? event.keyCode : (event.which ? event.which : null));
-      if (!key)
-         return;
+		event = event || window.event;
+		if (!event.ctrlKey)
+			return;
 
-      var link = null;
-      if (key == 39)
-         link = document.getElementById('<?=$ClientID?>_next_page');
-      else if (key == 37)
-         link = document.getElementById('<?=$ClientID?>_previous_page');
+		var target = event.target || event.srcElement;
+		if (target && target.nodeName && (target.nodeName.toUpperCase() == "INPUT" || target.nodeName.toUpperCase() == "TEXTAREA"))
+			return;
 
-      if (link && link.href)
-         document.location = link.href;
-   }
-}
+		var key = (event.keyCode ? event.keyCode : (event.which ? event.which : null));
+		if (!key)
+			return;
+
+		var link = null;
+		if (key == 39)
+			link = BX('<?=$ClientID?>_next_page');
+		else if (key == 37)
+			link = BX('<?=$ClientID?>_previous_page');
+
+		if (link && link.href)
+			document.location = link.href;
+	});
 </script>

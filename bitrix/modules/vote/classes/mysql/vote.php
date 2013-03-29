@@ -1,10 +1,10 @@
 <?
-##############################################
-# Bitrix Site Manager Forum                  #
-# Copyright (c) 2002-2009 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+#############################################
+# Bitrix Site Manager Forum					#
+# Copyright (c) 2002-2009 Bitrix			#
+# http://www.bitrixsoft.com					#
+# mailto:admin@bitrixsoft.com				#
+#############################################
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/classes/general/vote.php");
 
 class CVote extends CAllVote
@@ -30,6 +30,24 @@ class CVote extends CAllVote
 		return $res;
 	}
 
+	function GetActiveVoteID($CHANNEL_ID)
+	{
+		$CHANNEL_ID = intval($CHANNEL_ID);
+		if ($CHANNEL_ID > 0)
+		{
+			if (!array_key_exists($CHANNEL_ID, $GLOBALS["VOTE_CACHE"]["CHANNEL"]))
+			{
+				$db_res = $GLOBALS["DB"]->Query("SELECT MAX(V.ID) AS ACTIVE_VOTE_ID ".
+					" FROM b_vote V ".
+					" WHERE V.CHANNEL_ID=".intval($CHANNEL_ID)." AND V.ACTIVE = 'Y' AND ".
+					" NOW() >= V.DATE_START AND V.DATE_END >= NOW()");
+				$GLOBALS["VOTE_CACHE"]["CHANNEL"][$CHANNEL_ID] = ($db_res && ($tmp = $db_res->Fetch())) ? $tmp : array("ACTIVE_VOTE_ID" => 0);
+			}
+			return $GLOBALS["VOTE_CACHE"]["CHANNEL"][$CHANNEL_ID]["ACTIVE_VOTE_ID"];
+		}
+		return false;
+	}
+
 	function CheckVotingIP($VOTE_ID, $REMOTE_ADDR, $KEEP_IP_SEC, $params = array())
 	{
 		global $DB;
@@ -38,15 +56,19 @@ class CVote extends CAllVote
 		$KEEP_IP_SEC = intval($KEEP_IP_SEC);
 		$params = (is_array($params) ? $params : array($params));
 		$params["RETURN_SEARCH_STRING"] = ($params["RETURN_SEARCH_STRING"] == "Y" ? "Y" : "N");
-		
+
+		$arSqlSelect = array("VE.VOTE_ID", "VE.IP");
 		$arSqlSearch = array(
-			"VE.VOTE_ID='".$VOTE_ID."'", 
+			"VE.VOTE_ID='".$VOTE_ID."'",
 			"VE.IP='".$DB->ForSql($REMOTE_ADDR, 15)."'");
 		if ($KEEP_IP_SEC > 0):
+			$arSqlSelect[] = "TIMESTAMPDIFF(SECOND, VE.DATE_VOTE, NOW()) AS KEEP_IP_SEC";
 			$arSqlSearch[] = "(FROM_UNIXTIME(UNIX_TIMESTAMP(CURRENT_TIMESTAMP) - ".$KEEP_IP_SEC.") <= VE.DATE_VOTE)";
 		endif;
 		if ($params["RETURN_SEARCH_STRING"] == "Y"):
 			return implode(" AND ", $arSqlSearch);
+		elseif ($params["RETURN_SEARCH_ARRAY"] == "Y"):
+			return array("search" => implode(" AND ", $arSqlSearch), "select" => implode(",", $arSqlSelect));
 		endif;
 		$strSql = "SELECT VE.ID FROM b_vote_event VE WHERE ".implode(" AND ", $arSqlSearch);
 		$db_res = $DB->Query($strSql, false, $err_mess.__LINE__);
@@ -125,7 +147,10 @@ class CVote extends CAllVote
 				case "CHANNEL_ID":
 					$match = ($arFilter[$key."_EXACT_MATCH"] == "N" ? "Y" : "N");
 					$arSqlSearch[] = GetFilterQuery("V.CHANNEL_ID", $val, $match);
-					$sSubFilter = " AND ".GetFilterQuery("CCC.ID", $val, $match);
+					break;
+				case "CHANNEL_ACTIVE":
+				case "CHANNEL_HIDDEN":
+					$arSqlSearch[] = "C.".str_replace("CHANNEL_", "", $key)." = '".($val == "Y" ? "Y" : "N")."'";
 					break;
 				case "TITLE":
 				case "DESCRIPTION":
@@ -161,35 +186,112 @@ class CVote extends CAllVote
 		}
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 		$strSql = "
-			SELECT VV.*, C.TITLE as CHANNEL_TITLE, V.*,
+			SELECT VV.*, C.TITLE as CHANNEL_TITLE, C.ACTIVE as CHANNEL_ACTIVE,
+				C.HIDDEN as CHANNEL_HIDDEN, V.*,
+				CASE WHEN (C.ACTIVE = 'Y' AND V.ACTIVE = 'Y' AND V.DATE_START <= NOW() AND NOW() <= V.DATE_END)
+					THEN IF (C.VOTE_SINGLE != 'Y', 'green', 'yellow')
+					ELSE 'red'
+				END AS LAMP,
+				".$DB->DateToCharFunction("V.TIMESTAMP_X")." TIMESTAMP_X,
 				".$DB->DateToCharFunction("V.DATE_START")."	DATE_START,
 				".$DB->DateToCharFunction("V.DATE_END")." DATE_END,
 				UNIX_TIMESTAMP(V.DATE_END) - UNIX_TIMESTAMP(V.DATE_START) PERIOD
 			FROM (
-				SELECT V.CHANNEL_ID, V.ID, count(Q.ID) QUESTIONS,  
-					IF((C.VOTE_SINGLE = 'Y'), 
-						(IF(V.ID = VV.ACTIVE_VOTE_ID, 'green', 'red')), 
-						(IF(V.ACTIVE = 'Y' AND V.DATE_START <= NOW() AND NOW() <= V.DATE_END, 'green', 'red'))) LAMP 
+				SELECT V.ID, COUNT(Q.ID) QUESTIONS
 				FROM b_vote V
 					INNER JOIN b_vote_channel C ON (C.ID=V.CHANNEL_ID)
 					LEFT JOIN b_vote_question Q ON (Q.VOTE_ID=V.ID)
-					LEFT JOIN (
-						SELECT VVV.CHANNEL_ID, MAX(VVV.ID) AS ACTIVE_VOTE_ID
-						FROM b_vote VVV, b_vote_channel CCC
-						WHERE VVV.CHANNEL_ID = CCC.ID AND CCC.VOTE_SINGLE='Y' AND VVV.ACTIVE = 'Y' 
-							AND NOW() >= VVV.DATE_START AND VVV.DATE_END >= NOW()
-							".$sSubFilter."
-						GROUP BY VVV.CHANNEL_ID) VV ON (VV.CHANNEL_ID = V.CHANNEL_ID)
-					WHERE
-						".$strSqlSearch."
-					GROUP BY V.CHANNEL_ID, V.ID
+					WHERE ".$strSqlSearch."
+					GROUP BY V.ID
 			) VV
-			INNER JOIN b_vote_channel C ON (C.ID = VV.CHANNEL_ID)
-			INNER JOIN b_vote V ON (V.ID = VV.ID) ".
+			INNER JOIN b_vote V ON (V.ID = VV.ID)
+			INNER JOIN b_vote_channel C ON (C.ID = V.CHANNEL_ID) ".
 			$strSqlOrder;
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = new _CVoteDBResult($res);
 		$is_filtered = IsFiltered($strSqlSearch);
 		return $res;
+	}
+
+	function GetListEx($arOrder = array(), $arFilter = array())
+	{
+		global $DB;
+		$err_mess = (CVote::err_mess())."<br>Function: GetList<br>Line: ";
+		$arSqlSearch = array();
+		$arOrder = (is_array($arOrder) ? $arOrder : array());
+		$arFilter = (is_array($arFilter) ? $arFilter : array());
+		foreach ($arFilter as $key => $val)
+		{
+			$key_res = CVote::GetFilterOperation($key);
+			$key = strtoupper($key_res["FIELD"]);
+			$strNegative = $key_res["NEGATIVE"];
+			$strOperation = $key_res["OPERATION"];
+
+			switch($key)
+			{
+				case "CHANNEL_ID":
+				case "COUNTER":
+				case "ID":
+					$str = ($strNegative=="Y"?"NOT":"")."(V.".$key." IS NULL OR V.".$key."<=0)";
+					if (!empty($val))
+					{
+						$str = ($strNegative=="Y"?" V.".$key." IS NULL OR NOT ":"")."(V.".$key." ".$strOperation." ".intVal($val).")";
+						if ($strOperation == "IN")
+						{
+							$val = array_unique((is_array($val) ? $val : explode(",", $val)), SORT_NUMERIC);
+							$str = ($strNegative=="Y"?" NOT ":"")."(V.".$key." IN (".$DB->ForSql(implode(",", $val))."))";
+						}
+					}
+					$arSqlSearch[] = $str;
+					break;
+				case "ACTIVE":
+					if (empty($val))
+						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(V.".$key." IS NULL OR LENGTH(V.".$key.")<=0)";
+					else
+						$arSqlSearch[] = ($strNegative=="Y"?" V.".$key." IS NULL OR NOT ":"")."(V.".$key." ".$strOperation." '".$DB->ForSql($val)."' )";
+					break;
+				case "DATE_START":
+				case "DATE_END":
+					if (empty($val))
+						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(V.".$key." IS NULL OR LENGTH(V.".$key.")<=0)";
+					else
+						$arSqlSearch[] = ($strNegative=="Y"?" V.".$key." IS NULL OR NOT ":"")."(V.".$key." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "FULL")." )";
+					break;
+			}
+		}
+		$strSqlSearch = (!empty($arSqlSearch) ? " AND (".implode(") AND (", $arSqlSearch).") " : "");
+		$arSqlOrder = array();
+		foreach($arOrder as $by => $order)
+		{
+			$by = strtoupper($by);
+			$by = (in_array($by, array("ID", "TITLE", "DATE_START", "DATE_END", "COUNTER", "ACTIVE", "C_SORT", "CHANNEL_ID")) ? $by : "ID");
+			$arSqlOrder[] = "V.".$by." ".(strtoupper($order) == "ASC" ? "ASC" : "DESC");
+		}
+		DelDuplicateSort($arSqlOrder);
+		$strSqlOrder = (!empty($arSqlOrder) ? "ORDER BY ".implode(",", $arSqlOrder) : "");
+
+		$strSql = "
+			SELECT V.*,
+				C.TITLE as CHANNEL_TITLE,
+				C.SYMBOLIC_NAME as CHANNEL_SYMBOLIC_NAME,
+				C.C_SORT as CHANNEL_C_SORT,
+				C.FIRST_SITE_ID as CHANNEL_FIRST_SITE_ID,
+				C.ACTIVE as CHANNEL_ACTIVE,
+				C.HIDDEN as CHANNEL_HIDDEN,
+				C.TITLE as CHANNEL_TITLE,
+				C.VOTE_SINGLE as CHANNEL_VOTE_SINGLE,
+				C.USE_CAPTCHA as CHANNEL_USE_CAPTCHA,
+				".$DB->DateToCharFunction("V.TIMESTAMP_X")." TIMESTAMP_X,
+				".$DB->DateToCharFunction("V.DATE_START")." DATE_START,
+				".$DB->DateToCharFunction("V.DATE_END")." DATE_END,
+				CASE WHEN (C.ACTIVE = 'Y' AND V.ACTIVE = 'Y' AND V.DATE_START <= NOW() AND NOW() <= V.DATE_END)
+					THEN IF (C.VOTE_SINGLE != 'Y', 'green', 'yellow')
+					ELSE 'red'
+				END AS LAMP
+			FROM b_vote V
+			INNER JOIN b_vote_channel C ON (V.CHANNEL_ID = C.ID)
+			WHERE 1=1 ".$strSqlSearch." ".$strSqlOrder;
+		return new _CVoteDBResult($DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__));
 	}
 
 	function GetPublicList($arFilter=Array(), $strSqlOrder="ORDER BY C.C_SORT, C.ID, V.DATE_START desc")
@@ -224,7 +326,7 @@ class CVote extends CAllVote
 							endif;
 						endforeach;
 						if (!empty($arr)):
-							$arSqlSearch[] = "(".implode(" OR ", $arr).")";
+							$arSqlSearch[] = "((".implode(") OR (", $arr)."))";
 						endif;
 					else:
 						$arSqlSearch[] = GetFilterQuery("C.SYMBOLIC_NAME", $val, $match);
@@ -252,7 +354,7 @@ class CVote extends CAllVote
 						(IF(V.ID = VV.ACTIVE_VOTE_ID, 'green', 'red')), 
 						(IF(V.ACTIVE = 'Y' AND V.DATE_START <= NOW() AND NOW() <= V.DATE_END, 'green', 'red'))) LAMP 
 				FROM b_vote V
-				INNER JOIN b_vote_channel C ON (C.ACTIVE = 'Y' AND V.CHANNEL_ID = C.ID) 
+				INNER JOIN b_vote_channel C ON (C.ACTIVE = 'Y' AND C.HIDDEN = 'N' AND V.CHANNEL_ID = C.ID)
 				LEFT JOIN (
 					SELECT VVV.CHANNEL_ID, MAX(VVV.ID) AS ACTIVE_VOTE_ID
 					FROM b_vote VVV, b_vote_channel CCC
@@ -273,6 +375,20 @@ class CVote extends CAllVote
 			".$DB->ForSql($strSqlOrder);
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 		return $res;
+	}
+
+	function GetNowTime($ResultType = "timestamp")
+	{
+		global $DB;
+		static $result = array();
+		$ResultType = (in_array($ResultType, array("timestamp", "time")) ? $ResultType : "timestamp");
+		if (empty($result)):
+			$db_res = $DB->Query("SELECT ".$DB->DateToCharFunction($DB->GetNowFunction(), "FULL")." FORUM_DATE", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $db_res->Fetch();
+			$result["time"] = $res["FORUM_DATE"];
+			$result["timestamp"] = MakeTimeStamp($res["FORUM_DATE"]);
+		endif;
+		return $result[$ResultType];
 	}
 }
 ?>

@@ -28,14 +28,12 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $blogModulePermissions>="W" 
 		"URL" => $_POST["URL"],
 		//"REAL_URL" => $REAL_PATH,
 		"OWNER_ID" => $OWNER_ID,
-		"SOCNET_GROUP_ID" => $SOCNET_GROUP_ID,
 		"GROUP_ID" => $GROUP_ID,
 		"ACTIVE" => (($ACTIVE == "Y") ? "Y" : "N"),
 		"ENABLE_COMMENTS" => (($ENABLE_COMMENTS == "Y") ? "Y" : "N"),
 		"ENABLE_IMG_VERIF" => (($ENABLE_IMG_VERIF == "Y") ? "Y" : "N"),
 		"EMAIL_NOTIFY" => (($EMAIL_NOTIFY == "Y") ? "Y" : "N"),
 		"ENABLE_RSS" => (($ENABLE_RSS == "Y") ? "Y" : "N"),
-		"ALLOW_HTML" => (($ALLOW_HTML == "Y") ? "Y" : "N"),
 		"SEARCH_INDEX" => (($SEARCH_INDEX == "Y") ? "Y" : "N"),
 		"USE_SOCNET" => (($USE_SOCNET == "Y") ? "Y" : "N"),
 		"PERMS_POST" => $PERMS_P,
@@ -46,12 +44,7 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $blogModulePermissions>="W" 
 	else
 		$arFields["OWNER_ID"] = false;	
 	
-	if(IntVal($SOCNET_GROUP_ID) > 0)
-		$arFields["SOCNET_GROUP_ID"] = IntVal($SOCNET_GROUP_ID);
-	else
-		$arFields["SOCNET_GROUP_ID"] = false;
-
-    $USER_FIELD_MANAGER->EditFormAddFields("BLOG_BLOG", $arFields);
+	$USER_FIELD_MANAGER->EditFormAddFields("BLOG_BLOG", $arFields);
 	if ($ID > 0)
 	{
 		$dbBlog = CBlog::GetList(
@@ -86,18 +79,9 @@ if ($REQUEST_METHOD=="POST" && strlen($Update)>0 && $blogModulePermissions>="W" 
 		if($arFields["USE_SOCNET"] == "Y")
 		{
 			$bRights = false;
-			if(IntVal($arFields["SOCNET_GROUP_ID"]) > 0)
-			{
-				$featureOperationPerms = CSocNetFeaturesPerms::GetOperationPerm(SONET_ENTITY_GROUP, $arFields["SOCNET_GROUP_ID"], "blog", "view_post");
-				if ($featureOperationPerms == SONET_ROLES_ALL)
-					$bRights = true;
-			}
-			else
-			{
-				$featureOperationPerms = CSocNetFeaturesPerms::GetOperationPerm(SONET_ENTITY_USER, $arFields["OWNER_ID"], "blog", "view_post");
-				if ($featureOperationPerms == SONET_RELATIONS_TYPE_ALL)
-					$bRights = true;
-			}
+			$featureOperationPerms = CSocNetFeaturesPerms::GetOperationPerm(SONET_ENTITY_USER, $arFields["OWNER_ID"], "blog", "view_post");
+			if ($featureOperationPerms == SONET_RELATIONS_TYPE_ALL)
+				$bRights = true;
 			if($bRights)
 				CBlog::AddSocnetRead($ID);
 			else
@@ -172,7 +156,7 @@ $dbBlog = CBlog::GetList(
 		array("ID" => $ID),
 		false,
 		false,
-		array("ID", "NAME", "DESCRIPTION", "DATE_CREATE", "DATE_UPDATE", "ACTIVE", "OWNER_ID", "URL", "REAL_URL", "GROUP_ID", "ENABLE_COMMENTS", "ENABLE_IMG_VERIF", "ENABLE_RSS", "LAST_POST_ID", "LAST_POST_DATE", "EMAIL_NOTIFY", "ALLOW_HTML", "SEARCH_INDEX", "SOCNET_GROUP_ID", "USE_SOCNET")
+		array("ID", "NAME", "DESCRIPTION", "DATE_CREATE", "DATE_UPDATE", "ACTIVE", "OWNER_ID", "URL", "REAL_URL", "GROUP_ID", "ENABLE_COMMENTS", "ENABLE_IMG_VERIF", "ENABLE_RSS", "LAST_POST_ID", "LAST_POST_DATE", "EMAIL_NOTIFY", "SEARCH_INDEX", "USE_SOCNET")
 	);
 if (!$dbBlog->ExtractFields("str_"))
 	$ID = 0;
@@ -231,55 +215,41 @@ $tabControl->BeginNextTab();
 			<td width="60%"><?=$ID?></td>
 		</tr>
 	<?endif;?>
-	<tr>
-		<td width="40%"><span class="required">*</span><?echo GetMessage("BLBE_NAME")?>:</td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?echo GetMessage("BLBE_NAME")?>:</td>
 		<td width="60%">
 			<input type="text" name="NAME" size="50" value="<?= ($str_NAME) ?>">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("BLBE_DESCRIPTION")?>:</td>
+		<td class="adm-detail-valign-top"><?echo GetMessage("BLBE_DESCRIPTION")?>:</td>
 		<td>
 			<textarea name="DESCRIPTION" rows="5" cols="40"><?= ($str_DESCRIPTION) ?></textarea>
 		</td>
 	</tr>
-	<tr>
-		<td valign="top"><span class="required">*</span><?echo GetMessage("BLBE_URL")?>:<br><small><?echo GetMessage("BLBE_URL_HINT")?></small></td>
+	<tr class="adm-detail-required-field">
+		<td valign="top"><?echo GetMessage("BLBE_URL")?>:<br><small><?echo GetMessage("BLBE_URL_HINT")?></small></td>
 		<td valign="top">
 			<input type="text" name="URL" size="50" value="<?= ($str_URL) ?>">
 		</td>
 	</tr>
-<?/*
-	<tr>
-		<td valign="top"><span class="required">*</span><?echo GetMessage("BLBE_REAL_URL")?>:</td>
-		<td valign="top">
-			<input type="text" name="REAL_URL" size="50" value="<?= $str_REAL_URL ?>">
-		</td>
-	</tr>
-*/?>
 	<tr>
 		<td><label for="ACTIVE"><?echo GetMessage("BLBE_ACTIVE")?>:</label></td>
 		<td>
 			<input type="checkbox" name="ACTIVE" id="ACTIVE" value="Y"<?if ($str_ACTIVE == "Y") echo " checked";?>>
 		</td>
 	</tr>
-	<tr>
+	<tr class="adm-detail-required-field">
 		<td><?echo GetMessage("BLBE_OWNER_ID")?>:</td>
 		<td>
 			<?echo FindUserID("OWNER_ID", IntVal($str_OWNER_ID));?>
 		</td>
 	</tr>
-	<tr>
-		<td valign="top"><?echo GetMessage("BLBE_SOCNET_GROUP_ID")?>:</td>
-		<td valign="top">
-			<input type="text" name="SOCNET_GROUP_ID" size="10" value="<?= IntVal($str_SOCNET_GROUP_ID) ?>">
-		</td>
-	</tr>
 
-	<tr>
-		<td><span class="required">*</span><?echo GetMessage("BLBE_GROUP")?>:</td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("BLBE_GROUP")?>:</td>
 		<td>
-			<select name="GROUP_ID">
+			<select name="GROUP_ID" style="width:220px">
 				<?
 				$dbBlogGroup = CBlogGroup::GetList(
 					array("NAME" => "ASC"),
@@ -287,7 +257,7 @@ $tabControl->BeginNextTab();
 				);
 				while ($arBlogGroup = $dbBlogGroup->Fetch())
 				{
-					?><option value="<?= $arBlogGroup["ID"] ?>"<?if (IntVal($str_GROUP_ID) == IntVal($arBlogGroup["ID"])) echo " selected";?>>[<?= htmlspecialchars($arBlogGroup["SITE_ID"]) ?>] <?= htmlspecialchars($arBlogGroup["NAME"]) ?></option><?
+					?><option value="<?= $arBlogGroup["ID"] ?>"<?if (IntVal($str_GROUP_ID) == IntVal($arBlogGroup["ID"])) echo " selected";?>>[<?= htmlspecialcharsbx($arBlogGroup["SITE_ID"]) ?>] <?= htmlspecialcharsbx($arBlogGroup["NAME"]) ?></option><?
 				}
 				?>
 			</select>
@@ -306,32 +276,26 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<tr>
-		<td valign="top"><label for="ENABLE_RSS"><?echo GetMessage("BLBE_ENABLE_RSS")?>:</label></td>
-		<td valign="top">
+		<td><label for="ENABLE_RSS"><?echo GetMessage("BLBE_ENABLE_RSS")?>:</label></td>
+		<td>
 			<input type="checkbox" name="ENABLE_RSS" id="ENABLE_RSS" value="Y"<?if ($str_ENABLE_RSS == "Y") echo " checked";?>>
 		</td>
 	</tr>
 	<tr>
-		<td valign="top"><label for="EMAIL_NOTIFY"><?echo GetMessage("BLBE_EMAIL_NOTIFY")?>:</label></td>
-		<td valign="top">
+		<td><label for="EMAIL_NOTIFY"><?echo GetMessage("BLBE_EMAIL_NOTIFY")?>:</label></td>
+		<td>
 			<input type="checkbox" name="EMAIL_NOTIFY" id="EMAIL_NOTIFY" value="Y"<?if ($str_EMAIL_NOTIFY == "Y") echo " checked";?>>
 		</td>
 	</tr>
 	<tr>
-		<td valign="top"><label for="ALLOW_HTML"><?echo GetMessage("BLBE_ALLOW_HTML")?>:</label></td>
-		<td valign="top">
-			<input type="checkbox" name="ALLOW_HTML" id="ALLOW_HTML" value="Y"<?if ($str_ALLOW_HTML == "Y") echo " checked";?>>
-		</td>
-	</tr>
-	<tr>
-		<td valign="top"><span class="required"><sup>1</sup></span><label for="SEARCH_INDEX"><?echo GetMessage("BLBE_SEARCH_INDEX")?>:</label></td>
-		<td valign="top">
+		<td><span class="required"><sup>1</sup></span><label for="SEARCH_INDEX"><?echo GetMessage("BLBE_SEARCH_INDEX")?>:</label></td>
+		<td>
 			<input type="checkbox" name="SEARCH_INDEX" id="SEARCH_INDEX" value="Y"<?if ($str_SEARCH_INDEX == "Y") echo " checked";?>>
 		</td>
 	</tr>
 	<tr>
-		<td valign="top"><label for="USE_SOCNET"><?echo GetMessage("BLBE_USE_SOCNET")?>:</label></td>
-		<td valign="top">
+		<td><label for="USE_SOCNET"><?echo GetMessage("BLBE_USE_SOCNET")?>:</label></td>
+		<td>
 			<input type="checkbox" name="USE_SOCNET" id="USE_SOCNET" value="Y"<?if ($str_USE_SOCNET == "Y") echo " checked";?>>
 		</td>
 	</tr>
@@ -356,12 +320,12 @@ $tabControl->BeginNextTab();
 	}
 	?>
 	<tr>
-		<td><?echo GetMessage("BLBE_P_ALL")?>:</td>
-		<td>
+		<td width="40%"><?echo GetMessage("BLBE_P_ALL")?>:</td>
+		<td width="60%">
 			<select name="PERMS_P[1]">
 			<?
-			reset($GLOBALS["AR_BLOG_PERMS"]);
-			while (list($key, $val) = each($GLOBALS["AR_BLOG_PERMS"]))
+			reset($GLOBALS["AR_BLOG_PERMS_EVERYONE"]);
+			while (list($key, $val) = each($GLOBALS["AR_BLOG_PERMS_EVERYONE"]))
 			{
 				if (in_array($key, $GLOBALS["AR_BLOG_POST_PERMS"]))
 				{
@@ -397,7 +361,7 @@ $tabControl->BeginNextTab();
 		{
 			?>
 			<tr>
-				<td><?= htmlspecialchars($arGroup["NAME"]) ?>:</td>
+				<td><?= htmlspecialcharsbx($arGroup["NAME"]) ?>:</td>
 				<td>
 					<select name="PERMS_P[<?= IntVal($arGroup["ID"]) ?>]">
 					<?
@@ -475,7 +439,7 @@ $tabControl->BeginNextTab();
 		{
 			?>
 			<tr>
-				<td><?= htmlspecialchars($arGroup["NAME"]) ?>:</td>
+				<td><?= htmlspecialcharsbx($arGroup["NAME"]) ?>:</td>
 				<td>
 					<select name="PERMS_C[<?= IntVal($arGroup["ID"]) ?>]">
 					<?
@@ -517,7 +481,6 @@ $tabControl->End();
 </form>
 
 <?echo BeginNote();?>
-<span class="required">*</span> <?echo GetMessage("REQUIRED_FIELDS")?><br />
 <span class="required"><sup>1</sup></span> - <?echo GetMessage("BLBE_SEARCH_INDEX_HINT")?>
 <?echo EndNote(); ?>
 

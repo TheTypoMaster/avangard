@@ -136,6 +136,8 @@ class CAllBlogComment
 			$res = CBlogImage::GetList(array(), array("BLOG_ID" => $arResult["BLOG_ID"], "POST_ID"=>$arResult["POST_ID"], "IS_COMMENT" => "Y", "COMMENT_ID" => $ID));
 			while($aImg = $res->Fetch())
 				CBlogImage::Delete($aImg['ID']);
+
+			$GLOBALS["USER_FIELD_MANAGER"]->Delete("BLOG_COMMENT", $ID);
 		}
 
 		unset($GLOBALS["BLOG_COMMENT"]["BLOG_COMMENT_CACHE_".$ID]);
@@ -204,9 +206,7 @@ class CAllBlogComment
 		$rssText = False;
 
 		$arBlog = CBlog::GetByID($blogID);
-		if ($arBlog
-			&& $arBlog["ACTIVE"] == "Y"
-			&& $arBlog["ENABLE_RSS"] == "Y")
+		if ($arBlog && $arBlog["ACTIVE"] == "Y" && $arBlog["ENABLE_RSS"] == "Y")
 		{
 			$arGroup = CBlogGroup::GetByID($arBlog["GROUP_ID"]);
 			if($arGroup["SITE_ID"] == SITE_ID)
@@ -245,16 +245,26 @@ class CAllBlogComment
 					}
 
 					if(strlen($arPathTemplate["PATH_TO_BLOG"])>0)
-						$blogURL = htmlspecialchars("http://".$serverName.CComponentEngine::MakePathFromTemplate($arPathTemplate["PATH_TO_BLOG"], array("blog" => $arBlog["URL"], "user_id" => $arBlog["OWNER_ID"], "group_id" => $arBlog["SOCNET_GROUP_ID"])));
+						$blogURL = htmlspecialcharsbx("http://".$serverName.CComponentEngine::MakePathFromTemplate($arPathTemplate["PATH_TO_BLOG"], array("blog" => $arBlog["URL"], "user_id" => $arBlog["OWNER_ID"], "group_id" => $arBlog["SOCNET_GROUP_ID"])));
 					else
-						$blogURL = htmlspecialchars("http://".$serverName.CBlog::PreparePath($arBlog["URL"], $arGroup["SITE_ID"]));
+						$blogURL = htmlspecialcharsbx("http://".$serverName.CBlog::PreparePath($arBlog["URL"], $arGroup["SITE_ID"]));
 
 					if(strlen($arPathTemplate["PATH_TO_POST"])>0)
-						$url = htmlspecialchars("http://".$serverName.CComponentEngine::MakePathFromTemplate($arPathTemplate["PATH_TO_POST"], array("blog" => $arBlog["URL"], "post_id" => CBlogPost::GetPostID($arPost["ID"], $arPost["CODE"], $arPathTemplate["ALLOW_POST_CODE"]), "user_id" => $arBlog["OWNER_ID"], "group_id" => $arBlog["SOCNET_GROUP_ID"])));
+						$url = htmlspecialcharsbx("http://".$serverName.CComponentEngine::MakePathFromTemplate($arPathTemplate["PATH_TO_POST"], array("blog" => $arBlog["URL"], "post_id" => CBlogPost::GetPostID($arPost["ID"], $arPost["CODE"], $arPathTemplate["ALLOW_POST_CODE"]), "user_id" => $arBlog["OWNER_ID"], "group_id" => $arBlog["SOCNET_GROUP_ID"])));
 					else
-						$url = htmlspecialchars("http://".$serverName.CBlogPost::PreparePath($arBlog["URL"], $arPost["ID"], $arGroup["SITE_ID"]));
+						$url = htmlspecialcharsbx("http://".$serverName.CBlogPost::PreparePath($arBlog["URL"], $arPost["ID"], $arGroup["SITE_ID"]));
 
-					$blogName = GetMessage("BLG_GCM_RSS_TITLE", Array("#BLOG_NAME#" => htmlspecialcharsEx($arBlog["NAME"]), "#POST_TITLE#" => htmlspecialcharsEx($arPost["TITLE"])));
+					$dbUser = CUser::GetByID($arPost["AUTHOR_ID"]);
+					$arUser = $dbUser->Fetch();
+
+					if($arPathTemplate["USE_SOCNET"] == "Y")
+					{
+						$blogName = GetMessage("BLG_GCM_RSS_TITLE_SOCNET", Array("#AUTHOR_NAME#" => htmlspecialcharsEx($arUser["NAME"]." ".$arUser["LAST_NAME"]), "#POST_TITLE#" => htmlspecialcharsEx($arPost["TITLE"])));
+					}
+					else
+					{
+						$blogName = GetMessage("BLG_GCM_RSS_TITLE", Array("#BLOG_NAME#" => htmlspecialcharsEx($arBlog["NAME"]), "#POST_TITLE#" => htmlspecialcharsEx($arPost["TITLE"])));
+					}
 
 					$rssText = "";
 					if ($type == "rss.92")
@@ -285,7 +295,7 @@ class CAllBlogComment
 					}
 					elseif ($type == "atom.03")
 					{
-						$atomID = "tag:".htmlspecialchars($serverName).",".date("Y-m-d").":".$postID;
+						$atomID = "tag:".htmlspecialcharsbx($serverName).",".date("Y-m-d").":".$postID;
 
 						$rssText .= "<"."?xml version=\"1.0\" encoding=\"".$charset."\"?".">\n\n";
 						$rssText .= "<feed version=\"0.3\" xmlns=\"http://purl.org/atom/ns#\" xml:lang=\"".$language."\">\n";
@@ -296,11 +306,9 @@ class CAllBlogComment
 						$rssText .= "  <modified>".$nowISO."</modified>\n";
 
 						$BlogUser = CBlogUser::GetByID($arPost["AUTHOR_ID"], BLOG_BY_USER_ID);
-						$dbUser = CUser::GetByID($arPost["AUTHOR_ID"]);
-						$arUser = $dbUser->Fetch();
-						$authorP = htmlspecialcharsex(CBlogUser::GetUserName($BlogUser["ALIAS"], $arUser["NAME"], $arUser["LAST_NAME"], $arUser["LOGIN"]));
+						$authorP = htmlspecialcharsex(CBlogUser::GetUserName($BlogUser["ALIAS"], $arUser["NAME"], $arUser["LAST_NAME"], $arUser["LOGIN"], $arUser["SECOND_NAME"]));
 						if(strLen($arPathTemplate["PATH_TO_USER"])>0)
-							$authorURLP = htmlspecialchars("http://".$serverName.CComponentEngine::MakePathFromTemplate($arPathTemplate["PATH_TO_USER"], array("user_id"=>$arPost["AUTHOR_ID"])));
+							$authorURLP = htmlspecialcharsbx("http://".$serverName.CComponentEngine::MakePathFromTemplate($arPathTemplate["PATH_TO_USER"], array("user_id"=>$arPost["AUTHOR_ID"])));
 						else
 							$authorURLP = "http://".$serverName.CBlogUser::PreparePath($arPost["AUTHOR_ID"], $arGroup["SITE_ID"]);
 
@@ -313,33 +321,14 @@ class CAllBlogComment
 					}
 
 					$user_id = $GLOBALS["USER"]->GetID();
-					if($bSoNet)
+					if($arPathTemplate["USE_SOCNET"] == "Y")
 					{
-						$blogOwnerID = $arBlog["OWNER_ID"];
-						$arResult["PostPerm"] = BLOG_PERMS_DENY;
-						if(IntVal($arBlog["SOCNET_GROUP_ID"]) > 0)
-						{
-							if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arBlog["SOCNET_GROUP_ID"], "blog", "view_post"))
-								$postPerm = BLOG_PERMS_READ;
-							if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arBlog["SOCNET_GROUP_ID"], "blog", "write_post"))
-								$postPerm = BLOG_PERMS_WRITE;
-							if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arBlog["SOCNET_GROUP_ID"], "blog", "full_post", CSocNetUser::IsCurrentUserModuleAdmin()) || $GLOBALS["APPLICATION"]->GetGroupRight("blog") >= "W")
-								$postPerm = BLOG_PERMS_FULL;
-						}
-						else
-						{
-							if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $blogOwnerID, "blog", "view_post"))
-								$postPerm = BLOG_PERMS_READ;
-							if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $blogOwnerID, "blog", "write_post"))
-								$postPerm = BLOG_PERMS_WRITE;
-							if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $blogOwnerID, "blog", "full_post", CSocNetUser::IsCurrentUserModuleAdmin()) || $GLOBALS["APPLICATION"]->GetGroupRight("blog") >= "W")
-								$postPerm = BLOG_PERMS_FULL;
-						}
+						$postPerm = CBlogPost::GetSocNetPostPerms($postID);
+						if($postPerm > BLOG_PERMS_DENY)
+							$postPerm = CBlogComment::GetSocNetUserPerms($postID, $arPost["AUTHOR_ID"]);
 					}
 					else
-					{
 						$postPerm = CBlogPost::GetBlogUserCommentPerms($postID, IntVal($user_id));
-					}
 
 					if($postPerm >= BLOG_PERMS_READ)
 					{
@@ -353,16 +342,15 @@ class CAllBlogComment
 						$dbComments = CBlogComment::GetList(
 							array("DATE_CREATE" => "DESC"),
 							array(
-								"BLOG_ID" => $blogID,
+								//"BLOG_ID" => $blogID,
 								"POST_ID" => $postID,
 								"PUBLISH_STATUS" => BLOG_PUBLISH_STATUS_PUBLISH,
 							),
 							false,
 							array("nTopCount" => $numPosts),
-							array("ID", "TITLE", "DATE_CREATE", "POST_TEXT", "AUTHOR_EMAIL", "AUTHOR_ID", "AUTHOR_NAME", "USER_LOGIN", "USER_LAST_NAME", "USER_NAME", "BLOG_USER_ALIAS")
+							array("ID", "TITLE", "DATE_CREATE", "POST_TEXT", "AUTHOR_EMAIL", "AUTHOR_ID", "AUTHOR_NAME", "USER_LOGIN", "USER_LAST_NAME", "USER_SECOND_NAME", "USER_NAME", "BLOG_USER_ALIAS")
 						);
 						CTimeZone::Enable();
-						
 						$arImages = Array();
 						$dbImages = CBlogImage::GetList(Array(), Array("BLOG_ID" => $blogID, "POST_ID" => $postID, "IS_COMMENT" => "Y", "!COMMENT_ID" => false));
 						while($arI = $dbImages->Fetch())
@@ -379,15 +367,14 @@ class CAllBlogComment
 								$url1 = $url."?";
 							$url1 .= "commentId=".$arComments["ID"]."#".$arComments["ID"];
 
-
 							$authorURL = "";
 							if(IntVal($arComments["AUTHOR_ID"]) > 0)
 							{
-								$author = CBlogUser::GetUserName($arComments["BLOG_USER_ALIAS"], $arComments["USER_NAME"], $arComments["USER_LAST_NAME"], $arComments["USER_LOGIN"]);
+								$author = CBlogUser::GetUserName($arComments["BLOG_USER_ALIAS"], $arComments["USER_NAME"], $arComments["USER_LAST_NAME"], $arComments["USER_LOGIN"], $arComments["USER_SECOND_NAME"]);
 								if(strLen($arPathTemplate["PATH_TO_USER"])>0)
-									$authorURL = htmlspecialchars("http://".$serverName.CComponentEngine::MakePathFromTemplate($arPathTemplate["PATH_TO_USER"], array("user_id"=>$arComments["AUTHOR_ID"])));
+									$authorURL = htmlspecialcharsbx("http://".$serverName.CComponentEngine::MakePathFromTemplate($arPathTemplate["PATH_TO_USER"], array("user_id"=>$arComments["AUTHOR_ID"])));
 								else
-									$authorURL = htmlspecialchars("http://".$serverName.CBlogUser::PreparePath($arComments["AUTHOR_ID"], $arGroup["SITE_ID"]));
+									$authorURL = htmlspecialcharsbx("http://".$serverName.CBlogUser::PreparePath($arComments["AUTHOR_ID"], $arGroup["SITE_ID"]));
 							}
 							else
 								$author = $arComments["AUTHOR_NAME"];
@@ -437,7 +424,7 @@ class CAllBlogComment
 							}
 							elseif ($type == "atom.03")
 							{
-								$atomID = "tag:".htmlspecialchars($serverName).":".$arBlog["URL"]."/".$arPost["ID"];
+								$atomID = "tag:".htmlspecialcharsbx($serverName).":".$arBlog["URL"]."/".$arPost["ID"];
 
 								$timeISO = mktime($arDate["HH"], $arDate["MI"], $arDate["SS"], $arDate["MM"], $arDate["DD"], $arDate["YYYY"]);
 								$dateISO = date("Y-m-d\TH:i:s", $timeISO).substr(date("O", $timeISO), 0, 3).":".substr(date("O", $timeISO), -2, 2);
@@ -478,7 +465,9 @@ class CAllBlogComment
 	{
 		if(IntVal($arParams["BLOG_ID"]) <= 0 || IntVal($arParams["POST_ID"]) <= 0 || !CModule::IncludeModule("search"))
 			return false;
-
+		if($arParams["USE_SOCNET"] == "Y")
+			$arSp = CBlogComment::GetSocNetCommentPerms($arParams["POST_ID"]);
+			
 		$dbComment = CBlogComment::GetList(Array(), Array("BLOG_ID" => $arParams["BLOG_ID"], "POST_ID" => $arParams["POST_ID"], "PUBLISH_STATUS" => BLOG_PUBLISH_STATUS_PUBLISH), false, false, Array("ID", "POST_ID", "BLOG_ID", "PUBLISH_STATUS", "PATH", "DATE_CREATE", "POST_TEXT", "TITLE", "AUTHOR_ID"));
 		while($arComment = $dbComment->Fetch())
 		{
@@ -512,11 +501,9 @@ class CAllBlogComment
 				"ENTITY_ID" => $arComment["ID"],
 			);
 			if($arParams["USE_SOCNET"] == "Y")
-				unset($arSearchIndex["PERMISSIONS"]);
+				$arSearchIndex["PERMISSIONS"] = $arSp;
 			if(strlen($arComment["TITLE"]) <= 0)
-			{
 				$arSearchIndex["TITLE"] = substr($arSearchIndex["BODY"], 0, 100);
-			}
 
 			CSearch::Index("blog", "C".$arComment["ID"], $arSearchIndex, True);
 		}
@@ -527,7 +514,7 @@ class CAllBlogComment
 		if (!CModule::IncludeModule('socialnetwork'))
 			return;
 
-		$AuthorName = CBlogUser::GetUserName($arBlogUser["~ALIAS"], $arUser["~NAME"], $arUser["~LAST_NAME"], $arUser["~LOGIN"]); 
+		$AuthorName = CBlogUser::GetUserName($arBlogUser["~ALIAS"], $arUser["~NAME"], $arUser["~LAST_NAME"], $arUser["~LOGIN"], $arUser["~SECOND_NAME"]); 
 		$parserBlog = new blogTextParser(false, $arParams["PATH_TO_SMILE"]);
 
 		$arAllow = array("HTML" => "N", "ANCHOR" => "N", "BIU" => "N", "IMG" => "N", "QUOTE" => "N", "CODE" => "N", "FONT" => "N", "LIST" => "N", "SMILES" => "N", "NL2BR" => "N", "VIDEO" => "N");
@@ -572,6 +559,201 @@ class CAllBlogComment
 		);
 		while ($arRes = $dbRes->Fetch())
 			CSocNetLogComments::Delete($arRes["ID"]);
+	}
+	
+	function GetSocNetPostsPerms($entity_type, $entity_id)
+	{
+		global $DB;
+		$entity_id = IntVal($entity_id);
+
+		$type = "U";
+		$type2 = "US";
+		if($entity_type == "G")
+			$type = $type2 = "SG";
+		
+		return $DB->Query("SELECT C.ID, C.POST_ID
+							FROM b_blog_comment C
+							INNER JOIN b_blog_socnet_rights SR ON (C.POST_ID = SR.POST_ID AND SR.ENTITY_TYPE='".$type."' AND SR.ENTITY_ID=".$entity_id." AND SR.ENTITY = '".$type2.$entity_id."')", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+	}
+
+	function GetSocNetCommentPerms($postID = 0)
+	{
+		$postID = IntVal($postID);
+		if($postID <= 0)
+			return false;
+			
+		$arSp = Array();
+		$sp = CBlogPost::GetSocnetPerms($postID);
+		if(is_array($sp) && !empty($sp))
+		{
+			foreach($sp as $et => $v)
+			{
+				foreach($v as $eid => $tv)
+				{
+					if($et == "U" && in_array($et.$eid, $tv))
+					{
+						$arSp[] = $et.$eid;
+					}
+					elseif(in_array($et, Array("U", "SG")))
+					{
+						$spt = CBlogPost::GetSocnetGroups(($et == "SG" ? "G" : "U"), $eid, "view_comment");
+						foreach($spt as $vv)
+						{
+							if(!in_array($vv, $arSp))
+								$arSp[] = $vv;
+						}
+					}
+					else
+					{
+						$arSp[] = $et.$eid;
+					}
+				}
+			}							
+		}
+		return $arSp;
+	}
+	
+	function GetSocNetUserPerms($postId = 0, $authorId = 0)
+	{
+		$userId = IntVal($GLOBALS["USER"]->GetID());
+		$postId = IntVal($postId);
+		$authorId = IntVal($authorId);
+		if($postId <= 0)
+			return false;
+			
+		$perms = BLOG_PERMS_DENY;
+
+		$arAvailPerms = array_keys($GLOBALS["AR_BLOG_PERMS"]);
+		$blogModulePermissions = $GLOBALS["APPLICATION"]->GetGroupRight("blog");
+		if ($blogModulePermissions >= "W" || CSocNetUser::IsCurrentUserModuleAdmin())
+			$perms = $arAvailPerms[count($arAvailPerms) - 1];
+		if($authorId > 0 && $userId == $authorId)
+			$perms = BLOG_PERMS_FULL;
+
+		if($perms <= BLOG_PERMS_DENY)
+		{
+			$arPerms = CBlogPost::GetSocNetPerms($postId);
+			$arEntities = Array();
+			if (isset($GLOBALS["BLOG_POST"]["UAC_CACHE_".$userId]) && !empty($GLOBALS["BLOG_POST"]["UAC_CACHE_".$userId]))
+			{
+				$arEntities = $GLOBALS["BLOG_POST"]["UAC_CACHE_".$userId];
+			}
+			else
+			{
+				$dbA = CAccess::GetUserCodes($userId);
+				while($arA = $dbA->Fetch())
+				{
+					if($arA["PROVIDER_ID"] == "intranet")
+					{
+						$arEntities["DR"][] = $arA["ACCESS_CODE"];
+					}
+					elseif($arA["PROVIDER_ID"] == "socnetgroup")
+					{
+						$g = substr($arA["ACCESS_CODE"], 2);
+						$gId = IntVal($g);
+						$gR = substr($g, strpos($g, "_")+1);
+						
+						$arEntities["SG"][$gId][] = $gR;
+					}
+				}
+				$GLOBALS["BLOG_POST"]["UAC_CACHE_".$userId] = $arEntities;
+			}
+
+			if(!empty($arEntities["DR"]) && !empty($arPerms["DR"]))
+			{
+				foreach($arPerms["DR"] as $id => $val)
+				{
+					if(in_array("DR".$id, $arEntities["DR"]))
+					{
+						$perms = BLOG_PERMS_READ;
+						break;
+					}
+				}
+			}
+			if((!empty($arPerms["U"][$userId]) && in_array("US".$userId, $arPerms["U"][$userId])) || ($authorId >0 && $userId == $authorId)) // if author
+				$perms = BLOG_PERMS_FULL;
+			else
+			{
+				if($authorId <= 0)
+				{
+					foreach($arPerms["U"] as $id => $p)
+					{
+						if(in_array("US".$id, $p))
+						{
+							$authorId = $id;
+							break;
+						}
+					}
+				}
+				
+				if(!empty($arPerms["U"][$userId]) || (!empty($arPerms["U"][$authorId]) && in_array("US".$authorId, $arPerms["U"][$authorId])) || $perms == BLOG_PERMS_READ)
+				{
+					if (CSocNetFeaturesPerms::CanPerformOperation($userId, SONET_ENTITY_USER, $authorId, "blog", "write_comment"))
+						$perms = BLOG_PERMS_WRITE;
+					elseif (CSocNetFeaturesPerms::CanPerformOperation($userId, SONET_ENTITY_USER, $authorId, "blog", "premoderate_comment"))
+						$perms = BLOG_PERMS_PREMODERATE;
+					elseif (CSocNetFeaturesPerms::CanPerformOperation($userId, SONET_ENTITY_USER, $authorId, "blog", "view_comment"))
+						$perms = BLOG_PERMS_READ;
+				}
+			}
+
+			if($perms <= BLOG_PERMS_FULL)
+			{
+				$arGroupsId = Array();
+
+				if(!empty($arPerms["SG"]))
+				{
+					foreach($arPerms["SG"] as $gid => $val)
+					{
+						//if(!empty($arEntities["SG"][$gid]))
+						$arGroupsId[] = $gid;
+					}
+					$operation = Array("full_comment", "moderate_comment", "write_comment", "premoderate_comment");
+					if($perms < BLOG_PERMS_READ)
+						$operation[] = "view_comment";
+				}
+
+				if(!empty($arGroupsId))
+				{
+					foreach($operation as $v)
+					{
+						if($perms <= BLOG_PERMS_READ)
+						{
+							$f = CSocNetFeaturesPerms::GetOperationPerm(SONET_ENTITY_GROUP, $arGroupsId, "blog", $v);
+							if(!empty($f))
+							{
+								foreach($f as $gid => $val)
+								{
+									if((!empty($arEntities["SG"][$gid]) && in_array($val, $arEntities["SG"][$gid])) || $val == SONET_ROLES_ALL || ($userId > 0 && $val == SONET_ROLES_AUTHORIZED))
+									{
+										switch($v)
+										{
+											case "full_comment":
+												$perms = BLOG_PERMS_FULL;
+												break;
+											case "moderate_comment":
+												$perms = BLOG_PERMS_MODERATE;
+												break;
+											case "write_comment":
+												$perms = BLOG_PERMS_WRITE;
+												break;
+											case "premoderate_comment":
+												$perms = BLOG_PERMS_PREMODERATE;
+												break;
+											case "view_comment":
+												$perms = BLOG_PERMS_READ;
+												break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $perms;
 	}
 }
 ?>

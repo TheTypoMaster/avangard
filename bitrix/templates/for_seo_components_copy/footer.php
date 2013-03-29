@@ -28,9 +28,7 @@ IncludeTemplateLangFile(__FILE__);
 		</div>
 
 			</div>
-		<div id = "mobile_man" class="mobile_on" onclick="if($(this).hasClass('mobile_on'))this.className='mobile_off'; else this.className='mobile_on';">
-
-		</div>
+		
 		<!--****************************Ñ÷¸ò÷èêè************************************-->
 		<!-- Yandex.Metrika counter -->
 		<div style="display:none;">

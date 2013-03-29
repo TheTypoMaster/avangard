@@ -8,7 +8,6 @@ $aMenu = array(
 	"sort" => 210,
 	"text" => GetMessage("SEC_MENU_ITEM"),
 	"title" => GetMessage("SEC_MENU_TITLE"),
-	"url" => "security_index.php?lang=".LANGUAGE_ID,
 	"icon" => "security_menu_icon",
 	"page_icon" => "security_page_icon",
 	"items_id" => "menu_security",
@@ -124,6 +123,19 @@ if(
 		"url" => "security_redirect.php?lang=".LANGUAGE_ID,
 		"more_url" => Array("security_redirect.php"),
 		"title" => GetMessage("SEC_MENU_REDIRECT_TITLE"),
+	);
+}
+
+if(
+	$USER->CanDoOperation('security_frame_settings_read')
+	|| $USER->CanDoOperation('security_frame_settings_write')
+)
+{
+	$aMenu["items"][] = array(
+		"text" => GetMessage("SEC_MENU_FRAME_ITEM"),
+		"url" => "security_frame.php?lang=".LANGUAGE_ID,
+		"more_url" => Array("security_frame.php"),
+		"title" => GetMessage("SEC_MENU_FRAME_TITLE"),
 	);
 }
 

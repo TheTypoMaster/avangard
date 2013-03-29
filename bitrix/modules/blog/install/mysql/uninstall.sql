@@ -15,3 +15,5 @@ DROP TABLE if exists b_blog_user2blog;
 DROP TABLE if exists b_blog_image;
 DROP TABLE if exists b_blog_post_category;
 DROP TABLE if exists b_blog_socnet;
+
+DROP TABLE if exists b_blog_socnet_rights;

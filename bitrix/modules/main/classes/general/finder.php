@@ -279,7 +279,7 @@ class CFinder
 	
 		$arResult['ID'] = CUtil::AddSlashes($arItem['ID']);
 		$arResult['NAME'] = htmlspecialcharsEx($arItem['NAME']);
-		$arResult['DESC'] = CUtil::AddSlashes(htmlspecialchars($arItem['DESC']));
+		$arResult['DESC'] = CUtil::AddSlashes(htmlspecialcharsbx($arItem['DESC']));
 		
 		$html = '<a href="#'.$arResult['ID'].'" class="bx-finder-company-department-check bx-finder-element" rel="'.$arResult['ID'].'"  onclick="return BX.Finder.onAddItem(\''.$arResult['PROVIDER'].'\', \'structure-checkbox\', this, \''.$arResult['ID'].'\')" hidefocus="true">
 						<span class="bx-finder-company-department-check-inner"><div class="bx-finder-company-department-check-arrow"></div><div class="bx-finder-company-department-check-text" rel="'.$arResult['DESC'].'">'.$arResult['NAME'].'</div></span>

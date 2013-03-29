@@ -12,7 +12,7 @@ while($zr = $z->Fetch())
 {
 	$ar = array();
 	$ar["ID"] = intval($zr["ID"]);
-	$ar["NAME"] = htmlspecialchars($zr["NAME"]);
+	$ar["NAME"] = htmlspecialcharsbx($zr["NAME"]);
 	$arGROUPS[] = $ar;
 
 	$groups[$zr["ID"]] = $zr["NAME"]." [".$zr["ID"]."]";
@@ -66,6 +66,7 @@ $arAllOptions = array(
 		Array("header_200", GetMessage("HEADER_200"), "N", Array("checkbox", "Y")),
 		Array("error_reporting", GetMessage("MAIN_ERROR_REPORTING"), E_COMPILE_ERROR|E_ERROR|E_CORE_ERROR|E_PARSE, Array("selectbox", Array(E_COMPILE_ERROR|E_ERROR|E_CORE_ERROR|E_PARSE=>GetMessage("MAIN_OPTION_ERROR1"), E_ALL^E_NOTICE=>GetMessage("MAIN_OPTION_ERROR2"), 0=>GetMessage("MAIN_OPTION_ERROR3")))),
 		Array("templates_visual_editor", GetMessage("main_options_use_editor"), "N", Array("checkbox", "Y")),
+		Array("use_hot_keys", GetMessage("main_options_use_hot_keys"), "Y", Array("checkbox", "Y")),
 
 		GetMessage("main_options_mail"),
 		Array("all_bcc", GetMessage("MAIN_EMAIL"), "", Array("text", 30)),
@@ -82,17 +83,19 @@ $arAllOptions = array(
 		Array("disk_space", GetMessage("MAIN_DISK_SPACE"), "", Array("text", 30)),
 		Array("upload_dir", GetMessage("MAIN_UPLOAD_PARAM"), "upload", Array("text", 30)),
 		Array("save_original_file_name", GetMessage("MAIN_OPTION_SAVE_ORIG_NAMES"), "N", Array("checkbox", "Y")),
+		Array("translit_original_file_name", GetMessage("MAIN_OPTION_TRANSLIT"), "N", Array("checkbox", "Y")),
 		Array("convert_original_file_name", GetMessage("MAIN_OPTION_FNAME_CONV_AUTO"), "Y", Array("checkbox", "Y")),
 		Array("image_resize_quality", GetMessage("MAIN_OPTIONS_IMG_QUALITY"), "95", Array("text", "10")),
 
-        GetMessage("MAIN_OPTIMIZE_CSS_SETTINGS"),
+		GetMessage("MAIN_OPTIMIZE_CSS_SETTINGS"),
 		Array("optimize_css_files", GetMessage("MAIN_OPTIMIZE_CSS"), "N", Array("checkbox", "Y")),
-		Array("compres_css_files", GetMessage("MAIN_COMPRES_CSS"), "N", Array("checkbox", "Y")),
-
-        GetMessage("MAIN_OPTIMIZE_TRANSLATE_SETTINGS"),
+		Array("optimize_js_files", GetMessage("MAIN_OPTIMIZE_JS"), "N", Array("checkbox", "Y")),
+		Array("compres_css_js_files", GetMessage("MAIN_COMPRES_CSS_JS"), "N", Array("checkbox", "Y")),
+/*
+		GetMessage("MAIN_OPTIMIZE_TRANSLATE_SETTINGS"),
 		Array("translate_key_bing", GetMessage("MAIN_TRANSLATE_KEY_BING"), "", Array("text", 30)),
 		Array("translate_key_bing_hint", "", BeginNote().GetMessage("MAIN_TRANSLATE_KEY_BING_HINT").EndNote(), Array("statichtml", "")),
-
+*/
 		GetMessage("MAIN_OPT_TIME_ZONES"),
 		array("curr_time", GetMessage("MAIN_OPT_TIME_ZONES_LOCAL"), GetMessage("MAIN_OPT_TIME_ZONES_DIFF")." ".date('O')." (".date('Z').")<br>".GetMessage("MAIN_OPT_TIME_ZONES_DIFF_STD")." ".(date('I')? GetMessage("MAIN_OPT_TIME_ZONES_DIFF_STD_S") : GetMessage("MAIN_OPT_TIME_ZONES_DIFF_STD_ST"))."<br>".GetMessage("MAIN_OPT_TIME_ZONES_DIFF_DATE")." ".date('r'), array("statichtml")),
 	),
@@ -113,6 +116,7 @@ $arAllOptions = array(
 		Array("store_password", GetMessage("MAIN_REMEMBER"), "Y", Array("checkbox", "Y")),
 		Array("use_secure_password_cookies", GetMessage("MAIN_OPTION_USE_SECURE_PASSWORD_COOKIE"), "N", Array("checkbox", "Y")),
 		Array("auth_multisite", GetMessage("MAIN_OPTION_AUTH_TO_ALL_DOM"), "N", Array("checkbox", "Y")),
+		Array("allow_socserv_authorization", GetMessage("MAIN_OPTION_SOCSERV_AUTH"), "Y", Array("checkbox", "Y")),
 		Array("auth_comp2", GetMessage("MAIN_OPTION_AUTH_COMP2"), "N", Array("checkbox", "Y")),
 		Array("use_digest_auth", GetMessage("MAIN_OPT_HTTP_DIGEST"), "N", Array("checkbox", "Y")),
 		Array("note"=>GetMessage("MAIN_OPT_DIGEST_NOTE")),
@@ -267,7 +271,7 @@ if($REQUEST_METHOD=="POST" && strlen($Update)>0 && ($USER->CanDoOperation('edit_
 	{
 		foreach($aOptGroup as $option)
 		{
-		 	__AdmSettingsSaveOption("main", $option);
+			__AdmSettingsSaveOption("main", $option);
 		}
 	}
 	COption::SetOptionString("main", "admin_lid", $admin_lid);
@@ -371,22 +375,22 @@ function ShowParamsHTMLByArray($arParams)
 	{
 		if($Option[0] == "templates_visual_editor" && defined("BX_DISABLE_TEMPLATE_EDITOR") && BX_DISABLE_TEMPLATE_EDITOR == true)
 			continue;
-	 	__AdmSettingsDrawRow("main", $Option);
+		__AdmSettingsDrawRow("main", $Option);
 	}
 }
 ?>
-<form name="main_options" method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialchars($mid)?>&amp;lang=<?echo LANG?>">
+<form name="main_options" method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&amp;lang=<?echo LANG?>">
 <?=bitrix_sessid_post()?>
 <?
 $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
 	<tr class="heading">
-		<td valign="top" colspan="2" align="center"><b><?echo GetMessage("main_options_sys")?></b></td>
+		<td colspan="2"><b><?echo GetMessage("main_options_sys")?></b></td>
 	</tr>
 	<tr>
-		<td valign="top"><?echo GetMessage("MAIN_ADMIN_DEFAULT_LANG")?></td>
-		<td valign="middle"><?=CLangAdmin::SelectBox("admin_lid", COption::GetOptionString("main", "admin_lid", "en"));?></td>
+		<td><?echo GetMessage("MAIN_ADMIN_DEFAULT_LANG")?></td>
+		<td><?=CLangAdmin::SelectBox("admin_lid", COption::GetOptionString("main", "admin_lid", "en"));?></td>
 	</tr>
 	<?
 	ShowParamsHTMLByArray($arAllOptions["main"]);
@@ -395,7 +399,7 @@ $tabControl->BeginNextTab();
 $tabControl->BeginNextTab();
 ?>
 	<tr class="heading">
-		<td valign="top" colspan="2" align="center"><b><?echo GetMessage("MAIN_OPTION_CTRL_LOC")?></b></td>
+		<td colspan="2"><b><?echo GetMessage("MAIN_OPTION_CTRL_LOC")?></b></td>
 	</tr>
 
 <?
@@ -407,7 +411,7 @@ ShowParamsHTMLByArray($arAllOptions["event_log"]);
 
 <?if(COption::GetOptionString("main", "controller_member", "N")=="Y"):?>
 	<tr class="heading">
-		<td valign="top" colspan="2" align="center"><b><?echo GetMessage("MAIN_OPTION_CTRL_REM")?></b></td>
+		<td colspan="2"><b><?echo GetMessage("MAIN_OPTION_CTRL_REM")?></b></td>
 	</tr>
 <?
 ShowParamsHTMLByArray($arAllOptions["controller_auth"]);
@@ -421,8 +425,8 @@ ShowParamsHTMLByArray($arAllOptions["controller_auth"]);
 $tabControl->BeginNextTab();
 ?>
 	<tr>
-		<td valign="top" width="60%"><?echo GetMessage("MAIN_OPTION_LICENSE_KEY")?></td>
-		<td valign="middle" width="40%"><input type="text" size="30" maxlength="40" value="<?echo ($USER->CanDoOperation('edit_other_settings') ? htmlspecialchars($SET_LICENSE_KEY) : "XXX-XX-XXXXXXXXXXXXX")?>" name="SET_LICENSE_KEY">
+		<td width="50%"><?echo GetMessage("MAIN_OPTION_LICENSE_KEY")?></td>
+		<td width="50%"><input type="text" size="30" maxlength="40" value="<?echo ($USER->CanDoOperation('edit_other_settings') ? htmlspecialcharsbx($SET_LICENSE_KEY) : "XXX-XX-XXXXXXXXXXXXX")?>" name="SET_LICENSE_KEY">
 		</td>
 	</tr>
 
@@ -451,7 +455,7 @@ if ($GROUP_DEFAULT_TASK == '')
 		$arTasksInModule = CTask::GetTasksInModules(true,$module_id,'module');
 		$nID = COperation::GetIDByName('edit_subordinate_users');
 		$arTasks = $arTasksInModule['main'];
-		echo SelectBoxFromArray("GROUP_DEFAULT_TASK", $arTasks, htmlspecialchars($GROUP_DEFAULT_TASK));
+		echo SelectBoxFromArray("GROUP_DEFAULT_TASK", $arTasks, htmlspecialcharsbx($GROUP_DEFAULT_TASK));
 
 		$show_subord = false;
 		$arTaskIds = $arTasks['reference_id'];
@@ -557,7 +561,7 @@ foreach($arGROUPS as $group):
 		</td>
 </tr>
 <tr>
-	<td colspan="2" align="center">
+	<td colspan="2">
 <script type="text/javascript">
 function settingsSetGroupID(el)
 {
@@ -614,15 +618,15 @@ BX.ready(function(){
 
 </script>
 <?if($_REQUEST["back_url_settings"] <> ""):?>
-<input <?if (!$USER->CanDoOperation('edit_other_settings')) echo "disabled" ?> type="submit" name="Save" value="<?echo GetMessage("MAIN_SAVE")?>" title="<?echo GetMessage("MAIN_OPT_SAVE_TITLE")?>">
+<input <?if (!$USER->CanDoOperation('edit_other_settings')) echo "disabled" ?> type="submit" name="Save" value="<?echo GetMessage("MAIN_SAVE")?>" title="<?echo GetMessage("MAIN_OPT_SAVE_TITLE")?>" class="adm-btn-save">
 <?endif?>
-<input <?if (!$USER->CanDoOperation('edit_other_settings')) echo "disabled" ?> type="submit" name="Apply" value="<?echo GetMessage("MAIN_OPT_APPLY")?>" title="<?echo GetMessage("MAIN_OPT_APPLY_TITLE")?>">
+<input <?if (!$USER->CanDoOperation('edit_other_settings')) echo "disabled" ?> type="submit" name="Apply" value="<?echo GetMessage("MAIN_OPT_APPLY")?>" title="<?echo GetMessage("MAIN_OPT_APPLY_TITLE")?>"<?if($_REQUEST["back_url_settings"] == ""):?>  class="adm-btn-save"<?endif?>>
 <?if($_REQUEST["back_url_settings"] <> ""):?>
-<input type="button" name="" value="<?echo GetMessage("MAIN_OPT_CANCEL")?>" title="<?echo GetMessage("MAIN_OPT_CANCEL_TITLE")?>" onclick="window.location='<?echo htmlspecialchars(CUtil::JSEscape($_REQUEST["back_url_settings"]))?>'">
+<input type="button" name="" value="<?echo GetMessage("MAIN_OPT_CANCEL")?>" title="<?echo GetMessage("MAIN_OPT_CANCEL_TITLE")?>" onclick="window.location='<?echo htmlspecialcharsbx(CUtil::JSEscape($_REQUEST["back_url_settings"]))?>'">
 <?endif?>
 <input <?if (!$USER->CanDoOperation('edit_other_settings')) echo "disabled" ?> type="button" title="<?echo GetMessage("MAIN_HINT_RESTORE_DEFAULTS")?>" OnClick="RestoreDefaults();" value="<?echo GetMessage("MAIN_RESTORE_DEFAULTS")?>">
 <input type="hidden" name="Update" value="Y">
-<input type="hidden" name="back_url_settings" value="<?echo htmlspecialchars($_REQUEST["back_url_settings"])?>">
+<input type="hidden" name="back_url_settings" value="<?echo htmlspecialcharsbx($_REQUEST["back_url_settings"])?>">
 <?$tabControl->End();?>
 </form>
 <?
@@ -726,22 +730,23 @@ $tabControl = new CAdminTabControl("tabControl2", $aTabs, true, true);
 
 $tabControl->Begin();
 ?>
-<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialchars($mid)?>&amp;lang=<?echo LANG?>">
+<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&amp;lang=<?echo LANG?>">
 <?=bitrix_sessid_post()?>
 <input type="hidden" name="tabControl2_active_tab" value="fedit2">
 
 <?$tabControl->BeginNextTab();?>
 <tr>
-	<td valign="top" colspan="2" align="left">
+	<td colspan="2" align="left">
 		<?if(COption::GetOptionString("main", "site_stopped", "N")=="Y"):?>
 			<span style="color:red;"><?echo GetMessage("MAIN_OPTION_PUBL_CLOSES")?></span>
 		<?else:?>
 			<span style="color:green;"><?echo GetMessage("MAIN_OPTION_PUBL_OPENED")?></span>
 		<?endif?>
+		<br><br>
 	</td>
 </tr>
 <tr>
-	<td valign="top" colspan="2" align="left">
+	<td colspan="2" align="left">
 		<?if(COption::GetOptionString("main", "site_stopped", "N")=="Y"):?>
 			<input type="hidden" name="start_site" value="Y">
 			<input type="submit" <?if (!$USER->CanDoOperation('edit_other_settings')) echo "disabled" ?> name="start_siteb" value="<?echo GetMessage("MAIN_OPTION_PUBL_OPEN")?>">
@@ -756,7 +761,7 @@ $tabControl->Begin();
 </form>
 
 <?if(!IsModuleInstalled("controller")):?>
-<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialchars($mid)?>&amp;lang=<?echo LANG?>">
+<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?mid=<?=htmlspecialcharsbx($mid)?>&amp;lang=<?echo LANG?>">
 <?=bitrix_sessid_post()?>
 <input type="hidden" name="tabControl2_active_tab" value="fedit4">
 <?$tabControl->BeginNextTab();?>
@@ -776,34 +781,34 @@ if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
 		return confirm('<?=GetMessage("MAIN_OPTION_CONTROLLER_ALERT2")?>');
 	}
 	</script>
-	<tr>
-		<td nowrap><span class="required">*</span><?echo GetMessage("MAIN_OPTION_CONTROLLER_URL")?></td>
-		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialchars($controller_url);?>" name="controller_url" id="controller_url"></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("MAIN_OPTION_CONTROLLER_URL")?></td>
+		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialcharsbx($controller_url);?>" name="controller_url" id="controller_url"></td>
 	</tr>
 	<tr class="heading">
-		<td valign="top" colspan="2" align="center"><b><?echo GetMessage("MAIN_OPTION_CONTROLLER_ADDIT_SECT")?></b></td>
+		<td colspan="2"><b><?echo GetMessage("MAIN_OPTION_CONTROLLER_ADDIT_SECT")?></b></td>
 	</tr>
 	<tr>
-		<td nowrap><?echo GetMessage("MAIN_OPTION_CONTROLLER_ADM_LOGIN")?></td>
-		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialchars($controller_login);?>" name="controller_login" id="controller_login"></td>
+		<td><?echo GetMessage("MAIN_OPTION_CONTROLLER_ADM_LOGIN")?></td>
+		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialcharsbx($controller_login);?>" name="controller_login" id="controller_login"></td>
 	</tr>
 	<tr>
-		<td nowrap><?echo GetMessage("MAIN_OPTION_CONTROLLER_ADM_PASSWORD")?></td>
-		<td><input type="password" size="30" maxlength="255" value="<?=htmlspecialchars($controller_password);?>" name="controller_password" id="controller_password"></td>
+		<td><?echo GetMessage("MAIN_OPTION_CONTROLLER_ADM_PASSWORD")?></td>
+		<td><input type="password" size="30" maxlength="255" value="<?=htmlspecialcharsbx($controller_password);?>" name="controller_password" id="controller_password"></td>
 	</tr>
 	<tr>
-		<td nowrap><?echo GetMessage("MAIN_OPTION_CONTROLLER_SITENAME")?></td>
-		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialchars($site_name);?>" name="site_name" id="site_name"></td>
+		<td><?echo GetMessage("MAIN_OPTION_CONTROLLER_SITENAME")?></td>
+		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialcharsbx($site_name);?>" name="site_name" id="site_name"></td>
 	</tr>
 	<tr>
-		<td nowrap><?echo GetMessage("MAIN_OPTION_CONTROLLER_SITEURL")?></td>
-		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialchars($site_url);?>" name="site_url" id="site_url"></td>
+		<td><?echo GetMessage("MAIN_OPTION_CONTROLLER_SITEURL")?></td>
+		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialcharsbx($site_url);?>" name="site_url" id="site_url"></td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
 		<td>
 			<input type="hidden" name="controller_join" value="Y">
-			<input type="submit" name="controller_join" value="<?echo GetMessage("MAIN_OPTION_CONTROLLER_ADD_BUTT")?>" <?if (!$USER->IsAdmin()) echo "disabled" ?>>
+			<input type="submit" name="controller_join" value="<?echo GetMessage("MAIN_OPTION_CONTROLLER_ADD_BUTT")?>" <?if (!$USER->IsAdmin()) echo "disabled" ?> class="adm-btn-save">
 		</td>
 	</tr>
 <?else: //if(COption::GetOptionString("main", "controller_member", "N")!="Y"?>
@@ -814,8 +819,8 @@ if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
 	}
 	</script>
 	<tr>
-		<td nowrap><span class="required">*</span><?echo GetMessage("MAIN_OPTION_CONTROLLER_INFO")?></td>
-		<td><?=htmlspecialchars(COption::GetOptionString("main", "controller_url", ""));?></td>
+		<td><span class="required">*</span><?echo GetMessage("MAIN_OPTION_CONTROLLER_INFO")?></td>
+		<td><?=htmlspecialcharsbx(COption::GetOptionString("main", "controller_url", ""));?></td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
@@ -826,40 +831,40 @@ if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
 	</tr>
 	<?if($bControllerRemoveError):?>
 	<tr>
-		<td nowrap><label for="remove_anywhere"><?echo GetMessage("MAIN_OPTION_CONTROLLER_UN_CHECKB")?></label></td>
+		<td><label for="remove_anywhere"><?echo GetMessage("MAIN_OPTION_CONTROLLER_UN_CHECKB")?></label></td>
 		<td><input type="checkbox" name="remove_anywhere" id="remove_anywhere" value="Y"></td>
 	</tr>
 	<?endif;?>
 	<tr class="heading">
-		<td valign="top" colspan="2" align="center"><b><?echo GetMessage("MAIN_OPTION_CONTROLLER_ADDIT_SECT")?></b></td>
+		<td colspan="2"><b><?echo GetMessage("MAIN_OPTION_CONTROLLER_ADDIT_SECT")?></b></td>
 	</tr>
 	<tr>
-		<td nowrap><?echo GetMessage("MAIN_OPTION_CONTROLLER_ADM_LOGIN")?></td>
-		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialchars($controller_login);?>" name="controller_login" id="controller_login"></td>
+		<td><?echo GetMessage("MAIN_OPTION_CONTROLLER_ADM_LOGIN")?></td>
+		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialcharsbx($controller_login);?>" name="controller_login" id="controller_login"></td>
 	</tr>
 	<tr>
-		<td nowrap><?echo GetMessage("MAIN_OPTION_CONTROLLER_ADM_PASSWORD")?></td>
-		<td><input type="password" size="30" maxlength="255" value="<?=htmlspecialchars($controller_password);?>" name="controller_password" id="controller_password"></td>
+		<td><?echo GetMessage("MAIN_OPTION_CONTROLLER_ADM_PASSWORD")?></td>
+		<td><input type="password" size="30" maxlength="255" value="<?=htmlspecialcharsbx($controller_password);?>" name="controller_password" id="controller_password"></td>
 	</tr>
 <?endif; //if(COption::GetOptionString("main", "controller_member", "N")!="Y"?>
 	<tr class="heading">
-		<td valign="top" colspan="2" align="center"><b><?echo GetMessage("MAIN_OPTION_CONTROLLER_PROXY_SECTION")?></b></td>
+		<td colspan="2"><b><?echo GetMessage("MAIN_OPTION_CONTROLLER_PROXY_SECTION")?></b></td>
 	</tr>
 	<tr>
-		<td nowrap><?echo GetMessage("MAIN_OPTION_CONTROLLER_PROXY_ADDR")?></td>
-		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialchars(COption::GetOptionString("main", "controller_proxy_url"));?>" name="controller_proxy_url" id="controller_proxy_url"></td>
+		<td><?echo GetMessage("MAIN_OPTION_CONTROLLER_PROXY_ADDR")?></td>
+		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialcharsbx(COption::GetOptionString("main", "controller_proxy_url"));?>" name="controller_proxy_url" id="controller_proxy_url"></td>
 	</tr>
 	<tr>
-		<td nowrap><?echo GetMessage("MAIN_OPTION_CONTROLLER_PROXY_PORT")?></td>
-		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialchars(COption::GetOptionString("main", "controller_proxy_port"));?>" name="controller_proxy_port" id="controller_proxy_port"></td>
+		<td><?echo GetMessage("MAIN_OPTION_CONTROLLER_PROXY_PORT")?></td>
+		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialcharsbx(COption::GetOptionString("main", "controller_proxy_port"));?>" name="controller_proxy_port" id="controller_proxy_port"></td>
 	</tr>
 	<tr>
-		<td nowrap><?echo GetMessage("MAIN_OPTION_CONTROLLER_PROXY_USER")?></td>
-		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialchars(COption::GetOptionString("main", "controller_proxy_user"));?>" name="controller_proxy_user" id="controller_proxy_user"></td>
+		<td><?echo GetMessage("MAIN_OPTION_CONTROLLER_PROXY_USER")?></td>
+		<td><input type="text" size="30" maxlength="255" value="<?=htmlspecialcharsbx(COption::GetOptionString("main", "controller_proxy_user"));?>" name="controller_proxy_user" id="controller_proxy_user"></td>
 	</tr>
 	<tr>
-		<td nowrap><?echo GetMessage("MAIN_OPTION_CONTROLLER_PROXY_PASSWORD")?></td>
-		<td><input type="password" size="30" maxlength="255" value="<?=htmlspecialchars(COption::GetOptionString("main", "controller_proxy_password"));?>" name="controller_proxy_password" id="controller_proxy_password"></td>
+		<td><?echo GetMessage("MAIN_OPTION_CONTROLLER_PROXY_PASSWORD")?></td>
+		<td><input type="password" size="30" maxlength="255" value="<?=htmlspecialcharsbx(COption::GetOptionString("main", "controller_proxy_password"));?>" name="controller_proxy_password" id="controller_proxy_password"></td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
@@ -877,7 +882,7 @@ if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
 <?$tabControl->EndTab();?>
 <?$tabControl->BeginNextTab();?>
 <tr>
-<td valign="top" align="left">
+<td align="left">
 <IFRAME style="width:0px; height:0px; border:none;" src="javascript:void(0)" name="frame_disk_quota" id="frame_disk_quota"></IFRAME>
 <?
 	$arParam = array();
@@ -916,7 +921,7 @@ if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
 		<div id="pb_db" class="pbar-inner-red<?=($arParam["db"]["status"] == "done" ? "" : "-error")?>" style="width:<?=intVal($arParam["db"]["size_in_per"]*350)?>px; padding-left:<?=intVal($arParam["db"]["size_in_per"]*350)?>px;">&nbsp;</div><div id="pb_files" class="pbar-inner-green<?=($arParam["files"]["status"] == "done" ? "" : "-error")?>" style="width:<?=intVal($arParam["files"]["size_in_per"]*350)?>px; padding-left:<?=intVal($arParam["files"]["size_in_per"]*350)?>px;">&nbsp;</div>
 </div>
 <div class="pbar-title-outer"><div class="pbar-title-inner"><?=str_replace(array("#USED_SPACE#", "#DISK_QUOTA#"), array("<span id=\"used_size\">".intVal($usedSpace)."</span>%", COption::GetOptionInt("main", "disk_space")." Mb"), GetMessage("MAIN_OPTION_SIZE_PROGRESS_BAR"))?></div></div><br />
-	<input type="button" id="butt_start" value="<?=GetMessage("MAIN_OPTION_SIZE_RECOUNT")?>" <?=((!$USER->CanDoOperation('edit_other_settings')) ? "disabled": "onclick=\"StartReCount()\"")?> />
+	<input type="button" id="butt_start" value="<?=GetMessage("MAIN_OPTION_SIZE_RECOUNT")?>" <?=((!$USER->CanDoOperation('edit_other_settings')) ? "disabled": "onclick=\"StartReCount()\"")?>  class="adm-btn-save"/>
 	<input type="button" id="butt_cont" value="<?=GetMessage("MAIN_OPTION_SIZE_CONTINUE")?>" disabled="disabled" <?=((!$USER->CanDoOperation('edit_other_settings')) ? "disabled":  "onclick=\"StartReCount('from_the_last')\"")?> />
 	<input type="button" id="butt_stop" value="<?=GetMessage("MAIN_OPTION_SIZE_STOP")?>" disabled="disabled" <?=((!$USER->CanDoOperation('edit_other_settings')) ? "disabled": "onclick=\"StopReCount()\"")?> />
 	</td>

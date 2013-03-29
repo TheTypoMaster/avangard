@@ -29,6 +29,7 @@ if($arParams["LINK_IBLOCK_ID"] && $arParams["LINK_PROPERTY_SID"] && count($arRes
 		"ACTIVE_DATE" => "Y",
 		"ACTIVE" => "Y",
 		"CHECK_PERMISSIONS" => "Y",
+		"MIN_PERMISSION" => 'R',
 		"PROPERTY_".$arParams["LINK_PROPERTY_SID"] => $arID,
 	);
 	//ORDER BY
@@ -36,13 +37,25 @@ if($arParams["LINK_IBLOCK_ID"] && $arParams["LINK_PROPERTY_SID"] && count($arRes
 		"ID" => "ASC",
 	);
 	//PRICES
-	if(!$arParams["USE_PRICE_COUNT"])
+	$arPriceTypeID = array();
+	if (!$arParams["USE_PRICE_COUNT"])
 	{
-		foreach($arResult["PRICES"] as $key => $value)
+		foreach($arResult["PRICES"] as &$value)
 		{
 			$arSelect[] = $value["SELECT"];
 			$arFilter["CATALOG_SHOP_QUANTITY_".$value["ID"]] = $arParams["SHOW_PRICE_COUNT"];
 		}
+		if (isset($value))
+			unset($value);
+	}
+	else
+	{
+		foreach($arResult["PRICES"] as &$value)
+		{
+			$arPriceTypeID[] = $value["ID"];
+		}
+		if (isset($value))
+			unset($value);
 	}
 
 	$arFound = array();
@@ -59,9 +72,9 @@ if($arParams["LINK_IBLOCK_ID"] && $arParams["LINK_PROPERTY_SID"] && count($arRes
 			{
 				if(CModule::IncludeModule("catalog"))
 				{
-					$arItem["PRICE_MATRIX"] = CatalogGetPriceTableEx($arElement["ID"]);
+					$arItem["PRICE_MATRIX"] = CatalogGetPriceTableEx($arElement["ID"], 0, $arPriceTypeID, 'Y', $arResult['CONVERT_CURRENCY']);
 					foreach($arItem["PRICE_MATRIX"]["COLS"] as $keyColumn=>$arColumn)
-						$arItem["PRICE_MATRIX"]["COLS"][$keyColumn]["NAME_LANG"] = htmlspecialchars($arColumn["NAME_LANG"]);
+						$arItem["PRICE_MATRIX"]["COLS"][$keyColumn]["NAME_LANG"] = htmlspecialcharsbx($arColumn["NAME_LANG"]);
 				}
 				else
 				{
@@ -72,7 +85,7 @@ if($arParams["LINK_IBLOCK_ID"] && $arParams["LINK_PROPERTY_SID"] && count($arRes
 			else
 			{
 				$arItem["PRICE_MATRIX"] = false;
-				$arItem["PRICES"] = CIBlockPriceTools::GetItemPrices($arParams["LINK_IBLOCK_ID"], $arResult["PRICES"], $arElement);
+				$arItem["PRICES"] = CIBlockPriceTools::GetItemPrices($arParams["LINK_IBLOCK_ID"], $arResult["PRICES"], $arElement, $arParams['PRICE_VAT_INCLUDE'], $arResult['CONVERT_CURRENCY']);
 			}
 			$arItem["CAN_BUY"] = CIBlockPriceTools::CanBuy($arParams["LINK_IBLOCK_ID"], $arResult["PRICES"], $arElement);
 		}

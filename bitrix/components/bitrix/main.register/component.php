@@ -100,7 +100,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_REQUEST["register_submit_bu
 	{
 		$res = CUser::GetList($b, $o, array("=EMAIL" => $arResult["VALUES"]["EMAIL"]));
 		if($res->Fetch())
-			$arResult["ERRORS"][] = GetMessage("REGISTER_USER_WITH_EMAIL_EXIST", array("#EMAIL#" => htmlspecialchars($arResult["VALUES"]["EMAIL"])));
+			$arResult["ERRORS"][] = GetMessage("REGISTER_USER_WITH_EMAIL_EXIST", array("#EMAIL#" => htmlspecialcharsbx($arResult["VALUES"]["EMAIL"])));
 	}
 
 	if(count($arResult["ERRORS"]) > 0)
@@ -218,7 +218,7 @@ foreach ($arResult["REQUIRED_FIELDS"] as $field)
 	$arResult["REQUIRED_FIELDS_FLAGS"][$field] = "Y";
 
 // check backurl existance
-$arResult["BACKURL"] = htmlspecialchars($_REQUEST["backurl"]);
+$arResult["BACKURL"] = htmlspecialcharsbx($_REQUEST["backurl"]);
 
 // get countries list
 if (in_array("PERSONAL_COUNTRY", $arResult["SHOW_FIELDS"]) || in_array("WORK_COUNTRY", $arResult["SHOW_FIELDS"])) 
@@ -256,7 +256,7 @@ if (!empty($arResult["USER_PROPERTIES"]["DATA"]))
 
 // initialize captcha
 if ($arResult["USE_CAPTCHA"] == "Y")
-	$arResult["CAPTCHA_CODE"] = htmlspecialchars($APPLICATION->CaptchaGetCode());
+	$arResult["CAPTCHA_CODE"] = htmlspecialcharsbx($APPLICATION->CaptchaGetCode());
 
 // set title
 if ($arParams["SET_TITLE"] == "Y") 

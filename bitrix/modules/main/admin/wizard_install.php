@@ -26,7 +26,7 @@ function _DumpPostVars($vname, $vvalue, $var_stack=array())
 
 		if ($var_name != "sessid")
 		{
-			?><input type="hidden" name="<?echo htmlspecialchars($var_name)?>" value="<?echo htmlspecialchars($vvalue)?>"><?
+			?><input type="hidden" name="<?echo htmlspecialcharsbx($var_name)?>" value="<?echo htmlspecialcharsbx($vvalue)?>"><?
 		}
 	}
 }

@@ -22,97 +22,132 @@ class CPHPCacheFiles
 		return true;
 	}
 
-	function clean($basedir, $initdir, $filename = false)
+	private static function _unlink($fileName)
 	{
-		if(strlen($filename))
+		//This checks for Zend Server CE in order to supress warnings
+		if(function_exists('accelerator_reset'))
 		{
-			$fn = $_SERVER["DOCUMENT_ROOT"].$basedir.$initdir.$filename;
-
-			//This checks for Zend Server CE in order to supress warnings
-			if(function_exists('accelerator_reset'))
-			{
-				@chmod($fn, BX_FILE_PERMISSIONS);
-				if(@unlink($fn))
-				{
-					bx_accelerator_reset();
-					return true;
-				}
-			}
-			else
-			{
-				if(file_exists($fn))
-				{
-					@chmod($fn, BX_FILE_PERMISSIONS);
-					if(unlink($fn))
-					{
-						bx_accelerator_reset();
-						return true;
-					}
-				}
-			}
-			return false;
+			@chmod($fileName, BX_FILE_PERMISSIONS);
+			if(@unlink($fileName))
+				return true;
 		}
 		else
 		{
-			global $DB, $APPLICATION;
-			static $bAgentAdded = false;
-
-			$source = "/".trim($basedir, "/")."/".trim($initdir, "/");
-			$bDelayedDelete = false;
-
-			if(file_exists($_SERVER["DOCUMENT_ROOT"].$source))
+			if(file_exists($fileName))
 			{
-				$target = $source.".~";
-				for($i = 0; $i < 9; $i++) //try to get new directory name no more than ten times
-				{
-					$suffix = rand(0, 999999);
-					if(!file_exists($_SERVER["DOCUMENT_ROOT"].$target.$suffix))
-					{
-						if(
-							$DB->Query("INSERT INTO b_cache_tag (SITE_ID, CACHE_SALT, RELATIVE_PATH, TAG)
-							VALUES ('*', '*', '".$DB->ForSQL($target.$suffix)."', '*')")
-						)
-						{
-							if(@rename($_SERVER["DOCUMENT_ROOT"].$source, $_SERVER["DOCUMENT_ROOT"].$target.$suffix))
-								$bDelayedDelete = true;
-						}
-						break;
-					}
-				}
+				@chmod($fileName, BX_FILE_PERMISSIONS);
+				if(unlink($fileName))
+					return true;
 			}
+		}
+		return false;
+	}
 
-			if($bDelayedDelete)
+	private static function _addAgent()
+	{
+		global $APPLICATION;
+		static $bAgentAdded = false;
+		if(!$bAgentAdded)
+		{
+			$bAgentAdded = true;
+			$rsAgents = CAgent::GetList(array("ID"=>"DESC"), array("NAME" => "CPHPCacheFiles::DelayedDelete(%"));
+			if(!$rsAgents->Fetch())
 			{
-				if(!$bAgentAdded)
-				{
-					$bAgentAdded = true;
-					$rsAgents = CAgent::GetList(array("ID"=>"DESC"), array("NAME" => "CPHPCacheFiles::DelayedDelete(%"));
-					if(!$rsAgents->Fetch())
-					{
-						$res = CAgent::AddAgent(
-							"CPHPCacheFiles::DelayedDelete();",
-							"main", //module
-							"Y", //period
-							1 //interval
-						);
+				$res = CAgent::AddAgent(
+					"CPHPCacheFiles::DelayedDelete();",
+					"main", //module
+					"Y", //period
+					1 //interval
+				);
 
-						if(!$res)
-							$APPLICATION->ResetException();
+				if(!$res)
+					$APPLICATION->ResetException();
+			}
+		}
+	}
+
+	private static function _randomizeFile($fileName)
+	{
+		for($i = 0; $i < 99; $i++) //try to get new directory name no more than ten times
+		{
+			$suffix = rand(0, 999999);
+			if(!file_exists($_SERVER["DOCUMENT_ROOT"].$fileName.$suffix))
+				return $fileName.$suffix;
+		}
+		return "";
+	}
+
+	function clean($basedir, $initdir = false, $filename = false)
+	{
+		$DOCUMENT_ROOT = rtrim($_SERVER["DOCUMENT_ROOT"], "/");
+
+		if(strlen($filename))
+		{
+			$res = CPHPCacheFiles::_unlink($DOCUMENT_ROOT.$basedir.$initdir.$filename);
+			bx_accelerator_reset();
+			return $res;
+		}
+		else
+		{
+			global $DB;
+
+			$initdir = trim($initdir, "/");
+			if($initdir == "")
+			{
+				$sourceDir = $DOCUMENT_ROOT."/".trim($basedir, "/");
+				if(file_exists($sourceDir) && is_dir($sourceDir))
+				{
+					$dh = opendir($sourceDir);
+					if(is_resource($dh))
+					{
+						while($entry = readdir($dh))
+						{
+							if(preg_match("/^(\\.|\\.\\.|.*\\.~\\d+)\$/", $entry))
+								continue;
+
+							if(is_dir($sourceDir."/".$entry))
+								CPHPCacheFiles::clean($basedir, $entry);
+							elseif(is_file($sourceDir."/".$entry))
+								CPHPCacheFiles::_unlink($sourceDir."/".$entry);
+						}
 					}
 				}
 			}
 			else
 			{
-				DeleteDirFilesEx($basedir.$initdir);
-			}
+				$source = "/".trim($basedir, "/")."/".$initdir;
+				$source = rtrim($source, "/");
+				$bDelayedDelete = false;
 
-			bx_accelerator_reset();
+				if(!preg_match("/^(\\.|\\.\\.|.*\\.~\\d+)\$/", $source) && file_exists($DOCUMENT_ROOT.$source))
+				{
+					$target = CPHPCacheFiles::_randomizeFile($source.".~");
+					if($target != '')
+					{
+						if(
+							$DB->Query("INSERT INTO b_cache_tag (SITE_ID, CACHE_SALT, RELATIVE_PATH, TAG)
+							VALUES ('*', '*', '".$DB->ForSQL($target)."', '*')")
+						)
+						{
+							if(@rename($DOCUMENT_ROOT.$source, $DOCUMENT_ROOT.$target))
+								$bDelayedDelete = true;
+						}
+					}
+				}
+
+				if($bDelayedDelete)
+					CPHPCacheFiles::_addAgent();
+				else
+					DeleteDirFilesEx($basedir.$initdir);
+
+				bx_accelerator_reset();
+			}
 		}
 	}
 
 	function read(&$arAllVars, $basedir, $initdir, $filename, $TTL)
 	{
-		$fn = $_SERVER["DOCUMENT_ROOT"].$basedir.$initdir.$filename;
+		$fn = rtrim($_SERVER["DOCUMENT_ROOT"], "/")."/".ltrim($basedir.$initdir, "/").$filename;
 
 		if(!file_exists($fn))
 			return false;
@@ -163,8 +198,7 @@ class CPHPCacheFiles
 
 	function write($arAllVars, $basedir, $initdir, $filename, $TTL)
 	{
-
-		$folder = $_SERVER["DOCUMENT_ROOT"].$basedir.$initdir;
+		$folder = rtrim($_SERVER["DOCUMENT_ROOT"], "/")."/".ltrim($basedir.$initdir, "/");
 		$fn = $folder.$filename;
 		$tmp_fn = $folder.md5(mt_rand()).".tmp";
 
@@ -194,20 +228,12 @@ class CPHPCacheFiles
 
 			fclose($handle);
 
-			//This checks for Zend Server CE in order to supress warnings
-			if(function_exists('accelerator_reset'))
-				@unlink($fn);
-			elseif(file_exists($fn))
-				unlink($fn);
+			$this->_unlink($fn);
 
 			if($this->written === $len)
 				rename($tmp_fn, $fn);
 
-			//This checks for Zend Server CE in order to supress warnings
-			if(function_exists('accelerator_reset'))
-				@unlink($tmp_fn);
-			elseif(file_exists($tmp_fn))
-				unlink($tmp_fn);
+			$this->_unlink($tmp_fn);
 		}
 	}
 
@@ -237,7 +263,7 @@ class CPHPCacheFiles
 		return false;
 	}
 
-	function DeleteOneDir()
+	function DeleteOneDir($etime = 0)
 	{
 		global $DB;
 		$bDeleteFromQueue = false;
@@ -246,7 +272,7 @@ class CPHPCacheFiles
 		if($ar = $rs->Fetch())
 		{
 			$dir_name = $_SERVER["DOCUMENT_ROOT"].$ar["RELATIVE_PATH"];
-			if(file_exists($dir_name))
+			if($ar["RELATIVE_PATH"] != '' && file_exists($dir_name))
 			{
 				$dh = opendir($dir_name);
 				if(is_resource($dh))
@@ -258,7 +284,8 @@ class CPHPCacheFiles
 						{
 							DeleteDirFilesEx($ar["RELATIVE_PATH"]."/".$file);
 							$Counter++;
-							break;
+							if(time() > $etime)
+								break;
 						}
 					}
 					closedir($dh);
@@ -294,7 +321,7 @@ class CPHPCacheFiles
 		$etime = time()+2;
 		for($i = 0; $i < $count; $i++)
 		{
-			CPHPCacheFiles::DeleteOneDir();
+			CPHPCacheFiles::DeleteOneDir($etime);
 			if(time() > $etime)
 				break;
 		}
@@ -302,9 +329,18 @@ class CPHPCacheFiles
 		//try to adjust cache cleanup speed to cache cleanups
 		$rs = $DB->Query("SELECT * from b_cache_tag WHERE TAG='**'");
 		if($ar = $rs->Fetch())
+		{
 			$last_count = intval($ar["RELATIVE_PATH"]);
+			if(preg_match("/:(\\d+)$/", $ar["RELATIVE_PATH"], $m))
+				$last_time = intval($m[1]);
+			else
+				$last_time = 0;
+		}
 		else
+		{
+			$last_time = 0;
 			$last_count = 0;
+		}
 		$bWasStatRecFound = is_array($ar);
 
 		$rs = $DB->Query("SELECT count(1) CNT from b_cache_tag WHERE TAG='*'");
@@ -315,14 +351,27 @@ class CPHPCacheFiles
 
 		$delta = $this_count - $last_count;
 		if($delta > 0)
-			$count = intval($this_count/3600)+1; //Rest of the queue in an hour
+		{
+			if($last_time > 0)
+				$time_step = time()-$last_time;
+			if($time_step <= 0)
+				$time_step = 1;
+			$count = intval($this_count*$time_step/3600)+1; //Rest of the queue in an hour
+		}
 		elseif($count < 1)
+		{
 			$count = 1;
+		}
 
 		if($bWasStatRecFound)
-			$DB->Query("UPDATE b_cache_tag SET RELATIVE_PATH='".$this_count."' WHERE TAG='**'");
+		{
+			if($last_count != $this_count)
+				$DB->Query("UPDATE b_cache_tag SET RELATIVE_PATH='".$this_count.":".time()."' WHERE TAG='**'");
+		}
 		else
-			$DB->Query("INSERT INTO b_cache_tag (TAG, RELATIVE_PATH) VALUES ('**', '".$this_count."')");
+		{
+			$DB->Query("INSERT INTO b_cache_tag (TAG, RELATIVE_PATH) VALUES ('**', '".$this_count.":".time()."')");
+		}
 
 		if($this_count > 0)
 			return "CPHPCacheFiles::DelayedDelete(".$count.");";

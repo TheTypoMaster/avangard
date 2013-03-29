@@ -8,4 +8,5 @@ $MESS ['P_PHOTO_SORT_RATING_TITLE'] = "by vote count";
 $MESS ['P_PHOTO_SORT_COMMENTS'] = "Most commented";
 $MESS ['P_PHOTO_SORT_COMMENTS_TITLE'] = "by comment count";
 $MESS ['P_PHOTO'] = "Photogallery";
+$MESS["P_ADD_ALBUM"] = "New album";
 ?>

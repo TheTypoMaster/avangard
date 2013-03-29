@@ -5,7 +5,7 @@ define("ADMIN_MODULE_NAME", "clouds");
 /*.require_module 'pcre';.*/
 /*.require_module 'bitrix_main_include_prolog_admin_before';.*/
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-if(!$USER->IsAdmin())
+if(!$USER->CanDoOperation("clouds_config"))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 /*.require_module 'bitrix_clouds_include';.*/
@@ -14,10 +14,11 @@ if(!CModule::IncludeModule('clouds'))
 
 IncludeModuleLangFile(__FILE__);
 
+$io = CBXVirtualIo::GetInstance();
 $sTableID = "tbl_clouds_storage_list";
 $oSort = new CAdminSorting($sTableID, "ID", "ASC");
 $lAdmin = new CAdminList($sTableID, $oSort);
-$nOnTheMove = isset($_GET["onthemove"]);
+$bOnTheMove = isset($_GET["themove"]);
 
 $upload_dir = $_SERVER["DOCUMENT_ROOT"]."/".COption::GetOptionString("main", "upload_dir", "upload");
 $bHasLocalStorage = file_exists($upload_dir) && (is_dir($upload_dir) || is_link($upload_dir)) && is_writable($upload_dir);
@@ -60,6 +61,11 @@ if(is_array($arID))
 				else
 					$last_file_id = 0;
 
+				if(isset($_SESSION["last_file_pos"]))
+					$last_file_pos = doubleval($_SESSION["last_file_pos"]);
+				else
+					$last_file_pos = 0;
+
 				$rsNextFile = $DB->Query("
 					SELECT MIN(ID) ID, COUNT(1) CNT, SUM(FILE_SIZE) FILE_SIZE
 					FROM b_file
@@ -73,18 +79,87 @@ if(is_array($arID))
 					&& (intval($ar["ID"]) > 0)
 				)
 				{
-					$_SESSION["last_file_id"] = $ar["ID"];
+					$bNextFile = true;
+					$bFileMoved = false;
+					$maxPartSize = 1024*1024; //1M
 
 					$arFile = CFile::GetFileArray($ar["ID"]);
-					$filePath = "/".$arFile["SUBDIR"]."/".$arFile["FILE_NAME"];
-					$filePath = preg_replace("#[\\\\\\/]+#", "/", $filePath);
-					$absPath = $_SERVER["DOCUMENT_ROOT"]."/".COption::GetOptionString("main", "upload_dir", "upload").$filePath;
-					$absPath = preg_replace("#[\\\\\\/]+#", "/", $absPath);
+					$filePath = preg_replace("#[\\\\\\/]+#", "/", "/".$arFile["SUBDIR"]."/".$arFile["FILE_NAME"]);
+					$absPath = preg_replace("#[\\\\\\/]+#", "/", $_SERVER["DOCUMENT_ROOT"]."/".COption::GetOptionString("main", "upload_dir", "upload").$filePath);
+					$absPath = $io->GetPhysicalName($absPath);
+					$absTempPath = $absPath."~";
 
 					if(!file_exists($absPath))
 					{
-						if($ob->DownloadToFile($arFile, $absPath))
+						CheckDirPath($absTempPath);
+
+						$obRequest = new CHTTP;
+						$obRequest->follow_redirect = true;
+						$obRequest->fp = fopen($absTempPath, "ab");
+						if(is_resource($obRequest->fp))
 						{
+							if($arFile["FILE_SIZE"] > $maxPartSize)
+							{
+								$obRequest->additional_headers["Range"] = sprintf("bytes=%u-%u", $last_file_pos, ($last_file_pos+$maxPartSize > $arFile["FILE_SIZE"]? $arFile["FILE_SIZE"]: $last_file_pos+$maxPartSize)-1);
+							}
+
+							$res = $obRequest->HTTPQuery('GET', $ob->GetFileSRC($arFile));
+
+							fclose($obRequest->fp);
+							unset($obRequest->fp);
+
+							if($res && ($obRequest->status == 200 || $obRequest->status == 206))
+							{
+								$bFileMoved = true;
+								if($arFile["FILE_SIZE"] > $maxPartSize)
+								{
+									$last_file_pos += $maxPartSize;
+									$_SESSION["last_file_pos"] = $last_file_pos;
+									$bNextFile = false;
+								}
+								else
+								{
+									$last_file_pos = $arFile["FILE_SIZE"];
+								}
+
+								if(
+									array_key_exists("Content-Range", $obRequest->headers)
+									&& preg_match("/(\\d+)-(\\d+)\\/(\\d+)\$/", $obRequest->headers["Content-Range"], $match)
+								)
+									$FILE_SIZE = $match[3];
+								elseif(
+									array_key_exists("Content-Length", $obRequest->headers)
+									&& preg_match("/^(\\d+)\$/", $obRequest->headers["Content-Length"], $match)
+									&& $match[1] > $maxPartSize
+								)
+									$FILE_SIZE = 0; //Chunk download not supported
+								else
+									$FILE_SIZE = $arFile["FILE_SIZE"];
+
+								if($last_file_pos > $FILE_SIZE)
+								{
+									$last_file_pos = $arFile["FILE_SIZE"];
+									$bFileMoved = true;
+									$bNextFile = true;
+								}
+							}
+							else
+							{
+								//An error occured
+								@unlink($absTempPath);
+								$bFileMoved = false;
+							}
+						}
+					}
+
+					if($bNextFile)
+					{
+						$_SESSION["last_file_id"] = $ar["ID"];
+						$_SESSION["last_file_pos"] = 0.0;
+
+						if($bFileMoved)
+						{
+							rename($absTempPath, $absPath);
 							$ob->DeleteFile($filePath);
 							$DB->Query("
 								UPDATE b_file
@@ -93,36 +168,46 @@ if(is_array($arID))
 							");
 							CFile::CleanCache($arFile["ID"]);
 							$ob->DecFileCounter((float)$arFile["FILE_SIZE"]);
+							$ob->Update(array("LAST_FILE_ID" => 0));
 						}
 					}
 
 					CAdminMessage::ShowMessage(array(
+						"TYPE"=>"PROGRESS",
 						"MESSAGE"=>GetMessage("CLO_STORAGE_LIST_DOWNLOAD_IN_PROGRESS"),
 						"DETAILS"=>GetMessage("CLO_STORAGE_LIST_DOWNLOAD_PROGRESS", array(
-							"#remain#" => $ar["CNT"],
-							"#bytes#" => CFile::FormatSize((float)$ar["FILE_SIZE"]),
-						)).'<br /><br /><input type="button" value="'.GetMessage("CLO_STORAGE_LIST_STOP").'" onclick="window.location = \'/bitrix/admin/clouds_storage_list.php?lang='.LANGUAGE_ID.'\'">',
-						"TYPE"=>"OK",
+							"#remain#" => $ar["CNT"] - $bNextFile,
+							"#bytes#" => CFile::FormatSize($ar["FILE_SIZE"] - $last_file_pos),
+						)),
 						"HTML"=>true,
+						"BUTTONS" => array(
+							array(
+								"VALUE" => GetMessage("CLO_STORAGE_LIST_STOP"),
+								"ONCLICK" => 'window.location = \'/bitrix/admin/clouds_storage_list.php?lang='.LANGUAGE_ID.'\'',
+							),
+						),
 					));
-					$nOnTheMove = true;
-					echo '<script>', $lAdmin->ActionDoGroup($ID, "download", "onthemove=y"), '</script>';
+
+					$bOnTheMove = true;
+					echo '<script>', $lAdmin->ActionDoGroup($ID, "download", "themove=y"), '</script>';
 				}
 				else
 				{
 					unset($_SESSION["last_file_id"]);
+					unset($_SESSION["last_file_pos"]);
 
 					CAdminMessage::ShowMessage(array(
 						"MESSAGE"=>GetMessage("CLO_STORAGE_LIST_DOWNLOAD_DONE"),
 						"TYPE"=>"OK",
 						"HTML"=>true,
 					));
-					$nOnTheMove = false;
+					$bOnTheMove = false;
 				}
 				$lAdmin->EndPrologContent();
 			}
 			break;
 		case "move":
+			$message = /*.(CAdminMessage).*/null;
 			$ob = new CCloudStorageBucket(intval($ID));
 			if($ob->ACTIVE === "Y" && $ob->READ_ONLY === "N")
 			{
@@ -148,42 +233,50 @@ if(is_array($arID))
 					AND (HANDLER_ID IS NULL OR HANDLER_ID <> '".$DB->ForSQL($ob->ID)."')
 					ORDER BY ID ASC
 				", $files_per_step));
+
 				$counter = 0;
 				$bWasMoved = false;
-				while(is_array($arFile = $rsNextFile->Fetch()))
+				$moveResult = CCloudStorage::FILE_SKIPPED;
+				while(
+					$moveResult == CCloudStorage::FILE_PARTLY_UPLOADED
+					|| is_array($arFile = $rsNextFile->Fetch())
+				)
 				{
-
-					//Fix for IE8 image/jpg and X-Content-Type-Options: nosniff issue
-					if($arFile["CONTENT_TYPE"] === "image/jpg")
-					{
-						$arFile["CONTENT_TYPE"] = "image/jpeg";
-						$bFixContentType = true;
-					}
-					else
-					{
-						$bFixContentType = false;
-					}
-
-					$counter++;
-					if(CCloudStorage::MoveFile($arFile, $ob))
+					CCloudStorage::FixFileContentType($arFile);
+					$moveResult = CCloudStorage::MoveFile($arFile, $ob);
+					if($moveResult == CCloudStorage::FILE_MOVED)
 					{
 						$DB->Query("
 							UPDATE b_file
 							SET HANDLER_ID = '".$DB->ForSQL($ob->ID)."'
-							".($bFixContentType? ", CONTENT_TYPE='image/jpeg'": "")."
 							WHERE ID = ".intval($arFile["ID"])."
 						");
 						CFile::CleanCache($arFile["ID"]);
 						$_done += 1;
 						$_size += doubleval($arFile["FILE_SIZE"]);
 						$bWasMoved = true;
+						$ob->Update(array("LAST_FILE_ID" => $arFile["ID"]));
+						$counter++;
 					}
-					else
+					elseif($moveResult == CCloudStorage::FILE_SKIPPED)
 					{
-						$_skip += 1;
+						$e = $APPLICATION->GetException();
+						if(is_object($e))
+						{
+							$message = new CAdminMessage(GetMessage("CLO_STORAGE_LIST_MOVE_FILE_ERROR"), $e);
+							break;
+						}
+						else
+						{
+							$_skip += 1;
+							$ob->Update(array("LAST_FILE_ID" => $arFile["ID"]));
+							$counter++;
+						}
 					}
-
-					$ob->Update(array("LAST_FILE_ID" => $arFile["ID"]));
+					else//if($moveResult == CCloudStorage::FILE_PARTLY_UPLOADED)
+					{
+						$bWasMoved = true;
+					}
 
 					if($bWasMoved)
 					{
@@ -193,7 +286,11 @@ if(is_array($arID))
 				}
 
 				$lAdmin->BeginPrologContent();
-				if($counter < $files_per_step && !$bWasMoved)
+				if(is_object($message))
+				{
+					echo $message->Show();
+				}
+				elseif($counter < $files_per_step && !$bWasMoved)
 				{
 					CAdminMessage::ShowMessage(array(
 						"MESSAGE"=>GetMessage("CLO_STORAGE_LIST_MOVE_DONE"),
@@ -206,24 +303,30 @@ if(is_array($arID))
 						"HTML"=>true,
 						"TYPE"=>"OK",
 					));
-					$nOnTheMove = false;
+					$bOnTheMove = false;
 					$ob->Update(array("LAST_FILE_ID" => false));
 				}
 				else
 				{
 					CAdminMessage::ShowMessage(array(
+						"TYPE"=>"PROGRESS",
 						"MESSAGE"=>GetMessage("CLO_STORAGE_LIST_MOVE_IN_PROGRESS"),
 						"DETAILS"=>GetMessage("CLO_STORAGE_LIST_MOVE_PROGRESS", array(
-							"#bytes#" => CFile::FormatSize($_size),
+							"#bytes#" => CFile::FormatSize($_size + CCloudStorage::$part_count*CCloudStorage::$part_size),
 							"#total#" => $_done + $_skip,
 							"#moved#" => $_done,
 							"#skiped#" => $_skip,
-						)).'<br /><br /><input type="button" value="'.GetMessage("CLO_STORAGE_LIST_STOP").'" onclick="window.location = \'/bitrix/admin/clouds_storage_list.php?lang='.LANGUAGE_ID.'\'">',
+						)),
 						"HTML"=>true,
-						"TYPE"=>"OK",
+						"BUTTONS" => array(
+							array(
+								"VALUE" => GetMessage("CLO_STORAGE_LIST_STOP"),
+								"ONCLICK" => 'window.location = \'/bitrix/admin/clouds_storage_list.php?lang='.LANGUAGE_ID.'\'',
+							),
+						),
 					));
-					$nOnTheMove = true;
-					echo '<script>', $lAdmin->ActionDoGroup($ID, "move", "onthemove=y"), '</script>';
+					$bOnTheMove = true;
+					echo '<script>', $lAdmin->ActionDoGroup($ID, "move", "themove=y"), '</script>';
 				}
 				$lAdmin->EndPrologContent();
 
@@ -375,7 +478,7 @@ while(is_array($arRes = $rsData->Fetch()))
 		);
 	}
 
-	if(!empty($arActions) && !$nOnTheMove)
+	if(!empty($arActions) && !$bOnTheMove)
 		$row->AddActions($arActions);
 
 }

@@ -262,7 +262,7 @@ $oFilter->Begin();
 <tr>
 	<td><b><?=GetMessage("MAIN_FLT_SEARCH")?></b></td>
 	<td nowrap>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("MAIN_FLT_SEARCH_TITLE")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("MAIN_FLT_SEARCH_TITLE")?>">
 		<select name="find_type">
 			<option value="login"<?if($find_type=="login") echo " selected"?>><?=GetMessage('MAIN_FLT_LOGIN')?></option>
 			<option value="email"<?if($find_type=="email") echo " selected"?>><?=GetMessage('MAIN_FLT_EMAIL')?></option>
@@ -272,39 +272,39 @@ $oFilter->Begin();
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_ID")?></td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_F_TIMESTAMP")." (".CLang::GetDateFormat("SHORT")."):"?></td>
-	<td><?echo CalendarPeriod("find_timestamp_1", htmlspecialchars($find_timestamp_1), "find_timestamp_2", htmlspecialchars($find_timestamp_2), "find_form","Y")?></td>
+	<td><?echo GetMessage("MAIN_F_TIMESTAMP").":"?></td>
+	<td><?echo CalendarPeriod("find_timestamp_1", htmlspecialcharsbx($find_timestamp_1), "find_timestamp_2", htmlspecialcharsbx($find_timestamp_2), "find_form","Y")?></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_F_LAST_LOGIN")." (".CLang::GetDateFormat("SHORT")."):"?></td>
-	<td><?echo CalendarPeriod("find_last_login_1", htmlspecialchars($find_last_login_1), "find_last_login_2", htmlspecialchars($find_last_login_2), "find_form","Y")?></td>
+	<td><?echo GetMessage("MAIN_F_LAST_LOGIN").":"?></td>
+	<td><?echo CalendarPeriod("find_last_login_1", htmlspecialcharsbx($find_last_login_1), "find_last_login_2", htmlspecialcharsbx($find_last_login_2), "find_form","Y")?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("F_ACTIVE")?></td>
 	<td><?
 		$arr = array("reference"=>array(GetMessage("MAIN_YES"), GetMessage("MAIN_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_active", $arr, htmlspecialchars($find_active), GetMessage('MAIN_ALL'));
+		echo SelectBoxFromArray("find_active", $arr, htmlspecialcharsbx($find_active), GetMessage('MAIN_ALL'));
 		?>
 	</td>
 </tr>
 <tr>
 	<td><?echo GetMessage("F_LOGIN")?></td>
-	<td><input type="text" name="find_login" size="47" value="<?echo htmlspecialchars($find_login)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_login" size="47" value="<?echo htmlspecialcharsbx($find_login)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_EMAIL")?></td>
-	<td><input type="text" name="find_email" value="<?echo htmlspecialchars($find_email)?>" size="47"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_email" value="<?echo htmlspecialcharsbx($find_email)?>" size="47"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("F_NAME")?></td>
-	<td><input type="text" name="find_name" value="<?echo htmlspecialchars($find_name)?>" size="47"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_name" value="<?echo htmlspecialcharsbx($find_name)?>" size="47"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_KEYWORDS")?></td>
-	<td><input type="text" name="find_keywords" value="<?echo htmlspecialchars($find_keywords)?>" size="47"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_keywords" value="<?echo htmlspecialcharsbx($find_keywords)?>" size="47"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr valign="top">
 	<td><?echo GetMessage("F_GROUP")?><br><img src="/bitrix/images/main/mouse.gif" width="44" height="21" border="0" alt=""></td>
@@ -313,9 +313,9 @@ $oFilter->Begin();
 	echo SelectBoxM("find_group_id[]", $z, $find_group_id, "", false, 10);
 	?></td>
 </tr>
-<input type="hidden" name="FN" value="<?echo htmlspecialchars($FN)?>">
-<input type="hidden" name="FC" value="<?echo htmlspecialchars($FC)?>">
-<input type="hidden" name="JSFUNC" value="<?echo htmlspecialchars($JSFUNC)?>">
+<input type="hidden" name="FN" value="<?echo htmlspecialcharsbx($FN)?>">
+<input type="hidden" name="FC" value="<?echo htmlspecialcharsbx($FC)?>">
+<input type="hidden" name="JSFUNC" value="<?echo htmlspecialcharsbx($JSFUNC)?>">
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage(), "form"=>"find_form"));
 $oFilter->End();

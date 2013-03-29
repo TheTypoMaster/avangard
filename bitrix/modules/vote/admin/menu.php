@@ -16,50 +16,48 @@ if($APPLICATION->GetGroupRight("vote")!="D")
 	}
 */
 
-    CModule::IncludeModule('vote');
-    $menuResults = array();
-    if (method_exists($this, "IsSectionActive") && $this->IsSectionActive("menu_vote_channels") || defined('BX_ADMIN_FORM_MENU_OPEN') && BX_ADMIN_FORM_MENU_OPEN == 1) 
-    {
-        $by = "s_c_sort";
-        $order = "asc";
-        $rChannels = CVoteChannel::GetList($by, $order, $arFilter, $is_filtered);
-        while ($arChannel = $rChannels->Fetch())
-        {
-            if (intval($arChannel["VOTES"]) > 0)
-            {
-                $menuChannel = array(
-                    "text" => htmlspecialcharsEx($arChannel["TITLE"]),
-                    "url" => "vote_user_votes_table.php?lang=".LANGUAGE_ID."&CHANNEL_ID=".$arChannel['ID'],
-                    "icon" => "vote_menu_icon",
-                    "module_id" => "vote",
-                    "page_icon" => "vote_page_icon",
-                    "items_id" => "vote_channel_".$arChannel["ID"],
-                    "items" => array()
-                );
-                $obVote = CVote::GetList($by , $order, array("CHANNEL_ID"=>$arChannel["ID"]), $is_filtered);
-                while ($arVote = $obVote->GetNext())
-                {
-                    $menuVote = array(
-                        "items_id" => "vote_channel_".$arChannel["ID"],
-                        "text" => $arVote["TITLE"],
-                        "title" => GetMessage("VOTE_MENU_POLL_DESCRIPTION").'\''.htmlspecialcharsEx($arVote["TITLE"]).'\'',
-                        "module_id" => "vote",
-                        "url" => "vote_user_votes_table.php?lang=".LANGUAGE_ID."&VOTE_ID=".$arVote['ID'],
-                    );
-                    $menuChannel["items"][] = $menuVote;
-                }
-                $menuResults[] = $menuChannel;
-            }
-        }
-    }
+	CModule::IncludeModule('vote');
+	$menuResults = array();
+	if (method_exists($this, "IsSectionActive") && $this->IsSectionActive("menu_vote_channels") || defined('BX_ADMIN_FORM_MENU_OPEN') && BX_ADMIN_FORM_MENU_OPEN == 1)
+	{
+		$by = "s_c_sort";
+		$order = "asc";
+		$rChannels = CVoteChannel::GetList($by, $order, $arFilter, $is_filtered);
+		while ($arChannel = $rChannels->Fetch())
+		{
+			if (intval($arChannel["VOTES"]) > 0)
+			{
+				$menuChannel = array(
+					"text" => htmlspecialcharsEx($arChannel["TITLE"]),
+					"url" => "vote_user_votes_table.php?lang=".LANGUAGE_ID."&CHANNEL_ID=".$arChannel['ID'],
+					"module_id" => "vote",
+					"page_icon" => "vote_page_icon",
+					"items_id" => "vote_channel_".$arChannel["ID"],
+					"items" => array()
+				);
+				$obVote = CVote::GetList($by , $order, array("CHANNEL_ID"=>$arChannel["ID"]), $is_filtered);
+				while ($arVote = $obVote->GetNext())
+				{
+					$menuVote = array(
+						"items_id" => "vote_channel_".$arChannel["ID"],
+						"text" => $arVote["TITLE"],
+						"title" => GetMessage("VOTE_MENU_POLL_DESCRIPTION").'\''.htmlspecialcharsEx($arVote["TITLE"]).'\'',
+						"module_id" => "vote",
+						"url" => "vote_user_votes_table.php?lang=".LANGUAGE_ID."&VOTE_ID=".$arVote['ID'],
+					);
+					$menuChannel["items"][] = $menuVote;
+				}
+				$menuResults[] = $menuChannel;
+			}
+		}
+	}
 	$aMenu = array(
 		"parent_menu" => "global_menu_services",
 		"section" => "vote",
 		"sort" => 100,
-        "module_id" => "vote",
+		"module_id" => "vote",
 		"text" => GetMessage("VOTE_MENU_MAIN"),
 		"title" => GetMessage("VOTE_MENU_MAIN_TITLE"),
-		"url" => "vote_index.php?lang=".LANGUAGE_ID,
 		"icon" => "vote_menu_icon",
 		"page_icon" => "vote_page_icon",
 		"items_id" => "menu_vote",
@@ -94,13 +92,13 @@ if($APPLICATION->GetGroupRight("vote")!="D")
 			),
 			array(
 				"text" => GetMessage("VOTE_MENU_RESULT"),
-                "items_id" => "menu_vote_channels",
-                "module_id" => "vote",
+				"items_id" => "menu_vote_channels",
+				"module_id" => "vote",
 				"url" => "vote_user_votes.php?lang=".LANGUAGE_ID,
-                "dynamic" => true,
+				"dynamic" => true,
 				"more_url" => Array("vote_user_results.php", "vote_user_results_table.php"),
 				"title" => GetMessage("VOTE_MENU_RESULT_ALT"),
-                "items" => $menuResults
+				"items" => $menuResults
 			)
 		)
 	);

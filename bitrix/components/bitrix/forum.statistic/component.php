@@ -1,4 +1,12 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+/**
+ * @global CMain $APPLICATION
+ * @global CUser $USER
+ * @param array $arParams
+ * @param array $arResult
+ * @param string $componentName
+ * @param CBitrixComponent $this
+ */
 if (!CModule::IncludeModule("forum")):
 	ShowError(GetMessage("F_NO_MODULE"));
 	return 0;
@@ -11,7 +19,7 @@ endif;
 	$arParams["TID"] = (intVal($arParams["TID"]) <= 0 ? false : intVal($arParams["TID"]));
 	$arParams["PERIOD"] = (intVal($arParams["PERIOD"]) <= 0 ? 10 : intVal($arParams["PERIOD"])); // input params in minuts
 	$arParams["PERIOD"] *= 60;
-	$arParams["SHOW"] = (is_array($arParams["SHOW"]) ? $arParams["SHOW"] : array("USERS_ONLINE"));
+	$arParams["SHOW"] = (is_array($arParams["SHOW"]) ? $arParams["SHOW"] : array("BIRTHDAY", "USERS_ONLINE", "STATISTIC"));
 	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 	$arParams["FORUM_ID"] = (is_array($arParams["FORUM_ID"]) ? $arParams["FORUM_ID"] : array());
 /***************** URL *********************************************/
@@ -22,20 +30,23 @@ endif;
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 /***************** STANDART ****************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 	{
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 		$arParams["CACHE_TIME_USER_STAT"] = intval($arParams["CACHE_TIME_USER_STAT"]);
+		$arParams["CACHE_TIME_FOR_FORUM_STAT"] = intval($arParams["CACHE_TIME_FOR_FORUM_STAT"]);
 	}
 	else
 	{
 		$arParams["CACHE_TIME"] = 0;
 		$arParams["CACHE_TIME_USER_STAT"] = 0;
+		$arParams["CACHE_TIME_FOR_FORUM_STAT"] = 0;
 	}
 /********************************************************************
 				/Input params
@@ -80,16 +91,13 @@ if (in_array("USERS_ONLINE", $arParams["SHOW"]))
 		$arFields["TOPIC_ID"] = $arParams["TID"];
 	else
 		$arFields["SITE_ID"] = SITE_ID;
-	$arFields["<=PERIOD"] = $arParams["PERIOD"]; 
-	$arFields["COUNT_GUEST"] = true;
-//	if ($GLOBALS["APPLICATION"]->GetGroupRight("forum") < "W"):
-		$arFields["ACTIVE"] = "Y";
-//	endif;
-	
+	$arFields += array("ACTIVE" => "Y", "<=PERIOD" => $arParams["PERIOD"], "COUNT_GUEST" => true);
+
 	$cache_id = "forum_user_online_".serialize(array($arFields, $arParams["URL_TEMPLATES_PROFILE_VIEW"]));
 	$cache_path = $cache_path_main."user_online/";
-	
-	if (!$arParams["TID"] && $arParams["CACHE_TIME_USER_STAT"] > 0 && $cache->InitCache($arParams["CACHE_TIME_USER_STAT"], $cache_id, $cache_path))
+
+	if (!$arParams["TID"] && $arParams["CACHE_TIME_USER_STAT"] > 0 &&
+		$cache->InitCache($arParams["CACHE_TIME_USER_STAT"], $cache_id, $cache_path))
 	{
 		$res = $cache->GetVars();
 		if (is_array($res["arUser"]))
@@ -100,16 +108,19 @@ if (in_array("USERS_ONLINE", $arParams["SHOW"]))
 		$arUser = array(
 			"USERS" => array(), "USERS_HIDDEN" => array(),
 			"GUEST" => 0, "REGISTER" => 0, "ALL" => 0);
-		$db_res = CForumStat::GetListEx(array("USER_ID" => "DESC"), $arFields);
+		$db_res = CForumStat::GetListEx(
+			array("USER_ID" => "DESC"),
+			$arFields,
+			array("sNameTemplate" => $arParams["NAME_TEMPLATE"]));
 		if ($db_res && ($res = $db_res->GetNext()))
 		{
 			do 
 			{
 				if ($res["USER_ID"] > 0)
 				{
-					
 					$res["SHOW_NAME"] = $parser->wrap_long_words($res["SHOW_NAME"]);
-					$res["profile_view"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], 
+					$res["profile_view"] = CComponentEngine::MakePathFromTemplate(
+						$arParams["URL_TEMPLATES_PROFILE_VIEW"],
 						array("UID" => $res["USER_ID"]));
 					if ($res["HIDE_FROM_ONLINE"] != "Y")
 						$arUser["USERS"][] = $res;
@@ -160,7 +171,8 @@ if (in_array("BIRTHDAY", $arParams["SHOW"]))
 			"ACTIVE" => "Y",
 			"PERSONAL_BIRTHDAY_DATE" => Date("m-d"),
 			">=USER_ID" => 1,
-			"SHOW_ABC" => ""));
+			"SHOW_ABC" => ""),
+			array("sNameTemplate" => $arParams["NAME_TEMPLATE"]));
 		if ($db_res && ($res = $db_res->GetNext()))
 		{
 			do
@@ -170,7 +182,7 @@ if (in_array("BIRTHDAY", $arParams["SHOW"]))
 				$res["AGE"] = intVal(date("Y")) - intVal($date_birthday["YYYY"]);
 				$res["profile_view"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $res["USER_ID"]));
 				$arUserBirthday[] = $res;
-			}while($res = $db_res->GetNext());
+			} while($res = $db_res->GetNext());
 		}
 
 		if ($arParams["CACHE_TIME"] > 0)
@@ -192,7 +204,7 @@ if (in_array("STATISTIC", $arParams["SHOW"]))
 {
 	$cache_id = serialize(array("forum_user_stat_0", $USER->GetGroups(), $arParams["SHOW_FORUM_ANOTHER_SITE"], $arParams["FORUM_ID"], $arParams["FID"]));
 	$cache_path = $cache_path_main."forums/";
-	if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
+	if ($arParams["CACHE_TIME_FOR_FORUM_STAT"] > 0 && $cache->InitCache($arParams["CACHE_TIME_FOR_FORUM_STAT"], $cache_id, $cache_path))
 	{
 		$res = $cache->GetVars();
 		if (is_array($res["STATISTIC"]))
@@ -236,9 +248,9 @@ if (in_array("STATISTIC", $arParams["SHOW"]))
 			} while ($res = $db_res->GetNext());
 		}
 		
-		if ($arParams["CACHE_TIME"] > 0)
+		if ($arParams["CACHE_TIME_FOR_FORUM_STAT"] > 0)
 		{
-			$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
+			$cache->StartDataCache($arParams["CACHE_TIME_FOR_FORUM_STAT"], $cache_id, $cache_path);
 			$cache->EndDataCache(array("STATISTIC" => $arResult["STATISTIC"]));
 		}
 	}
@@ -247,4 +259,5 @@ if (in_array("STATISTIC", $arParams["SHOW"]))
 				Data/
 ********************************************************************/
 	$this->IncludeComponentTemplate();
+
 ?>

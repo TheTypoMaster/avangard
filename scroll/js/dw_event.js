@@ -39,3 +39,4 @@ function addLoadEvent(func) {
         func();
     }
 }
+;   

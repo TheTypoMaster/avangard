@@ -118,13 +118,13 @@ if (!function_exists("__PrintForumGroupsAndForums"))
 						htmlspecialcharsEx(substr($res["~LAST_POSTER_NAME"], 0, $arParams["WORD_WRAP_CUT"]))."..." : $res["LAST_POSTER_NAME"]);
 				endif;
 ?>
- 				<tr class="<?=($iCountRows == 1 ? "forum-row-first " : "")?><?
- 					?><?=($iCountRows == count($arGroup["FORUMS"]) ? "forum-row-last " : "")
- 					?><?=($iCountRows%2 == 1 ? "forum-row-odd " : "forum-row-even ")?><?=($res["ACTIVE"] != "Y" ? " forum-row-inactive" : "")?>" <?
- 				if ($res["ACTIVE"] != "Y"):
- 					?> title="<?=GetMessage("F_NOT_ACTIVE_FORUM")?>" <?
- 				endif;
- 					?>>
+			<tr class="<?=($iCountRows == 1 ? "forum-row-first " : "")?><?
+				?><?=($iCountRows == count($arGroup["FORUMS"]) ? "forum-row-last " : "")
+				?><?=($iCountRows%2 == 1 ? "forum-row-odd " : "forum-row-even ")?><?=($res["ACTIVE"] != "Y" ? " forum-row-inactive" : "")?>" <?
+				if ($res["ACTIVE"] != "Y"):
+					?> title="<?=GetMessage("F_NOT_ACTIVE_FORUM")?>" <?
+				endif;
+				?>>
 					<td class="forum-column-icon">
 						<div class="forum-icon-container">
 <?
@@ -207,9 +207,9 @@ if (!function_exists("__PrintForumGroupsAndForums"))
 				{
 					$iCountRows++;
 					
-?>	 				<tr class="<?=($iCountRows == 1 ? "forum-row-first " : "")?><?
-	 					?><?=($iCountRows == $iCountRows ? "forum-row-last " : "")
-	 					?><?=($iCountRows%2 == 1 ? "forum-row-odd " : "forum-row-even ")?>" >
+?>				<tr class="<?=($iCountRows == 1 ? "forum-row-first " : "")?><?
+					?><?=($iCountRows == $iCountRows ? "forum-row-last " : "")
+						?><?=($iCountRows%2 == 1 ? "forum-row-odd " : "forum-row-even ")?>" >
 						<td class="forum-column-icon">
 						<div class="forum-icon-container">
 <?
@@ -233,7 +233,7 @@ if (!function_exists("__PrintForumGroupsAndForums"))
 						<div class="forum-item-info">
 							<div class="forum-item-name"><span class="forum-item-title"><?
 							?><noindex><a rel="nofollow" href="<?=$arResult["URL"]["GROUP_".$res["ID"]]?>"><?
-								?><?=$res["NAME"];?></a></noindex></span></div>
+								?><?=$res["~NAME"];?></a></noindex></span></div>
 							<span class="forum-item-desc"><?
 				
 				if (array_key_exists("FORUMS", $res)):
@@ -243,7 +243,7 @@ if (!function_exists("__PrintForumGroupsAndForums"))
 						if (!$bFirst):
 							?>, <?
 						endif;
-						?><a href="<?=$val["URL"]["TOPICS"]?>"><?=$val["NAME"]?></a><?
+						?><a href="<?=$val["URL"]["TOPICS"]?>"><?=$val["~NAME"]?></a><?
 						$bFirst = false;
 					endforeach;
 				else:
@@ -253,7 +253,7 @@ if (!function_exists("__PrintForumGroupsAndForums"))
 						if (!$bFirst):
 							?>, <?
 						endif;
-						?><noindex><a rel="nofollow" href="<?=$arResult["URL"]["GROUP_".$val["ID"]]?>"><?=$val["NAME"]?></a></noindex><?
+						?><noindex><a rel="nofollow" href="<?=$arResult["URL"]["GROUP_".$val["ID"]]?>"><?=$val["~NAME"]?></a></noindex><?
 						$bFirst = false;
 					endforeach;
 				endif;
@@ -341,7 +341,7 @@ endif;
 		if ($arParams["SHOW_RSS"] == "Y"):
 ?>
 							<span class="forum-footer-option forum-footer-rss forum-footer-option-first"><?
-								?><a href="<?=$arResult["URL"]["RSS_DEFAULT"]?>" onclick="window.location='<?=addslashes(htmlspecialchars($arResult["URL"]["~RSS"]))?>'; return false;"><?
+								?><a href="<?=$arResult["URL"]["RSS_DEFAULT"]?>" onclick="window.location='<?=addslashes(htmlspecialcharsbx($arResult["URL"]["~RSS"]))?>'; return false;"><?
 									?><?=GetMessage("F_SUBSCRIBE_TO_NEW_TOPICS")?><?
 									?></a></span>
 <?		

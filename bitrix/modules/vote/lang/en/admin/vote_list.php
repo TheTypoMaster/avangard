@@ -48,8 +48,8 @@ $MESS["VOTE_DEACTIVATE"] = "deactivate";
 $MESS["VOTE_SAVE_ERROR"] = "Error writing to database";
 $MESS["VOTE_VOTES_TITLE"] = "Go to the vote list";
 $MESS["VOTE_EDIT_TITLE"] = "Modify poll settings";
-$MESS["VOTE_YES"] = "yes";
-$MESS["VOTE_NO"] = "no";
+$MESS["VOTE_YES"] = "Yes";
+$MESS["VOTE_NO"] = "No";
 $MESS["VOTE_ALL"] = "(all)";
 $MESS["VOTE_TITLE"] = "Title";
 $MESS["VOTE_ACTIVE"] = "Active";
@@ -59,5 +59,4 @@ $MESS["VOTE_F_TITLE"] = "Title:";
 $MESS["VOTE_TILL"] = "till";
 $MESS["VOTE_COPY"] = "Copy";
 $MESS["VOTE_CONFIRM_COPY"] = "Are you sure you want to copy this poll?";
-$MESS["VOTE_COPY_FAILED"] = "Error copying the poll.";
 ?>

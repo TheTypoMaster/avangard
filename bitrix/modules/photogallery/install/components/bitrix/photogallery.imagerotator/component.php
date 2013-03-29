@@ -6,8 +6,9 @@ elseif (!IsModuleInstalled("iblock"))
 
 $arParams['WIDTH'] = $arParams['WIDTH'] > 0 ? $arParams['WIDTH'] : '300';
 $arParams['HEIGHT'] = $arParams['HEIGHT'] > 0 ? $arParams['HEIGHT'] : '300';
+$hash = md5(serialize($arParams));
 
-if (isset($_REQUEST['image_rotator']) && $_REQUEST['image_rotator'] == 'get_xml')
+if (isset($_REQUEST['image_rotator']) && $_REQUEST['image_rotator'] == 'get_xml' && $hash == $_REQUEST['h'])
 {
 if(!isset($arParams["CACHE_TIME"]))
 	$arParams["CACHE_TIME"] = 36000000;
@@ -15,6 +16,8 @@ if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption
 	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 else
 	$arParams["CACHE_TIME"] = 0;
+
+
 
 	$res = $APPLICATION->IncludeComponent(
 		"bitrix:photogallery.detail.list.ex",
@@ -92,7 +95,7 @@ if (!function_exists(bxRotatorAddFlashvar))
 	}
 }
 
-$arParams['SWF'] = '/bitrix/components/bitrix/photogallery.imagerotator/templates/.default/imagerotator.swf';
+$arParams['SWF'] = '/bitrix/components/bitrix/photogallery.imagerotator/templates/.default/imagerotator';
 $arParams['ROTATETIME'] = $arParams['ROTATETIME'] > 0 ? $arParams['ROTATETIME'] : 5;
 $arParams['TRANSITION'] = $arParams['TRANSITION'] != '' ? $arParams['TRANSITION'] : 'random';
 
@@ -116,8 +119,7 @@ $arParams['USEFULLSCREEN'] = $arParams['USEFULLSCREEN'] == 'Y' ? 'true' : 'false
 $arParams['DOM_ID'] = '';
 
 $flashvars = '';
-$flashvars = bxRotatorAddFlashvar($flashvars, 'file', $APPLICATION->GetCurPageParam("image_rotator=get_xml&".bitrix_sessid_get(), array("clear_cache", "bitrix_include_areas", "bitrix_show_mode", "back_url_admin", "bx_photo_ajax", "sessid"), false));
-$flashvars = bxRotatorAddFlashvar($flashvars, 'width', $arParams['WIDTH']);
+$flashvars = bxRotatorAddFlashvar($flashvars, 'file', $APPLICATION->GetCurPageParam("image_rotator=get_xml&h=".$hash.'&'.bitrix_sessid_get(), array("clear_cache", "bitrix_include_areas", "bitrix_show_mode", "back_url_admin", "bx_photo_ajax", "sessid"), false));$flashvars = bxRotatorAddFlashvar($flashvars, 'width', $arParams['WIDTH']);
 $flashvars = bxRotatorAddFlashvar($flashvars, 'height', $arParams['HEIGHT']);
 $flashvars = bxRotatorAddFlashvar($flashvars, 'rotatetime', $arParams['ROTATETIME']);
 $flashvars = bxRotatorAddFlashvar($flashvars, 'transition', $arParams['TRANSITION']);

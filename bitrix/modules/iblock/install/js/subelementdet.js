@@ -1,14 +1,19 @@
-function SubTabControl(name, unique_name, aTabs, url_link, post_params)
-{
-	SubTabControl.superclass.constructor.apply(this,[ name, unique_name, aTabs]);
-	this.url_link = url_link;
-	this.post_params = post_params;
-	this.url_settings = '';
-	
-	this.SaveSettings = function()
-	{
-		BX.showWait();
+;(function(window) {
 
+	if (BX.adminSubTabControl)
+		return;
+	
+	BX.adminSubTabControl = function(name, unique_name, aTabs, url_link, post_params)
+	{
+		BX.adminSubTabControl.superclass.constructor.apply(this,[ name, unique_name, aTabs]);
+		this.url_link = url_link;
+		this.post_params = post_params;
+		this.url_settings = '';
+	};
+	BX.extend(BX.adminSubTabControl, BX.adminTabControl);
+	
+	BX.adminSubTabControl.prototype.SaveSettings = function()
+	{
 		var sTabs='', s='';
 
 		var oFieldsSelect;
@@ -34,74 +39,64 @@ function SubTabControl(name, unique_name, aTabs, url_link, post_params)
 
 		var bCommon = (document.form_settings.set_default && document.form_settings.set_default.checked);
 
-		this.CloseSettings();
-		var url_link = this.url_link;
-		var post_params = this.post_params;
-		var request = new JCHttpRequest;
-		request.Action = function () {
-			BX.WindowManager.Get().AllowClose(); BX.WindowManager.Get().Close();
-			BX.closeWait();
-			(new BX.CAdminDialog({
-			    'content_url': url_link,
-			    'content_post': post_params,
-				'draggable': true,
-				'resizable': true,
-				'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
-				})).Show();
-		};
-
 		var sParam = '';
 		sParam += '&p[0][c]=form';
-		sParam += '&p[0][n]='+encodeURIComponent(this.name);
+		sParam += '&p[0][n]='+BX.util.urlencode(this.name);
 		if(bCommon)
 			sParam += '&p[0][d]=Y';
-		sParam += '&p[0][v][tabs]=' + encodeURIComponent(sTabs);
+		sParam += '&p[0][v][tabs]=' + BX.util.urlencode(sTabs);
 
-		var options_url = '/bitrix/admin/user_options.php?lang='+phpVars.LANGUAGE_ID+'&sessid='+phpVars.bitrix_sessid;
+		var options_url = '/bitrix/admin/user_options.php?lang='+BX.message('LANGUAGE_ID')+'&sessid=' + BX.bitrix_sessid();
 		options_url += '&action=delete&c=form&n='+this.name+'_disabled';
 
-		request.Post(options_url, sParam);
+		BX.showWait();
+		this.CloseSettings();
+		BX.ajax.post(options_url, sParam, BX.delegate(function() {
+			BX.WindowManager.Get().AllowClose(); BX.WindowManager.Get().Close();
+			BX.closeWait();
+			(new BX.CAdminDialog({
+			    'content_url': this.url_link,
+			    'content_post': this.post_params,
+				'draggable': true,
+				'resizable': true,
+				'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
+				})).Show();
+		}, this));
 	};
 	
-	this.DeleteSettings = function(bCommon)
+	BX.adminSubTabControl.prototype.DeleteSettings = function(bCommon)
 	{
 		BX.showWait();
 		this.CloseSettings();
-		
-		var url_link = this.url_link;
-		var post_params = this.post_params;
-
-		jsUserOptions.DeleteOption('form', this.name, bCommon, function () {
+		BX.userOptions.del('form', this.name, bCommon, BX.delegate(function () {
 			BX.WindowManager.Get().AllowClose(); BX.WindowManager.Get().Close();
 			BX.closeWait();
 			(new BX.CAdminDialog({
-			    'content_url': url_link,
-			    'content_post': post_params,
+			    'content_url': this.url_link,
+			    'content_post': this.post_params,
 				'draggable': true,
 				'resizable': true,
 				'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
 				})).Show();
-		});		
+		}, this));
 	};
 	
-	this.DisableSettings = function()
+	BX.adminSubTabControl.prototype.DisableSettings = function()
 	{
 		BX.showWait();
-		
-		var url_link = this.url_link;
-		var post_params = this.post_params;
+		this.CloseSettings();
 		var request = new JCHttpRequest;
-		request.Action = function () {
-			BX.WindowManager.Get().AllowClose(); BX.WindowManager.Get().Close();
+		request.Action = BX.delegate(function () {
 			BX.closeWait();
 			(new BX.CAdminDialog({
-			    'content_url': url_link,
-			    'content_post': post_params,
+			    'content_url': this.url_link,
+			    'content_post': this.post_params,
 				'draggable': true,
 				'resizable': true,
 				'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
 				})).Show();
-		};
+		}, this);
+		
 		var sParam = '';
 		sParam += '&p[0][c]=form';
 		sParam += '&p[0][n]='+encodeURIComponent(this.name+'_disabled');
@@ -109,24 +104,21 @@ function SubTabControl(name, unique_name, aTabs, url_link, post_params)
 		request.Send('/bitrix/admin/user_options.php?lang=' + phpVars.LANGUAGE_ID + sParam + '&sessid='+phpVars.bitrix_sessid);
 	};
 
-	this.EnableSettings = function()
+	BX.adminSubTabControl.prototype.EnableSettings = function()
 	{
 		BX.showWait();
-		
-		var url_link = this.url_link;
-		var post_params = this.post_params;
+		this.CloseSettings();
 		var request = new JCHttpRequest;
-		request.Action = function () {
-			BX.WindowManager.Get().AllowClose(); BX.WindowManager.Get().Close();
+		request.Action = BX.delegate(function () {
 			BX.closeWait();
 			(new BX.CAdminDialog({
-			    'content_url': url_link,
-			    'content_post': post_params,
+			    'content_url': this.url_link,
+			    'content_post': this.post_params,
 				'draggable': true,
 				'resizable': true,
 				'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
 				})).Show();
-		};
+		}, this);
 		var sParam = '';
 		sParam += '&c=form';
 		sParam += '&n='+encodeURIComponent(this.name)+'_disabled';
@@ -134,61 +126,8 @@ function SubTabControl(name, unique_name, aTabs, url_link, post_params)
 		request.Send('/bitrix/admin/user_options.php?lang=' + phpVars.LANGUAGE_ID + sParam + '&sessid='+phpVars.bitrix_sessid);
 	};
 	
-	this.btnSettingsShow = function (obj,url_link,title,off)
+	BX.adminSubTabControl.prototype.CloseSettings =  function()
 	{
-		off = !!off;
-		var set_lnk = obj.PARTS.FOOT.appendChild(BX.create('A', {
-			attr: {href: 'javascript:void(0);'},
-			style: {
-				position: 'absolute', top: '11px', left: (off ? '40px' : '11px')
-			},
-			props: {
-				id: 'btn_subsettings',
-				className: 'context-button icon',
-				title: title
-			}
-		}));
-		this.url_settings = url_link;
-		BX.bind(set_lnk, 'click', BX.proxy(this.btnSettingsHandler, this));
+		BX.WindowManager.Get().Close();
 	};
-	
-	this.btnSettingsHandler = function()
-	{
-		this.ShowSettings(this.url_settings);
-	};
-	
-	this.btnSettingsOnOff = function(obj,title,enable,off)
-	{
-		enable = !!enable;
-		off = !!off;
-		var set_lnk = obj.PARTS.FOOT.appendChild(BX.create('A', {
-			attr: {href: 'javascript:void(0);'},
-			style: {
-				position: 'absolute', top: '11px', left: (off ? '69px' : '40px')
-			},
-			props: {
-				id: (enable ? 'btn_subsettings_enable' : 'btn_subsettings_disable'),
-				className: 'context-button icon',
-				title: title
-			}
-		}));
-		BX.bind(set_lnk, 'click', BX.proxy(this.btnSettingsOnOffHandler, this));
-	};
-	
-	this.btnSettingsOnOffHandler = function()
-	{
-		if (BX.proxy_context.id == 'btn_subsettings_enable' || BX.proxy_context.id == 'btn_subsettings_disable')
-		{
-			if (BX.proxy_context.id == 'btn_subsettings_enable')
-			{
-				this.EnableSettings();
-			}
-			else
-			{
-				this.DisableSettings();
-			}
-		}
-	};
-}
-
-BX.extend(SubTabControl,TabControl);
+})(window);

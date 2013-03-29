@@ -55,23 +55,23 @@ class CBlogMetaWeblog
 				}
 				else
 					$path2Blog = $arBlog["URL"];
-                $result .= '
+				$result .= '
 						<value>
-                            <struct>
-                                <member>
-                                    <name>url</name>
-                                    <value>'.$path2Blog.'</value>
-                                </member>
-                                <member>
-                                    <name>blogid</name>
-                                    <value>'.$arBlog["ID"].'</value>
-                                </member>
-                                <member>
-                                    <name>blogName</name>
-                                    <value>'.$arBlog["NAME"].'</value>
-                                </member>
-                            </struct>
-                        </value>
+							<struct>
+								<member>
+									<name>url</name>
+									<value>'.$path2Blog.'</value>
+								</member>
+								<member>
+									<name>blogid</name>
+									<value>'.$arBlog["ID"].'</value>
+								</member>
+								<member>
+									<name>blogName</name>
+									<value>'.$arBlog["NAME"].'</value>
+								</member>
+							</struct>
+						</value>
 					';
 			}
 
@@ -89,7 +89,7 @@ class CBlogMetaWeblog
 					$arGroupFilter,
 					false,
 					false,
-					array("ID", "GROUP_ID",  "GROUP_OWNER_ID", "GROUP_NAME", "GROUP_SITE_ID")
+					array("ID", "GROUP_ID","GROUP_OWNER_ID", "GROUP_NAME", "GROUP_SITE_ID")
 				);
 				while ($arGroups = $dbGroups->GetNext())
 				{
@@ -145,37 +145,37 @@ class CBlogMetaWeblog
 			else
 			{
 				return '<fault>
-					  <value>
-						 <struct>
+					<value>
+						<struct>
 							<member>
-							   <name>faultCode</name>
-							   <value><int>4</int></value>
-							   </member>
+								<name>faultCode</name>
+								<value><int>4</int></value>
+								</member>
 							<member>
-							   <name>faultString</name>
-							   <value><string>User hasn\'t blog.</string></value>
-							   </member>
+								<name>faultString</name>
+								<value><string>User hasn\'t blog.</string></value>
+								</member>
 							</struct>
-						 </value>
-					  </fault>';
+						</value>
+					</fault>';
 			}
 		}
 		else
 		{
 			return '<fault>
-				  <value>
-					 <struct>
+				<value>
+					<struct>
 						<member>
-						   <name>faultCode</name>
-						   <value><int>3</int></value>
-						   </member>
+							<name>faultCode</name>
+							<value><int>3</int></value>
+							</member>
 						<member>
-						   <name>faultString</name>
-						   <value><string>'.$arAuthResult["MESSAGE"].'</string></value>
-						   </member>
+							<name>faultString</name>
+							<value><string>'.$arAuthResult["MESSAGE"].'</string></value>
+							</member>
 						</struct>
-					 </value>
-				  </fault>';
+					</value>
+				</fault>';
 		}
 	}
 
@@ -233,37 +233,37 @@ class CBlogMetaWeblog
 			else
 			{
 				return '<fault>
-					  <value>
-						 <struct>
+					<value>
+						<struct>
 							<member>
-							   <name>faultCode</name>
-							   <value><int>4</int></value>
+								<name>faultCode</name>
+								<value><int>4</int></value>
 							</member>
 							<member>
-							   <name>faultString</name>
-							   <value><string>No categories in blog.</string></value>
+								<name>faultString</name>
+								<value><string>No categories in blog.</string></value>
 							</member>
 							</struct>
-						 </value>
-					  </fault>';
+						</value>
+					</fault>';
 			}
 		}
 		else
 		{
 			return '<fault>
-				  <value>
-					 <struct>
+				<value>
+					<struct>
 						<member>
-						   <name>faultCode</name>
-						   <value><int>3</int></value>
-						   </member>
+							<name>faultCode</name>
+							<value><int>3</int></value>
+							</member>
 						<member>
-						   <name>faultString</name>
-						   <value><string>'.$arAuthResult["MESSAGE"].'</string></value>
-						   </member>
+							<name>faultString</name>
+							<value><string>'.$arAuthResult["MESSAGE"].'</string></value>
+							</member>
 						</struct>
-					 </value>
-				  </fault>';
+					</value>
+				</fault>';
 		}
 
 	}
@@ -399,19 +399,19 @@ class CBlogMetaWeblog
 		else
 		{
 			return '<fault>
-				  <value>
-					 <struct>
+				<value>
+					<struct>
 						<member>
-						   <name>faultCode</name>
-						   <value><int>3</int></value>
-						   </member>
+							<name>faultCode</name>
+							<value><int>3</int></value>
+							</member>
 						<member>
-						   <name>faultString</name>
-						   <value><string>'.$arAuthResult["MESSAGE"].'</string></value>
-						   </member>
+							<name>faultString</name>
+							<value><string>'.$arAuthResult["MESSAGE"].'</string></value>
+							</member>
 						</struct>
-					 </value>
-				  </fault>';
+					</value>
+				</fault>';
 		}
 
 	}
@@ -456,38 +456,38 @@ class CBlogMetaWeblog
 						if($result !== (function_exists("mb_strlen")? mb_strlen($arImageInfo["bits"], 'latin1'): strlen($arImageInfo["bits"])))
 						{
 							return '<fault>
-									  <value>
-										 <struct>
+									<value>
+										<struct>
 											<member>
-											   <name>faultCode</name>
-											   <value><int>3</int></value>
-											   </member>
+												<name>faultCode</name>
+												<value><int>3</int></value>
+												</member>
 											<member>
-											   <name>faultString</name>
-											   <value><string>Error on saving media object</string></value>
-											   </member>
+												<name>faultString</name>
+												<value><string>Error on saving media object</string></value>
+												</member>
 											</struct>
-										 </value>
-									  </fault>';
+										</value>
+									</fault>';
 						}
 						fclose($fp);
 					}
 					else
 					{
 						return '<fault>
-								  <value>
-									 <struct>
+								<value>
+									<struct>
 										<member>
-										   <name>faultCode</name>
-										   <value><int>3</int></value>
-										   </member>
+											<name>faultCode</name>
+											<value><int>3</int></value>
+											</member>
 										<member>
-										   <name>faultString</name>
-										   <value><string>Error on saving media object</string></value>
-										   </member>
+											<name>faultString</name>
+											<value><string>Error on saving media object</string></value>
+											</member>
 										</struct>
-									 </value>
-								  </fault>';
+									</value>
+								</fault>';
 					}
 
 					$arFields = array(
@@ -538,36 +538,36 @@ class CBlogMetaWeblog
 				}
 			}
 			return '<fault>
-				  <value>
-					 <struct>
+				<value>
+					<struct>
 						<member>
-						   <name>faultCode</name>
-						   <value><int>3</int></value>
-						   </member>
+							<name>faultCode</name>
+							<value><int>3</int></value>
+							</member>
 						<member>
-						   <name>faultString</name>
-						   <value><string>Error on saving media object</string></value>
-						   </member>
+							<name>faultString</name>
+							<value><string>Error on saving media object</string></value>
+							</member>
 						</struct>
-					 </value>
-				  </fault>';
+					</value>
+				</fault>';
 		}
 		else
 		{
 			return '<fault>
-				  <value>
-					 <struct>
+				<value>
+					<struct>
 						<member>
-						   <name>faultCode</name>
-						   <value><int>3</int></value>
-						   </member>
+							<name>faultCode</name>
+							<value><int>3</int></value>
+							</member>
 						<member>
-						   <name>faultString</name>
-						   <value><string>'.$arAuthResult["MESSAGE"].'</string></value>
-						   </member>
+							<name>faultString</name>
+							<value><string>'.$arAuthResult["MESSAGE"].'</string></value>
+							</member>
 						</struct>
-					 </value>
-				  </fault>';
+					</value>
+				</fault>';
 		}
 
 	}
@@ -717,19 +717,19 @@ class CBlogMetaWeblog
 					else
 					{
 						return '<fault>
-							  <value>
-								 <struct>
+							<value>
+								<struct>
 									<member>
-									   <name>faultCode</name>
-									   <value><int>3</int></value>
-									   </member>
+										<name>faultCode</name>
+										<value><int>3</int></value>
+										</member>
 									<member>
-									   <name>faultString</name>
-									   <value><string>Error on adding post</string></value>
-									   </member>
+										<name>faultString</name>
+										<value><string>Error on adding post</string></value>
+										</member>
 									</struct>
-								 </value>
-							  </fault>';
+								</value>
+							</fault>';
 					}
 				}
 			}
@@ -738,19 +738,19 @@ class CBlogMetaWeblog
 		else
 		{
 			return '<fault>
-				  <value>
-					 <struct>
+				<value>
+					<struct>
 						<member>
-						   <name>faultCode</name>
-						   <value><int>3</int></value>
-						   </member>
+							<name>faultCode</name>
+							<value><int>3</int></value>
+							</member>
 						<member>
-						   <name>faultString</name>
-						   <value><string>'.$arAuthResult["MESSAGE"].'</string></value>
-						   </member>
+							<name>faultString</name>
+							<value><string>'.$arAuthResult["MESSAGE"].'</string></value>
+							</member>
 						</struct>
-					 </value>
-				  </fault>';
+					</value>
+				</fault>';
 		}
 	}
 
@@ -896,19 +896,19 @@ class CBlogMetaWeblog
 					else
 					{
 						return '<fault>
-							  <value>
-								 <struct>
+							<value>
+								<struct>
 									<member>
-									   <name>faultCode</name>
-									   <value><int>3</int></value>
-									   </member>
+										<name>faultCode</name>
+										<value><int>3</int></value>
+										</member>
 									<member>
-									   <name>faultString</name>
-									   <value><string>Error on saving post</string></value>
-									   </member>
+										<name>faultString</name>
+										<value><string>Error on saving post</string></value>
+										</member>
 									</struct>
-								 </value>
-							  </fault>';
+								</value>
+							</fault>';
 					}
 				}
 			}
@@ -917,19 +917,19 @@ class CBlogMetaWeblog
 		else
 		{
 			return '<fault>
-				  <value>
-					 <struct>
+				<value>
+					<struct>
 						<member>
-						   <name>faultCode</name>
-						   <value><int>3</int></value>
-						   </member>
+							<name>faultCode</name>
+							<value><int>3</int></value>
+							</member>
 						<member>
-						   <name>faultString</name>
-						   <value><string>'.$arAuthResult["MESSAGE"].'</string></value>
-						   </member>
+							<name>faultString</name>
+							<value><string>'.$arAuthResult["MESSAGE"].'</string></value>
+							</member>
 						</struct>
-					 </value>
-				  </fault>';
+					</value>
+				</fault>';
 		}
 	}
 
@@ -1056,19 +1056,19 @@ class CBlogMetaWeblog
 		else
 		{
 			return '<fault>
-				  <value>
-					 <struct>
+				<value>
+					<struct>
 						<member>
-						   <name>faultCode</name>
-						   <value><int>3</int></value>
-						   </member>
+							<name>faultCode</name>
+							<value><int>3</int></value>
+							</member>
 						<member>
-						   <name>faultString</name>
-						   <value><string>'.$arAuthResult["MESSAGE"].'</string></value>
-						   </member>
+							<name>faultString</name>
+							<value><string>'.$arAuthResult["MESSAGE"].'</string></value>
+							</member>
 						</struct>
-					 </value>
-				  </fault>';
+					</value>
+				</fault>';
 		}
 	}
 
@@ -1134,19 +1134,19 @@ class CBlogMetaWeblog
 		else
 		{
 			return '<fault>
-				  <value>
-					 <struct>
+				<value>
+					<struct>
 						<member>
-						   <name>faultCode</name>
-						   <value><int>3</int></value>
-						   </member>
+							<name>faultCode</name>
+							<value><int>3</int></value>
+							</member>
 						<member>
-						   <name>faultString</name>
-						   <value><string>'.$arAuthResult["MESSAGE"].'</string></value>
-						   </member>
+							<name>faultString</name>
+							<value><string>'.$arAuthResult["MESSAGE"].'</string></value>
+							</member>
 						</struct>
-					 </value>
-				  </fault>';
+					</value>
+				</fault>';
 		}
 	}
 
@@ -1178,15 +1178,15 @@ class CBlogMetaWeblog
 								</member>
 								<member>
 									<name>email</name>
-									<value>'.$arUser["EMAIL"].'</value>
+									<value>'.htmlspecialcharsEx($arUser["EMAIL"]).'</value>
 								</member>
 								<member>
 									<name>lastname</name>
-									<value>'.$arUser["LAST_NAME"].'</value>
+									<value>'.htmlspecialcharsEx($arUser["LAST_NAME"]).'</value>
 								</member>
 								<member>
 									<name>firstname</name>
-									<value>'.$arUser["NAME"].'</value>
+									<value>'.htmlspecialcharsEx($arUser["NAME"]).'</value>
 								</member>
 							</struct>
 						</value>
@@ -1211,37 +1211,37 @@ class CBlogMetaWeblog
 			else
 			{
 				return '<fault>
-					  <value>
-						 <struct>
+					<value>
+						<struct>
 							<member>
-							   <name>faultCode</name>
-							   <value><int>4</int></value>
+								<name>faultCode</name>
+								<value><int>4</int></value>
 							</member>
 							<member>
-							   <name>faultString</name>
-							   <value><string>User not found.</string></value>
+								<name>faultString</name>
+								<value><string>User not found.</string></value>
 							</member>
 							</struct>
-						 </value>
-					  </fault>';
+						</value>
+					</fault>';
 			}
 		}
 		else
 		{
 			return '<fault>
-				  <value>
-					 <struct>
+				<value>
+					<struct>
 						<member>
-						   <name>faultCode</name>
-						   <value><int>3</int></value>
-						   </member>
+							<name>faultCode</name>
+							<value><int>3</int></value>
+							</member>
 						<member>
-						   <name>faultString</name>
-						   <value><string>'.$arAuthResult["MESSAGE"].'</string></value>
-						   </member>
+							<name>faultString</name>
+							<value><string>'.$arAuthResult["MESSAGE"].'</string></value>
+							</member>
 						</struct>
-					 </value>
-				  </fault>';
+					</value>
+				</fault>';
 		}
 
 	}

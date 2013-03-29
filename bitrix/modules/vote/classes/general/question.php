@@ -1,10 +1,10 @@
 <?
-##############################################
-# Bitrix Site Manager Forum                  #
-# Copyright (c) 2002-2009 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
-##############################################
+#############################################
+# Bitrix Site Manager Forum					#
+# Copyright (c) 2002-2009 Bitrix			#
+# http://www.bitrixsoft.com					#
+# mailto:admin@bitrixsoft.com				#
+#############################################
 IncludeModuleLangFile(__FILE__);
 
 class CAllVoteQuestion
@@ -109,8 +109,10 @@ class CAllVoteQuestion
 			return false;
 /***************** Event onBeforeVoteQuestionAdd *******************/
 		$events = GetModuleEvents("vote", "onBeforeVoteQuestionAdd");
-		while ($arEvent = $events->Fetch())
-			ExecuteModuleEventEx($arEvent, array(&$arFields));
+		while ($arEvent = $events->Fetch()) {
+			if (ExecuteModuleEventEx($arEvent, array(&$arFields)) === false)
+				return false;
+		}
 /***************** /Event ******************************************/
 		if (empty($arFields))
 			return false;
@@ -132,12 +134,6 @@ class CAllVoteQuestion
 
 		$ID = $DB->Add("b_vote_question", $arFields/*, $arBinds*/);
 
-/***************** Cache ******************************************/
-		if (defined("BX_COMP_MANAGED_CACHE"))
-        {
-            $CACHE_MANAGER->ClearByTag("vote_form_vote_".$arFields['VOTE_ID']);
-        }
-/***************** /Cache ******************************************/
 /***************** Event onAfterVoteQuestionAdd ********************/
 		$events = GetModuleEvents("vote", "onAfterVoteQuestionAdd");
 		while ($arEvent = $events->Fetch())
@@ -158,24 +154,13 @@ class CAllVoteQuestion
 			return false;
 /***************** Event onBeforeVoteQuestionUpdate ****************/
 		$events = GetModuleEvents("vote", "onBeforeVoteQuestionUpdate");
-		while ($arEvent = $events->Fetch())
-			ExecuteModuleEventEx($arEvent, array(&$arFields));
+		while ($arEvent = $events->Fetch()) {
+			if (ExecuteModuleEventEx($arEvent, array(&$ID, &$arFields)) === false)
+				return false;
+		}
 /***************** /Event ******************************************/
 		if (empty($arFields))
 			return false;
-
-/***************** Cleaning cache **********************************/
-        unset($GLOBALS["VOTE_CACHE"]["QUESTION"][$ID]);
-
-        $db_res = CVoteQuestion::GetByID($ID);
-        if (!($db_res && $arQuestion = $db_res->Fetch()))
-        {
-            if (defined("BX_COMP_MANAGED_CACHE"))
-            {
-                $CACHE_MANAGER->ClearByTag("vote_form_vote_".$arQuestion['VOTE_ID']);
-            }
-        }
-/***************** Cleaning cache/**********************************/
 
 		if (
 			array_key_exists("IMAGE_ID", $arFields)
@@ -199,6 +184,8 @@ class CAllVoteQuestion
 			/*$DB->QueryBind($strSql, $arBinds);*/
 			$DB->Query($strSql, false, $err_mess);
 		endif;
+
+		unset($GLOBALS["VOTE_CACHE"]["QUESTION"][$ID]);
 /***************** Event onAfterVoteQuestionUpdate *****************/
 		$events = GetModuleEvents("vote", "onAfterVoteQuestionUpdate");
 		while ($arEvent = $events->Fetch())
@@ -208,37 +195,37 @@ class CAllVoteQuestion
 	}
 
 
-    function Copy($ID, $newVoteID)
-    {
+	function Copy($ID, $newVoteID)
+	{
 		$err_mess = (CAllVoteQuestion::err_mess())."<br>Function: Copy<br>Line: ";
 		$ID = intVal($ID);
 		if ($ID <= 0)
 			return false;
-        $newVoteID = intVal($newVoteID);
-        if ($newVoteID <= 0)
-            return false;
-        $res = CVoteQuestion::GetByID($ID);
-        if (!($arQuestion = $res->Fetch()))
-            return false;
-        $arQuestion['VOTE_ID'] = $newVoteID;
-        unset($arQuestion['ID']);
-        $newQuestionID = CVoteQuestion::Add($arQuestion);
-        if ($newQuestionID === false)
-            return false;
-        $state = true;
-        $rAnswers = CVoteAnswer::GetList($ID);
-        while ($arAnswer = $rAnswers->GetNext())
-        {
-            $arAnswer['QUESTION_ID'] = $newQuestionID;
-            unset($arAnswer['ID']);
-            unset($arAnswer['~ID']);
-            $state = $state && (CVoteAnswer::Add($arAnswer) !== false);
-        }
-        if (!$state) return $state;
-        CVoteQuestion::Reset($newQuestionID);
+		$newVoteID = intVal($newVoteID);
+		if ($newVoteID <= 0)
+			return false;
+		$res = CVoteQuestion::GetByID($ID);
+		if (!($arQuestion = $res->Fetch()))
+			return false;
+		$arQuestion['VOTE_ID'] = $newVoteID;
+		unset($arQuestion['ID']);
+		$newQuestionID = CVoteQuestion::Add($arQuestion);
+		if ($newQuestionID === false)
+			return false;
+		$state = true;
+		$rAnswers = CVoteAnswer::GetList($ID);
+		while ($arAnswer = $rAnswers->GetNext())
+		{
+			$arAnswer['QUESTION_ID'] = $newQuestionID;
+			unset($arAnswer['ID']);
+			unset($arAnswer['~ID']);
+			$state = $state && (CVoteAnswer::Add($arAnswer) !== false);
+		}
+		if (!$state) return $state;
+		CVoteQuestion::Reset($newQuestionID);
 
-        return $newQuestionID;
-    }
+		return $newQuestionID;
+	}
 
 	function GetNextSort($VOTE_ID)
 	{
@@ -303,7 +290,7 @@ class CAllVoteQuestion
 					break;
 				case "DIAGRAM":
 				case "ACTIVE":
-                case "REQUIRED":
+				case "REQUIRED":
 						$arSqlSearch[] = ($strNegative=="Y"?" Q.".$key." IS NULL OR NOT ":"")." (Q.".$key." ".$strOperation." '".$DB->ForSql($val)."')";
 					break;
 				case "QUESTION":
@@ -334,7 +321,6 @@ class CAllVoteQuestion
 			FROM b_vote_question Q
 			WHERE ".$strSqlSearch."
 			ORDER BY ".$strSqlOrder;
-		//echo "<pre>".$strSql."</pre>";
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 		$is_filtered = (IsFiltered($strSqlSearch));
 		return $res;
@@ -353,7 +339,7 @@ class CAllVoteQuestion
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
 		foreach ($arFilter as $key => $val)
 		{
-			if(empty($val) || $val === "NOT_REF")
+			if($val === "NOT_REF")
 				continue;
 			$key_res = VoteGetFilterOperation($key);
 			$strNegative = $key_res["NEGATIVE"];
@@ -364,10 +350,17 @@ class CAllVoteQuestion
 			{
 				case "ID":
 				case "VOTE_ID":
-					if (strlen($val)<=0)
-						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(VQ.".$key." IS NULL OR VQ.".$key."<=0)";
-					else
-						$arSqlSearch[] = ($strNegative=="Y"?" VQ.".$key." IS NULL OR NOT ":"")."(VQ.".$key." ".$strOperation." ".intVal($val).")";
+					$str = ($strNegative=="Y"?"NOT":"")."(VQ.".$key." IS NULL OR VQ.".$key."<=0)";
+					if (!empty($val))
+					{
+						$str = ($strNegative=="Y"?" VQ.".$key." IS NULL OR NOT ":"")."(VQ.".$key." ".$strOperation." ".intVal($val).")";
+						if ($strOperation == "IN")
+						{
+							$val = array_unique((is_array($val) ? $val : explode(",", $val)), SORT_NUMERIC);
+							$str = ($strNegative=="Y"?" NOT ":"")."(VQ.".$key." IN (".$DB->ForSql(implode(",", $val))."))";
+						}
+					}
+					$arSqlSearch[] = $str;
 					break;
 				case "CHANNEL_ID":
 					if (strlen($val)<=0)
@@ -376,7 +369,7 @@ class CAllVoteQuestion
 						$arSqlSearch[] = ($strNegative=="Y"?" V.".$key." IS NULL OR NOT ":"")."(V.".$key." ".$strOperation." ".intVal($val).")";
 					break;
 				case "ACTIVE":
-					if (strLen($val)<=0)
+					if (empty($val))
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(VQ.".$key." IS NULL OR ".($DB->type == "MSSQL" ? "LEN" : "LENGTH")."(VQ.".$key.")<=0)";
 					else
 						$arSqlSearch[] = ($strNegative=="Y"?" VQ.".$key." IS NULL OR NOT ":"")."(VQ.".$key." ".$strOperation." '".$DB->ForSql($val)."')";
@@ -409,27 +402,21 @@ class CAllVoteQuestion
 			WHERE VQ.VOTE_ID = V.ID ".
 			$strSqlSearch."
 			".$strSqlOrder;
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-		return $res;
+		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
 	function Delete($ID, $VOTE_ID = false)
 	{
 		global $DB, $CACHE_MANAGER;
 		$err_mess = (CVoteQuestion::err_mess())."<br>Function: Delete<br>Line: ";
-		$bCanDelete = true;
-/***************** Event OnBeforeVoteQuestionDelete ****************/
-		$events = GetModuleEvents("vote", "OnBeforeVoteQuestionDelete");
-		while ($arEvent = $events->Fetch()):
-			if (ExecuteModuleEventEx($arEvent, array(&$ID, &$VOTE_ID)) === false):
-				$bCanDelete = false;
-				break;
-			endif;
-		endwhile;
+/***************** Event onBeforeVoteQuestionDelete ****************/
+		$events = GetModuleEvents("vote", "onBeforeVoteQuestionDelete");
+		while ($arEvent = $events->Fetch()) {
+			if (ExecuteModuleEventEx($arEvent, array(&$ID, &$VOTE_ID)) === false)
+				return false;
+		}
 /***************** /Event ******************************************/
-		if (!$bCanDelete):
-			return false;
-		elseif (!CVoteAnswer::Delete(false, $ID, $VOTE_ID)):
+		if (!CVoteAnswer::Delete(false, $ID, $VOTE_ID)):
 			return false;
 		endif;
 
@@ -472,14 +459,10 @@ class CAllVoteQuestion
 		else
 			unset($GLOBALS["VOTE_CACHE"]["QUESTION"][$ID]);
 
-        if (defined("BX_COMP_MANAGED_CACHE"))
-        {
-            $CACHE_MANAGER->ClearByTag("vote_form_vote_".$VOTE_ID);
-        }
 /***************** Cleaning cache/**********************************/
 
-/***************** Event OnAfterForumDelete ************************/
-		$events = GetModuleEvents("vote", "OnAfterVoteQuestionDelete");
+/***************** Event onAfterForumDelete ************************/
+		$events = GetModuleEvents("vote", "onAfterVoteQuestionDelete");
 		while ($arEvent = $events->Fetch())
 			ExecuteModuleEventEx($arEvent, array($ID, $VOTE_ID));
 /***************** /Event ******************************************/
@@ -503,7 +486,7 @@ class CAllVoteQuestion
 
 		// drop answer events
 		$DB->Query("DELETE FROM b_vote_event_answer WHERE EVENT_QUESTION_ID IN (
-  			SELECT ID FROM b_vote_event_question WHERE QUESTION_ID IN (".$strSqlID."))", false, $err_mess.__LINE__);
+			SELECT ID FROM b_vote_event_question WHERE QUESTION_ID IN (".$strSqlID."))", false, $err_mess.__LINE__);
 		// drop question events
 		$DB->Query("DELETE FROM b_vote_event_question WHERE QUESTION_ID IN (".$strSqlID.")", false, $err_mess.__LINE__);
 

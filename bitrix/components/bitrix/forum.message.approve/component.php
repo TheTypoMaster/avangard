@@ -32,7 +32,7 @@ endif;
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["MESSAGES_PER_PAGE"] = intVal(intVal($arParams["MESSAGES_PER_PAGE"]) > 0 ? $arParams["MESSAGES_PER_PAGE"] :
@@ -48,6 +48,7 @@ endif;
 	// Data and data-time format
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 /***************** CACHE *******************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
@@ -103,21 +104,8 @@ $arResult["URL"] = array(
 
 $parser = new forumTextParser(LANGUAGE_ID, $arParams["PATH_TO_SMILE"]);
 $parser->MaxStringLen = $arParams["WORD_LENGTH"];
-$arAllow = array(
-	"HTML" => $arResult["FORUM"]["ALLOW_HTML"],
-	"ANCHOR" => $arResult["FORUM"]["ALLOW_ANCHOR"],
-	"BIU" => $arResult["FORUM"]["ALLOW_BIU"],
-	"IMG" => $arResult["FORUM"]["ALLOW_IMG"],
-	"VIDEO" => $arResult["FORUM"]["ALLOW_VIDEO"],
-	"LIST" => $arResult["FORUM"]["ALLOW_LIST"],
-	"QUOTE" => $arResult["FORUM"]["ALLOW_QUOTE"],
-	"CODE" => $arResult["FORUM"]["ALLOW_CODE"],
-	"FONT" => $arResult["FORUM"]["ALLOW_FONT"],
-	"SMILES" => $arResult["FORUM"]["ALLOW_SMILES"],
-	"UPLOAD" => $arResult["FORUM"]["ALLOW_UPLOAD"],
-	"NL2BR" => $arResult["FORUM"]["ALLOW_NL2BR"],
-	"TABLE" => $arResult["FORUM"]["ALLOW_TABLE"],
-);
+$arAllow = forumTextParser::GetFeatures($arResult["FORUM"]);
+
 if ($arParams["TID"] > 0):
 	$res = CForumTopic::GetByID($arParams["TID"]);
 	if ($res)
@@ -145,7 +133,6 @@ if (check_bitrix_sessid())
 	if (!is_array($message))
 		$message = explode(",", $message);
 	$message = ForumMessageExistInArray($message);
-
 
 	if (!$message)
 		$arError[] = array("id" => "bad_data", "text" => GetMessage("F_NO_MESSAGE"));
@@ -193,7 +180,11 @@ if (check_bitrix_sessid())
 $arFilter = array("APPROVED" => "N", "FORUM_ID" => $arParams["FID"]);
 if ($arParams["TID"] > 0)
 	$arFilter["TOPIC_ID"] = $arParams["TID"];
-$db_Message = CForumMessage::GetListEx(array("ID" => "ASC"), $arFilter);
+$db_Message = CForumMessage::GetListEx(
+	array("ID" => "ASC"),
+	$arFilter,
+	false, 0,
+	array("sNameTemplate" => $arParams["NAME_TEMPLATE"]));
 $db_Message->nPageWindow = $arParams["PAGE_NAVIGATION_WINDOW"];
 $db_Message->NavStart($arParams["MESSAGES_PER_PAGE"], false);
 $arResult["NAV_RESULT"] = $db_Message;
@@ -209,9 +200,8 @@ if ($db_Message && ($res = $db_Message->GetNext()))
 		$res["POST_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["POST_DATE"], CSite::GetDateFormat()));
 		$res["EDIT_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["EDIT_DATE"], CSite::GetDateFormat()));
 		// text
-		$arAllow["SMILES"] = ($res["USE_SMILES"] == "Y" ? $arResult["FORUM"]["ALLOW_SMILES"] : "N");
+		$res["ALLOW"] = array_merge($arAllow, array("SMILES" => ($res["USE_SMILES"] == "Y" ? $arResult["FORUM"]["ALLOW_SMILES"] : "N")));
 		$res["~POST_MESSAGE_TEXT"] = (COption::GetOptionString("forum", "FILTER", "Y")=="Y" ? $res["~POST_MESSAGE_FILTER"] : $res["~POST_MESSAGE"]);
-		$res["POST_MESSAGE_TEXT"] = $parser->convert($res["~POST_MESSAGE_TEXT"], $arAllow);
 		// Avatar
 		if (strLen($res["AVATAR"]) > 0):
 			$res["AVATAR"] = array("ID" => $res["AVATAR"]);
@@ -230,30 +220,30 @@ if ($db_Message && ($res = $db_Message->GetNext()))
 			$arAllow["SMILES"] = "N";
 			$res["SIGNATURE"] = $parser->convert($res["~SIGNATURE"], $arAllow);
 		}
-		$res["ATTACH_IMG"] = ""; $res["FILES"] = array();
-		$res["~ATTACH_FILE"] = array(); $res["ATTACH_FILE"] = array();
+		$res["ATTACH_IMG"] = ""; $res["FILES"] = $res["~ATTACH_FILE"] = $res["ATTACH_FILE"] = array();
 /************** Panels *********************************************/
-	$res["PANELS"] = array(
-		"DELETE" => $arResult["USER"]["RIGHTS"]["EDIT"],
-		"EDIT" => $arResult["USER"]["RIGHTS"]["EDIT"],
-		"STATISTIC" => IsModuleInstalled("statistic") && $APPLICATION->GetGroupRight("statistic") > "D" ? "Y" : "N",
-		"MAIN" => $APPLICATION->GetGroupRight("main") > "D" ? "Y" : "N");
-	if ($res["PANELS"]["EDIT"] != "Y" && $USER->IsAuthorized() && $res["AUTHOR_ID"] == $USER->GetId()):
-		if (COption::GetOptionString("forum", "USER_EDIT_OWN_POST", "N") == "Y"):
-			$res["PANELS"]["EDIT"] = "Y";
-		else:
-			// get last message in topic
-			// $arResult["TOPIC"]["iLAST_TOPIC_MESSAGE"] == intVal($res["ID"])
+		$res["PANELS"] = array(
+			"MODERATE" => "Y",
+			"DELETE" => $arResult["USER"]["RIGHTS"]["EDIT"],
+			"EDIT" => $arResult["USER"]["RIGHTS"]["EDIT"],
+			"STATISTIC" => IsModuleInstalled("statistic") && $APPLICATION->GetGroupRight("statistic") > "D" ? "Y" : "N",
+			"MAIN" => $APPLICATION->GetGroupRight("main") > "D" ? "Y" : "N");
+		if ($res["PANELS"]["EDIT"] != "Y" && $USER->IsAuthorized() && $res["AUTHOR_ID"] == $USER->GetId()):
+			if (COption::GetOptionString("forum", "USER_EDIT_OWN_POST", "N") == "Y"):
+				$res["PANELS"]["EDIT"] = "Y";
+			else:
+				// get last message in topic
+				// $arResult["TOPIC"]["iLAST_TOPIC_MESSAGE"] == intVal($res["ID"])
+			endif;
 		endif;
-	endif;
-	if ($arResult["USER"]["PERMISSION"] >= "Q")
-	{
-		$bIP = (preg_match("/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/", $res["~AUTHOR_IP"]) ? true : false);
-		$res["AUTHOR_IP"] = ($bIP ? GetWhoisLink($res["~AUTHOR_IP"], "") : $res["AUTHOR_IP"]);
-		$bIP = (preg_match("/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/", $res["~AUTHOR_REAL_IP"]) ? true : false);
-		$res["AUTHOR_REAL_IP"] = ($bIP ? GetWhoisLink($res["~AUTHOR_REAL_IP"], "") : $res["AUTHOR_REAL_IP"]);
-		$res["IP_IS_DIFFER"] = ($res["AUTHOR_IP"] <> $res["AUTHOR_REAL_IP"] ? "Y" : "N");
-	}
+		if ($arResult["USER"]["PERMISSION"] >= "Q")
+		{
+			$bIP = (preg_match("/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/", $res["~AUTHOR_IP"]) ? true : false);
+			$res["AUTHOR_IP"] = ($bIP ? GetWhoisLink($res["~AUTHOR_IP"], "") : $res["AUTHOR_IP"]);
+			$bIP = (preg_match("/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/", $res["~AUTHOR_REAL_IP"]) ? true : false);
+			$res["AUTHOR_REAL_IP"] = ($bIP ? GetWhoisLink($res["~AUTHOR_REAL_IP"], "") : $res["AUTHOR_REAL_IP"]);
+			$res["IP_IS_DIFFER"] = ($res["AUTHOR_IP"] <> $res["AUTHOR_REAL_IP"] ? "Y" : "N");
+		}
 /************** Panels/*********************************************/
 /************** Urls ***********************************************/
 		$res["URL"] = array(
@@ -304,14 +294,17 @@ if (!empty($arResult["MESSAGE_LIST"]))
 			$arResult["FILES"][$res["FILE_ID"]] = $res;
 		}while ($res = $db_files->Fetch());
 	}
+/************** Message info ***************************************/
+	$parser->arFiles = $arResult["FILES"];
+	$arResult["MESSAGE"] = $arResult["MESSAGE_LIST"]; // For custom templates
+	foreach ($arResult["MESSAGE_LIST"] as $iID => $res):
+		$arResult["MESSAGE"][$iID]["POST_MESSAGE_TEXT"] = $arResult["MESSAGE_LIST"][$iID]["POST_MESSAGE_TEXT"] = $parser->convert($res["~POST_MESSAGE_TEXT"], $res["ALLOW"]);
+		$arResult["MESSAGE"][$iID]["FILES_PARSED"] = $arResult["MESSAGE_LIST"][$iID]["FILES_PARSED"] = $parser->arFilesIDParsed;
+		if (isset($res["AVATAR"]["HTML"])) // For custom templates
+			$arResult["MESSAGE"][$iID]["AVATAR"] = $res["AVATAR"]["HTML"]; // For custom templates
+	endforeach;
 }
-/************** For custom templates *******************************/
-$arResult["MESSAGE"] = $arResult["MESSAGE_LIST"];
-foreach ($arResult["MESSAGE"] as $key => $val)
-{
-	if (isset($val["AVATAR"]["HTML"]))
-		$arResult["MESSAGE"][$key]["AVATAR"] = $val["AVATAR"]["HTML"];
-}
+/************** Message List/***************************************/
 $arResult["sessid"] = bitrix_sessid_post();
 $arResult["PARSER"] = $parser;
 /********************************************************************
@@ -326,8 +319,6 @@ if ($arParams["SET_NAVIGATION"] != "N")
 }
 if ($arParams["SET_TITLE"] != "N")
 	$APPLICATION->SetTitle(GetMessage("F_TITLE"));
-// if ($arParams["DISPLAY_PANEL"] == "Y" && $USER->IsAuthorized())
-	// CForumNew::ShowPanel($arParams["FID"], $arParams["TID"], false);
 /*******************************************************************/
 	$this->IncludeComponentTemplate();
 /*******************************************************************/

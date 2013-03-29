@@ -17,6 +17,7 @@
 		"FID" =>  $arParams["FID"],
 		"DATE_FORMAT" =>  $arResult["DATE_FORMAT"],
 		"DATE_TIME_FORMAT" =>  $arResult["DATE_TIME_FORMAT"],
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 		"WORD_LENGTH" => $arParams["WORD_LENGTH"],
 		"MINIMIZE_SQL" => $arParams["MINIMIZE_SQL"], 
 		
@@ -35,12 +36,13 @@
 	),
 	$component
 );?><?
-if ($arParams["SHOW_STATISTIC"] != "N"):
-?><?$APPLICATION->IncludeComponent("bitrix:forum.statistic", ".default", Array(
+if (sizeof($arParams['SHOW_STATISTIC_BLOCK']) > 0)
+{
+	$APPLICATION->IncludeComponent("bitrix:forum.statistic", ".default", Array(
 		"FID"	=>	0,
 		"TID"	=>	0,
 		"PERIOD"	=>	$arParams["TIME_INTERVAL_FOR_USER_STAT"],
-		"SHOW"	=>	array("STATISTIC", "BIRTHDAY", "USERS_ONLINE"),
+		"SHOW"		=>	$arParams["SHOW_STATISTIC_BLOCK"],
 		"SHOW_FORUM_ANOTHER_SITE"	=>	$arParams["SHOW_FORUM_ANOTHER_SITE"],
 		"FORUM_ID"	=>	$arForums,
 		
@@ -49,13 +51,13 @@ if ($arParams["SHOW_STATISTIC"] != "N"):
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"CACHE_TIME_USER_STAT" => $arParams["CACHE_TIME_USER_STAT"], 
+		"CACHE_TIME_FOR_FORUM_STAT" => $arParams["CACHE_TIME_FOR_FORUM_STAT"],
 		"WORD_LENGTH"	=>	$arParams["WORD_LENGTH"], 
 		"WORD_WRAP_CUT" => $arParams["WORD_WRAP_CUT"], 
-		"SEO_USER" => $arParams["SEO_USER"]
+		"SEO_USER" => $arParams["SEO_USER"],
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"]
 	),
 	$component);
-?>
-<?
-endif;
+}
 include_once(str_replace(array("\\", "//"), "/", dirname(__FILE__)."/footer.php"));
 ?>

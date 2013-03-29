@@ -94,6 +94,7 @@ class CAllForumPoints
 				}
 			}
 		}
+		$arFields["VOTES"] = intval($arFields["VOTES"]);
 
 		if(!empty($aMsg))
 		{
@@ -204,9 +205,8 @@ class CAllForumPoints
 			$strSqlSearch.
 			$strSqlOrder;
 
-		//echo htmlspecialchars($strSql);
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		return $db_res;
+		//echo htmlspecialcharsbx($strSql);
+		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
 	function GetListEx($arOrder = array("MIN_POINTS"=>"ASC"), $arFilter = array())
@@ -278,9 +278,8 @@ class CAllForumPoints
 			$strSqlSearch." ".
 			$strSqlOrder;
 
-		//echo htmlspecialchars($strSql);
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		return $db_res;
+		//echo htmlspecialcharsbx($strSql);
+		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
 	function GetByID($ID)
@@ -371,13 +370,13 @@ class CAllForumPoints2Post
 		if (is_set($arFields, "MIN_NUM_POSTS") || $ACTION=="ADD")
 		{
 			$arFields["MIN_NUM_POSTS"] = trim($arFields["MIN_NUM_POSTS"]);
-			if (strLen($arFields["MIN_NUM_POSTS"]) <= 0)
+			if (empty($arFields["MIN_NUM_POSTS"]))
 			{
 				$aMsg[] = array(
 					"id"=>'POINTS2POST[MIN_NUM_POSTS]',
 					"text" => GetMessage("FORUM_PE_ERROR_MIN_NUM_POSTS_EMPTY"));
 			}
-			elseif (preg_match("/[^0-9]/", $arFields["MIN_NUM_POSTS"]))
+			elseif (strlen($arFields["MIN_NUM_POSTS"]) > 18 || preg_match("/[^0-9]/", $arFields["MIN_NUM_POSTS"]))
 			{
 				$aMsg[] = array(
 					"id"=>'POINTS2POST[MIN_NUM_POSTS]',
@@ -398,10 +397,16 @@ class CAllForumPoints2Post
 				}
 			}
 		}
-
 		if ((is_set($arFields, "POINTS_PER_POST") || $ACTION=="ADD") && DoubleVal($arFields["POINTS_PER_POST"])<=0)
 			$arFields["POINTS_PER_POST"] = 0;
-
+		else {
+			$arFields["POINTS_PER_POST"] = round(doubleval($arFields["POINTS_PER_POST"]), 4);
+			if (strlen(round($arFields["POINTS_PER_POST"], 0)) > 14 || strlen(strstr($arFields["POINTS_PER_POST"], ".")) > 5 ||
+				preg_match("/[^0-9.]/", $arFields["POINTS_PER_POST"]))
+				$aMsg[] = array(
+					"id" => 'POINTS2POST[POINTS_PER_POST]',
+					"text" => GetMessage("FORUM_PE_ERROR_MIN_POINTS_BAD"));
+		}
 
 		if(!empty($aMsg))
 		{
@@ -424,7 +429,6 @@ class CAllForumPoints2Post
 
 		if (!CForumPoints2Post::CheckFields("UPDATE", $arFields, $ID))
 			return false;
-
 		$strUpdate = $DB->PrepareUpdate("b_forum_points2post", $arFields);
 		$strSql = "UPDATE b_forum_points2post SET ".$strUpdate." WHERE ID = ".$ID;
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);

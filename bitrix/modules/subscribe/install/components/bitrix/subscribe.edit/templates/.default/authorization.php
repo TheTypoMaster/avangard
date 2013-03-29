@@ -10,7 +10,7 @@
 <thead><tr><td colspan="2"><?echo GetMessage("subscr_title_auth")?></td></tr></thead>
 <tr>
 	<td width="40%"><?echo GetMessage("adm_auth_user")?>
-		<?echo htmlspecialchars($USER->GetFullName());?> [<?echo htmlspecialchars($USER->GetLogin())?>].
+		<?echo htmlspecialcharsbx($USER->GetFormattedName(false));?> [<?echo htmlspecialcharsbx($USER->GetLogin())?>].
 	</td>
 	<td width="60%">
 		<?if($arResult["ID"]==0):?>

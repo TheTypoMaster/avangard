@@ -146,12 +146,14 @@ class CCSVData
 
 			$str .= $ch;
 		}
+
 		if (strlen($str))
-		{
 			$res_r[] = $str;
+
+		if(empty($res_r))
+			return false;
+		else
 			return $res_r;
-		}
-		return false;
 	}
 
 	function FetchWidth()
@@ -213,12 +215,14 @@ class CCSVData
 			$ind++;
 			$str .= $ch;
 		}
+
 		if (strlen($str)>0)
-		{
 			$res_r[] = $str;
+
+		if(empty($res_r))
+			return false;
+		else
 			return $res_r;
-		}
-		return false;
 	}
 
 	function Fetch()

@@ -1,8 +1,8 @@
 <?
 $MESS["IBLOCK_DETAIL_URL"] = "URL of the page with the detail contents";
 $MESS["IBLOCK_PRICES"] = "Prices";
-$MESS["IBLOCK_TYPE"] = "Info-block type";
-$MESS["IBLOCK_IBLOCK"] = "Info-block";
+$MESS["IBLOCK_TYPE"] = "Infoblock type";
+$MESS["IBLOCK_IBLOCK"] = "Infoblock";
 $MESS["IBLOCK_PROPERTY"] = "Properties";
 $MESS["IBLOCK_SORT_SHOWS"] = "average shows";
 $MESS["IBLOCK_SORT_SORT"] = "sorting index";
@@ -31,4 +31,6 @@ $MESS["IBLOCK_SHOW_PRICE_COUNT"] = "Show price for quantity";
 $MESS["T_IBLOCK_DESC_PAGER_CATALOG"] = "Products";
 $MESS["IBLOCK_VAT_INCLUDE"] = "Include tax rate in price";
 $MESS["CP_BCLL_CACHE_GROUPS"] = "Respect Access Permissions";
+$MESS["CP_BCLL_CONVERT_CURRENCY"] = "Use only one currency to show prices";
+$MESS["CP_BCLL_CURRENCY_ID"] = "Convert all prices to currency";
 ?>

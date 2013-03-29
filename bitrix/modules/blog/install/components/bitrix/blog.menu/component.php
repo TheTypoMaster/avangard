@@ -26,54 +26,54 @@ if(strLen($arParams["USER_VAR"])<=0)
 
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
 if(strlen($arParams["PATH_TO_BLOG"])<=0)
-	$arParams["PATH_TO_BLOG"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_BLOG_INDEX"] = trim($arParams["PATH_TO_BLOG_INDEX"]);
 if(strlen($arParams["PATH_TO_BLOG_INDEX"])<=0)
-	$arParams["PATH_TO_BLOG_INDEX"] = htmlspecialchars($APPLICATION->GetCurPage());
+	$arParams["PATH_TO_BLOG_INDEX"] = htmlspecialcharsbx($APPLICATION->GetCurPage());
 	
 $arParams["PATH_TO_DRAFT"] = trim($arParams["PATH_TO_DRAFT"]);
 if(strlen($arParams["PATH_TO_DRAFT"])<=0)
-	$arParams["PATH_TO_DRAFT"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=draft&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_DRAFT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=draft&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_POST_EDIT"] = trim($arParams["PATH_TO_POST_EDIT"]);
 if(strlen($arParams["PATH_TO_POST_EDIT"])<=0)
-	$arParams["PATH_TO_POST_EDIT"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post_edit&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
+	$arParams["PATH_TO_POST_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post_edit&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if(strlen($arParams["PATH_TO_USER"])<=0)
-	$arParams["PATH_TO_USER"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_FRIENDS"] = trim($arParams["PATH_TO_USER_FRIENDS"]);
 if(strlen($arParams["PATH_TO_USER_FRIENDS"])<=0)
-	$arParams["PATH_TO_USER_FRIENDS"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_friends&".$arParams["USER_VAR"]."=#user_id#");
+	$arParams["PATH_TO_USER_FRIENDS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_friends&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER_SETTINGS"] = trim($arParams["PATH_TO_USER_SETTINGS"]);
 if(strlen($arParams["PATH_TO_USER_SETTINGS"])<=0)
-	$arParams["PATH_TO_USER_SETTINGS"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_settings&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_USER_SETTINGS"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_settings&".$arParams["BLOG_VAR"]."=#blog#");
 
 $arParams["PATH_TO_GROUP_EDIT"] = trim($arParams["PATH_TO_GROUP_EDIT"]);
 if(strlen($arParams["PATH_TO_GROUP_EDIT"])<=0)
-	$arParams["PATH_TO_GROUP_EDIT"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_edit&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_GROUP_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=group_edit&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_BLOG_EDIT"] = trim($arParams["PATH_TO_BLOG_EDIT"]);
 if(strlen($arParams["PATH_TO_BLOG_EDIT"])<=0)
-	$arParams["PATH_TO_BLOG_EDIT"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog_edit&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_BLOG_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog_edit&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_CATEGORY_EDIT"] = trim($arParams["PATH_TO_CATEGORY_EDIT"]);
 if(strlen($arParams["PATH_TO_CATEGORY_EDIT"])<=0)
-	$arParams["PATH_TO_CATEGORY_EDIT"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=category_edit&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_CATEGORY_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=category_edit&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_MODERATION"] = trim($arParams["PATH_TO_MODERATION"]);
 if(strlen($arParams["PATH_TO_MODERATION"])<=0)
-	$arParams["PATH_TO_MODERATION"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=moderation&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_MODERATION"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=moderation&".$arParams["BLOG_VAR"]."=#blog#");
 
 if(!($USER->IsAuthorized()))
 {
-	$arResult["urlToAuth"] = htmlspecialchars($APPLICATION->GetCurPageParam("auth=Y", array("login", "logout", "register", "forgot_password", "change_password")));
+	$arResult["urlToAuth"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam("auth=Y", array("login", "logout", "register", "forgot_password", "change_password")));
 
 	if(COption::GetOptionString("main", "new_user_registration", "Y") == "Y")
-		$arResult["urlToRegister"] = htmlspecialchars($APPLICATION->GetCurPageParam("auth=Y&register=yes", array("login", "logout", "register", "forgot_password", "change_password", "backurl")));
+		$arResult["urlToRegister"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam("auth=Y&register=yes", array("login", "logout", "register", "forgot_password", "change_password", "backurl")));
 }
 else
 {

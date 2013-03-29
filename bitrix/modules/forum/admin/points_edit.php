@@ -19,13 +19,13 @@ $langCount = 0;
 while ($arLang = $db_lang->Fetch())
 {
 	$arSysLangs[$langCount] = $arLang["LID"];
-	$arSysLangNames[$langCount] = htmlspecialchars($arLang["NAME"]);
+	$arSysLangNames[$langCount] = htmlspecialcharsbx($arLang["NAME"]);
 	$langCount++;
 }
 
 
 $bInitVars = false;
-if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $forumPermissions=="W" && check_bitrix_sessid())
+if ($REQUEST_METHOD=="POST" && $forumPermissions=="W" && (!empty($save) || !empty($apply)) && check_bitrix_sessid())
 {
 	$arFields = array(
 		"MIN_POINTS" => $MIN_POINTS,
@@ -36,7 +36,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $forumPe
 		
 	for ($i = 0; $i<count($arSysLangs); $i++)
 	{
-		if (strlen(${"NAME_".$arSysLangs[$i]})>0)
+		if (!empty(${"NAME_".$arSysLangs[$i]}))
 		{
 			$arFields["LANG"][] = array(
 				"LID" => $arSysLangs[$i],
@@ -138,9 +138,12 @@ $tabControl->BeginNextTab();
 	</tr>
 	<?endif;?>
 
-	<tr>
+	<tr class="adm-detail-required-field">
 		<td width="40%">
-			<span class="required">*</span><?=(COption::GetOptionString("forum", "SHOW_VOTES", "Y")=="Y"? GetMessage("FORUM_PE_MIN_POINTS"): COption::GetOptionString("main", "rating_weight_type", "auto")=="auto"? GetMessage("FORUM_PE_RATING_VOTES"): GetMessage("FORUM_PE_RATING_VALUE"))?>:
+			<?=(COption::GetOptionString("forum", "SHOW_VOTES", "Y") == "Y" ?
+				GetMessage("FORUM_PE_MIN_POINTS") :
+				(COption::GetOptionString("main", "rating_weight_type", "auto") == "auto" ?
+					GetMessage("FORUM_PE_RATING_VOTES"): GetMessage("FORUM_PE_RATING_VALUE")))?>:
 		</td>
 		<td width="60%">
 			<input type="text" name="MIN_POINTS" value="<?=htmlspecialcharsEx($str_MIN_POINTS)?>" size="10" />
@@ -174,12 +177,12 @@ $tabControl->BeginNextTab();
 				[<?echo $arSysLangs[$i];?>] <?echo $arSysLangNames[$i];?>
 			</td>
 		</tr>
-		<tr>
+		<tr class="adm-detail-required-field">
 			<td>
-				<span class="required">*</span><?= GetMessage("FORUM_PE_NAME") ?>:
+				<?= GetMessage("FORUM_PE_NAME") ?>:
 			</td>
 			<td>
-				<input type="text" name="NAME_<?echo $arSysLangs[$i] ?>" value="<?=htmlspecialchars($str_NAME)?>" size="40" />
+				<input type="text" name="NAME_<?echo $arSysLangs[$i] ?>" value="<?=htmlspecialcharsbx($str_NAME)?>" size="40" />
 			</td>
 		</tr>
 	<?endfor;?>

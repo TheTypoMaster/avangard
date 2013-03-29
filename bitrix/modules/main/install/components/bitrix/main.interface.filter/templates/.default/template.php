@@ -13,12 +13,12 @@ foreach($arResult["GET_VARS"] as $var=>$value):
 			if(is_array($v))
 				continue;
 ?>
-<input type="hidden" name="<?=htmlspecialchars($var)?>[<?=htmlspecialchars($k)?>]" value="<?=htmlspecialchars($v)?>">
+<input type="hidden" name="<?=htmlspecialcharsbx($var)?>[<?=htmlspecialcharsbx($k)?>]" value="<?=htmlspecialcharsbx($v)?>">
 <?
 		endforeach;
 	else:
 ?>
-<input type="hidden" name="<?=htmlspecialchars($var)?>" value="<?=htmlspecialchars($value)?>">
+<input type="hidden" name="<?=htmlspecialcharsbx($var)?>" value="<?=htmlspecialcharsbx($value)?>">
 <?
 	endif;
 endforeach;
@@ -107,7 +107,7 @@ foreach($arParams["FILTER"] as $field):
 				endif;
 				foreach($field["items"] as $k=>$v):
 ?>
-	<option value="<?=htmlspecialchars($k)?>"<?if(in_array($k, $value) && (!$bSel || $bMulti)) {$bSel = true; echo ' selected';}?>><?=htmlspecialchars($v)?></option>
+	<option value="<?=htmlspecialcharsbx($k)?>"<?if(in_array($k, $value) && (!$bSel || $bMulti)) {$bSel = true; echo ' selected';}?>><?=htmlspecialcharsbx($v)?></option>
 <?
 				endforeach;
 ?>
@@ -126,8 +126,8 @@ foreach($arParams["FILTER"] as $field):
 			endforeach;
 ?>
 				</select>
-				<span class="bx-filter-days" style="display:none"><input type="text" name="<?=$field["id"]."_days"?>" value="<?=htmlspecialchars($arResult["FILTER"][$field["id"]."_days"])?>"  class="filter-date-days" size="5" /> <?echo GetMessage("interface_filter_days")?></span>
-				<span class="bx-filter-from" style="display:none"><input type="text" name="<?=$field["id"]."_from"?>" value="<?=htmlspecialchars($arResult["FILTER"][$field["id"]."_from"])?>" class="filter-date-interval"<?=$params?> /><?
+				<span class="bx-filter-days" style="display:none"><input type="text" name="<?=$field["id"]."_days"?>" value="<?=htmlspecialcharsbx($arResult["FILTER"][$field["id"]."_days"])?>"  class="filter-date-days" size="5" /> <?echo GetMessage("interface_filter_days")?></span>
+				<span class="bx-filter-from" style="display:none"><input type="text" name="<?=$field["id"]."_from"?>" value="<?=htmlspecialcharsbx($arResult["FILTER"][$field["id"]."_from"])?>" class="filter-date-interval"<?=$params?> /><?
 $APPLICATION->IncludeComponent(
 	"bitrix:main.calendar",
 	"",
@@ -139,7 +139,7 @@ $APPLICATION->IncludeComponent(
 	),
 	$component,
 	array("HIDE_ICONS"=>true)
-);?></span><span class="bx-filter-hellip" style="display:none">&hellip;</span><span class="bx-filter-to" style="display:none"><input type="text" name="<?=$field["id"]."_to"?>" value="<?=htmlspecialchars($arResult["FILTER"][$field["id"]."_to"])?>" class="filter-date-interval"<?=$params?> /><?
+);?></span><span class="bx-filter-hellip" style="display:none">&hellip;</span><span class="bx-filter-to" style="display:none"><input type="text" name="<?=$field["id"]."_to"?>" value="<?=htmlspecialcharsbx($arResult["FILTER"][$field["id"]."_to"])?>" class="filter-date-interval"<?=$params?> /><?
 $APPLICATION->IncludeComponent(
 	"bitrix:main.calendar",
 	"",
@@ -159,13 +159,13 @@ BX.ready(function(){bxGrid_<?=$arParams["GRID_ID"]?>.OnDateChange(document.forms
 			break;
 		case 'quick':
 ?>
-<input type="text" name="<?=$field["id"]?>" value="<?=htmlspecialchars($value)?>"<?=$params?>>
+<input type="text" name="<?=$field["id"]?>" value="<?=htmlspecialcharsbx($value)?>"<?=$params?>>
 <?
 			if(is_array($field["items"])):
 ?>
 <select name="<?=$field["id"]?>_list">
 <?foreach($field["items"] as $key=>$item):?>
-	<option value="<?=htmlspecialchars($key)?>"<?=($arResult["FILTER"][$field["id"]."_list"] == $key? ' selected':'')?>><?=htmlspecialchars($item)?></option>
+	<option value="<?=htmlspecialcharsbx($key)?>"<?=($arResult["FILTER"][$field["id"]."_list"] == $key? ' selected':'')?>><?=htmlspecialcharsbx($item)?></option>
 <?endforeach?>
 </select>
 <?
@@ -173,13 +173,13 @@ BX.ready(function(){bxGrid_<?=$arParams["GRID_ID"]?>.OnDateChange(document.forms
 			break;
 		case 'number':
 ?>
-<input type="text" name="<?=$field["id"]?>_from" value="<?=htmlspecialchars($arResult["FILTER"][$field["id"]."_from"])?>"<?=$params?>> ... 
-<input type="text" name="<?=$field["id"]?>_to" value="<?=htmlspecialchars($arResult["FILTER"][$field["id"]."_to"])?>"<?=$params?>>
+<input type="text" name="<?=$field["id"]?>_from" value="<?=htmlspecialcharsbx($arResult["FILTER"][$field["id"]."_from"])?>"<?=$params?>> ... 
+<input type="text" name="<?=$field["id"]?>_to" value="<?=htmlspecialcharsbx($arResult["FILTER"][$field["id"]."_to"])?>"<?=$params?>>
 <?
 			break;
 		default:
 ?>
-<input type="text" name="<?=$field["id"]?>" value="<?=htmlspecialchars($value)?>"<?=$params?>>
+<input type="text" name="<?=$field["id"]?>" value="<?=htmlspecialcharsbx($value)?>"<?=$params?>>
 <?
 			break;
 	endswitch;

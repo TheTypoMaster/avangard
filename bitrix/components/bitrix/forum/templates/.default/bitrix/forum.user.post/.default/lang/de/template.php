@@ -9,7 +9,6 @@ $MESS ['F_CLOSED'] = "Geschlossen";
 $MESS ['F_ANCHOR_TITLE'] = "Link kopieren";
 $MESS ['F_EDIT_HEAD'] = "Geändert:";
 $MESS ['LU_FORUM'] = "Forum";
-$MESS ['F_GOTO'] = "Wechseln";
 $MESS ['F_DATE_REGISTER'] = "Registrierung:";
 $MESS ['F_ANCHOR'] = "Link";
 $MESS ['LU_BY_MESSAGE'] = "nach Nachrichten";

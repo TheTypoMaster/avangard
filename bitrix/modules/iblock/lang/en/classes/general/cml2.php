@@ -136,4 +136,15 @@ $MESS["IBLOCK_XML2_BX_FILE_WIDTH"] = "BitrixFileWidth";
 $MESS["IBLOCK_XML2_BX_FILE_HEIGHT"] = "BitrixFileHeight";
 $MESS["IBLOCK_XML2_BX_FILE_CONTENT_TYPE"] = "BitrixContentType";
 $MESS["IBLOCK_XML2_UF_ERROR"] = "Error importing custom property (xml_id: #XML_ID#): #ERROR_TEXT#";
+$MESS["IBLOCK_XML2_STORES"] = "Warehouses";
+$MESS["IBLOCK_XML2_STORE_ADDRESS"] = "Address";
+$MESS["IBLOCK_XML2_STORE_AMOUNT_LIST"] = "WarehousesStock";
+$MESS["IBLOCK_XML2_STORE_AMOUNT"] = "WarehouseStock";
+$MESS["IBLOCK_XML2_STORE_ID"] = "WarehouseID";
+$MESS["IBLOCK_XML2_STORE_DESCRIPTION"] = "Comment";
+$MESS["IBLOCK_XML2_STORE_CANTACTS"] = "Contacts";
+$MESS["IBLOCK_XML2_SECTION_PROPERTIES"] = "ElementProperties";
+$MESS["IBLOCK_XML2_SMART_FILTER"] = "SmartFilter";
+$MESS["IBLOCK_XML2_PRICE_SB_ADD_ERROR"] = "The Small Business edition does not permit more than one price type. Please consider upgrading your license.";
+$MESS["IBLOCK_XML2_PRICE_DUP_ERROR"] = "There are prices with duplicate names. Data exchange will have to abort.";
 ?>

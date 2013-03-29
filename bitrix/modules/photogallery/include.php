@@ -9,7 +9,7 @@ $_SESSION['photogallery'] = (is_array($_SESSION['photogallery']) ? $_SESSION['ph
 CModule::AddAutoloadClasses(
 	"photogallery",
 	array(
-		"CPGalleryInterface" => "tools/components_lib.php", 
+		"CPGalleryInterface" => "tools/components_lib.php",
 		"CPhotogalleryElement" => "classes/general/element.php",
 		"CRatingsComponentsPhotogallery" => "classes/general/ratings_components.php",
 	)
@@ -17,8 +17,8 @@ CModule::AddAutoloadClasses(
 if (!is_array($GLOBALS["PHOTOGALLERY_VARS"]))
 {
 	$GLOBALS["PHOTOGALLERY_VARS"] = array(
-		"arSections" => array(), 
-		"arGalleries" => array(), 
+		"arSections" => array(),
+		"arGalleries" => array(),
 		"arIBlock" => array());
 }
 
@@ -52,11 +52,11 @@ function PhotoShowError($arError, $arShowFields = array("ID", "NAME"), $bShowErr
 {
 	$bShowErrorCode = ($bShowErrorCode === true ? true : false);
 	$sReturn = "";
-	$tmp = false; 
+	$tmp = false;
 	$arRes = array();
 	if (empty($arError))
 		return $sReturn;
-	
+
 	if (!is_array($arError))
 	{
 		$sReturn = $arError;
@@ -65,7 +65,7 @@ function PhotoShowError($arError, $arShowFields = array("ID", "NAME"), $bShowErr
 	{
 		if (isset($arError["title"]))
 			$sReturn = $arError["title"];
-			
+
 		if (isset($arError["code"]))
 		{
 			if (empty($sReturn))
@@ -76,11 +76,11 @@ function PhotoShowError($arError, $arShowFields = array("ID", "NAME"), $bShowErr
 			}
 			$sReturn .= ($bShowErrorCode ? " [CODE: ".$arError["code"]."]" : "");
 		}
-		
+
 		if (isset($arError["DATA"]) || isset($arError["data"]))
 		{
 			$tmp = (isset($arError["DATA"]) ? $arError["DATA"] : $arError["data"]);
-			
+
 			if (!empty($arShowFields) && is_array($arShowFields))
 			{
 				if (in_array("ID", $arShowFields) && !empty($tmp["ID"]))
@@ -88,12 +88,12 @@ function PhotoShowError($arError, $arShowFields = array("ID", "NAME"), $bShowErr
 					$arRes[] = "ID: ".$tmp["ID"];
 					$tmp["ID"] = false;
 				}
-				
+
 				foreach ($arShowFields as $key)
 				{
 					if (empty($tmp["~".$key]) && empty($tmp[$key]))
 						continue;
-					$arRes[] = $key.": ".(!empty($tmp["~".$key]) ? htmlspecialchars($tmp["~".$key]) : $tmp[$key]);
+					$arRes[] = $key.": ".(!empty($tmp["~".$key]) ? htmlspecialcharsbx($tmp["~".$key]) : $tmp[$key]);
 				}
 			}
 			else
@@ -162,7 +162,7 @@ function PhotoFormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="D
 	$arDate = preg_split('[^0-9]', $strDate);
 	$arParsedDate=Array();
 	$bound = min(count($arFormat), count($arDate));
-	
+
 	for($i=0; $i<$bound; $i++)
 	{
 		if(preg_match("/[^0-9]/", $arDate[$i], $matches))
@@ -172,11 +172,11 @@ function PhotoFormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="D
 
 		$arParsedDate[substr($arFormat[$i], 0, 2)] = $r;
 	}
-	if (intval($arParsedDate["DD"])<=0 || intval($arParsedDate["MM"])<=0 || intval($arParsedDate["YY"])<=0) 
+	if (intval($arParsedDate["DD"])<=0 || intval($arParsedDate["MM"])<=0 || intval($arParsedDate["YY"])<=0)
 		return false;
 
 	$strResult = "";
-	
+
 	if(intval($arParsedDate["YY"])>1970 && intval($arParsedDate["YY"])<2038)
 	{
 		$ux_time = mktime(
@@ -203,7 +203,7 @@ function PhotoFormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="D
 	}
 	else
 	{
-		if($arParsedDate["MM"]<1 || $arParsedDate["MM"]>12) 
+		if($arParsedDate["MM"]<1 || $arParsedDate["MM"]>12)
 			$arParsedDate["MM"] = 1;
 		for ($i=0; $i<strLen($new_format); $i++)
 		{
@@ -224,8 +224,8 @@ function PhotoFormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="D
 					if (intVal($arParsedDate["DD"]) > 0)
 						$match = GetMessage("P_DAY_OF_WEEK_".intVal($arParsedDate["DD"]));
 					break;
-				case "D": 
-					$match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT); 
+				case "D":
+					$match = str_pad($arParsedDate["DD"], 2, "0", STR_PAD_LEFT);
 					if (intVal($arParsedDate["DD"]) > 0)
 						$match = GetMessage("P_DOW_".intVal($arParsedDate["DD"]));
 					break;
@@ -237,21 +237,21 @@ function PhotoFormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="D
 				case "H": $match = str_pad($arParsedDate["HH"], 2, "0", STR_PAD_LEFT); break;
 				case "i": $match = str_pad($arParsedDate["MI"], 2, "0", STR_PAD_LEFT); break;
 				case "S": $match = str_pad($arParsedDate["SS"], 2, "0", STR_PAD_LEFT); break;
-				case "g": 
+				case "g":
 					$match = intVal($arParsedDate["HH"]);
 					if ($match > 12)
 						$match = $match-12;
-				case "a": 
-				case "A": 
+				case "a":
+				case "A":
 					$match = intVal($arParsedDate["HH"]);
 					if ($match > 12)
 						$match = ($match-12)." PM";
-					else 
+					else
 						$match .= " AM";
-						
+
 					if (substr($new_format, $i, 1) == "a")
 						$match = strToLower($match);
-						
+
 				default: $match = substr($new_format, $i, 1); break;
 			}
 			$strResult .= $match;
@@ -260,68 +260,75 @@ function PhotoFormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="D
 	return $strResult;
 }
 
-function PClearComponentCache($components, $nameSpace = "bitrix")
+function PClearComponentCache($components)
 {
 	if (empty($components))
 		return false;
+
 	if (is_array($components))
 		$aComponents = $components;
 	else
 		$aComponents = explode(",", $components);
+
 	foreach($aComponents as $component_name)
 	{
 		$add_path = "";
-		if (strpos($component_name, "/") !== false):
+		if (strpos($component_name, "/") !== false)
+		{
 			$add_path = substr($component_name, strpos($component_name, "/"));
 			$component_name = substr($component_name, 0, strpos($component_name, "/"));
-		endif;
-		$component_name = $nameSpace.":".$component_name;
-		
+		}
 		$componentRelativePath = CComponentEngine::MakeComponentPath($component_name);
+
 		if (strlen($componentRelativePath) > 0)
 		{
-			$arComponentDescription = CComponentUtil::GetComponentDescr($component_name);
-			if (!is_array($arComponentDescription))
-			{
-			}
-			elseif (array_key_exists("CACHE_PATH", $arComponentDescription))
-			{
-				if($arComponentDescription["CACHE_PATH"] == "Y")
-					$arComponentDescription["CACHE_PATH"] = "/".SITE_ID.$componentRelativePath;
-				if(strlen($arComponentDescription["CACHE_PATH"]) > 0)
-					BXClearCache(true, $arComponentDescription["CACHE_PATH"].$add_path);
-			}
+			BXClearCache(true, "/".$componentRelativePath.$add_path);
+			BXClearCache(true, "/".SITE_ID.$componentRelativePath.$add_path);
 		}
 	}
+	BXClearCache(true, "/photogallery");
+	BXClearCache(true, "/".SITE_ID."/photogallery");
 }
 
-function PClearTmpUploadDir($hours = 12)
+function PClearComponentCacheEx($iblockId = false, $arSections = array(), $arGalleries = array(), $arUsers = array(), $clearCommon = true)
 {
-	$hours = intVal($hours > 0 ? $hours : 12);
-	$point = time();
-	$point = ($point - $hours*3600);
-	$path = preg_replace("'[\\\\/]+'", "/", $_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/tmp/uploader");
-	if (!file_exists($path))
+	if (!$iblockId)
 		return;
-	if ($handle = @opendir($path))
-	{
-		while (($file = readdir($handle)) !== false)
-		{
-			if ($file == "." || $file == "..") continue;
 
-			if (is_dir($path."/".$file))
-			{
-			}
-			else
-			{
-				$file_time = @filemtime($path."/".$file);
-				if (!$file_time || $file_time <= $point):
-					@unlink($path."/".$file);
-				endif;
-			}
-		}
+	$arCache = array();
+	$arCache[] = "photogallery";
+	if ($clearCommon)
+	{
+		$arCache[] = "search.page";
+		$arCache[] = "search.tags.cloud";
+		$arCache[] = "photogallery/".$iblockId;
+		$arCache[] = "photogallery/".$iblockId."/pemission";
+		$arCache[] = "photogallery.detail.comment/".$iblockId;
+		$arCache[] = "photogallery.gallery.list/".$iblockId;
 	}
-	@closedir($handle);
-	return "PClearTmpUploadDir();";
+
+	if (is_array($arSections))
+	{
+		$arSections = array_unique($arSections);
+		foreach($arSections as $sectionId)
+			$arCache[] = "photogallery/".$iblockId."/section".intVal($sectionId);
+	}
+	$arCache[] = "photogallery/".$iblockId."/section".intVal($sectionId);
+
+	if(is_array($arGalleries))
+	{
+		$arGalleries = array_unique($arGalleries);
+		foreach($arGalleries as $galleryCode)
+			$arCache[] = "photogallery/".$iblockId."/gallery".$galleryCode; // todo: secure galleryCode!!!!
+	}
+
+	if (is_array($arUsers))
+	{
+		$arUsers = array_unique($arUsers);
+		foreach($arUsers as $userId)
+			$arCache[] = "photogallery/".$iblockId."/user".intVal($userId);
+	}
+
+	PClearComponentCache($arCache);
 }
 ?>

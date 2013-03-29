@@ -18,7 +18,7 @@ class CSecurityDB
 
 		if($bDoConnect)
 		{
-			$SECURITY_SESSION_DBH = @mysql_connect($DB->DBHost, $DB->DBLogin, $DB->DBPassword);
+			$SECURITY_SESSION_DBH = @mysql_connect($DB->DBHost, $DB->DBLogin, $DB->DBPassword, true);
 		}
 		else
 		{
@@ -54,7 +54,7 @@ class CSecurityDB
 
 		if(defined("MYSQL_TABLE_TYPE") && strlen(MYSQL_TABLE_TYPE) > 0)
 		{
-			$rs = CSecurityDB::Query("SET table_type = '".MYSQL_TABLE_TYPE."'", "Module: security; Class: CSecurityDB; Function: Init; File: ".__FILE__."; Line: ".__LINE__);
+			$rs = CSecurityDB::Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", "Module: security; Class: CSecurityDB; Function: Init; File: ".__FILE__."; Line: ".__LINE__);
 			if(!is_resource($rs))
 				return false;
 		}
@@ -70,6 +70,16 @@ class CSecurityDB
 		", "Module: security; Class: CSecurityDB; Function: Init; File: ".__FILE__."; Line: ".__LINE__);
 
 		return is_resource($rs);
+	}
+
+	function Disconnect()
+	{
+		global $SECURITY_SESSION_DBH;
+		if(is_resource($SECURITY_SESSION_DBH))
+		{
+			mysql_close($SECURITY_SESSION_DBH);
+			$SECURITY_SESSION_DBH = false;
+		}
 	}
 
 	function CurrentTimeFunction()
@@ -91,6 +101,7 @@ class CSecurityDB
 
 		if(is_resource($SECURITY_SESSION_DBH))
 		{
+			$strSql = preg_replace("/^\\s*SELECT\\s+(?!GET_LOCK|RELEASE_LOCK)/i", "SELECT SQL_NO_CACHE ", $strSql);
 			$result = @mysql_query($strSql, $SECURITY_SESSION_DBH);
 			if($result)
 			{

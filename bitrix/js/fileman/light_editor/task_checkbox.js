@@ -332,4 +332,4 @@ JCLightHTMLEditor.prototype.TaskOnUnParse_ = function()
 	this.subTaskIdCounter = 0;
 }
 
-BX.addCustomEvent('LHE_OnInit', LHETaskOnInit);
+BX.addCustomEvent('LHE_OnInit', LHETaskOnInit);;   

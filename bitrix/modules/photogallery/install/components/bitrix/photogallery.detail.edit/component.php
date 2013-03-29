@@ -52,7 +52,7 @@ if(!function_exists("__UnEscape"))
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 //***************** ADDITTIONAL ************************************/
 	$arParams["SHOW_TITLE"] = ($arParams["SHOW_TITLE"] == "N" ? "N" : "Y"); // Used to hide element name in the form
@@ -82,8 +82,6 @@ if(!function_exists("__UnEscape"))
 	$arParams["PERMISSION"] = "D";
 	$arParams["ABS_PERMISSION"] = "D";
 
-	$cache = new CPHPCache;
-	$cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]."/");
 /************** ELEMENT ********************************************/
 //SELECT
 $arSelect = array(
@@ -114,12 +112,13 @@ $arFilter = array(
 //EXECUTE
 $rsElement = CIBlockElement::GetList(array(), $arFilter, false, false, $arSelect);
 $obElement = $rsElement->GetNextElement();
-if (empty($obElement)):
+if (empty($obElement))
+{
 	ShowError(GetMessage("PHOTO_ELEMENT_NOT_FOUND"));
 	if ($arParams["SET_STATUS_404"] == "Y")
 		CHTTP::SetStatus("404 Not Found");
 	return 0;
-endif;
+}
 
 $arResult["ELEMENT"] = $obElement->GetFields();
 $arResult["ELEMENT"]["PROPERTIES"] = $obElement->GetProperties();
@@ -128,17 +127,18 @@ if ($arResult["ELEMENT"]["DETAIL_TEXT"] == "" && $arResult["ELEMENT"]["NAME"] !=
 {
 	$arResult["ELEMENT"]["~NAME"] = preg_replace(array('/\.jpg/i','/\.jpeg/i','/\.gif/i','/\.png/i','/\.bmp/i'), '', $arResult["ELEMENT"]["~NAME"]);
 	$arResult["ELEMENT"]["~DETAIL_TEXT"] = $arResult["ELEMENT"]["~NAME"];
-	$arResult["ELEMENT"]["DETAIL_TEXT"] = htmlspecialchars($arResult["ELEMENT"]["~DETAIL_TEXT"]);
+	$arResult["ELEMENT"]["DETAIL_TEXT"] = htmlspecialcharsbx($arResult["ELEMENT"]["~DETAIL_TEXT"]);
 }
 
-if ($arParams["SECTION_ID"] != $arResult["ELEMENT"]["IBLOCK_SECTION_ID"]):
+if ($arParams["SECTION_ID"] != $arResult["ELEMENT"]["IBLOCK_SECTION_ID"])
+{
 	$url = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_URL"],
 		array("USER_ALIAS" => $arParams["USER_ALIAS"],
 			"SECTION_ID" => $arResult["ELEMENT"]["IBLOCK_SECTION_ID"],
 			"ELEMENT_ID" => $arResult["ELEMENT"]["ID"]));
 	LocalRedirect($url, false, "301 Moved Permanently");
 	return false;
-endif;
+}
 /************** GALLERY & SECTION & PERMISSION *********************/
 $oPhoto = new CPGalleryInterface(
 	array(
@@ -147,8 +147,6 @@ $oPhoto = new CPGalleryInterface(
 		"Permission" => $arParams["PERMISSION_EXTERNAL"]),
 	array(
 		"cache_time" => $arParams["CACHE_TIME"],
-		"cache_path" => $cache_path_main,
-		"show_error" => "Y",
 		"set_404" => $arParams["SET_STATUS_404"]
 		)
 	);
@@ -353,38 +351,14 @@ if($_REQUEST["edit"] == "Y" || $arParams["ACTION"] == "DROP")
 
 	if (empty($arError))
 	{
-		PClearComponentCache(array(
-			"search.page",
-			"search.tags.cloud",
-			"photogallery.detail/".$arParams["IBLOCK_ID"]."/detail/".$_REQUEST["TO_SECTION_ID"]."/",
-			"photogallery.detail/".$arParams["IBLOCK_ID"]."/detail/".$arParams["SECTION_ID"]."/",
-			"photogallery.detail.comment",
-			"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/0",
-			"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/".$_REQUEST["TO_SECTION_ID"],
-			"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"],
-			"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/0",
-			"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/".$_REQUEST["TO_SECTION_ID"],
-			"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"],
-			"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/section".$_REQUEST["TO_SECTION_ID"],
-			"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-			"photogallery.section/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-			"photogallery.section/".$arParams["IBLOCK_ID"]."/section".$arResult["SECTION"]["IBLOCK_SECTION_ID"],
-//				"photogallery.section.edit",
-//				"photogallery.section.edit.icon",
-			"photogallery.section.list/".$arParams["IBLOCK_ID"]."/section0",
-			"photogallery.section.list/".$arParams["IBLOCK_ID"]."/sections0",
-			"photogallery.section.list/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-			"photogallery.section.list/".$arParams["IBLOCK_ID"]."/sections".$arResult["SECTION"]["IBLOCK_SECTION_ID"],
-//				"photogallery.upload",
-//				"photogallery.user"
-			)
-		);
+		PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0, $_REQUEST["TO_SECTION_ID"], $arParams["SECTION_ID"]));
+
 		if ($arParams["AJAX_CALL"] == "Y")
 		{
 			if ($arParams["~RESTART_BUFFER"] !== false)
 				$APPLICATION->RestartBuffer();
 			$result["DATE"] = PhotoDateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($result["DATE"], CSite::GetDateFormat()));
-			?><?=CUtil::PhpToJSObject($result);?><?
+			echo CUtil::PhpToJSObject($result);
 			if ($arParams["~RESTART_BUFFER"] !== false)
 				die();
 			return;

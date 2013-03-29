@@ -16,4 +16,4 @@ document.write('<tr><td></td><td></td><td></td></tr>');
 document.write('</tbody>');
 document.write('</table>');
 document.write('<font size="3" color="#FF0000"><strong>28 февраля</strong> заканчивается акция &laquo;Скидка 20% на хиты продаж&raquo; в салонах Москвы и области. Не упустите уникальную возможность приобрести мягкую мебель фабрики &laquo;Авангард&raquo; со скидкой <font size="5"><strong>20</strong>%</font>.</font> ');
-document.write('<br />');
+document.write('<br />');;   

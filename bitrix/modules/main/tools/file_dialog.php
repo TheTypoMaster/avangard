@@ -4,6 +4,8 @@
 // JS  /bitrix/js/main/file_dialog.js, /bitrix/js/main/file_dialog_engine.js
 // CSS  /bitrix/themes/.default/file_dialog.css
 
+define('PUBLIC_AJAX_MODE', true);
+
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 if(!$USER->CanDoOperation('fileman_view_file_structure'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -23,7 +25,8 @@ if ($action == 'start')
 		'site' => isset($_GET['site']) ? $_GET['site'] : false,
 		'lang' => isset($_GET['lang']) ? $_GET['lang'] : 'en',
 		'getFiles' => !isset($_GET['get_files']) || $_GET['get_files'],
-		'bAddToMenu' => isset($_GET['add_to_menu']) && $_GET['add_to_menu']
+		'bAddToMenu' => isset($_GET['add_to_menu']) && $_GET['add_to_menu'],
+		'operation' => isset($_GET['operation']) ? $_GET['operation'] : '',
 	));
 }
 elseif ($action == 'load')
@@ -34,7 +37,8 @@ elseif ($action == 'load')
 		'loadRecursively' => intval($_GET['rec']) > 0,
 		'loadRoot' =>  intval($_GET['rec']) > 1,
 		'getFiles' => !isset($_GET['get_files']) || $_GET['get_files'],
-		'bAddToMenu' => isset($_GET['add_to_menu']) && $_GET['add_to_menu']
+		'bAddToMenu' => isset($_GET['add_to_menu']) && $_GET['add_to_menu'],
+		'operation' => isset($_GET['operation']) ? $_GET['operation'] : '',
 	));
 }
 elseif ($action == 'new_dir')
@@ -44,7 +48,8 @@ elseif ($action == 'new_dir')
 		'name' => isset($_GET['name']) ? $_GET['name'] : '',
 		'site' => isset($_GET['site']) ? $_GET['site'] : false,
 		'getFiles' => !isset($_GET['get_files']) || $_GET['get_files'],
-		'bAddToMenu' => isset($_GET['add_to_menu']) && $_GET['add_to_menu']
+		'bAddToMenu' => isset($_GET['add_to_menu']) && $_GET['add_to_menu'],
+		'operation' => isset($_GET['operation']) ? $_GET['operation'] : '',
 	));
 }
 elseif ($action == 'remove')
@@ -53,7 +58,8 @@ elseif ($action == 'remove')
 		'path' => isset($_GET['path']) ? $_GET['path'] : '',
 		'site' => isset($_GET['site']) ? $_GET['site'] : false,
 		'getFiles' => !isset($_GET['get_files']) || $_GET['get_files'],
-		'bAddToMenu' => isset($_GET['add_to_menu']) && $_GET['add_to_menu']
+		'bAddToMenu' => isset($_GET['add_to_menu']) && $_GET['add_to_menu'],
+		'operation' => isset($_GET['operation']) ? $_GET['operation'] : '',
 	));
 }
 elseif ($action == 'rename')
@@ -64,7 +70,8 @@ elseif ($action == 'rename')
 		'name' => isset($_GET['name']) ? $_GET['name'] : '',
 		'site' => isset($_GET['site']) ? $_GET['site'] : false,
 		'getFiles' => !isset($_GET['get_files']) || $_GET['get_files'],
-		'bAddToMenu' => isset($_GET['add_to_menu']) && $_GET['add_to_menu']
+		'bAddToMenu' => isset($_GET['add_to_menu']) && $_GET['add_to_menu'],
+		'operation' => isset($_GET['operation']) ? $_GET['operation'] : '',
 	));
 }
 elseif ($action == 'set_config')
@@ -88,9 +95,16 @@ elseif ($action == 'flash')
 }
 elseif ($action == 'uploader')
 {
+	if (isset($_REQUEST['cur_site']))
+		$curSite = $_REQUEST['cur_site'];
+	elseif (isset($_REQUEST['site']))
+		$curSite = $_REQUEST['site'];
+	else
+		$curSite = false;
+
 	CAdminFileDialog::ShowUploadForm(array(
 		'lang' => isset($_REQUEST['lang']) ? $_REQUEST['lang'] : 'en',
-		'site' => isset($_REQUEST['site']) ? $_REQUEST['site'] : false,
+		'site' => $curSite,
 		'file' => isset($_FILES["load_file"]) ? $_FILES["load_file"] : false,
 		'path' => isset($_POST["path"]) ? $_POST["path"] : '',
 		'filename' => isset($_POST["filename"]) ? $_POST["filename"] : '',

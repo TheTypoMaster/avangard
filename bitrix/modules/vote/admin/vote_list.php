@@ -21,7 +21,7 @@ CModule::IncludeModule("vote");
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/prolog.php");
 $VOTE_RIGHT = $APPLICATION->GetGroupRight("vote");
-if ($VOTE_RIGHT <= "D"): 
+if ($VOTE_RIGHT <= "D"):
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 endif;
 $arChannels = array();
@@ -29,7 +29,7 @@ $arChannelsTitle = array();
 $db_res = CVoteChannel::GetList($by1 = "s_c_sort", $order1 = "asc", array(), $is_filtered);
 if ($db_res && $res = $db_res->GetNext())
 {
-	do 
+	do
 	{
 		$arChannels[$res["ID"]] = $res;
 		$arChannelsTitle[$res["ID"]] = html_entity_decode($res["TITLE"]);
@@ -40,13 +40,13 @@ if ($db_res && $res = $db_res->GetNext())
 $err_mess = "File: ".__FILE__."<br>Line: ";
 
 $arFilterFields = Array(
-	"find_id", 
+	"find_id",
 	"find_id_exact_match",
-	"find_active", 
-	"find_date_start_1", 
-	"find_date_start_2", 
-	"find_date_end_1", 
-	"find_date_end_2", 
+	"find_active",
+	"find_date_start_1",
+	"find_date_start_2",
+	"find_date_end_1",
+	"find_date_end_2",
 	"find_lamp",
 	"find_channel",
 	"find_channel_exact_match",
@@ -60,7 +60,7 @@ $arFilterFields = Array(
 $arFilter = array();
 $lAdmin->InitFilter($arFilterFields);
 /********************************************************************
-				Functions 
+				Functions
 ********************************************************************/
 function CheckFilter()
 {
@@ -80,7 +80,7 @@ function CheckFilter()
 		$date_start_2_stm = MkDateTime(ConvertDateTime($find_date_start_2,"D.M.Y")." 23:59:59","d.m.Y H:i:s");
 		if (!$date_start_1_stm && strlen(trim($find_date_start_1))>0)
 		{
-			$bGotErr = true; 
+			$bGotErr = true;
 			$lAdmin->AddUpdateError(GetMessage("VOTE_WRONG_START_DATE_FROM"));
 		}
 
@@ -101,12 +101,12 @@ function CheckFilter()
 		// end date
 		$date_end_1_stm = MkDateTime(ConvertDateTime($find_date_end_1,"D.M.Y"),"d.m.Y");
 		$date_end_2_stm = MkDateTime(ConvertDateTime($find_date_end_2,"D.M.Y")." 23:59:59","d.m.Y H:i:s");
-		if (!$date_end_1_stm && strlen(trim($find_date_end_1))>0) 
+		if (!$date_end_1_stm && strlen(trim($find_date_end_1))>0)
 		{
 			$bGotErr = true;
 			$lAdmin->AddUpdateError(GetMessage("VOTE_WRONG_END_DATE_FROM"));
 		}
-		if (!$date_end_2_stm && strlen(trim($find_date_end_2))>0) 
+		if (!$date_end_2_stm && strlen(trim($find_date_end_2))>0)
 		{
 			$bGotErr = true;
 			$lAdmin->AddUpdateError(GetMessage("VOTE_WRONG_END_DATE_TILL"));
@@ -164,8 +164,8 @@ if ($lAdmin->EditAction() && $VOTE_RIGHT >= "W" && check_bitrix_sessid())
 		$ID = intVal($ID);
 		$arFieldsStore = array(
 			"ACTIVE" => $arFields['ACTIVE'],
-			"C_SORT" => $arFields['C_SORT'], 
-			"TITLE" => $arFields['TITLE'], 
+			"C_SORT" => $arFields['C_SORT'],
+			"TITLE" => $arFields['TITLE'],
 			"CHANNEL_ID" => $arFields['CHANNEL_ID']);
 		if (!CVote::CheckFields("UPDATE", $arFieldsStore, $ID, array("CHECK_INTERSECTION" => "Y"))):
 			$err = $GLOBALS['APPLICATION']->GetException();
@@ -175,7 +175,7 @@ if ($lAdmin->EditAction() && $VOTE_RIGHT >= "W" && check_bitrix_sessid())
 		endif;
 	}
 }
-// Group actions 
+// Group actions
 if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT>="W" && check_bitrix_sessid())
 {
 	if($_REQUEST['action_target'] == 'selected')
@@ -186,7 +186,7 @@ if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT>="W" && check_bitrix_sessid()
 			$arID[] = $arRes['ID'];
 	}
 	$arID = (is_array($arID) ? $arID : array($arID));
-	
+
 	foreach($arID as $ID)
 	{
 		$ID = intVal($ID);
@@ -235,40 +235,45 @@ $lAdmin->AddHeaders(array(
 
 while($arRes = $rsData->NavNext(true, "f_"))
 {
-    $row =& $lAdmin->AddRow($f_ID, $arRes);
+	$row =& $lAdmin->AddRow($f_ID, $arRes);
 	$row->AddViewField("ID","<a href='vote_edit.php?lang=".LANGUAGE_ID."&ID=$f_ID' title='".GetMessage("VOTE_EDIT_TITLE")."'>$f_ID</a>");
+	if ($f_LAMP == "yellow")
+	{
+		$arRes["LAMP"] = $f_LAMP = ($f_ID == CVote::GetActiveVoteId($arRes["CHANNEL_ID"]) ? "green" : "red");
+	}
 	$lamp = $f_LAMP;
-	if ($f_LAMP=="green")  
+	if ($f_LAMP=="green")
 		$lamp = "<div class=\"lamp-green\" title=\"".GetMessage("VOTE_LAMP_ACTIVE")."\"></div>";
-	elseif ($f_LAMP == "red") 
+	elseif ($f_LAMP == "red")
 		$lamp = "<div class=\"lamp-red\" title=\"".($f_ACTIVE != 'Y' ? GetMessage("VOTE_NOT_ACTIVE") : GetMessage("VOTE_ACTIVE_RED_LAMP"))."\"></div>";
+
 	$row->AddViewField("LAMP", $lamp);
 	$row->AddSelectField("CHANNEL_ID", $arChannelsTitle);
 	$row->AddCheckField("ACTIVE");
 	$row->AddInputField("C_SORT");
 	$row->AddInputField("TITLE", array());
-	
+
 	$row->AddViewField("QUESTIONS","<a title=\"".GetMessage("VOTE_QUESTIONS_TITLE")."\" href=\"vote_question_list.php?lang=".LANGUAGE_ID."&VOTE_ID=$f_ID\">$f_QUESTIONS</a>&nbsp;[<a title=\"".GetMessage("VOTE_QUESTIONS_ADD")."\" href=\"vote_question_edit.php?lang=".LANGUAGE_ID."&VOTE_ID=$f_ID\">+</a>]");
 	$row->AddViewField("COUNTER", "<a href=\"vote_user_votes.php?lang=".LANGUAGE_ID."&find_vote_id=$f_ID&find_valid=Y&set_filter=Y\" title=\"".GetMessage("VOTE_VOTES_TITLE")."\">$f_COUNTER</a>");
 
-    $arActions = Array();
-    $arActions[] = array("DEFAULT"=>"Y", "ICON"=>"edit", "TEXT"=>GetMessage("MAIN_ADMIN_MENU_EDIT"), "ACTION"=>$lAdmin->ActionRedirect("vote_edit.php?ID=".$f_ID));
-    $arActions[] = array(
-    	"ICON" => "copy", "TEXT" => GetMessage("VOTE_COPY"), 
-    	"ACTION" => "if(confirm('".GetMessage("VOTE_CONFIRM_COPY")."')) window.location='vote_edit.php?lang=".LANGUAGE_ID."&amp;docopy=Y&ID=$f_ID&".bitrix_sessid_get()."'");
-    $arActions[] = array(
-    	"ICON" => "reset", "TEXT" => GetMessage("VOTE_RESET_NULL"), 
-    	"ACTION" => "if(confirm('".GetMessage("VOTE_CONFIRM_RESET_VOTE")."')) window.location='vote_list.php?lang=".LANGUAGE_ID."&reset_id=$f_ID&".bitrix_sessid_get()."'");
+	$arActions = Array();
+	$arActions[] = array("DEFAULT"=>"Y", "ICON"=>"edit", "TEXT"=>GetMessage("MAIN_ADMIN_MENU_EDIT"), "ACTION"=>$lAdmin->ActionRedirect("vote_edit.php?ID=".$f_ID));
+	$arActions[] = array(
+		"ICON" => "copy", "TEXT" => GetMessage("VOTE_COPY"),
+		"ACTION" => "if(confirm('".GetMessage("VOTE_CONFIRM_COPY")."')) window.location='vote_edit.php?lang=".LANGUAGE_ID."&docopy=Y&ID=$f_ID&".bitrix_sessid_get()."'");
+	$arActions[] = array(
+		"ICON" => "reset", "TEXT" => GetMessage("VOTE_RESET_NULL"),
+		"ACTION" => "if(confirm('".GetMessage("VOTE_CONFIRM_RESET_VOTE")."')) window.location='vote_list.php?lang=".LANGUAGE_ID."&reset_id=$f_ID&".bitrix_sessid_get()."'");
 	$arActions[] = array("SEPARATOR"=>true);
 
-	$arActions[] = array("TEXT" => GetMessage("VOTE_PREVIEW"), "TITLE" => GetMessage("VOTE_PREVIEW_TITLE"), 
+	$arActions[] = array("TEXT" => GetMessage("VOTE_PREVIEW"), "TITLE" => GetMessage("VOTE_PREVIEW_TITLE"),
 		"ACTION" => $lAdmin->ActionRedirect("vote_preview.php?lang=".LANGUAGE_ID."&VOTE_ID=$f_ID"));
-	$arActions[] = array("TEXT" => GetMessage("VOTE_RESULTS"), "TITLE" => GetMessage("VOTE_RESULTS_TITLE"), 
+	$arActions[] = array("TEXT" => GetMessage("VOTE_RESULTS"), "TITLE" => GetMessage("VOTE_RESULTS_TITLE"),
 		"ACTION" => $lAdmin->ActionRedirect("vote_results.php?lang=".LANGUAGE_ID."&VOTE_ID=$f_ID"));
 	$arActions[] = array("SEPARATOR"=>true);
-	$arActions[] = array("ICON" => "delete", "TEXT" => GetMessage("MAIN_ADMIN_MENU_DELETE"), 
+	$arActions[] = array("ICON" => "delete", "TEXT" => GetMessage("MAIN_ADMIN_MENU_DELETE"),
 		"ACTION"=>"if(confirm('".GetMessage("VOTE_CONFIRM_DEL_VOTE")."')) window.location='vote_list.php?lang=".LANGUAGE_ID."&action=delete&ID=$f_ID&".bitrix_sessid_get()."'");
-    if ($VOTE_RIGHT < "W")
+	if ($VOTE_RIGHT < "W")
 		$row->bReadOnly = True;
 	else
 		$row->AddActions($arActions);
@@ -287,8 +292,8 @@ if ($VOTE_RIGHT >= "W"):
 		"deactivate" => GetMessage("VOTE_DEACTIVATE")));
 	$aMenu[] = array(
 		"TEXT"	=> GetMessage("VOTE_CREATE"),
-                "TITLE"=>GetMessage("VOTE_ADD_LIST"),
-                "LINK"=>"vote_edit.php?lang=".LANG,
+				"TITLE"=>GetMessage("VOTE_ADD_LIST"),
+				"LINK"=>"vote_edit.php?lang=".LANG,
 		"ICON" => "btn_new");
 	$aContext = $aMenu;
 endif;
@@ -307,8 +312,8 @@ require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_adm
 <?
 
 $oFilter = new CAdminFilter(
-        $sTableID."_filter",
-        array(
+		$sTableID."_filter",
+		array(
 		GetMessage("VOTE_FL_ID"),
 		GetMessage("VOTE_FL_LAMP"),
 		GetMessage("VOTE_FL_DATE_START"),
@@ -316,7 +321,7 @@ $oFilter = new CAdminFilter(
 		GetMessage("VOTE_FL_CHANNEL"),
 		GetMessage("VOTE_FL_ACTIVE"),
 		GetMessage("VOTE_FL_COUNTER")
-        )
+		)
 );
 
 $oFilter->Begin();
@@ -325,44 +330,44 @@ $oFilter->Begin();
 
 <tr>
 	<td nowrap><b><?=GetMessage("VOTE_F_TITLE")?></b></td>
-	<td nowrap><input type="text" name="find_title" value="<?echo htmlspecialchars($find_title)?>" size="47"><?=InputType("checkbox", "find_title_exact_match", "Y", $find_title_exact_match, false, "", "title='".GetMessage("VOTE_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td nowrap><input type="text" name="find_title" value="<?echo htmlspecialcharsbx($find_title)?>" size="47"><?=InputType("checkbox", "find_title_exact_match", "Y", $find_title_exact_match, false, "", "title='".GetMessage("VOTE_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 
-<tr> 
+<tr>
 	<td>ID:</td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>"><?=InputType("checkbox", "find_id_exact_match", "Y", $find_id_exact_match, false, "", "title='".GetMessage("VOTE_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"><?=InputType("checkbox", "find_id_exact_match", "Y", $find_id_exact_match, false, "", "title='".GetMessage("VOTE_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
-<tr> 
+<tr>
 	<td><?=GetMessage("VOTE_F_LAMP")?></td>
 	<td><?
 		$arr = array("reference"=>array(GetMessage("VOTE_RED"), GetMessage("VOTE_GREEN")), "reference_id"=>array("red","green"));
-		echo SelectBoxFromArray("find_lamp", $arr, htmlspecialchars($find_lamp), GetMessage("VOTE_ALL"));
+		echo SelectBoxFromArray("find_lamp", $arr, htmlspecialcharsbx($find_lamp), GetMessage("VOTE_ALL"));
 		?></td>
 </tr>
 <tr>
-	<td nowrap><?echo GetMessage("VOTE_F_DATE_START")." (".CLang::GetDateFormat("SHORT")."):"?></td>
+	<td nowrap><?echo GetMessage("VOTE_F_DATE_START").":"?></td>
 	<td nowrap><?echo CalendarPeriod("find_date_start_1", $find_date_start_1, "find_date_start_2", $find_date_start_2, "find_form","Y")?></td>
 </tr>
 <tr>
-	<td nowrap><?echo GetMessage("VOTE_F_DATE_END")." (".CLang::GetDateFormat("SHORT")."):"?></td>
+	<td nowrap><?echo GetMessage("VOTE_F_DATE_END").":"?></td>
 	<td nowrap><?echo CalendarPeriod("find_date_end_1", $find_date_end_1, "find_date_end_2", $find_date_end_2, "find_form","Y")?></td>
 </tr>
 <tr>
 	<td nowrap><?echo GetMessage("VOTE_F_CHANNEL")?></td>
-	<td nowrap><input type="text" name="find_channel" value="<?echo htmlspecialchars($find_channel)?>" size="47"><?=InputType("checkbox", "find_channel_exact_match", "Y", $find_channel_exact_match, false, "", "title='".GetMessage("VOTE_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?><br><?
-		echo SelectBox("find_channel_id", CVoteChannel::GetDropDownList(), GetMessage("VOTE_ALL"), htmlspecialchars($find_channel_id));
+	<td nowrap><input type="text" name="find_channel" value="<?echo htmlspecialcharsbx($find_channel)?>" size="47"><?=InputType("checkbox", "find_channel_exact_match", "Y", $find_channel_exact_match, false, "", "title='".GetMessage("VOTE_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?><br><?
+		echo SelectBox("find_channel_id", CVoteChannel::GetDropDownList(), GetMessage("VOTE_ALL"), htmlspecialcharsbx($find_channel_id));
 		?></td>
 </tr>
 <tr>
 	<td nowrap><?echo GetMessage("VOTE_F_ACTIVE")?></td>
 	<td nowrap><?
 		$arr = array("reference"=>array(GetMessage("VOTE_YES"), GetMessage("VOTE_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_active", $arr, htmlspecialchars($find_active), GetMessage("VOTE_ALL"));
+		echo SelectBoxFromArray("find_active", $arr, htmlspecialcharsbx($find_active), GetMessage("VOTE_ALL"));
 		?></td>
 </tr>
 <tr>
 	<td nowrap><?echo GetMessage("VOTE_F_COUNTER")?></td>
-	<td nowrap><input type="text" name="find_counter_1" value="<?=htmlspecialchars($find_counter_1)?>" size="10"><?echo "&nbsp;".GetMessage("VOTE_TILL")."&nbsp;"?><input type="text" name="find_counter_2" value="<?=htmlspecialchars($find_counter_2)?>" size="10"></td>
+	<td nowrap><input type="text" name="find_counter_1" value="<?=htmlspecialcharsbx($find_counter_1)?>" size="10"><?echo "&nbsp;".GetMessage("VOTE_TILL")."&nbsp;"?><input type="text" name="find_counter_2" value="<?=htmlspecialcharsbx($find_counter_2)?>" size="10"></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage(), "form"=>"find_form"));

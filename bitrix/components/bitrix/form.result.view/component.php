@@ -46,7 +46,9 @@ if (CModule::IncludeModule("form"))
 		$arParams["RESULT_ID"] = intval($arVariables["RESULT_ID"]);
 	}
 
-
+	$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE'])
+		? (method_exists('CSite', 'GetNameFormat') ? CSite::GetNameFormat() : "#NAME# #LAST_NAME#")
+		: $arParams["NAME_TEMPLATE"];
 
 	$arResult["FORM_SIMPLE"] = (COption::GetOptionString("form", "SIMPLE", "Y") == "Y") ? true : false;
 	$arResult["bAdmin"] = defined("ADMIN_SECTION") && ADMIN_SECTION===true ? "Y" : "N";
@@ -187,8 +189,8 @@ if (CModule::IncludeModule("form"))
 				"isAccessFormResultEdit" => in_array("EDIT", $arResult["arrRESULT_PERMISSION"]) ? "Y" : "N",
 				"isStatisticIncluded" => CModule::IncludeModule("statistic") ? "Y" : "N",
 
-				"FORM_TITLE" => trim(htmlspecialchars($arResult["arForm"]["NAME"])),
-				"FORM_DESCRIPTION" => $arResult["arForm"]["DESCRIPTION_TYPE"] == "html" ? trim($arParams["arForm"]["DESCRIPTION"]) : nl2br(htmlspecialchars(trim($arParams["arForm"]["DESCRIPTION"]))),
+				"FORM_TITLE" => trim(htmlspecialcharsbx($arResult["arForm"]["NAME"])),
+				"FORM_DESCRIPTION" => $arResult["arForm"]["DESCRIPTION_TYPE"] == "html" ? trim($arParams["arForm"]["DESCRIPTION"]) : nl2br(htmlspecialcharsbx(trim($arParams["arForm"]["DESCRIPTION"]))),
 
 				"isFormImage" => intval($arResult["arForm"]["IMAGE_ID"]) > 0 ? "Y" : "N",
 				"REQUIRED_SIGN" => CForm::ShowRequired("Y"), // "required" sign - for manual template customization
@@ -221,6 +223,7 @@ if (CModule::IncludeModule("form"))
 			$arResult["RESULT_USER_EMAIL"] = $arUser["USER_EMAIL"];
 			$arResult["RESULT_USER_FIRST_NAME"] = $arUser["NAME"];
 			$arResult["RESULT_USER_LAST_NAME"] = $arUser["LAST_NAME"];
+			$arResult["RESULT_USER_SECOND_NAME"] = $arUser["SECOND_NAME"];
 		}
 
 		// append result data to arResult
@@ -233,7 +236,7 @@ if (CModule::IncludeModule("form"))
 				"CAPTION" => // field caption
 					$arResult["arQuestions"][$FIELD_SID]["TITLE_TYPE"] == "html" ?
 					$arResult["arQuestions"][$FIELD_SID]["TITLE"] :
-					nl2br(htmlspecialchars($arResult["arQuestions"][$FIELD_SID]["TITLE"])),
+					nl2br(htmlspecialcharsbx($arResult["arQuestions"][$FIELD_SID]["TITLE"])),
 
 				"IS_HTML_CAPTION"			=> $arResult["arQuestions"][$FIELD_SID]["TITLE_TYPE"] == "html" ? "Y" : "N",
 				"REQUIRED"					=> $arResult["arQuestions"][$FIELD_SID]["REQUIRED"] == "Y" ? "Y" : "N",
@@ -255,7 +258,7 @@ if (CModule::IncludeModule("form"))
 						{
 							if ($arrA["USER_FILE_IS_IMAGE"]=="Y" && $USER->IsAdmin())
 							{
-								$arResultAnswer["USER_TEXT"] = htmlspecialchars($arrA["USER_TEXT"]);
+								$arResultAnswer["USER_TEXT"] = htmlspecialcharsbx($arrA["USER_TEXT"]);
 							}
 						}
 						else
@@ -272,8 +275,8 @@ if (CModule::IncludeModule("form"))
 					if (strlen(trim($arrA["USER_DATE"]))>0)
 					{
 						$arResultAnswer["USER_TEXT"] = $DB->FormatDate(
-							$arrA["USER_DATE"], 
-							FORMAT_DATETIME, 
+							$arrA["USER_DATE"],
+							FORMAT_DATETIME,
 							(MakeTimeStamp($arrA["USER_TEXT"])+date('Z'))%86400 == 0 ? FORMAT_DATE : FORMAT_DATETIME
 						);
 					}
@@ -294,12 +297,16 @@ if (CModule::IncludeModule("form"))
 
 							if(substr($arImage["SRC"], 0, 1) == "/")
 							{
-								list(
-									$arResultAnswer["ANSWER_IMAGE"]["WIDTH"],
-									$arResultAnswer["ANSWER_IMAGE"]["HEIGHT"],
-									$arResultAnswer["ANSWER_IMAGE"]["TYPE"],
-									$arResultAnswer["ANSWER_IMAGE"]["ATTR"]
-								) = @getimagesize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
+								$arSize = CFile::GetImageSize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
+								if (is_array($arSize))
+								{
+									list(
+										$arResultAnswer["ANSWER_IMAGE"]["WIDTH"],
+										$arResultAnswer["ANSWER_IMAGE"]["HEIGHT"],
+										$arResultAnswer["ANSWER_IMAGE"]["TYPE"],
+										$arResultAnswer["ANSWER_IMAGE"]["ATTR"]
+									) = $arSize;
+								}
 							}
 							else
 							{
@@ -322,7 +329,7 @@ if (CModule::IncludeModule("form"))
 										if (intval($arrAns["USER_FILE_ID"])>0)
 										{
 											if ($arrAns["USER_FILE_IS_IMAGE"]=="Y" && $USER->IsAdmin())
-												$out .= htmlspecialchars($arrAns["USER_TEXT"])."<br />";
+												$out .= htmlspecialcharsbx($arrAns["USER_TEXT"])."<br />";
 										}
 										else $out .= TxtToHTML($arrAns["USER_TEXT"],true,50)."<br />";
 									}
@@ -350,7 +357,7 @@ if (CModule::IncludeModule("form"))
 										{
 											$file_link = "/bitrix/tools/form_show_file.php?rid=".$arParams["RESULT_ID"]."&hash=".$arrAns["USER_FILE_HASH"]."&lang=".LANGUAGE_ID;
 
-											$out .= "<a title=\"".GetMessage("FORM_VIEW_FILE")."\" target=\"_blank\" href=\"".$file_link."\">".htmlspecialchars($arrAns["USER_FILE_NAME"])."</a><br />(";
+											$out .= "<a title=\"".GetMessage("FORM_VIEW_FILE")."\" target=\"_blank\" href=\"".$file_link."\">".htmlspecialcharsbx($arrAns["USER_FILE_NAME"])."</a><br />(";
 											$out .= CFile::FormatSize($arrAns["USER_FILE_SIZE"]);
 											$out .= ")<br />[&nbsp;<a title=\"".str_replace("#FILE_NAME#", $arrAns["USER_FILE_NAME"], GetMessage("FORM_DOWNLOAD_FILE"))."\" href=\"".$file_link."&action=download\">".GetMessage("FORM_DOWNLOAD")."</a>&nbsp;]";
 										} //endif;
@@ -364,7 +371,7 @@ if (CModule::IncludeModule("form"))
 						{
 							$arResultAnswer["ANSWER_FILE"] = array();
 							$arResultAnswer["ANSWER_FILE"]["URL"] = "/bitrix/tools/form_show_file.php?rid=".$arParams["RESULT_ID"]."&hash=".$arrA["USER_FILE_HASH"]."&lang=".LANGUAGE_ID;
-							$arResultAnswer["ANSWER_FILE"]["NAME"] = htmlspecialchars($arrA["USER_FILE_NAME"]);
+							$arResultAnswer["ANSWER_FILE"]["NAME"] = htmlspecialcharsbx($arrA["USER_FILE_NAME"]);
 							$arResultAnswer["ANSWER_FILE"]["SIZE"] = $arrA["USER_FILE_SIZE"];
 
 							$a = array("b", "Kb", "Mb", "Gb");
@@ -394,12 +401,16 @@ if (CModule::IncludeModule("form"))
 				// image params
 				if (substr($arImage["SRC"], 0, 1) == "/")
 				{
-					list(
-						$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["WIDTH"],
-						$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["HEIGHT"],
-						$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["TYPE"],
-						$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["ATTR"]
-					) = @getimagesize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
+					$arSize = CFile::GetImageSize($_SERVER["DOCUMENT_ROOT"].$arImage["SRC"]);
+					if (is_array($arSize))
+					{
+						list(
+							$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["WIDTH"],
+							$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["HEIGHT"],
+							$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["TYPE"],
+							$arResult["QUESTIONS"][$FIELD_SID]["IMAGE"]["ATTR"]
+						) = $arSize;
+					}
 				}
 				else
 				{

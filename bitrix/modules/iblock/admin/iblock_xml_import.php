@@ -111,8 +111,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Import"]=="Y")
 			$obCatalog = new CIBlockCMLImport;
 			$obCatalog->Init($NS, $WORK_DIR_NAME, true, $NS["PREVIEW"], false, true);
 			$result = $obCatalog->ImportMetaData(1, $NS["IBLOCK_TYPE"], $NS["LID"]);
-			$obCatalog->ImportSections();
-			$obCatalog->DeactivateSections("A");
+			if($result === true)
+			{
+				$result = $obCatalog->ImportSections();
+				if($result === true)
+					$obCatalog->DeactivateSections("A");
+			}
 
 			if($result === true)
 				$NS["STEP"]++;
@@ -180,97 +184,125 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Import"]=="Y")
 	foreach($arMessages as $strMessage)
 		CAdminMessage::ShowMessage(array("MESSAGE"=>$strMessage,"TYPE"=>"OK"));
 
-	if(count($arErrors)==0):?>
-		<?if($NS["STEP"] < 8):?>
-			<p><ul>
-			<li><?
-				echo GetMessage("IBLOCK_CML2_TABLES_DROPPED");
-			?></li>
-			<li><?
-				if($NS["STEP"] < 1)
-					echo GetMessage("IBLOCK_CML2_TABLES_CREATION");
-				elseif($NS["STEP"] < 2)
-					echo "<b>".GetMessage("IBLOCK_CML2_TABLES_CREATION")."</b>";
+	if(count($arErrors) == 0)
+	{
+		if($NS["STEP"] < 8)
+		{
+			$progressItems = array(
+				GetMessage("IBLOCK_CML2_TABLES_DROPPED"),
+			);
+			$progressTotal = 0;
+			$progressValue = 0;
+
+			if($NS["STEP"] < 1)
+				echo GetMessage("IBLOCK_CML2_TABLES_CREATION");
+			elseif($NS["STEP"] < 2)
+				echo "<b>".GetMessage("IBLOCK_CML2_TABLES_CREATION")."</b>";
+			else
+				echo GetMessage("IBLOCK_CML2_TABLES_CREATED");
+
+			if($NS["STEP"] < 2)
+				$progressItems[] = GetMessage("IBLOCK_CML2_FILE_READING");
+			elseif($NS["STEP"] < 3)
+			{
+				if(file_exists($ABS_FILE_NAME))
+					$file_size = filesize($ABS_FILE_NAME);
 				else
-					echo GetMessage("IBLOCK_CML2_TABLES_CREATED");
-			?></li>
-			<li><?
-				if($NS["STEP"] < 2)
-					echo GetMessage("IBLOCK_CML2_FILE_READING");
-				elseif($NS["STEP"] < 3)
-				{
-					if(file_exists($ABS_FILE_NAME))
-						$file_size = filesize($ABS_FILE_NAME);
-					else
-						$file_size = 0;
-					echo "<b>".GetMessage("IBLOCK_CML2_FILE_PROGRESS", array("#PERCENT#"=>$file_size > 0? round($obXMLFile->GetFilePosition()/$file_size*100, 2): 0))."</b>".
-					'<br><div style="width:100px;border:1px solid black"><div style="background-color:green;width:'.($file_size > 0? round($obXMLFile->GetFilePosition()/$file_size*100): 0).'px;">&nbsp;</div></div>';
-				}
-				else
-					echo GetMessage("IBLOCK_CML2_FILE_READ");
-			?></li>
-			<li><?
-				if($NS["STEP"] < 3)
-					echo GetMessage("IBLOCK_CML2_INDEX_CREATION");
-				elseif($NS["STEP"] < 4)
-					echo "<b>".GetMessage("IBLOCK_CML2_INDEX_CREATION")."</b>";
-				else
-					echo GetMessage("IBLOCK_CML2_INDEX_CREATED");
-			?></li>
-			<li><?
-				if($NS["STEP"] < 4)
-					echo GetMessage("IBLOCK_CML2_METADATA");
-				elseif($NS["STEP"] < 5)
-					echo "<b>".GetMessage("IBLOCK_CML2_METADATA")."</b>";
-				else
-					echo GetMessage("IBLOCK_CML2_METADATA_DONE");
-			?></li>
-			<li><?
-				if($NS["STEP"] < 5)
-					echo GetMessage("IBLOCK_CML2_ELEMENTS");
-				elseif($NS["STEP"] < 6)
-					echo "<b>".GetMessage("IBLOCK_CML2_ELEMENTS_PROGRESS", array("#DONE#"=>intval($NS["DONE"]["CRC"]), "#TOTAL#"=>intval($NS["DONE"]["ALL"])))."</b>".
-					'<br><div style="width:100px;border:1px solid black"><div style="background-color:green;width:'.(intval($NS["DONE"]["ALL"])>0? round((intval($NS["DONE"]["CRC"]))/intval($NS["DONE"]["ALL"])*100): 0).'px;">&nbsp;</div></div>';
-				else
-					echo GetMessage("IBLOCK_CML2_ELEMENTS_DONE");
-			?></li>
-			<?if($NS["ACTION"]=="A" || $NS["ACTION"]=="D"):?>
-			<li><?
+					$file_size = 0;
+				$progressItems[] = "<b>".GetMessage("IBLOCK_CML2_FILE_PROGRESS2")."</b><br>#PROGRESS_BAR#";
+				$progressTotal = $file_size;
+				$progressValue = $obXMLFile->GetFilePosition();
+			}
+			else
+				$progressItems[] = GetMessage("IBLOCK_CML2_FILE_READ");
+
+			if($NS["STEP"] < 3)
+				$progressItems[] = GetMessage("IBLOCK_CML2_INDEX_CREATION");
+			elseif($NS["STEP"] < 4)
+				$progressItems[] = "<b>".GetMessage("IBLOCK_CML2_INDEX_CREATION")."</b>";
+			else
+				$progressItems[] = GetMessage("IBLOCK_CML2_INDEX_CREATED");
+
+			if($NS["STEP"] < 4)
+				$progressItems[] = GetMessage("IBLOCK_CML2_METADATA");
+			elseif($NS["STEP"] < 5)
+				$progressItems[] = "<b>".GetMessage("IBLOCK_CML2_METADATA")."</b>";
+			else
+				$progressItems[] = GetMessage("IBLOCK_CML2_METADATA_DONE");
+
+			if($NS["STEP"] < 5)
+				$progressItems[] = GetMessage("IBLOCK_CML2_ELEMENTS");
+			elseif($NS["STEP"] < 6)
+			{
+				$progressItems[] = "<b>".GetMessage("IBLOCK_CML2_ELEMENTS_PROGRESS", array(
+					"#DONE#" => intval($NS["DONE"]["CRC"]),
+					"#TOTAL#"=> intval($NS["DONE"]["ALL"]),
+				))."</b><br>";
+				$progressTotal = intval($NS["DONE"]["ALL"]);
+				$progressValue = intval($NS["DONE"]["CRC"]);
+			}
+			else
+				$progressItems[] = GetMessage("IBLOCK_CML2_ELEMENTS_DONE");
+
+			if($NS["ACTION"]=="A" || $NS["ACTION"]=="D")
+			{
 				if($NS["ACTION"]=="A")
 					if($NS["STEP"] < 6)
-						echo GetMessage("IBLOCK_CML2_DEACTIVATION");
+						$progressItems[] = GetMessage("IBLOCK_CML2_DEACTIVATION");
 					elseif($NS["STEP"] < 7)
-						echo "<b>".GetMessage("IBLOCK_CML2_DEACTIVATION_PROGRESS", array("#DONE#"=>intval($NS["DONE"]["DEA"])))."</b>";
+						$progressItems[] = "<b>".GetMessage("IBLOCK_CML2_DEACTIVATION_PROGRESS", array(
+							"#DONE#" => intval($NS["DONE"]["DEA"]),
+						))."</b>";
 					else
-						echo GetMessage("IBLOCK_CML2_DEACTIVATION_DONE");
+						$progressItems[] = GetMessage("IBLOCK_CML2_DEACTIVATION_DONE");
 				else
 					if($NS["STEP"] < 6)
-						echo GetMessage("IBLOCK_CML2_DELETE");
+						$progressItems[] = GetMessage("IBLOCK_CML2_DELETE");
 					elseif($NS["STEP"] < 7)
-						echo "<b>".GetMessage("IBLOCK_CML2_DELETE_PROGRESS", array("#DONE#"=>intval($NS["DONE"]["DEL"])))."</b>";
+						$progressItems[] = "<b>".GetMessage("IBLOCK_CML2_DELETE_PROGRESS", array(
+							"#DONE#" => intval($NS["DONE"]["DEL"]),
+						))."</b>";
 					else
-						echo GetMessage("IBLOCK_CML2_DELETE_DONE");
-			?></li>
-			<?endif?>
-			</ul></p>
-			<?if($NS["STEP"]>0):?>
-				<script>
-					DoNext(<?echo CUtil::PhpToJSObject(array("NS"=>$NS))?>);
-				</script>
-			<?endif?>
-		<?else:?>
-			<p><b><?echo GetMessage("IBLOCK_CML2_DONE")?></b><br>
-			<?echo GetMessage("IBLOCK_CML2_ADDED", array("#COUNT#"=>intval($NS["DONE"]["ADD"])))?><br>
-			<?echo GetMessage("IBLOCK_CML2_UPDATED", array("#COUNT#"=>intval($NS["DONE"]["UPD"])))?><br>
-			<?echo GetMessage("IBLOCK_CML2_DELETED", array("#COUNT#"=>intval($NS["DONE"]["DEL"])))?><br>
-			<?echo GetMessage("IBLOCK_CML2_DEACTIVATED", array("#COUNT#"=>intval($NS["DONE"]["DEA"])))?><br>
-			<?echo GetMessage("IBLOCK_CML2_WITH_ERRORS", array("#COUNT#"=>intval($NS["DONE"]["ERR"])))?><br>
-			<a href="<?echo htmlspecialchars(CIBlock::GetAdminElementListLink($NS["IBLOCK_ID"] , array('find_el_y'=>'Y')))?>"><?echo GetMessage("IBLOCK_CML2_ELEMENTS_LIST")?></a></p>
-			<script>
-				EndImport();
-			</script>
-		<?endif;?>
-	<?endif;
+						$progressItems[] = GetMessage("IBLOCK_CML2_DELETE_DONE");
+			}
+
+			CAdminMessage::ShowMessage(array(
+				"DETAILS" => "<p>".implode("</p><p>", $progressItems)."</p>",
+				"HTML" => true,
+				"TYPE" => "PROGRESS",
+				"PROGRESS_TOTAL" => $progressTotal,
+				"PROGRESS_VALUE" => $progressValue,
+			));
+
+			if($NS["STEP"] > 0)
+				echo '<script>DoNext('.CUtil::PhpToJSObject(array("NS"=>$NS)).');</script>';
+		}
+		else
+		{
+			$progressItems = array(
+				GetMessage("IBLOCK_CML2_ADDED", array("#COUNT#"=>intval($NS["DONE"]["ADD"]))),
+				GetMessage("IBLOCK_CML2_UPDATED", array("#COUNT#"=>intval($NS["DONE"]["UPD"]))),
+				GetMessage("IBLOCK_CML2_DELETED", array("#COUNT#"=>intval($NS["DONE"]["DEL"]))),
+				GetMessage("IBLOCK_CML2_DEACTIVATED", array("#COUNT#"=>intval($NS["DONE"]["DEA"]))),
+				GetMessage("IBLOCK_CML2_WITH_ERRORS", array("#COUNT#"=>intval($NS["DONE"]["ERR"]))),
+			);
+
+			CAdminMessage::ShowMessage(array(
+				"MESSAGE" => GetMessage("IBLOCK_CML2_DONE"),
+				"DETAILS" => "<p>".implode("</p><p>", $progressItems)."</p>",
+				"HTML" => true,
+				"TYPE" => "PROGRESS",
+				"BUTTONS" => array(
+					array(
+						"VALUE" => GetMessage("IBLOCK_CML2_ELEMENTS_LIST"),
+						"ONCLICK" => "window.location = '".CUtil::JSEscape(CIBlock::GetAdminElementListLink($NS["IBLOCK_ID"] , array('find_el_y'=>'Y')))."';",
+					),
+				),
+			));
+
+			echo '<script>EndImport();</script>';
+		}
+	}
 	require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin_js.php");
 }
 
@@ -358,7 +390,7 @@ function EndImport()
 	running = document.getElementById('start_button').disabled = false;
 }
 </script>
-<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?echo htmlspecialchars(LANG)?>" name="form1" id="form1">
+<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?echo htmlspecialcharsbx(LANG)?>" name="form1" id="form1">
 <?
 $rsIBlockType = CIBlockType::GetList(array("sort"=>"asc"), array("ACTIVE"=>"Y"));
 $arIBlockType = array("reference"=>array(), "reference_id"=>array());
@@ -374,10 +406,10 @@ while($arr = $rsIBlockType->Fetch())
 $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
-	<tr valign="top">
-		<td width="40%"><span class="required">*</span><?echo GetMessage("IBLOCK_CML2_URL_DATA_FILE")?>:</td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?echo GetMessage("IBLOCK_CML2_URL_DATA_FILE")?>:</td>
 		<td width="60%">
-			<input type="text" id="URL_DATA_FILE" name="URL_DATA_FILE" size="30" value="<?=htmlspecialchars($URL_DATA_FILE)?>">
+			<input type="text" id="URL_DATA_FILE" name="URL_DATA_FILE" size="30" value="<?=htmlspecialcharsbx($URL_DATA_FILE)?>">
 			<input type="button" value="<?echo GetMessage("IBLOCK_CML2_OPEN")?>" OnClick="BtnClick()">
 			<?
 			CAdminFileDialog::ShowScript
@@ -398,36 +430,36 @@ $tabControl->BeginNextTab();
 			?>
 		</td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><?echo GetMessage("IBLOCK_CML2_IBLOCK_TYPE")?>:</td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("IBLOCK_CML2_IBLOCK_TYPE")?>:</td>
 		<td><?=SelectBoxFromArray("IBLOCK_TYPE", $arIBlockType, $IBLOCK_TYPE, "", "");?></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><?echo GetMessage("IBLOCK_CML2_LID")?></td>
-		<td><?echo CLang::SelectBoxMulti("LID", htmlspecialchars($LID));?></td>
+	<tr class="adm-detail-required-field">
+		<td class="adm-detail-valign-top"><?echo GetMessage("IBLOCK_CML2_LID")?></td>
+		<td><?echo CLang::SelectBoxMulti("LID", htmlspecialcharsbx($LID));?></td>
 	</tr>
-	<tr valign="top">
-		<td><?echo GetMessage("IBLOCK_CML2_ACTION")?>:</td>
+	<tr>
+		<td class="adm-detail-valign-top"><?echo GetMessage("IBLOCK_CML2_ACTION")?>:</td>
 		<td>
 			<input type="radio" name="outFileAction" value="N" id="outFileAction_N" checked="checked"><label for="outFileAction_N"><?echo GetMessage("IBLOCK_CML2_ACTION_NONE")?></label><br>
 			<input type="radio" name="outFileAction" value="A" id="outFileAction_A"><label for="outFileAction_A"><?echo GetMessage("IBLOCK_CML2_ACTION_DEACTIVATE")?></label><br>
 			<input type="radio" name="outFileAction" value="D" id="outFileAction_D"><label for="outFileAction_D"><?echo GetMessage("IBLOCK_CML2_ACTION_DELETE")?></label><br>
 		</td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("IBLOCK_CML2_INTERVAL")?>:</td>
 		<td>
 			<input type="text" id="INTERVAL" name="INTERVAL" size="5" value="<?echo intval($INTERVAL)?>">
 		</td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("IBLOCK_CML2_IMAGE_RESIZE")?>:</td>
 		<td>
 			<input type="checkbox" id="GENERATE_PREVIEW" name="GENERATE_PREVIEW" value="Y" checked>
 		</td>
 	</tr>
 <?$tabControl->Buttons();?>
-	<input type="button" id="start_button" value="<?echo GetMessage("IBLOCK_CML2_START_IMPORT")?>" OnClick="StartImport();">
+	<input type="button" id="start_button" value="<?echo GetMessage("IBLOCK_CML2_START_IMPORT")?>" OnClick="StartImport();" class="adm-btn-save">
 	<input type="button" id="stop_button" value="<?echo GetMessage("IBLOCK_CML2_STOP_IMPORT")?>" OnClick="EndImport();">
 <?$tabControl->End();?>
 </form>

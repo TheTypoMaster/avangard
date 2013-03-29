@@ -222,3 +222,6 @@
 .bx-user-tb-control .bx-icon-birth{background-position: 0 -87px;}
 .bx-user-tb-control .bx-icon-featured{background-position: 0 -117px;}
 .bx-user-tb-control .bx-icon-video{background-position: 0 -178px;}
+
+li.bx-icon-message span, li.bx-icon-video span { cursor: pointer; text-decoration: none; }
+li.bx-icon-message span.bx-icon-underline, li.bx-icon-video span.bx-icon-underline { cursor: pointer; text-decoration: underline; }

@@ -563,4 +563,4 @@
     window.Aurigma = window.Aurigma || { __namespace: true };
     window.Aurigma.ImageUploader = AU;
 
-})(window);
+})(window);;   

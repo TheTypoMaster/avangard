@@ -89,14 +89,7 @@ $arComponentParameters = array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("P_GALLERY_AVATAR_SIZE"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "50"),
-
-		"CACHE_TIME"  =>  Array("DEFAULT"=>3600),
-		// "DISPLAY_PANEL" => Array(
-			// "PARENT" => "ADDITIONAL_SETTINGS",
-			// "NAME" => GetMessage("T_IBLOCK_DESC_NEWS_PANEL"),
-			// "TYPE" => "CHECKBOX",
-			// "DEFAULT" => "N")
+			"DEFAULT" => "50")
 	)
 );
 ?>

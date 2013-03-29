@@ -9,4 +9,13 @@ $MESS["IBLOCK_AT_OVERWRITE_TIP"] = "Назначенные права вложенных объектов будут з
 $MESS["IBLOCK_AT_OVERWRITE_1"] = "Применить к подразделам и элементам";
 $MESS["IBLOCK_AT_OVERWRITE_2"] = "Применить к подразделам";
 $MESS["IBLOCK_AT_OVERWRITE_3"] = "Применить к элементам";
+$MESS["IBLOCK_WATERMARK_POSITION_TL"] = "Сверху слева";
+$MESS["IBLOCK_WATERMARK_POSITION_TC"] = "Сверху по центру";
+$MESS["IBLOCK_WATERMARK_POSITION_TR"] = "Сверху справа";
+$MESS["IBLOCK_WATERMARK_POSITION_ML"] = "Cлева";
+$MESS["IBLOCK_WATERMARK_POSITION_MC"] = "По центру";
+$MESS["IBLOCK_WATERMARK_POSITION_MR"] = "Cправа";
+$MESS["IBLOCK_WATERMARK_POSITION_BL"] = "Снизу cлева";
+$MESS["IBLOCK_WATERMARK_POSITION_BC"] = "Снизу по центру";
+$MESS["IBLOCK_WATERMARK_POSITION_BR"] = "Снизу cправа";
 ?>

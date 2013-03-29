@@ -20,11 +20,9 @@ function ComponentPropsSkinSelector(arParams)
 			if (oSS.Popup)
 				oSS.ClosePopup();
 		}
-	}
-
+	}	
 	var oBXSkinSelector = new BXSkinSelector(arParams);
-	arParams.oCont.insertBefore(oBXSkinSelector.pWnd, arParams.oCont.lastChild);
-
+	arParams.oCont.insertBefore(oBXSkinSelector.pWnd, arParams.oCont.lastChild);	
 	window.oBXSkinSelectors.push(oBXSkinSelector);
 }
 
@@ -32,11 +30,9 @@ function BXSkinSelector(arParams)
 {
 	jsUtils.loadCSSFile('/bitrix/components/bitrix/player/js/skin_selector.css');
 	var _this = this;
-
 	this.arElements = arParams.getElements();
 	this.pInput = arParams.oInput;
-	this.fChange = arParams.fChange || false;
-
+	this.fChange = arParams.fChange || false;	
 	var jsParams = {};
 	try{jsParams = eval(arParams.data);}catch(e){}
 
@@ -60,7 +56,7 @@ OnChange: function(Skin, bFChange)
 	var
 		val = this.pInput.value,
 		i, l = this.arSkins.length;
-
+	
 	if (!Skin)
 	{
 		for (i = 0; i < l; i++)
@@ -72,7 +68,7 @@ OnChange: function(Skin, bFChange)
 			}
 		}
 	}
-
+	
 	if (!Skin) // Skin  not found, set default
 	{
 		this.pInput.value = '';
@@ -85,7 +81,7 @@ OnChange: function(Skin, bFChange)
 	if (bFChange !== false && this.fChange && typeof this.fChange == 'function')
 		this.fChange();
 
-	this.pWnd.appendChild(document.createTextNode(Skin.name));
+	this.pWnd.appendChild(document.createTextNode(Skin.name));	
 },
 
 ShowPopup: function()
@@ -159,7 +155,7 @@ ClosePopup: function()
 },
 
 CreatePopup: function()
-{
+{	
 	var
 		_this = this,
 		i, pDiv, pImg,
@@ -173,7 +169,7 @@ CreatePopup: function()
 	this.pSelectMask = BX.create("DIV", {props: {className: "bx-skin-sel-mask"}}); // For mark selected skin
 
 	for (i = 0; i < l; i++)
-	{
+	{			
 		pDiv = PopupCont.appendChild(BX.create("DIV", {props: {id: 'bx_par_skin_' + i, className: 'bx-preview-pic', title: this.arSkins[i].name}}));
 		pTitle = pDiv.appendChild(BX.create("DIV", {props: {className: 'bx-skin-prev-title'}, text: this.arSkins[i].name}));
 
@@ -183,7 +179,7 @@ CreatePopup: function()
 		}
 		else if (this.arSkins[i].preview) // preview exists
 		{
-			pDiv.appendChild(jsUtils.CreateElement("IMG", {src: imgPath + '/' + this.arSkins[i].preview}));
+			pDiv.appendChild(jsUtils.CreateElement("IMG", {src: this.arSkins[i].the_path + '/' + this.arSkins[i].preview}));
 		}
 		else
 		{

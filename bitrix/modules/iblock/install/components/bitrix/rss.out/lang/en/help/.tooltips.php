@@ -9,7 +9,7 @@ $MESS ['SORT_BY1_TIP'] = "Specifies the fields by which the news items will be s
 $MESS ['SORT_ORDER1_TIP'] = "Specifies the sorting order for the first sorting pass.";
 $MESS ['SORT_BY2_TIP'] = "Specifies the fields by which the blog groups will be sorted at a second pass.";
 $MESS ['SORT_ORDER2_TIP'] = "Specifies the sorting order for the first sorting pass.";
-$MESS ['CACHE_TYPE_TIP'] = "<i>Auto</i>: the cache is valid during the time predefined in the cache settings;<br /><i>Cache</i>: always cache for the period specified in the next field;<br /><i>Do not cahce</i>: no caching is performed.";
+$MESS ['CACHE_TYPE_TIP'] = "<i>Auto</i>: the cache is valid during the time predefined in the cache settings;<br /><i>Cache</i>: always cache for the period specified in the next field;<br /><i>Do not cache</i>: no caching is performed.";
 $MESS ['CACHE_TIME_TIP'] = "Specify here the period of time during which the cache is valid.";
 $MESS ['RSS_TTL_TIP'] = "Specifies the period of RSS cache lifetime before scheduled update, in minutes.";
 ?>

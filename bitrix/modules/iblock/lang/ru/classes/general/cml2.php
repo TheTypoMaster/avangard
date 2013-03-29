@@ -135,5 +135,16 @@ $MESS["IBLOCK_XML2_BX_FILE_SIZE"] = "БитриксРазмерФайла";
 $MESS["IBLOCK_XML2_BX_FILE_WIDTH"] = "БитриксШиринаИзображения";
 $MESS["IBLOCK_XML2_BX_FILE_HEIGHT"] = "БитриксВысотаИзображения";
 $MESS["IBLOCK_XML2_BX_FILE_CONTENT_TYPE"] = "БитриксТипФайла";
-$MESS["IBLOCK_XML2_UF_ERROR"] = "Ошибка импорта пользовательского свойтсва (xml_id: #XML_ID#): #ERROR_TEXT#";
+$MESS["IBLOCK_XML2_UF_ERROR"] = "Ошибка импорта пользовательского свойства (xml_id: #XML_ID#): #ERROR_TEXT#";
+$MESS["IBLOCK_XML2_STORES"] = "Склады";
+$MESS["IBLOCK_XML2_STORE_ADDRESS"] = "Адрес";
+$MESS["IBLOCK_XML2_STORE_AMOUNT_LIST"] = "КоличествоНаСкладах";
+$MESS["IBLOCK_XML2_STORE_AMOUNT"] = "КоличествоНаСкладе";
+$MESS["IBLOCK_XML2_STORE_ID"] = "ИдСклада";
+$MESS["IBLOCK_XML2_STORE_DESCRIPTION"] = "Комментарий";
+$MESS["IBLOCK_XML2_STORE_CANTACTS"] = "Контакты";
+$MESS["IBLOCK_XML2_SECTION_PROPERTIES"] = "СвойстваЭлементов";
+$MESS["IBLOCK_XML2_SMART_FILTER"] = "УмныйФильтр";
+$MESS["IBLOCK_XML2_PRICE_SB_ADD_ERROR"] = "В редакции Малый Бизнес нет возможности иметь более одного типа цены. Настройте выгрузку из 1С или перейдите на другую редакцию БУС.";
+$MESS["IBLOCK_XML2_PRICE_DUP_ERROR"] = "В выгрузке настроены цены с одинаковым названием. Продолжение обмена невозможно.";
 ?>

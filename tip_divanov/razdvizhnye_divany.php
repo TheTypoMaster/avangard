@@ -1,7 +1,7 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetPageProperty("title", "Диваны с раздвижным механизмом");
-$APPLICATION->SetTitle("Диваны с раздвижным механизмом");
+$APPLICATION->SetPageProperty("title", "Раздвижные диваны. Диван с выдвижным механизмом.");
+$APPLICATION->SetTitle("Раздвижные диваны. Диван с выдвижным механизмом.");
 ?> <?$APPLICATION->IncludeComponent(
 	"bitrix:catalog.element",
 	"template_statii_det",
@@ -34,6 +34,35 @@ $APPLICATION->SetTitle("Диваны с раздвижным механизмом");
 		"LINK_ELEMENTS_URL" => "link.php?PARENT_ELEMENT_ID=#ELEMENT_ID#"
 	)
 );?> 
+<div> 
+  <br />
+ </div>
+ 
+<div> 
+  <br />
+ </div>
+ 
+<div> 
+  <p id="mailru-webagent-gen-47" style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);">
+    <br />
+  </p>
 
-
-  <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
+  <p id="mailru-webagent-gen-47" style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);">Мы часто задумываемся, как поместить в квартире и диваны, и кровати, и при этом не нарушить композицию интерьера. Украшением абсолютно любой комнаты может стать раздвижной диван. Это отличное рациональное решение, которое позволит вам сэкономить пространство в квартире. В то же время, вы каждую ночь будете наслаждаться спокойным сном. </p>
+ 
+  <p id="mailru-webagent-gen-47" style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"> 
+    <br />
+   </p>
+ 
+  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);">Следует учитывать, что механизм раскладывания у раздвижных диванов бывает разный. Наиболее известные и полюбившиеся многим покупателям - это такие механизмы как: &laquo;дельфин&raquo;, «аккордеон», «французская раскладушка». Благодаря простоте и удобству раскладывания, эти диваны завоевали любовь и уважение, как покупателей, так и продавцов мебели. Они красиво впишутся в любой интерьер, не занимая много места. За считанные секунды такой аккуратный диван может превратиться в очень просторное и комфортабельное спальное место. Он может использоваться для повседневного сна и отдыха. Раздвижной диван полностью заменяет полноценную кровать. В выдвижной ящик, который есть при некоторых механизмах трансформации, вы всегда с легкостью уместите ваше постельное белье. Такая мебель всегда выручит вас, если к вам приедут гости.</p>
+ 
+  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"> 
+    <br />
+   </p>
+ 
+  <p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);">Механизмы раскладки выполнены из самых качественных материалов и постоянная трансформация не нанесет дивану никакого вреда. А легкость, с которой вы сможете это делать, доставит вам только удовольствие. Зачем себе в чем-то отказывать, если благодаря раздвижным диванам, можно даже в маленькой квартире иметь возможность спать, как на большой двуспальной кровати.</p>
+ </div>
+ 
+<div> 
+  <br />
+ </div>
+ <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

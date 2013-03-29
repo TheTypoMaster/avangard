@@ -31,4 +31,5 @@ $MESS["FILEMAN_EDIT_PROPSVAL"] = "Wert";
 $MESS["FILEMAN_SESSION_EXPIRED"] = "Ihre Sitzung ist abgelaufen. Bitte speichern Sie das Dokument erneut ab.";
 $MESS["FILEMAN_FILE_TRANS_LINKED"] = "Für Dateinamen den Titel benutzen: Eingeschaltet";
 $MESS["FILEMAN_FILE_TRANS_UNLINKED"] = "Für Dateinamen den Titel benutzen: Ausgeschaltet";
+$MESS["FILEMAN_APPLY_PROCESS"] = "Änderungen speichern";
 ?>

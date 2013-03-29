@@ -25,4 +25,6 @@ $MESS ['SEC_MENU_PHP_ITEM'] = "Рекомендации по настройке PHP";
 $MESS ['SEC_MENU_PHP_TITLE'] = "Рекомендации по настройке PHP";
 $MESS ['SEC_MENU_REDIRECT_ITEM'] = "Защита редиректов";
 $MESS ['SEC_MENU_REDIRECT_TITLE'] = "Включение защиты редиректов от фишинга";
+$MESS ['SEC_MENU_FRAME_ITEM'] = "Защита от фреймов";
+$MESS ['SEC_MENU_FRAME_TITLE'] = "Включение защиты на основе ограничения фреймов";
 ?>

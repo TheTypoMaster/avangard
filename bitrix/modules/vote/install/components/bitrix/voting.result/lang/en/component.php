@@ -6,5 +6,4 @@ $MESS["VOTE_EMPTY"] = "Poll not found.";
 $MESS["VOTE_OK"] = "Thank you for voting.";
 $MESS["VOTE_ALREADY_VOTE"] = "You can not take part in this poll twice.";
 $MESS["VOTE_RED_LAMP"] = "Poll is not active.";
-$MESS["USER_VOTE_EMPTY"] = "Please select an option.";
 ?>

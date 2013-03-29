@@ -1,7 +1,7 @@
 var reBlockElements = /^(HTML|HEAD|BODY|BR|TITLE|TABLE|SCRIPT|TR|TBODY|P|DIV|H1|H2|H3|H4|H5|H6|ADDRESS|PRE|OL|UL|LI)$/i;
 
 // Some methods of this class is in the editor_php.js/editor_aspx.js
-function BXNode(parent, oParentNode)
+function BXNode(parent)
 {
 	this.oParent = parent;
 	this.iLevel = 0;
@@ -20,7 +20,7 @@ BXNode.prototype = {
 GetHTML: function(bFormatted)
 {
 	//try{
-		var ob, good_res, id = this.arAttributes["id"];
+		var id = this.arAttributes["id"];
 		if (id)
 		{
 			var bxTag = this.pParser.pMainObj.GetBxTag(id);
@@ -34,9 +34,13 @@ GetHTML: function(bFormatted)
 
 						// width, height
 						var
-							w = parseInt(this.arStyle.width) || parseInt(this.arAttributes.width),
-							h = parseInt(this.arStyle.height) || parseInt(this.arAttributes.height);
+							w = this.arStyle.width || this.arAttributes.width || '',
+							h = this.arStyle.height || this.arAttributes.height || '';
 
+						if (~w.indexOf('%'))
+							w = parseInt(w) + '%';
+						if (~h.indexOf('%'))
+							h = parseInt(h) + '%';
 						if (w && !isNaN(w))
 							bxTag.params.width = w;
 						if (h && !isNaN(h))
@@ -69,6 +73,8 @@ GetHTML: function(bFormatted)
 							{
 								if (this.pParser.isPhpAttribute(bxTag.params[i]))
 									res += i + '="' + bxTag.params[i] + '" ';
+								else if (i == 'href')
+									res += i + '="' + bxTag.params[i] + '" ';
 								else
 									res += i + '="' + BX.util.htmlspecialchars(bxTag.params[i]) + '" ';
 							}
@@ -84,7 +90,8 @@ GetHTML: function(bFormatted)
 
 						return res;
 					case 'php':
-						if (this.pParser.pMainObj.bDotNet || this.pParser.pMainObj.limit_php_access)
+						var pMainObj = this.pParser.pMainObj;
+						if (pMainObj.bDotNet || (pMainObj.limit_php_access && pMainObj.pComponent2Taskbar))
 							break;
 						return bxTag.params.value;
 					case 'noscript':
@@ -110,6 +117,8 @@ GetHTML: function(bFormatted)
 								res += i + '="' + bxTag.params[i] + '" ';
 						res += '></embed>';
 						return res;
+					case 'cursor':
+						return '#BXCURSOR#';
 					default:
 						var customRes = this.CustomUnParse();
 
@@ -139,7 +148,7 @@ GetHTML: function(bFormatted)
 				f(this, this.pParser.pMainObj);
 		}
 
-		res = this.GetHTMLLeft(bFormatted);
+		res = this.GetHTMLLeft();
 
 		var bNewLine = false;
 		var sIndent = '';
@@ -158,7 +167,7 @@ GetHTML: function(bFormatted)
 		for(var i=0; i< this.arNodes.length; i++)
 			res += this.arNodes[i].GetHTML(bFormatted);
 
-		res += this.GetHTMLRight(bFormatted);
+		res += this.GetHTMLRight();
 		if(bNewLine)
 			res += "\r\n" + (sIndent=='' ? '' : sIndent.substr(2));
 
@@ -195,12 +204,10 @@ CustomUnParse: function(res)
 
 IsPairNode: function()
 {
-	if(this.text.substr(0, 1) == 'h' || this.text == 'br' || this.text == 'img' || this.text == 'input')
-		return false;
-	return true;
+	return (this.text.substr(0, 1) != 'h' && this.text != 'br' && this.text != 'img' && this.text != 'input');
 },
 
-GetHTMLLeft: function(bFormatted)
+GetHTMLLeft: function()
 {
 	if(this.type == 'text')
 		return this.bDontUseSpecialchars ? this.text : bxhtmlspecialchars(this.text);
@@ -209,6 +216,7 @@ GetHTMLLeft: function(bFormatted)
 	if(this.type == 'element')
 	{
 		res = "<"+this.text;
+
 		for(attrName in this.arAttributes)
 		{
 			atrVal = this.arAttributes[attrName];
@@ -217,10 +225,23 @@ GetHTMLLeft: function(bFormatted)
 
 			if(this.text.toUpperCase()=='BR' && attrName.toLowerCase() == 'type' && atrVal == '_moz')
 				continue;
+
 			if(attrName == 'style')
 			{
 				if (atrVal.length > 0 && atrVal.indexOf('-moz') != -1)
 					atrVal = BX.util.trim(atrVal.replace(/-moz.*?;/ig, '')); // Kill -moz* styles from firefox
+
+				if (this.text == 'td')
+				{
+					// Kill border-image: none; styles from firefox for <td>
+					atrVal = BX.util.trim(atrVal.replace(/border-image:\s*none;/ig, '')); //
+
+					// kill border-color: for ie
+					atrVal = BX.util.trim(atrVal.replace(/border-bottom-color:\s*;?/ig, ''));
+					atrVal = BX.util.trim(atrVal.replace(/border-top-color:\s*;?/ig, ''));
+					atrVal = BX.util.trim(atrVal.replace(/border-right-color:\s*;?/ig, ''));
+					atrVal = BX.util.trim(atrVal.replace(/border-left-color:\s*;?/ig, ''));
+				}
 
 				if(atrVal.length <= 0)
 					 continue;
@@ -235,13 +256,13 @@ GetHTMLLeft: function(bFormatted)
 	return "";
 },
 
-GetHTMLRight: function(bFormatted)
+GetHTMLRight: function()
 {
 	if(this.type == 'element' && (this.arNodes.length>0 || this.IsPairNode()))
 		return "</"+this.text+">";
 	return "";
 }
-}
+};
 
 // Some methods of this class is in the editor_php.js/editor_aspx.js
 function BXParser(pMainObj)
@@ -308,10 +329,10 @@ _RecursiveParse: function (oParentNode, oBXNode)
 	var arChilds = oParentNode.childNodes;
 	var oNode, oBXChildNode;
 
-	for(var i=0; i<arChilds.length; i++)
+	for(var i = 0; i < arChilds.length; i++)
 	{
 		oNode = arChilds[i];
-		oBXChildNode = new BXNode(oBXNode, oParentNode);
+		oBXChildNode = new BXNode(oBXNode);
 		oBXChildNode.pParser = this;
 		this._RecursiveParse(oNode, oBXChildNode);
 	}
@@ -327,7 +348,7 @@ Parse: function ()
 	}
 
 	this.arNodeParams = {};
-	this.__bxID = parseInt(Math.random()*100000)+1;
+	this.__bxID = parseInt(Math.random() * 100000) + 1;
 	this.pNode = new BXNode(null);
 	this.pNode.pParser = this;
 	this._RecursiveParse(this.pMainObj.pEditorDocument, this.pNode);
@@ -338,13 +359,10 @@ GetHTML: function (bFormatted)
 	return this.pNode.GetHTML(bFormatted);
 },
 
-Optimize: function (){},
-
 SystemParse: function(sContent)
 {
 	var _this = this;
 	this.strStyleNodes = this.systemCSS;
-
 
 	sContent = this.ClearFromHBF(sContent);
 	sContent = sContent.replace(/(<td[^>]*>)\s*(<\/td>)/ig, "$1<br _moz_editor_bogus_node='on'>$2");
@@ -392,11 +410,10 @@ SystemParse: function(sContent)
 	);
 
 	// Link
-	sContent = sContent.replace(/(<noindex>)*?<a(\s[\s\S]*?(?:.*?[^\?%]{1})??)(>([\s\S]*?)<\/a>)(<\/noindex>)*/ig,
+	sContent = sContent.replace(/(<noindex>)*?<a(\s[\s\S]*?(?:.*?[^\?%\/]{1})??)(>([\s\S]*?)<\/a>)(<\/noindex>)*/ig,
 		function(str, s0, s1, s2, innerHtml, s3)
 		{
-			var arParams = _this.GetAttributesList(s1), i , val, res = "", bPhp = false;
-
+			var arParams = _this.GetAttributesList(s1), i , res, bPhp = false;
 			if (s0 && s3 && s0.toLowerCase().indexOf('noindex') != -1 && s3.toLowerCase().indexOf('noindex') != -1)
 			{
 				arParams.noindex = true;
@@ -404,7 +421,7 @@ SystemParse: function(sContent)
 			}
 
 			// It's anchor
-			if (arParams.name && (!arParams.href || BX.util.trim(innerHtml) == ""))
+			if (arParams.name && (BX.util.trim(innerHtml) == ""))
 				return str;
 
 			res = "<a id=\"" + _this.pMainObj.SetBxTag(false, {tag: 'a', params: arParams}) + "\" ";
@@ -413,13 +430,19 @@ SystemParse: function(sContent)
 				if (typeof arParams[i] == 'string' && i != 'id' && i != 'noindex')
 				{
 					bPhp = _this.isPhpAttribute(arParams[i]);
-					if (i == 'href' && bPhp) // Php in href
-						res += 'href="bx_bogus_href" ';
-					if (!bPhp) // No php in attribute
+					if (i == 'href') // Php in href
+					{
+						if (bPhp)
+							res += 'href="bx_bogus_href" ';
+						else
+							res += 'href="' + arParams[i] + '" ';
+					}
+					else if (!bPhp) // No php in attribute
 						res += i + '="' + BX.util.htmlspecialchars(arParams[i]) + '" ';
 				}
 			}
 			res += s2;
+
 			return res;
 		}
 	);
@@ -436,6 +459,7 @@ SystemParse: function(sContent)
 
 	if (!this.pMainObj.bDotNet)
 		sContent = this.pMainObj.SystemParse_ex(sContent);
+
 	sContent = sContent.replace(/<break \/>/ig, "<img src=\"" + image_path + "/break_tag.gif\" id=\"" + this.pMainObj.SetBxTag(false, {tag: 'break'}) + "\"/>");
 
 	// Flash parsing
@@ -461,12 +485,16 @@ SystemParse: function(sContent)
 	sContent = sContent.replace(/<style[\s\S]*?>([\s\S]*?)<\/style>/gi, function(sContent, s1){return _this.UnparseStyleNode(sContent, s1)});
 	sContent = sContent.replace(/<script[\s\S]*?\/script>/gi, function(sContent){return '<img id="' + _this.pMainObj.SetBxTag(false, {tag: "script", params: {value : sContent}}) + '" src="' + image_path + '/script.gif" />';});
 	sContent = sContent.replace(/<!--[\s\S]*?-->/ig, function(sContent){return '<img id="' + _this.pMainObj.SetBxTag(false, {tag: "comments", params: {value : sContent}}) + '" src="' + image_path + '/comments.gif" />';});
-	sContent = sContent.replace(/<a(\s[\s\S]*?)(?:>\s*?<\/a)?(?:\/?)?>/ig, function(sContent, s1){return _this.UnparseAnchors(sContent, s1);});
 
+	sContent = sContent.replace(/<a\s([\s\S]*?)>\s*?<\/a>/ig, function(sContent, s1){return _this.UnparseAnchors(sContent, s1);});
+	sContent = sContent.replace(/<a(\s[\s\S]*?)\/>/ig, function(sContent, s1){return _this.UnparseAnchors(sContent, s1);});
+	//sContent = sContent.replace(/<a(\s[\s\S]*?)(?:>\s*?<\/a)?(?:\/?)?>/ig, function(sContent, s1){return _this.UnparseAnchors(sContent, s1);});
 	sContent = this.SymbolsParse(sContent);
 
 	if (this.strStyleNodes.length > 0)
 		setTimeout(function(){_this.AppendCSS(_this.strStyleNodes);}, 300);
+
+	sContent = sContent.replace(/#BXCURSOR#/ig, '<a href="#" id="' + this.pMainObj.lastCursorId + '">|</a>');
 
 	return sContent;
 },
@@ -688,3 +716,4 @@ SymbolsParse: function(sContent)
 	return sContent;
 }
 }
+  

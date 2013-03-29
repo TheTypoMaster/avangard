@@ -3,7 +3,7 @@ require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/forum/classes/general/rating
 IncludeModuleLangFile(__FILE__);
 
 class CRatingsComponentsForum extends CAllRatingsComponentsForum
-{	
+{
 	// Calc function
 	function CalcUserVoteForumPost($arConfigs)
 	{
@@ -25,7 +25,7 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 						'".$DB->ForSql($arConfigs['COMPLEX_NAME'])."'  COMPLEX_NAME,
 						FM.AUTHOR_ID as ENTITY_ID,
 						'".$DB->ForSql($arConfigs['ENTITY_ID'])."'  ENTITY_TYPE_ID,
-						SUM(RVE.VALUE)*".$DB->ForSql($arConfigs['CONFIG']['COEFFICIENT'])."  CURRENT_VALUE
+						SUM(RVE.VALUE)*".floatval($arConfigs['CONFIG']['COEFFICIENT'])."  CURRENT_VALUE
 					FROM
 						b_rating_voting RV LEFT JOIN b_forum_message FM ON RV.ENTITY_ID = FM.ID,
 						b_rating_vote RVE
@@ -59,7 +59,7 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 						'".$DB->ForSql($arConfigs['COMPLEX_NAME'])."'  COMPLEX_NAME,
 						FT.USER_START_ID  ENTITY_ID,
 						'".$DB->ForSql($arConfigs['ENTITY_ID'])."'  ENTITY_TYPE_ID,
-						SUM(RVE.VALUE)*".$DB->ForSql($arConfigs['CONFIG']['COEFFICIENT'])."  CURRENT_VALUE
+						SUM(RVE.VALUE)*".floatval($arConfigs['CONFIG']['COEFFICIENT'])."  CURRENT_VALUE
 					FROM
 						b_rating_voting RV LEFT JOIN b_forum_topic FT ON RV.ENTITY_ID = FT.ID,
 						b_rating_vote RVE
@@ -71,7 +71,7 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 
 		return true;
 	}
-	
+
 	function CalcUserRatingForumActivity($arConfigs)
 	{
 		global $DB;
@@ -88,7 +88,7 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 			$sqlAllTopic = "
 				SELECT
 					USER_START_ID as ENTITY_ID,
-					COUNT(*)*".$DB->ForSql($arConfigs['CONFIG']['ALL_TOPIC_COEF'])." as CURRENT_VALUE
+					COUNT(*)*".floatval($arConfigs['CONFIG']['ALL_TOPIC_COEF'])." as CURRENT_VALUE
 				FROM b_forum_topic
 				WHERE START_DATE  < DATE_SUB(NOW(), INTERVAL 30 DAY)
 				GROUP BY USER_START_ID
@@ -99,53 +99,53 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 			$sqlAllMessage = "
 				SELECT
 					AUTHOR_ID as ENTITY_ID,
-					COUNT(*)*".$DB->ForSql($arConfigs['CONFIG']['ALL_POST_COEF'])." as CURRENT_VALUE
+					COUNT(*)*".floatval($arConfigs['CONFIG']['ALL_POST_COEF'])." as CURRENT_VALUE
 				FROM b_forum_message
 				WHERE POST_DATE  < DATE_SUB(NOW(), INTERVAL 30 DAY)
 				GROUP BY AUTHOR_ID
 				UNION ALL ";
 		}
 		$strSql = "INSERT INTO b_rating_component_results (RATING_ID, MODULE_ID, RATING_TYPE, NAME, COMPLEX_NAME, ENTITY_ID, ENTITY_TYPE_ID, CURRENT_VALUE)
-			SELECT 
-				'".IntVal($arConfigs['RATING_ID'])."' as RATING_ID, 
-				'".$DB->ForSql($arConfigs['MODULE_ID'])."' as MODULE_ID, 
-				'".$DB->ForSql($arConfigs['RATING_TYPE'])."' as RATING_TYPE, 
-				'".$DB->ForSql($arConfigs['NAME'])."' as NAME, 
-				'".$DB->ForSql($arConfigs['COMPLEX_NAME'])."' as COMPLEX_NAME, 
-				ENTITY_ID, 
-				'".$DB->ForSql($arConfigs['ENTITY_ID'])."'  ENTITY_TYPE_ID, 
-				SUM(CURRENT_VALUE) CURRENT_VALUE 
+			SELECT
+				'".IntVal($arConfigs['RATING_ID'])."' as RATING_ID,
+				'".$DB->ForSql($arConfigs['MODULE_ID'])."' as MODULE_ID,
+				'".$DB->ForSql($arConfigs['RATING_TYPE'])."' as RATING_TYPE,
+				'".$DB->ForSql($arConfigs['NAME'])."' as NAME,
+				'".$DB->ForSql($arConfigs['COMPLEX_NAME'])."' as COMPLEX_NAME,
+				ENTITY_ID,
+				'".$DB->ForSql($arConfigs['ENTITY_ID'])."'  ENTITY_TYPE_ID,
+				SUM(CURRENT_VALUE) CURRENT_VALUE
 			FROM (
 				".$sqlAllMessage."
-				
-				SELECT 
-					AUTHOR_ID as ENTITY_ID, 
-				    SUM(IF(TO_DAYS(POST_DATE) > TO_DAYS(NOW())-1, 1, 0))*".$DB->ForSql($arConfigs['CONFIG']['TODAY_POST_COEF'])." + 
-				    SUM(IF(TO_DAYS(POST_DATE) > TO_DAYS(NOW())-7, 1, 0))*".$DB->ForSql($arConfigs['CONFIG']['WEEK_POST_COEF'])."+
-				    COUNT(*)*".$DB->ForSql($arConfigs['CONFIG']['MONTH_POST_COEF'])." as CURRENT_VALUE
+
+				SELECT
+					AUTHOR_ID as ENTITY_ID,
+					SUM(IF(TO_DAYS(POST_DATE) > TO_DAYS(NOW())-1, 1, 0))*".floatval($arConfigs['CONFIG']['TODAY_POST_COEF'])." +
+					SUM(IF(TO_DAYS(POST_DATE) > TO_DAYS(NOW())-7, 1, 0))*".floatval($arConfigs['CONFIG']['WEEK_POST_COEF'])."+
+					COUNT(*)*".$DB->ForSql($arConfigs['CONFIG']['MONTH_POST_COEF'])." as CURRENT_VALUE
 				FROM b_forum_message
 				WHERE POST_DATE  > DATE_SUB(NOW(), INTERVAL 30 DAY)
 				GROUP BY AUTHOR_ID
-				
-				UNION ALL 
+
+				UNION ALL
 				".$sqlAllTopic."
 
-				SELECT 
-				   USER_START_ID as ENTITY_ID, 
-			       SUM(IF(TO_DAYS(START_DATE) > TO_DAYS(NOW())-1, 1, 0))*".$DB->ForSql($arConfigs['CONFIG']['TODAY_TOPIC_COEF'])." + 
-			       SUM(IF(TO_DAYS(START_DATE) > TO_DAYS(NOW())-7, 1, 0))*".$DB->ForSql($arConfigs['CONFIG']['WEEK_TOPIC_COEF'])." + 
-			       COUNT(*)*".$DB->ForSql($arConfigs['CONFIG']['MONTH_TOPIC_COEF'])." as CURRENT_VALUE
+				SELECT
+					USER_START_ID as ENTITY_ID,
+					SUM(IF(TO_DAYS(START_DATE) > TO_DAYS(NOW())-1, 1, 0))*".floatval($arConfigs['CONFIG']['TODAY_TOPIC_COEF'])." +
+					SUM(IF(TO_DAYS(START_DATE) > TO_DAYS(NOW())-7, 1, 0))*".floatval($arConfigs['CONFIG']['WEEK_TOPIC_COEF'])." +
+					COUNT(*)*".$DB->ForSql($arConfigs['CONFIG']['MONTH_TOPIC_COEF'])." as CURRENT_VALUE
 				FROM b_forum_topic
 				WHERE START_DATE  > DATE_SUB(NOW(), INTERVAL 30 DAY)
 				GROUP BY USER_START_ID
-			) q 
+			) q
 			WHERE ENTITY_ID > 0
 			GROUP BY ENTITY_ID";
 		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
 
 		return true;
 	}
-	
+
 	// Exception function
 	function ExceptionUserRatingForumActivity()
 	{
@@ -153,15 +153,15 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 		$bIndex1 = $DB->IndexExists("b_forum_topic", array("START_DATE", "USER_START_ID"));
 		$bIndex2 = $DB->IndexExists("b_forum_message", array("POST_DATE", "AUTHOR_ID"));
 
-		if(!$bIndex1 || !$bIndex2) 
-		{		
+		if(!$bIndex1 || !$bIndex2)
+		{
 			$arIndex = Array();
 			if (!$bIndex1)
 				$arIndex[] = 'CREATE INDEX IX_FORUM_RATING_1 ON b_forum_topic(START_DATE, USER_START_ID)';
-				
+
 			if (!$bIndex2)
 				$arIndex[] = 'CREATE INDEX IX_FORUM_RATING_2 ON b_forum_message(POST_DATE, AUTHOR_ID)';
-		
+
 			return GetMessage('EXCEPTION_USER_RATING_FORUM_ACTIVITY_TEXT').'<br>1. <b>'.$arIndex[0].'</b>'.(isset($arIndex[1]) ? '<br> 2. <b>'.$arIndex[1].'</b>' : '');
 		}
 		else

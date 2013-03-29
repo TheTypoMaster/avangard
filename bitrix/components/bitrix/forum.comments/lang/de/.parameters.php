@@ -7,6 +7,7 @@ $MESS["F_READ_TEMPLATE"] = "Seite der Ansicht eines Forumsthemas";
 $MESS["F_PROFILE_VIEW_TEMPLATE"] = "Seite des Nutzerprofils";
 $MESS["F_PREORDER"] = "Beiträge in aufsteigender Reihenfolge anzeigen";
 $MESS["F_DATE_TIME_FORMAT"] = "Datums- und Uhrzeitformat";
+$MESS["F_NAME_TEMPLATE"] = "Namenformat";
 $MESS["F_DISPLAY_PANEL"] = "Schaltflächen für diese Komponente im Control Panel anzeigen";
 $MESS["F_PAGE_NAVIGATION_TEMPLATE"] = "Name der Vorlage für die Breadcrumb-Navigation";
 $MESS["F_POST_FIRST_MESSAGE"] = "Ein Textelement als  ersten Beitrag benutzen";

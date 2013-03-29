@@ -8,9 +8,9 @@ if (CModule::IncludeModule("form"))
 	if ($arParams["SEF_MODE"] == "Y")
 	{
 		// SEF mode enabled
-	
+
 		$WEB_FORM_ID_TEMP = $arParams["WEB_FORM_ID"];
-	
+
 		$arDefaultUrlTemplates404 = array(
 				"new"  => "#WEB_FORM_ID#/",
 				"list" => "#WEB_FORM_ID#/list/",
@@ -24,8 +24,8 @@ if (CModule::IncludeModule("form"))
 
 		$arDefaultVariableAliases = array();
 
-		$arComponentVariables = array("WEB_FORM_ID", "RESULT_ID");	
-		
+		$arComponentVariables = array("WEB_FORM_ID", "RESULT_ID");
+
 		$arVariables = array();
 		$arComponentPage = array_keys($arDefaultUrlTemplates404);
 
@@ -40,13 +40,13 @@ if (CModule::IncludeModule("form"))
 		{
 			// parse url to get page
 			$componentPage = CComponentEngine::ParseComponentPath($arParams["SEF_FOLDER"], $arUrlTemplates, $arVariables);
-			
+
 			// if there's no page identefier - set it to start one
 			if(strlen($componentPage) <= 0)
 			{
 				$componentPage = $arParams["START_PAGE"];
 			}
-			
+
 			// if page is disabled - set it to start one
 			if ($componentPage != "new" && $arParams["SHOW_".strtoupper($componentPage)."_PAGE"] != "Y")
 			{
@@ -56,48 +56,48 @@ if (CModule::IncludeModule("form"))
 
 		// get variables
 		CComponentEngine::InitComponentVariables($componentPage, $arComponentVariables, $arVariableAliases, $arVariables);
-		
+
 		if (intval($arVariables["WEB_FORM_ID"] > 0)) $arParams["WEB_FORM_ID"] = intval($arVariables["WEB_FORM_ID"]);
 		if (intval($arVariables["RESULT_ID"] > 0)) $arParams["RESULT_ID"] = intval($arVariables["RESULT_ID"]);
-		
+
 		// set component params for pages
 		switch ($componentPage)
 		{
 			case "list":
-				if ($arParams["SHOW_EDIT_PAGE"] == "Y") 
+				if ($arParams["SHOW_EDIT_PAGE"] == "Y")
 					$arParams["EDIT_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["edit"], array("WEB_FORM_ID" => $arParams["WEB_FORM_ID"]));
 				if ($arParams["SHOW_VIEW_PAGE"] == "Y")
 					$arParams["VIEW_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["view"], array("WEB_FORM_ID" => $arParams["WEB_FORM_ID"]));
 
 				$arParams["NEW_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["new"], array("WEB_FORM_ID" => $arParams["WEB_FORM_ID"]));
 			break;
-			
+
 			case "edit":
-				if ($arParams["SHOW_VIEW_PAGE"] == "Y") 
+				if ($arParams["SHOW_VIEW_PAGE"] == "Y")
 					$arParams["VIEW_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["view"], array("WEB_FORM_ID" => $arParams["WEB_FORM_ID"], "RESULT_ID" => $arParams["RESULT_ID"]));
-					
-				if ($arParams["SHOW_LIST_PAGE"] == "Y") 
+
+				if ($arParams["SHOW_LIST_PAGE"] == "Y")
 					$arParams["LIST_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["list"], array("WEB_FORM_ID" => $arParams["WEB_FORM_ID"]));
-				
+
 				$arParams["EDIT_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["edit"], array("WEB_FORM_ID" => $arParams["WEB_FORM_ID"], "RESULT_ID" => $arParams["RESULT_ID"]));
 			break;
 
 			case "view":
-				if ($arParams["SHOW_EDIT_PAGE"] == "Y") 		
+				if ($arParams["SHOW_EDIT_PAGE"] == "Y")
 					$arParams["EDIT_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["edit"], array("WEB_FORM_ID" => $arParams["WEB_FORM_ID"], "RESULT_ID" => $arParams["RESULT_ID"]));
 			break;
-		
+
 			case "new":
-				if ($arParams["SHOW_LIST_PAGE"] == "Y") 
+				if ($arParams["SHOW_LIST_PAGE"] == "Y")
 					$arParams["LIST_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["list"], array("WEB_FORM_ID" => $arParams["WEB_FORM_ID"]));
-				if ($arParams["SHOW_EDIT_PAGE"] == "Y") 
+				if ($arParams["SHOW_EDIT_PAGE"] == "Y")
 					$arParams["EDIT_URL"] = CComponentEngine::MakePathFromTemplate($arParams["SEF_FOLDER"].$arParams["SEF_URL_TEMPLATES"]["edit"], array("WEB_FORM_ID" => $arParams["WEB_FORM_ID"]));
-				
+
 			break;
 		}
-		
+
 		if (!empty($WEB_FORM_ID_TEMP)) $arParams["WEB_FORM_ID"] = $WEB_FORM_ID_TEMP;
-	} 
+	}
 	else
 	{
 		// SEF mode disabled
@@ -107,11 +107,11 @@ if (CModule::IncludeModule("form"))
 			"RESULT_ID" => "RESULT_ID",
 			"action" => "action",
 		);
-		
+
 		$arVariables = array();
 		$arVariableAliases = CComponentEngine::MakeComponentVariableAliases($arDefaultVariableAliases, $arParams["VARIABLE_ALIASES"]);
 		CComponentEngine::InitComponentVariables(False, $arComponentVariables, $arVariableAliases, $arVariables);
-		
+
 		$arPages = array("NEW", "EDIT", "LIST", "VIEW");
 
 		// get current page
@@ -120,27 +120,31 @@ if (CModule::IncludeModule("form"))
 		// check current page
 		if (!in_array($sAction, $arPages)) $sAction = "";
 		elseif ($sAction != "NEW" && $arParams["SHOW_".$sAction."_PAGE"] != "Y") $sAction = "";
-		
+
 		// if current page is wrong or not set - get default value
 		if (strlen($sAction) <= "0") $sAction = $arParams["START_PAGE"];
-		
+
 		$componentPage = strtolower($sAction);
-		
+
 		// prepare component parameters for pages
 		foreach ($arPages as $page)
 		{
 			if ($page == "NEW" || $arParams["SHOW_".$page."_PAGE"] == "Y")
 			{
 				$arParams[$page."_URL"] = $APPLICATION->GetCurPageParam(
-					strtolower($page) == $arParams["START_PAGE"] ? "" : $arVariableAliases["action"]."=".strtolower($page), 
-					array_merge(array_values($arVariableAliases), array("strFormNote", 'formresult')), 
+					strtolower($page) == $arParams["START_PAGE"] ? "" : $arVariableAliases["action"]."=".strtolower($page),
+					array_merge(array_values($arVariableAliases), array("strFormNote", 'formresult')),
 					false
 				);
 			}
 		}
-		
+
 		$arParams["VARIABLE_ALIASES"] = $arVariableAliases;
 	}
+
+	$arParams['NAME_TEMPLATE'] = empty($arParams['NAME_TEMPLATE'])
+		? (method_exists('CSite', 'GetNameFormat') ? CSite::GetNameFormat() : "#NAME# #LAST_NAME#")
+		: $arParams["NAME_TEMPLATE"];
 
 	$this->IncludeComponentTemplate($componentPage);
 }

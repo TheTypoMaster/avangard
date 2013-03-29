@@ -136,7 +136,7 @@
 		$row->AddCheckField("USE_IT", array("Y"=>GetMessage("FLT_ACT_USE_IT_Y"), "N"=>GetMessage("FLT_ACT_USE_IT_N")));
 		$row->AddSelectField("PATTERN_CREATE", array("WORDS"=>GetMessage("FLT_FLT_WORDS"), "TRNSL"=>GetMessage("FLT_FLT_TRNSL"), "PTTRN"=>GetMessage("FLT_FLT_PTTRN")));
 		
-	 	$arActions = Array();
+		$arActions = Array();
 		$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("FLT_ACT_EDIT"), "ACTION"=>$lAdmin->ActionRedirect("forum_words_edit.php?DICTIONARY_ID=".$t_DICTIONARY_ID."&lang=".LANG."&ID=".$t_ID.GetFilterParams("filter_", false).""), "DEFAULT" => true);
 //		$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("FLT_ACT_GEN"), "ACTION"=>$lAdmin->ActionDoGroup($t_ID, "generate", "DICTIONARY_ID=".$t_DICTIONARY_ID."&lang=".LANG));
 		$arActions[] = array("SEPARATOR" => true);

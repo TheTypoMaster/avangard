@@ -170,7 +170,7 @@ $MESS["SUP_SUAC_TEXT"] = "Aktivieren Sie Ihren Gutschein, um eine neue Lösung hi
 $MESS["SUP_SUAC_ADD"] = "Gutschein aktivieren";
 $MESS["SUP_SUAC_TEXT2"] = "Geben Sie den Gutschein ein:";
 $MESS["SUP_SU_UPD_MP_NEW"] = "Zu Ihrer Website wurden neue Lösungen hinzugefügt:";
-$MESS["SUP_SU_UPD_MP_NEW2"] = "Sie können die Lösungen jetzt installieren oder es später machen auf der Seite Einstellungen - Marketplace - Lösungen.";
+$MESS["SUP_SU_UPD_MP_NEW2"] = "Sie können die Lösungen jetzt installieren oder es später machen auf der Marketplace - Lösungen.";
 $MESS["SUP_SU_UPD_MP_NEW_INST"] = "Installieren";
 $MESS["SUP_SUAC_NO_COUP"] = "Geben Sie den Gutscheincode für die Aktivierung ein";
 ?>

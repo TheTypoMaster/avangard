@@ -186,7 +186,7 @@ class CAllIBlockSection
 	///////////////////////////////////////////////////////////////////
 	function Add($arFields, $bResort=true, $bUpdateSearch=true, $bResizePictures=false)
 	{
-		global $USER, $DB;
+		global $USER, $DB, $APPLICATION;
 
 		if(is_set($arFields, "EXTERNAL_ID"))
 			$arFields["XML_ID"] = $arFields["EXTERNAL_ID"];
@@ -198,12 +198,14 @@ class CAllIBlockSection
 		$arIBlock = CIBlock::GetArrayByID($arFields["IBLOCK_ID"]);
 		if($bResizePictures && is_array($arIBlock))
 		{
+			$arDef = $arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"];
+
 			if(
-				$arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"]["FROM_DETAIL"] === "Y"
+				$arDef["FROM_DETAIL"] === "Y"
 				&& is_array($arFields["DETAIL_PICTURE"])
 				&& $arFields["DETAIL_PICTURE"]["size"] > 0
 				&& (
-					$arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"]["UPDATE_WITH_DETAIL"] === "Y"
+					$arDef["UPDATE_WITH_DETAIL"] === "Y"
 					|| $arFields["PICTURE"]["size"] <= 0
 				)
 			)
@@ -217,16 +219,16 @@ class CAllIBlockSection
 			if(
 				array_key_exists("PICTURE", $arFields)
 				&& is_array($arFields["PICTURE"])
-				&& $arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"]["SCALE"] === "Y"
+				&& $arDef["SCALE"] === "Y"
 			)
 			{
-				$arNewPicture = CIBlock::ResizePicture($arFields["PICTURE"], $arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"]);
+				$arNewPicture = CIBlock::ResizePicture($arFields["PICTURE"], $arDef);
 				if(is_array($arNewPicture))
 				{
 					$arNewPicture["description"] = $arFields["PICTURE"]["description"];
 					$arFields["PICTURE"] = $arNewPicture;
 				}
-				elseif($arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"]["IGNORE_ERRORS"] !== "Y")
+				elseif($arDef["IGNORE_ERRORS"] !== "Y")
 				{
 					unset($arFields["PICTURE"]);
 					$strWarning .= GetMessage("IBLOCK_FIELD_PREVIEW_PICTURE").": ".$arNewPicture."<br>";
@@ -234,22 +236,130 @@ class CAllIBlockSection
 			}
 
 			if(
-				array_key_exists("DETAIL_PICTURE", $arFields)
-				&& is_array($arFields["DETAIL_PICTURE"])
-				&& $arIBlock["FIELDS"]["SECTION_DETAIL_PICTURE"]["DEFAULT_VALUE"]["SCALE"] === "Y"
+				array_key_exists("PICTURE", $arFields)
+				&& is_array($arFields["PICTURE"])
+				&& $arDef["USE_WATERMARK_FILE"] === "Y"
 			)
 			{
-				$arNewPicture = CIBlock::ResizePicture($arFields["DETAIL_PICTURE"], $arIBlock["FIELDS"]["SECTION_DETAIL_PICTURE"]["DEFAULT_VALUE"]);
+				if(
+					strlen($arFields["PICTURE"]["tmp_name"]) > 0
+					&& $arFields["PICTURE"]["tmp_name"] === $arFields["DETAIL_PICTURE"]["tmp_name"]
+				)
+				{
+					$arFields["PICTURE"]["tmp_name"] = CTempFile::GetFileName(basename($arFields["PICTURE"]["tmp_name"]));
+					CheckDirPath($arFields["PICTURE"]["tmp_name"]);
+					copy($arFields["DETAIL_PICTURE"]["tmp_name"], $arFields["PICTURE"]["tmp_name"]);
+				}
+
+				CIBLock::FilterPicture($arFields["PICTURE"]["tmp_name"], array(
+					"name" => "watermark",
+					"position" => $arDef["WATERMARK_FILE_POSITION"],
+					"type" => "file",
+					"size" => "real",
+					"alpha_level" => 100 - min(max($arDef["WATERMARK_FILE_ALPHA"], 0), 100),
+					"file" => $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arDef["WATERMARK_FILE"]),
+				));
+			}
+
+			if(
+				array_key_exists("PICTURE", $arFields)
+				&& is_array($arFields["PICTURE"])
+				&& $arDef["USE_WATERMARK_TEXT"] === "Y"
+			)
+			{
+				if(
+					strlen($arFields["PICTURE"]["tmp_name"]) > 0
+					&& $arFields["PICTURE"]["tmp_name"] === $arFields["DETAIL_PICTURE"]["tmp_name"]
+				)
+				{
+					$arFields["PICTURE"]["tmp_name"] = CTempFile::GetFileName(basename($arFields["PICTURE"]["tmp_name"]));
+					CheckDirPath($arFields["PICTURE"]["tmp_name"]);
+					copy($arFields["DETAIL_PICTURE"]["tmp_name"], $arFields["PICTURE"]["tmp_name"]);
+				}
+
+				CIBLock::FilterPicture($arFields["PICTURE"]["tmp_name"], array(
+					"name" => "watermark",
+					"position" => $arDef["WATERMARK_TEXT_POSITION"],
+					"type" => "text",
+					"coefficient" => $arDef["WATERMARK_TEXT_SIZE"],
+					"text" => $arDef["WATERMARK_TEXT"],
+					"font" => $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arDef["WATERMARK_TEXT_FONT"]),
+					"color" => $arDef["WATERMARK_TEXT_COLOR"],
+				));
+			}
+
+			$arDef = $arIBlock["FIELDS"]["SECTION_DETAIL_PICTURE"]["DEFAULT_VALUE"];
+
+			if(
+				array_key_exists("DETAIL_PICTURE", $arFields)
+				&& is_array($arFields["DETAIL_PICTURE"])
+				&& $arDef["SCALE"] === "Y"
+			)
+			{
+				$arNewPicture = CIBlock::ResizePicture($arFields["DETAIL_PICTURE"], $arDef);
 				if(is_array($arNewPicture))
 				{
 					$arNewPicture["description"] = $arFields["DETAIL_PICTURE"]["description"];
 					$arFields["DETAIL_PICTURE"] = $arNewPicture;
 				}
-				elseif($arIBlock["FIELDS"]["SECTION_DETAIL_PICTURE"]["DEFAULT_VALUE"]["IGNORE_ERRORS"] !== "Y")
+				elseif($arDef["IGNORE_ERRORS"] !== "Y")
 				{
 					unset($arFields["DETAIL_PICTURE"]);
 					$strWarning .= GetMessage("IBLOCK_FIELD_DETAIL_PICTURE").": ".$arNewPicture."<br>";
 				}
+			}
+
+			if(
+				array_key_exists("DETAIL_PICTURE", $arFields)
+				&& is_array($arFields["DETAIL_PICTURE"])
+				&& $arDef["USE_WATERMARK_FILE"] === "Y"
+			)
+			{
+				if(
+					strlen($arFields["DETAIL_PICTURE"]["tmp_name"]) > 0
+					&& $arFields["DETAIL_PICTURE"]["tmp_name"] === $arFields["PICTURE"]["tmp_name"]
+				)
+				{
+					$arFields["DETAIL_PICTURE"]["tmp_name"] = CTempFile::GetFileName(basename($arFields["DETAIL_PICTURE"]["tmp_name"]));
+					CheckDirPath($arFields["DETAIL_PICTURE"]["tmp_name"]);
+					copy($arFields["PICTURE"]["tmp_name"], $arFields["DETAIL_PICTURE"]["tmp_name"]);
+				}
+
+				CIBLock::FilterPicture($arFields["DETAIL_PICTURE"]["tmp_name"], array(
+					"name" => "watermark",
+					"position" => $arDef["WATERMARK_FILE_POSITION"],
+					"type" => "file",
+					"size" => "real",
+					"alpha_level" => 100 - min(max($arDef["WATERMARK_FILE_ALPHA"], 0), 100),
+					"file" => $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arDef["WATERMARK_FILE"]),
+				));
+			}
+
+			if(
+				array_key_exists("DETAIL_PICTURE", $arFields)
+				&& is_array($arFields["DETAIL_PICTURE"])
+				&& $arDef["USE_WATERMARK_TEXT"] === "Y"
+			)
+			{
+				if(
+					strlen($arFields["DETAIL_PICTURE"]["tmp_name"]) > 0
+					&& $arFields["DETAIL_PICTURE"]["tmp_name"] === $arFields["PICTURE"]["tmp_name"]
+				)
+				{
+					$arFields["DETAIL_PICTURE"]["tmp_name"] = CTempFile::GetFileName(basename($arFields["DETAIL_PICTURE"]["tmp_name"]));
+					CheckDirPath($arFields["DETAIL_PICTURE"]["tmp_name"]);
+					copy($arFields["PICTURE"]["tmp_name"], $arFields["DETAIL_PICTURE"]["tmp_name"]);
+				}
+
+				CIBLock::FilterPicture($arFields["DETAIL_PICTURE"]["tmp_name"], array(
+					"name" => "watermark",
+					"position" => $arDef["WATERMARK_TEXT_POSITION"],
+					"type" => "text",
+					"coefficient" => $arDef["WATERMARK_TEXT_SIZE"],
+					"text" => $arDef["WATERMARK_TEXT"],
+					"font" => $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arDef["WATERMARK_TEXT_FONT"]),
+					"color" => $arDef["WATERMARK_TEXT_COLOR"],
+				));
 			}
 		}
 
@@ -303,7 +413,7 @@ class CAllIBlockSection
 		$arFields["~DATE_CREATE"] = $DB->CurrentTimeFunction();
 		if(is_object($USER))
 		{
-			$user_id = intval(@$USER->GetID());
+			$user_id = intval($USER->GetID());
 			if(!isset($arFields["CREATED_BY"]) || intval($arFields["CREATED_BY"]) <= 0)
 				$arFields["CREATED_BY"] = $user_id;
 			if(!isset($arFields["MODIFIED_BY"]) || intval($arFields["MODIFIED_BY"]) <= 0)
@@ -320,6 +430,10 @@ class CAllIBlockSection
 		elseif($IBLOCK_ID && !$GLOBALS["USER_FIELD_MANAGER"]->CheckFields("IBLOCK_".$IBLOCK_ID."_SECTION", 0, $arFields))
 		{
 			$Result = false;
+			$err = $APPLICATION->GetException();
+			if(is_object($err))
+				$this->LAST_ERROR .= str_replace("<br><br>", "<br>", $err->GetString()."<br>");
+			$arFields["RESULT_MESSAGE"] = &$this->LAST_ERROR;
 		}
 		else
 		{
@@ -334,6 +448,8 @@ class CAllIBlockSection
 				$SAVED_DETAIL_PICTURE = $arFields["DETAIL_PICTURE"];
 				CFile::SaveForDB($arFields, "DETAIL_PICTURE", "iblock");
 			}
+
+			CIBlock::_transaction_lock($IBLOCK_ID);
 
 			unset($arFields["ID"]);
 			$ID = intval($DB->Add("b_iblock_section", $arFields, Array("DESCRIPTION","SEARCHABLE_CONTENT"), "iblock"));
@@ -461,21 +577,33 @@ class CAllIBlockSection
 			if($bUpdateSearch)
 				CIBlockSection::UpdateSearch($ID);
 
+			if(
+				CIBlock::GetArrayByID($IBLOCK_ID, "SECTION_PROPERTY") === "Y"
+				&& array_key_exists("SECTION_PROPERTY", $arFields)
+				&& is_array($arFields["SECTION_PROPERTY"])
+			)
+			{
+				foreach($arFields["SECTION_PROPERTY"] as $PROPERTY_ID => $arLink)
+					CIBlockSectionPropertyLink::Add($ID, $PROPERTY_ID, $arLink);
+			}
+
 			if($arIBlock["FIELDS"]["LOG_SECTION_ADD"]["IS_REQUIRED"] == "Y")
 			{
+				$USER_ID = is_object($USER)? intval($USER->GetID()) : 0;
 				$db_events = GetModuleEvents("main", "OnBeforeEventLog");
 				$arEvent = $db_events->Fetch();
-				if(!$arEvent || ExecuteModuleEventEx($arEvent, array($USER->GetID()))===false)
+				if(!$arEvent || ExecuteModuleEventEx($arEvent, array($USER_ID))===false)
 				{
 					$rsSection = CIBlockSection::GetList(array(), array("=ID"=>$ID), false,  array("LIST_PAGE_URL", "NAME", "CODE"));
 					$arSection = $rsSection->GetNext();
 					$res = array(
-							"ID" => $ID,
-							"CODE" => $arSection["CODE"],
-							"NAME" => $arSection["NAME"],
-							"SECTION_NAME" => $arIBlock["SECTION_NAME"],
-							"IBLOCK_PAGE_URL" => $arSection["LIST_PAGE_URL"]
-							);
+						"ID" => $ID,
+						"CODE" => $arSection["CODE"],
+						"NAME" => $arSection["NAME"],
+						"SECTION_NAME" => $arIBlock["SECTION_NAME"],
+						"USER_ID" => $USER_ID,
+						"IBLOCK_PAGE_URL" => $arSection["LIST_PAGE_URL"],
+					);
 					CEventLog::Log(
 						"IBLOCK",
 						"IBLOCK_SECTION_ADD",
@@ -520,7 +648,7 @@ class CAllIBlockSection
 	///////////////////////////////////////////////////////////////////
 	function Update($ID, $arFields, $bResort=true, $bUpdateSearch=true, $bResizePictures=false)
 	{
-		global $USER, $DB;
+		global $USER, $DB, $APPLICATION;
 
 		$ID = intval($ID);
 
@@ -542,8 +670,10 @@ class CAllIBlockSection
 		$arIBlock = CIBlock::GetArrayByID($db_record["IBLOCK_ID"]);
 		if($bResizePictures)
 		{
+			$arDef = $arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"];
+
 			if(
-				$arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"]["DELETE_WITH_DETAIL"] === "Y"
+				$arDef["DELETE_WITH_DETAIL"] === "Y"
 				&& $arFields["DETAIL_PICTURE"]["del"] === "Y"
 			)
 			{
@@ -551,17 +681,18 @@ class CAllIBlockSection
 			}
 
 			if(
-				$arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"]["FROM_DETAIL"] === "Y"
+				$arDef["FROM_DETAIL"] === "Y"
 				&& (
 					$arFields["PICTURE"]["size"] <= 0
-					|| $arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"]["UPDATE_WITH_DETAIL"] === "Y"
+					|| $arDef["UPDATE_WITH_DETAIL"] === "Y"
 				)
+				&& is_array($arFields["DETAIL_PICTURE"])
 				&& $arFields["DETAIL_PICTURE"]["size"] > 0
 			)
 			{
 				if(
 					$arFields["PICTURE"]["del"] !== "Y"
-					&& $arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"]["UPDATE_WITH_DETAIL"] !== "Y"
+					&& $arDef["UPDATE_WITH_DETAIL"] !== "Y"
 				)
 				{
 					$arOldSection = $db_record;
@@ -583,16 +714,17 @@ class CAllIBlockSection
 			if(
 				array_key_exists("PICTURE", $arFields)
 				&& is_array($arFields["PICTURE"])
-				&& $arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"]["SCALE"] === "Y"
+				&& $arFields["PICTURE"]["size"] > 0
+				&& $arDef["SCALE"] === "Y"
 			)
 			{
-				$arNewPicture = CIBlock::ResizePicture($arFields["PICTURE"], $arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"]);
+				$arNewPicture = CIBlock::ResizePicture($arFields["PICTURE"], $arDef);
 				if(is_array($arNewPicture))
 				{
 					$arNewPicture["description"] = $arFields["PICTURE"]["description"];
 					$arFields["PICTURE"] = $arNewPicture;
 				}
-				elseif($arIBlock["FIELDS"]["SECTION_PICTURE"]["DEFAULT_VALUE"]["IGNORE_ERRORS"] !== "Y")
+				elseif($arDef["IGNORE_ERRORS"] !== "Y")
 				{
 					unset($arFields["PICTURE"]);
 					$strWarning .= GetMessage("IBLOCK_FIELD_PREVIEW_PICTURE").": ".$arNewPicture."<br>";
@@ -600,22 +732,131 @@ class CAllIBlockSection
 			}
 
 			if(
-				array_key_exists("DETAIL_PICTURE", $arFields)
-				&& is_array($arFields["DETAIL_PICTURE"])
-				&& $arIBlock["FIELDS"]["SECTION_DETAIL_PICTURE"]["DEFAULT_VALUE"]["SCALE"] === "Y"
+				array_key_exists("PICTURE", $arFields)
+				&& is_array($arFields["PICTURE"])
+				&& $arDef["USE_WATERMARK_FILE"] === "Y"
 			)
 			{
-				$arNewPicture = CIBlock::ResizePicture($arFields["DETAIL_PICTURE"], $arIBlock["FIELDS"]["SECTION_DETAIL_PICTURE"]["DEFAULT_VALUE"]);
+				if(
+					strlen($arFields["PICTURE"]["tmp_name"]) > 0
+					&& $arFields["PICTURE"]["tmp_name"] === $arFields["DETAIL_PICTURE"]["tmp_name"]
+				)
+				{
+					$arFields["PICTURE"]["tmp_name"] = CTempFile::GetFileName(basename($arFields["PICTURE"]["tmp_name"]));
+					CheckDirPath($arFields["PICTURE"]["tmp_name"]);
+					copy($arFields["DETAIL_PICTURE"]["tmp_name"], $arFields["PICTURE"]["tmp_name"]);
+				}
+
+				CIBLock::FilterPicture($arFields["PICTURE"]["tmp_name"], array(
+					"name" => "watermark",
+					"position" => $arDef["WATERMARK_FILE_POSITION"],
+					"type" => "file",
+					"size" => "real",
+					"alpha_level" => 100 - min(max($arDef["WATERMARK_FILE_ALPHA"], 0), 100),
+					"file" => $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arDef["WATERMARK_FILE"]),
+				));
+			}
+
+			if(
+				array_key_exists("PICTURE", $arFields)
+				&& is_array($arFields["PICTURE"])
+				&& $arDef["USE_WATERMARK_TEXT"] === "Y"
+			)
+			{
+				if(
+					strlen($arFields["PICTURE"]["tmp_name"]) > 0
+					&& $arFields["PICTURE"]["tmp_name"] === $arFields["DETAIL_PICTURE"]["tmp_name"]
+				)
+				{
+					$arFields["PICTURE"]["tmp_name"] = CTempFile::GetFileName(basename($arFields["PICTURE"]["tmp_name"]));
+					CheckDirPath($arFields["PICTURE"]["tmp_name"]);
+					copy($arFields["DETAIL_PICTURE"]["tmp_name"], $arFields["PICTURE"]["tmp_name"]);
+				}
+
+				CIBLock::FilterPicture($arFields["PICTURE"]["tmp_name"], array(
+					"name" => "watermark",
+					"position" => $arDef["WATERMARK_TEXT_POSITION"],
+					"type" => "text",
+					"coefficient" => $arDef["WATERMARK_TEXT_SIZE"],
+					"text" => $arDef["WATERMARK_TEXT"],
+					"font" => $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arDef["WATERMARK_TEXT_FONT"]),
+					"color" => $arDef["WATERMARK_TEXT_COLOR"],
+				));
+			}
+
+			$arDef = $arIBlock["FIELDS"]["SECTION_DETAIL_PICTURE"]["DEFAULT_VALUE"];
+
+			if(
+				array_key_exists("DETAIL_PICTURE", $arFields)
+				&& is_array($arFields["DETAIL_PICTURE"])
+				&& $arDef["SCALE"] === "Y"
+			)
+			{
+				$arNewPicture = CIBlock::ResizePicture($arFields["DETAIL_PICTURE"], $arDef);
 				if(is_array($arNewPicture))
 				{
 					$arNewPicture["description"] = $arFields["DETAIL_PICTURE"]["description"];
 					$arFields["DETAIL_PICTURE"] = $arNewPicture;
 				}
-				elseif($arIBlock["FIELDS"]["SECTION_DETAIL_PICTURE"]["DEFAULT_VALUE"]["IGNORE_ERRORS"] !== "Y")
+				elseif($arDef["IGNORE_ERRORS"] !== "Y")
 				{
 					unset($arFields["DETAIL_PICTURE"]);
 					$strWarning .= GetMessage("IBLOCK_FIELD_DETAIL_PICTURE").": ".$arNewPicture."<br>";
 				}
+			}
+
+			if(
+				array_key_exists("DETAIL_PICTURE", $arFields)
+				&& is_array($arFields["DETAIL_PICTURE"])
+				&& $arDef["USE_WATERMARK_FILE"] === "Y"
+			)
+			{
+				if(
+					strlen($arFields["DETAIL_PICTURE"]["tmp_name"]) > 0
+					&& $arFields["DETAIL_PICTURE"]["tmp_name"] === $arFields["PICTURE"]["tmp_name"]
+				)
+				{
+					$arFields["DETAIL_PICTURE"]["tmp_name"] = CTempFile::GetFileName(basename($arFields["DETAIL_PICTURE"]["tmp_name"]));
+					CheckDirPath($arFields["DETAIL_PICTURE"]["tmp_name"]);
+					copy($arFields["PICTURE"]["tmp_name"], $arFields["DETAIL_PICTURE"]["tmp_name"]);
+				}
+
+				CIBLock::FilterPicture($arFields["DETAIL_PICTURE"]["tmp_name"], array(
+					"name" => "watermark",
+					"position" => $arDef["WATERMARK_FILE_POSITION"],
+					"type" => "file",
+					"size" => "real",
+					"alpha_level" => 100 - min(max($arDef["WATERMARK_FILE_ALPHA"], 0), 100),
+					"file" => $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arDef["WATERMARK_FILE"]),
+					"fill" => "resize",
+				));
+			}
+
+			if(
+				array_key_exists("DETAIL_PICTURE", $arFields)
+				&& is_array($arFields["DETAIL_PICTURE"])
+				&& $arDef["USE_WATERMARK_TEXT"] === "Y"
+			)
+			{
+				if(
+					strlen($arFields["DETAIL_PICTURE"]["tmp_name"]) > 0
+					&& $arFields["DETAIL_PICTURE"]["tmp_name"] === $arFields["PICTURE"]["tmp_name"]
+				)
+				{
+					$arFields["DETAIL_PICTURE"]["tmp_name"] = CTempFile::GetFileName(basename($arFields["DETAIL_PICTURE"]["tmp_name"]));
+					CheckDirPath($arFields["DETAIL_PICTURE"]["tmp_name"]);
+					copy($arFields["PICTURE"]["tmp_name"], $arFields["DETAIL_PICTURE"]["tmp_name"]);
+				}
+
+				CIBLock::FilterPicture($arFields["DETAIL_PICTURE"]["tmp_name"], array(
+					"name" => "watermark",
+					"position" => $arDef["WATERMARK_TEXT_POSITION"],
+					"type" => "text",
+					"coefficient" => $arDef["WATERMARK_TEXT_SIZE"],
+					"text" => $arDef["WATERMARK_TEXT"],
+					"font" => $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arDef["WATERMARK_TEXT_FONT"]),
+					"color" => $arDef["WATERMARK_TEXT_COLOR"],
+				));
 			}
 		}
 
@@ -665,7 +906,7 @@ class CAllIBlockSection
 		if(is_object($USER))
 		{
 			if(!isset($arFields["MODIFIED_BY"]) || intval($arFields["MODIFIED_BY"]) <= 0)
-				$arFields["MODIFIED_BY"] = intval(@$USER->GetID());
+				$arFields["MODIFIED_BY"] = intval($USER->GetID());
 		}
 
 		if(!$this->CheckFields($arFields, $ID))
@@ -676,6 +917,10 @@ class CAllIBlockSection
 		elseif(!$GLOBALS["USER_FIELD_MANAGER"]->CheckFields("IBLOCK_".$db_record["IBLOCK_ID"]."_SECTION", $ID, $arFields))
 		{
 			$Result = false;
+			$err = $APPLICATION->GetException();
+			if(is_object($err))
+				$this->LAST_ERROR .= str_replace("<br><br>", "<br>", $err->GetString()."<br>");
+			$arFields["RESULT_MESSAGE"] = &$this->LAST_ERROR;
 		}
 		else
 		{
@@ -698,6 +943,8 @@ class CAllIBlockSection
 				$arFields["PICTURE"] = $SAVED_PICTURE;
 			if(array_key_exists("DETAIL_PICTURE", $arFields))
 				$arFields["DETAIL_PICTURE"] = $SAVED_DETAIL_PICTURE;
+
+			CIBlock::_transaction_lock($db_record["IBLOCK_ID"]);
 
 			if(strlen($strUpdate) > 0)
 			{
@@ -879,6 +1126,17 @@ class CAllIBlockSection
 					{
 						$this->RecalcGlobalActiveFlag($arSection);
 					}
+					//New parent is globally active
+					//And we WAS active but NOT globally active
+					//But is going to be
+					elseif(
+						(!$arParent || $arParent["GLOBAL_ACTIVE"] == "Y")
+						&& $arSection["GLOBAL_ACTIVE"] == "N"
+						&& ($arSection["ACTIVE"] == "Y" || $arFields["ACTIVE"] == "Y")
+					)
+					{
+						$this->RecalcGlobalActiveFlag($arSection);
+					}
 					//Otherwise we may not to change anything
 				}
 				//Parent not changed
@@ -940,24 +1198,37 @@ class CAllIBlockSection
 				$DB->Query("UPDATE b_iblock_section SET TIMESTAMP_X = ".$DB->CurrentTimeFunction()." WHERE ID = ".$ID);
 			}
 
+			if(
+				CIBlock::GetArrayByID($db_record["IBLOCK_ID"], "SECTION_PROPERTY") === "Y"
+				&& array_key_exists("SECTION_PROPERTY", $arFields)
+				&& is_array($arFields["SECTION_PROPERTY"])
+			)
+			{
+				CIBlockSectionPropertyLink::DeleteBySection($ID);
+				foreach($arFields["SECTION_PROPERTY"] as $PROPERTY_ID => $arLink)
+					CIBlockSectionPropertyLink::Add($ID, $PROPERTY_ID, $arLink);
+			}
+
 			if($bUpdateSearch)
 				CIBlockSection::UpdateSearch($ID);
 
 			if($arIBlock["FIELDS"]["LOG_SECTION_EDIT"]["IS_REQUIRED"] == "Y")
 			{
+				$USER_ID = is_object($USER)? intval($USER->GetID()) : 0;
 				$db_events = GetModuleEvents("main", "OnBeforeEventLog");
 				$arEvent = $db_events->Fetch();
-				if(!$arEvent || ExecuteModuleEventEx($arEvent, array($USER->GetID()))===false)
+				if(!$arEvent || ExecuteModuleEventEx($arEvent,  array($USER_ID))===false)
 				{
 					$rsSection = CIBlockSection::GetList(array(), array("=ID"=>$ID), false,  array("LIST_PAGE_URL", "NAME", "CODE"));
 					$arSection = $rsSection->GetNext();
 					$res = array(
-							"ID" => $ID,
-							"CODE" => $arSection["CODE"],
-							"NAME" => $arSection["NAME"],
-							"SECTION_NAME" => $arIBlock["SECTION_NAME"],
-							"IBLOCK_PAGE_URL" => $arSection["LIST_PAGE_URL"]
-							);
+						"ID" => $ID,
+						"CODE" => $arSection["CODE"],
+						"NAME" => $arSection["NAME"],
+						"SECTION_NAME" => $arIBlock["SECTION_NAME"],
+						"USER_ID" => $USER_ID,
+						"IBLOCK_PAGE_URL" => $arSection["LIST_PAGE_URL"],
+					);
 					CEventLog::Log(
 						"IBLOCK",
 						"IBLOCK_SECTION_EDIT",
@@ -995,7 +1266,7 @@ class CAllIBlockSection
 	function Delete($ID, $bCheckPermissions = true)
 	{
 		$err_mess = "FILE: ".__FILE__."<br>LINE: ";
-		global $DB, $APPLICATION;
+		global $DB, $APPLICATION, $USER;
 		$ID = IntVal($ID);
 
 		$APPLICATION->ResetException();
@@ -1013,6 +1284,8 @@ class CAllIBlockSection
 		$s = CIBlockSection::GetList(Array(), Array("ID"=>$ID, "CHECK_PERMISSIONS"=>($bCheckPermissions? "Y": "N")));
 		if($s = $s->Fetch())
 		{
+			CIBlock::_transaction_lock($s["IBLOCK_ID"]);
+
 			$iblockelements = CIBlockElement::GetList(Array(), Array("SECTION_ID"=>$ID, "SHOW_HISTORY"=>"Y", "IBLOCK_ID"=>$s["IBLOCK_ID"]), false, false, array("ID", "IBLOCK_ID", "WF_PARENT_ELEMENT_ID"));
 			while($iblockelement = $iblockelements->Fetch())
 			{
@@ -1130,6 +1403,7 @@ class CAllIBlockSection
 				}
 			}
 
+			CIBlockSectionPropertyLink::DeleteBySection($ID);
 			$DB->Query("DELETE FROM b_iblock_section_element WHERE IBLOCK_SECTION_ID=".IntVal($ID), false, $err_mess.__LINE__);
 
 			if(CModule::IncludeModule("search"))
@@ -1180,10 +1454,10 @@ class CAllIBlockSection
 			$arIBlockFields = CIBlock::GetArrayByID($s["IBLOCK_ID"], "FIELDS");
 			if($arIBlockFields["LOG_SECTION_DELETE"]["IS_REQUIRED"] == "Y")
 			{
+				$USER_ID = is_object($USER)? intval($USER->GetID()) : 0;
 				$db_events = GetModuleEvents("main", "OnBeforeEventLog");
 				$arEvent = $db_events->Fetch();
-				global $USER;
-				if(!$arEvent || ExecuteModuleEventEx($arEvent, array($USER->GetID()))===false)
+				if(!$arEvent || ExecuteModuleEventEx($arEvent,  array($USER_ID))===false)
 				{
 					$rsSection = CIBlockSection::GetList(
 						array(),
@@ -1193,12 +1467,13 @@ class CAllIBlockSection
 					);
 					$arSection = $rsSection->GetNext();
 					$res = array(
-							"ID" => $ID,
-							"CODE" => $arSection["CODE"],
-							"NAME" => $arSection["NAME"],
-							"SECTION_NAME" => CIBlock::GetArrayByID($s["IBLOCK_ID"], "SECTION_NAME"),
-							"IBLOCK_PAGE_URL" => $arSection["LIST_PAGE_URL"]
-							);
+						"ID" => $ID,
+						"CODE" => $arSection["CODE"],
+						"NAME" => $arSection["NAME"],
+						"SECTION_NAME" => CIBlock::GetArrayByID($s["IBLOCK_ID"], "SECTION_NAME"),
+						"USER_ID" => $USER_ID,
+						"IBLOCK_PAGE_URL" => $arSection["LIST_PAGE_URL"],
+					);
 					CEventLog::Log(
 						"IBLOCK",
 						"IBLOCK_SECTION_DELETE",
@@ -1849,7 +2124,7 @@ class CAllIBlockSection
 					AND (BE.ACTIVE_FROM <= ".$DB->CurrentTimeFunction()." OR BE.ACTIVE_FROM IS NULL)"
 				:"")."
 				".$strSqlSearch;
-		//echo "<pre>",htmlspecialchars($strSql),"</pre>";
+		//echo "<pre>",htmlspecialcharsbx($strSql),"</pre>";
 		$res = $DB->Query($strSql);
 		$res = $res->Fetch();
 		return $res["CNT"];

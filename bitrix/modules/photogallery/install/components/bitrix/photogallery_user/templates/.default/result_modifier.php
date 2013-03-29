@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_REQUEST["from_detail_list"]
 				}
 				if ($res["ACTIVE"] != "Y")
 					$_REQUEST["ACTION"] = "active";
-				PClearComponentCache(array("photogallery.detail.list.ex", "photogallery.detail.list", "photogallery.detail", "photogallery.detail.comment"));
+				PClearComponentCacheEx($arParams["IBLOCK_ID"]);
 			}
 
 			if ($_REQUEST["ACTION"] == "active" || $_REQUEST["ACTION"] == "drop")
@@ -57,21 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_REQUEST["from_detail_list"]
 				if (is_set($arSections, $res["IBLOCK_SECTION_ID"]))
 					$res = $arSections[$res["IBLOCK_SECTION_ID"]];
 
-				PClearComponentCache(array(
-					"search.page",
-					"search.tags.cloud", 
-					"photogallery.detail", 
-					"photogallery.detail.comment", 
-					"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/0", 
-					"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/".$res["ID"], 
-					"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/0", 
-					"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/".$res["ID"], 
-					"photogallery.section/".$arParams["IBLOCK_ID"]."/section".$res["ID"], 
-					"photogallery.section/".$arParams["IBLOCK_ID"]."/section".$res["IBLOCK_SECTION_ID"], 
-					"photogallery.section.list/".$arParams["IBLOCK_ID"]."/sections0", 
-					"photogallery.section.list/".$arParams["IBLOCK_ID"]."/sections".$res["IBLOCK_SECTION_ID"]
-					)
-				);
+				PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0,$res["ID"], $res["IBLOCK_SECTION_ID"]));
 			}
 		}
 		LocalRedirect($_REQUEST["from_detail_list"]);

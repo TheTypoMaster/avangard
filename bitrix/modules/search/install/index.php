@@ -190,8 +190,6 @@ Class search extends CModule
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js/search/", true, true);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/install/images/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/search", true, true);
-			//Theme
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/install/themes/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/", true, true);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", True, True);
 		}
 
@@ -246,8 +244,6 @@ Class search extends CModule
 		if($_ENV["COMPUTERNAME"]!='BX')
 		{
 			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/install/admin/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");//css
-			DeleteDirFilesEx("/bitrix/themes/.default/icons/search/");//icons
 			DeleteDirFilesEx("/bitrix/images/search/");//images
 			DeleteDirFilesEx("/bitrix/js/search/");//javascript
 		}

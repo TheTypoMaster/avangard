@@ -54,7 +54,7 @@ class CFileCacheCleaner
 	{
 		if(strlen($PathToCheck) > 0)
 		{
-			$PathToCheck = preg_replace("#[\\\\\\/]+#", "/", $PathToCheck);
+			$PathToCheck = preg_replace("#[\\\\\\/]+#", "/", "/".$PathToCheck);
 			//Check if path does not contain any injection
 			if(preg_match('#/\\.\\.#', $PathToCheck) || preg_match('#\\.\\./#', $PathToCheck))
 				return false;
@@ -178,12 +178,12 @@ class _CFileTree
 	var $_dir = false;
 	function __construct($in_path="/")
 	{
-		$this->_in_path = $in_path;
+		$this->_in_path = preg_replace("#[\\\\\\/]+#", "/", $in_path);
 	}
 
 	function Start($path="/")
 	{
-		$this->_path = $this->_in_path.trim($path, "/");
+		$this->_path = preg_replace("#[\\\\\\/]+#", "/", $this->_in_path.trim($path, "/"));
 
 		if(!$this->FileExists($this->_path) || is_file($this->_path))
 		{
@@ -205,6 +205,9 @@ class _CFileTree
 	{
 		if(function_exists('accelerator_reset'))
 		{
+			if(is_dir($file))
+				return true;
+
 			$fd = @fopen($file, "rb");
 			if($fd)
 			{

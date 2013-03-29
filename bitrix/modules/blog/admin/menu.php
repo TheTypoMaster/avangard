@@ -9,7 +9,6 @@ if($APPLICATION->GetGroupRight("blog") >= "R")
 		"sort" => 550,
 		"text" => GetMessage("BLG_AM_BLOGS"),
 		"title"=> GetMessage("BLG_AM_BLOGS_ALT"),
-		"url" => "blog_index.php?lang=".LANGUAGE_ID,
 		"icon" => "blog_menu_icon",
 		"page_icon" => "blog_page_icon",
 		"items_id" => "menu_blog",

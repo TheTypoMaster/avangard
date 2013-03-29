@@ -1,8 +1,6 @@
 <?
-$MESS["F_ATTACH_FILES"] = "Dateianhänge";
 $MESS["F_CLOSE_TOPIC"] = "Thema schließen";
 $MESS["F_CLOSED"] = "geschlossen";
-$MESS["F_ANCHOR_TITLE"] = "Link kopieren";
 $MESS["F_DELETE_MESSAGES"] = "Beiträge löschen";
 $MESS["F_DELETE_TOPIC"] = "Thema löschen";
 $MESS["F_COLLAPSE"] = "Verbergen";
@@ -28,9 +26,10 @@ $MESS["F_DELETE_CONFIRM"] = "Diese Nachricht wird unwiderruflich gelöscht. Wolle
 $MESS["F_DELETE_MESSAGES_CONFIRM"] = "Diese Nachrichten werden unwiderruflich gelöscht. Wollen Sie fortfahren?";
 $MESS["F_DELETE_TOPIC_CONFIRM"] = "Dieses Thema wird unwiderruflich gelöscht. Wollen Sie fortfahren?";
 $MESS["F_UNPINN_TOPIC"] = "Thema lösen";
-$MESS["F_VIEW"] = "Beitrag anzeigen";
 $MESS["JQOUTE_AUTHOR_WRITES"] = "schreibt";
 $MESS["F_SELECT_ALL"] = "Alle wählen";
 $MESS["F_HIDE"] = "Ausblenden";
 $MESS["F_WAIT"] = "Bitte warten...";
+$MESS["F_UNSUBSCRIBE"] = "Abbonement abbestellen";
+$MESS["F_UNSUBSCRIBE_TITLE"] = "Abonnement für neue E-Mail-Benachrichtigungen abbestellen";
 ?>

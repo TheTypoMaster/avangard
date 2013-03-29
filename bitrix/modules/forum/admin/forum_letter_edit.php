@@ -96,18 +96,18 @@
 	$tabControl->Begin();
 	$tabControl->BeginNextTab();
 ?>
-	<tr>
-		<td width="40%"><span class="required">*</span>&nbsp; <?=GetMessage("FLTR_DICTIONARY")?>:</td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?=GetMessage("FLTR_DICTIONARY")?>:</td>
 		<td width="60%"><?=SelectBoxFromArray("DICTIONARY_ID", $Dict, $str_DICTIONARY_ID)?></td>
-	</tr>	
-	<tr>
-		<td width="40%"><span class="required">*</span>&nbsp; <?=GetMessage("FLTR_LETTER")?>:</td>
+	</tr>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?=GetMessage("FLTR_LETTER")?>:</td>
 		<td width="60%">
 			<input type="text" name="LETTER" size="40" maxlength="145" value="<?=htmlspecialcharsEx($str_LETTER)?>">
 		</td>
 	</tr>
-	<tr>
-		<td width="40%">&nbsp; <?=GetMessage("FLTR_REPLACEMENT")?>:</td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?=GetMessage("FLTR_REPLACEMENT")?>:</td>
 		<td width="60%">
 			<input type="text" name="REPLACEMENT" size="40" maxlength="255" value="<?=htmlspecialcharsEx($str_REPLACEMENT)?>">
 		</td>
@@ -120,9 +120,5 @@
 			)
 	);?>
 <?$tabControl->End();?>
-</form><br>
-<?=BeginNote();?>
-<span class="required">*</span><font class="legendtext"> - <?=GetMessage("REQUIRED_FIELDS")?>
-<?=EndNote(); ?>		
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-?>
+</form>
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

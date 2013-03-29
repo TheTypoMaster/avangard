@@ -5,10 +5,10 @@ div.bx-core-window, div.bx-core-window table {letter-spacing:normal !important; 
 div.bx-core-dialog-overlay {top:0; left:0; width:100%; height:100%; position: absolute; background-color: #333; opacity: 0.5; -moz-opacity: 0.5; -khtml-opacity: 0.5; filter:progid:DXImageTransform.Microsoft.Alpha(opacity=50);}
 
 .bx-core-dialog .bx-core-dialog-content {
-	background-color: white; 
-	overflow: auto; 
+	background-color: white;
+	overflow: auto;
 	overflow-x: hidden;
-	position: relative; 
+	position: relative;
 }
 
 .bx-core-dialog .dialog-center {
@@ -138,7 +138,7 @@ div.bx-core-admin-dialog-head a.tab-container-selected span.tab-right {backgroun
 div.bx-core-admin-dialog-head a.tab-container:hover span.tab-right {background-position: right bottom;}
 
 
-div.bx-core-admin-dialog-head .bx-core-dialog-head-content {padding: 0;} 
+div.bx-core-admin-dialog-head .bx-core-dialog-head-content {padding: 0;}
 
 div.bx-core-resizer {background: url(/bitrix/js/main/core/images/dialog_borders_tb_sprite01.png) no-repeat right -225px; position: absolute; z-index: 6; bottom: 3px; right: 2px; height: 20px; width: 20px;}
 
@@ -153,7 +153,7 @@ div#bx_admin_form td {background-image:none;}
 div.bx-core-dialog-content tr.empty td {background-image:none !important; padding:1px !important;}
 div.bx-core-dialog-content tr.section td {background-image:none !important; background-color:#ededed !important;padding:3px !important;}
 div.bx-core-dialog-content tr.section table td {padding:0px !important;}
-div.bx-core-dialog-content input, div.bx-core-dialog-content select {font-family:Verdana,Arial,helvetica,sans-serif; font-size:12px !important; margin:0 !important; padding:1px !important; color:black !important;}
+div.bx-core-dialog-content input, div.bx-core-dialog-content select {font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:12px !important; margin:0 !important; padding:1px !important;}
 div.bx-core-dialog-content td.bx-popup-label {text-align:right !important;}
 div.bx-core-dialog-content td.bx-core-dialog-padding {padding-left: 3px; background-image:none;}
 
@@ -372,258 +372,6 @@ td.bx-popup-menu div.bx-popup-item .panel-key {background-image:url(/bitrix/them
 td.bx-popup-menu div.bx-popup-item .panel-user {background-image:url(/bitrix/themes/.default/public/panel_new/menus/user.gif);}
 
 
-/* Toolbar */
-div.bx-component-opener {position: absolute !important; z-index: 996 !important;}
-
-span.bx-context-toolbar
-{
-    display: inline-block !important;
-    border: 1px solid #CFCFCF !important;
-    vertical-align: top !important;
-    margin:0 !important;
-    padding:0 !important;
-    position:static !important;
-}
-
-span.bx-context-toolbar, span.bx-context-toolbar a
-{
-     /*Protection from user styles*/
-    letter-spacing:normal !important;
-    list-style:none !important;
-    text-align: left !important;
-    text-indent:0 !important;
-    text-transform: none !important;
-    visibility:visible !important;
-    white-space: normal !important;
-    word-spacing:normal !important;
-    float: none !important;
-    position:static !important;
-    text-decoration: none !important;
-    font: normal normal normal 11px/23px Tahoma, sans-serif !important;
-    outline: none !important;
-}
-
-span.bx-context-toolbar-inner
-{
-    display:inline-block !important;
-    height:24px !important;
-    background: scroll #F8F8F4 url(../images/panel/sprite03.png) repeat-x 0 -791px !important;
-    vertical-align: top !important;
-    border: none !important;
-    margin:0 !important;
-    padding:0 !important;
-    position:static !important;
-	white-space: nowrap !important;
-}
-
-span.bx-context-toolbar-drag-icon
-{
-    display: inline-block !important;
-    width: 12px !important;
-    height: 24px !important;
-    background: scroll transparent url(../images/panel/sprite03.png) no-repeat -26px -927px !important;
-    cursor:move !important;
-    vertical-align: top !important;
-    border: none !important;
-    margin:0 !important;
-    padding:0 !important;
-    position:static !important;
-}
-
-span.bx-context-toolbar-button-wrapper, span.bx-context-toolbar-button
-{
-    display: inline-block !important;
-    vertical-align: top !important;
-    text-decoration: none !important;
-    height:24px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    outline: none !important;
-    cursor:default !important;
-    border: none !important;
-    background:scroll transparent none repeat-x 0 0 !important;
-    position:static !important;
-}
-
-span.bx-context-toolbar-button-wrapper {  }
-
-span.bx-context-toolbar-button-inner
-{
-    display: inline-block !important;
-    vertical-align: top !important;
-    height:24px !important;
-    border: none !important;
-    background:scroll transparent none repeat-x 0 0 !important;
-    margin:0 0 0 1px !important;
-    padding: 0 5px 0 0 !important;
-    text-align:left !important;
-    text-decoration: none !important;
-    outline:none !important;
-    position:static !important;
-}
-
-span.bx-context-toolbar-button-inner a
-{
-    display: inline-block !important;
-    margin:0 !important;
-    padding:0 !important;
-    text-decoration:none !important;
-    outline:none !important;
-    cursor: pointer !important;
-    color: #484847 !important;
-    vertical-align: top !important;
-    height:24px !important;
-    text-align: left !important;
-    position:static !important;
-}
-
-span.bx-context-toolbar-button-inner a:hover { color: #484847 !important;}
-
-span.bx-context-toolbar-button-arrow, span.bx-context-toolbar-single-button-arrow
-{
-    display: inline-block !important;
-    width: 14px !important;
-    height: 24px !important;
-    background: scroll transparent url(../images/panel/sprite03.png) no-repeat -267px -256px !important;
-    vertical-align:top !important;
-    position:static !important;
-}
-span.bx-context-toolbar a.bx-context-toolbar-button-arrow { margin: 0 -7px 0 0 !important; width:14px !important; display:inline-block !important; }
-span.bx-context-toolbar-single-button-arrow { margin-right: -6px !important; }
-
-
-span.bx-context-toolbar-button-hover { background: scroll transparent url(../images/panel/sprite03.png) no-repeat 0 -696px !important;}
-span.bx-context-toolbar-button-hover span.bx-context-toolbar-button-inner { background: scroll transparent url(../images/panel/sprite03.png) no-repeat right -696px !important;}
-span.bx-context-toolbar-button-arrow-hover { background: scroll transparent url(../images/panel/sprite03.png) no-repeat 0 -670px !important; }
-span.bx-context-toolbar-button-arrow-hover span.bx-context-toolbar-button-inner { background: scroll transparent url(../images/panel/sprite03.png) no-repeat right -670px !important; }
-span.bx-context-toolbar-button-text-hover {background: scroll transparent url(../images/panel/sprite03.png) no-repeat 0 -643px !important;}
-span.bx-context-toolbar-button-text-hover span.bx-context-toolbar-button-inner {background: scroll transparent url(../images/panel/sprite03.png) no-repeat right -643px !important;}
-
-.bx-context-toolbar-button-icon
-{
-    display: inline-block !important;
-    vertical-align: top !important;
-    width: 20px !important;
-    height: 24px !important;
-    border: none !important;
-    margin:0 !important;
-    padding:0 !important;
-    background:scroll transparent url("../images/panel/sprite03.png") no-repeat -68px -977px !important;
-    position:static !important;
-}
-
-span.bx-context-toolbar-separator
-{
-    display: inline-block !important;
-    vertical-align: top !important;
-    width: 5px !important;
-    height: 24px !important;
-    background: scroll transparent url(../images/panel/sprite03.png) no-repeat -43px -927px !important;
-    border: none !important;
-    margin:0 !important;
-    padding:0 !important;
-    position:static !important;
-}
-
-.bx-context-toolbar-settings-icon {background: scroll transparent url(../images/panel/sprite03.png) no-repeat -49px -927px !important; }
-.bx-context-toolbar-create-icon {background: scroll transparent url(../images/panel/sprite03.png) no-repeat -43px -954px !important; }
-.bx-context-toolbar-edit-icon {background: scroll transparent url(../images/panel/sprite03.png) no-repeat -69px -954px !important; }
-.bx-context-toolbar-delete-icon {background: scroll transparent url(../images/panel/sprite03.png) no-repeat -92px -953px !important; }
-.bx-context-toolbar-empty-area { background: scroll transparent url(../images/panel/empty-area.gif) no-repeat 0 0 !important;}
-.bx-context-toolbar-edit-visual {background:scroll transparent url(/bitrix/themes/.default/public/panel_new/menus/edit_html.gif) no-repeat 0 0 !important;}
-
-
-
-.bx-popup-item .bx-context-toolbar-create-icon { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -42px -956px !important; }
-.bx-popup-item .bx-context-toolbar-edit-icon { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -67px -956px !important; }
-.bx-popup-item .bx-context-toolbar-delete-icon { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -90px -955px !important; }
-.bx-popup-item .bx-context-toolbar-settings-icon { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -92px -979px !important; }
-
-
-
-span.bx-context-toolbar-button-text
-{
-    display: inline-block !important;
-    vertical-align: top !important;
-    color:#484847 !important;
-    font: normal normal normal 11px/23px Tahoma, sans-serif !important;
-    border: none !important;
-    margin:0 1px 0 0 !important;
-    padding:0 !important;
-    background:scroll transparent none repeat-x 0 0 !important;
-    position:static !important;
-	white-space: nowrap !important;
-}
-
-span.bx-context-toolbar-icons { display:inline-block !important; position: static !important; top:auto !important; right: auto !important; white-space: nowrap !important;}
-
-a.bx-context-toolbar-pin, a.bx-context-toolbar-pin-fixed
-{
-    display: inline-block !important;
-    height:24px !important;
-    width:15px !important;
-    margin:0 !important;
-    padding:0 !important;
-    outline: none !important;
-    vertical-align: top !important;
-    border: none !important;
-    background:scroll transparent none repeat-x 0 0 !important;
-    position:static !important;
-}
-
-a.bx-context-toolbar-pin { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -229px -298px !important;}
-a.bx-context-toolbar-pin-fixed { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -206px -298px !important; }
-
-span.bx-context-toolbar-switcher-separator { display: inline-block !important; vertical-align: top !important; width: 3px !important; height: 24px !important;}
-a.bx-context-toolbar-switcher
-{
-    display: inline-block !important;
-    vertical-align: top !important;
-    width: 12px !important;
-    height: 24px !important;
-    background: scroll transparent url(../images/panel/sprite03.png) no-repeat -68px -927px !important;
-    border: none !important;
-    margin:0 !important;
-    padding:0 !important;
-    position:static !important;
-}
-a.bx-context-toolbar-switcher:hover { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -81px -927px !important; }
-
-span.bx-context-toolbar br { display: none !important; margin:0 !important; padding:0 !important;}
-span.bx-context-toolbar-vertical-mode br { display: inline !important; }
-
-/*span.bx-context-toolbar-break { display: none !important;}
-span.bx-context-toolbar-vertical-mode span.bx-context-toolbar-break { display: block !important; }*/
-
-span.bx-context-toolbar-vertical-mode span.bx-context-toolbar-button { position:relative !important; }
-span.bx-context-toolbar-vertical-mode span.bx-context-toolbar-button-wrapper { height: 25px !important; margin: 0 2px !important; display: inline-block !important;}
-span.bx-context-toolbar-vertical-mode span.bx-context-toolbar-inner { height: auto !important; background:scroll #F8F8F5 none repeat-x  0 0  !important; min-width: 85px; position:relative !important;}
-span.bx-context-toolbar-vertical-mode span.bx-context-toolbar-icons { position: absolute !important; top:0 !important; right:0 !important; height: 24px !important; width: 75px !important; text-align: right !important;}
-
-span.bx-context-toolbar-button-underlay { display: none !important;}
-span.bx-context-toolbar-vertical-mode span.bx-context-toolbar-button-underlay
-{
-    position:absolute !important;
-    height:24px !important;
-    width:100% !important;
-    background: scroll #FFF url(../images/panel/sprite03.png) repeat-x 0 -789px !important;
-    display: block !important;
-    margin:0 !important;
-    padding:0 !important;
-}
-
-span.bx-context-toolbar-vertical-mode span.bx-context-toolbar-separator { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -125px -927px !important; }
-span.bx-context-toolbar-vertical-mode span.bx-context-toolbar-drag-icon { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -134px -927px !important; }
-span.bx-context-toolbar-vertical-mode a.bx-context-toolbar-menu { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -95px -927px !important; }
-span.bx-context-toolbar-vertical-mode a.bx-context-toolbar-menu:hover { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -110px -927px !important; }
-
-/* Popup Icons*/
-.bx-popup-item-wizard-icon { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -112px -958px !important; }
-.bx-popup-item-delete-icon { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -90px -955px !important; }
-.bx-popup-item-create-icon { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -42px -956px !important; }
-.bx-popup-item-edit-icon { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -67px -956px !important; }
-
-
 div.bx-debug-content-details {overflow: auto !important;}
 
 
@@ -633,11 +381,11 @@ border:1px solid black; overflow: visible; line-height:normal; font-weight:norma
 
 
 .bx-dialog-notify-outer {position: absolute; top: 39px; left: 0pt; z-index: 1; width: 100%; margin-right: 0px;}
-.bx-dialog-notify {background:scroll #FFEB8D url(../images/panel/sprite03.png) repeat-x 0 -1178px !important; position:relative !important; margin:0 6px 0 0 !important; padding:0 !important;}
+.bx-dialog-notify {background:scroll #FFEB8D url(../images/panel/sprite04.png) repeat-x 0 -1178px !important; position:relative !important; margin:0 6px 0 0 !important; padding:0 !important;}
 .bx-dialog-notify-text { text-align:center !important; padding: 3px 20px 5px  !important; margin:0 !important; color: #000 !important;}
 .bx-dialog-notify-text, #bx-panel .bx-dialog-notify-text a {font: normal normal normal 12px/normal Tahoma, sans-serif !important; }
 .bx-dialog-notify-close { position:absolute !important; display:block !important; top:5px !important; right: 5px !important; width: 12px !important; height:12px !important; margin:0 !important; padding:0 !important;}
-.bx-dialog-notify-close a { background: scroll transparent url(../images/panel/sprite03.png) no-repeat -268px -243px !important; width:12px !important; height:12px !important; display: block !important; }
+.bx-dialog-notify-close a { background: scroll transparent url(../images/panel/sprite04.png) no-repeat -268px -243px !important; width:12px !important; height:12px !important; display: block !important; }
 .bx-dialog-notify-text a, #bx-panel .bx-dialog-notify-text a:hover { color: #0041d2 !important; text-decoration: underline !important;}
 
 .bx-dialog-notify-outer.bx-dialog-notify-hidden {display: none !important}

@@ -8,7 +8,7 @@ if(!isset($arParams["CACHE_TIME"]))
 
 $arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
 if(strlen($arParams["IBLOCK_TYPE"])<=0)
- 	$arParams["IBLOCK_TYPE"] = "news";
+	$arParams["IBLOCK_TYPE"] = "news";
 
 $arParams["ELEMENT_ID"] = intval($arParams["~ELEMENT_ID"]);
 if($arParams["ELEMENT_ID"] > 0 && $arParams["ELEMENT_ID"]."" != $arParams["~ELEMENT_ID"])
@@ -219,8 +219,10 @@ if($arParams["SHOW_WORKFLOW"] || $this->StartResultCache(false, array(($arParams
 		foreach($arParams["PROPERTY_CODE"] as $pid)
 		{
 			$prop = &$arResult["PROPERTIES"][$pid];
-			if((is_array($prop["VALUE"]) && count($prop["VALUE"])>0) ||
-			   (!is_array($prop["VALUE"]) && strlen($prop["VALUE"])>0))
+			if(
+				(is_array($prop["VALUE"]) && count($prop["VALUE"])>0)
+				|| (!is_array($prop["VALUE"]) && strlen($prop["VALUE"])>0)
+			)
 			{
 				$arResult["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arResult, $prop, "news_out");
 			}
@@ -271,7 +273,7 @@ if(isset($arResult["ID"]))
 	$arTitleOptions = null;
 	if(CModule::IncludeModule("iblock"))
 	{
-		CIBlockElement::CounterInc($arParams["ELEMENT_ID"]);
+		CIBlockElement::CounterInc($arResult["ID"]);
 
 		if($USER->IsAuthorized())
 		{

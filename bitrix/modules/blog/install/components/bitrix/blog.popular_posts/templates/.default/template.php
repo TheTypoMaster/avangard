@@ -66,7 +66,7 @@ foreach($arResult as $arPost)
 			"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 			"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 			"PATH_TO_CONPANY_DEPARTMENT" => $arParams["~PATH_TO_CONPANY_DEPARTMENT"],
-			"PATH_TO_SONET_USER_PROFILE" => $arParams["~PATH_TO_SONET_USER_PROFILE"],
+			"PATH_TO_SONET_USER_PROFILE" => ($arParams["USE_SOCNET"] == "Y" ? $arParams["~PATH_TO_USER"] : $arParams["~PATH_TO_SONET_USER_PROFILE"]),
 			"INLINE" => "Y",
 			"SEO_USER" => $arParams["SEO_USER"],
 		),

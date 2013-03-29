@@ -6,7 +6,7 @@ if($_SERVER["REQUEST_METHOD"]=="OPTIONS")
 	header('Access-Control-Max-Age: 60');
 	//header('Access-Control-Allow-Headers: *');
 	header('Access-Control-Allow-Headers: X-Requested-With, Content-Type, Accept');
-	die('');	
+	die('');
 }
 
 define("ADMIN_SECTION",false);
@@ -19,9 +19,7 @@ if(($_POST['action']!='register' && $_POST['action']!='unregister') || $_POST['s
 	die();
 }
 
-$USER->Login($_POST['login'], $_POST['password']);
-
-if(!$USER->IsAuthorized())
+if($USER->Login($_POST['login'], $_POST['password']) !== true)
 {
 	if($APPLICATION->NeedCAPTHAForLogin($_POST['login']))
 	{

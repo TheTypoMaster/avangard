@@ -5,7 +5,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.
 __IncludeLang($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/map.yandex.search/lang/'.LANGUAGE_ID.'/settings.php');
 
 //if(!$USER->IsAdmin())
-//	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED")); 
+//	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 $obJSPopup = new CJSPopup('',
 	array(
@@ -31,12 +31,14 @@ jsUtils.loadCSSFile('/bitrix/components/bitrix/map.yandex.search/settings/settin
 var arPositionData = <?echo is_array($arData) && count($arData) > 0 ? CUtil::PhpToJsObject($arData) : '{}'?>;
 window._global_BX_UTF = <?echo defined('BX_UTF') && BX_UTF == true ? 'true' : 'false'?>;
 window.jsYandexMess = {
-	noname: '<?echo GetMessage('MYMV_SET_NONAME')?>',
-	MAP_VIEW_MAP: '<?echo GetMessage('MYMS_PARAM_INIT_MAP_TYPE_MAP')?>', 
-	MAP_VIEW_SATELLITE: '<?echo GetMessage('MYMS_PARAM_INIT_MAP_TYPE_SATELLITE')?>', 
-	MAP_VIEW_HYBRID: '<?echo GetMessage('MYMS_PARAM_INIT_MAP_TYPE_HYBRID')?>',
+	noname: '<?echo CUtil::JSEscape(GetMessage('MYMV_SET_NONAME'))?>',
+	MAP_VIEW_MAP: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_MAP'))?>',
+	MAP_VIEW_SATELLITE: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_SATELLITE'))?>',
+	MAP_VIEW_HYBRID: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_HYBRID'))?>',
+	MAP_VIEW_PUBLIC: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_PUBLIC'))?>',
+	MAP_VIEW_PUBLIC_HYBRID: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_PUBLIC_HYBRID'))?>',
 	current_view: '<?echo CUtil::JSEscape($_REQUEST['INIT_MAP_TYPE'])?>',
-	nothing_found: '<?echo GetMessage('MYMS_PARAM_INIT_MAP_NOTHING_FOUND')?>'
+	nothing_found: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_NOTHING_FOUND'))?>'
 };
 </script>
 <form name="bx_popup_form_yandex_map">
@@ -52,7 +54,6 @@ $obJSPopup->StartContent();
 <div id="bx_yandex_map_control" style="position: absolute; margin-right: 275px; margin-top: -2px; margin-left: -2px; border: solid 1px #B8C1DD;">
 <?
 $APPLICATION->IncludeComponent('bitrix:map.yandex.system', '', array(
-	'KEY' => $_REQUEST['KEY'],
 	'INIT_MAP_TYPE' => $_REQUEST['INIT_MAP_TYPE'],
 	'MAP_WIDTH' => 500,
 	'MAP_HEIGHT' => 385,
@@ -63,21 +64,20 @@ $APPLICATION->IncludeComponent('bitrix:map.yandex.system', '', array(
 	'OPTIONS' => array('ENABLE_SCROLL_ZOOM', 'ENABLE_DBLCLICK_ZOOM', 'ENABLE_DRAGGING'),
 	'MAP_ID' => 'system_search_edit',
 	'DEV_MODE' => 'Y',
-	'WAIT_FOR_EVENT' => 'window.onload',
 	'ONMAPREADY' => 'jsYandexCE_search.init',
 	'ONMAPREADY_PROPERTY' => 'jsYandexCE_search.map',
 ), false, array('HIDE_ICONS' => 'Y'));
 ?>
 </div><div class="bx-yandex-map-address-search" id="bx_yandex_map_address_search" style="visibility: hidden; ">
-	<?echo GetMessage('MYMV_SET_ADDRESS_SEARCH')?>: <input type="text" name="address" value="" style="width: 400px;" onkeypress="jsYandexCESearch.setTypingStarted(this)" autocomplete="off" />
+	<?echo GetMessage('MYMV_SET_ADDRESS_SEARCH')?>: <input type="text" name="address" value="" style="width: 380px;" onkeypress="jsYandexCESearch.setTypingStarted(this)" autocomplete="off" />
 </div><div class="bx-yandex-map-controls" id="bx_yandex_map_controls" style="margin-left: 510px; visibility: hidden;">
 	<div class="bx-yandex-map-controls-group">
 		<b><?echo GetMessage('MYMV_SET_START_POS')?></b><br />
 			<ul id="bx_yandex_position">
-				<li><?echo GetMessage('MYMV_SET_START_POS_LAT')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_lat_value"></span><input type="hidden" name="bx_yandex_lat" value="<?echo $arData['yandex_lat']?>" /></li>
-				<li><?echo GetMessage('MYMV_SET_START_POS_LON')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_lon_value"></span><input type="hidden" name="bx_yandex_lon" value="<?echo $arData['yandex_lon']?>" /></li>
-				<li><?echo GetMessage('MYMV_SET_START_POS_SCALE')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_scale_value"></span><input type="hidden" name="bx_yandex_scale" value="<?echo $arData['yandex_scale']?>" /></li>
-				<li><?echo GetMessage('MYMV_SET_START_POS_VIEW')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_view_value"></span><input type="hidden" name="bx_yandex_view" value="<?echo htmlspecialchars($_REQUEST['INIT_MAP_TYPE'])?>" /></li>
+				<li><?echo GetMessage('MYMV_SET_START_POS_LAT')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_lat_value"></span><input type="hidden" name="bx_yandex_lat" value="<?echo htmlspecialcharsbx($arData['yandex_lat'])?>" /></li>
+				<li><?echo GetMessage('MYMV_SET_START_POS_LON')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_lon_value"></span><input type="hidden" name="bx_yandex_lon" value="<?echo htmlspecialcharsbx($arData['yandex_lon'])?>" /></li>
+				<li><?echo GetMessage('MYMV_SET_START_POS_SCALE')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_scale_value"></span><input type="hidden" name="bx_yandex_scale" value="<?echo htmlspecialcharsbx($arData['yandex_scale'])?>" /></li>
+				<li><?echo GetMessage('MYMV_SET_START_POS_VIEW')?>: <span class="bx-yandex-map-controls-value" id="bx_yandex_view_value"></span><input type="hidden" name="bx_yandex_view" value="<?echo htmlspecialcharsbx($_REQUEST['INIT_MAP_TYPE'])?>" /></li>
 				<li><input type="checkbox" id="bx_yandex_position_fix" name="bx_yandex_position_fix" value="Y"<?if ($arData['yandex_scale']):?> checked="checked"<?endif;?> /> <label for="bx_yandex_position_fix"><?echo GetMessage('MYMV_SET_START_POS_FIX')?></label>&nbsp;|&nbsp;<a href="javascript:void(0)" id="bx_restore_position"><?echo GetMessage('MYMV_SET_START_POS_RESTORE')?></a>
 			</ul>
 	</div>
@@ -85,15 +85,6 @@ $APPLICATION->IncludeComponent('bitrix:map.yandex.system', '', array(
 <script type="text/javascript">
 if (null != window.jsYandexCESearch)
 	jsYandexCESearch.clear();
-
-// if (window.YMaps)
-// {
-	// (function BXWaitForMap1(){if(window.bYandexMapScriptsLoaded){jsYandexCE_search.init();}else{setTimeout(BXWaitForMap1,500)}})();
-// }
-// else
-// {
-// (function BXWaitForMap(){if(null==window.GLOBAL_arMapObjects)return;if(window.GLOBAL_arMapObjects['system_search_edit']){jsYandexCE_search.init();}else{setTimeout(BXWaitForMap,300);}})();
-// }
 </script>
 <?
 $obJSPopup->StartButtons();

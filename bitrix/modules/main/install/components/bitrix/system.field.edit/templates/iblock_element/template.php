@@ -11,13 +11,12 @@ else
 {
 	$arResult['VALUE'] = array_filter($arResult["VALUE"]);
 }
-
 if($arParams['arUserField']["SETTINGS"]["DISPLAY"] != "CHECKBOX")
 {
 	if($arParams["arUserField"]["MULTIPLE"] == "Y")
 	{
 		?>
-		<select multiple="multiple" name="<?echo $arParams["arUserField"]["FIELD_NAME"]?>" size="<?echo $arParams["arUserField"]["SETTINGS"]["LIST_HEIGHT"]?>">
+		<select multiple="multiple" name="<?echo $arParams["arUserField"]["FIELD_NAME"]?>" size="<?echo $arParams["arUserField"]["SETTINGS"]["LIST_HEIGHT"]?>" <?=($arParams["arUserField"]["EDIT_IN_LIST"]!="Y"? ' disabled="disabled" ':'')?> >
 		<?
 		foreach ($arParams["arUserField"]["USER_TYPE"]["FIELDS"] as $key => $val)
 		{
@@ -33,7 +32,7 @@ if($arParams['arUserField']["SETTINGS"]["DISPLAY"] != "CHECKBOX")
 	else
 	{
 		?>
-		<select name="<?echo $arParams["arUserField"]["FIELD_NAME"]?>" size="<?echo $arParams["arUserField"]["SETTINGS"]["LIST_HEIGHT"]?>">
+		<select name="<?echo $arParams["arUserField"]["FIELD_NAME"]?>" size="<?echo $arParams["arUserField"]["SETTINGS"]["LIST_HEIGHT"]?>" <?=($arParams["arUserField"]["EDIT_IN_LIST"]!="Y"? ' disabled="disabled" ':'')?> >
 		<?
 		$bWasSelect = false;
 		foreach ($arParams["arUserField"]["USER_TYPE"]["FIELDS"] as $key => $val)

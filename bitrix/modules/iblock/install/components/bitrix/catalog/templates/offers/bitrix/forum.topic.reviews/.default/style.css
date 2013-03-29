@@ -419,12 +419,6 @@ div.reviews-text table.forum-code td, div.reviews-text div.forum-code-box td{
 	font-family: "Lucida Console", "DejaVu Sans Mono", Monaco, monospace;
 	font-size:12px;
 }
-div.reviews-reply-field .lhe-button-cont {
-    background: none repeat scroll 0 0 transparent !important;
-}
-div.reviews-reply-field .lhe-line-begin, div.reviews-reply-field .lhe-line-end {
-    display: none !important;
-}
 div.reviews-collapse {
 	/*float: right;*/
 	width:100%;
@@ -438,17 +432,6 @@ div.reviews-expanded {
 	width: auto;
 	float:right;
 }
-
-div.reviews-reply-field .lhe-button-cont { background: transparent!important; }
-div.reviews-reply-field .lhe-line-begin, div.reviews-reply-field .lhe-line-end { display: none!important; }
-div.reviews-reply-field div.bxlhe-frame { border:1px solid #fff !important; background: #fff!important; }
-
-div.reviews-reply-field table.bxlhe-frame-table td.bxlhe-editor-buttons, div.reviews-reply-field div.bxst-lhe-cont td.bxlhe-editor-cell { background: #f8f8f8 !important; }
-div.reviews-reply-field td.bxlhe-editor-cell { border-top: 1px solid #e5e5e5 !important; }
-div.reviews-reply-field .lhe-button-over,  div.reviews-reply-field div.lhe-tlbr-smile-over { background-color: #e7e7e7 !important; }
-div.reviews-reply-field .lhe-button, div.reviews-reply-field .lhe-tlbr-smile-cont, div.reviews-reply-field div.lhe-tlbr-smile-over{border:1px solid #f8f8f8 !important;}
-div.reviews-reply-field  td.lhe-resize-row {height: 3px !important; border: none !important;}
-div.reviews-reply-field  td.lhe-resize-row img {height: 0px !important; border-top: 1px solid #dcdcdc !important; border-bottom: 1px solid #9c9c9c !important;}
 
 div.reviews-post-entry table.forum-quote {
     background: url("images/font_quote.gif") no-repeat scroll left top #F8F2D4;

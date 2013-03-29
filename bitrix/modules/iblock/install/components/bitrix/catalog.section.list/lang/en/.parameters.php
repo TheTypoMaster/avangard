@@ -1,6 +1,6 @@
 <?
-$MESS["CP_BCSL_IBLOCK_TYPE"] = "Info-block type";
-$MESS["CP_BCSL_IBLOCK_ID"] = "Info-block";
+$MESS["CP_BCSL_IBLOCK_TYPE"] = "Infoblock type";
+$MESS["CP_BCSL_IBLOCK_ID"] = "Infoblock";
 $MESS["CP_BCSL_SECTION_URL"] = "URL of the page with the section contents";
 $MESS["CP_BCSL_SECTION_ID"] = "Section ID";
 $MESS["CP_BCSL_SECTION_CODE"] = "Section code";

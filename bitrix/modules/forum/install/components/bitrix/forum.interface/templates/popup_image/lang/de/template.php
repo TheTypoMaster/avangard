@@ -1,3 +1,3 @@
 <?
-$MESS ['FRM_IMAGE_ALT'] = "Bild";
+$MESS ['FRM_DOWNLOAD'] = "Download";
 ?>

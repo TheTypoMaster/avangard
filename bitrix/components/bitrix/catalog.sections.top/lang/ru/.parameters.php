@@ -1,7 +1,7 @@
 <?
 $MESS["IBLOCK_PRICES"] = "Цены";
-$MESS["IBLOCK_TYPE"] = "Тип инфо-блока";
-$MESS["IBLOCK_IBLOCK"] = "Инфо-блок";
+$MESS["IBLOCK_TYPE"] = "Тип инфоблока";
+$MESS["IBLOCK_IBLOCK"] = "Инфоблок";
 $MESS["IBLOCK_PROPERTY"] = "Свойства";
 $MESS["IBLOCK_SORT_SHOWS"] = "количество просмотров в среднем";
 $MESS["IBLOCK_SORT_SORT"] = "индекс сортировки";
@@ -17,14 +17,14 @@ $MESS["IBLOCK_SECTION_SORT_FIELD"] = "По какому полю сортируем разделы";
 $MESS["IBLOCK_SECTION_SORT_ORDER"] = "Порядок сортировки разделов";
 $MESS["IBLOCK_SECTION_COUNT"] = "Максимальное количество выводимых разделов";
 $MESS["IBLOCK_SECTION_URL"] = "URL, ведущий на страницу с содержимым раздела";
-$MESS["IBLOCK_ELEMENT_COUNT"] = "Максимальное количество элементов выводимых в каждом разделе";
-$MESS["IBLOCK_LINE_ELEMENT_COUNT"] = "Количество элементов выводимых в одной строке таблицы";
+$MESS["IBLOCK_ELEMENT_COUNT"] = "Максимальное количество элементов, выводимых в каждом разделе";
+$MESS["IBLOCK_LINE_ELEMENT_COUNT"] = "Количество элементов, выводимых в одной строке таблицы";
 $MESS["IBLOCK_ELEMENT_SORT_FIELD"] = "По какому полю сортируем элементы";
 $MESS["IBLOCK_ELEMENT_SORT_ORDER"] = "Порядок сортировки элементов";
 $MESS["IBLOCK_PRICE_CODE"] = "Тип цены";
 $MESS["IBLOCK_BASKET_URL"] = "URL, ведущий на страницу с корзиной покупателя";
 $MESS["IBLOCK_FILTER_NAME_IN"] = "Имя массива со значениями фильтра для фильтрации элементов";
-$MESS["IBLOCK_CACHE_FILTER"] = "Кэшировать при установленном фильтре";
+$MESS["IBLOCK_CACHE_FILTER"] = "Кешировать при установленном фильтре";
 $MESS["IBLOCK_ACTION_VARIABLE"] = "Название переменной, в которой передается действие";
 $MESS["IBLOCK_PRODUCT_ID_VARIABLE"] = "Название переменной, в которой передается код товара для покупки";
 $MESS["IBLOCK_SECTION_ID_VARIABLE"] = "Название переменной, в которой передается код группы";
@@ -40,4 +40,6 @@ $MESS["CP_BCST_USE_PRODUCT_QUANTITY"] = "Разрешить указание количества товара";
 $MESS["CP_BCST_PRODUCT_PROPERTIES"] = "Характеристики товара";
 $MESS["CP_BCST_SECTION_FIELDS"] = "Поля разделов";
 $MESS["CP_BCST_SECTION_USER_FIELDS"] = "Свойства разделов";
+$MESS["CP_BCST_CONVERT_CURRENCY"] = "Показывать цены в одной валюте";
+$MESS["CP_BCST_CURRENCY_ID"] = "Валюта, в которую будут сконвертированы цены";
 ?>

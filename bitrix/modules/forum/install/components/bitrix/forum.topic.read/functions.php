@@ -24,7 +24,7 @@ if (!function_exists("WrapLongWord")) // Need for custom templates. Do not delet
 				array(chr(1), chr(2), chr(3), chr(4), chr(5), "&amp;", "&lt;", "&gt;", "&quot;", "&nbsp;", "&copy;", "&reg;", "&trade;"), 
 				array("", "", "", "", "", chr(5), "<", ">", "\"", chr(1), chr(2), chr(3), chr(4)), 
 				$value);
-			$value = trim(preg_replace($res, '\\1<WBR/>&shy;', " ".$value." "));
+			$value = trim(preg_replace($res, "\\1<WBR/>&shy;", " ".$value." "));
 			$value = str_replace(
 				array(chr(5), "<", ">", "\"", chr(1), chr(2), chr(3), chr(4), "&lt;WBR/&gt;", "&lt;WBR&gt;", "&amp;shy;"),
 				array("&amp;", "&lt;", "&gt;", "&quot;", "&nbsp;", "&copy;", "&reg;", "&trade;", "<WBR/>", "<WBR/>", "&shy;"),

@@ -1,4 +1,8 @@
 <?
+/**
+ * @global CMain $APPLICATION
+ * @global CUser $USER
+ */
 if (!array_key_exists("component_name", $_GET))
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/public/component_props.php");
@@ -47,6 +51,11 @@ $strWarning = "";
 $arValues = array();
 $arTemplate = false;
 $arComponent = false;
+$arComponentDescription = false;
+$arParameterGroups = array();
+$filesrc = "";
+$abs_path = "";
+$curTemplate = "";
 
 if(!CComponentEngine::CheckComponentName($_GET["component_name"]))
 	$strWarning .= GetMessage("comp_prop_error_name")."<br>";
@@ -56,7 +65,9 @@ if($strWarning == "")
 	// try to read parameters from script file
 	/* Try to open script containing the component call */
 	if(!$src_path || $src_line <= 0)
+	{
 		$strWarning .= GetMessage("comp_prop_err_param")."<br>";
+	}
 	else
 	{
 		$abs_path = $io->RelativeToAbsolutePath($src_path);
@@ -91,7 +102,6 @@ if($strWarning == "")
 	$arComponentParameters = CComponentUtil::GetComponentProps($_GET["component_name"], $arValues);
 	$arTemplateParameters = CComponentUtil::GetTemplateProps($_GET["component_name"], $curTemplate, $_GET["template_id"], $arValues);
 
-	$arParameterGroups = array();
 	if (isset($arComponentParameters["GROUPS"]) && is_array($arComponentParameters["GROUPS"]))
 		$arParameterGroups = $arParameterGroups + $arComponentParameters["GROUPS"];
 
@@ -179,12 +189,12 @@ else
 $obJSPopup->StartDescription($sIcon);
 ?>
 <?if($arComponentDescription["NAME"] <> ""):?>
-<p title="<?echo GetMessage("comp_prop_name")?>" class="title"><?echo htmlspecialchars($arComponentDescription["NAME"])?></p>
+<p title="<?echo GetMessage("comp_prop_name")?>" class="title"><?echo htmlspecialcharsbx($arComponentDescription["NAME"])?></p>
 <?endif;?>
 <?if($arComponentDescription["DESCRIPTION"] <> ""):?>
-<p title="<?echo GetMessage("comp_prop_desc")?>"><?echo htmlspecialchars($arComponentDescription["DESCRIPTION"])?></p>
+<p title="<?echo GetMessage("comp_prop_desc")?>"><?echo htmlspecialcharsbx($arComponentDescription["DESCRIPTION"])?></p>
 <?endif;?>
-<p class="note" title="<?echo GetMessage("comp_prop_path")?>"><a href="/bitrix/admin/fileman_admin.php?lang=<?echo LANGUAGE_ID?>&amp;path=<?echo urlencode("/bitrix/components".$componentPath)?>"><?echo htmlspecialchars($_GET["component_name"])?></a></p>
+<p class="note" title="<?echo GetMessage("comp_prop_path")?>"><a href="/bitrix/admin/fileman_admin.php?lang=<?echo LANGUAGE_ID?>&amp;path=<?echo urlencode("/bitrix/components".$componentPath)?>"><?echo htmlspecialcharsbx($_GET["component_name"])?></a></p>
 <?
 if($strWarning <> "")
 {
@@ -193,7 +203,7 @@ if($strWarning <> "")
 	//echo '<script>jsPopup.AdjustShadow()</script>';
 }
 ?>
-<?if(!empty($arComponentParameters["PARAMETERS"]) || !empty($arTemplateParameters)):?>
+<?if(!empty($arComponentTemplates) || !empty($arComponentParameters["PARAMETERS"]) || !empty($arTemplateParameters)):?>
 <?
 $obJSPopup->StartContent();
 ?>
@@ -211,6 +221,7 @@ if(isset($_POST["__closed_sections"]) && $_POST["__closed_sections"]<>"")
 window.__closed_sections = [<?echo $sSectArr?>];
 window.ShowSection = function(el)
 {
+	var i;
 	var bShow = (el.className == "bx-popup-sign bx-popup-plus");
 	el.className = (bShow? "bx-popup-sign bx-popup-minus":"bx-popup-sign bx-popup-plus");
 	var tr = jsUtils.FindParentObject(jsUtils.FindParentObject(el, "table"), "tr");
@@ -229,25 +240,27 @@ window.ShowSection = function(el)
 	}
 	if(bShow)
 	{
-		for(var i in window.__closed_sections)
+		for(i in window.__closed_sections)
+		{
 			if(window.__closed_sections[i] == id)
 			{
 				delete window.__closed_sections[i];
 				break;
 			}
+		}
 	}
 	else
 		window.__closed_sections[window.__closed_sections.length] = id;
 
 	var form = jsUtils.FindParentObject(el, "form");
 	form.__closed_sections.value = '';
-	for(var i in window.__closed_sections)
+	for(i in window.__closed_sections)
 		if(window.__closed_sections[i])
 			form.__closed_sections.value += (form.__closed_sections.value!=''? ',':'') + window.__closed_sections[i];
 
 	if(bShow && id == "sect_SEF_MODE")
-		ShowSefUrls(form.SEF_MODE);
-}
+		ShowSefUrls(form["SEF_MODE"]);
+};
 
 window.ShowSefUrls = function(el)
 {
@@ -266,7 +279,7 @@ window.ShowSefUrls = function(el)
 		else
 			tr.style.display = 'none';
 	}
-}
+};
 
 window.addElement = function(arNodes, arElements)
 {
@@ -302,6 +315,7 @@ window.getCompParamvals = function()
 </script>
 <table cellspacing="0" class="bx-width100">
 <?
+$bHidden = false;
 if(!empty($arComponentTemplates)):
 	$bHidden = in_array("__template_sect", $aClosedSections);
 ?>
@@ -318,7 +332,7 @@ if(!empty($arComponentTemplates)):
 	<tr<?if($bHidden) echo ' style="display:none"'?>>
 		<td class="bx-popup-label bx-width50"><?= GetMessage("comp_prop_template") ?>:</td>
 		<td>
-			<select name="NEW_COMPONENT_TEMPLATE" onchange="<?=$obJSPopup->jsPopup?>.PostParameters('<?=PageParams()?>&amp;action=refresh&amp;scroll='+<?=$obJSPopup->jsPopup?>.GetContent().scrollTop);">
+			<select name="NEW_COMPONENT_TEMPLATE" onchange="<?=$obJSPopup->jsPopup.".PostParameters('".PageParams()."&amp;action=refresh&amp;scroll='+".$obJSPopup->jsPopup.".GetContent().scrollTop);"?>">
 <?
 $arTemplateID = array();
 foreach($arComponentTemplates as $template)
@@ -336,7 +350,7 @@ if(!empty($arTemplateID))
 foreach($arComponentTemplates as $template):
 	$showTemplateName = ($template["TEMPLATE"] <> '' && $arTemplates[$template["TEMPLATE"]] <> ''? $arTemplates[$template["TEMPLATE"]] : GetMessage("comp_prop_template_sys"));
 ?>
-				<option value="<?= htmlspecialchars($template["NAME"])?>"<?if($template["NAME"] == $curTemplate || $curTemplate == '' && $template["NAME"] == ".default") echo " selected";?>><?= htmlspecialchars($template["NAME"]." (".$showTemplateName.")") ?></option>
+				<option value="<?= htmlspecialcharsbx($template["NAME"])?>"<?if($template["NAME"] == $curTemplate || $curTemplate == '' && $template["NAME"] == ".default") echo " selected";?>><?= htmlspecialcharsbx($template["NAME"]." (".$showTemplateName.")") ?></option>
 <?endforeach;?>
 			</select>
 		</td>
@@ -386,7 +400,7 @@ if($prevGroupID <> $groupID && !$bHide):
 			<table cellspacing="0">
 				<tr>
 					<td><a class="bx-popup-sign <?echo ($bHidden? "bx-popup-plus":"bx-popup-minus")?>" href="javascript:void(0)" onclick="ShowSection(this)" title="<?echo GetMessage("comp_prop_sect")?>"></a></td>
-					<td><?echo htmlspecialchars($aGroup["NAME"])?></td>
+					<td><?echo htmlspecialcharsbx($aGroup["NAME"])?></td>
 				</tr>
 			</table>
 		</td>
@@ -412,7 +426,7 @@ if(substr($ID, 0, strlen("SEF_URL_TEMPLATES_")) == "SEF_URL_TEMPLATES_" || $ID =
 if (!$bHide):
 ?>
 	<tr<?if($bHidden || $bSefHidden) echo ' style="display:none"'?><?if($sSefClass<>"")echo ' class="'.$sSefClass.'"'?>>
-		<td class="bx-width50 bx-popup-label"><?echo htmlspecialchars($prop["NAME"]).":"?></td>
+		<td class="bx-width50 bx-popup-label"><?echo htmlspecialcharsbx($prop["NAME"]).":"?></td>
 		<td>
 <?
 endif;
@@ -488,17 +502,20 @@ switch(strtoupper($prop["TYPE"]))
 		if(!is_array($prop["VALUES"]))
 			$prop["VALUES"] = Array();
 
-		$tmp = ''; $bFound = false;
+		$tmp = '';
+		$bFound = false;
 		foreach($prop["VALUES"] as $v_id=>$v_name)
 		{
-			$key = array_search($v_id, $val);
-			if($key===FALSE || $key===NULL)
-				$tmp .= '<option value="'.htmlspecialchars($v_id).'">'.htmlspecialchars($v_name).'</option>';
+			$key = array_search(strval($v_id), $val, true);
+			if($key === false || $key === null)
+			{
+				$tmp .= '<option value="'.htmlspecialcharsbx($v_id).'">'.htmlspecialcharsbx($v_name).'</option>';
+			}
 			else
 			{
 				unset($val[$key]);
 				$bFound = true;
-				$tmp .= '<option value="'.htmlspecialchars($v_id).'" selected>'.htmlspecialchars($v_name).'</option>';
+				$tmp .= '<option value="'.htmlspecialcharsbx($v_id).'" selected>'.htmlspecialcharsbx($v_name).'</option>';
 			}
 		}
 		if($prop['ADDITIONAL_VALUES']=='Y')
@@ -516,9 +533,9 @@ switch(strtoupper($prop["TYPE"]))
 						continue;
 					$res .= '<br>';
 					if($prop['ROWS']>1)
-						$res .= '<textarea name="'.$ID.'[]" cols='.$prop["COLS"].'>'.htmlspecialchars($v).'</textarea>';
+						$res .= '<textarea name="'.$ID.'[]" cols='.$prop["COLS"].'>'.htmlspecialcharsbx($v).'</textarea>';
 					else
-						$res .= '<input type="text" name="'.$ID.'[]" size='.$prop["COLS"].' value="'.htmlspecialchars($v).'">';
+						$res .= '<input type="text" name="'.$ID.'[]" size='.$prop["COLS"].' value="'.htmlspecialcharsbx($v).'">';
 				}
 
 				for($i=0; $i<$prop["CNT"]; $i++)
@@ -542,9 +559,9 @@ switch(strtoupper($prop["TYPE"]))
 			{
 				$res .= '<br>';
 				if($prop['ROWS']>1)
-					$res .= '<textarea name="'.$ID.'_alt" '.($bFound?' disabled ':'').' cols='.$prop["COLS"].'>'.htmlspecialchars(count($val) > 0 ? $val[0] : '').'</textarea>';
+					$res .= '<textarea name="'.$ID.'_alt" '.($bFound?' disabled ':'').' cols='.$prop["COLS"].'>'.htmlspecialcharsbx(count($val) > 0 ? $val[0] : '').'</textarea>';
 				else
-					$res .= '<input type="text" name="'.$ID.'_alt" '.($bFound?' disabled ':'').'size='.$prop["COLS"].' value="'.htmlspecialchars(count($val)>0?$val[0]:'').'">';
+					$res .= '<input type="text" name="'.$ID.'_alt" '.($bFound?' disabled ':'').'size='.$prop["COLS"].' value="'.htmlspecialcharsbx(count($val)>0?$val[0]:'').'">';
 			}
 		}
 		if($prop["REFRESH"]=="Y")
@@ -579,9 +596,9 @@ switch(strtoupper($prop["TYPE"]))
 				else
 					$bBr = true;
 				if($prop['ROWS'] > 1)
-					$res .= '<textarea name="'.$ID.'[]" cols='.$prop["COLS"].'>'.htmlspecialchars($v).'</textarea>';
+					$res .= '<textarea name="'.$ID.'[]" cols='.$prop["COLS"].'>'.htmlspecialcharsbx($v).'</textarea>';
 				else
-					$res .= '<input type="text" name="'.$ID.'[]" size='.$prop["COLS"].' value="'.htmlspecialchars($v).'">';
+					$res .= '<input type="text" name="'.$ID.'[]" size='.$prop["COLS"].' value="'.htmlspecialcharsbx($v).'">';
 			}
 
 			for($i=0; $i<$prop["CNT"]; $i++)
@@ -609,7 +626,7 @@ switch(strtoupper($prop["TYPE"]))
 		{
 			if($prop['ROWS'] > 1)
 			{
-				$res .= '<textarea name="'.$ID.'" cols='.$prop["COLS"].'>'.htmlspecialchars($val).'</textarea>';
+				$res .= '<textarea name="'.$ID.'" cols='.$prop["COLS"].'>'.htmlspecialcharsbx($val).'</textarea>';
 			}
 			else
 			{
@@ -630,7 +647,7 @@ switch(strtoupper($prop["TYPE"]))
 					));
 
 					$bML = isset($prop['FD_USE_MEDIALIB']) && $prop['FD_USE_MEDIALIB'];
-					$res .= '<input id="__FD_PARAM_'.$ID.'" name="'.$ID.'" size='.$prop["COLS"].' value="'.htmlspecialchars($val).'" type="text" '.($bML ? 'style="float:left;"' : '').'>';
+					$res .= '<input id="__FD_PARAM_'.$ID.'" name="'.$ID.'" size='.$prop["COLS"].' value="'.htmlspecialcharsbx($val).'" type="text" '.($bML ? 'style="float:left;"' : '').'>';
 
 					// Using medialib
 					if ($bML)
@@ -688,20 +705,34 @@ switch(strtoupper($prop["TYPE"]))
 				}
 				elseif ($prop["TYPE"] == 'COLORPICKER')
 				{
-					$src = '/bitrix/js/fileman/controls/colorpicker/colorpicker_loader.js';
-					$res .= '#COLORPICKER#';
-					$res .= '<script type="text/javascript" src="'.$src.'?v='.@filemtime($_SERVER['DOCUMENT_ROOT'].$src).'"></script>';
-					$res .= '<script>
-					var arConfig = {};
-					loadColorpicker(arConfig);
-					</script>';
+					ob_start();
+					$jsid = strtolower($ID);
+					?>
+					<input name="<?= $ID?>" id="<?= $jsid?>" size="10" style="float: left;" value="<?= htmlspecialcharsbx($val)?>" type="text">
+					<script>function colorOnSelect<?= $jsid?>(value){BX('<?= $jsid?>').value = value;}</script>
+					<style>.bx-colpic-cont{z-index: 1500 !important;}</style>
+					<?$APPLICATION->IncludeComponent(
+						"bitrix:main.colorpicker",
+						"",
+						Array(
+							"SHOW_BUTTON" => "Y",
+							"ID" => 'cp'.$jsid,
+							"NAME" => $prop["NAME"],
+							"ONSELECT" => "colorOnSelect".$jsid
+						),
+						null,
+						array("HIDE_ICONS" => "Y")
+					);?>
+					<?
+					$res .= ob_get_contents();
+					ob_end_clean();
 				}
 				elseif ($prop["TYPE"] == 'CUSTOM')
 				{
 					if (!isset($prop['JS_FILE']) || !isset($prop['JS_EVENT']))
 						break;
 					$data = isset($prop['JS_DATA']) ? $prop['JS_DATA'] : '';
-					$res .= '<input id="__FD_PARAM_'.$ID.'" name="'.$ID.'" value="'.htmlspecialchars($val).'" type="hidden">';
+					$res .= '<input id="__FD_PARAM_'.$ID.'" name="'.$ID.'" value="'.htmlspecialcharsbx($val).'" type="hidden">';
 					$res .= '<script type="text/javascript" src="'.$prop['JS_FILE'].'?v='.@filemtime($_SERVER['DOCUMENT_ROOT'].$prop['JS_FILE']).'"></script>';
 					$res .= '
 					<script>
@@ -727,7 +758,7 @@ switch(strtoupper($prop["TYPE"]))
 				}
 				else
 				{
-					$res .= '<input name="'.$ID.'" size='.$prop["COLS"].' value="'.htmlspecialchars($val).'" type="text">';
+					$res .= '<input name="'.$ID.'" size='.$prop["COLS"].' value="'.htmlspecialcharsbx($val).'" type="text">';
 				}
 			}
 		}
@@ -758,11 +789,11 @@ if (strlen($hiddenParamsHTML) > 0) // if exists hidden params we display them in
 	echo '<div style="position: absolute; left: -2000px; top: -2000px; visibility: hidden;">'.$hiddenParamsHTML.'</div>';
 ?>
 
-<input type="hidden" name="__closed_sections" value="<?echo htmlspecialchars($_POST["__closed_sections"])?>">
+<input type="hidden" name="__closed_sections" value="<?echo htmlspecialcharsbx($_POST["__closed_sections"])?>">
 <?
 	$obJSPopup->StartButtons();
 ?>
-	<input type="button" value="<?echo GetMessage("comp_prop_save")?>" onclick="<?=$obJSPopup->jsPopup?>.PostParameters('<?= PageParams().'&amp;action=save'?>');" title="<?echo GetMessage("comp_prop_save_title")?>" name="save" />
+	<input type="button" value="<?echo GetMessage("comp_prop_save")?>" onclick="<?=$obJSPopup->jsPopup?>.PostParameters('<?= PageParams().'&amp;action=save'?>');" title="<?echo GetMessage("comp_prop_save_title")?>" name="save" class="adm-btn-save" />
 	<input type="button" value="<?echo GetMessage("comp_prop_cancel")?>" onclick="<?=$obJSPopup->jsPopup?>.CloseDialog()" title="<?echo GetMessage("comp_prop_cancel_title")?>" />
 <?
 	$obJSPopup->EndButtons();
@@ -778,7 +809,7 @@ endif; //!empty($arTemplate["PARAMS"])
 ?>
 <?if(($scroll = intval($_GET["scroll"])) > 0):?>
 <script>
-var content = <?=$obJSPopup->jsPopup?>.GetContent();
+var content = <?=$obJSPopup->jsPopup.".GetContent()"?>;
 if(content)
 	content.scrollTop = <?echo $scroll?>;
 </script>

@@ -8,4 +8,6 @@ $MESS["PERFMON_TABLES_NAME"] = "Tabellenname";
 $MESS["PERFMON_TABLES_ENGINE_TYPE"] = "Typ";
 $MESS["PERFMON_TABLES_NUM_ROWS"] = "Zeilen";
 $MESS["PERFMON_TABLES_BYTES"] = "Größe";
+$MESS["PERFMON_TABLES_ACTION_OPTIMIZE"] = "Optimieren";
+$MESS["PERFMON_TABLES_QUICK_SEARCH"] = "Nach dem Tabellennamen filtern";
 ?>

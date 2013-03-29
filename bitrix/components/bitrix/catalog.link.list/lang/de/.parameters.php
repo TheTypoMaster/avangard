@@ -31,4 +31,6 @@ $MESS["IBLOCK_SHOW_PRICE_COUNT"] = "Preis für die Menge anzeigen";
 $MESS["T_IBLOCK_DESC_PAGER_CATALOG"] = "Produkte";
 $MESS["IBLOCK_VAT_INCLUDE"] = "Preis inkl. MwSt.";
 $MESS["CP_BCLL_CACHE_GROUPS"] = "Zugriffsrechte berücksichtigen";
+$MESS["CP_BCLL_CONVERT_CURRENCY"] = "Preise in einer Währung anzeigen";
+$MESS["CP_BCLL_CURRENCY_ID"] = "Währung in die die Preise konvertiert werden";
 ?>

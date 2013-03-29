@@ -38,7 +38,7 @@ function showComment(key, error, userName, userEmail, needData)
 	document.form_comment.parentId.value = key;
 	document.form_comment.edit_id.value = '';
 	document.form_comment.act.value = 'add';
-	document.form_comment.post.value = '<?=GetMessage("B_B_MS_SEND")?>';
+	document.form_comment.post.value = '<?=GetMessageJS("B_B_MS_SEND")?>';
 	document.form_comment.action = document.form_comment.action + "#" + key;
 
 	<?
@@ -79,6 +79,41 @@ function showComment(key, error, userName, userEmail, needData)
 		}
 	}
 
+	files = BX('form_comment')["UF_BLOG_COMMENT_DOC[]"];
+	if(files !== null && typeof files != 'undefined')
+	{
+		if(!files.length)
+		{
+			BX.remove(files);
+		}
+		else
+		{
+			for(i = 0; i < files.length; i++)
+				BX.remove(BX(files[i]));
+		}
+	}
+	filesForm = BX.findChild(BX('blog-comment-user-fields-UF_BLOG_COMMENT_DOC'), {'className': 'file-placeholder-tbody' }, true, false);
+	if(filesForm !== null && typeof filesForm != 'undefined')
+		BX.cleanNode(filesForm, false);
+
+	filesForm = BX.findChild(BX('blog-comment-user-fields-UF_BLOG_COMMENT_DOC'), {'className': 'feed-add-photo-block' }, true, true);
+	if(filesForm !== null && typeof filesForm != 'undefined')
+
+	{
+		for(i = 0; i < filesForm.length; i++)
+		{
+			if(BX(filesForm[i]).parentNode.id != 'file-image-template')
+				BX.remove(BX(filesForm[i]));
+		}
+	}
+
+	filesForm = BX.findChild(BX('blog-comment-user-fields-UF_BLOG_COMMENT_DOC'), {'className': 'file-selectdialog' }, true, false);
+	if(filesForm !== null && typeof filesForm != 'undefined')
+	{
+		BX.hide(BX.findChild(BX('blog-comment-user-fields-UF_BLOG_COMMENT_DOC'), {'className': 'file-selectdialog' }, true, false));
+		BX.show(BX('blog-upload-file'));
+	}
+
 	onLightEditorShow(comment);
 	return false;
 }
@@ -98,12 +133,47 @@ function editComment(key)
 	BX('form_comment_' + key).appendChild(pFormCont); // Move form
 	pFormCont.style.display = "block";
 
+	files = BX('form_comment')["UF_BLOG_COMMENT_DOC[]"];
+	if(files !== null && typeof files != 'undefined')
+	{
+		if(!files.length)
+		{
+			BX.remove(files);
+		}
+		else
+		{
+			for(i = 0; i < files.length; i++)
+				BX.remove(BX(files[i]));
+		}
+	}
+	filesForm = BX.findChild(BX('blog-comment-user-fields-UF_BLOG_COMMENT_DOC'), {'className': 'file-placeholder-tbody' }, true, false);
+	if(filesForm !== null && typeof filesForm != 'undefined')
+		BX.cleanNode(filesForm, false);
+
+	filesForm = BX.findChild(BX('blog-comment-user-fields-UF_BLOG_COMMENT_DOC'), {'className': 'feed-add-photo-block' }, true, true);
+	if(filesForm !== null && typeof filesForm != 'undefined')
+
+	{
+		for(i = 0; i < filesForm.length; i++)
+		{
+			if(BX(filesForm[i]).parentNode.id != 'file-image-template')
+				BX.remove(BX(filesForm[i]));
+		}
+	}
+
+	filesForm = BX.findChild(BX('blog-comment-user-fields-UF_BLOG_COMMENT_DOC'), {'className': 'file-selectdialog' }, true, false);
+	if(filesForm !== null && typeof filesForm != 'undefined')
+	{
+		BX.hide(BX.findChild(BX('blog-comment-user-fields-UF_BLOG_COMMENT_DOC'), {'className': 'file-selectdialog' }, true, false));
+		BX.show(BX('blog-upload-file'));
+	}
+
 	onLightEditorShow(comment);
 
 	document.form_comment.parentId.value = '';
 	document.form_comment.edit_id.value = key;
 	document.form_comment.act.value = 'edit';
-	document.form_comment.post.value = '<?=GetMessage("B_B_MS_SAVE")?>';
+	document.form_comment.post.value = '<?=GetMessageJS("B_B_MS_SAVE")?>';
 	document.form_comment.action = document.form_comment.action + "#" + key;
 
 	if(subject && subject.length > 0 && document.form_comment.subject)
@@ -281,4 +351,14 @@ function bcNav(page, th)
 	return false;
 }	
 <?endif;?>
+
+function blogShowFile()
+{
+	el = BX('blog-upload-file');
+	if(el.style.display != 'none')
+		BX.hide(el);
+	else
+		BX.show(el);
+	BX.onCustomEvent(BX('blog-comment-user-fields-UF_BLOG_COMMENT_DOC'), "BFileDLoadFormController");
+}
 </script>

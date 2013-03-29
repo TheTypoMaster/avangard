@@ -7,9 +7,14 @@ class CCommentRatings
 	function __construct(&$component)
 	{
 		$this->component = &$component;
-
-		AddEventHandler("forum", "OnCommentDispay", Array(&$this, "OnCommentDispay"));
-		AddEventHandler("forum", "OnPrepareComments", Array($this, "OnPrepareComments"));
+		if (
+			isset($this->component->arResult['FORUM']['INDEXATION']) &&
+			$this->component->arResult['FORUM']['INDEXATION'] == 'Y'
+		)
+		{
+			AddEventHandler("forum", "OnCommentDispay", Array(&$this, "OnCommentDispay"));
+			AddEventHandler("forum", "OnPrepareComments", Array($this, "OnPrepareComments"));
+		}
 	}
 
 	function OnPrepareComments()

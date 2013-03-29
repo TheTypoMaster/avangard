@@ -32,7 +32,7 @@ function CheckFilter() // проверка введенных полей
 	$date2_stm = MkDateTime(FmtDate($find_date2,"D.M.Y")." 23:59","d.m.Y H:i");
 	if (!$date1_stm && strlen(trim($find_date1))>0)
 		$lAdmin->AddFilterError(GetMessage("MAIN_WRONG_DATE_FROM"));
-	else 
+	else
 		$date_1_ok = true;
 	if(!$date2_stm && strlen(trim($find_date2))>0)
 		$lAdmin->AddFilterError(GetMessage("MAIN_WRONG_DATE_TILL"));
@@ -56,6 +56,7 @@ $FilterArr = Array(
 	"find_module_id",
 	"find_common",
 	"find_user_id",
+	"find_menu_id"
 );
 
 $lAdmin->InitFilter($FilterArr);
@@ -76,6 +77,7 @@ if(CheckFilter())
 		"MODULE_ID"		=> $find_module_id,
 		"COMMON"		=> $find_common,
 		"USER_ID"		=> $find_user_id,
+		"MENU_ID"		=> $find_menu_id,
 	);
 }
 if(!$isAdmin)
@@ -86,8 +88,8 @@ if($lAdmin->EditAction())
 	foreach($FIELDS as $ID=>$arFields)
 	{
 		$ID = IntVal($ID);
-	   	if($ID <= 0)
-	   		continue;
+		if($ID <= 0)
+			continue;
 		if(!$lAdmin->IsUpdated($ID))
 			continue;
 		if(!$isAdmin)
@@ -115,9 +117,9 @@ if(($arID = $lAdmin->GroupAction()))
 
 	foreach($arID as $ID)
 	{
-	   	$ID = IntVal($ID);
-	   	if($ID <= 0)
-	   		continue;
+		$ID = IntVal($ID);
+		if($ID <= 0)
+			continue;
 		if(!$isAdmin)
 		{
 			$db_fav = CFavorites::GetByID($ID);
@@ -144,6 +146,7 @@ $aHeaders = array(
 	array("id"=>"URL", "content"=>GetMessage("fav_list_head_link"), "sort"=>"url", "default"=>true),
 	array("id"=>"C_SORT", "content"=>GetMessage("MAIN_SORT"), "sort"=>"sort", "align"=>"right", "default"=>true),
 	array("id"=>"LANGUAGE_ID", "content"=>GetMessage("fav_list_head_lang"), "sort"=>"language_id", "default"=>true),
+	array("id"=>"MENU_ID", "content"=>GetMessage("fav_list_flt_menu_id"), "sort"=>"menu_id", "default"=>true),
 );
 if($isAdmin)
 {
@@ -161,8 +164,9 @@ while($arRes = $rsData->NavNext(true, "f_"))
 {
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
 
+	$row->AddInputField("MENU_ID", array("size"=>20));
 	$row->AddInputField("NAME", array("size"=>20));
-	$row->AddViewField("NAME", '<a href="'.$f_URL.'" title="'.GetMessage("fav_list_go_title").'"><div class="favorite-link"></div>'.$f_NAME.'</a>');
+	$row->AddViewField("NAME", '<a href="'.$f_URL.'" title="'.GetMessage("fav_list_go_title").'">'.$f_NAME.'</a>');
 	$row->AddInputField("URL", array("size"=>20));
 	$row->AddViewField("URL", '<a href="favorite_edit.php?ID='.$f_ID.'&amp;lang='.LANG.'" title="'.GetMessage("fav_list_edit_title").'">'.(strlen($f_URL)>30? substr($f_URL, 0, 30)."...":$f_URL).'</a>');
 	$row->AddInputField("C_SORT", array("size"=>5));
@@ -212,22 +216,28 @@ $APPLICATION->SetTitle(GetMessage("MAIN_RECORDS_LIST"));
 require_once ($DOCUMENT_ROOT.BX_ROOT."/modules/main/include/prolog_admin_after.php");
 ?>
 <?
-$oFilter = new CAdminFilter(
-	$sTableID."_filter",
-	array(
-		GetMessage("fav_list_flt_name"),
-		GetMessage("fav_list_flt_url"),
-		GetMessage("fav_list_flt_id"),
-		GetMessage("fav_list_flt_lang"),
-		GetMessage("fav_list_flt_date"),
-		GetMessage("fav_list_flt_modified"),
-		GetMessage("fav_list_flt_created"),
-		GetMessage("fav_list_flt_desc"),
-		($isAdmin? GetMessage("fav_list_flt_comon"):null),
-		($isAdmin? GetMessage("fav_list_flt_user"):null),
-		($isAdmin? GetMessage("fav_list_flt_modules"):null),
-	)
-);
+
+$arFRows = 	array(
+		"find_name" => GetMessage("fav_list_flt_name"),
+		"find_url" => GetMessage("fav_list_flt_url"),
+		"find_id" => GetMessage("fav_list_flt_id"),
+		"find_language_id" => GetMessage("fav_list_flt_lang"),
+		"find_date" => GetMessage("fav_list_flt_date"),
+		"find_modified" => GetMessage("fav_list_flt_modified"),
+		"find_created" => GetMessage("fav_list_flt_created"),
+		"find_menu_id" => GetMessage("fav_list_flt_menu_id"),
+		"find_keywords" =>GetMessage("fav_list_flt_desc")
+	);
+
+if($isAdmin)
+{
+	$arFRows["find_common"] = GetMessage("fav_list_flt_comon");
+	$arFRows["find_user_id"] = GetMessage("fav_list_flt_user");
+	$arFRows["find_module_id"] = GetMessage("fav_list_flt_modules");
+}
+
+$oFilter = new CAdminFilter($sTableID."_filter", $arFRows);
+
 ?>
 <form name="form1" method="GET" action="<?=$APPLICATION->GetCurPage()?>">
 <input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
@@ -235,7 +245,7 @@ $oFilter = new CAdminFilter(
 <tr>
 	<td><b><?echo GetMessage("fav_list_flt_find")?></b></td>
 	<td>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?echo GetMessage("fav_list_flt_find_title")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?echo GetMessage("fav_list_flt_find_title")?>">
 		<?
 		$arr = array(
 			"reference" => array(
@@ -255,35 +265,39 @@ $oFilter = new CAdminFilter(
 </tr>
 <tr>
 	<td><?echo GetMessage("fav_list_flt_name2")?></td>
-	<td><input type="text" name="find_name" size="40" value="<?echo htmlspecialchars($find_name)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_name" size="40" value="<?echo htmlspecialcharsbx($find_name)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("fav_list_flt_url2")?></td>
-	<td><input type="text" name="find_url" size="40" value="<?echo htmlspecialchars($find_url)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_url" size="40" value="<?echo htmlspecialcharsbx($find_url)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_ID")?></td>
-	<td><input type="text" name="find_id" size="40" value="<?echo htmlspecialchars($find_id)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_id" size="40" value="<?echo htmlspecialcharsbx($find_id)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("fav_list_flt_lang2")?></td>
 	<td><?echo CLanguage::SelectBox("find_language_id", $find_language_id, GetMessage("fav_list_flt_all"))?></td>
 </tr>
 <tr>
-	<td><?echo GetMessage("MAIN_F_DATE")." (".CLang::GetDateFormat("SHORT")."):"?></td>
+	<td><?echo GetMessage("MAIN_F_DATE").":"?></td>
 	<td><?echo CalendarPeriod("find_date1", $find_date1, "find_date2", $find_date2, "form1","Y")?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_MODIFIED_BY")?></td>
-	<td><input type="text" name="find_modified" value="<?echo htmlspecialchars($find_modified)?>" size="40"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_modified" value="<?echo htmlspecialcharsbx($find_modified)?>" size="40"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_CREATED_BY")?></td>
-	<td><input type="text" name="find_created" value="<?echo htmlspecialchars($find_created)?>" size="40"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_created" value="<?echo htmlspecialcharsbx($find_created)?>" size="40"><?=ShowFilterLogicHelp()?></td>
+</tr>
+<tr>
+	<td><?echo GetMessage("fav_list_flt_menu_id")?>:</td>
+	<td><input type="text" name="find_menu_id" size="40" value="<?echo htmlspecialcharsbx($find_menu_id)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("fav_list_flt_desc1")?></td>
-	<td><input type="text" name="find_keywords" value="<?echo htmlspecialchars($find_keywords)?>" size="40"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_keywords" value="<?echo htmlspecialcharsbx($find_keywords)?>" size="40"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <?if($isAdmin):?>
 <tr>
@@ -296,7 +310,7 @@ $oFilter = new CAdminFilter(
 </tr>
 <tr>
 	<td><?echo GetMessage("fav_list_flt_user1")?></td>
-	<td><input type="text" name="find_user_id" size="40" value="<?echo htmlspecialchars($find_user_id)?>"><?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_user_id" size="40" value="<?echo htmlspecialcharsbx($find_user_id)?>"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("fav_list_flt_mod1")?></td>

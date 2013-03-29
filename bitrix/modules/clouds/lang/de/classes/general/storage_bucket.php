@@ -2,8 +2,8 @@
 $MESS["CLO_STORAGE_WRONG_SERVICE"] = "Bucket-Service ist nicht korrekt.";
 $MESS["CLO_STORAGE_EMPTY_BUCKET"] = "Die Bucket-ID fehlt.";
 $MESS["CLO_STORAGE_BAD_BUCKET_NAME"] = "Die Bucket-ID enthält ungültige Zeichen (benutzen Sie nur lateinische Buchstaben in Kleinschreibung, Ziffern und das Zeichen \"-\").";
-$MESS["CLO_STORAGE_WRONG_BUCKET_NAME_LENGTH"] = "Eine gültige Bucket-ID kann zwischen 3 und 64 Zeichen enthalten.";
-$MESS["CLO_STORAGE_WRONG_BUCKET_NAME_LENGTH2"] = "Jeder Teil von der Bucket-ID (Zeilen zwischen Punkten) muss zwischen 3 und 64 Zeichen enthalten. ";
+$MESS["CLO_STORAGE_WRONG_BUCKET_NAME_LENGTH"] = "Eine gültige Bucket-ID kann zwischen 2 und 64 Zeichen enthalten.";
+$MESS["CLO_STORAGE_WRONG_BUCKET_NAME_LENGTH2"] = "Jeder Teil von der Bucket-ID (Zeilen zwischen Punkten) muss zwischen 2 und 64 Zeichen enthalten. ";
 $MESS["CLO_STORAGE_BAD_BUCKET_NAME2"] = "Die Bucket-ID muss mit einem Buchstaben oder mit einer Ziffer anfangen sowie enden.";
 $MESS["CLO_STORAGE_BAD_BUCKET_NAME3"] = "Direkt vor und nach dem Punkt sind nur Ziffern und Buchstaben erlaubt.";
 $MESS["CLO_STORAGE_BUCKET_ALREADY_EXISTS"] = "Ein Bucket mit dieser ID existiert bereits im Cloud-Speicher. Die ID muss unter allen Nutzern des Cloud-Speichers eindeutig sein.";

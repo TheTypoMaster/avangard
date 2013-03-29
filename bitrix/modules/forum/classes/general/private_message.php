@@ -19,6 +19,13 @@ class CAllForumPrivateMessage
 		$arFields["FOLDER_ID"] = intval($arFields["FOLDER_ID"])<=0 ? 1 : intval($arFields["FOLDER_ID"]);
 		$arFields["REQUEST_IS_READ"] = $arFields["REQUEST_IS_READ"]!="Y" ? "N" : "Y";
 
+		$rsEvents = GetModuleEvents("forum", "onBeforePMSend");
+		while ($arEvent = $rsEvents->Fetch())
+		{
+			if (ExecuteModuleEventEx($arEvent, array(&$arFields)) === false)
+				return false;
+		}
+
 		if(!isset($arFields["POST_DATE"]))
 			$arFields["~POST_DATE"] = $DB->GetNowFunction();
 
@@ -30,7 +37,17 @@ class CAllForumPrivateMessage
 			$arFieldsTmp["FOLDER_ID"] = "3";
 			$DB->Add("b_forum_private_message", $arFieldsTmp, Array("POST_MESSAGE"));
 		}
-		return $DB->Add("b_forum_private_message", $arFields, Array("POST_MESSAGE"));
+
+		$result = $DB->Add("b_forum_private_message", $arFields, Array("POST_MESSAGE"));
+
+		if ($result)
+		{
+			$rsEvents = GetModuleEvents("forum", "onAfterPMSend");
+			while ($arEvent = $rsEvents->Fetch())
+				ExecuteModuleEventEx($arEvent, array($result, &$arFields));
+		}
+
+		return $result;
 	}
 
 	function Copy($ID, $arFields = array())
@@ -40,15 +57,23 @@ class CAllForumPrivateMessage
 		$list = array();
 		$list = CForumPrivateMessage::GetList(array(), array("ID"=>$ID));
 		$list = $list->GetNext();
+
+		$rsEvents = GetModuleEvents("forum", "onBeforePMCopy");
+		while ($arEvent = $rsEvents->Fetch())
+		{
+			if (ExecuteModuleEventEx($arEvent, array($ID, &$list, &$arFields)) === false)
+				return false;
+		}
+
 		if(CForumPrivateMessage::CheckFields($arFields))
 		{
 			$keys = array_keys($arFields);
 			foreach ($keys as $key)
-			if (is_set($list, $key))
-			$list[$key] = $arFields[$key];
+				if (is_set($list, $key))
+					$list[$key] = $arFields[$key];
 
 			if(!isset($list["POST_DATE"]))
-			$list["~POST_DATE"] = $DB->GetNowFunction();
+				$list["~POST_DATE"] = $DB->GetNowFunction();
 
 			$list["IS_READ"] = "Y";
 			$list["REQUEST_IS_READ"] = $list["REQUEST_IS_READ"]!="Y" ? "N" : "Y";
@@ -56,7 +81,16 @@ class CAllForumPrivateMessage
 			unset($list["ID"]);
 			unset($list["~ID"]);
 
-			return $DB->Add("b_forum_private_message", $list, Array("POST_MESSAGE"));
+			$result = $DB->Add("b_forum_private_message", $list, Array("POST_MESSAGE"));
+
+			if ($result)
+			{
+				$rsEvents = GetModuleEvents("forum", "onAfterPMCopy");
+				while ($arEvent = $rsEvents->Fetch())
+					ExecuteModuleEventEx($arEvent, array($result, &$arFields));
+			}
+
+			return $result;
 		}
 		return false;
 	}
@@ -79,6 +113,13 @@ class CAllForumPrivateMessage
 		if(is_set($arFields, "FOLDER_ID") && (intval($arFields["FOLDER_ID"]) < 0))
 			$arFields["FOLDER_ID"] = 4;
 
+		$rsEvents = GetModuleEvents("forum", "onBeforePMUpdate");
+		while ($arEvent = $rsEvents->Fetch())
+		{
+			if (ExecuteModuleEventEx($arEvent, array($ID, &$arFields)) === false)
+				return false;
+		}
+
 		if(CForumPrivateMessage::CheckFields($arFields, true))
 		{
 			$strUpdate = $DB->PrepareUpdate("b_forum_private_message", $arFields);
@@ -97,18 +138,36 @@ class CAllForumPrivateMessage
 		$list = array();
 		$list = CForumPrivateMessage::GetList(array(), array("ID"=>$ID));
 		$arFields = $list->GetNext();
+
+		$result = false;
+
+		$rsEvents = GetModuleEvents("forum", "onBeforePMDelete");
+		while ($arEvent = $rsEvents->Fetch())
+		{
+			if (ExecuteModuleEventEx($arEvent, array($ID, &$arFields)) === false)
+				return $result;
+		}
+
+		$eventID = "onAfterPMDelete";
 		if ($arFields["FOLDER_ID"] == 4)
 		{
 			$DB->Query("DELETE FROM b_forum_private_message WHERE ID=".$ID);
-			return true;
+			$result = true;
 		}
 		else
 		{
+			$eventID = "onAfterPMTrash";
 			if(CForumPrivateMessage::Update($ID, array("FOLDER_ID"=>4, "IS_READ"=>"Y", "USER_ID"=>$USER->GetId())))
-			return true;
-			else
-			return false;
+				$result = true;
 		}
+
+		if ($result)
+		{
+			$rsEvents = GetModuleEvents("forum", $eventID);
+			while ($arEvent = $rsEvents->Fetch())
+				ExecuteModuleEventEx($arEvent, array($ID, &$arFields));
+		}
+		return $result;
 	}
 
 	function MakeRead($ID)
@@ -121,6 +180,13 @@ class CAllForumPrivateMessage
 			$db_res = CForumPrivateMessage::GetListEx(array(), array("ID" => $ID));
 			if ($db_res && ($resFields = $db_res->Fetch()) && ($resFields["IS_READ"] != "Y"))
 			{
+				$rsEvents = GetModuleEvents("forum", "onBeforePMMakeRead");
+				while ($arEvent = $rsEvents->Fetch())
+				{
+					if (ExecuteModuleEventEx($arEvent, array($ID, &$resFields)) === false)
+						return false;
+				}
+
 				$strSql = "UPDATE b_forum_private_message SET IS_READ='Y' WHERE ID=".$ID;
 				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 				if ($version == 1 && ($resFields["IS_READ"] == "N"))
@@ -281,11 +347,11 @@ class CAllForumPrivateMessage
 			"FROM b_forum_private_message M ".
 			"LEFT JOIN b_user FU ON(M.AUTHOR_ID = FU.ID)";
 
-            $strSql .= (count($arSql)>0) ? " WHERE (".implode(" AND ", $arSql).")" : "";
-            $strSql .= (count($orSql)>0) ? " OR (".implode(" AND ", $orSql).")" : "";
-            $strSql .= (count($arSqlOrder)>0) ? " ORDER BY ".implode(", ", $arSqlOrder) : "";
+			$strSql .= (count($arSql)>0) ? " WHERE (".implode(" AND ", $arSql).")" : "";
+			$strSql .= (count($orSql)>0) ? " OR (".implode(" AND ", $orSql).")" : "";
+			$strSql .= (count($arSqlOrder)>0) ? " ORDER BY ".implode(", ", $arSqlOrder) : "";
 
-            $dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
 		else
 		{
@@ -295,33 +361,33 @@ class CAllForumPrivateMessage
 			//"LEFT JOIN b_user FU ON(M.AUTHOR_ID = FU.ID)".
 			"LEFT JOIN b_forum_private_message M1 ON (M.ID = M1.ID AND M1.IS_READ!='Y')";
 
-            $strSql = $strSqlTmp . ((count($arSql)>0) ? " WHERE (".implode(" AND ", $arSql).")" : "");
-            //$strSql .= (count($orSql)>0) ? " OR (".implode(" AND ", $orSql).")" : "";
-            $strSql .= (count($arSqlOrder)>0) ? " ORDER BY ".implode(", ", $arSqlOrder) : "";
+			$strSql = $strSqlTmp . ((count($arSql)>0) ? " WHERE (".implode(" AND ", $arSql).")" : "");
+			//$strSql .= (count($orSql)>0) ? " OR (".implode(" AND ", $orSql).")" : "";
+			$strSql .= (count($arSqlOrder)>0) ? " ORDER BY ".implode(", ", $arSqlOrder) : "";
 
-            $dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-            $arResult = array();
-            if ($dbRes && ($res = $dbRes->GetNext()))
-            {
-                $arResult["CNT"] = intVal($res["CNT"]);
-                $arResult["CNT_NEW"] = intVal($res["CNT_NEW"]);
-            }
+			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$arResult = array();
+			if ($dbRes && ($res = $dbRes->GetNext()))
+			{
+				$arResult["CNT"] = intVal($res["CNT"]);
+				$arResult["CNT_NEW"] = intVal($res["CNT_NEW"]);
+			}
 
-            if (!empty($orSql))
-            {
-                $strSql = $strSqlTmp;
-                $arSql = $orSql;
-                $strSql .= ((count($arSql)>0) ? " WHERE (".implode(" AND ", $arSql).")" : "");
-                $dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-                $arResult = array();
-                if ($dbRes && ($res = $dbRes->GetNext()))
-                {
-                    $arResult["CNT"] += intVal($res["CNT"]);
-                    $arResult["CNT_NEW"] += intVal($res["CNT"]);
-                }
-            }
-            $dbRes = new CDBResult;
-            $dbRes->InitFromArray(array($arResult));
+			if (!empty($orSql))
+			{
+				$strSql = $strSqlTmp;
+				$arSql = $orSql;
+				$strSql .= ((count($arSql)>0) ? " WHERE (".implode(" AND ", $arSql).")" : "");
+				$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$arResult = array();
+				if ($dbRes && ($res = $dbRes->GetNext()))
+				{
+					$arResult["CNT"] += intVal($res["CNT"]);
+					$arResult["CNT_NEW"] += intVal($res["CNT"]);
+				}
+			}
+			$dbRes = new CDBResult;
+			$dbRes->InitFromArray(array($arResult));
 		}
 
 		return $dbRes;

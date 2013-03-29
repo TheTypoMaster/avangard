@@ -1,4 +1,4 @@
- <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 if(!CModule::IncludeModule("forum"))
 	return;
 $arComponentParameters = Array(
@@ -20,7 +20,7 @@ $arComponentParameters = Array(
 			"DEFAULT" => "message.php?FID=#FID#&TID=#TID#&MID=#MID#"),
 
 		"FID_RANGE" => CForumParameters::GetForumsMultiSelect(GetMessage("F_DEFAULT_FID"), "ADDITIONAL_SETTINGS"),
-		"DATE_FORMAT" => CComponentUtil::GetDateFormatField(GetMessage("F_DATE_FORMAT"), "ADDITIONAL_SETTINGS"),		
+		"DATE_FORMAT" => CComponentUtil::GetDateFormatField(GetMessage("F_DATE_FORMAT"), "ADDITIONAL_SETTINGS"),
 		"TOPICS_PER_PAGE" => Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_TOPICS_PER_PAGE"),
@@ -42,12 +42,7 @@ $arComponentParameters = Array(
 			"NAME" => GetMessage("F_SET_NAVIGATION"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "Y"),
-		// "DISPLAY_PANEL" => Array(
-			// "PARENT" => "ADDITIONAL_SETTINGS",
-			// "NAME" => GetMessage("F_DISPLAY_PANEL"),
-			// "TYPE" => "CHECKBOX",
-			// "DEFAULT" => "N"),
-		
+
 		"CACHE_TIME" => Array(),
 		"SET_TITLE" => Array(),
 	)

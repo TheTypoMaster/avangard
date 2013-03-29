@@ -185,7 +185,7 @@ function PostFormAjaxResponse(response, postform, preorder)
 	var result = window.forumAjaxPostTmp;
 	var post = {className: /reviews-reply-form|reviews-collapse/};
 
-	BX.onCustomEvent(window, 'onForumCommentAJAXPost', [result]);
+	BX.onCustomEvent(window, 'onForumCommentAJAXPost', [result, postform]);
 	var curpage = window.curpage || top.window.location.href;
 	if (typeof result == 'undefined')
 	{
@@ -218,7 +218,9 @@ function PostFormAjaxResponse(response, postform, preorder)
 		listform = BX.findChild(document, {className: 'reviews-block-inner'}, true);
 	}
 
-	if (result.reload) BX.reload(curpage);
+	if (result.reload)
+		BX.reload(curpage);
+
 	if (result.status)
 	{
 		if (!!result.allMessages)
@@ -258,9 +260,8 @@ function PostFormAjaxResponse(response, postform, preorder)
 			fRunScripts(result.previewMessage);
 		}
 
-		if (!!result.messageID)
-			if (message = BX('message'+result.messageID))
-				BX.scrollToNode(message);
+		if ((!!result.messageID) && (message = BX('message'+result.messageID)))
+			BX.scrollToNode(message);
 	}
 	
 	var arr = postform.getElementsByTagName("input");
@@ -276,6 +277,8 @@ function PostFormAjaxResponse(response, postform, preorder)
 
 	if (result.statusMessage)
 		PostFormAjaxStatus(result.statusMessage);
+
+	BX.onCustomEvent(window, 'onAfterForumCommentAJAXPost', [result, postform]);
 }
 
 function ClearForumPostForm(form)
@@ -327,7 +330,8 @@ function ClearForumPostForm(form)
 
 function ValidateForm(form, ajax_type, ajax_post, preorder)
 {
-	if (form['BXFormSubmit_save']) return true; // ValidateForm may be run by BX.submit one more time
+	if (form['BXFormSubmit_save'])
+		return true; // ValidateForm may be run by BX.submit one more time
 	if (typeof form != "object" || typeof form.REVIEW_TEXT != "object")
 		return false;
 	if (typeof oForum == 'undefined')
@@ -342,7 +346,7 @@ function ValidateForm(form, ajax_type, ajax_post, preorder)
 
 	if (MessageLength < 2)
 		errors += oErrors['no_message'];
-    else if ((MessageMax != 0) && (MessageLength > MessageMax))
+	else if ((MessageMax != 0) && (MessageLength > MessageMax))
 		errors += oErrors['max_len'].replace(/\#MAX_LENGTH\#/gi, MessageMax).replace(/\#LENGTH\#/gi, MessageLength);
 
 	if (errors != "")
@@ -355,11 +359,6 @@ function ValidateForm(form, ajax_type, ajax_post, preorder)
 	if (btnSubmit) btnSubmit.disabled = true;
 	var btnPreview = BX.findChild(form, {'attribute':{'name':'view_button'}}, true);
 	if (btnPreview) btnPreview.disabled = true;
-
-	if (ajax_type == 'Y' && window['ForumPostMessage'])
-	{
-		ForumPostMessage(form);
-	}
 
 	if (ajax_post == 'Y')
 	{
@@ -389,7 +388,13 @@ function ValidateForm(form, ajax_type, ajax_post, preorder)
 				pageCountInput.value = oForum.page_count;
 			}
 		}
-		setTimeout(function() { BX.ajax.submit(postform, function(response) {PostFormAjaxResponse(response, postform, reviews_preorder);}); }, 50);
+
+		BX.onCustomEvent(window, 'onBeforeForumCommentAJAXPost', [postform]);
+		setTimeout(function() {
+			BX.ajax.submit(postform, function(response) {
+				PostFormAjaxResponse(response, postform, reviews_preorder);
+			});
+		}, 50);
 		return false;
 	}
 	return true;

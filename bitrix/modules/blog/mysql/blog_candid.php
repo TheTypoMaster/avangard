@@ -140,8 +140,9 @@ class CBlogCandidate extends CAllBlogCandidate
 			"USER_LOGIN" => array("FIELD" => "U.LOGIN", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (C.USER_ID = U.ID)"),
 			"USER_NAME" => array("FIELD" => "U.NAME", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (C.USER_ID = U.ID)"),
 			"USER_LAST_NAME" => array("FIELD" => "U.LAST_NAME", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (C.USER_ID = U.ID)"),
+			"USER_SECOND_NAME" => array("FIELD" => "U.SECOND_NAME", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (C.USER_ID = U.ID)"),
 			"USER_EMAIL" => array("FIELD" => "U.EMAIL", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (C.USER_ID = U.ID)"),
-			"USER" => array("FIELD" => "U.LOGIN,U.NAME,U.LAST_NAME,U.EMAIL,U.ID", "WHERE_ONLY" => "Y", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (C.USER_ID = U.ID)"),
+			"USER" => array("FIELD" => "U.LOGIN,U.NAME,U.LAST_NAME,U.SECOND_NAME,U.EMAIL,U.ID", "WHERE_ONLY" => "Y", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (C.USER_ID = U.ID)"),
 
 			"BLOG_USER_ID" => array("FIELD" => "BU.ID", "TYPE" => "int", "FROM" => "LEFT JOIN b_blog_user BU ON (C.USER_ID = BU.USER_ID)"),
 			"BLOG_USER_ALIAS" => array("FIELD" => "BU.ALIAS", "TYPE" => "string", "FROM" => "LEFT JOIN b_blog_user BU ON (C.USER_ID = BU.USER_ID)"),
@@ -163,7 +164,7 @@ class CBlogCandidate extends CAllBlogCandidate
 			if (strlen($arSqls["GROUPBY"]) > 0)
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!1!=".htmlspecialchars($strSql)."<br>";
+			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($arRes = $dbRes->Fetch())
@@ -194,7 +195,7 @@ class CBlogCandidate extends CAllBlogCandidate
 			if (strlen($arSqls["GROUPBY"]) > 0)
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!2.1!=".htmlspecialchars($strSql_tmp)."<br>";
+			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
@@ -211,16 +212,16 @@ class CBlogCandidate extends CAllBlogCandidate
 
 			$dbRes = new CDBResult();
 
-			//echo "!2.2!=".htmlspecialchars($strSql)."<br>";
+			//echo "!2.2!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes->NavQuery($strSql, $cnt, $arNavStartParams);
 		}
 		else
 		{
 			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) > 0)
-				$strSql .= "LIMIT ".$arNavStartParams["nTopCount"];
+				$strSql .= "LIMIT ".IntVal($arNavStartParams["nTopCount"]);
 
-			//echo "!3!=".htmlspecialchars($strSql)."<br>";
+			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}

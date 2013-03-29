@@ -62,8 +62,8 @@ class CUserTypeDateTime
 		else
 			$value = "";
 		$result .= '
-		<tr valign="top">
-			<td>'.GetMessage("USER_TYPE_DT_DEFAULT_VALUE").':</td>
+		<tr>
+			<td class="adm-detail-valign-top">'.GetMessage("USER_TYPE_DT_DEFAULT_VALUE").':</td>
 			<td>
 				<label><input type="radio" name="'.$arHtmlControl["NAME"].'[DEFAULT_VALUE][TYPE]" value="NONE" '.("NONE"==$type? 'checked="checked"': '').'>'.GetMessage("USER_TYPE_DT_NONE").'</label><br>
 				<label><input type="radio" name="'.$arHtmlControl["NAME"].'[DEFAULT_VALUE][TYPE]" value="NOW" '.("NOW"==$type? 'checked="checked"': '').'>'.GetMessage("USER_TYPE_DT_NOW").'</label><br>
@@ -76,6 +76,7 @@ class CUserTypeDateTime
 
 	function GetEditFormHTML($arUserField, $arHtmlControl)
 	{
+		$arHtmlControl["VALIGN"] = "middle";
 		if($arUserField["EDIT_IN_LIST"]=="Y")
 		{
 			if($arUserField["ENTITY_VALUE_ID"]<1 && $arUserField["SETTINGS"]["DEFAULT_VALUE"]["TYPE"]!="NONE")
@@ -133,5 +134,4 @@ class CUserTypeDateTime
 		return $aMsg;
 	}
 }
-AddEventHandler("main", "OnUserTypeBuildList", array("CUserTypeDateTime", "GetUserTypeDescription"));
 ?>

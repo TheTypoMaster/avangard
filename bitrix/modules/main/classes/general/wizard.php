@@ -148,6 +148,9 @@ class CWizardBase
 		return $this->currentStepID;
 	}
 
+	/**
+	 * @return CWizardStep
+	 */
 	function GetCurrentStep()
 	{
 		if (array_key_exists($this->currentStepID, $this->wizardSteps))
@@ -489,8 +492,8 @@ class CWizardBase
 		$oStep = $this->GetCurrentStep();
 		$oStep->ShowStep();
 
-		$formStart = '<form action="'.htmlspecialchars($this->formActionScript).'" enctype="multipart/form-data" method="post" name="'.htmlspecialchars($this->formName).'" id="'.htmlspecialchars($this->formName).'">';
-		$formStart .= '<input type="hidden" name="'.htmlspecialchars($this->currentStepHiddenID).'" value="'.htmlspecialchars($this->currentStepID).'">';
+		$formStart = '<form action="'.htmlspecialcharsbx($this->formActionScript).'" enctype="multipart/form-data" method="post" name="'.htmlspecialcharsbx($this->formName).'" id="'.htmlspecialcharsbx($this->formName).'">';
+		$formStart .= '<input type="hidden" name="'.htmlspecialcharsbx($this->currentStepHiddenID).'" value="'.htmlspecialcharsbx($this->currentStepID).'">';
 		$formStart .= $this->__DisplayHiddenVars($this->GetVars(), $oStep);
 
 		/*
@@ -605,7 +608,7 @@ class CWizardBase
 			if (is_array($varValue))
 				$strReturn .= $this->__DisplayHiddenVars($varValue, $oStep, $varName);
 			else
-				$strReturn .= '<input type="hidden" name="'.htmlspecialchars($this->GetVarPrefix().$varName).'" value="'.htmlspecialcharsEx($varValue).'">
+				$strReturn .= '<input type="hidden" name="'.htmlspecialcharsbx($this->GetVarPrefix().$varName).'" value="'.htmlspecialcharsEx($varValue).'">
 			';
 		}
 
@@ -898,17 +901,17 @@ class CWizardStep
 			case "text":
 				if (!isset($arAttributes["size"]))
 					$arAttributes["size"] = 10;
-				$strReturn .= '<input type="text" name="'.htmlspecialchars($prefixName).'" value="'.htmlspecialcharsEx($value).'"'.$this->_ShowAttributes($arAttributes).' />';
+				$strReturn .= '<input type="text" name="'.htmlspecialcharsbx($prefixName).'" value="'.htmlspecialcharsEx($value).'"'.$this->_ShowAttributes($arAttributes).' />';
 			break;
 
 			case "password":
 				if (!isset($arAttributes["size"]))
 					$arAttributes["size"] = 10;
-				$strReturn .= '<input type="password" name="'.htmlspecialchars($prefixName).'" value="'.htmlspecialcharsEx($value).'"'.$this->_ShowAttributes($arAttributes).' />';
+				$strReturn .= '<input type="password" name="'.htmlspecialcharsbx($prefixName).'" value="'.htmlspecialcharsEx($value).'"'.$this->_ShowAttributes($arAttributes).' />';
 			break;
 
 			case "textarea":
-				$strReturn .= '<textarea name="'.htmlspecialchars($prefixName).'"'.$this->_ShowAttributes($arAttributes).'>'.htmlspecialcharsEx($value).'</textarea>';
+				$strReturn .= '<textarea name="'.htmlspecialcharsbx($prefixName).'"'.$this->_ShowAttributes($arAttributes).'>'.htmlspecialcharsEx($value).'</textarea>';
 			break;
 		}
 
@@ -943,11 +946,11 @@ class CWizardStep
 		if (!in_array($viewName, $arViewedField) /*&& !$valueWasViewed*/)
 		{
 			$arViewedField[] = $viewName;
-			$strReturn .= '<input name="'.htmlspecialchars($wizard->GetRealName($viewName)).'" value="" type="hidden" />';
+			$strReturn .= '<input name="'.htmlspecialcharsbx($wizard->GetRealName($viewName)).'" value="" type="hidden" />';
 		}
 
 		$prefixName = $wizard->GetRealName($name);
-		$strReturn .= '<input name="'.htmlspecialchars($prefixName).'" '.($checked ?"checked=\"checked\" ":"").'type="checkbox" value="'.htmlspecialcharsEx($value).'"'.$this->_ShowAttributes($arAttributes).' />';
+		$strReturn .= '<input name="'.htmlspecialcharsbx($prefixName).'" '.($checked ?"checked=\"checked\" ":"").'type="checkbox" value="'.htmlspecialcharsEx($value).'"'.$this->_ShowAttributes($arAttributes).' />';
 
 		return $strReturn;
 
@@ -983,7 +986,7 @@ class CWizardStep
 		}
 
 		$prefixName = $wizard->GetRealName($name);
-		return '<input name="'.htmlspecialchars($prefixName).'" type="radio" '.($checked ?"checked=\"checked\" ":"").'value="'.htmlspecialcharsEx($value).'"'.$this->_ShowAttributes($arAttributes).' />';
+		return '<input name="'.htmlspecialcharsbx($prefixName).'" type="radio" '.($checked ?"checked=\"checked\" ":"").'value="'.htmlspecialcharsEx($value).'"'.$this->_ShowAttributes($arAttributes).' />';
 	}
 
 	//Dropdown and multiple controls
@@ -1007,10 +1010,10 @@ class CWizardStep
 			$selectedValues = Array($selectedValues);
 
 		$viewName = $wizard->GetRealName(str_replace("[]", "", $name));
-		$strReturn = '<input name="'.htmlspecialchars($viewName).'" value="" type="hidden" />';
+		$strReturn = '<input name="'.htmlspecialcharsbx($viewName).'" value="" type="hidden" />';
 
 		$prefixName = $wizard->GetRealName($name);
-		$strReturn .= '<select name="'.htmlspecialchars($prefixName).'"'.$this->_ShowAttributes($arAttributes).'>';
+		$strReturn .= '<select name="'.htmlspecialcharsbx($prefixName).'"'.$this->_ShowAttributes($arAttributes).'>';
 
 		foreach ($arValues as $optionValue => $optionName)
 			$strReturn .= '<option value="'.htmlspecialcharsEx($optionValue).'"'.(in_array($optionValue, $selectedValues) ? " selected=\"selected\"" :"").'>'.htmlspecialcharsEx($optionName).'</option>
@@ -1029,7 +1032,7 @@ class CWizardStep
 		$this->SetDisplayVars(Array($name));
 		$trueName = $wizard->GetRealName($name);
 
-		$strReturn = '<input type="hidden" name="'.htmlspecialchars($trueName).'" value="'.htmlspecialcharsEx($value).'"'.$this->_ShowAttributes($arAttributes).' />';
+		$strReturn = '<input type="hidden" name="'.htmlspecialcharsbx($trueName).'" value="'.htmlspecialcharsEx($value).'"'.$this->_ShowAttributes($arAttributes).' />';
 
 		return $strReturn;
 	}
@@ -1046,7 +1049,7 @@ class CWizardStep
 			unset($arAttributes["max_file_size"]);
 		}
 
-		$strReturn .= '<input type="file" name="'.htmlspecialchars($wizard->GetRealName($name."_new")).'"'.$this->_ShowAttributes($arAttributes).' />';
+		$strReturn .= '<input type="file" name="'.htmlspecialcharsbx($wizard->GetRealName($name."_new")).'"'.$this->_ShowAttributes($arAttributes).' />';
 
 		$fileID = intval($wizard->GetVar($name));
 		if ($fileID > 0)
@@ -1159,16 +1162,20 @@ class CWizardStep
 	function _ShowAttributes($arAttributes)
 	{
 		if (!is_array($arAttributes))
-			return;
+			return "";
 
 		$strReturn = "";
 		foreach ($arAttributes as $name => $value)
-			$strReturn .= ' '.htmlspecialchars($name).'="'.htmlspecialcharsEx($value).'"';
+			$strReturn .= ' '.htmlspecialcharsbx($name).'="'.htmlspecialcharsEx($value).'"';
 
 		return $strReturn;
 	}
 
-	//Return wizard reference
+	/**
+	 * Returns wizard reference
+	 *
+	 * @return CWizardBase
+	 */
 	function GetWizard()
 	{
 		return $this->wizard;
@@ -1201,12 +1208,12 @@ class CWizardTemplate
 		$obStep = $wizard->GetCurrentStep();
 
 		$wizardName = htmlspecialcharsEx($wizard->GetWizardName());
-		$formName = htmlspecialchars($wizard->GetFormName());
+		$formName = htmlspecialcharsbx($wizard->GetFormName());
 
-		$nextButtonID = htmlspecialchars($wizard->GetNextButtonID());
-		$prevButtonID = htmlspecialchars($wizard->GetPrevButtonID());
-		$cancelButtonID = htmlspecialchars($wizard->GetCancelButtonID());
-		$finishButtonID = htmlspecialchars($wizard->GetFinishButtonID());
+		$nextButtonID = htmlspecialcharsbx($wizard->GetNextButtonID());
+		$prevButtonID = htmlspecialcharsbx($wizard->GetPrevButtonID());
+		$cancelButtonID = htmlspecialcharsbx($wizard->GetCancelButtonID());
+		$finishButtonID = htmlspecialcharsbx($wizard->GetFinishButtonID());
 
 		if (isset($GLOBALS["APPLICATION"]) && is_object($GLOBALS["APPLICATION"]))
 		{
@@ -1405,7 +1412,11 @@ WizardOnLoad();
 HTML;
 	}
 
-	//Return wizard reference
+	/**
+	 * Returns wizard reference
+	 *
+	 * @return CWizardBase
+	 */
 	function GetWizard()
 	{
 		return $this->wizard;
@@ -1426,17 +1437,17 @@ class CWizardAdminTemplate extends CWizardTemplate
 	{
 		$wizard = $this->GetWizard();
 
-		$formName = htmlspecialchars($wizard->GetFormName());
+		$formName = htmlspecialcharsbx($wizard->GetFormName());
 
 		$adminScript = CAdminPage::ShowScript();
 
 		$charset = LANG_CHARSET;
 		$wizardName = htmlspecialcharsEx($wizard->GetWizardName());
 
-		$nextButtonID = htmlspecialchars($wizard->GetNextButtonID());
-		$prevButtonID = htmlspecialchars($wizard->GetPrevButtonID());
-		$cancelButtonID = htmlspecialchars($wizard->GetCancelButtonID());
-		$finishButtonID = htmlspecialchars($wizard->GetFinishButtonID());
+		$nextButtonID = htmlspecialcharsbx($wizard->GetNextButtonID());
+		$prevButtonID = htmlspecialcharsbx($wizard->GetPrevButtonID());
+		$cancelButtonID = htmlspecialcharsbx($wizard->GetCancelButtonID());
+		$finishButtonID = htmlspecialcharsbx($wizard->GetFinishButtonID());
 
 		IncludeAJAX();
 		$ajaxScripts = $GLOBALS["APPLICATION"]->GetHeadStrings();

@@ -151,7 +151,7 @@ $APPLICATION->IncludeComponent(
 		"SHOW_COMMENTS" => "Y",
 		"MAX_VOTE" => $arParams["MAX_VOTE"],
 		"VOTE_NAMES" => array(),
-		"DISPLAY_AS_RATING" => "rating",
+		"DISPLAY_AS_RATING" => $arParams["DISPLAY_AS_RATING"],
 		"SET_TITLE" => "N",
 		"CACHE_TYPE" => "A",
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
@@ -210,18 +210,18 @@ $APPLICATION->IncludeComponent(
 				<div class="photo-item-cover-block-outer">
 					<div class="photo-item-cover-block-inner">
 						<div class="photo-item-cover-block-inside">
-							<div class="photo-item-cover photo-album-avatar <?=(empty($res["DETAIL_PICTURE"]["SRC"])? "photo-album-avatar-empty" : "")?>" id="photo_album_cover_<?=$res["ID"]?>" title="<?= htmlspecialchars($res["~NAME"])?>"
+							<div class="photo-item-cover photo-album-avatar <?=(empty($res["DETAIL_PICTURE"]["SRC"])? "photo-album-avatar-empty" : "")?>" id="photo_album_cover_<?=$res["ID"]?>" title="<?= htmlspecialcharsbx($res["~NAME"])?>"
 								<?if (!empty($res["DETAIL_PICTURE"]["SRC"])):?>
 									style="background-image:url('<?=$res["DETAIL_PICTURE"]["SRC"]?>');"
 								<?endif;?>
 								<?if ($arParams["PERMISSION"] >= "W"):?>
 									onmouseover="BX.addClass(this, 'photo-album-avatar-edit');"
 								<?else:?>
-									onclick="window.location='<?=CUtil::JSEscape(htmlspecialchars($res["~LINK"]))?>';"
+									onclick="window.location='<?=CUtil::JSEscape(htmlspecialcharsbx($res["~LINK"]))?>';"
 								<?endif;?>
 								>
 								<?if ($arParams["PERMISSION"] >= "W"):?>
-								<div class="photo-album-menu" onmouseout="BX.removeClass(this.parentNode, 'photo-album-avatar-edit')" onclick="window.location='<?=CUtil::JSEscape(htmlspecialchars($res["~LINK"]))?>';">
+								<div class="photo-album-menu" onmouseout="BX.removeClass(this.parentNode, 'photo-album-avatar-edit')" onclick="window.location='<?=CUtil::JSEscape(htmlspecialcharsbx($res["~LINK"]))?>';">
 									<div class="photo-album-menu-substrate"></div>
 										<div class="photo-album-menu-controls">
 										<a rel="nofollow" href="<?=$res["EDIT_LINK"]?>" class="photo-control-edit photo-control-album-edit" title="<?=GetMessage("P_SECTION_EDIT_TITLE")?>"><span><?=GetMessage("P_SECTION_EDIT")?></span></a>
@@ -241,7 +241,7 @@ $APPLICATION->IncludeComponent(
 					<div class="photo-item-info-block-inner">
 						<div class="photo-album-photos-top"><?=$res["ELEMENTS_CNT"]?> <?=GetMessage("P_SECT_PHOTOS")?></div>
 						<div class="photo-album-name">
-							<a href="<?=$res["LINK"]?>" id="photo_album_name_<?=$res["ID"]?>" title="<?=htmlspecialchars($res["~NAME"])?>" onmouseover="__photo_check_name_length(event, this);"><?=$res["NAME"]?></a>
+							<a href="<?=$res["LINK"]?>" id="photo_album_name_<?=$res["ID"]?>" title="<?=htmlspecialcharsbx($res["~NAME"])?>" onmouseover="__photo_check_name_length(event, this);"><?=$res["NAME"]?></a>
 						</div>
 						<div class="photo-album-description" id="photo_album_description_<?=$res["ID"]?>"><?=$res["DESCRIPTION"]?></div>
 						<div class="photo-album-date"><span id="photo_album_date_<?=$res["ID"]?>"><?=$res["DATE"]?></span></div>

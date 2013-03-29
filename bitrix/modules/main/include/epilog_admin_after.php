@@ -28,7 +28,7 @@ $GLOBALS["BX_STATE"] = "EA";
 for($i=0; $i<count($arAllEvents); $i++)
 	ExecuteModuleEventEx($arAllEvents[$i]);
 
-if(!IsModuleInstalled("compression") && !defined("ADMIN_AJAX_MODE"))
+if(!IsModuleInstalled("compression") && !defined("ADMIN_AJAX_MODE") && ($_REQUEST["mode"] != 'excel'))
 {
 	$bShowTime = ($_SESSION["SESS_SHOW_TIME_EXEC"] == 'Y');
 	$bShowStat = ($GLOBALS["DB"]->ShowSqlStat && $GLOBALS["USER"]->CanDoOperation('edit_php'));
@@ -39,4 +39,6 @@ if(!IsModuleInstalled("compression") && !defined("ADMIN_AJAX_MODE"))
 }
 
 $DB->Disconnect();
+
+CMain::ForkActions();
 ?>

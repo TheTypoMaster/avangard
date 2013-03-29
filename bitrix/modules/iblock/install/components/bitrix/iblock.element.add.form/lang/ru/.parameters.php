@@ -2,8 +2,8 @@
 $MESS["IBLOCK_TITLES"] = "Собственные названия полей";
 $MESS["IBLOCK_FIELDS"] = "Свойства инфоблока";
 $MESS["IBLOCK_ACCESS"] = "Параметры доступа";
-$MESS["IBLOCK_TYPE"] = "Тип инфо-блока";
-$MESS["IBLOCK_IBLOCK"] = "Инфо-блок";
+$MESS["IBLOCK_TYPE"] = "Тип инфоблока";
+$MESS["IBLOCK_IBLOCK"] = "Инфоблок";
 $MESS["IBLOCK_PROPERTY"] = "Свойства, выводимые на редактирование";
 $MESS["IBLOCK_PROPERTY_REQUIRED"] = "Свойства, обязательные для заполнения";
 $MESS["IBLOCK_GROUPS"] = "Группы пользователей, имеющие право на добавление/редактирование";

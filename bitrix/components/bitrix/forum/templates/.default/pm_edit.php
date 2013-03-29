@@ -12,7 +12,7 @@ $APPLICATION->IncludeComponent(
 		"URL_TEMPLATES_PM_EDIT" => $arResult["URL_TEMPLATES_PM_EDIT"],
 		"URL_TEMPLATES_PM_SEARCH" => $arResult["URL_TEMPLATES_PM_SEARCH"],
 		"URL_TEMPLATES_PROFILE_VIEW" => $arResult["URL_TEMPLATES_PROFILE_VIEW"],
-		
+
 		"MID" => $arResult["MID"],
 		"FID" => $arResult["FID"],
 		"UID" =>  $arResult["UID"],
@@ -21,6 +21,8 @@ $APPLICATION->IncludeComponent(
 		"PATH_TO_SMILE" => $arParams["PATH_TO_SMILE"],
 		"SMILES_COUNT" => $arParams["SMILES_COUNT"],
 		"EDITOR_CODE_DEFAULT" => $arParams["EDITOR_CODE_DEFAULT"],
+		"SEO_USER" => $arParams["SEO_USER"],
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"]
 	),
 	$component
 );

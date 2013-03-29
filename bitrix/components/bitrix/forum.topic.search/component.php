@@ -50,13 +50,12 @@ if (!function_exists("__array_merge"))
 	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 	$arParams["FID_RANGE"] = (is_array($arParams["FID_RANGE"]) && !empty($arParams["FID_RANGE"]) ? $arParams["FID_RANGE"] : array());
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	$arParams["TOPICS_PER_PAGE"] = intVal(intVal($arParams["TOPICS_PER_PAGE"]) > 0 ? $arParams["TOPICS_PER_PAGE"] : 
 		COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
 /********************************************************************
 				/Input params
 ********************************************************************/
-
-ForumSetLastVisit($arParams["FID"]);
 
 /********************************************************************
 				Default params
@@ -105,7 +104,7 @@ $cache_path = $cache_path_main."forums";
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
 	$res = $cache->GetVars();
-	$arForums = $res["arForums"];
+	$arForums = CForumCacheManager::Expand($res["arForums"]);
 }
 $arForums = (is_array($arForums) ? $arForums : array());
 if (empty($arForums))
@@ -120,7 +119,7 @@ if (empty($arForums))
 	}
 	if ($arParams["CACHE_TIME"] > 0):
 		$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
-		$cache->EndDataCache(array("arForums" => $arForums));
+		$cache->EndDataCache(array("arForums" => CForumCacheManager::Compress($arForums)));
 	endif;
 }
 $arResult["FORUMS"] = $arForums;

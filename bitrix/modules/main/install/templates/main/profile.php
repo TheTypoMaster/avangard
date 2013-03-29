@@ -1,6 +1,6 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?><?
 /***************************************************************************
-             Компонент редактирования профайла пользователя
+Компонент редактирования профайла пользователя
 ****************************************************************************/
 
 IncludeTemplateLangFile(__FILE__);
@@ -17,7 +17,7 @@ if($MAIN_RIGHT!="P" && $MAIN_RIGHT!="T" && $MAIN_RIGHT!="W")
 //echo "<pre>"; print_r($_POST); echo "</pre>";
 
 /***************************************************************************
-                        Обработка GET | POST
+Обработка GET | POST
 ****************************************************************************/
 
 $strError="";
@@ -261,7 +261,7 @@ if(strlen($strError)>0)
 if(!is_array($arUser["GROUP_ID"])) $arUser["GROUP_ID"]=Array();
 
 /***************************************************************************
-                              HTML форма
+HTML форма
 ****************************************************************************/
 
 ?>
@@ -340,7 +340,7 @@ function SectionClick(id)
 			{
 				if ($arGroup["ID"]!=2) :
 					?><input type="checkbox" name="GROUP_ID[]" value="<?echo $arGroup["ID"]?>"<?if(in_array($arGroup["ID"], $arUser["GROUP_ID"]))echo " checked"?>><?
-					echo htmlspecialchars($arGroup["NAME"]);
+					echo htmlspecialcharsbx($arGroup["NAME"]);
 					echo "<br>";
 				endif;
 			}

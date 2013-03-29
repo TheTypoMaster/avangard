@@ -17,7 +17,6 @@ $bInitVars = false;
 if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $forumPermissions=="W" && check_bitrix_sessid())
 {
 	$POINTS_PER_POST = str_replace(",", ".", $POINTS_PER_POST);
-	$POINTS_PER_POST = DoubleVal($POINTS_PER_POST);
 
 	$arFields = array(
 		"MIN_NUM_POSTS" => $MIN_NUM_POSTS,
@@ -116,19 +115,19 @@ $tabControl->BeginNextTab();
 	</tr>
 	<?endif;?>
 
-	<tr>
+	<tr class="adm-detail-required-field">
 		<td width="40%">
-			<span class="required">*</span><?= GetMessage("FORUM_PPE_MIN_MES") ?>:
+			<?= GetMessage("FORUM_PPE_MIN_MES") ?>:
 		</td>
 		<td width="60%">
-			<input type="text" name="MIN_NUM_POSTS" value="<?=htmlspecialcharsEx($str_MIN_NUM_POSTS)?>" size="10">
+			<input type="text" name="MIN_NUM_POSTS" value="<?=htmlspecialcharsEx($str_MIN_NUM_POSTS)?>" size="20" maxlength="18">
 		</td>
 	</tr>
 
 	<tr>
 		<td><?= GetMessage("FORUM_PPE_PPM") ?>:</td>
 		<td>
-			<input type="text" name="POINTS_PER_POST" value="<?=htmlspecialcharsEx($str_POINTS_PER_POST)?>" size="10">
+			<input type="text" name="POINTS_PER_POST" value="<?=htmlspecialcharsEx($str_POINTS_PER_POST)?>" size="20" maxlength="19">
 		</td>
 	</tr>
 <?

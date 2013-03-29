@@ -105,12 +105,11 @@ class CSecurityRedirect
 				global $APPLICATION;
 
 				if(COption::GetOptionString("security", "redirect_log") == "Y")
-					CEventLog::Log(
-						"SECURITY",
-						"SECURITY_REDIRECT",
-						"security",
-						$APPLICATION->GetCurPage(),
-						"==".base64_encode($url)
+					CSecurityEvent::getInstance()->doLog(
+							"SECURITY",
+							"SECURITY_REDIRECT",
+							$APPLICATION->GetCurPage(),
+							"==".base64_encode($url)
 					);
 
 				if(COption::GetOptionString("security", "redirect_action") == "show_message")
@@ -128,9 +127,9 @@ class CSecurityRedirect
 						$mess = CSecurityRedirect::GetDefaultMessage();
 						$charset = LANG_CHARSET;
 					}
-					$html_mess = str_replace("+", "&#43;", htmlspecialchars($mess));
+					$html_mess = str_replace("+", "&#43;", htmlspecialcharsbx($mess));
 
-					$html_url = '<nobr><a href="'.htmlspecialchars($url).'">'.htmlspecialchars($url).'</a></nobr>';
+					$html_url = '<nobr><a href="'.htmlspecialcharsbx($url).'">'.htmlspecialcharsbx($url).'</a></nobr>';
 					$html_mess = str_replace("#URL#", $html_url, $html_mess);
 		?>
 <html>

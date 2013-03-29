@@ -2,7 +2,7 @@
 /*.require_module 'bitrix_main_include_prolog_admin_before';.*/
 IncludeModuleLangFile(__FILE__);
 
-if(!$USER->IsAdmin())
+if(!$USER->CanDoOperation("clouds_config"))
 	return false;
 
 $arMenu = array(

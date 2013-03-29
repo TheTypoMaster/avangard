@@ -1,5 +1,9 @@
 <?
 define("STOP_STATISTICS", true);
+define("NO_AGENT_STATISTIC","Y");
+define("NO_AGENT_CHECK", true);
+define("DisableEventsCheck", true);
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?><?
 
@@ -12,25 +16,26 @@ $GLOBALS["MESS"] = $MESS1 + $GLOBALS["MESS"];
 CModule::IncludeModule("forum");
 // ************************* Input params***************************************************************
 // ************************* BASE **********************************************************************
-$arParams["FILE_ID"] = intVal($_REQUEST["fid"]);
-$arParams["WIDTH"] = (isset($_REQUEST['width']) && intval($_REQUEST['width'])>0) ? intval($_REQUEST['width']) : 0;
-$arParams["HEIGHT"] = (isset($_REQUEST['height']) && intval($_REQUEST['height'])>0) ? intval($_REQUEST['height']) : 0;
-$arParams["ACTION"] = ($_REQUEST["action"] == "download" ? "download" : "view");
-$arParams["PERMISSION"] = trim($arParams["PERMISSION"]);
-$arParams["PERMISSION"] = empty($arParams["PERMISSION"]) ? false : $arParams["PERMISSION"];
+$arParams = array(
+	"FILE_ID" => intval($_REQUEST["fid"]),
+	"WIDTH" => intval($_REQUEST['width']),
+	"HEIGHT" => intval($_REQUEST['height']),
+	"ACTION" => ($_REQUEST["action"] == "download" ? "download" : "view"),
+	"PERMISSION" => false
+);
 // *************************/Input params***************************************************************
 // ************************* Default params*************************************************************
-$arResult["MESSAGE"] = array();
-$arResult["FILE"] = array();
-
+$arResult = array(
+	"MESSAGE" => array(),
+	"FILE" => array()
+);
 $arError = array();
 if (intVal($arParams["FILE_ID"]) > 0)
 {
 	$db_res = CForumFiles::GetList(array("ID" => "ASC"), array("FILE_ID" => $arParams["FILE_ID"]));
-	if ($db_res && $res = $db_res->GetNext())
-	{
-		$arResult["FILE"] = $res;
-		$arResult["FILE"] += CFile::GetFileArray($arParams["FILE_ID"]);
+	if ($db_res && ($arResult["FILE"] = $db_res->GetNext())) {
+		$res = CFile::GetFileArray($arParams["FILE_ID"]);
+		if (!!$res) { $arResult["FILE"] += $res; }
 	}
 }
 
@@ -74,10 +79,41 @@ elseif (intVal($arResult["FILE"]["MESSAGE_ID"]) > 0)
 
 	if (IsModuleInstalled('tasks') && CModule::IncludeModule('tasks'))
 	{
-		$forumId = COption::GetOptionString("tasks", "task_forum_id", 0);
-		if ($arResult['FORUM']['ID'] == $forumId)
+		$tasksIsTasksJurisdiction = false;
+
+		// Insurance for cross-modules version compatibility
+		if (method_exists('CTasksTools','ListTasksForumsAsArray'))
 		{
-			if (CTasks::CanCurrentUserViewTopic($arResult["TOPIC"]['ID']))
+			try
+			{
+				$arTasksForums = CTasksTools::ListTasksForumsAsArray();
+
+				if (in_array((int) $arResult['FORUM']['ID'], $arTasksForums, true))
+					$tasksIsTasksJurisdiction = true;
+			}
+			catch (TasksException $e)
+			{
+				// do nothing
+			}
+		}
+		else
+		{
+			// TODO: this old code section to be removed in next versions.
+			$forumId = COption::GetOptionString('tasks', 'task_forum_id', -1);
+			if (
+				($forumId !== (-1)) 
+				&& ((int) $arResult['FORUM']['ID'] === (int) $forumId)
+			)
+			{
+				$tasksIsTasksJurisdiction = true;
+			}
+		}
+
+		if ($tasksIsTasksJurisdiction)
+		{
+			$arParams['PERMISSION'] = 'D';
+
+			if (CTasks::CanCurrentUserViewTopic($arResult['TOPIC']['ID']))
 				$arParams['PERMISSION'] = 'M';
 		}
 	}
@@ -182,13 +218,11 @@ if ($arParams["ACTION"] == "download")
 }
 else
 {
-	if (
-		strpos($arResult["FILE"]["CONTENT_TYPE"], "image/")!==false
-		&& strpos($arResult["FILE"]["CONTENT_TYPE"], "html")===false
+	if ((CFile::CheckImageFile(CFile::MakeFileArray($arResult["FILE"]["FILE_ID"])) === null)
 		&& (
 			(
 				file_exists($_SERVER["DOCUMENT_ROOT"].$arResult["FILE"]["SRC"])
-				&& GetImageSize($_SERVER["DOCUMENT_ROOT"].$arResult["FILE"]["SRC"])
+				&& CFile::GetImageSize($_SERVER["DOCUMENT_ROOT"].$arResult["FILE"]["SRC"])
 			) || (
 				$arResult["FILE"]["WIDTH"] > 0
 				&& $arResult["FILE"]["HEIGHT"] > 0
@@ -227,25 +261,8 @@ else
 			CFile::ViewByUser($arResult["FILE"], array("content_type" => "application/vnd.ms-excel"));
 		elseif (strpos($ct, "word") !== false)
 			CFile::ViewByUser($arResult["FILE"], array("content_type" => "application/msword"));
-		elseif (strpos($ct, "flash") !== false)
-			CFile::ViewByUser($arResult["FILE"], array("content_type" => "application/octet-stream"));
 		else
-		{
-			switch($ct)
-			{
-				case "text/xml":
-					CFile::ViewByUser($arResult["FILE"], array("content_type" => "application/octet-stream", "force_download" => true));
-					break;
-				case "application/pdf":
-					CFile::ViewByUser($arResult["FILE"], array("content_type" => "application/octet-stream"));
-					break;
-				case "pdf":
-					CFile::ViewByUser($arResult["FILE"], array("content_type" => "application/octet-stream"));
-					break;
-				default:
-					CFile::ViewByUser($arResult["FILE"], array("content_type" => "application/octet-stream", "specialchars" => true));
-			}
-		}
+			CFile::ViewByUser($arResult["FILE"], array("content_type" => "application/octet-stream", "force_download" => true));
 	}
 }
 // *****************************************************************************************

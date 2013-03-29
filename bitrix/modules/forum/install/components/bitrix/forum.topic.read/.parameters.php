@@ -89,12 +89,6 @@ $arComponentParameters = array(
 			"NAME" => GetMessage("F_USER_POST_TEMPLATE"),
 			"TYPE" => "STRING",
 			"DEFAULT" => "user_post.php?UID=#UID#&mode=#mode#"),
-			
-		"PAGEN" => Array(
-			"PARENT" => "ADDITIONAL_SETTINGS",
-			"NAME" => GetMessage("F_PAGEN"),
-			"TYPE" => "STRING",
-			"DEFAULT" => intVal($GLOBALS["NavNum"] + 1)),
 		"PATH_TO_SMILE" => Array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_DEFAULT_PATH_TO_SMILE"),
@@ -127,10 +121,10 @@ $arComponentParameters = array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("F_IMAGE_SIZE"),
 			"TYPE" => "STRING",
-			"DEFAULT" => 300),
-	    "SHOW_FIRST_POST" => array(
+			"DEFAULT" => 500),
+		"SHOW_FIRST_POST" => array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
-	        "NAME" => GetMessage("F_SHOW_FIRST_POST"),
+			"NAME" => GetMessage("F_SHOW_FIRST_POST"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N"),
 		"SET_NAVIGATION" => Array(

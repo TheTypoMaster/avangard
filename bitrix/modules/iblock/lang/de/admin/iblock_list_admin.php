@@ -39,6 +39,7 @@ $MESS["IBLIST_A_WF_DATE_LOCK"] = "Blockiert am";
 $MESS["IBLIST_A_WF_COMMENTS"] = "Kommentar des Adminstrators";
 $MESS["IBLIST_A_CATALOG_QUANTITY"] = "Anzahl auf Lager";
 $MESS["IBLIST_A_CATALOG_QUANTITY_TRACE"] = "Menge beim Bestellen reduzieren";
+$MESS["IBLIST_A_CATALOG_WEIGHT"] = "Gewicht (Gramm)";
 $MESS["IBLIST_A_LIST"] = "Unterbereiche";
 $MESS["IBLIST_A_EDIT"] = "Element bearbeiten";
 $MESS["IBLIST_A_USERINFO"] = "Userparameter anzeigen";
@@ -93,4 +94,9 @@ $MESS["IBLIST_A_WF_STATUS_CHANGE"] = "Status ändern";
 $MESS["IBLIST_A_ACCESS_DENIED_STATUS"] = "Sie haben nicht genügend Rechte, um diesen Eintrag im aktuellen Status zu bearbeiten";
 $MESS["IBLIST_A_OFFERS"] = "Produktvariante";
 $MESS["IBLIST_NOT_SET"] = "(nicht festgelegt)";
+$MESS["IBLIST_A_DEACTIVATE"] = "Deaktivieren";
+$MESS["IBLIST_A_ACTIVATE"] = "Aktivieren";
+$MESS["IBLIST_DEFAULT_VALUE"] = "standardmäßig";
+$MESS["IBLIST_YES_VALUE"] = "ja";
+$MESS["IBLIST_NO_VALUE"] = "nein";
 ?>

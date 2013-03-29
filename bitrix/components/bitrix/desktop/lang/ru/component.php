@@ -28,5 +28,5 @@ $MESS["CMDESKTOP_GROUP_SONET_GROUP"] = "Информация группы";
 $MESS["CMDESKTOP_GROUP_SONET_GROUP_DESCR"] = "Информация рабочей группы социальной сети";
 $MESS["CMDESKTOP_GROUP_SONET_USER"] = "Информация пользователя";
 $MESS["CMDESKTOP_GROUP_SONET_USER_DESCR"] = "Информация профиля пользователя социальной сети";
-$MESS["CMDESKTOP_NAME_TEMPLATE_DEFAULT"] = "#NOBR##LAST_NAME# #NAME##/NOBR#";
+$MESS["CMDESKTOP_NAME_TEMPLATE_DEFAULT"] = "#LAST_NAME# #NAME#";
 ?>

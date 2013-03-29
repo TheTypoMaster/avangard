@@ -22,6 +22,7 @@ $MESS["IBEL_E_IBLOCK_SECTIONS"] = "Разделы";
 $MESS["IBEL_E_COPY_ELEMENT"] = "Копировать";
 $MESS["IBEL_E_COPY_ELEMENT_TITLE"] = "Копировать элемент";
 $MESS["IBLOCK_ACCESS_DENIED_STATUS"] = "У вас нет прав на редактирование данной записи в ее текущем статусе";
+$MESS["IBLOCK_ACCESS_DENIED_SECTION"] = "У вас нет прав на привязку элемента к указанным разделам.";
 $MESS["IBLOCK_TCATALOG"] = "Торговый каталог";
 $MESS["IBLOCK_WRONG_WF_STATUS"] = "Неверный статус";
 $MESS["IBLOCK_SECTION"] = "Разделы:";
@@ -61,4 +62,6 @@ $MESS["IBEL_E_RIGHTS_SECTION_TITLE"] = "Права доступа к элементу";
 $MESS["IBEL_E_RIGHTS_FIELD"] = "Права доступа к элементу";
 $MESS["IBEL_E_WARNING"] = "Предупреждение.";
 $MESS["IBEL_E_TRANSLATION_SERVICE_NOT_CONFIGURED"] = "Внешний сервис перевода не настроен. Выполните настройку сервиса в <a href=\"settings.php?mid=main\">главном модуле</a>.";
+$MESS["IBLOCK_EL_SAVE_AND_ADD"] = "Сохранить и добавить";
+$MESS["IBEL_HIST"] = "История изменений";
 ?>

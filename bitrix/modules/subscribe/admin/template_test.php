@@ -132,7 +132,7 @@ $tabControl->BeginNextTab();
 ?>
 	<tr>
 		<td><?echo GetMessage("rub_name")?></td>
-		<td><input type="hidden" name="ID" value="<?echo $ID;?>"><?=htmlspecialchars($arRubric["NAME"])?></td>
+		<td><input type="hidden" name="ID" value="<?echo $ID;?>"><?=htmlspecialcharsbx($arRubric["NAME"])?></td>
 	</tr>
 	<?
 	$arTemplate = CPostingTemplate::GetByID($arRubric["TEMPLATE"]);
@@ -140,30 +140,30 @@ $tabControl->BeginNextTab();
 	?>
 	<tr>
 		<td><?echo GetMessage("rub_tmpl_name")?></td>
-		<td><?=htmlspecialchars($arTemplate["NAME"])?></td>
+		<td><?=htmlspecialcharsbx($arTemplate["NAME"])?></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("rub_tmpl_desc")?></td>
-		<td><?=htmlspecialchars($arTemplate["DESCRIPTION"])?></td>
+		<td><?=htmlspecialcharsbx($arTemplate["DESCRIPTION"])?></td>
 	</tr>
 	<?endif;?>
 	<tr class="heading">
 		<td colspan="2"><?echo GetMessage("rub_times")?></td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span><?echo GetMessage("rub_stime")." (".FORMAT_DATETIME."):"?></td>
-		<td><?echo CalendarDate("START_TIME", htmlspecialchars($START_TIME), "post_form", "20")?></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("rub_stime").":"?></td>
+		<td><?echo CalendarDate("START_TIME", htmlspecialcharsbx($START_TIME), "post_form", "20")?></td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span><?echo GetMessage("rub_etime")." (".FORMAT_DATETIME."):"?></td>
-		<td><?echo CalendarDate("END_TIME", htmlspecialchars($END_TIME), "post_form", "20")?></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("rub_etime").":"?></td>
+		<td><?echo CalendarDate("END_TIME", htmlspecialcharsbx($END_TIME), "post_form", "20")?></td>
 	</tr>
 <?
 $tabControl->Buttons();
 ?>
 <?echo bitrix_sessid_post();?>
 <input type="hidden" name="lang" value="<?echo LANG?>">
-<input <?if ($POST_RIGHT<"W") echo "disabled" ?> type="submit" name="Test" value="<?echo GetMessage("rub_action")?>" title="<?echo GetMessage("rub_action_title")?>">
+<input <?if ($POST_RIGHT<"W") echo "disabled" ?> type="submit" name="Test" value="<?echo GetMessage("rub_action")?>" title="<?echo GetMessage("rub_action_title")?>" class="adm-btn-save">
 <?
 $tabControl->End();
 ?>
@@ -234,8 +234,8 @@ function show(id)
 	<?foreach($arRubric as $key=>$value):?>
 	<tr>
 		<td align="left"  width="20%" class="left"><?echo $arFieldDescriptions[$key]?></td>
-		<td align="right" width="10%"><?echo htmlspecialchars($key)?></td>
-		<td align="left"  width="70%" class="right"><?echo strlen($value)? htmlspecialchars($value): "&nbsp"?></td>
+		<td align="right" width="10%"><?echo htmlspecialcharsbx($key)?></td>
+		<td align="left"  width="70%" class="right"><?echo strlen($value)? htmlspecialcharsbx($value): "&nbsp"?></td>
 	</tr>
 	<?endforeach?>
 </table>
@@ -274,13 +274,13 @@ hide("INPUT");
 	</tr>
 	<?foreach($arFields as $key=>$value):
 		if($key == "FILES" && is_array($value))
-			$value = "<pre>".htmlspecialchars(print_r($value, true))."</pre>";
+			$value = "<pre>".htmlspecialcharsbx(print_r($value, true))."</pre>";
 		else
-			$value = htmlspecialchars(print_r($value, true));
+			$value = htmlspecialcharsbx(print_r($value, true));
 	?>
 	<tr>
 		<td align="left"  width="20%" class="left"><?echo $arFieldDescriptions[$key]?></td>
-		<td align="right" width="10%"><?echo htmlspecialchars($key)?></td>
+		<td align="right" width="10%"><?echo htmlspecialcharsbx($key)?></td>
 		<td align="left"  width="70%" class="right"><?echo strlen($value)? $value: "&nbsp"?></td>
 	</tr>
 	<?endforeach?>
@@ -296,48 +296,44 @@ hide("OUTPUT");
 <form method="post" action="posting_edit.php" ENCTYPE="multipart/form-data" name="add_form">
 <?echo bitrix_sessid_post();?>
 <input type="hidden" name="lang" value="<?echo LANG?>">
-<input type="hidden" name="RUB_ID[]" value="<?=htmlspecialchars($arRubric["ID"])?>">
+<input type="hidden" name="RUB_ID[]" value="<?=htmlspecialcharsbx($arRubric["ID"])?>">
 <?if(array_key_exists("GROUP_ID", $arFields)):
 	if(is_array($arFields["GROUP_ID"]))
 	{
 		foreach($arFields["GROUP_ID"] as $GROUP_ID)
 		{
-			?><input type="hidden" name="GROUP_ID[]" value="<?=htmlspecialchars($GROUP_ID)?>"><?
+			?><input type="hidden" name="GROUP_ID[]" value="<?=htmlspecialcharsbx($GROUP_ID)?>"><?
 		}
 	}
 	else
 	{
-		?><input type="hidden" name="GROUP_ID[]" value="<?=htmlspecialchars($arFields["GROUP_ID"])?>"><?
+		?><input type="hidden" name="GROUP_ID[]" value="<?=htmlspecialcharsbx($arFields["GROUP_ID"])?>"><?
 	}
 endif;?>
 <?if(array_key_exists("FILES", $arFields) && is_array($arFields["FILES"])):
 	foreach($arFields["FILES"] as $i => $arFile)
 	{
-		$i = htmlspecialchars($i);
+		$i = htmlspecialcharsbx($i);
 		if(is_array($arFile))
 		{
 			foreach($arFile as $key => $value)
 			{
-				$key = htmlspecialchars($key);
-				$value = htmlspecialchars($value);
+				$key = htmlspecialcharsbx($key);
+				$value = htmlspecialcharsbx($value);
 				?><input type="hidden" name="FILES[<?echo $i?>][<?echo $key?>]" value="<?echo $value?>"><?
 			}
 		}
 	}
 endif;?>
-<input type="hidden" name="FROM_FIELD" value="<?=htmlspecialchars($arFields["FROM_FIELD"])?>">
-<input type="hidden" name="SUBJECT" value="<?=htmlspecialchars($arFields["SUBJECT"])?>">
-<input type="hidden" name="BODY_TYPE" value="<?=htmlspecialchars($arFields["BODY_TYPE"])?>">
-<input type="hidden" name="CHARSET" value="<?=htmlspecialchars($arFields["CHARSET"])?>">
-<input type="hidden" name="DIRECT_SEND" value="<?=htmlspecialchars($arFields["DIRECT_SEND"])?>">
-<input type="hidden" name="BODY" value="<?=htmlspecialchars($strBody)?>">
+<input type="hidden" name="FROM_FIELD" value="<?=htmlspecialcharsbx($arFields["FROM_FIELD"])?>">
+<input type="hidden" name="SUBJECT" value="<?=htmlspecialcharsbx($arFields["SUBJECT"])?>">
+<input type="hidden" name="BODY_TYPE" value="<?=htmlspecialcharsbx($arFields["BODY_TYPE"])?>">
+<input type="hidden" name="CHARSET" value="<?=htmlspecialcharsbx($arFields["CHARSET"])?>">
+<input type="hidden" name="DIRECT_SEND" value="<?=htmlspecialcharsbx($arFields["DIRECT_SEND"])?>">
+<input type="hidden" name="BODY" value="<?=htmlspecialcharsbx($strBody)?>">
 <input <?if ($POST_RIGHT<"W") echo "disabled" ?> type="submit" name="apply" value="<?=GetMessage("rub_add_issue")?>" title="<?=GetMessage("rub_add_issue_act")?>">
 </form>
 	<?endif?>
 <?endif?>
-
-<?echo BeginNote();?>
-<span class="required">*</span><?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote();?>
 
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

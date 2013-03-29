@@ -16,7 +16,7 @@ class CUserTypeStringFormatted extends CUserTypeString
 	function PrepareSettings($arUserField)
 	{
 		$size = intval($arUserField["SETTINGS"]["SIZE"]);
-		$rows = intval($arUserField["SETTINGS"]["ROWS"]);		
+		$rows = intval($arUserField["SETTINGS"]["ROWS"]);
 		$min = intval($arUserField["SETTINGS"]["MIN_LENGTH"]);
 		$max = intval($arUserField["SETTINGS"]["MAX_LENGTH"]);
 
@@ -27,37 +27,37 @@ class CUserTypeStringFormatted extends CUserTypeString
 			"MIN_LENGTH" => $min,
 			"MAX_LENGTH" => $max,
 			"DEFAULT_VALUE" => $arUserField["SETTINGS"]["DEFAULT_VALUE"],
-			"PATTERN" => $arUserField["SETTINGS"]["PATTERN"],			
+			"PATTERN" => $arUserField["SETTINGS"]["PATTERN"],
 		);
 	}
-	
+
 	function GetSettingsHTML($arUserField = false, $arHtmlControl, $bVarsFromForm)
 	{
 		$result = '';
 		if($bVarsFromForm)
-			$value = htmlspecialchars($GLOBALS[$arHtmlControl["NAME"]]["PATTERN"]);
+			$value = htmlspecialcharsbx($GLOBALS[$arHtmlControl["NAME"]]["PATTERN"]);
 		elseif(is_array($arUserField))
-			$value = htmlspecialchars($arUserField["SETTINGS"]["PATTERN"]);
+			$value = htmlspecialcharsbx($arUserField["SETTINGS"]["PATTERN"]);
 		else
 			$value = "#VALUE#";
-			
+
 		$result .= '
-		<tr valign="top">
-			<td>'.GetMessage("USER_TYPE_STRINGFMT_PATTERN").':</td>
+		<tr>
+			<td class="adm-detail-valign-top">'.GetMessage("USER_TYPE_STRINGFMT_PATTERN").':</td>
 			<td>
 				<textarea name="'.$arHtmlControl["NAME"].'[PATTERN]" cols="40" rows="5">'.$value.'</textarea>
 			</td>
 		</tr>
-		';		
+		';
 		if($bVarsFromForm)
-			$value = htmlspecialchars($GLOBALS[$arHtmlControl["NAME"]]["DEFAULT_VALUE"]);
+			$value = htmlspecialcharsbx($GLOBALS[$arHtmlControl["NAME"]]["DEFAULT_VALUE"]);
 		elseif(is_array($arUserField))
-			$value = htmlspecialchars($arUserField["SETTINGS"]["DEFAULT_VALUE"]);
+			$value = htmlspecialcharsbx($arUserField["SETTINGS"]["DEFAULT_VALUE"]);
 		else
 			$value = "";
-			
+
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_STRINGFMT_DEFAULT_VALUE").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[DEFAULT_VALUE]" size="20"  maxlength="225" value="'.$value.'">
@@ -71,7 +71,7 @@ class CUserTypeStringFormatted extends CUserTypeString
 		else
 			$value = 20;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_STRINGFMT_SIZE").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[SIZE]" size="20"  maxlength="20" value="'.$value.'">
@@ -86,7 +86,7 @@ class CUserTypeStringFormatted extends CUserTypeString
 			$value = 1;
 		if($value < 1) $value = 1;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_STRINGFMT_ROWS").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[ROWS]" size="20"  maxlength="20" value="'.$value.'">
@@ -100,7 +100,7 @@ class CUserTypeStringFormatted extends CUserTypeString
 		else
 			$value = 0;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_STRINGFMT_MIN_LEGTH").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[MIN_LENGTH]" size="20"  maxlength="20" value="'.$value.'">
@@ -114,7 +114,7 @@ class CUserTypeStringFormatted extends CUserTypeString
 		else
 			$value = 0;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_STRINGFMT_MAX_LENGTH").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[MAX_LENGTH]" size="20"  maxlength="20" value="'.$value.'">
@@ -122,13 +122,13 @@ class CUserTypeStringFormatted extends CUserTypeString
 		</tr>
 		';
 		if($bVarsFromForm)
-			$value = htmlspecialchars($GLOBALS[$arHtmlControl["NAME"]]["REGEXP"]);
+			$value = htmlspecialcharsbx($GLOBALS[$arHtmlControl["NAME"]]["REGEXP"]);
 		elseif(is_array($arUserField))
-			$value = htmlspecialchars($arUserField["SETTINGS"]["REGEXP"]);
+			$value = htmlspecialcharsbx($arUserField["SETTINGS"]["REGEXP"]);
 		else
 			$value = "";
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_STRINGFMT_REGEXP").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[REGEXP]" size="20"  maxlength="200" value="'.$value.'">
@@ -140,22 +140,11 @@ class CUserTypeStringFormatted extends CUserTypeString
 
 	function GetPublicViewHTML($arUserField, $arHtmlControl)
 	{
-		$val = htmlspecialcharsback($arHtmlControl["VALUE"]);
+		$val = $arHtmlControl["VALUE"];
 		if (strlen(trim($val)) <= 0)
 			return "";
-			
+
 		return $val;
-/*		
-		str_replace(
-				array("#VALUE#"),
-				array($val),
-				$arUserField["SETTINGS"]["PATTERN"]
-			);
-*/
-			
 	}
-
 }
-
-AddEventHandler("main", "OnUserTypeBuildList", array("CUserTypeStringFormatted", "GetUserTypeDescription"));
 ?>

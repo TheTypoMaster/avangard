@@ -13,7 +13,7 @@
 		"PROPERTY_CODE" => $arParams["COMPARE_PROPERTY_CODE"],
 		"NAME" => $arParams["COMPARE_NAME"],
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
- 		"CACHE_TIME" => $arParams["CACHE_TIME"],
+		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"PRICE_CODE" => $arParams["PRICE_CODE"],
 		"USE_PRICE_COUNT" => $arParams["USE_PRICE_COUNT"],
 		"SHOW_PRICE_COUNT" => $arParams["SHOW_PRICE_COUNT"],
@@ -29,6 +29,8 @@
 		//Template parameters
 		"LINK_IBLOCK_ID" => $arParams["LINK_IBLOCK_ID"],
 		"LINK_PROPERTY_SID" => $arParams["LINK_PROPERTY_SID"],
+		'CONVERT_CURRENCY' => $arParams['CONVERT_CURRENCY'],
+		'CURRENCY_ID' => $arParams['CURRENCY_ID'],
 	),
 	$component
 );?>

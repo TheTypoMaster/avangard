@@ -24,7 +24,7 @@ $path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/lang/".LANGUAGE_
 include_once($path);
 $resultValue  = $arRatingResult['TOTAL_VALUE'];
 $resultStatus = $resultValue < 0 ? 'minus' : 'plus';
-$resultTitle  = sprintf(GetMessage("RATING_COMPONENT_DESC"), $arRatingResult['TOTAL_VOTES'], $arRatingResult['TOTAL_POSITIVE_VOTES'], $arRatingResult['TOTAL_NEGATIVE_VOTES']);
+$resultTitle  = sprintf($MESS["RATING_COMPONENT_DESC"], $arRatingResult['TOTAL_VOTES'], $arRatingResult['TOTAL_POSITIVE_VOTES'], $arRatingResult['TOTAL_NEGATIVE_VOTES']);
 
 echo '{"result" : "true", "resultValue" : "'.$resultValue.'", "resultStatus" : "'.$resultStatus.'", "resultTitle" : "'.$resultTitle.'"}';
 

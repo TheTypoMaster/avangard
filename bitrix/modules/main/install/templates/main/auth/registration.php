@@ -13,7 +13,7 @@ else
 
 ShowMessage($arAuthResult);
 ?>
-<form method="POST" action="<?echo htmlspecialchars($page).(($s=DeleteParam(array("register"))) == ""? "?register=yes":"?$s&register=yes")?>" name="bform">
+<form method="POST" action="<?echo htmlspecialcharsbx($page).(($s=DeleteParam(array("register"))) == ""? "?register=yes":"?$s&register=yes")?>" name="bform">
 <?=$str?>
 <input type="hidden" name="AUTH_FORM" value="Y">
 <input type="hidden" name="TYPE" value="REGISTRATION">
@@ -32,27 +32,27 @@ ShowMessage($arAuthResult);
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap width="1%" class="tablebody"><font class="tablebodytext"><?=GetMessage("AUTH_NAME")?></font></td>
-					<td align="left" width="99%" class="tablebody"><input type="text" name="USER_NAME" size="30" maxlength="50" value="<?echo htmlspecialchars($USER_NAME)?>" class="inputtext"></td>
+					<td align="left" width="99%" class="tablebody"><input type="text" name="USER_NAME" size="30" maxlength="50" value="<?echo htmlspecialcharsbx($USER_NAME)?>" class="inputtext"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap class="tablebody"><font class="tablebodytext"><?=GetMessage("AUTH_LAST_NAME")?></font></td>
-					<td align="left" class="tablebody"><input type="text" name="USER_LAST_NAME" maxlength="50" size="30" value="<?echo htmlspecialchars($USER_LAST_NAME)?>" class="inputtext"></td>
+					<td align="left" class="tablebody"><input type="text" name="USER_LAST_NAME" maxlength="50" size="30" value="<?echo htmlspecialcharsbx($USER_LAST_NAME)?>" class="inputtext"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap class="tablebody"><font class="starrequired">*</font><font class="tablebodytext"><?=GetMessage("AUTH_LOGIN_MIN")?></font></td>
-					<td align="left" class="tablebody"><input type="text" name="USER_LOGIN" size="30" maxlength="50" value="<?echo htmlspecialchars($USER_LOGIN)?>" class="inputtext"></td>
+					<td align="left" class="tablebody"><input type="text" name="USER_LOGIN" size="30" maxlength="50" value="<?echo htmlspecialcharsbx($USER_LOGIN)?>" class="inputtext"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap class="tablebody"><font class="starrequired">*</font><font class="tablebodytext"><?=GetMessage("AUTH_PASSWORD_MIN")?></font></td>
-					<td align="left" class="tablebody"><input type="password" name="USER_PASSWORD" size="30" maxlength="50" value="<?echo htmlspecialchars($USER_PASSWORD)?>" class="inputtext"></td>
+					<td align="left" class="tablebody"><input type="password" name="USER_PASSWORD" size="30" maxlength="50" value="<?echo htmlspecialcharsbx($USER_PASSWORD)?>" class="inputtext"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap class="tablebody"><font class="starrequired">*</font><font  class="tablebodytext"><?=GetMessage("AUTH_CONFIRM")?></font></td>
-					<td align="left" class="tablebody"><input type="password" name="USER_CONFIRM_PASSWORD" size="30" maxlength="50" value="<?echo htmlspecialchars($USER_CONFIRM_PASSWORD)?>" class="inputtext"></td>
+					<td align="left" class="tablebody"><input type="password" name="USER_CONFIRM_PASSWORD" size="30" maxlength="50" value="<?echo htmlspecialcharsbx($USER_CONFIRM_PASSWORD)?>" class="inputtext"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap class="tablebody"><font class="starrequired">*</font><font  class="tablebodytext">E-Mail:</font></td>
-					<td align="left" class="tablebody"><input type="text" name="USER_EMAIL" size="30" maxlength="255" value="<?echo htmlspecialchars(strlen($sf_EMAIL)>0? $sf_EMAIL:$USER_EMAIL)?>" class="inputtext"></td>
+					<td align="left" class="tablebody"><input type="text" name="USER_EMAIL" size="30" maxlength="255" value="<?echo htmlspecialcharsbx(strlen($sf_EMAIL)>0? $sf_EMAIL:$USER_EMAIL)?>" class="inputtext"></td>
 				</tr>
 
 				<?
@@ -63,7 +63,7 @@ ShowMessage($arAuthResult);
 				{
 					if ($arUserField["MANDATORY"] != "Y")
 						continue;
-					$arUserField["EDIT_FORM_LABEL"] = htmlspecialchars(strLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"]);
+					$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsbx(strLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"]);
 				?><tr valign="top"> 
 					<td align="right" nowrap class="tablebody"><?if ($arUserField["MANDATORY"]=="Y"):?><span class="required">*</span><?endif;?><font  class="tablebodytext"><?=$arUserField["EDIT_FORM_LABEL"]?>:</font></td>
 					<td align="left" class="tablebody"><?$APPLICATION->IncludeComponent(
@@ -92,8 +92,8 @@ ShowMessage($arAuthResult);
 							<?
 							$capCode = $GLOBALS["APPLICATION"]->CaptchaGetCode();
 							?>
-							<input type="hidden" name="captcha_sid" value="<?= htmlspecialchars($capCode) ?>">
-							<img src="/bitrix/tools/captcha.php?captcha_sid=<?= htmlspecialchars($capCode) ?>" width="180" height="40">
+							<input type="hidden" name="captcha_sid" value="<?= htmlspecialcharsbx($capCode) ?>">
+							<img src="/bitrix/tools/captcha.php?captcha_sid=<?= htmlspecialcharsbx($capCode) ?>" width="180" height="40">
 						</td>
 					</tr>
 					<tr valign="middle"> 

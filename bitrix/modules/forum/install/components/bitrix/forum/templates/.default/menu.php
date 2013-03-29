@@ -66,9 +66,11 @@ if (IsModuleInstalled("search")):
 <?	
 endif;
 ?>
+<? if ($arParams['SHOW_FORUM_USERS'] === 'Y') { ?>
 		<span class="forum-menu-item <?
 			?><?=($GLOBALS["USER"]->IsAuthorized() || IsModuleInstalled("search") ? "" : "forum-menu-item-first")?><?
 			?> forum-menu-users"><a href="<?=$arResult["URL_TEMPLATES"]["USERS"]?>"><span><?=GetMessage("F_USERS")?></span></a>&nbsp;</span>
+<? } ?>
 		<span class="forum-menu-item <?
 			?><?=($arParams["SHOW_AUTH_FORM"] == "Y" ? "" : "forum-menu-item-last")?><?
 			?> forum-menu-rules"><a href="<?=$arResult["URL_TEMPLATES"]["RULES"]?>"><span><?=GetMessage("F_RULES")?></span></a>&nbsp;</span>

@@ -10,7 +10,7 @@ class CAccess
 	public function __construct($arParams=false)
 	{
 		$this->arParams = $arParams;
-		
+
 		if(!is_array(self::$arAuthProviders))
 		{
 			self::$arAuthProviders = array();
@@ -33,7 +33,7 @@ class CAccess
 	public static function Cmp($a, $b)
 	{
 		if($a["SORT"] == $b["SORT"])
-			 return 0; 
+			return 0;
 		return ($a["SORT"] < $b["SORT"]? -1 : 1);
 	}
 
@@ -41,26 +41,26 @@ class CAccess
 	{
 		global $DB;
 		$USER_ID = intval($USER_ID);
-		
+
 		if(!isset(self::$arChecked[$provider][$USER_ID]))
 		{
 			$res = $DB->Query("
-				select * 
-				from b_user_access_check 
+				select *
+				from b_user_access_check
 				where user_id=".$USER_ID."
 			");
-	
+
 			while($arRes = $res->Fetch())
 				self::$arChecked[$arRes["PROVIDER_ID"]][$USER_ID] = true;
-				
+
 			foreach(self::$arAuthProviders as $provider_id=>$dummy)
 				if(!isset(self::$arChecked[$provider_id][$USER_ID]))
 					self::$arChecked[$provider_id][$USER_ID] = false;
 		}
-		
+
 		if(self::$arChecked[$provider][$USER_ID] === true)
 			return true;
-		
+
 		return false;
 	}
 
@@ -73,7 +73,7 @@ class CAccess
 			$USER_ID = intval($arParams["USER_ID"]);
 		elseif(is_object($USER) && $USER->IsAuthorized())
 			$USER_ID = intval($USER->GetID());
-		
+
 		if($USER_ID > 0)
 		{
 			foreach(self::$arAuthProviders as $provider_id=>$provider)
@@ -94,21 +94,26 @@ class CAccess
 			}
 		}
 	}
-	
+
 	protected static function UpdateStat($provider, $USER_ID)
 	{
 		global $DB;
 		$USER_ID = intval($USER_ID);
-		
-		$DB->Query("insert into b_user_access_check (user_id, provider_id) values (".$USER_ID.", '".$DB->ForSQL($provider)."')");
 
-		self::$arChecked[$provider][$USER_ID] = true;
+		$res = $DB->Query("
+			INSERT INTO b_user_access_check (USER_ID, PROVIDER_ID)
+			SELECT ID, '".$DB->ForSQL($provider)."'
+			FROM b_user
+			WHERE ID=".$USER_ID
+		);
+
+		self::$arChecked[$provider][$USER_ID] = ($res->AffectedRowsCount() > 0);
 	}
-	
+
 	public static function ClearStat($provider=false, $USER_ID=false)
 	{
 		global $DB;
-		
+
 		$arWhere = array();
 		if($provider !== false)
 			$arWhere[] = "provider_id='".$DB->ForSQL($provider)."'";
@@ -118,7 +123,7 @@ class CAccess
 		$sWhere = '';
 		if(!empty($arWhere))
 			$sWhere = " where ".implode(" and ", $arWhere);
-			
+
 		$DB->Query("delete from b_user_access_check ".$sWhere);
 
 		if($provider === false && $USER_ID === false)
@@ -144,7 +149,7 @@ class CAccess
 	public static function GetUserCodes($USER_ID, $arFilter=array())
 	{
 		global $DB;
-		
+
 		$arWhere = array();
 		foreach($arFilter as $key=>$val)
 		{
@@ -166,14 +171,14 @@ class CAccess
 					break;
 			}
 		}
-		
+
 		$sWhere = '';
 		if(!empty($arWhere))
 			$sWhere = " and ".implode(" and ", $arWhere);
-		
+
 		return $DB->Query("select * from b_user_access where user_id=".intval($USER_ID).$sWhere);
 	}
-	
+
 	public function GetFormHtml($arParams=false)
 	{
 		$arHtml = array();
@@ -221,7 +226,7 @@ class CAccess
 					$arResult = array_merge($arResult, $res);
 			}
 		}
-		
+
 		//possible unhandled values
 		foreach($arCodes as $code)
 			if(!array_key_exists($code, $arResult))
@@ -235,7 +240,7 @@ class CAccess
 
 	public static function CmpNames($a, $b)
 	{
-		$c = strcmp($a["provider"], $b["provider"]); 
+		$c = strcmp($a["provider"], $b["provider"]);
 		if($c <> 0)
 			return $c;
 
@@ -292,7 +297,7 @@ class CAccess
 
 		self::ClearStat(false, $USER_ID);
 	}
-	
+
 	public static function SaveLastRecentlyUsed($arLRU)
 	{
 		foreach($arLRU as $provider=>$arRecent)
@@ -300,11 +305,11 @@ class CAccess
 			if(is_array($arRecent))
 			{
 				$arLastRecent = CUserOptions::GetOption("access_dialog_recent", $provider, array());
-	
+
 				$arItems = array_keys($arRecent);
 				$arItems = array_unique(array_merge($arItems, $arLastRecent));
 				$arItems = array_slice($arItems, 0, 20);
-		
+
 				CUserOptions::SetOption("access_dialog_recent", $provider, $arItems);
 			}
 		}

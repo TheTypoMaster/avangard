@@ -33,9 +33,10 @@ endif;
 			$arParams["~URL_TEMPLATES_".strToUpper($URL)] = ForumAddPageParams($arParams["URL_TEMPLATES_".strToUpper($URL)], 
 				array("by" => $by, "order" => $order), false, false);
 		endif;
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
+//	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 /***************** STANDART ****************************************/
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
@@ -82,8 +83,6 @@ endif;
 /********************************************************************
 				/Default params
 ********************************************************************/
-
-	ForumSetLastVisit();
 
 /********************************************************************
 				Action
@@ -174,6 +173,29 @@ if (!empty($action))
 								"id" => "not_delete",
 								"text" => GetMessage("PM_NOT_DELETE"));
 						}
+						if (empty($arError))
+						{
+							BXClearCache(true, "/bitrix/forum/user/".$USER->GetId()."/");
+							$arComponentPath = array("bitrix:forum");
+							foreach ($arComponentPath as $path)
+							{
+								$componentRelativePath = CComponentEngine::MakeComponentPath($path);
+								$arComponentDescription = CComponentUtil::GetComponentDescr($path);
+
+								if (strLen($componentRelativePath) <= 0 || !is_array($arComponentDescription))
+									continue;
+								elseif (!array_key_exists("CACHE_PATH", $arComponentDescription))
+									continue;
+
+								$path = str_replace("//", "/", $componentRelativePath."/user".$USER->GetID());
+
+								if ($arComponentDescription["CACHE_PATH"] == "Y")
+									$path = "/".SITE_ID.$path;
+
+								if (!empty($path))
+									BXClearCache(true, $path);
+							}
+						}
 					endif;
 				endforeach;
 				break;
@@ -217,12 +239,12 @@ if ($arParams["mode"] == "edit" || $arParams["mode"] == "new")
 {
 	if (intVal($arParams["FID"]) > 0)
 	{
- 		$db_res = CForumPMFolder::GetByID($arParams["FID"]);
- 		if ($db_res && ($res = $db_res->GetNext()))
- 		{
- 			$arResult["FOLDER"] = $res;
- 			$arResult["POST_VALUES"]["FOLDER_TITLE"] = $res["TITLE"];
- 		}
+		$db_res = CForumPMFolder::GetByID($arParams["FID"]);
+		if ($db_res && ($res = $db_res->GetNext()))
+		{
+			$arResult["FOLDER"] = $res;
+			$arResult["POST_VALUES"]["FOLDER_TITLE"] = $res["TITLE"];
+		}
 	}
 	if (!empty($arError))
 	{
@@ -275,6 +297,9 @@ else
 /********************************************************************
 				/Data
 ********************************************************************/
+/*******************************************************************/
+$this->IncludeComponentTemplate();
+/*******************************************************************/
 if ($arParams["SET_NAVIGATION"] != "N")
 {
 	if ($arParams["mode"] == "edit" || $arParams["mode"] == "new")
@@ -285,9 +310,9 @@ if ($arParams["SET_NAVIGATION"] != "N")
 		else
 			$APPLICATION->AddChainItem(GetMessage("PM_TITLE_NEW"));
 	}
-	else 
+	else
 		$APPLICATION->AddChainItem(GetMessage("PM_PM"));
-} 
+}
 /*******************************************************************/
 if ($arParams["SET_TITLE"] != "N")
 {
@@ -298,6 +323,4 @@ if ($arParams["SET_TITLE"] != "N")
 	else
 		$APPLICATION->SetTitle(GetMessage("PM_PM"));
 }
-/*******************************************************************/
-$this->IncludeComponentTemplate();
 ?>

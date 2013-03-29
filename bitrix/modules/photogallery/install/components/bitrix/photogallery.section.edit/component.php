@@ -20,6 +20,7 @@ if (empty($arParams["INDEX_URL"]) && !empty($arParams["SECTIONS_TOP_URL"]))
 
 	$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
 	$arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
+	$iblockId = $arParams["IBLOCK_ID"];
 	$arParams["SECTION_ID"] = intVal($arParams["SECTION_ID"]);
 	$arParams["USER_ALIAS"] = preg_replace("/[^a-z0-9\_]+/is" , "", $arParams["USER_ALIAS"]);
 	$arParams["BEHAVIOUR"] = ($arParams["BEHAVIOUR"] == "USER" ? "USER" : "SIMPLE");
@@ -63,7 +64,7 @@ if (empty($arParams["INDEX_URL"]) && !empty($arParams["SECTIONS_TOP_URL"]))
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["DATE_TIME_FORMAT"] = trim(!empty($arParams["DATE_TIME_FORMAT"]) ? $arParams["DATE_TIME_FORMAT"] : $GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("SHORT")));
@@ -77,18 +78,14 @@ if (empty($arParams["INDEX_URL"]) && !empty($arParams["SECTIONS_TOP_URL"]))
 /********************************************************************
 				/Input params
 ********************************************************************/
-
-$cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]."/");
 $oPhoto = new CPGalleryInterface(
 	array(
-		"IBlockID" => $arParams["IBLOCK_ID"],
+		"IBlockID" => $iblockId,
 		"GalleryID" => $arParams["USER_ALIAS"],
 		"Permission" => $arParams["PERMISSION_EXTERNAL"]
 	),
 	array(
 		"cache_time" => $arParams["CACHE_TIME"],
-		"cache_path" => $cache_path_main,
-		"show_error" => "Y",
 		"set_404" => $arParams["SET_STATUS_404"]
 	)
 );
@@ -138,9 +135,12 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 	// Edit album
 	elseif ($arParams["ACTION"] != "NEW" && $arParams["ACTION"] != "DROP")
 	{
+		if ($arParams["AJAX_CALL"] == "Y")
+			CUtil::JSPostUnEscape();
+
 		if (!$bMultipleAction)
 		{
-			$arFields = array("IBLOCK_ID" => $arParams["IBLOCK_ID"]);
+			$arFields = array("IBLOCK_ID" => $iblockId);
 			if (isset($_REQUEST["UF_DATE"]))
 			{
 				$arFields["UF_DATE"] = $_REQUEST["UF_DATE"];
@@ -154,13 +154,13 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 			if (isset($_REQUEST["ACTIVE"]))
 				$arFields["ACTIVE"] = $_REQUEST["ACTIVE"];
 
-			if ($_REQUEST["DROP_PASSWORD"] == "Y" || ($_REQUEST["USE_PASSWORD"] == "Y" && empty($_REQUEST["PASSWORD"])))
+			if ($_REQUEST["DROP_PASSWORD"] == "Y")
 			{
 				$arFields["UF_PASSWORD"] = "";
 				$GLOBALS["UF_PASSWORD"] = "";
 				$_REQUEST["DROP_PASSWORD"] = "Y";
 			}
-			elseif ($_REQUEST["USE_PASSWORD"] == "Y")
+			elseif ($_REQUEST["USE_PASSWORD"] == "Y" && !empty($_REQUEST["PASSWORD"]))
 			{
 				$arFields["UF_PASSWORD"] = md5($_REQUEST["PASSWORD"]);
 				$GLOBALS["UF_PASSWORD"] = md5($_REQUEST["PASSWORD"]);
@@ -178,7 +178,7 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 			}
 
 			$bs = new CIBlockSection;
-			$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("IBLOCK_".$arParams["IBLOCK_ID"]."_SECTION", $arFields);
+			$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("IBLOCK_".$iblockId."_SECTION", $arFields);
 			if ($bs->Update($arResult["SECTION"]["ID"], $arFields))
 			{
 				$events = GetModuleEvents("photogallery", "OnAfterSectionEdit");
@@ -187,12 +187,12 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 
 				$rsSection = CIBlockSection::GetList(
 					array(),
-					array("ID" => $arResult["SECTION"]["ID"], "IBLOCK_ID" => $arParams["IBLOCK_ID"]),
+					array("ID" => $arResult["SECTION"]["ID"], "IBLOCK_ID" => $iblockId),
 					false,
 					array("UF_DATE", "UF_PASSWORD"));
 				$arResultSection = $rsSection->GetNext();
 				$arResultFields = Array(
-					"IBLOCK_ID"=>$arParams["IBLOCK_ID"],
+					"IBLOCK_ID" => $iblockId,
 					"DATE"=>PhotoDateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($arResultSection["UF_DATE"], CSite::GetDateFormat())),
 					"PASSWORD" => $arResultSection["UF_PASSWORD"],
 					"NAME"=>$arResultSection["NAME"],
@@ -228,7 +228,7 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 					$arChangedId[] = $itemID;
 			}
 
-			$arFilter = array("IBLOCK_ID" => $arParams["IBLOCK_ID"], "SECTION_ID" => $arParams["SECTION_ID"], "ID" => $arChangedId, "CHECK_PERMISSIONS" => "Y");
+			$arFilter = array("IBLOCK_ID" => $iblockId, "SECTION_ID" => $arParams["SECTION_ID"], "ID" => $arChangedId, "CHECK_PERMISSIONS" => "Y");
 			$arSelect = array("ID", "NAME", "DETAIL_PICTURE", "PREVIEW_PICTURE", "PREVIEW_TEXT", "DETAIL_TEXT", "TAGS", "PROPERTY_BLOG_POST_ID", "PROPERTY_FORUM_TOPIC_ID", "PROPERTY_REAL_PICTURE");
 
 			$db_res = CIBlockElement::GetList(array(), $arFilter, false, false, $arSelect);
@@ -247,9 +247,9 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 							$sError = GetMessage("P_DELETE_ERROR");
 							if($ex = $APPLICATION->GetException())
 								$sError = $ex->GetString();
-				   			$arError[] = array(
-				   				"id" => "drop error",
-				   				"text" => PhotoShowError(array("code" => "NOT_DELETED", "title" => $sError, "DATA" => $arRes))
+							$arError[] = array(
+								"id" => "drop error",
+								"text" => PhotoShowError(array("code" => "NOT_DELETED", "title" => $sError, "DATA" => $arRes))
 							);
 							break;
 						}
@@ -258,7 +258,7 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 							$events = GetModuleEvents("photogallery", "OnAfterPhotoDrop");
 							$arEventFields = array(
 								"ID" => $itemID,
-								"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+								"IBLOCK_ID" => $iblockId,
 								"SECTION_ID" => $arResult["SECTION"]["ID"]
 							);
 							while ($arEvent = $events->Fetch())
@@ -315,7 +315,7 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 						{
 							$arImg = CFile::MakeFileArray($arItems[$itemID]["PROPERTY_REAL_PICTURE_VALUE"]);
 							CFile::ImageRotate($arImg['tmp_name'], $item['angle']);
-							CIBlockElement::SetPropertyValues($itemID, $arParams["IBLOCK_ID"], array(
+							CIBlockElement::SetPropertyValues($itemID, $iblockId, array(
 								"REAL_PICTURE" => CFile::MakeFileArray($arImg['tmp_name'])
 							));
 						}
@@ -334,10 +334,11 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 	}
 	elseif ($arParams["ACTION"] == "NEW")
 	{
-		CUtil::JSPostUnEscape();
+		if ($arParams["AJAX_CALL"] == "Y")
+			CUtil::JSPostUnEscape();
 		$arFields = Array(
 			"ACTIVE" => "Y",
-			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+			"IBLOCK_ID" => $iblockId,
 			"DATE" => $_REQUEST["UF_DATE"],
 			"UF_DATE" => $_REQUEST["UF_DATE"],
 			"NAME"=> trim($_REQUEST["NAME"]),
@@ -375,8 +376,9 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 		}
 
 		$bs = new CIBlockSection();
-		$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("IBLOCK_".$arParams["IBLOCK_ID"]."_SECTION", $arFields);
+		$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("IBLOCK_".$iblockId."_SECTION", $arFields);
 		$ID = $bs->Add($arFields);
+
 		if ($ID > 0)
 		{
 			$rsSection = CIBlockSection::GetList(Array(), array("ID" => $ID), false);
@@ -384,10 +386,10 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 			$arResult["URL"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"],
 				array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $ID));
 			$arResultFields = Array(
-				"IBLOCK_ID"=>$arParams["IBLOCK_ID"],
-				"DATE"=>PhotoDateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($_REQUEST["UF_DATE"], CSite::GetDateFormat())),
-				"NAME"=>$arResultSection["NAME"],
-				"DESCRIPTION"=>$arResultSection["DESCRIPTION"],
+				"IBLOCK_ID" => $iblockId,
+				"DATE" => PhotoDateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($_REQUEST["UF_DATE"], CSite::GetDateFormat())),
+				"NAME" => $arResultSection["NAME"],
+				"DESCRIPTION" => $arResultSection["DESCRIPTION"],
 				"PASSWORD" => $arResultSection["UF_PASSWORD"],
 				"ID" => $ID,
 				"error" => "",
@@ -421,10 +423,10 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 		{
 			$events = GetModuleEvents("photogallery", "OnAfterSectionDrop");
 			$arEventFields = array(
-								"ID" 				=> $arResult["SECTION"]["ID"],
-								"SECTIONS_IN_TREE" 	=> $arTreeSectionID,
-								"ELEMENTS_IN_TREE" 	=> $arTreeElementID
-							);
+				"ID" => $arResult["SECTION"]["ID"],
+				"SECTIONS_IN_TREE" => $arTreeSectionID,
+				"ELEMENTS_IN_TREE" => $arTreeElementID
+			);
 			while ($arEvent = $events->Fetch())
 				ExecuteModuleEventEx($arEvent, array($arResult["SECTION"]["ID"], $arEventFields, $arParams, $arResult));
 
@@ -455,26 +457,35 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 		}
 	}
 
-
 	if (!$bVarsFromForm)
 	{
-		CIBlockSection::ReSort($arParams["IBLOCK_ID"]);
-		PClearComponentCache(array(
-			"search.page",
-			"search.tags.cloud",
-			"photogallery.detail",
-			"photogallery.detail.comment",
-			"photogallery.detail.edit",
-			"photogallery.detail.list",
-			"photogallery.detail.list.ex",
-			"photogallery.gallery.edit",
-			"photogallery.gallery.list",
-			"photogallery.section",
-			"photogallery.section.edit",
-			"photogallery.section.edit.icon",
-			"photogallery.section.list",
-			"photogallery.upload",
-			"photogallery.user"));
+		CIBlockSection::ReSort($iblockId);
+
+		$sectionsIds = array(0);
+		$arGalleriesIds = array(0);
+		$arUsers = array();
+
+		if ($ID > 0) // Add
+			$sectionsIds[] = $ID;
+		if($arParams['SECTION_ID']) // Del, edit
+			$sectionsIds[] = $arParams['SECTION_ID'];
+
+		if ($arFields && $arFields['IBLOCK_SECTION_ID'])
+			$sectionsIds[] = $arFields['IBLOCK_SECTION_ID'];
+
+		if (isset($arResult) && isset($arResult['SECTION']['IBLOCK_SECTION_ID']))
+			$sectionsIds[] = $arResult['SECTION']['IBLOCK_SECTION_ID'];
+
+		if (isset($arResult['GALLERY']['CODE']))
+		{
+			$sectionsIds[] = $arResult['GALLERY']['ID'];
+			$arGalleriesIds[] = $arResult["GALLERY"]["CODE"];
+
+			if ($arResult["GALLERY"]["CREATED_BY"])
+				$arUsers[] = $arResult["GALLERY"]["CREATED_BY"];
+		}
+
+		PClearComponentCacheEx($iblockId, $sectionsIds, $arGalleriesIds, $arUsers);
 
 		if ($arParams["AJAX_CALL"] == "Y")
 		{
@@ -493,9 +504,6 @@ elseif($_REQUEST["save_edit"] == "Y" || $_REQUEST["edit"] == "Y")
 				/Actions
 ********************************************************************/
 
-/********************************************************************
-				!!!!
-********************************************************************/
 if ($arParams["AJAX_CALL"] == "Y" || $arParams["BX_PHOTO_AJAX"])
 	$GLOBALS['APPLICATION']->RestartBuffer();
 
@@ -512,7 +520,7 @@ if ($oPhoto)
 	{
 		$arFilter = array(
 			"ACTIVE" => "Y",
-			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+			"IBLOCK_ID" => $iblockId,
 			"IBLOCK_ACTIVE" => "Y",
 			"SECTION_ID" => intVal($arParams["SECTION_ID"])
 		);
@@ -542,7 +550,7 @@ if ($oPhoto)
 				$res["DETAIL_PICTURE"] = CFile::GetFileArray($res["DETAIL_PICTURE"]);
 				//$res["PREVIEW_PICTURE"] = CFile::GetFileArray($res["PREVIEW_PICTURE"]);
 
-				$res["SECTIONS_CNT"] = intVal(CIBlockSection::GetCount(array("IBLOCK_ID" => $arParams["IBLOCK_ID"], "SECTION_ID" => $res["ID"])));
+				$res["SECTIONS_CNT"] = intVal(CIBlockSection::GetCount(array("IBLOCK_ID" => $iblockId, "SECTION_ID" => $res["ID"])));
 
 				$res["ELEMENTS_CNT"] = intVal(CIBlockSection::GetSectionElementsCount($res["ID"], array("CNT_ACTIVE" => "Y")));
 				if ($arParams["PERMISSION"] >= "U")
@@ -553,35 +561,28 @@ if ($oPhoto)
 
 				$res["~LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"],
 					array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $res["ID"]));
-				$res["LINK"] = htmlspecialchars($res["~LINK"]);
+				$res["LINK"] = htmlspecialcharsbx($res["~LINK"]);
 				if ($arParams["PERMISSION"] >= "W")
 				{
 					$res["~NEW_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_EDIT_URL"],
 						array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $res["ID"], "ACTION" => "new"));
-					$res["NEW_LINK"] = htmlSpecialChars($res["~NEW_LINK"]);
+					$res["NEW_LINK"] = htmlspecialcharsbx($res["~NEW_LINK"]);
 					$res["~EDIT_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_EDIT_URL"],
 						array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $res["ID"], "ACTION" => "edit"));
-					$res["EDIT_LINK"] = htmlSpecialChars($res["~EDIT_LINK"]);
+					$res["EDIT_LINK"] = htmlspecialcharsbx($res["~EDIT_LINK"]);
 					if ($res["ELEMENTS_CNT_ALL"] > 0)
 					{
 						$res["~EDIT_ICON_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_EDIT_ICON_URL"],
 							array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $res["ID"], "ACTION" => "edit"));
-						$res["EDIT_ICON_LINK"] = htmlSpecialChars($res["~EDIT_ICON_LINK"]);
+						$res["EDIT_ICON_LINK"] = htmlspecialcharsbx($res["~EDIT_ICON_LINK"]);
 					}
 					$res["~DROP_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_EDIT_URL"],
 						array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $res["ID"], "ACTION" => "drop")).
 						(strpos($arParams["~SECTION_EDIT_URL"], "?") === false ? "?" : "&").bitrix_sessid_get()."&edit=Y";
-					$res["DROP_LINK"] = htmlSpecialChars($res["~DROP_LINK"]);
+					$res["DROP_LINK"] = htmlspecialcharsbx($res["~DROP_LINK"]);
 				}
 				$arResult["SECTIONS"][$res["ID"]] = $res;
 			}
-
-			// if ($arParams["CACHE_TIME"] > 0)
-			// {
-				// $cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
-				// $cache->EndDataCache(array("SECTIONS" => $arResult["SECTIONS"],
-					// "NAV_STRING" => $arResult["NAV_STRING"], "NAV_RESULT" => $arResult["NAV_RESULT"]));
-			// }
 		}
 	}
 
@@ -618,7 +619,7 @@ if ($oPhoto)
 		$arSelect = array("ID", "IBLOCK_ID", "NAME", "ACTIVE", "DETAIL_TEXT", "PREVIEW_PICTURE", "TAGS");
 		// Filter for section items
 		$arFilter = array(
-			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+			"IBLOCK_ID" => $iblockId,
 			"CHECK_PERMISSIONS" => "Y",
 			"SECTION_ID" => $arParams["SECTION_ID"]
 		);
@@ -662,7 +663,7 @@ if ($oPhoto)
 					$arElement["~DETAIL_TEXT"] = $arElement["~NAME"];
 				}
 
-				$arElement["URL"] = htmlspecialchars($arElement["~URL"]);
+				$arElement["URL"] = htmlspecialcharsbx($arElement["~URL"]);
 				$arResult["PHOTOS_JS"][$arElement["ID"]] = array(
 					"id" => intVal($arElement["ID"]),
 					"src" => $arElement["PREVIEW_PICTURE"]["SRC"],
@@ -688,7 +689,7 @@ if ($oPhoto)
 		$arFilter = array(
 			"ACTIVE" => "Y",
 			"GLOBAL_ACTIVE" => "Y",
-			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+			"IBLOCK_ID" => $iblockId,
 			"IBLOCK_ACTIVE" => "Y"
 		);
 		if ($arParams["BEHAVIOUR"] == "USER")
@@ -723,25 +724,17 @@ if ($bError)
 	return false;
 }
 /********************************************************************
-				Default params
-********************************************************************/
-	$cache = new CPHPCache;
-/********************************************************************
-				/Default params
-********************************************************************/
-
-/********************************************************************
 				Data
 ********************************************************************/
 /************** PROPERTIES *****************************************/
 $arUserFields = $arResult["USER_FIELDS"];
 if (empty($arUserFields) || empty($arUserFields["UF_DATE"]))
 {
-	$db_res = CUserTypeEntity::GetList(array($by=>$order), array("ENTITY_ID" => "IBLOCK_".$arParams["IBLOCK_ID"]."_SECTION", "FIELD_NAME" => "UF_DATE"));
+	$db_res = CUserTypeEntity::GetList(array($by=>$order), array("ENTITY_ID" => "IBLOCK_".$iblockId."_SECTION", "FIELD_NAME" => "UF_DATE"));
 	if (!($db_res && $res = $db_res->GetNext()))
 	{
 		$arFields = Array(
-			"ENTITY_ID" => "IBLOCK_".$arParams["IBLOCK_ID"]."_SECTION",
+			"ENTITY_ID" => "IBLOCK_".$iblockId."_SECTION",
 			"FIELD_NAME" => "UF_DATE",
 			"USER_TYPE_ID" => "datetime",
 			"MULTIPLE" => "N",
@@ -762,11 +755,11 @@ if (empty($arUserFields) || empty($arUserFields["UF_DATE"]))
 
 if (empty($arUserFields) || empty($arUserFields["UF_PASSWORD"]))
 {
-	$db_res = CUserTypeEntity::GetList(array($by=>$order), array("ENTITY_ID" => "IBLOCK_".$arParams["IBLOCK_ID"]."_SECTION", "FIELD_NAME" => "UF_PASSWORD"));
+	$db_res = CUserTypeEntity::GetList(array($by=>$order), array("ENTITY_ID" => "IBLOCK_".$iblockId."_SECTION", "FIELD_NAME" => "UF_PASSWORD"));
 	if (!($db_res && $res = $db_res->GetNext()))
 	{
 		$arFields = Array(
-			"ENTITY_ID" => "IBLOCK_".$arParams["IBLOCK_ID"]."_SECTION",
+			"ENTITY_ID" => "IBLOCK_".$iblockId."_SECTION",
 			"FIELD_NAME" => "UF_PASSWORD",
 			"USER_TYPE_ID" => "string",
 			"MULTIPLE" => "N",
@@ -786,7 +779,7 @@ if (empty($arUserFields) || empty($arUserFields["UF_PASSWORD"]))
 
 if ((empty($arUserFields) || empty($arUserFields["UF_DATE"]) || empty($arUserFields["UF_PASSWORD"])))
 {
-	$arUserFields = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("IBLOCK_".$arParams["IBLOCK_ID"]."_SECTION", $arResult["SECTION"]["ID"], LANGUAGE_ID);
+	$arUserFields = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("IBLOCK_".$iblockId."_SECTION", $arResult["SECTION"]["ID"], LANGUAGE_ID);
 }
 $arResult["SECTION"]["~DATE"] = $arUserFields["UF_DATE"];
 $arResult["SECTION"]["~PASSWORD"] = $arUserFields["UF_PASSWORD"];
@@ -822,10 +815,10 @@ if ($bVarsFromForm)
 {
 	$arResult["bVarsFromForm"] = true;
 	$arResult["FORM"]["ACTIVE"] = ($_REQUEST["ACTIVE"] == "Y" ? "Y" : "N");
-	$arResult["FORM"]["NAME"] = htmlSpecialChars($_REQUEST["NAME"]);
-	$arResult["FORM"]["DESCRIPTION"] = htmlSpecialChars($_REQUEST["DESCRIPTION"]);
+	$arResult["FORM"]["NAME"] = htmlspecialcharsbx($_REQUEST["NAME"]);
+	$arResult["FORM"]["DESCRIPTION"] = htmlspecialcharsbx($_REQUEST["DESCRIPTION"]);
 	$arResult["FORM"]["DATE"] = $arResult["SECTION"]["~DATE"];
-	$arResult["FORM"]["DATE"]["VALUE"] =  htmlSpecialChars($_REQUEST["UF_DATE"]);
+	$arResult["FORM"]["DATE"]["VALUE"] =  htmlspecialcharsbx($_REQUEST["UF_DATE"]);
 }
 
 if (intVal($arResult["SECTION"]["ID"]) > 0)
@@ -869,8 +862,8 @@ $arResult["SECTION"]["~DROP_LINK"] = CComponentEngine::MakePathFromTemplate(
 		"ACTION" => "drop"
 	));
 	$arResult["SECTION"]["~DROP_LINK"] .= (strpos($arResult["SECTION"]["~DROP_LINK"], "?") === false ? "?" : "&").bitrix_sessid_get()."&edit=Y";
-$arResult["SECTION"]["EDIT_ICON_LINK"] = htmlspecialchars($arResult["SECTION"]["~EDIT_ICON_LINK"]);
-$arResult["SECTION"]["DROP_LINK"] = htmlspecialchars($arResult["SECTION"]["~DROP_LINK"]);
+$arResult["SECTION"]["EDIT_ICON_LINK"] = htmlspecialcharsbx($arResult["SECTION"]["~EDIT_ICON_LINK"]);
+$arResult["SECTION"]["DROP_LINK"] = htmlspecialcharsbx($arResult["SECTION"]["~DROP_LINK"]);
 
 /********************************************************************
 				/Data

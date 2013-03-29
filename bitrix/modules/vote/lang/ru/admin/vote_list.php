@@ -48,8 +48,8 @@ $MESS ['VOTE_DEACTIVATE'] = "деактивировать";
 $MESS ['VOTE_SAVE_ERROR'] = "Ошибка записи в базу данных";
 $MESS ['VOTE_VOTES_TITLE'] = "Перейти к списку голосований";
 $MESS ['VOTE_EDIT_TITLE'] = "Изменить параметры опроса";
-$MESS ['VOTE_YES'] = "да";
-$MESS ['VOTE_NO'] = "нет";
+$MESS ['VOTE_YES'] = "Да";
+$MESS ['VOTE_NO'] = "Нет";
 $MESS ['VOTE_ALL'] = "(все)";
 $MESS ['VOTE_TITLE'] = "Заголовок";
 $MESS ['VOTE_ACTIVE'] = "Акт.";
@@ -59,5 +59,4 @@ $MESS ['VOTE_F_TITLE'] = "Заголовок:";
 $MESS ['VOTE_TILL'] = "по";
 $MESS ['VOTE_COPY'] = "Копировать";
 $MESS ['VOTE_CONFIRM_COPY'] = "Вы уверены что хотите скопировать этот опрос?";
-$MESS ['VOTE_COPY_FAILED'] = "При копировании произошла ошибка.";
 ?>

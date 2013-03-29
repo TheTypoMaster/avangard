@@ -148,7 +148,7 @@ class BXGadget
 
 	function GetById($id, $bWithParameters = false, $arAllCurrentValues = false)
 	{
-		$id = strtolower(_normalizePath($id));
+		$id = _normalizePath(strtolower($id));
 
 		$arGdNS = Array("bitrix");
 		if(($p = strpos($id, "/"))>0)

@@ -14,4 +14,5 @@ $MESS["FM_ST_SET_SIZES"] = "Anfangsgröße der Web-Notiz (Breite x Höhe, pix.)";
 $MESS["FM_ST_CLEAR_ALL"] = "Alle Web-Notizen entfernen";
 $MESS["FM_ST_CLEAR_ALL_CONFIRM"] = "Möchten Sie wirklich alle Web-Notizen löschen?";
 $MESS["FM_ST_ACCESS_NOTE"] = "Um die Funktion der Web-Notizen für die Nutzer verfügbar zu machen, stellen Sie sicher, dass die Nutzer in der Nutzergruppe mit der #LINK_BEGIN#Zugriffsberechtigung für das Modul Seitenstruktur#LINK_END#  und dem Lesezugriff auf den Ordner  /bitrix/admin/ sind.";
+$MESS["FM_ST_USE_HOTKEYS"] = "Tastenkombinationen benutzen, um Web-Notizen hinzuzufügen";
 ?>

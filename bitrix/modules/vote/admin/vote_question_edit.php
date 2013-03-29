@@ -1,10 +1,10 @@
-<? 
+<?
 /*
 ##############################################
-# Bitrix: SiteManager                        #
-# Copyright (c) 2004 - 2009 Bitrix           #
-# http://www.bitrix.ru                       #
-# mailto:admin@bitrix.ru                     #
+# Bitrix: SiteManager						#
+# Copyright (c) 2004 - 2009 Bitrix			#
+# http://www.bitrix.ru						#
+# mailto:admin@bitrix.ru					#
 ##############################################
 */
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -83,10 +83,10 @@ $db_res = CVoteChannel::GetByID($arVote["CHANNEL_ID"]);
 $arChannel = $db_res->Fetch();
 
 $adminChain->AddItem(array(
-	"TEXT" => htmlspecialchars($arChannel["TITLE"]), 
+	"TEXT" => htmlspecialcharsbx($arChannel["TITLE"]), 
 	"LINK" => "vote_channel_edit.php?ID=$arChannel[ID]&lang=".LANGUAGE_ID));
 $adminChain->AddItem(array(
-	"TEXT" => htmlspecialchars($arVote["TITLE"]), 
+	"TEXT" => htmlspecialcharsbx($arVote["TITLE"]), 
 	"LINK" => "vote_edit.php?ID=$arVote[ID]&lang=".LANGUAGE_ID));
 
 $sDocTitle = ($ID > 0 ? str_replace("#ID#", $ID, GetMessage("VOTE_EDIT_RECORD")) : GetMessage("VOTE_NEW_RECORD"));
@@ -261,40 +261,35 @@ for ($i = 0; $i < 216; $i++)
 jsUtils.addEvent(document, "mousedown", function(e){hidePicker();});
 jsUtils.addEvent(document, "keypress", function(e){hidePicker();});
 
-var elem_id = 0;
+top.elem_id = 0;
 
 function col_show(clr)
 {
-	document.getElementById('t_COL').value = clr;
-	document.getElementById('t_fillCOL').style.backgroundColor = clr;
+	BX('t_COL').value = clr;
+	BX('t_fillCOL').style.backgroundColor = clr;
 }
 
-function col_set(clr, c_id) {
-	id = c_id || elem_id;
-	document.getElementById('COLOR_' + id).value = clr;
-    try {
-	    document.getElementById("COLB" + id).style.backgroundColor = clr;
-    } catch(e) {}
+function col_set(clr, node) {
+	var node = node || top.node;
+	node.value = clr;
+	BX.adjust(node.parentNode, { "style" : { "backgroundColor" : clr } });
 }
 
 function hidePicker() {
-//	document.getElementById('ColorPick').style.display="none";
-	document.getElementById('ColorPick').style.visibility = "hidden";
+	BX.adjust(BX("ColorPick"), { "style" : { "visibility" : "hidden" } });
 }
 
-function ColorPicker(id, clr)
+function ColorPicker(node)
 {
-	try
-	{
-		elem_id = id;
-		var div = document.getElementById("COLB"+id);
-	
-		res=jsUtils.GetRealPos(div);
-		document.getElementById('ColorPick').style.left=res["left"] - 204;
-		document.getElementById('ColorPick').style.top=res["top"] + 22;
-//		document.getElementById('ColorPick').style.display="block";
-		document.getElementById('ColorPick').style.visibility = "visible";
-		col_show(clr);
+	top.node = node;
+	try {
+		var
+			res = BX.pos(node);
+		BX.adjust(BX('ColorPick'), { "style" : {
+			"visibility" : "visible",
+			"top" : (res["top"] + 22) + 'px',
+			"left" : (res["left"] - 204) + 'px'}});
+		col_show(node.value);
 	} catch(e){}
 }
 //-->
@@ -342,12 +337,12 @@ $tabControl->BeginNextTab();
 ?>
 	<tr>
 		<td><?=GetMessage("VOTE_CHANNEL")?></td>
-		<td><?="[<a href='vote_channel_edit.php?ID=".$arChannel["ID"]."&lang=".LANGUAGE_ID."' title='".GetMessage("VOTE_GRP_CONF")."'>".$arChannel["ID"]."</a>] ".htmlspecialchars($arChannel["TITLE"])?></td>
+		<td><?="[<a href='vote_channel_edit.php?ID=".$arChannel["ID"]."&lang=".LANGUAGE_ID."' title='".GetMessage("VOTE_GRP_CONF")."'>".$arChannel["ID"]."</a>] ".htmlspecialcharsbx($arChannel["TITLE"])?></td>
 	</tr>
 	<tr>
 		<td><?=GetMessage("VOTE_VOTE")?></td>
 		<td>[<a href="vote_edit.php?ID=<?=$arVote["ID"]?>&lang=<?=LANGUAGE_ID?>" title="<?=GetMessage("VOTE_CONF")?>"><?=$arVote["ID"]?></a>]&nbsp;
-			<?=htmlspecialchars($arVote["TITLE"])?></td>
+			<?=htmlspecialcharsbx($arVote["TITLE"])?></td>
 	</tr>
 	<?if (strlen($arQuestion["TIMESTAMP_X"]) > 0):?>
 	<tr><td><?=GetMessage("VOTE_TIMESTAMP")?></td>
@@ -369,12 +364,12 @@ $tabControl->BeginNextTab();
 		<td><input type="checkbox" name="DIAGRAM" id="DIAGRAM" value="Y" onclick="OnDiagramFlagChange()" <?
 			?> <?=($arQuestion["DIAGRAM"] == "Y" ? "checked='checked'" : "")?> /></td>
 	</tr>
-    <tr>
+	<tr>
 		<td><?=GetMessage("VOTE_REQUIRED")?></td>
 		<td><input type="checkbox" name="REQUIRED" id="REQUIRED" value="Y" onclick="OnDiagramFlagChange()" <?
 			?> <?=($arQuestion["REQUIRED"] == "Y" ? "checked='checked'" : "")?> /></td>
-    </tr>
-     <tr>
+	</tr>
+	<tr>
 		<td><?=GetMessage("VOTE_DIAGRAM_TYPE")?>:</td>
 		<td><?echo SelectBoxFromArray("DIAGRAM_TYPE", GetVoteDiagramList(), $arQuestion["DIAGRAM_TYPE"]);?>
 		<script type="text/javascript">OnDiagramFlagChange();</script>
@@ -408,13 +403,13 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<tr class="heading" id="tr_QUESTION_LABEL">
-        <td colspan="2"><?=GetMessage("VOTE_QUESTION_TEXT")?></td>
+		<td colspan="2"><?=GetMessage("VOTE_QUESTION_TEXT")?></td>
 	</tr>
 	<?
 	if(COption::GetOptionString("vote", "USE_HTML_EDIT")=="Y" && CModule::IncludeModule("fileman")):?>
 	<tr>
 		<td align="center" colspan="2"><?
-            CFileMan::AddHTMLEditorFrame("QUESTION", $arQuestion["QUESTION"], "QUESTION_TYPE", $arQuestion["QUESTION_TYPE"], array('height' => '200', 'width' => '100%'));
+			CFileMan::AddHTMLEditorFrame("QUESTION", $arQuestion["QUESTION"], "QUESTION_TYPE", $arQuestion["QUESTION_TYPE"], array('height' => '200', 'width' => '100%'));
 		?></td>
 	</tr>
 	<?else:?>
@@ -432,68 +427,86 @@ $tabControl->BeginNextTab();
 /************** Answers Tab ****************************************/
 $tabControl->BeginNextTab();
 ?>
-	<tr>
+	<tr class="adm-detail-required-field">
 		<td colspan="2">
-        <script type='text/javascript'>
+		<script type='text/javascript'>
 
-            function addQuestionRow(tthis)
-            {
-                    BX.unbindAll(tthis);
-                    var name = tthis.getAttribute('name');
-                    var num = parseInt(name.substr(name.indexOf('_')+1));
-                    var newnum = num+1;
-                    var node = tthis.parentNode.parentNode.cloneNode(true);
-                    node = tthis.parentNode.parentNode.parentNode.appendChild(node);
-                    BX.findChild(node, {property:{name:'ANSWER[]'}},true).setAttribute('value', newnum);
-                    BX.findChild(node, {property:{name:'ANSWER_ID_'+num}},true).setAttribute('name', 'ANSWER_ID_'+newnum);
-                    BX.findChild(node, {property:{name:'MESSAGE_'+num}},true).setAttribute('name', 'MESSAGE_'+newnum);
-                    BX.findChild(node, {property:{name:'MESSAGE_'+newnum}},true).value = '';
-                    BX.findChild(node, {property:{name:'FIELD_TYPE_'+num}},true).setAttribute('name', 'FIELD_TYPE_'+newnum);
-                    BX.findChild(node, {property:{name:'FIELD_TYPE_'+newnum}},true).setAttribute('id', 'FIELD_TYPE_'+newnum);
-                    BX.findChild(node, {property:{name:'FIELD_WIDTH_'+num}},true).setAttribute('name', 'FIELD_WIDTH_'+newnum);
-                    BX.findChild(node, {property:{name:'FIELD_WIDTH_'+newnum}},true).setAttribute('id', 'FIELD_WIDTH_'+newnum);
-                    BX.findChild(node, {property:{name:'FIELD_HEIGHT_'+num}},true).setAttribute('name', 'FIELD_HEIGHT_'+newnum);
-                    BX.findChild(node, {property:{name:'FIELD_HEIGHT_'+newnum}},true).setAttribute('id', 'FIELD_HEIGHT_'+newnum);
-                    BX.findChild(node, {property:{name:'FIELD_PARAM_'+num}},true).setAttribute('name', 'FIELD_PARAM_'+newnum);
-                    BX.findChild(node, {property:{name:'C_SORT_'+num}},true).setAttribute('name', 'C_SORT_'+newnum);
-                    BX.findChild(node, {property:{name:'C_SORT_'+newnum}},true).setAttribute('value', 100*newnum);
-                    BX.findChild(node, {property:{name:'COLOR_'+num}},true).setAttribute('name', 'COLOR_'+newnum);
-                    BX.findChild(node, {property:{name:'COLOR_'+newnum}},true).setAttribute('id', 'COLOR_'+newnum);
-                    BX.findChild(node, {tag:'a'},true).setAttribute('href', 'javascript:ColorPicker('+newnum+', document.getElementById("COLOR_'+newnum+'").value);');
-                    BX.findChild(node, {property:{id:'COLB'+num}},true).setAttribute('id', 'COLB'+newnum);
-                    BX.findChild(node, {property:{name:'ACTIVE_'+num}},true).setAttribute('name', 'ACTIVE_'+newnum);
-                    BX.findChild(node, {property:{name:'ACTIVE_'+newnum}},true).setAttribute('id', 'ACTIVE_'+newnum);
-                    BX.bind(BX.findChild(node, {property:{name:'FIELD_TYPE_'+newnum}},true), 'change', function() {FIELD_TYPE_CHANGE(newnum);});
-                    BX.bind(BX.findChild(node, {property:{name:'COLOR_'+newnum}},true), 'change', function() {col_set(this.value,newnum);});
-                    BX.findChild(node, {property:{name:'COLOR_'+newnum}},true).setAttribute('onchange', 'col_set(this.value,'+newnum+')');
-                    BX.bind(BX.findChild(node, {property:{name:'MESSAGE_'+newnum}},true),'keyup', function() {
-                        addQuestionRow(this);
-                    });
-            }
+			function addQuestionRow(tthis)
+			{
+				BX.unbindAll(tthis);
+				var name = tthis.getAttribute('name');
+				var num = parseInt(name.substr(name.indexOf('_')+1));
+				var newnum = num+1;
+				var node = tthis.parentNode.parentNode.cloneNode(true);
+				node = tthis.parentNode.parentNode.parentNode.appendChild(node);
+				BX.findChild(node, {property:{name:'ANSWER[]'}},true).setAttribute('value', newnum);
+				BX.findChild(node, {property:{name:'ANSWER_ID_'+num}},true).setAttribute('name', 'ANSWER_ID_'+newnum);
+				BX.findChild(node, {property:{name:'MESSAGE_'+num}},true).setAttribute('name', 'MESSAGE_'+newnum);
+				BX.findChild(node, {property:{name:'MESSAGE_'+newnum}},true).value = '';
+				BX.findChild(node, {property:{name:'FIELD_TYPE_'+num}},true).setAttribute('name', 'FIELD_TYPE_'+newnum);
+				BX.findChild(node, {property:{name:'FIELD_TYPE_'+newnum}},true).setAttribute('id', 'FIELD_TYPE_'+newnum);
+				BX.findChild(node, {property:{name:'FIELD_WIDTH_'+num}},true).setAttribute('name', 'FIELD_WIDTH_'+newnum);
+				BX.findChild(node, {property:{name:'FIELD_WIDTH_'+newnum}},true).setAttribute('id', 'FIELD_WIDTH_'+newnum);
+				BX.findChild(node, {property:{name:'FIELD_HEIGHT_'+num}},true).setAttribute('name', 'FIELD_HEIGHT_'+newnum);
+				BX.findChild(node, {property:{name:'FIELD_HEIGHT_'+newnum}},true).setAttribute('id', 'FIELD_HEIGHT_'+newnum);
+				BX.findChild(node, {property:{name:'FIELD_PARAM_'+num}},true).setAttribute('name', 'FIELD_PARAM_'+newnum);
+				BX.findChild(node, {property:{name:'C_SORT_'+num}},true).setAttribute('name', 'C_SORT_'+newnum);
+				BX.findChild(node, {property:{name:'C_SORT_'+newnum}},true).setAttribute('value', 100*newnum);
+				var node1 = BX.findChild(node, {property:{name:'COLOR_'+num}},true);
+				BX.adjust(node1, {
+							"attrs" : {"name" : "COLOR_" + newnum, "id" : "COLOR_" + newnum},
+							"events" : {"click" : function(){ColorPicker(this);}, "change" : function() {col_set(this.value, this);}}});
+				BX.findChild(node, {attr:{id:'COLB'+num}},true).setAttribute('id', 'COLB'+newnum);
+				BX.adjust(BX.findChild(node, {property:{name:'ACTIVE_'+num}},true), {"attrs" : {"name" : 'ACTIVE_'+newnum, "id" : 'ACTIVE_'+newnum}});
+				BX.bind(BX.findChild(node, {property:{name:'FIELD_TYPE_'+newnum}},true), 'change', function() {FIELD_TYPE_CHANGE(newnum);});
+				BX.bind(BX.findChild(node, {property:{name:'MESSAGE_'+newnum}},true),'keyup', function() {
+					addQuestionRow(this);
+				});
+				BX.bind(BX.findChild(node, {property:{name:'MESSAGE_'+newnum}},true),'change', function() {
+					addQuestionRow(this);
+				});
 
-            function lastInputChange()
-            {
-                var answerList = document.getElementById('answerlist');
-                var answerRow = BX.findChild(answerList, {tag:'tr'}, true);
-                var nextRow = answerRow;
-                BX.style(answerRow, 'color','#00ff00');
-                while (nextRow = BX.findNextSibling(nextRow, null))
-                {
-                    answerRow = nextRow;
-                }
-                inputField = BX.findChild(answerRow, {tag:'input', property:{'type':'text'}}, true);
-                BX.bind(inputField,'keyup', function() {
-                    addQuestionRow(this);
-                });
-            }
+				setTimeout(function() {
+					var r = BX.findChildren(node, {tag: /^(input|select|textarea)$/i}, true);
+					if (r && r.length > 0)
+					{
+						for (var i=0,l=r.length;i<l;i++)
+						{
+							if (r[i].form && r[i].form.BXAUTOSAVE)
+								r[i].form.BXAUTOSAVE.RegisterInput(r[i]);
+							else
+								break;
+						}
+					}
+				}, 10);
+			}
 
-            BX.ready(function() {
-                lastInputChange();
-            });
+			function lastInputChange()
+			{
+				var answerList = document.getElementById('answerlist');
+				var answerRow = BX.findChild(answerList, {tag:'tr'}, true);
+				var nextRow = answerRow;
+				BX.style(answerRow, 'color','#00ff00');
+				while (nextRow = BX.findNextSibling(nextRow, null))
+				{
+					answerRow = nextRow;
+				}
+				inputField = BX.findChild(answerRow, {tag:'input', property:{'type':'text'}}, true);
+				BX.bind(inputField,'keyup', function() {
+					addQuestionRow(this);
+				});
+				BX.bind(inputField,'change', function() {
+					addQuestionRow(this);
+				});
+			}
 
-        </script>
+			BX.ready(function() {
+				lastInputChange();
+			});
+
+		</script>
 			<table border="0" cellspacing="0" cellpadding="0" width="100%" class="internal" id='answerlist'>
-				<tr class="heading">
+				<tr class="heading" >
 					<td>ID</td>
 					<td nowrap width="95%"><?=GetMessage("VOTE_MESSAGE")?><span class="required"><sup>1</sup></span></td>
 					<td><?=GetMessage("VOTE_FIELD_TYPE")?></td>
@@ -517,7 +530,7 @@ $tabControl->BeginNextTab();
 						<input type="hidden" name="ANSWER[]" value="<?=$i?>" />
 						<input type="hidden" name="ANSWER_ID_<?=$i?>" value="<?=intVal($arAnswer["ID"])?>" />
 						<?=(intVal($arAnswer["ID"]) > 0 ? $arAnswer["ID"] : "")?></td>
-					<td><input type="text" name="MESSAGE_<?=$i?>" value="<?=htmlspecialchars($arAnswer["MESSAGE"])?>" style="width:100%;" /></td>
+					<td><input type="text" name="MESSAGE_<?=$i?>" value="<?=htmlspecialcharsbx($arAnswer["MESSAGE"])?>" style="width:100%;" /></td>
 					<td><?=SelectBoxFromArray("FIELD_TYPE_".$i, GetAnswerTypeList(), $arAnswer["FIELD_TYPE"], "", "OnChange=\"FIELD_TYPE_CHANGE(".$i.")\" class='typeselect'")?></td>
 					<td><input type="text" name="FIELD_WIDTH_<?=$i?>" id="FIELD_WIDTH_<?=$i?>" size="3" <?
 						?>value="<?=(intval($arAnswer["FIELD_WIDTH"])>0 ? intVal($arAnswer["FIELD_WIDTH"]) : "")?>" <?
@@ -525,21 +538,11 @@ $tabControl->BeginNextTab();
 					<td><input type="text" name="FIELD_HEIGHT_<?=$i?>" id="FIELD_HEIGHT_<?=$i?>" size="3" <?
 						?>value="<?=(intval($arAnswer["FIELD_HEIGHT"])>0 ? intVal($arAnswer["FIELD_HEIGHT"]) : "")?>" <?
 						?><?=($arAnswer["FIELD_TYPE"]!=4 && $arAnswer["FIELD_TYPE"]!=5 ? "disabled='disabled'" : "")?> /></td>
-					<td><input type="text" name="FIELD_PARAM_<?=$i?>" value="<?=htmlspecialchars($arAnswer["FIELD_PARAM"])?>" size="10" /></td>
-					<td><input type="text" name="C_SORT_<?=$i?>" value="<?=htmlspecialchars($arAnswer["C_SORT"])?>" size="3" /></td>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0"><tr>
-							<td><input onchange="col_set(this.value,<?=$i?>)" type="text" id="COLOR_<?=$i?>" name="COLOR_<?=$i?>" <?
-								?>value="<?=htmlspecialchars($arAnswer["COLOR"])?>" size="7" /></td>
-							<td style="padding-left:4px;">
-								<a href="javascript:ColorPicker(<?=$i?>, document.getElementById('COLOR_<?=$i?>').value);" style="width:17px;height:17px;display:block;">
-									<div style="border:1px solid black;background-color:<?=htmlspecialchars($arAnswer["COLOR"])?>" id="COLB<?=$i?>" >
-										<div style="width:16px; height:16px;" title="<?=GetMessage("VOTE_SELECT_COLOR")?>">
-										</div>
-									</div>
-								</a>
-							</td></tr>
-						</table>
+					<td><input type="text" name="FIELD_PARAM_<?=$i?>" value="<?=htmlspecialcharsbx($arAnswer["FIELD_PARAM"])?>" size="10" /></td>
+					<td><input type="text" name="C_SORT_<?=$i?>" value="<?=htmlspecialcharsbx($arAnswer["C_SORT"])?>" size="3" /></td>
+					<td id="COLB<?=$i?>" style="background:<?=$arAnswer["COLOR"]?>;">
+						<input id="COLOR_<?=$i?>" name="COLOR_<?=$i?>" onchange="col_set(this.value, this)" onclick="ColorPicker(this);" <?
+							?>type="text" value="<?=htmlspecialcharsbx($arAnswer["COLOR"])?>" size="7" />
 					</td>
 					<td><?=InputType("checkbox", "ACTIVE_".$i,"Y", $arAnswer["ACTIVE"], false);?></td>
 					<td><input type="checkbox" name="del_<?=$i?>" value="Y" /></td>
@@ -568,18 +571,9 @@ $tabControl->BeginNextTab();
 					<td><input type="text" id="FIELD_HEIGHT_<?=$i?>" name="FIELD_HEIGHT_<?=$i?>" value="" size="3" disabled="disabled" /></td>
 					<td><input type="text" name="FIELD_PARAM_<?=$i?>" value="" size="10" /></td>
 					<td><input type="text" name="C_SORT_<?=$i?>" value="<?=$s?>" size="3" /></td>
-					<td>
-						<table cellpadding="0" cellspacing="0" border="0"><tr>
-							<td><input onchange="col_set(this.value,<?=$i?>)" type="text" id="COLOR_<?=$i?>" name="COLOR_<?=$i?>" value="" size="7" /></td>
-							<td style="padding-left:4px;">
-								<a href="javascript:ColorPicker(<?=$i?>, document.getElementById('COLOR_<?=$i?>').value);" style="width:17px;height:17px;display:block;">
-									<div style="border:1px solid black;" id="COLB<?=$i?>" >
-										<div style="width:16px; height:16px;" title="<?=GetMessage("VOTE_SELECT_COLOR")?>">
-										</div>
-									</div>
-								</a>
-							</td></tr>
-						</table>
+					<td id="COLB<?=$i?>">
+						<input id="COLOR_<?=$i?>" name="COLOR_<?=$i?>" onchange="col_set(this.value, this)" onclick="ColorPicker(this);" <?
+							?>type="text" value="" size="7" />
 					</td>
 					<td><?=InputType("checkbox", "ACTIVE_".$i, "Y", "Y", false)?></td>
 					<td>&nbsp;</td>
@@ -596,12 +590,13 @@ $tabControl->Buttons(array("disabled"=>($VOTE_RIGHT < "W"), "back_url"=>"vote_qu
 $tabControl->End();
 ?>
 </form>
-<?
-$tabControl->ShowWarnings("form1", $message);
-?>
+<?$tabControl->ShowWarnings("form1", $message);?>
+<style type="text/css">
+	table #answerlist td { vertical-align: middle!important; }
+</style>
 
 <?=BeginNote();?>
-<span class="required"><sup>1</sup></span> -  <?=GetMessage("VOTE_MESSAGE_SPACE")?><br><span class="required">*</span> - <?=GetMessage("REQUIRED_FIELDS")?>
+<span class="required"><sup>1</sup></span> -  <?=GetMessage("VOTE_MESSAGE_SPACE")?>
 <?=EndNote();?>
 <?
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php"); 

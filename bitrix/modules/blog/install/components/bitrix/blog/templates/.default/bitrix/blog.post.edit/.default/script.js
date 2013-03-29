@@ -34,10 +34,8 @@ BlogPostAutoSave = function () {
 
 	var controlID = "POST_MESSAGE_HTML";
 	var titleID = 'POST_TITLE';
-	var sonetID = 'SONETGROUP';
 	title = BX(titleID);
 	tags = BX(formId).TAGS;
-	sonetgroup = BX(sonetID);
 	
 	var	iconClass = "blogPostAutoSave";
 	var	actionClass = "blogPostAutoRestore";
@@ -91,8 +89,6 @@ BlogPostAutoSave = function () {
 		form_data[controlID] = text;
 		form_data[titleID] = BX(titleID).value;
 		form_data[tags] = BX(formId).TAGS.value;
-		if(BX(sonetID))
-			form_data[sonetID] = BX(sonetID).value;
 	});
 
 	BX.addCustomEvent(form, 'onAutoSaveFinished', function(ob, t) {
@@ -176,21 +172,7 @@ BlogPostAutoSave = function () {
 			window.oBlogLHE.SetEditorContent(data[controlID]);
 		BX(titleID).value = data[titleID];
 		BX(formId).TAGS.value = data[tags];
-		
-		if(BX(sonetID))
-		{
-			BX(sonetID).value = data[sonetID];
-			
-			if(groupsPopup)
-			{
-				for(var i = 0, count = groupsPopup.myGroups.length; i < count; i++)
-				{
-					if(groupsPopup.myGroups[i].id == data[sonetID])
-						onGroupBlogSelect([groupsPopup.myGroups[i]]);
-				}
-			}
-		}
-		
+				
 		bindLHEEvents(ob);
 	});
 
@@ -200,86 +182,12 @@ BlogPostAutoSave = function () {
 	});
 }
 
-if(window.BX)
+function blogShowFile()
 {
-	BX.ready(function() {
-		BX.bind(BX.findChild(BX("blog-post-group-selector"), {tag: "span", className: "blog-post-group-value"}), "click", function(e) {
-					if(!e) e = window.event;
-					groupsPopup.show();
-					BX.PreventDefault(e);
-				});
-		});
-}
-function onGroupBlogSelect(groups)
-{
-	if (groups[0])
-	{
-		BX.adjust(BX.findChild(BX("blog-post-group-selector"), {tag: "span", className: "blog-post-group-value"}), {
-			text: groups[0].title
-		});
-	
-		var deleteIcon = BX.findChild(BX("blog-post-group-selector"), {tag: "span", className: "blog-post-group-delete"});
-		if (deleteIcon)
-		{
-			BX.adjust(deleteIcon, {
-				events: {
-					click: function(e) {
-						if (!e) e = window.event;
-						deleteGroup(groups[0].id);
-					}
-				}
-			})
-		}
-		else
-		{
-			BX("blog-post-group-selector").appendChild(
-				BX.create("span", {
-					props: {className: "blog-post-group-delete"},
-					events: {
-						click: function(e)
-						{
-							if (!e) e = window.event;
-							deleteGroup(groups[0].id);
-						}
-					}
-				})
-			);
-		}
-		
-		var input = BX.findNextSibling(BX("blog-post-group-selector"), {tag: "input", name: "SONETGROUP"});
-		if (input)
-		{
-			BX.adjust(input, {props: {value: groups[0].id}})
-		}
-		else
-		{
-			BX("blog-post-group-selector").parentNode.appendChild(
-				BX.create("input", {
-					props: {
-						name: "SONETGROUP",
-						type: "hidden",
-						value: groups[0].id
-					}
-				})
-			);
-		}
-	}
-}
-
-function deleteGroup(groupId)
-{
-	BX.adjust(BX.findChild(BX("blog-post-group-selector"), {tag: "span", className: "blog-post-group-value"}), {
-		text: BX.message("SONET_GROUP_BLOG_NO")
-	});
-	var deleteIcon = BX.findChild(BX("blog-post-group-selector"), {tag: "span", className: "blog-post-group-delete"});
-	if (deleteIcon)
-	{
-		BX.cleanNode(deleteIcon, true);
-	}
-	var input = BX.findNextSibling(BX("blog-post-group-selector"), {tag: "input", name: "SONETGROUP"});
-	if (input)
-	{
-		input.value = 0;
-	}
-	groupsPopup.deselect(groupId);
+	el = BX('blog-upload-file');
+	if(el.style.display != 'none')
+		BX.hide(el);
+	else
+		BX.show(el);
+	BX.onCustomEvent(BX('blog-post-user-fields-UF_BLOG_POST_DOC'), "BFileDLoadFormController");
 }

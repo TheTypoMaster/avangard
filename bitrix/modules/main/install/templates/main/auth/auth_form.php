@@ -16,14 +16,14 @@ else $page = $GLOBALS["APPLICATION"]->GetCurPage();
 		<?
 		foreach ($GLOBALS["HTTP_POST_VARS"] as $vname=>$vvalue) :
 			if ($vname=="USER_LOGIN") continue;
-			?><input type="hidden" name="<?echo htmlspecialchars($vname)?>" value="<?echo htmlspecialchars($vvalue)?>"><?
+			?><input type="hidden" name="<?echo htmlspecialcharsbx($vname)?>" value="<?echo htmlspecialcharsbx($vvalue)?>"><?
 		endforeach;
 		?>
 		<input type="hidden" name="AUTH_FORM" value="Y">
 		<input type="hidden" name="TYPE" value="AUTH">
 
 		<tr valign="middle">
-			<td align="center" colspan="2"><input type="text" name="USER_LOGIN" maxlength="50" size="15" value="<?echo htmlspecialchars(${COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"})?>"  class="inputtext"></td>
+			<td align="center" colspan="2"><input type="text" name="USER_LOGIN" maxlength="50" size="15" value="<?echo htmlspecialcharsbx(${COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"})?>"  class="inputtext"></td>
 		</tr>
 		<tr>
 			<td align="center" colspan="2"><input type="password" name="USER_PASSWORD" maxlength="50" size="15" class="inputtext"></td>
@@ -50,10 +50,10 @@ else $page = $GLOBALS["APPLICATION"]->GetCurPage();
 		<?endif?>
 	</table><br>
 <?else:?>
-<form action="?logout=yes<?echo htmlspecialchars(($s=DeleteParam(array("logout", "login"))) == ""? "":"&".$s);?>">
-<div align="center" class="smalltext" style="padding-bottom: 2 px;"><?echo htmlspecialchars($USER->GetFullName())?><br>[<?echo htmlspecialchars($USER->GetLogin())?>]<br>
+<form action="?logout=yes<?echo htmlspecialcharsbx(($s=DeleteParam(array("logout", "login"))) == ""? "":"&".$s);?>">
+<div align="center" class="smalltext" style="padding-bottom: 2 px;"><?echo htmlspecialcharsbx($USER->GetFullName())?><br>[<?echo htmlspecialcharsbx($USER->GetLogin())?>]<br>
 <?foreach ($_GET as $vname=>$vvalue):?>
-<input type="hidden" name="<?echo htmlspecialchars($vname)?>" value="<?echo htmlspecialchars($vvalue)?>">
+<input type="hidden" name="<?echo htmlspecialcharsbx($vname)?>" value="<?echo htmlspecialcharsbx($vvalue)?>">
 <?endforeach;?>
 <input type="hidden" name="logout" value="yes"><input type="submit" name="logout_butt" value="<?=GetMessage("AUTH_LOGOUT_BUTTON")?>" class="inputbutton" style="margin-top: 4px;">
 </div>

@@ -131,4 +131,7 @@ $MESS["FD_YEARS_DIFF_10_20"] = "#VALUE# лет";
 $MESS["FD_YEARS_DIFF_MOD_1"] = "#VALUE# год";
 $MESS["FD_YEARS_DIFF_MOD_2_4"] = "#VALUE# года";
 $MESS["FD_YEARS_DIFF_MOD_OTHER"] = "#VALUE# лет";
+$MESS["CAL_BUTTON"] = "Выбрать";
+$MESS["CAL_TIME_SET"] = "Установить время";
+$MESS["CAL_TIME"] = "Время";
 ?>

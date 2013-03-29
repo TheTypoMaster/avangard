@@ -8,7 +8,7 @@ if(!isset($arParams["CACHE_TIME"]))
 
 $arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
 if(strlen($arParams["IBLOCK_TYPE"])<=0)
- 	$arParams["IBLOCK_TYPE"] = "news";
+	$arParams["IBLOCK_TYPE"] = "news";
 $arParams["IBLOCK_ID"] = trim($arParams["IBLOCK_ID"]);
 $arParams["PARENT_SECTION"] = intval($arParams["PARENT_SECTION"]);
 $arParams["INCLUDE_SUBSECTIONS"] = $arParams["INCLUDE_SUBSECTIONS"]!="N";
@@ -17,12 +17,12 @@ $arParams["SORT_BY1"] = trim($arParams["SORT_BY1"]);
 if(strlen($arParams["SORT_BY1"])<=0)
 	$arParams["SORT_BY1"] = "ACTIVE_FROM";
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER1"]))
-	 $arParams["SORT_ORDER1"]="DESC";
+	$arParams["SORT_ORDER1"]="DESC";
 
 if(strlen($arParams["SORT_BY2"])<=0)
 	$arParams["SORT_BY2"] = "SORT";
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER2"]))
-	 $arParams["SORT_ORDER2"]="ASC";
+	$arParams["SORT_ORDER2"]="ASC";
 
 if(strlen($arParams["FILTER_NAME"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
 {
@@ -246,8 +246,10 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 			foreach($arParams["PROPERTY_CODE"] as $pid)
 			{
 				$prop = &$arItem["PROPERTIES"][$pid];
-				if((is_array($prop["VALUE"]) && count($prop["VALUE"])>0) ||
-				   (!is_array($prop["VALUE"]) && strlen($prop["VALUE"])>0))
+				if(
+					(is_array($prop["VALUE"]) && count($prop["VALUE"])>0)
+					|| (!is_array($prop["VALUE"]) && strlen($prop["VALUE"])>0)
+				)
 				{
 					$arItem["DISPLAY_PROPERTIES"][$pid] = CIBlockFormatProperties::GetDisplayValue($arItem, $prop, "news_out");
 				}
@@ -309,6 +311,7 @@ if(isset($arResult["ID"]))
 					&& $arParams["INTRANET_TOOLBAR"]!=="N"
 				)
 				{
+					$APPLICATION->AddHeadScript('/bitrix/js/main/utils.js');
 					foreach($arButtons["intranet"] as $arButton)
 						$GLOBALS["INTRANET_TOOLBAR"]->AddButton($arButton);
 				}

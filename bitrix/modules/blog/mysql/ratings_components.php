@@ -23,7 +23,7 @@ class CRatingsComponentsBlog extends CAllRatingsComponentsBlog
 						'".$DB->ForSql($arConfigs['COMPLEX_NAME'])."'  COMPLEX_NAME,
 						FT.AUTHOR_ID  ENTITY_ID,
 						'".$DB->ForSql($arConfigs['ENTITY_ID'])."'  ENTITY_TYPE_ID,
-						SUM(RVE.VALUE)*".$DB->ForSql($arConfigs['CONFIG']['COEFFICIENT'])."  CURRENT_VALUE
+						SUM(RVE.VALUE)*".floatval($arConfigs['CONFIG']['COEFFICIENT'])."  CURRENT_VALUE
 					FROM
 						b_rating_voting RV LEFT JOIN b_blog_post FT ON RV.ENTITY_ID = FT.ID,
 						b_rating_vote RVE
@@ -56,7 +56,7 @@ class CRatingsComponentsBlog extends CAllRatingsComponentsBlog
 						'".$DB->ForSql($arConfigs['COMPLEX_NAME'])."'  COMPLEX_NAME,
 						FM.AUTHOR_ID  ENTITY_ID,
 						'".$DB->ForSql($arConfigs['ENTITY_ID'])."'  ENTITY_TYPE_ID,
-						SUM(RVE.VALUE)*".$DB->ForSql($arConfigs['CONFIG']['COEFFICIENT'])."  CURRENT_VALUE
+						SUM(RVE.VALUE)*".floatval($arConfigs['CONFIG']['COEFFICIENT'])."  CURRENT_VALUE
 					FROM
 						b_rating_voting RV LEFT JOIN b_blog_comment FM ON RV.ENTITY_ID = FM.ID,
 						b_rating_vote RVE
@@ -68,7 +68,7 @@ class CRatingsComponentsBlog extends CAllRatingsComponentsBlog
 
 		return true;
 	}
-	
+
 	function CalcActivity($arConfigs)
 	{
 		global $DB;
@@ -84,10 +84,10 @@ class CRatingsComponentsBlog extends CAllRatingsComponentsBlog
 			$sqlAllPost = "
 				SELECT
 					AUTHOR_ID as ENTITY_ID,
-					COUNT(*)*".$DB->ForSql($arConfigs['CONFIG']['ALL_POST_COEF'])." as CURRENT_VALUE
+					COUNT(*)*".floatval($arConfigs['CONFIG']['ALL_POST_COEF'])." as CURRENT_VALUE
 				FROM b_blog_post
 				WHERE DATE_PUBLISH < DATE_SUB(NOW(), INTERVAL 30 DAY)
-						AND PUBLISH_STATUS = '".BLOG_PUBLISH_STATUS_PUBLISH."'				
+						AND PUBLISH_STATUS = '".BLOG_PUBLISH_STATUS_PUBLISH."'
 				GROUP BY AUTHOR_ID
 				UNION ALL ";
 		}
@@ -96,10 +96,10 @@ class CRatingsComponentsBlog extends CAllRatingsComponentsBlog
 			$sqlAllComment = "
 				SELECT
 					AUTHOR_ID as ENTITY_ID,
-					COUNT(*)*".$DB->ForSql($arConfigs['CONFIG']['ALL_COMMENT_COEF'])." as CURRENT_VALUE
+					COUNT(*)*".floatval($arConfigs['CONFIG']['ALL_COMMENT_COEF'])." as CURRENT_VALUE
 				FROM b_blog_comment
 				WHERE DATE_CREATE < DATE_SUB(NOW(), INTERVAL 30 DAY)
-					AND PUBLISH_STATUS = '".BLOG_PUBLISH_STATUS_PUBLISH."'				
+					AND PUBLISH_STATUS = '".BLOG_PUBLISH_STATUS_PUBLISH."'
 				GROUP BY AUTHOR_ID
 				UNION ALL ";
 		}
@@ -114,12 +114,12 @@ class CRatingsComponentsBlog extends CAllRatingsComponentsBlog
 				'".$DB->ForSql($arConfigs['ENTITY_ID'])."'  ENTITY_TYPE_ID,
 				SUM(CURRENT_VALUE) CURRENT_VALUE
 			FROM (
-			    ".$sqlAllPost."
+				".$sqlAllPost."
 				SELECT
 					AUTHOR_ID as ENTITY_ID,
-				    SUM(IF(TO_DAYS(DATE_PUBLISH) > TO_DAYS(NOW())-1, 1, 0))*".$DB->ForSql($arConfigs['CONFIG']['TODAY_POST_COEF'])." +
-				    SUM(IF(TO_DAYS(DATE_PUBLISH) > TO_DAYS(NOW())-7, 1, 0))*".$DB->ForSql($arConfigs['CONFIG']['WEEK_POST_COEF'])."+
-				    COUNT(*)*".$DB->ForSql($arConfigs['CONFIG']['MONTH_POST_COEF'])." as CURRENT_VALUE
+					SUM(IF(TO_DAYS(DATE_PUBLISH) > TO_DAYS(NOW())-1, 1, 0))*".floatval($arConfigs['CONFIG']['TODAY_POST_COEF'])." +
+					SUM(IF(TO_DAYS(DATE_PUBLISH) > TO_DAYS(NOW())-7, 1, 0))*".floatval($arConfigs['CONFIG']['WEEK_POST_COEF'])."+
+					COUNT(*)*".floatval($arConfigs['CONFIG']['MONTH_POST_COEF'])." as CURRENT_VALUE
 				FROM b_blog_post
 				WHERE DATE_PUBLISH  > DATE_SUB(NOW(), INTERVAL 30 DAY)
 						AND PUBLISH_STATUS = '".BLOG_PUBLISH_STATUS_PUBLISH."'
@@ -128,10 +128,10 @@ class CRatingsComponentsBlog extends CAllRatingsComponentsBlog
 				UNION ALL
 				".$sqlAllComment."
 				SELECT
-				   AUTHOR_ID as ENTITY_ID,
-			       SUM(IF(TO_DAYS(DATE_CREATE) > TO_DAYS(NOW())-1, 1, 0))*".$DB->ForSql($arConfigs['CONFIG']['TODAY_COMMENT_COEF'])." +
-			       SUM(IF(TO_DAYS(DATE_CREATE) > TO_DAYS(NOW())-7, 1, 0))*".$DB->ForSql($arConfigs['CONFIG']['WEEK_COMMENT_COEF'])." +
-			       COUNT(*)*".$DB->ForSql($arConfigs['CONFIG']['MONTH_COMMENT_COEF'])." as CURRENT_VALUE
+					AUTHOR_ID as ENTITY_ID,
+					SUM(IF(TO_DAYS(DATE_CREATE) > TO_DAYS(NOW())-1, 1, 0))*".floatval($arConfigs['CONFIG']['TODAY_COMMENT_COEF'])." +
+					SUM(IF(TO_DAYS(DATE_CREATE) > TO_DAYS(NOW())-7, 1, 0))*".floatval($arConfigs['CONFIG']['WEEK_COMMENT_COEF'])." +
+					COUNT(*)*".floatval($arConfigs['CONFIG']['MONTH_COMMENT_COEF'])." as CURRENT_VALUE
 				FROM b_blog_comment
 				WHERE DATE_CREATE  > DATE_SUB(NOW(), INTERVAL 30 DAY)
 					AND PUBLISH_STATUS = '".BLOG_PUBLISH_STATUS_PUBLISH."'

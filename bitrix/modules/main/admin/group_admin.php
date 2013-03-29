@@ -184,14 +184,14 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	$row =& $lAdmin->AddRow($f_ID, $arRes, "group_edit.php?lang=".LANGUAGE_ID."&ID=".$f_ID, GetMessage("MAIN_EDIT_TITLE"));
 	$row->AddViewField("ID", "<a href='group_edit.php?lang=".LANGUAGE_ID."&ID=".$f_ID."' title='".GetMessage("MAIN_EDIT_TITLE")."'>".$f_ID."</a>");
 
-	
+
 	if ($USER->CanDoOperation('edit_groups'))
 	{
 		if($f_ID <= 2)
 			$row->AddCheckField("ACTIVE", false);
 		else
 			$row->AddCheckField("ACTIVE");
-		
+
 		$row->AddInputField("C_SORT");
 		$row->AddInputField("NAME");
 		$row->AddInputField("DESCRIPTION");
@@ -203,16 +203,16 @@ while($arRes = $rsData->NavNext(true, "f_"))
 		$row->AddViewField("NAME", $f_NAME);
 		$row->AddViewField("DESCRIPTION", $f_DESCRIPTION);
 	}
-	
+
 	if ($f_ID!=2)
 		$row->AddViewField("USERS", "<a href='user_admin.php?lang=".LANGUAGE_ID."&find_group_id[]=".$f_ID."&set_filter=Y' title='".GetMessage("USERS_OF_GROUP")."'>".$f_USERS."</a>");
 
 	$arActions = Array();
-	
+
 	if(IntVal($f_ID)>2 && $USER->CanDoOperation('edit_groups'))
 	{
 		$arActions[] = array("ICON"=>"edit", "TEXT"=>GetMessage("MAIN_ADMIN_MENU_EDIT"), "ACTION"=>$lAdmin->ActionRedirect("group_edit.php?ID=".$f_ID));
-		$arActions[] = array("ICON"=>"copy", "TEXT"=>GetMessage("MAIN_ADMIN_MENU_COPY"), "ACTION"=>$lAdmin->ActionRedirect("group_edit.php?".htmlspecialchars("COPY_ID=").$f_ID));
+		$arActions[] = array("ICON"=>"copy", "TEXT"=>GetMessage("MAIN_ADMIN_MENU_COPY"), "ACTION"=>$lAdmin->ActionRedirect("group_edit.php?COPY_ID=".$f_ID));
 		$arActions[] = array("SEPARATOR"=>true);
 		$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("MAIN_ADMIN_MENU_DELETE"), "ACTION"=>"if(confirm('".GetMessage('CONFIRM_DEL_GROUP')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete"));
 	}
@@ -220,7 +220,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	{
 		$arActions[] = array("ICON" => "view", "TEXT" => GetMessage("VIEW"), "ACTION" => $lAdmin->ActionRedirect("group_edit.php?ID=".$f_ID));
 	}
-		
+
 	$row->AddActions($arActions);
 }
 
@@ -241,7 +241,7 @@ if ($USER->CanDoOperation('edit_groups'))
 		"activate"=>GetMessage("MAIN_ADMIN_LIST_ACTIVATE"),
 		"deactivate"=>GetMessage("MAIN_ADMIN_LIST_DEACTIVATE")
 		));
-	
+
 	$aContext[] = array(
 			"TEXT"	=> GetMessage("ADD_GROUP"),
 			"LINK"	=> "group_edit.php?lang=".LANGUAGE_ID,
@@ -277,7 +277,7 @@ $oFilter->Begin();
 <tr>
 	<td><b><?=GetMessage("MAIN_FLT_SEARCH")?></b></td>
 	<td nowrap>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("MAIN_FLT_SEARCH_TITLE")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("MAIN_FLT_SEARCH_TITLE")?>">
 		<select name="find_type">
 			<option value="name"<?if($find_type=="name") echo " selected"?>><?=GetMessage('F_NAME')?></option>
 			<option value="id"<?if($find_type=="id") echo " selected"?>><?=GetMessage('MAIN_F_ID')?></option>
@@ -286,30 +286,30 @@ $oFilter->Begin();
 </tr>
 <tr>
 	<td nowrap><?echo GetMessage("MAIN_F_ID")?>:</td>
-	<td nowrap><input type="text" name="find_id" value="<?echo htmlspecialchars($find_id)?>" size="47"><?=ShowFilterLogicHelp()?></td>
+	<td nowrap><input type="text" name="find_id" value="<?echo htmlspecialcharsbx($find_id)?>" size="47"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
-	<td width="0%" nowrap><?echo GetMessage("MAIN_F_TIMESTAMP")." (".CLang::GetDateFormat("SHORT")."):"?></td>
-	<td width="0%" nowrap><?echo CalendarPeriod("find_timestamp_1", htmlspecialchars($find_timestamp_1), "find_timestamp_2", htmlspecialchars($find_timestamp_2), "find_form","Y")?></td>
+	<td width="0%" nowrap><?echo GetMessage("MAIN_F_TIMESTAMP").":"?></td>
+	<td width="0%" nowrap><?echo CalendarPeriod("find_timestamp_1", htmlspecialcharsbx($find_timestamp_1), "find_timestamp_2", htmlspecialcharsbx($find_timestamp_2), "find_form","Y")?></td>
 </tr>
 <tr>
 	<td nowrap><?echo GetMessage("MAIN_F_ACTIVE")?>:</td>
 	<td nowrap><?
 		$arr = array("reference"=>array(GetMessage("MAIN_YES"), GetMessage("MAIN_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_active", $arr, htmlspecialchars($find_active), GetMessage("MAIN_ALL"));
+		echo SelectBoxFromArray("find_active", $arr, htmlspecialcharsbx($find_active), GetMessage("MAIN_ALL"));
 		?></td>
 </tr>
 <tr>
 	<td nowrap><?echo GetMessage("F_NAME")?>:</td>
-	<td nowrap><input type="text" name="find_name" value="<?echo htmlspecialchars($find_name)?>" size="47"><?=ShowFilterLogicHelp()?></td>
+	<td nowrap><input type="text" name="find_name" value="<?echo htmlspecialcharsbx($find_name)?>" size="47"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td nowrap><?echo GetMessage("MAIN_F_DESCRIPTION")?>:</td>
-	<td nowrap><input type="text" name="find_description" value="<?echo htmlspecialchars($find_description)?>" size="47"><?=ShowFilterLogicHelp()?></td>
+	<td nowrap><input type="text" name="find_description" value="<?echo htmlspecialcharsbx($find_description)?>" size="47"><?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_F_USERS")?>:</td>
-	<td><?echo GetMessage("group_admin_flt_from")?>&nbsp;<input type="text" name="find_users_1" size="10" value="<?echo htmlspecialchars($find_users_1)?>">&nbsp;<?echo GetMessage("group_admin_flt_to")?>&nbsp;<input type="text" name="find_users_2" size="10" value="<?echo htmlspecialchars($find_users_2)?>"></td>
+	<td><input type="text" name="find_users_1" size="10" value="<?echo htmlspecialcharsbx($find_users_1)?>" placeholder="<?echo GetMessage("group_admin_flt_from")?>">&nbsp;<input type="text" name="find_users_2" size="10" value="<?echo htmlspecialcharsbx($find_users_2)?>" placeholder="<?echo GetMessage("group_admin_flt_to")?>"></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage(), "form"=>"find_form"));

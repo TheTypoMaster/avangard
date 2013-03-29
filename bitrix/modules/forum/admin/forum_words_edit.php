@@ -123,40 +123,37 @@
 	$tabControl->Begin();
 	$tabControl->BeginNextTab();
 ?>
+<tr class="adm-detail-required-field">
+	<td width="40%"><?=GetMessage("FLTR_SEARCH")?>:</td>
+	<td width="60%"><input type="text" name="WORDS" maxlength="255" value="<?=htmlspecialcharsEx($str_WORDS)?>"></td></tr>
+<tr>
+	<td><?=GetMessage("FLTR_USE_IT")?>: </td><td><input type="checkbox" name="USE_IT" value="Y" <?=$str_USE_IT == "Y" ? "checked" : ""?>></td></tr>
+<tr>
+	<td><?=GetMessage("FLTR_SEARCH_WHAT")?>:</td><td>
+	<?
+	$arr = array(
+		"reference" => array(
+			GetMessage("FLTR_SEARCH_0"),
+			GetMessage("FLTR_SEARCH_1"),
+			GetMessage("FLTR_SEARCH_2"),
+		),
+		"reference_id" => array(
+			"WORDS",
+			"TRNSL",
+			"PTTRN",
+		)
+	);
+	echo SelectBoxFromArray("PATTERN_CREATE", $arr, $str_PATTERN_CREATE, "", "");
+	?>
+</td></tr>
+<tr><td><?=GetMessage("FLTR_REPLACEMENT")?>:</td>
+	<td><input type="text" name="REPLACEMENT" maxlength="255"  value="<?=htmlspecialcharsEx($str_REPLACEMENT)?>"></td></tr>
+<tr class="heading">
+	<td colspan="2"><?=GetMessage("FLTR_DESCRIPTION")?>:</td>
+</tr>
 <tr valign="top">
-	<td style="border:1px; width:50%;" >
-		<table width="100%" class="edit-table">
-			<tr><td align="right"><span class="required">*</span>&nbsp;<?=GetMessage("FLTR_SEARCH")?>:</td>
-				<td><input type="text" name="WORDS" maxlength="255" value="<?=htmlspecialcharsEx($str_WORDS)?>"></td></tr>
-			<tr><td align="right"><?=GetMessage("FLTR_USE_IT")?>: </td><td><input type="checkbox" name="USE_IT" value="Y" <?=$str_USE_IT == "Y" ? "checked" : ""?>></td></tr>
-			<tr><td align="right"><?=GetMessage("FLTR_SEARCH_WHAT")?>:</td><td>
-				<?
-				$arr = array(
-					"reference" => array(
-						GetMessage("FLTR_SEARCH_0"),
-						GetMessage("FLTR_SEARCH_1"),
-						GetMessage("FLTR_SEARCH_2"),
-					),
-					"reference_id" => array(
-						"WORDS",
-						"TRNSL",
-						"PTTRN",
-					)
-				);
-				echo SelectBoxFromArray("PATTERN_CREATE", $arr, $str_PATTERN_CREATE, "", "");
-				?>
-			</td></tr>
-			<tr><td align="right">&nbsp;<?=GetMessage("FLTR_REPLACEMENT")?>:</td>
-				<td width="60%"><input type="text" name="REPLACEMENT" maxlength="255"  value="<?=htmlspecialcharsEx($str_REPLACEMENT)?>"></td></tr>
-			<tr class="heading">
-				<td colspan="2"><?=GetMessage("FLTR_DESCRIPTION")?>:</td>
-			</tr>
-			<tr valign="top">
-				<td colspan="2" align="center">
-					<textarea style="width:60%; height:150px;" name="DESCRIPTION" wrap="VIRTUAL"><?=htmlspecialcharsEx($str_DESCRIPTION)?></textarea>
-				</td>
-			</tr>
-		</table>
+	<td colspan="2" align="center">
+		<textarea style="width:60%; height:150px;" name="DESCRIPTION" wrap="VIRTUAL"><?=htmlspecialcharsEx($str_DESCRIPTION)?></textarea>
 	</td>
 </tr>
 <?$tabControl->EndTab();?>
@@ -167,9 +164,6 @@
 			)
 	);?>
 <?$tabControl->End();?>
-</form><br>
-<?=BeginNote();?>
-<span class="required">*</span><font class="legendtext"> - <?=GetMessage("REQUIRED_FIELDS")?>
-<?=EndNote(); ?>		
+</form>
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 ?>

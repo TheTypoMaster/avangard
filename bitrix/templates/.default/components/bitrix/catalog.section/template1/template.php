@@ -28,7 +28,7 @@
  
 	   <?
 	
-	   $arElementSelect = Array("ID", "NAME", "DATE_ACTIVE_FROM", "PREVIEW_PICTURE", "PROPERTY_FULLCOLOR_PIC", "PROPERTY_NOVELTY", "PROPERTY_BLACKWHITE_PIC", "PROPERTY_HIT",  "PROPERTY_COLLECTION", "IBLOCK_ID");
+	   $arElementSelect = Array("ID", "NAME", "DATE_ACTIVE_FROM", "PREVIEW_PICTURE", "PROPERTY_FULLCOLOR_PIC", "PROPERTY_NOVELTY", "PROPERTY_BLACKWHITE_PIC", "PROPERTY_HIT", "PROPERTY_PRICE_IM",  "PROPERTY_COLLECTION", "IBLOCK_ID");
 	
 	   // $arElementFilter = Array("IBLOCK_ID"=>IntVal(5), "ACTIVE_DATE"=>"Y", "ACTIVE"=>"Y", "!PROPERTY_SLIDER"=>false,  "PROPERTY_COLLECTION"=>IntVal($category[id]));
            $arElementFilter = Array("IBLOCK_ID"=>IntVal(5), "ACTIVE_DATE"=>"Y", "ACTIVE"=>"Y", "PROPERTY_COLLECTION"=>IntVal($category[id]), "PROPERTY_INET_SHOP" => 178);
@@ -52,7 +52,17 @@
 				
 				<td class="catalog_td">
 				<a href="/shop/catalog/divan<?=$arElementFields[ID]?>.htm#top"><img onMouseOver="this.src='<?=$img_path?>';" onMouseOut="this.src='<?=$img_path_bl?>';" class="catalog_picture" src="<?=$img_path_bl?>" alt="<?=$arElementFields[NAME]?>"></a><br>
-				<a class="catalog_name" href="/shop/catalog/divan<?=$arElementFields[ID]?>.htm"><?=$arElementFields[NAME]?></a>
+				
+				<table width="100%">
+					<tr>
+						<td>
+							<a class="catalog_name" href="/shop/catalog/divan<?=$arElementFields[ID]?>.htm"><?=$arElementFields[NAME]?></a>
+						</td>
+						<td id="price_new1">
+							<?=$arElementFields['PROPERTY_PRICE_IM_VALUE']?>
+						</td>
+					</tr>
+				</table>
 				
 				
 				</td>

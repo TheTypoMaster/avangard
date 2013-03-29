@@ -10,7 +10,7 @@ var
 		replace_space: '_',
 		replace_other: '_',
 		delete_repeat_replace: true,
-		use_google: false // BING is really using here but we won't rename a setting name now
+		use_google: false // Yandex.Translator is really using here but we won't rename a setting name now
 	},
 	r = {
 		en: /[A-Z0-9]/i,
@@ -28,9 +28,9 @@ BX.translit = function (str, params)
 	if (params.change_case)
 		params.change_case = params.change_case.toUpperCase();
 
-	if (params.use_google && params.callback && !!BX.message('BING_KEY'))
+	if (params.use_google && params.callback)
 	{
-		return (new BX.CBingTranslator(str, params)).run();
+		return (new BX.CYandexTranslator(str, params)).run();
 	}
 	else
 	{
@@ -100,13 +100,14 @@ BX.translit = function (str, params)
 	}
 };
 
-BX.CGoogleTranslator = function(str, params)
+/* external translator interface class */
+BX.IExternalTranslator = function(str, params)
 {
 	this.str = str;
 	this.params = params;
-};
+}
 
-BX.CGoogleTranslator.prototype.run = function()
+BX.IExternalTranslator.prototype.run = function()
 {
 	var res = __checkCache(this.str);
 	if (res)
@@ -114,6 +115,26 @@ BX.CGoogleTranslator.prototype.run = function()
 	else
 		this.translate();
 };
+
+/* translation function */
+BX.IExternalTranslator.prototype.translate = function() {};
+
+/* result processing function */
+BX.IExternalTranslator.prototype.result = function(result, bSkipCache)
+{
+	if (!bSkipCache)
+		translatorCache[translatorCache.length] = {original: this.str, translation: result.translation};
+
+	this.params.use_google = false;
+	BX.translit(result.translation, this.params);
+};
+
+/* Google Translate external class - DEPRECATED */
+BX.CGoogleTranslator = function(str, params)
+{
+	BX.CBingTranslator.superclass.constructor.apply(this, arguments);
+};
+BX.extend(BX.CGoogleTranslator, BX.IExternalTranslator);
 
 BX.CGoogleTranslator.prototype.translate = function()
 {
@@ -152,20 +173,12 @@ BX.CGoogleTranslator.prototype.translate = function()
 	}
 };
 
-BX.CGoogleTranslator.prototype.result = function(result, bSkipCache)
-{
-	if (!bSkipCache)
-		translatorCache[translatorCache.length] = {original: this.str, translation: result.translation};
-
-	this.params.use_google = false;
-	BX.translit(result.translation, this.params);
-};
-
+/* Bing Translate external class - DEPARECATED AFTER 2012-08-01 */
 BX.CBingTranslator = function(str, params)
 {
-	BX.CBingTranslator.superclass.constructor.apply(this, arguments); 
+	BX.CBingTranslator.superclass.constructor.apply(this, arguments);
 };
-BX.extend(BX.CBingTranslator, BX.CGoogleTranslator);
+BX.extend(BX.CBingTranslator, BX.IExternalTranslator);
 
 BX.CBingTranslator.prototype.translate = function()
 {
@@ -184,9 +197,9 @@ BX.CBingTranslator.prototype.result = function(result, bSkipCache)
 		if (result.translation)
 			res = result;
 		else if (
-			result.SearchResponse 
-			&& result.SearchResponse.Translation 
-			&& result.SearchResponse.Translation.Results 
+			result.SearchResponse
+			&& result.SearchResponse.Translation
+			&& result.SearchResponse.Translation.Results
 			&& result.SearchResponse.Translation.Results[0]
 		)
 		{
@@ -195,6 +208,42 @@ BX.CBingTranslator.prototype.result = function(result, bSkipCache)
 	}
 
 	return BX.CBingTranslator.superclass.result.apply(this, [res, bSkipCache]);
+};
+
+
+/* Yandex Translate external class */
+BX.CYandexTranslator = function(str, params)
+{
+	BX.CYandexTranslator.superclass.constructor.apply(this, arguments);
+};
+BX.extend(BX.CYandexTranslator, BX.IExternalTranslator);
+
+BX.CYandexTranslator.prototype.translate = function()
+{
+	var arStr = this.str.substr(0,5000).split(/\n/), text = '', i;
+
+	for (i=0; i<arStr.length; i++)
+		text += '&text=' + BX.util.urlencode(arStr[i]);
+
+	var cb_name = 'yandex_translate_callback_' + parseInt(Math.random() * 100000),
+		url = 'http://translate.yandex.net/api/v1/tr.json/translate?lang='+BX.message('LANGUAGE_ID')+'-en&callback=' + cb_name + '&clientId=bitrix' + text;
+
+	window[cb_name] = BX.proxy(this.result, this);
+	BX.loadScript(url, function() {window[cb_name] = null});
+};
+
+BX.CYandexTranslator.prototype.result = function(result, bSkipCache)
+{
+	var res = {translation: this.str};
+	if (!!result)
+	{
+		if (result.translation)
+			res = result;
+		else if (result.code == 200 && result.text.length > 0)
+			res.translation = result.text.join("\n");
+	}
+
+	return BX.CYandexTranslator.superclass.result.apply(this, [res, bSkipCache]);
 };
 
 /* private static functions */

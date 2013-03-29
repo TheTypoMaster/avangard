@@ -204,8 +204,8 @@ if(intval($find_section_section) > 0)
 	$nav = CIBlockSection::GetNavChain($IBLOCK_ID, $find_section_section);
 	while($ar_nav = $nav->GetNext())
 	{
-		$strPath .= htmlspecialchars($ar_nav["~NAME"], ENT_QUOTES)."&nbsp;/&nbsp;";
-		$jsPath .= htmlspecialchars(CUtil::JSEscape($ar_nav["~NAME"]), ENT_QUOTES)."&nbsp;/&nbsp;";
+		$strPath .= htmlspecialcharsbx($ar_nav["~NAME"], ENT_QUOTES)."&nbsp;/&nbsp;";
+		$jsPath .= htmlspecialcharsbx(CUtil::JSEscape($ar_nav["~NAME"]), ENT_QUOTES)."&nbsp;/&nbsp;";
 	}
 }
 
@@ -259,16 +259,16 @@ while($arRes = $rsData->NavNext(true, "f_"))
 		array(
 			"DEFAULT" => "Y",
 			"TEXT" => GetMessage("IBLOCK_SECSEARCH_SELECT"),
-			"ACTION"=>"javascript:SelEl('".($get_xml_id? $f_XML_ID: $f_ID)."', '".htmlspecialchars($jsPath.htmlspecialchars(CUtil::JSEscape($arRes["NAME"]), ENT_QUOTES))."&nbsp;/&nbsp;"."')",
+			"ACTION"=>"javascript:SelEl('".($get_xml_id? $f_XML_ID: $f_ID)."', '".htmlspecialcharsbx($jsPath.htmlspecialcharsbx(CUtil::JSEscape($arRes["NAME"]), ENT_QUOTES))."&nbsp;/&nbsp;"."')",
 		),
 	));
 }
 
 $lAdmin->AddFooter(
-        array(
-                array("title"=>GetMessage("MAIN_ADMIN_LIST_SELECTED"), "value"=>$rsData->SelectedRowsCount()),
-                array("counter"=>true, "title"=>GetMessage("MAIN_ADMIN_LIST_CHECKED"), "value"=>"0"),
-        )
+	array(
+		array("title"=>GetMessage("MAIN_ADMIN_LIST_SELECTED"), "value"=>$rsData->SelectedRowsCount()),
+		array("counter"=>true, "title"=>GetMessage("MAIN_ADMIN_LIST_CHECKED"), "value"=>"0"),
+	)
 );
 
 if($m)
@@ -313,12 +313,10 @@ if($IBLOCK_ID > 0)
 }
 else
 {
-{
 	$lAdmin->BeginPrologContent();
 	$message = new CAdminMessage(array("MESSAGE"=>GetMessage("IBLOCK_SECSEARCH_CHOOSE_IBLOCK"), "TYPE"=>"OK"));
 	echo $message->Show();
 	$lAdmin->EndPrologContent();
-}
 }
 
 $lAdmin->CheckListMode();
@@ -355,8 +353,7 @@ $oFilter = new CAdminFilter($sTableID."_filter", $arFindFields);
 
 $oFilter->Begin();
 ?>
-<script language="JavaScript">
-<!--
+<script type="text/javascript">
 function SelEl(id, name)
 {
 	<?if($m):?>
@@ -405,7 +402,6 @@ function SelAll()
 		window.close();
 	}
 }
-//-->
 </script>
 	<tr>
 		<td><b><?echo GetMessage("IBLOCK_SECSEARCH_NAME")?>:</b></td>
@@ -414,11 +410,11 @@ function SelAll()
 
 	<tr>
 		<td><?echo GetMessage("IBLOCK_SECSEARCH_ID")?>:</td>
-		<td><input type="text" name="find_section_id" size="47" value="<?echo htmlspecialchars($find_section_id)?>"></td>
+		<td><input type="text" name="find_section_id" size="47" value="<?echo htmlspecialcharsbx($find_section_id)?>"></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_SECSEARCH_TIMESTAMP")." (".CLang::GetDateFormat("SHORT")."):"?></td>
-		<td><?echo CalendarPeriod("find_section_timestamp_1", htmlspecialchars($find_section_timestamp_1), "find_section_timestamp_2", htmlspecialchars($find_section_timestamp_2), "find_section_form","Y")?></td>
+		<td><?echo GetMessage("IBLOCK_SECSEARCH_TIMESTAMP").":"?></td>
+		<td><?echo CalendarPeriod("find_section_timestamp_1", htmlspecialcharsbx($find_section_timestamp_1), "find_section_timestamp_2", htmlspecialcharsbx($find_section_timestamp_2), "find_section_form","Y")?></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("IBLOCK_SECSEARCH_MODIFIED_BY")?>:</td>
@@ -437,7 +433,7 @@ function SelAll()
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBLOCK_SECSEARCH_DATE_CREATE")." (".CLang::GetDateFormat("SHORT")."):"?></td>
+		<td><?echo GetMessage("IBLOCK_SECSEARCH_DATE_CREATE").":"?></td>
 		<td><?echo CalendarPeriod("find_section_date_create_1", htmlspecialcharsex($find_section_date_create_1), "find_section_date_create_2", htmlspecialcharsex($find_section_date_create_2), "find_section_form")?></td>
 	</tr>
 	<tr>
@@ -458,11 +454,11 @@ function SelAll()
 	</tr>
 	<tr>
 		<td><?echo GetMessage("IBLOCK_SECSEARCH_CODE")?>:</td>
-		<td><input type="text" name="find_section_code" size="47" value="<?echo htmlspecialchars($find_section_code)?>"></td>
+		<td><input type="text" name="find_section_code" size="47" value="<?echo htmlspecialcharsbx($find_section_code)?>"></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("IBLOCK_SECSEARCH_XML_ID")?>:</td>
-		<td><input type="text" name="find_section_external_id" size="47" value="<?echo htmlspecialchars($find_section_external_id)?>"></td>
+		<td><input type="text" name="find_section_external_id" size="47" value="<?echo htmlspecialcharsbx($find_section_external_id)?>"></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("IBLOCK_SECSEARCH_ACTIVE")?>:</td>

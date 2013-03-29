@@ -38,20 +38,48 @@ $arParams["JPEG_QUALITY"] = intVal($arParams["JPEG_QUALITY"]) > 0 ? intVal($arPa
 ********************************************************************/
 $arWatermark = array();
 $arWatermark["additional"] = isset($arParams["USER_SETTINGS"]["additional"]) && $arParams["USER_SETTINGS"]["additional"] == 'Y';
-$arWatermark["use"] = (isset($arParams["USER_SETTINGS"]["use"]) && $arParams["USER_SETTINGS"]["use"] == "Y") ? "Y" : 'N';
-$arWatermark["type"] = (isset($arParams["USER_SETTINGS"]["type"]) && in_array($arParams["USER_SETTINGS"]["type"], array("text", "image"))) ? $arParams["USER_SETTINGS"]["type"] : 'text';
-$arWatermark["copyright"] = (isset($arParams["USER_SETTINGS"]["copyright"]) && $arParams["USER_SETTINGS"]["copyright"] == 'Y') ? 'Y' : 'N';
-$arWatermark["color"] = htmlspecialchars(isset($arParams["USER_SETTINGS"]["color"]) ? $arParams["USER_SETTINGS"]["color"] : '#FF0000');
-if ($arWatermark["type"] == 'text')
-	$arWatermark["size"] = (isset($arParams["USER_SETTINGS"]["size"]) && in_array($arParams["USER_SETTINGS"]["size"], array("big", "middle", "small"))) ? $arParams["USER_SETTINGS"]["size"] : 'middle';
-else
-	$arWatermark["size"] = (isset($arParams["USER_SETTINGS"]["size"]) && in_array($arParams["USER_SETTINGS"]["size"], array("real", "big", "middle", "small"))) ? $arParams["USER_SETTINGS"]["size"] : "real";
-$arWatermark["position"] = (isset($arParams["USER_SETTINGS"]["position"]) && in_array($arParams["USER_SETTINGS"]["position"], array("TopLeft", "TopCenter", "TopRight", "CenterLeft", "Center", "CenterRight", "BottomLeft", "BottomCenter", "BottomRight"))) ? $arParams["USER_SETTINGS"]["position"] : 'BottomRight';
-$arWatermark["opacity"] = isset($arParams["USER_SETTINGS"]["opacity"]) ? intVal($arParams["USER_SETTINGS"]["opacity"]) : 50;
-$arWatermark["text"] = isset($arParams["USER_SETTINGS"]["text"]) ? $arParams["USER_SETTINGS"]["text"] : "";
-$arWatermark["text"] = htmlspecialchars($arWatermark["text"]);
 
-$arWatermark["original_size"] = isset($arParams["USER_SETTINGS"]["original_size"]) ? intVal($arParams["USER_SETTINGS"]["original_size"]) : 0;
+if ($arParams['WATERMARK_RULES'] == 'ALL')
+{
+	$arWatermark["use"] = 'Y';
+	$arWatermark["type"] = strtolower($arParams["WATERMARK_TYPE"]);
+	$arWatermark["copyright"] = 'N';
+	$arWatermark["color"] = $arParams["WATERMARK_COLOR"];
+
+	//if ($arWatermark["type"] == 'text')
+	//	$arWatermark["size"] = (isset($arParams["USER_SETTINGS"]["size"]) && in_array($arParams["USER_SETTINGS"]["size"], array("big", "middle", "small"))) ? $arParams["USER_SETTINGS"]["size"] : 'middle';
+	//else
+	//	$arWatermark["size"] = (isset($arParams["USER_SETTINGS"]["size"]) && in_array($arParams["USER_SETTINGS"]["size"], array("real", "big", "middle", "small"))) ? $arParams["USER_SETTINGS"]["size"] : "real";
+	$arWatermark["position"] = (isset($arParams["WATERMARK_POSITION"]) && in_array($arParams["WATERMARK_POSITION"], array("TopLeft", "TopCenter", "TopRight", "CenterLeft", "Center", "CenterRight", "BottomLeft", "BottomCenter", "BottomRight"))) ? $arParams["WATERMARK_POSITION"] : 'BottomRight';
+	$arWatermark["opacity"] = isset($arParams["WATERMARK_TRANSPARENCY"]) ? intVal($arParams["WATERMARK_TRANSPARENCY"]) : 50;
+	$arWatermark["text"] = $arParams["WATERMARK_TEXT"];
+
+	$arWatermark["file"] = $arParams["WATERMARK_FILE_REL"];
+	if ($arWatermark["file"])
+	{
+		$arWatermark["fileWidth"] = $arParams["WATERMARK_FILE_WIDTH"];
+		$arWatermark["fileHeight"] = $arParams["WATERMARK_FILE_HEIGHT"];
+	}
+
+	//$arWatermark["original_size"] = isset($arParams["USER_SETTINGS"]["original_size"]) ? intVal($arParams["USER_SETTINGS"]["original_size"]) : 0;
+}
+else
+{
+	$arWatermark["use"] = (isset($arParams["USER_SETTINGS"]["use"]) && $arParams["USER_SETTINGS"]["use"] == "Y") ? "Y" : 'N';
+	$arWatermark["type"] = (isset($arParams["USER_SETTINGS"]["type"]) && in_array($arParams["USER_SETTINGS"]["type"], array("text", "image"))) ? $arParams["USER_SETTINGS"]["type"] : 'text';
+	$arWatermark["copyright"] = (isset($arParams["USER_SETTINGS"]["copyright"]) && $arParams["USER_SETTINGS"]["copyright"] == 'Y') ? 'Y' : 'N';
+	$arWatermark["color"] = htmlspecialcharsbx(isset($arParams["USER_SETTINGS"]["color"]) ? $arParams["USER_SETTINGS"]["color"] : '#FF0000');
+	if ($arWatermark["type"] == 'text')
+		$arWatermark["size"] = (isset($arParams["USER_SETTINGS"]["size"]) && in_array($arParams["USER_SETTINGS"]["size"], array("big", "middle", "small"))) ? $arParams["USER_SETTINGS"]["size"] : 'middle';
+	else
+		$arWatermark["size"] = (isset($arParams["USER_SETTINGS"]["size"]) && in_array($arParams["USER_SETTINGS"]["size"], array("real", "big", "middle", "small"))) ? $arParams["USER_SETTINGS"]["size"] : "real";
+	$arWatermark["position"] = (isset($arParams["USER_SETTINGS"]["position"]) && in_array($arParams["USER_SETTINGS"]["position"], array("TopLeft", "TopCenter", "TopRight", "CenterLeft", "Center", "CenterRight", "BottomLeft", "BottomCenter", "BottomRight"))) ? $arParams["USER_SETTINGS"]["position"] : 'BottomRight';
+	$arWatermark["opacity"] = isset($arParams["USER_SETTINGS"]["opacity"]) ? intVal($arParams["USER_SETTINGS"]["opacity"]) : 50;
+	$arWatermark["text"] = isset($arParams["USER_SETTINGS"]["text"]) ? $arParams["USER_SETTINGS"]["text"] : "";
+	$arWatermark["text"] = htmlspecialcharsbx($arWatermark["text"]);
+
+	$arWatermark["original_size"] = isset($arParams["USER_SETTINGS"]["original_size"]) ? intVal($arParams["USER_SETTINGS"]["original_size"]) : 0;
+}
 
 /********************************************************************
 				/Default values
@@ -101,8 +129,15 @@ $arWatermark["original_size"] = isset($arParams["USER_SETTINGS"]["original_size"
 
 <div class="image-uploader-objects">
 
+<?
+if($arParams['SHOW_MAGIC_QUOTES_NOTICE_ADMIN'])
+	echo GetMessage('MAGIC_QUOTES_NOTICE_ADMIN', array("#URL#" => '/bitrix/admin/site_checker.php')).'<br/><br/>';
+elseif($arParams['SHOW_MAGIC_QUOTES_NOTICE'])
+	echo GetMessage('MAGIC_QUOTES_NOTICE').'<br/><br/>';
+?>
+
 <?/* CONTROLS IN THE TOP OF UPLOADER*/?>
-<form id="<?= $arParams["UPLOADER_ID"]?>_form" name="<?= $arParams["UPLOADER_ID"]?>_form" action="<?=  htmlspecialchars($arParams["ACTION_URL"])?>" method="POST" enctype="multipart/form-data" class="bxiu-photo-form">
+<form id="<?= $arParams["UPLOADER_ID"]?>_form" name="<?= $arParams["UPLOADER_ID"]?>_form" action="<?=  htmlspecialcharsbx($arParams["ACTION_URL"])?>" method="POST" enctype="multipart/form-data" class="bxiu-photo-form">
 	<input type="hidden" name="save_upload" id="save_upload" value="Y" />
 	<input type="hidden" name="sessid" id="sessid" value="<?= bitrix_sessid()?>" />
 	<input type="hidden" name="FileCount" value="<?=$arParams["UPLOAD_MAX_FILE"]?>" />
@@ -209,7 +244,7 @@ $arWatermark["original_size"] = isset($arParams["USER_SETTINGS"]["original_size"
 								</div>
 								<div id="bxiu_wm_img_iframe_cont<?=$arParams["UPLOADER_ID"]?>">
 									<div class="bxiu-loading"></div>
-									<form name="wm_form" id="bxiu_wm_form<?=$arParams["UPLOADER_ID"]?>" action="<?= htmlspecialchars($arParams["ACTION_URL"])?>" method="POST" enctype="multipart/form-data" class="bxiu-photo-form">
+									<form name="wm_form" id="bxiu_wm_form<?=$arParams["UPLOADER_ID"]?>" action="<?= htmlspecialcharsbx($arParams["ACTION_URL"])?>" method="POST" enctype="multipart/form-data" class="bxiu-photo-form">
 										<input type="hidden" name="watermark_iframe" value="Y" />
 										<input type="hidden" name="sessid" id="sessid" value="<?= bitrix_sessid()?>" />
 										<input name="watermark_img" type="file" size="30" id="bxiu_wm_img<?=$arParams["UPLOADER_ID"]?>"/>
@@ -231,7 +266,7 @@ $arWatermark["original_size"] = isset($arParams["USER_SETTINGS"]["original_size"
 </div>
 <?
 /* ************** Select uploader type ************** */
- if ($arParams['UPLOADER_TYPE'] == 'applet' && $arParams["VIEW_MODE"] == "applet"): /* Show Image Uploader */?>
+if ($arParams['UPLOADER_TYPE'] == 'applet' && $arParams["VIEW_MODE"] == "applet"): /* Show Image Uploader */?>
 <?
 CImageUploader::ShowScript(array(
 	'id' => $arParams['UPLOADER_ID'],
@@ -263,8 +298,7 @@ CImageUploader::ShowScript(array(
 			'position' => $arWatermark['position'],
 			'size' => $arWatermark['size'],
 			'opacity' => $arWatermark['opacity'],
-			'file' => $arWatermark['file'],
-			'copyright' => $arWatermark['copyright']
+			'file' => $arWatermark['file']
 		),
 
 		'rules' => $arParams["WATERMARK_RULES"], // USER | ALL
@@ -274,7 +308,9 @@ CImageUploader::ShowScript(array(
 		'position' => $arParams['WATERMARK_POSITION'],
 		'size' => $arParams['WATERMARK_SIZE'],
 		'opacity' => $arParams['WATERMARK_TRANSPARENCY'],
-		'file' => $arParams['WATERMARK_FILE']
+		'file' => $arParams['WATERMARK_FILE_REL'],
+		'fileWidth' => $arWatermark["fileWidth"],
+		'fileHeight' => $arWatermark["fileHeight"]
 	)
 ));
 ?>

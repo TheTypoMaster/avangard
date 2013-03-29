@@ -152,6 +152,9 @@ function addNewRow(tableID)
 	var oCell = oRow.insertCell(0);
 	var sHTML=tbl.rows[cnt-2].cells[0].innerHTML;
 
+	//styles hack
+	oCell.style.cssText  = 'padding-bottom:3px;';
+	
 	var p = 0;
 	while(true)
 	{
@@ -251,8 +254,8 @@ $tabControl->BeginNextTab();
 		<td><?echo GetMessage("SEC_IP_EDIT_ACTIVE_TO")?>:</td>
 		<td><?echo CAdminCalendar::CalendarDate("ACTIVE_TO", $str_ACTIVE_TO, 19, true)?></td>
 	</tr>
-	<tr valign="top">
-		<td><?echo GetMessage("SEC_IP_EDIT_INCL_IPS")?>:<br><?echo GetMessage("SEC_IP_EDIT_INCL_IPS_SAMPLE")?></td>
+	<tr>
+		<td class="adm-detail-valign-top"><?echo GetMessage("SEC_IP_EDIT_INCL_IPS")?>:<br><?echo GetMessage("SEC_IP_EDIT_INCL_IPS_SAMPLE")?></td>
 		<td>
 			<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbINCL_IPS">
 				<?if($bVarsFromForm)
@@ -261,12 +264,12 @@ $tabControl->BeginNextTab();
 					$arIPs = CSecurityIPRule::GetRuleInclIPs($ID);
 
 				foreach($arIPs as $i => $ip):?>
-					<tr><td>
-						<input type="text" size="30" value="<?echo htmlspecialchars($ip)?>" name="INCL_IPS[<?echo htmlspecialchars($i)?>]">
+					<tr><td style="padding-bottom: 3px;">
+						<input type="text" size="30" value="<?echo htmlspecialcharsbx($ip)?>" name="INCL_IPS[<?echo htmlspecialcharsbx($i)?>]">
 					</td></tr>
 				<?endforeach;
 				if(!$bVarsFromForm):?>
-					<tr><td>
+					<tr><td style="padding-bottom: 3px;">
 						<input type="text" size="30" value="" name="INCL_IPS[n0]">
 					</td></tr>
 				<?endif;?>
@@ -276,8 +279,8 @@ $tabControl->BeginNextTab();
 			</table>
 		</td>
 	</tr>
-	<tr valign="top">
-		<td><?echo GetMessage("SEC_IP_EDIT_EXCL_IPS")?>:</td>
+	<tr>
+		<td class="adm-detail-valign-top" style="padding-top:12px;"><?echo GetMessage("SEC_IP_EDIT_EXCL_IPS")?>:</td>
 		<td>
 			<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbEXCL_IPS">
 				<?if($bVarsFromForm)
@@ -286,12 +289,12 @@ $tabControl->BeginNextTab();
 					$arIPs = CSecurityIPRule::GetRuleExclIPs($ID);
 
 				foreach($arIPs as $i => $ip):?>
-					<tr><td>
-						<input type="text" size="30" value="<?echo htmlspecialchars($ip)?>" name="EXCL_IPS[<?echo htmlspecialchars($i)?>]">
+					<tr><td style="padding-bottom: 3px;">
+						<input type="text" size="30" value="<?echo htmlspecialcharsbx($ip)?>" name="EXCL_IPS[<?echo htmlspecialcharsbx($i)?>]">
 					</td></tr>
 				<?endforeach;
 				if(!$bVarsFromForm):?>
-					<tr><td>
+					<tr><td style="padding-bottom: 3px;">
 						<input type="text" size="30" value="" name="EXCL_IPS[n0]">
 					</td></tr>
 				<?endif;?>
@@ -301,8 +304,8 @@ $tabControl->BeginNextTab();
 			</table>
 		</td>
 	</tr>
-	<tr valign="top">
-		<td><?echo GetMessage("SEC_IP_EDIT_INCL_MASKS")?>:<br><?echo GetMessage("SEC_IP_EDIT_INCL_MASKS_SAMPLE")?></td>
+	<tr>
+		<td class="adm-detail-valign-top"><?echo GetMessage("SEC_IP_EDIT_INCL_MASKS")?>:<br><?echo GetMessage("SEC_IP_EDIT_INCL_MASKS_SAMPLE")?></td>
 		<td>
 			<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbINCL_PATH">
 				<?if($bVarsFromForm)
@@ -311,12 +314,12 @@ $tabControl->BeginNextTab();
 					$arMasks = CSecurityIPRule::GetRuleInclMasks($ID);
 
 				foreach($arMasks as $i => $mask):?>
-					<tr><td>
-						<input type="text" size="45" value="<?echo htmlspecialchars($mask)?>" name="INCL_MASKS[<?echo htmlspecialchars($i)?>]">
+					<tr><td style="padding-bottom: 3px;">
+						<input type="text" size="45" value="<?echo htmlspecialcharsbx($mask)?>" name="INCL_MASKS[<?echo htmlspecialcharsbx($i)?>]">
 					</td></tr>
 				<?endforeach;
 				if(!$bVarsFromForm):?>
-					<tr><td>
+					<tr><td style="padding-bottom: 3px;">
 						<input type="text" size="45" value="" name="INCL_MASKS[n0]">
 					</td></tr>
 				<?endif;?>
@@ -326,8 +329,8 @@ $tabControl->BeginNextTab();
 			</table>
 		</td>
 	</tr>
-	<tr valign="top">
-		<td><?echo GetMessage("SEC_IP_EDIT_EXCL_MASKS")?>:</td>
+	<tr>
+		<td class="adm-detail-valign-top" style="padding-top:12px;"><?echo GetMessage("SEC_IP_EDIT_EXCL_MASKS")?>:</td>
 		<td>
 			<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tbEXCL_PATH">
 				<?if($bVarsFromForm)
@@ -336,12 +339,12 @@ $tabControl->BeginNextTab();
 					$arMasks = CSecurityIPRule::GetRuleExclMasks($ID);
 
 				foreach($arMasks as $i => $mask):?>
-					<tr><td>
-						<input type="text" size="45" value="<?echo htmlspecialchars($mask)?>" name="EXCL_MASKS[<?echo htmlspecialchars($i)?>]">
+					<tr><td style="padding-bottom: 3px;">
+						<input type="text" size="45" value="<?echo htmlspecialcharsbx($mask)?>" name="EXCL_MASKS[<?echo htmlspecialcharsbx($i)?>]">
 					</td></tr>
 				<?endforeach;
 				if(!$bVarsFromForm):?>
-					<tr><td>
+					<tr><td style="padding-bottom: 3px;">
 						<input type="text" size="45" value="" name="EXCL_MASKS[n0]">
 					</td></tr>
 				<?endif;?>

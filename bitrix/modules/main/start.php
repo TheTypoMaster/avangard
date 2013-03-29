@@ -83,7 +83,7 @@ elseif(array_key_exists("show_sql_stat", $_COOKIE))
 $GLOBALS["DB"]->ShowSqlStat = ($show_sql_stat == "Y");
 
 if(!defined("POST_FORM_ACTION_URI"))
-	define("POST_FORM_ACTION_URI", htmlspecialchars($_SERVER["REQUEST_URI"]));
+	define("POST_FORM_ACTION_URI", htmlspecialcharsbx($_SERVER["REQUEST_URI"]));
 
 if(!($GLOBALS["DB"]->Connect($DBHost, $DBName, $DBLogin, $DBPassword)))
 {

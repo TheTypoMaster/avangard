@@ -33,7 +33,7 @@ class CIBlockDocument
 		{
 			$fieldValueTmp = $fieldValue;
 			?>
-			<select id="id_<?= htmlspecialchars($arFieldName["Field"]) ?>" name="<?= htmlspecialchars($arFieldName["Field"]).($arFieldType["Multiple"] ? "[]" : "") ?>"<?= ($arFieldType["Multiple"] ? ' size="5" multiple' : '') ?>>
+			<select id="id_<?= htmlspecialcharsbx($arFieldName["Field"]) ?>" name="<?= htmlspecialcharsbx($arFieldName["Field"]).($arFieldType["Multiple"] ? "[]" : "") ?>"<?= ($arFieldType["Multiple"] ? ' size="5" multiple' : '') ?>>
 				<?
 				if (!$arFieldType["Required"])
 					echo '<option value="">['.GetMessage("BPCGHLP_NOT_SET").']</option>';
@@ -47,7 +47,7 @@ class CIBlockDocument
 					}
 
 					$ind = array_search($k, $fieldValueTmp);
-					echo '<option value="'.htmlspecialchars($k).'"'.($ind !== false ? ' selected' : '').'>'.htmlspecialchars($v).'</option>';
+					echo '<option value="'.htmlspecialcharsbx($k).'"'.($ind !== false ? ' selected' : '').'>'.htmlspecialcharsbx($v).'</option>';
 					if ($ind !== false)
 						unset($fieldValueTmp[$ind]);
 				}
@@ -57,21 +57,21 @@ class CIBlockDocument
 			if ($bAllowSelection)
 			{
 				?>
-				<br /><input type="text" id="id_<?= htmlspecialchars($arFieldName["Field"]) ?>_text" name="<?= htmlspecialchars($arFieldName["Field"]) ?>_text" value="<?
+				<br /><input type="text" id="id_<?= htmlspecialcharsbx($arFieldName["Field"]) ?>_text" name="<?= htmlspecialcharsbx($arFieldName["Field"]) ?>_text" value="<?
 				if (count($fieldValueTmp) > 0)
 				{
 					$a = array_values($fieldValueTmp);
-					echo htmlspecialchars($a[0]);
+					echo htmlspecialcharsbx($a[0]);
 				}
 				?>">
-				<input type="button" value="..." onclick="BPAShowSelector('id_<?= htmlspecialchars($arFieldName["Field"]) ?>_text', 'select');">
+				<input type="button" value="..." onclick="BPAShowSelector('id_<?= htmlspecialcharsbx($arFieldName["Field"]) ?>_text', 'select');">
 				<?
 			}
 		}
 		elseif ($arFieldType["Type"] == "user")
 		{
 			$fieldValue = CBPHelper::UsersArrayToString($fieldValue, null, array("iblock", "CIBlockDocument", $documentType));
-			?><input type="text" size="40" id="id_<?= htmlspecialchars($arFieldName["Field"]) ?>" name="<?= htmlspecialchars($arFieldName["Field"]) ?>" value="<?= htmlspecialchars($fieldValue) ?>"><input type="button" value="..." onclick="BPAShowSelector('id_<?= htmlspecialchars($arFieldName["Field"]) ?>', 'user');"><?
+			?><input type="text" size="40" id="id_<?= htmlspecialcharsbx($arFieldName["Field"]) ?>" name="<?= htmlspecialcharsbx($arFieldName["Field"]) ?>" value="<?= htmlspecialcharsbx($fieldValue) ?>"><input type="button" value="..." onclick="BPAShowSelector('id_<?= htmlspecialcharsbx($arFieldName["Field"]) ?>', 'user');"><?
 		}
 		else
 		{
@@ -143,7 +143,7 @@ class CIBlockDocument
 			}
 
 			if ($arFieldType["Multiple"])
-				echo '<table width="100%" border="0" cellpadding="2" cellspacing="2" id="CBPVirtualDocument_'.htmlspecialchars($arFieldName["Field"]).'_Table">';
+				echo '<table width="100%" border="0" cellpadding="2" cellspacing="2" id="CBPVirtualDocument_'.htmlspecialcharsbx($arFieldName["Field"]).'_Table">';
 
 			$fieldValueTmp = $fieldValue;
 
@@ -151,8 +151,8 @@ class CIBlockDocument
 			foreach ($fieldValue as $key => $value)
 			{
 				$ind++;
-				$fieldNameId = 'id_'.htmlspecialchars($arFieldName["Field"]).'__n'.$ind.'_';
-				$fieldNameName = htmlspecialchars($arFieldName["Field"]).($arFieldType["Multiple"] ? "[n".$ind."]" : "");
+				$fieldNameId = 'id_'.htmlspecialcharsbx($arFieldName["Field"]).'__n'.$ind.'_';
+				$fieldNameName = htmlspecialcharsbx($arFieldName["Field"]).($arFieldType["Multiple"] ? "[n".$ind."]" : "");
 
 				if ($arFieldType["Multiple"])
 					echo '<tr><td>';
@@ -185,7 +185,7 @@ class CIBlockDocument
 						case "int":
 						case "double":
 							unset($fieldValueTmp[$key]);
-							?><input type="text" size="10" id="<?= $fieldNameId ?>" name="<?= $fieldNameName ?>" value="<?= htmlspecialchars($value) ?>"><?
+							?><input type="text" size="10" id="<?= $fieldNameId ?>" name="<?= $fieldNameName ?>" value="<?= htmlspecialcharsbx($value) ?>"><?
 							break;
 						case "file":
 							if ($publicMode)
@@ -210,7 +210,7 @@ class CIBlockDocument
 							break;
 						case "text":
 							unset($fieldValueTmp[$key]);
-							?><textarea rows="5" cols="40" id="<?= $fieldNameId ?>" name="<?= $fieldNameName ?>"><?= htmlspecialchars($value) ?></textarea><?
+							?><textarea rows="5" cols="40" id="<?= $fieldNameId ?>" name="<?= $fieldNameName ?>"><?= htmlspecialcharsbx($value) ?></textarea><?
 							break;
 						case "date":
 						case "datetime":
@@ -226,7 +226,7 @@ class CIBlockDocument
 							break;
 						default:
 							unset($fieldValueTmp[$key]);
-							?><input type="text" size="40" id="<?= $fieldNameId ?>" name="<?= $fieldNameName ?>" value="<?= htmlspecialchars($value) ?>"><?
+							?><input type="text" size="40" id="<?= $fieldNameId ?>" name="<?= $fieldNameName ?>" value="<?= htmlspecialcharsbx($value) ?>"><?
 					}
 				}
 
@@ -234,7 +234,7 @@ class CIBlockDocument
 				{
 					if (!in_array($arFieldType["Type"], array("file", "bool", "date", "datetime")) && (is_array($customMethodName) && count($customMethodName) <= 0 || !is_array($customMethodName) && strlen($customMethodName) <= 0))
 					{
-						?><input type="button" value="..." onclick="BPAShowSelector('<?= $fieldNameId ?>', '<?= htmlspecialchars($arFieldType["BaseType"]) ?>');"><?
+						?><input type="button" value="..." onclick="BPAShowSelector('<?= $fieldNameId ?>', '<?= htmlspecialcharsbx($arFieldType["BaseType"]) ?>');"><?
 					}
 				}
 
@@ -253,14 +253,14 @@ class CIBlockDocument
 				if (in_array($arFieldType["Type"], array("file", "bool", "date", "datetime")) || (is_array($customMethodName) && count($customMethodName) > 0 || !is_array($customMethodName) && strlen($customMethodName) > 0))
 				{
 					?>
-					<input type="text" id="id_<?= htmlspecialchars($arFieldName["Field"]) ?>_text" name="<?= htmlspecialchars($arFieldName["Field"]) ?>_text" value="<?
+					<input type="text" id="id_<?= htmlspecialcharsbx($arFieldName["Field"]) ?>_text" name="<?= htmlspecialcharsbx($arFieldName["Field"]) ?>_text" value="<?
 					if (count($fieldValueTmp) > 0)
 					{
 						$a = array_values($fieldValueTmp);
-						echo htmlspecialchars($a[0]);
+						echo htmlspecialcharsbx($a[0]);
 					}
 					?>">
-					<input type="button" value="..." onclick="BPAShowSelector('id_<?= htmlspecialchars($arFieldName["Field"]) ?>_text', '<?= htmlspecialchars($arFieldType["BaseType"]) ?>');">
+					<input type="button" value="..." onclick="BPAShowSelector('id_<?= htmlspecialcharsbx($arFieldName["Field"]) ?>_text', '<?= htmlspecialcharsbx($arFieldType["BaseType"]) ?>');">
 					<?
 				}
 			}
@@ -559,7 +559,7 @@ class CIBlockDocument
 						$r = intval($r);
 						$dbImg = CFile::GetByID($r);
 						if ($arImg = $dbImg->Fetch())
-							$result[] = "[url=/bitrix/tools/bizproc_show_file.php?f=".htmlspecialchars($arImg["FILE_NAME"])."&i=".$r."]".htmlspecialchars($arImg["ORIGINAL_NAME"])."[/url]";
+							$result[] = "[url=/bitrix/tools/bizproc_show_file.php?f=".htmlspecialcharsbx($arImg["FILE_NAME"])."&i=".$r."]".htmlspecialcharsbx($arImg["ORIGINAL_NAME"])."[/url]";
 					}
 				}
 				else
@@ -567,7 +567,7 @@ class CIBlockDocument
 					$fieldValue = intval($fieldValue);
 					$dbImg = CFile::GetByID($fieldValue);
 					if ($arImg = $dbImg->Fetch())
-						$result = "[url=/bitrix/tools/bizproc_show_file.php?f=".htmlspecialchars($arImg["FILE_NAME"])."&i=".$fieldValue."]".htmlspecialchars($arImg["ORIGINAL_NAME"])."[/url]";
+						$result = "[url=/bitrix/tools/bizproc_show_file.php?f=".htmlspecialcharsbx($arImg["FILE_NAME"])."&i=".$fieldValue."]".htmlspecialcharsbx($arImg["ORIGINAL_NAME"])."[/url]";
 				}
 				break;
 
@@ -799,7 +799,7 @@ class CIBlockDocument
 						if ($ar)
 						{
 							$arResult["PROPERTY_".$propertyKey][intval($v)] = $ar["SRC"];
-							$arResult["PROPERTY_".$propertyKey."_printable"][intval($v)] = "[url=/bitrix/tools/bizproc_show_file.php?f=".htmlspecialchars($ar["FILE_NAME"])."&i=".$v."]".htmlspecialchars($ar["ORIGINAL_NAME"])."[/url]";
+							$arResult["PROPERTY_".$propertyKey."_printable"][intval($v)] = "[url=/bitrix/tools/bizproc_show_file.php?f=".htmlspecialcharsbx($ar["FILE_NAME"])."&i=".$v."]".htmlspecialcharsbx($ar["ORIGINAL_NAME"])."[/url]";
 						}
 					}
 				}
@@ -1167,6 +1167,9 @@ class CIBlockDocument
 			"FILTRABLE" => "Y",
 		);
 
+		if (strpos("0123456789", substr($arFieldsTmp["CODE"], 0, 1))!==false)
+			unset($arFieldsTmp["CODE"]);
+
 		if (array_key_exists("additional_type_info", $arFields))
 			$arFieldsTmp["LINK_IBLOCK_ID"] = intval($arFields["additional_type_info"]);
 
@@ -1497,6 +1500,10 @@ class CIBlockDocument
 				if (!is_array($arAllowableOperations))
 					return false;
 
+				if (($operation === CBPCanUserOperateOperation::ViewWorkflow) && in_array("read", $arAllowableOperations)
+					|| ($operation === CBPCanUserOperateOperation::StartWorkflow) && in_array("write", $arAllowableOperations))
+					return true;
+
 				$chop = ($operation === CBPCanUserOperateOperation::ViewWorkflow) ? "element_read" : "element_edit";
 
 				foreach ($arAllowableOperations as $op)
@@ -1649,6 +1656,10 @@ class CIBlockDocument
 
 				if (!is_array($arAllowableOperations))
 					return false;
+
+				if (($operation === CBPCanUserOperateOperation::ViewWorkflow) && in_array("read", $arAllowableOperations)
+					|| ($operation === CBPCanUserOperateOperation::StartWorkflow) && in_array("write", $arAllowableOperations))
+					return true;
 
 				$chop = ($operation === CBPCanUserOperateOperation::ViewWorkflow) ? "element_read" : "section_element_bind";
 
@@ -2179,7 +2190,7 @@ class CIBlockDocument
 
 			$defaultIBlockId = 0;
 
-			$result .= '<select id="WFSFormOptionsX" onchange="'.htmlspecialchars($jsFunctionName).'(this.options[this.selectedIndex].value)">';
+			$result .= '<select id="WFSFormOptionsX" onchange="'.htmlspecialcharsbx($jsFunctionName).'(this.options[this.selectedIndex].value)">';
 			$arIBlockType = CIBlockParameters::GetIBlockTypes();
 			foreach ($arIBlockType as $iblockTypeId => $iblockTypeName)
 			{
@@ -2222,7 +2233,7 @@ class CIBlockDocument
 
 				$str .= "\n";
 			}
-			$result .= '<textarea id="WFSFormOptionsX" rows="5" cols="30">'.htmlspecialchars($str).'</textarea><br />';
+			$result .= '<textarea id="WFSFormOptionsX" rows="5" cols="30">'.htmlspecialcharsbx($str).'</textarea><br />';
 			$result .= GetMessage("IBD_DOCUMENT_XFORMOPTIONS1").'<br />';
 			$result .= GetMessage("IBD_DOCUMENT_XFORMOPTIONS2").'<br />';
 			$result .= '<script type="text/javascript">
@@ -2257,7 +2268,7 @@ class CIBlockDocument
 					return result;
 				}
 				</script>';
-			$result .= '<input type="button" onclick="'.htmlspecialchars($jsFunctionName).'(WFSFormOptionsXFunction())" value="'.GetMessage("IBD_DOCUMENT_XFORMOPTIONS3").'">';
+			$result .= '<input type="button" onclick="'.htmlspecialcharsbx($jsFunctionName).'(WFSFormOptionsXFunction())" value="'.GetMessage("IBD_DOCUMENT_XFORMOPTIONS3").'">';
 		}
 
 		return $result;
@@ -2518,23 +2529,28 @@ class CIBlockDocument
 						);
 				}
 				//Restore from history
+				$io = CBXVirtualIo::GetInstance();
 				if(is_array($documentValue))
 				{
 					$n = 0;
 					foreach ($documentValue as $i => $v)
 						if(strlen($v) > 0)
+						{
 							$arFields["PROPERTY_VALUES"][$key]["n".($n++)] = array(
-								"VALUE" => CFile::MakeFileArray($v),
+								"VALUE" => CFile::MakeFileArray($io->GetPhysicalName($v)),
 								"DESCRIPTION" => $arDocument["PROPERTIES"][$key]["DESCRIPTION"][$i]
 							);
+						}
 				}
 				else
 				{
 					if(strlen($documentValue) > 0)
+					{
 						$arFields["PROPERTY_VALUES"][$key]["n0"] = array(
-							"VALUE" => CFile::MakeFileArray($documentValue),
+							"VALUE" => CFile::MakeFileArray($io->GetPhysicalName($documentValue)),
 							"DESCRIPTION" => $arDocument["PROPERTIES"][$key]["DESCRIPTION"]
 						);
+					}
 				}
 			}
 			else

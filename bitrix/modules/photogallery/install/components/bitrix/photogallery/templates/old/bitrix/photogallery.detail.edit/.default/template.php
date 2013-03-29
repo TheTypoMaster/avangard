@@ -57,7 +57,7 @@ window.cancelblur = function(e)
 <?
 	ShowError($arResult["ERROR_MESSAGE"]);
 ?>
-	
+
 	<div class="photo-edit-fields photo-edit-fields-element">
 		<div class="photo-edit-field photo-edit-field-title">
 			<label for="TITLE"><?=GetMessage("P_TITLE")?><font class="starrequired">*</font></label>
@@ -67,10 +67,10 @@ window.cancelblur = function(e)
 			<label for="DATE_CREATE"><?=GetMessage("P_DATE")?></label>
 			<?
 				$APPLICATION->IncludeComponent(
-					"bitrix:main.calendar", 
-					"", 
+					"bitrix:main.calendar",
+					"",
 					array(
-						"SHOW_INPUT" => "Y", 
+						"SHOW_INPUT" => "Y",
 						"FORM_NAME" => "form_photo",
 						"INPUT_NAME" => "DATE_CREATE",
 						"INPUT_VALUE" => $arResult["ELEMENT"]["DATE_CREATE"]),
@@ -131,11 +131,11 @@ if ($arParams["SHOW_TAGS"] == "Y"):
 <?
 	if (IsModuleInstalled("search")):
 			?><?$APPLICATION->IncludeComponent(
-				"bitrix:search.tags.input", 
-				"", 
+				"bitrix:search.tags.input",
+				"",
 				array(
-					"VALUE" => $arResult["ELEMENT"]["TAGS"], 
-					"NAME" => "TAGS"), 
+					"VALUE" => $arResult["ELEMENT"]["TAGS"],
+					"NAME" => "TAGS"),
 				null,
 				array(
 					"HIDE_ICONS" => "Y"));?><?
@@ -177,11 +177,10 @@ else:
 <script>
 function CancelSubmit(pointer) {
 	if (pointer.form) {
-		pointer.form.edit.value = 'cancel'; 
+		pointer.form.edit.value = 'cancel';
 		pointer.form.submit();}
 	return false; }
-function CheckForm() {
-	return true; }
+function CheckForm(){return true;}
 
 document.getElementById('TO_SECTION_ID').onclick = function(e){
 	if (!jsUtils.IsIE) {

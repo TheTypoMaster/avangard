@@ -158,39 +158,32 @@ class CDataXMLNode
 		return $ret;
 	}
 
-	function &__toArray()
+	function __toArray()
 	{
-		$arInd = array();
-		$retHash = array();
+		$retHash = array(
+			"@" => array(),
+		);
 
-		$retHash["@"] = array();
-		if (count($this->attributes) > 0)
+		if (is_array($this->attributes))
 		{
 			foreach ($this->attributes as $attr)
 				$retHash["@"][$attr->name] = $attr->content;
 		}
 
-		$retHash["#"] = "";
-		if (strlen($this->content)>0)
+		if ($this->content != "")
 		{
 			$retHash["#"] = $this->content;
 		}
+		elseif (!empty($this->children))
+		{
+			$ar = array();
+			foreach ($this->children as $child)
+				$ar[$child->name][] = $child->__toArray();
+			$retHash["#"] = $ar;
+		}
 		else
 		{
-			if (count($this->children)>0)
-			{
-				$ar = array();
-				foreach ($this->children as $child)
-				{
-					if (array_key_exists($child->name, $arInd))
-						$arInd[$child->name] = $arInd[$child->name] + 1;
-					else
-						$arInd[$child->name] = 0;
-
-					$ar[$child->name][$arInd[$child->name]] = $child->__toArray();
-				}
-				$retHash["#"] = $ar;
-			}
+			$retHash["#"] = "";
 		}
 
 		return $retHash;
@@ -333,7 +326,7 @@ class CDataXML
 		if (file_exists($file))
 		{
 			$content = file_get_contents($file);
-			$charset = "windows-1251";
+			$charset = (defined("BX_DEFAULT_CHARSET")? BX_DEFAULT_CHARSET : "windows-1251");
 			if (preg_match("/<"."\?XML[^>]{1,}encoding=[\"']([^>\"']{1,})[\"'][^>]{0,}\?".">/i", $content, $matches))
 			{
 				$charset = Trim($matches[1]);
@@ -435,9 +428,15 @@ class CDataXML
 
 		$oXMLDocument = new CDataXMLDocument();
 
+		// strip comments
+		$strXMLText = &CDataXML::__stripComments($strXMLText);
+
 		// stip the !doctype
-		$strXMLText = &preg_replace("%<\!DOCTYPE.*?\]>%is", "", $strXMLText);
-		$strXMLText = &preg_replace("%<\!DOCTYPE.*?>%is", "", $strXMLText);
+		// The DOCTYPE declaration can consists of an internal DTD in square brackets
+		$cnt = 0;
+		$strXMLText = preg_replace("%<\!DOCTYPE[^\[>]*\[.*?\]>%is", "", $strXMLText, -1, $cnt);
+		if($cnt == 0)
+			$strXMLText = preg_replace("%<\!DOCTYPE[^>]*>%is", "", $strXMLText);
 
 		// get document version and encoding from header
 		preg_match_all("#<\?(.*?)\?>#i", $strXMLText, $arXMLHeader_tmp);
@@ -459,10 +458,7 @@ class CDataXML
 
 		// strip header
 		$strXMLText = &preg_replace("#<\?.*?\?>#", "", $strXMLText);
-
-		// strip comments
-		$strXMLText = &CDataXML::__stripComments($strXMLText);
-
+		
 		$oXMLDocument->root = &$oXMLDocument->children;
 		$currentNode = &$oXMLDocument;
 
@@ -688,6 +684,455 @@ class CDataXML
 			}
 		}
 		return $ret;
+	}
+}
+/*
+	Usage:
+
+class OrderLoader
+{
+	var $errors = array();
+
+	function elementHandler($path, $attr)
+	{
+		AddMessage2Log(print_r(array($path, $attr), true));
+	}
+
+	function nodeHandler(CDataXML $xmlObject)
+	{
+		AddMessage2Log(print_r($xmlObject, true));
+	}
+}
+
+$position = false;
+$loader = new OrderLoader;
+
+while(true) //this while is cross hit emulation
+{
+	$o = new CXMLFileStream;
+	$o->registerElementHandler("/КоммерческаяИнформация", array($loader, "elementHandler"));
+	$o->registerNodeHandler("/КоммерческаяИнформация/Каталог/Товары/Товар", array($loader, "nodeHandler"));
+	$o->setPosition($position);
+
+	if ($o->openFile($_SERVER["DOCUMENT_ROOT"]."/upload/081_books_books-books_ru.xml"))
+	{
+		while($o->findNext())
+		{
+			//if (time() > $endTime)
+			break;
+		}
+
+		if ($o->endOfFile())
+		{
+			break;
+		}
+		else
+		{
+			$position = $o->getPosition();
+		}
+	}
+}
+*/
+class CXMLFileStream
+{
+	private $fileCharset = false;
+	private $filePosition = 0;
+	private $xmlPosition = "";
+	private $nodeHandlers = array();
+	private $elementHandlers = array();
+	private $endNodes = array();
+	private $fileHandler = null;
+
+	private $eof = false;
+	private $readSize = 1024;
+	private $buf = "";
+	private $bufPosition = 0;
+	private $bufLen = 0;
+	private $positionStack = array();
+	private $elementStack = array();
+	/**
+	 * Registers an handler function which will be called on xml parsed path with CDataXML object as a parameter
+	 *
+	 * @param string $nodePath
+	 * @param mixed $callableHandler
+	 * @return void
+	 *
+	 */
+	public function registerNodeHandler($nodePath, $callableHandler)
+	{
+		if (is_callable($callableHandler))
+		{
+			if (!isset($this->nodeHandlers[$nodePath]))
+				$this->nodeHandlers[$nodePath] = array();
+			$this->nodeHandlers[$nodePath][] = $callableHandler;
+
+			$pathComponents = explode("/", $nodePath);
+			$this->endNodes[end($pathComponents)] = true;
+		}
+	}
+	/**
+	 * Registers an handler function which will be called on xml parsed path with path and attributes
+	 *
+	 * @param string $nodePath
+	 * @param mixed $callableHandler
+	 * @return void
+	 *
+	 */
+	public function registerElementHandler($nodePath, $callableHandler)
+	{
+		if (is_callable($callableHandler))
+		{
+			if (!isset($this->elementHandlers[$nodePath]))
+				$this->elementHandlers[$nodePath] = array();
+			$this->elementHandlers[$nodePath][] = $callableHandler;
+
+			$pathComponents = explode("/", $nodePath);
+			$this->endNodes[end($pathComponents)] = true;
+		}
+	}
+	/**
+	 * Opens file by it's absolute path. Returns true on success.
+	 *
+	 * @param string $filePath
+	 * @return bool
+	 *
+	 */
+	public function openFile($filePath)
+	{
+		$this->fileHandler = null;
+
+		$io = CBXVirtualIo::getInstance();
+		$file = $io->getFile($filePath);
+		$this->fileHandler = $file->open("rb");
+		if (is_resource($this->fileHandler))
+		{
+			if ($this->filePosition > 0)
+				fseek($this->fileHandler, $this->filePosition);
+
+			$this->elementStack = array();
+			$this->positionStack = array();
+			foreach(explode("/", $this->xmlPosition) as $pathPart)
+			{
+				@list($elementPosition, $elementName) = explode("@", $pathPart, 2);
+				$this->elementStack[] = $elementName;
+				$this->positionStack[] = $elementPosition;
+			}
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	/**
+	 * Returns true when end of the file is reached.
+	 *
+	 * @return bool
+	 *
+	 */
+	public function endOfFile()
+	{
+		if ($this->fileHandler === null)
+			return true;
+		else
+			return $this->eof;
+	}
+	/**
+	 * Returns current position state needed to continue file parsing process on the next hit.
+	 *
+	 * @return array[int]string
+	 *
+	 */
+	public function getPosition()
+	{
+		$this->xmlPosition = array();
+		foreach($this->elementStack as $i => $elementName)
+			$this->xmlPosition[] = $this->positionStack[$i]."@".$elementName;
+		$this->xmlPosition = implode("/", $this->xmlPosition);
+
+		return array(
+			$this->fileCharset,
+			$this->filePosition,
+			$this->xmlPosition,
+		);
+	}
+	/**
+	 * Sets the position state returned by getPosition method.
+	 *
+	 * @param array[int]string $position
+	 * @return void
+	 *
+	 */
+	public function setPosition($position)
+	{
+		if(is_array($position))
+		{
+			if (isset($position[0]))
+				$this->fileCharset = $position[0];
+			if (isset($position[1]))
+				$this->filePosition = $position[1];
+			if (isset($position[2]))
+				$this->xmlPosition = $position[2];
+		}
+	}
+	/**
+	 * Processes file futher. Returns true when there is more work to do. False on the end of file.
+	 *
+	 * @return bool
+	 *
+	 */
+	public function findNext()
+	{
+		$bMB = defined("BX_UTF");
+		$cs = $this->fileCharset;
+
+		if ($this->fileHandler === null)
+			return false;
+
+		$this->eof = false;
+		while(($xmlChunk = $this->getXmlChunk($bMB)) !== false)
+		{
+			$origChunk = $xmlChunk;
+			if($cs)
+			{
+				$error = "";
+				$xmlChunk = CharsetConverter::convertCharset($origChunk, $cs, LANG_CHARSET, $error);
+			}
+
+			if($xmlChunk[0] == "/")
+			{
+				$this->endElement($xmlChunk);
+				return true;
+			}
+			elseif($xmlChunk[0] == "!" || $xmlChunk[0] == "?")
+			{
+				if(substr($xmlChunk, 0, 4) === "?xml")
+				{
+					if(preg_match('#encoding[\s]*=[\s]*"(.*?)"#i', $xmlChunk, $arMatch))
+					{
+						$this->fileCharset = $arMatch[1];
+						if(strtoupper($this->fileCharset) === strtoupper(LANG_CHARSET))
+							$this->fileCharset = false;
+						$cs = $this->fileCharset;
+					}
+				}
+			}
+			else
+			{
+				$this->startElement($bMB, $xmlChunk, $origChunk);
+			}
+		}
+		$this->eof = true;
+
+		return false;
+	}
+	/**
+	 * Used to read an xml by chunks started with "<" and endex with "<"
+	 *
+	 * @param bool $bMB
+	 * @return bool
+	 *
+	 */
+	private function getXmlChunk($bMB = false)
+	{
+		if($this->bufPosition >= $this->bufLen)
+		{
+			if(!feof($this->fileHandler))
+			{
+				$this->buf = fread($this->fileHandler, $this->readSize);
+				$this->bufPosition = 0;
+				$this->bufLen = $bMB? mb_strlen($this->buf, 'latin1'): strlen($this->buf);
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		//Skip line delimiters (ltrim)
+		$xml_position = $bMB? mb_strpos($this->buf, "<", $this->bufPosition, 'latin1'): strpos($this->buf, "<", $this->bufPosition);
+		while($xml_position === $this->bufPosition)
+		{
+			$this->bufPosition++;
+			$this->filePosition++;
+			//Buffer ended with white space so we can refill it
+			if($this->bufPosition >= $this->bufLen)
+			{
+				if(!feof($this->fileHandler))
+				{
+					$this->buf = fread($this->fileHandler, $this->readSize);
+					$this->bufPosition = 0;
+					$this->bufLen = $bMB? mb_strlen($this->buf, 'latin1'): strlen($this->buf);
+				}
+				else
+					return false;
+			}
+			$xml_position = $bMB? mb_strpos($this->buf, "<", $this->bufPosition, 'latin1'): strpos($this->buf, "<", $this->bufPosition);
+		}
+
+		//Let's find next line delimiter
+		while($xml_position===false)
+		{
+			$next_search = $this->bufLen;
+			//Delimiter not in buffer so try to add more data to it
+			if(!feof($this->fileHandler))
+			{
+				$this->buf .= fread($this->fileHandler, $this->readSize);
+				$this->bufLen = $bMB? mb_strlen($this->buf, 'latin1'): strlen($this->buf);
+			}
+			else
+				break;
+
+			//Let's find xml tag start
+			$xml_position = $bMB? mb_strpos($this->buf, "<", $next_search, 'latin1'): strpos($this->buf, "<", $next_search);
+		}
+		if($xml_position===false)
+			$xml_position = $this->bufLen+1;
+
+		$len = $xml_position-$this->bufPosition;
+		$this->filePosition += $len;
+		$result = $bMB? mb_substr($this->buf, $this->bufPosition, $len, 'latin1'): substr($this->buf, $this->bufPosition, $len);
+		$this->bufPosition = $xml_position;
+
+		return $result;
+	}
+	/**
+	 * Stores an element into xml path stack.
+	 *
+	 * @param bool $bMB
+	 * @param string $xmlChunk
+	 * @param string $origChunk
+	 * @return void
+	 *
+	 */
+	private function startElement($bMB, $xmlChunk, $origChunk)
+	{
+		static $search = array(
+				"'&(quot|#34);'i",
+				"'&(lt|#60);'i",
+				"'&(gt|#62);'i",
+				"'&(amp|#38);'i",
+			);
+
+		static $replace = array(
+				"\"",
+				"<",
+				">",
+				"&",
+			);
+
+		$p = strpos($xmlChunk, ">");
+		if($p !== false)
+		{
+			if(substr($xmlChunk, $p - 1, 1)=="/")
+				$elementName = substr($xmlChunk, 0, $p-1);
+			else
+				$elementName = substr($xmlChunk, 0, $p);
+
+			if(($ps = strpos($elementName, " "))!==false)
+			{
+				$elementAttrs = substr($elementName, $ps+1);
+				$elementName = substr($elementName, 0, $ps);
+			}
+			else
+			{
+				$elementAttrs = "";
+			}
+
+			if(substr($xmlChunk, $p - 1, 1) != "/")
+			{
+				$this->elementStack[] = $elementName;
+				$this->positionStack[] = $this->filePosition - ($bMB? mb_strlen($origChunk, 'latin1'): strlen($origChunk)) - 1;
+
+				if (isset($this->endNodes[$elementName]))
+				{
+					$xmlPath = implode("/", $this->elementStack);
+					if (isset($this->elementHandlers[$xmlPath]))
+					{
+						$attributes = array();
+						if ($elementAttrs !== "")
+						{
+							preg_match_all("/(\\S+)\\s*=\\s*[\"](.*?)[\"]/s", $elementAttrs, $attrs_tmp);
+							if(strpos($elementAttrs, "&")===false)
+							{
+								foreach($attrs_tmp[1] as $i=>$attrs_tmp_1)
+									$attributes[$attrs_tmp_1] = $attrs_tmp[2][$i];
+							}
+							else
+							{
+								foreach($attrs_tmp[1] as $i=>$attrs_tmp_1)
+									$attributes[$attrs_tmp_1] = preg_replace($search, $replace, $attrs_tmp[2][$i]);
+							}
+						}
+
+						foreach ($this->elementHandlers[$xmlPath] as $callableHandler)
+						{
+							call_user_func_array($callableHandler, array(
+								$xmlPath,
+								$attributes,
+							));
+						}
+					}
+				}
+			}
+		}
+	}
+	/**
+	 * Winds tree stack back. Calls (if neccessary) node handlers.
+	 *
+	 * @param string $xmlChunk
+	 * @return void
+	 *
+	 */
+	private function endElement($xmlChunk)
+	{
+		$elementName = array_pop($this->elementStack);
+		$elementPosition  = array_pop($this->positionStack);
+
+		if (isset($this->endNodes[$elementName]))
+		{
+			$xmlPath = implode("/", $this->elementStack)."/".$elementName;
+			if (isset($this->nodeHandlers[$xmlPath]))
+			{
+				$xmlObject = $this->readXml($elementPosition, $this->filePosition);
+				if (is_object($xmlObject))
+				{
+					foreach ($this->nodeHandlers[$xmlPath] as $callableHandler)
+					{
+						call_user_func_array($callableHandler, array(
+							$xmlObject,
+						));
+					}
+				}
+			}
+		}
+	}
+	/**
+	 * Reads xml chunk from the file preserving it's position
+	 *
+	 * @param int $startPosition
+	 * @param int $endPosition
+	 * @return CDataXML|false
+	 *
+	 */
+	private function readXml($startPosition, $endPosition)
+	{
+		$savedPosition = ftell($this->fileHandler);
+		fseek($this->fileHandler, $startPosition);
+		$xmlChunk = fread($this->fileHandler, $endPosition - $startPosition);
+		fseek($this->fileHandler, $savedPosition);
+		if ($xmlChunk && $this->fileCharset)
+		{
+			$error = "";
+			$xmlChunk = CharsetConverter::convertCharset($xmlChunk, $this->fileCharset, LANG_CHARSET, $error);
+		}
+
+		$xmlObject = new CDataXML;
+		if ($xmlObject->loadString($xmlChunk))
+			return $xmlObject;
+		else
+			return false;
 	}
 }
 ?>

@@ -43,86 +43,15 @@ function __ShowDesktopAddDialog(e)
 		})).Show();
 }
 
-function __RecalcDesktopSettingsDialog(e)
-{
-	if(!e)
-		e = window.event;
-
-	col_count = this.value;
-	if (e.type == 'blur' && col_count.length <= 0)
-	{
-		col_count = current_col_count;
-		BX('SETTINGS_COLUMNS').value = col_count;
-	}
-	else if (e.type == 'keyup' && (parseInt(col_count) <= 0	|| parseInt(col_count) >= 10))
-	{
-		current_col_count = col_count = 2;
-		BX('SETTINGS_COLUMNS').value = col_count;
-	}
-	else if (e.type == 'keyup' && col_count.length > 0)
-		current_col_count = col_count;
-
-	var tableNode = BX.findParent(this, {'tag':'tbody'})
-
-	var arItems = BX.findChildren(tableNode, {'tag':'tr', 'class':'bx-gd-admin-settings-col'}, true);
-	if (!arItems)
-		arItems = [];
-
-	for (var i = 0; i < arItems.length; i++)
-	{
-		if (i >= col_count)
-			arItems[i].parentNode.removeChild(arItems[i]);
-	}
-
-	var col_add = col_count - i;
-
-	for (var i = 0; i < col_add; i++)
-	{
-		tableNode.appendChild(BX.create('tr', {
-			props: {
-				'className': 'bx-gd-admin-settings-col'
-			},
-			children: [
-				BX.create('td', {
-					attrs: {
-						'width': '40%'
-					},
-					html: BX.message('langGDSettingsDialogRowTitle') + (parseInt(arItems.length) + parseInt(i) + 1)
-				}),
-				BX.create('td', {
-					attrs: {
-						'width': '60%'
-					},
-					children: [
-						BX.create('input', {
-							attrs: {
-								'type': 'text',
-								'size': '5',
-								'maxlength': '6'
-							},
-							props: {
-								'id': 'SETTINGS_COLUMN_WIDTH_' + (arItems.length + i),
-								'name': 'SETTINGS_COLUMN_WIDTH_' + (arItems.length + i),
-								'value': ''
-							}
-						})
-					]
-				})
-			]
-		}));
-	}
-}
-
 var allAdminGagdgetHolders = [];
 function getAdminGadgetHolder(id)
 {
 	return allAdminGagdgetHolders[id];
 }
 
-BX.AdminGadget = function(gadgetHolderID, allGadgets, settingsMenuItems)
+BX.AdminGadget = function(gadgetHolderID, allGadgets)
 {
 	BX.AdminGadget.superclass.constructor.apply(this, arguments);
-	this.settingsMenuItems = settingsMenuItems;
 	allAdminGagdgetHolders[this.gadgetHolderID] = this;
 }
 
@@ -141,33 +70,52 @@ BX.AdminGadget.prototype.ShowSettings = function(id, title)
 	return false;
 }
 
-BX.AdminGadget.prototype.ShowSettingsMenu  = function(a)
-{
-	this.menu = new PopupMenu('settings_float_menu');
-	this.menu.Create(110);
-
-	if(this.menu.IsVisible())
-		return;
-
-	this.menu.SetItems(this.settingsMenuItems);
-	this.menu.BuildItems();
-
-	var pos = jsUtils.GetRealPos(a);
-	pos["bottom"]+=1;
-
-	this.menu.PopupShow(pos);
-}
-
-
 gdTabControl = function(id)
 {
 	this.id = id;
-	this.aTabs = BX.findChildren(BX(this.id), {'tag':'span', 'class':'bx-gadgets-tab-wrap'}, true);
+	this.aTabs = BX.findChildren(BX(this.id), {'tag':'span', 'class':'adm-detail-subtabs'}, true);
+	if (this.aTabs == 'undefined' || this.aTabs == null || this.aTabs == false || this.aTabs.length == 0)
+		this.aTabs = BX.findChildren(BX(this.id), {'tag':'span', 'class':'bx-gadgets-tab-new'}, true);
+	if (this.aTabs == 'undefined' || this.aTabs == null || this.aTabs == false || this.aTabs.length == 0)
+		this.aTabs = BX.findChildren(BX(this.id), {'tag':'span', 'class':'bx-gadgets-tab-wrap'}, true);	
 }
 
 gdTabControl.prototype.SelectTab = function(tab)
 {
 	var content_div = BX(tab.id+'_content');
+	if(!content_div)
+		content_div = BX(tab+'_content');
+	if(!content_div || content_div.style.display != 'none')
+		return;
+	var t = false;
+	for (var i = 0, cnt = this.aTabs.length; i < cnt; i++)
+	{
+		t = BX(this.aTabs[i]);
+		BX.removeClass(t, 'bx-gadgets-tab-active');
+		BX.removeClass(t, 'bx-gadgets-tab-new-active');
+		if(t.style.display != 'none')
+		{
+			if (BX(t.id+'_content'))
+				BX(t.id+'_content').style.display = 'none';
+			else if (BX(t.id.substr(9)+'_content'))
+				BX(t.id.substr(9)+'_content').style.display = 'none';					
+		}
+	}
+	content_div.style.display = 'block';
+	if (BX.hasClass(tab, 'bx-gadgets-tab-new'))
+		BX.addClass(tab, 'bx-gadgets-tab-new-active');
+	else if (BX.hasClass(tab, 'bx-gadgets-tab'))
+		BX.addClass(tab, 'bx-gadgets-tab-active');
+}
+
+gdTabControl.prototype.LoadTab = function(tab, url, tabControl)
+{
+	if (tabControl == 'undefined')
+		tabControl = false;
+
+	var content_div = BX(tab.id+'_content');
+	if(!content_div)
+		content_div = BX(tab+'_content');
 	if(!content_div || content_div.style.display != 'none')
 		return;
 
@@ -175,43 +123,71 @@ gdTabControl.prototype.SelectTab = function(tab)
 	for (var i = 0, cnt = this.aTabs.length; i < cnt; i++)
 	{
 		t = BX(this.aTabs[i]);
-		BX.removeClass(t, 'bx-gadgets-tab-active');			
+		BX.removeClass(t, 'bx-gadgets-tab-active');
+		BX.removeClass(t, 'bx-gadgets-tab-new-active');
 		if(t.style.display != 'none')
-			BX(t.id+'_content').style.display = 'none';
+		{
+			if (BX(t.id+'_content'))
+				BX(t.id+'_content').style.display = 'none';
+			else if (BX(t.id.substr(9)+'_content'))
+				BX(t.id.substr(9)+'_content').style.display = 'none';			
+		}
 	}
 
 	content_div.style.display = 'block';
-	BX.addClass(tab, 'bx-gadgets-tab-active');		
-}
+	if (BX.hasClass(tab, 'bx-gadgets-tab-new'))
+		BX.addClass(tab, 'bx-gadgets-tab-new-active');
+	else if (BX.hasClass(tab, 'bx-gadgets-tab'))
+		BX.addClass(tab, 'bx-gadgets-tab-active');
 
-gdTabControl.prototype.LoadTab = function(tab, url)
-{
-	var content_div = BX(tab.id+'_content');
-	if(!content_div || content_div.style.display != 'none')
-		return;
-	
 	var node_div = BX(tab.id+'_content_node');
+
 	if(node_div && node_div.innerHTML.length <= 0)
 	{
 		BX.ajax.get(url, function(result)
 		{
-			BX.closeWait();
+			if (tabControl)
+				tabControl.closeWait(content_div);
 			node_div.innerHTML = result;
-			window.arTabsLoaded[tab] = true;
 		})
-		BX.showWait();
+		if (tabControl)
+			tabControl.showWait(content_div);
 	}
-	
-	var t = false;
-	for (var i = 0, cnt = this.aTabs.length; i < cnt; i++)
-	{
-		t = BX(this.aTabs[i]);
-		BX.removeClass(t, 'bx-gadgets-tab-active');			
-		if(t.style.display != 'none')
-			BX(t.id+'_content').style.display = 'none';
-	}
+}
 
-	content_div.style.display = 'block';
-	BX.addClass(tab, 'bx-gadgets-tab-active');
-	
+gdTabControl.prototype.showWait = function(el)
+{
+	if (BX.type.isElementNode(el))
+	{
+		var pos = BX.pos(el);
+
+		el.bxwaiter = document.body.appendChild(BX.create('DIV', {
+			props: {className: 'adm-gadget-tab-waiter-img'},
+			style: {
+				top: parseInt((pos.bottom + pos.top)/2 - 10) + 'px',
+				left: parseInt((pos.right + pos.left)/2 - 10) + 'px'
+			}
+		}));
+
+		this.lastWaitElement = el;
+
+		return el.bxwaiter;
+	}
+}
+
+gdTabControl.prototype.closeWait = function(el)
+{
+	el = el || this.lastWaitElement;
+
+	if (BX.type.isElementNode(el))
+	{
+		if (el.bxwaiter)
+		{
+			el.bxwaiter.parentNode.removeChild(el.bxwaiter);
+			el.bxwaiter = null;
+		}
+
+		if (this.lastWaitElement == el)
+			this.lastWaitElement = null;
+	}
 }

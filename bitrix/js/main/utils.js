@@ -288,7 +288,6 @@ var jsUtils =
 			window.open(url);
 		else
 		{
-			ShowWaitWindow();
 			window.location.href=url;
 		}
 	},
@@ -746,6 +745,7 @@ function JCFloatDiv()
 				img.style.left = '-1000px';
 				img.style.top = '-1000px';
 				img.style.lineHeight = 'normal';
+				img.className = "bx-js-float-shadow";
 				document.body.appendChild(img);
 			}
 			img.style.width = div.offsetWidth+'px';
@@ -1350,4 +1350,4 @@ var jsSelectUtils =
 
 }
 
-/************************************************/
+/************************************************/;   

@@ -199,7 +199,7 @@ function BXBlogTabShow(id, type)
 	</div>
 	<?
 	if(strlen($arResult["PATH_TO_HISTORY"]) <= 0)
-		$arResult["PATH_TO_HISTORY"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arResult["ALIASES"]["page"]."=history");
+		$arResult["PATH_TO_HISTORY"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arResult["ALIASES"]["page"]."=history");
 	?>
 	<noindex>
 	<div style="text-align:right;"><a href="<?=$arResult["PATH_TO_HISTORY"]?>" rel="nofollow"><?=GetMessage("BC_ALL_POSTS")?></a></div>
@@ -381,15 +381,15 @@ if(IsModuleInstalled("search")):
 						"PATH_TO_USER"	=> $arResult["PATH_TO_USER"],
 						"CACHE_TYPE"	=> $arResult["CACHE_TYPE"],
 						"CACHE_TIME"	=> $arResult["CACHE_TIME"],
-						"GROUP_ID" 			=> $arParams["GROUP_ID"],
-						"SEO_USER"			=> $arParams["SEO_USER"],
+						"GROUP_ID"		=> $arParams["GROUP_ID"],
+						"SEO_USER"		=> $arParams["SEO_USER"],
 						"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 						"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 						"PATH_TO_CONPANY_DEPARTMENT" => $arParams["PATH_TO_CONPANY_DEPARTMENT"],
 						"PATH_TO_SONET_USER_PROFILE" => $arParams["PATH_TO_SONET_USER_PROFILE"],
 						"PATH_TO_MESSAGES_CHAT" => $arParams["PATH_TO_MESSAGES_CHAT"],
 						"PATH_TO_VIDEO_CALL" => $arParams["PATH_TO_VIDEO_CALL"],
-                        		),
+					),
 				$component 
 			);
 		?>
@@ -398,7 +398,7 @@ if(IsModuleInstalled("search")):
 	//if((!is_array($arParams["GROUP_ID"]) && IntVal($arParams["GROUP_ID"]) > 0) || (is_array($arParams["GROUP_ID"]) && count($arParams["GROUP_ID"]) == 1))
 	//{
 		if(strlen($arResult["PATH_TO_GROUP"]) <= 0)
-			$arResult["PATH_TO_GROUP"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arResult["ALIASES"]["page"]."=group&".$arResult["ALIASES"]["group_id"]."=#group_id#");
+			$arResult["PATH_TO_GROUP"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arResult["ALIASES"]["page"]."=group&".$arResult["ALIASES"]["group_id"]."=#group_id#");
 		?>
 		
 		<div style="text-align:right;"><a href="<?=CComponentEngine::MakePathFromTemplate($arResult["PATH_TO_GROUP"], array("group_id" => "all"))?>"><?=GetMessage("BC_ALL_BLOGS")?></a></div>

@@ -7,21 +7,23 @@
 ##############################################
 
 IncludeModuleLangFile(__FILE__);
+
 class CMenu
 {
 	var $type = "left";
-	var $arMenu = Array();
+	var $arMenu = array();
 	var $bMenuCalc = false;
 	var $MenuDir = "";
 	var $MenuExtDir = "";
 	var $MenuTemplate = "";
 	var $template = "";
 	var $LAST_ERROR = "";
+	/** @var CDebugInfo */
 	var $debug = null;
 
 	function CMenu($type="left")
 	{
-		$this->type=$type;
+		$this->type = $type;
 	}
 
 	function Init($InitDir, $bMenuExt=false, $template=false, $onlyCurrentDir=false)
@@ -35,10 +37,10 @@ class CMenu
 
 		$io = CBXVirtualIo::GetInstance();
 
-		$aMenuLinks = Array();
+		$aMenuLinks = array();
 		$bFounded = false;
 		if($template === false)
-			UnSet($sMenuTemplate);
+			$sMenuTemplate = '';
 		else
 			$sMenuTemplate = $template;
 
@@ -57,7 +59,7 @@ class CMenu
 				$site_dir = $arSite["DIR"];
 		}
 
-		while(strlen($Dir)>0)
+		while($Dir <> '')
 		{
 			if($site_dir !== false && (strlen(trim($Dir, "/")) < strlen(trim($site_dir, "/"))))
 				break;
@@ -88,7 +90,7 @@ class CMenu
 		if($bMenuExt)
 		{
 			$Dir = $InitDir;
-			while(strlen($Dir)>0)
+			while($Dir <> '')
 			{
 				if($site_dir !== false && (strlen(trim($Dir, "/")) < strlen(trim($site_dir, "/"))))
 					break;
@@ -123,22 +125,31 @@ class CMenu
 		return $bFounded;
 	}
 
-	function RecalcMenu($bMultiSelect=false)
+	function RecalcMenu($bMultiSelect = false, $bCheckSelected = true)
 	{
-		if($this->bMenuCalc!==false)
+		if($this->bMenuCalc !== false)
 			return true;
-		global $USER, $DB, $APPLICATION;
-		$result = Array();
+
+		/**
+		 * @global CAllMain $APPLICATION
+		 * @global CCacheManager $CACHE_MANAGER
+		 * @noinspection PhpUnusedLocalVariableInspection
+		 */
+		global $USER, $DB, $APPLICATION, $CACHE_MANAGER;
+
+		$result = array();
 
 		$cur_page = $APPLICATION->GetCurPage(true);
 		$cur_page_no_index = $APPLICATION->GetCurPage(false);
-		$cur_dir = $APPLICATION->GetCurDir();
+
 		$APPLICATION->_menu_recalc_counter++;
 
 		$this->bMenuCalc = true;
 
 		if(strlen($this->template)>0 && file_exists($GLOBALS["DOCUMENT_ROOT"].$this->template))
+		{
 			$this->MenuTemplate = $GLOBALS["DOCUMENT_ROOT"].$this->template;
+		}
 		else
 		{
 			if(defined("SITE_TEMPLATE_ID") && file_exists($GLOBALS["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".SITE_TEMPLATE_ID."/".$this->type.".menu_template.php"))
@@ -170,14 +181,14 @@ class CMenu
 		if($bCacheIsAllowed)
 		{
 			$cache_id = $GLOBALS["DOCUMENT_ROOT"].",".$this->MenuDir.",".$this->MenuExtDir.",".$this->type;
-			if($GLOBALS["CACHE_MANAGER"]->Read(CACHED_menu, $cache_id, "menu"))
+			if($CACHE_MANAGER->Read(CACHED_menu, $cache_id, "menu"))
 			{
-				$arMenuCache = $GLOBALS["CACHE_MANAGER"]->Get($cache_id);
+				$arMenuCache = $CACHE_MANAGER->Get($cache_id);
 				$bCached = true;
 			}
 		}
 
-		$arUserRights = $GLOBALS["USER"]->GetAccessCodes();
+		$arUserRights = $USER->GetAccessCodes();
 		$ITEM_INDEX = -1;
 
 		$cur_selected = -1;
@@ -190,7 +201,9 @@ class CMenu
 			$TEXT = $MenuItem[0];
 
 			if($bCached)
+			{
 				$LINK = $arMenuCache[$iMenuItem]["LINK"];
+			}
 			else
 			{
 				if(!preg_match("'^(([A-Za-z]+://)|mailto:|javascript:)'i", $MenuItem[1]))
@@ -279,75 +292,33 @@ class CMenu
 			}
 
 			if(preg_match("'^(([A-Za-z]+://)|mailto:|javascript:)'i", $MenuItem[1]))
+			{
 				$PERMISSION = "Z";
+			}
 			else
 			{
-				if(!$bSkipMenuItem)
+				if(!$bSkipMenuItem && $bCheckSelected)
 				{
 					foreach($all_links as $tested_link)
 					{
 						if($tested_link == '')
 							continue;
-						//"/admin/"
-						//"/admin/index.php"
-						//"/admin/index.php?module=mail"
-						//$tested_link = trim(Rel2Abs($this->MenuDir, $tested_link));
-						if(strpos($cur_page, $tested_link) === 0 || strpos($cur_page_no_index, $tested_link) === 0)
-						{
-							$SELECTED = true;
+
+						$SELECTED = self::IsItemSelected($tested_link, $cur_page, $cur_page_no_index);
+						if($SELECTED)
 							break;
-						}
-
-						if(($pos = strpos($tested_link, "?")) !== false)
-						{
-							if(($s = substr($tested_link, 0, $pos)) == $cur_page || $s == $cur_page_no_index)
-							{
-								$params = explode("&", substr($tested_link, $pos+1));
-								$bOK = true;
-								foreach($params as $param)
-								{
-									$eqpos = strpos($param, "=");
-									$varvalue = "";
-									if($eqpos === false)
-									{
-										$varname = $param;
-									}
-									elseif($eqpos == 0)
-									{
-										continue;
-									}
-									else
-									{
-										$varname = substr($param, 0, $eqpos);
-										$varvalue = urldecode(substr($param, $eqpos+1));
-									}
-
-									$globvarvalue = (isset($GLOBALS[$varname])? $GLOBALS[$varname] : "");
-									if($globvarvalue != $varvalue)
-									{
-										$bOK = false;
-										break;
-									}
-								}
-
-								if($bOK)
-								{
-									$SELECTED = true;
-									break;
-								}
-							}//if(substr($tested_link, 0, $pos)==$cur_page)
-						} //if(($pos = strpos($tested_link, "?"))!==false)
-					} //foreach($all_links as $tested_link)
+					}
 				}
 
 				if($bCached)
 					$PERMISSION = $arMenuCache[$iMenuItem]["PERM"];
 				else
-					$arMenuCache[$iMenuItem]["PERM"] = $PERMISSION = $APPLICATION->GetFileAccessPermission(GetPagePath($LINK), $arUserRights);
+					$arMenuCache[$iMenuItem]["PERM"] = $PERMISSION = $APPLICATION->GetFileAccessPermission(GetFileFromURL($LINK), $arUserRights);
 			}
 
 			if($SELECTED && !$bMultiSelect)
 			{
+				/** @noinspection PhpUndefinedVariableInspection */
 				$new_len = strlen($tested_link);
 				if($new_len > $cur_selected_len)
 				{
@@ -384,7 +355,7 @@ class CMenu
 
 			if(!$bSkipMenuItem)
 			{
-				$r = Array(
+				$r = array(
 					"TEXT" => $TEXT,
 					"LINK" => $LINK,
 					"SELECTED" => $SELECTED,
@@ -393,7 +364,7 @@ class CMenu
 					"ITEM_TYPE" => $ITEM_TYPE,
 					"ITEM_INDEX" => $ITEM_INDEX,
 					"PARAMS" => $PARAMS
-					);
+				);
 
 				$result[] = $r;
 			}
@@ -402,13 +373,67 @@ class CMenu
 		$this->arMenu = $result;
 
 		if($bCacheIsAllowed && !$bCached)
-			$GLOBALS["CACHE_MANAGER"]->Set($cache_id, $arMenuCache);
+		{
+			/** @noinspection PhpUndefinedVariableInspection */
+			$CACHE_MANAGER->Set($cache_id, $arMenuCache);
+		}
 
 		return true;
 	}
 
+	public static function IsItemSelected($tested_link, $cur_page, $cur_page_no_index)
+	{
+		//"/admin/"
+		//"/admin/index.php"
+		//"/admin/index.php?module=mail"
+		if(strpos($cur_page, $tested_link) === 0 || strpos($cur_page_no_index, $tested_link) === 0)
+			return true;
+
+		if(($pos = strpos($tested_link, "?")) !== false)
+		{
+			if(($s = substr($tested_link, 0, $pos)) == $cur_page || $s == $cur_page_no_index)
+			{
+				$params = explode("&", substr($tested_link, $pos+1));
+				$bOK = true;
+				foreach($params as $param)
+				{
+					$eqpos = strpos($param, "=");
+					$varvalue = "";
+					if($eqpos === false)
+					{
+						$varname = $param;
+					}
+					elseif($eqpos == 0)
+					{
+						continue;
+					}
+					else
+					{
+						$varname = substr($param, 0, $eqpos);
+						$varvalue = urldecode(substr($param, $eqpos+1));
+					}
+
+					$globvarvalue = (isset($GLOBALS[$varname])? $GLOBALS[$varname] : "");
+					if($globvarvalue != $varvalue)
+					{
+						$bOK = false;
+						break;
+					}
+				}
+
+				if($bOK)
+					return true;
+			}
+		}
+		return false;
+	}
+
 	function GetMenuHtmlEx()
 	{
+		/**
+		 * @global CAllMain $APPLICATION
+		 * @noinspection PhpUnusedLocalVariableInspection
+		 */
 		global $USER, $DB, $APPLICATION; // must be!
 
 		if(!$this->RecalcMenu())
@@ -416,33 +441,39 @@ class CMenu
 
 		// $arMENU - копия массива меню
 		// $arMENU_LINK - ссылка на массив меню
-
-		$sMenu = "";
-		$MENU_ITEMS = &$this->arMenu;
-		$arMENU_LINK = &$this->arMenu;
+		/** @noinspection PhpUnusedLocalVariableInspection */
+		$arMENU_LINK = $MENU_ITEMS = &$this->arMenu;
+		/** @noinspection PhpUnusedLocalVariableInspection */
 		$arMENU = $this->arMenu;
+		$sMenu = "";
+
 		include($this->MenuTemplate);
+
 		$result = $sMenu;
 
+		$arIcons = array();
 		$bShowButtons = false;
 		$sMenuFile = $this->MenuDir.".".$this->type.".menu.php";
 		if($APPLICATION->GetShowIncludeAreas())
 		{
 			$menu_perm = $APPLICATION->GetFileAccessPermission($sMenuFile);
 			$templ_perm = $APPLICATION->GetFileAccessPermission($this->template);
-			$arIcons = Array();
-			if($menu_perm>="W")
-				$arIcons[] = Array(
+			if($menu_perm >= "W")
+			{
+				$arIcons[] = array(
 					"URL"=>"/bitrix/admin/fileman_menu_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&back_url=".urlencode($_SERVER["REQUEST_URI"])."&path=".urlencode($this->MenuDir)."&name=".$this->type,
 					"ICON"=>"menu-edit",
 					"TITLE"=>GetMessage("MAIN_MENU_EDIT")
 				);
+			}
 			if($templ_perm>="W" && $USER->IsAdmin())
-				$arIcons[] = Array(
+			{
+				$arIcons[] = array(
 					"URL"=>"/bitrix/admin/fileman_file_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&back_url=".urlencode($_SERVER["REQUEST_URI"])."&full_src=Y&path=".urlencode($this->template),
 					"ICON"=>"menu-template",
 					"TITLE"=>GetMessage("MAIN_MENU_TEMPLATE_EDIT")
 				);
+			}
 			if(count($arIcons) > 0)
 			{
 				$result = $APPLICATION->IncludeStringBefore().$result;
@@ -462,6 +493,10 @@ class CMenu
 
 	function GetMenuHtml()
 	{
+		/**
+		 * @global CAllMain $APPLICATION
+		 * @noinspection PhpUnusedLocalVariableInspection
+		 */
 		global $USER, $DB, $APPLICATION; // must be!
 
 		if(!$this->RecalcMenu())
@@ -469,16 +504,22 @@ class CMenu
 
 		// $arMENU - копия массива меню
 		// $arMENU_LINK - ссылка на массив меню
-
-		$MENU_ITEMS = &$this->arMenu;
-		$arMENU_LINK = &$this->arMenu;
+		/** @noinspection PhpUnusedLocalVariableInspection */
+		$arMENU_LINK = $MENU_ITEMS = &$this->arMenu;
+		/** @noinspection PhpUnusedLocalVariableInspection */
 		$arMENU = $this->arMenu;
-		for($i=0; $i<count($this->arMenu); $i++)
+
+		$result = "";
+		$sMenuPrologTmp = "";
+		$sMenuEpilog = "";
+		$n = count($this->arMenu);
+		for($i = 0; $i < $n; $i++)
 		{
 			$m = $this->arMenu[$i];
 			$sMenuBody = "";
 			$sMenuProlog = "";
 			$sMenuEpilog = "";
+			$ITEM_INDEX = 0;
 			extract($m, EXTR_OVERWRITE);
 
 			// $TEXT - текст меню
@@ -491,33 +532,39 @@ class CMenu
 			// $PARAMS - параметры пунктов меню
 
 			include($this->MenuTemplate);
-			if($ITEM_INDEX==0)
+
+			if($ITEM_INDEX == 0)
 				$sMenuPrologTmp = $sMenuProlog;
-			$result.= $sMenuBody;
+			$result .= $sMenuBody;
 		}
 
 		$result = $sMenuPrologTmp.$result.$sMenuEpilog;
 
+		$arIcons = array();
 		$bShowButtons = false;
 		$sMenuFile = $this->MenuDir.".".$this->type.".menu.php";
 		if($APPLICATION->GetShowIncludeAreas())
 		{
 			$menu_perm = $APPLICATION->GetFileAccessPermission($sMenuFile);
 			$templ_perm = $APPLICATION->GetFileAccessPermission($this->template);
-			$arIcons = Array();
-			if($menu_perm>="W")
-				$arIcons[] = Array(
+			if($menu_perm >= "W")
+			{
+				$arIcons[] = array(
 					"URL"=>"/bitrix/admin/fileman_menu_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&back_url=".urlencode($_SERVER["REQUEST_URI"])."&path=".urlencode($this->MenuDir)."&name=".$this->type,
 					"ICON"=>"menu-edit",
 					"TITLE"=>GetMessage("MAIN_MENU_EDIT")
 				);
+			}
 
-			if($templ_perm>="W" && $USER->IsAdmin())
-				$arIcons[] = Array(
+			if($templ_perm >= "W" && $USER->IsAdmin())
+			{
+				$arIcons[] = array(
 					"URL"=>"/bitrix/admin/fileman_file_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&back_url=".urlencode($_SERVER["REQUEST_URI"])."&full_src=Y&path=".urlencode($this->template),
 					"ICON"=>"menu-template",
 					"TITLE"=>GetMessage("MAIN_MENU_TEMPLATE_EDIT")
 				);
+			}
+
 			if(count($arIcons) > 0)
 			{
 				$result = $APPLICATION->IncludeStringBefore().$result;
@@ -537,7 +584,7 @@ class CMenu
 
 class CMenuCustom
 {
-	var $arItems = Array();
+	var $arItems = array();
 
 	function AddItem($type="left", $arItem=array())
 	{
@@ -585,5 +632,3 @@ class CMenuCustom
 
 global $BX_MENU_CUSTOM;
 $BX_MENU_CUSTOM = new CMenuCustom;
-
-?>

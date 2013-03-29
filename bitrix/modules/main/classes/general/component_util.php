@@ -110,6 +110,26 @@ class CComponentUtil
 		}
 	}
 
+	public static function isComponent($componentPath)
+	{
+		$bDirectoryExists = file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath)
+			&& is_dir($_SERVER["DOCUMENT_ROOT"].$componentPath);
+		if(!$bDirectoryExists)
+			return false;
+
+		$bComponentExists = file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php")
+			&& is_file($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php");
+		if($bComponentExists)
+			return true;
+
+		$bClassExists = file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath."/class.php")
+			&& is_file($_SERVER["DOCUMENT_ROOT"].$componentPath."/class.php");
+		if($bClassExists)
+			return true;
+
+		return false;
+	}
+
 	function __GetComponentsTree($filterNamespace = False, $arNameFilter = False)
 	{
 		$arTree = array();
@@ -123,7 +143,7 @@ class CComponentUtil
 
 				if (is_dir($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/".$file))
 				{
-					if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/".$file."/component.php"))
+					if (CComponentUtil::isComponent("/bitrix/components/".$file))
 					{
 						// It's component
 						if ($filterNamespace !== False && StrLen($filterNamespace) > 0)
@@ -185,7 +205,7 @@ class CComponentUtil
 
 								if (is_dir($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/".$file."/".$file1))
 								{
-									if (file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/".$file."/".$file1."/component.php"))
+									if (CComponentUtil::isComponent("/bitrix/components/".$file."/".$file1))
 									{
 										if ($arNameFilter !== False && !CComponentUtil::CheckComponentName($file1, $arNameFilter))
 											continue;
@@ -306,11 +326,9 @@ class CComponentUtil
 				if ($file == "." || $file == "..")
 					continue;
 
-				if (is_dir($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/".$file))
-				{
-					if (!file_exists($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/".$file."/component.php"))
-						$arNamespaces[] = $file;
-				}
+				if (is_dir($_SERVER["DOCUMENT_ROOT"]."/bitrix/components/".$file)
+					&& !CComponentUtil::isComponent("/bitrix/components/".$file))
+					$arNamespaces[] = $file;
 			}
 			@closedir($handle);
 		}
@@ -341,15 +359,7 @@ class CComponentUtil
 			else
 			{
 				$componentPath = "/bitrix/components".$path2Comp;
-
-				if(!file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath)
-					|| !is_dir($_SERVER["DOCUMENT_ROOT"].$componentPath)
-					|| !file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php")
-					|| !is_file($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php"))
-				{
-					$arComponentDescription = false;
-				}
-				else
+				if(CComponentUtil::isComponent($componentPath))
 				{
 					$arComponentDescription = array();
 					if(file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath."/.description.php"))
@@ -357,6 +367,10 @@ class CComponentUtil
 						CComponentUtil::__IncludeLang($componentPath, ".description.php");
 						include($_SERVER["DOCUMENT_ROOT"].$componentPath."/.description.php");
 					}
+				}
+				else
+				{
+					$arComponentDescription = false;
 				}
 			}
 		}
@@ -388,11 +402,7 @@ class CComponentUtil
 			return False;
 
 		$componentPath = "/bitrix/components".$path2Comp;
-
-		if (!file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath)
-			|| !is_dir($_SERVER["DOCUMENT_ROOT"].$componentPath)
-			|| !file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php")
-			|| !is_file($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php"))
+		if(!CComponentUtil::isComponent($componentPath))
 		{
 			return False;
 		}
@@ -664,7 +674,7 @@ class CComponentUtil
 			{
 				//Create directories
 				$help_lang_path = $_SERVER["DOCUMENT_ROOT"].$componentPath."/lang";
-				if(!file_exists($help_lang_path)) 
+				if(!file_exists($help_lang_path))
 					mkdir($help_lang_path);
 				$help_lang_path .= "/ru";
 				if(!file_exists($help_lang_path))
@@ -737,16 +747,14 @@ class CComponentUtil
 
 		$componentPath = "/bitrix/components".$path2Comp;
 
-		if (!file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath)
-			|| !is_dir($_SERVER["DOCUMENT_ROOT"].$componentPath)
-			|| !file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php")
-			|| !is_file($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php"))
+		if (!CComponentUtil::isComponent($componentPath))
 		{
 			return $arTemplateParameters;
 		}
 
 		if ($siteTemplate && StrLen($siteTemplate) > 0)
 		{
+			$siteTemplate = _normalizePath($siteTemplate);
 			if (file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$siteTemplate."/components".$path2Comp."/".$templateName))
 			{
 				if (is_dir($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".$siteTemplate."/components".$path2Comp."/".$templateName)
@@ -798,10 +806,7 @@ class CComponentUtil
 
 		$componentPath = "/bitrix/components".$path2Comp;
 
-		if (!file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath)
-			|| !is_dir($_SERVER["DOCUMENT_ROOT"].$componentPath)
-			|| !file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php")
-			|| !is_file($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php"))
+		if (!CComponentUtil::isComponent($componentPath))
 		{
 			return $arTemplatesList;
 		}
@@ -962,10 +967,7 @@ class CComponentUtil
 
 		$componentPath = "/bitrix/components".$path2Comp;
 
-		if (!file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath)
-			|| !is_dir($_SERVER["DOCUMENT_ROOT"].$componentPath)
-			|| !file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php")
-			|| !is_file($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php"))
+		if (!CComponentUtil::isComponent($componentPath))
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(str_replace("#NAME#", $componentName, GetMessage("comp_util_err2")), "ERROR_NOT_COMPONENT");
 			return false;
@@ -1059,10 +1061,7 @@ class CComponentUtil
 
 		$componentPath = "/bitrix/components".$path2Comp;
 
-		if (!file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath)
-			|| !is_dir($_SERVER["DOCUMENT_ROOT"].$componentPath)
-			|| !file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php")
-			|| !is_file($_SERVER["DOCUMENT_ROOT"].$componentPath."/component.php"))
+		if (!CComponentUtil::isComponent($componentPath))
 		{
 			$GLOBALS["APPLICATION"]->ThrowException(str_replace("#NAME#", $componentName, GetMessage("comp_util_err2")), "ERROR_NOT_COMPONENT");
 			return false;
@@ -1162,25 +1161,26 @@ class CComponentUtil
 				return true;
 		return false;
 	}
-	
+
 	function GetDefaultNameTemplates()
 	{
 		return array(
-			'#NOBR##LAST_NAME# #NAME##/NOBR#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_JOHN'),
-			'#NOBR##LAST_NAME# #NAME##/NOBR# #SECOND_NAME#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_JOHN_LLOYD'),
-			'#LAST_NAME#, #NOBR##NAME# #SECOND_NAME##/NOBR#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_COMMA_JOHN_LLOYD'),
+			'#LAST_NAME# #NAME#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_JOHN'),
+			'#LAST_NAME# #NAME# #SECOND_NAME#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_JOHN_LLOYD'),
+			'#LAST_NAME#, #NAME# #SECOND_NAME#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_COMMA_JOHN_LLOYD'),
 			'#NAME# #SECOND_NAME# #LAST_NAME#' => GetMessage('COMP_NAME_TEMPLATE_JOHN_LLOYD_SMITH'),
-			'#NOBR##NAME_SHORT# #SECOND_NAME_SHORT# #LAST_NAME##/NOBR#' => GetMessage('COMP_NAME_TEMPLATE_J_L_SMITH'),
-			'#NOBR##NAME_SHORT# #LAST_NAME##/NOBR#' => GetMessage('COMP_NAME_TEMPLATE_J_SMITH'),
-			'#NOBR##LAST_NAME# #NAME_SHORT##/NOBR#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_J'),
-			'#NOBR##LAST_NAME# #NAME_SHORT# #SECOND_NAME_SHORT##/NOBR#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_J_L'),
-			'#NOBR##LAST_NAME#, #NAME_SHORT##/NOBR#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_COMMA_J'),
-			'#NOBR##LAST_NAME#, #NAME_SHORT# #SECOND_NAME_SHORT##/NOBR#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_COMMA_J_L'),
-			'#NOBR##NAME# #LAST_NAME##/NOBR#' => GetMessage('COMP_NAME_TEMPLATE_JOHN_SMITH'),
-			'#NOBR##NAME# #SECOND_NAME_SHORT# #LAST_NAME##/NOBR#' => GetMessage('COMP_NAME_TEMPLATE_JOHN_L_SMITH'),
+			'#NAME_SHORT# #SECOND_NAME_SHORT# #LAST_NAME#' => GetMessage('COMP_NAME_TEMPLATE_J_L_SMITH'),
+			'#NAME_SHORT# #LAST_NAME#' => GetMessage('COMP_NAME_TEMPLATE_J_SMITH'),
+			'#LAST_NAME# #NAME_SHORT#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_J'),
+			'#LAST_NAME# #NAME_SHORT# #SECOND_NAME_SHORT#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_J_L'),
+			'#LAST_NAME#, #NAME_SHORT#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_COMMA_J'),
+			'#LAST_NAME#, #NAME_SHORT# #SECOND_NAME_SHORT#' => GetMessage('COMP_NAME_TEMPLATE_SMITH_COMMA_J_L'),
+			'#NAME# #LAST_NAME#' => GetMessage('COMP_NAME_TEMPLATE_JOHN_SMITH'),
+			'#NAME# #SECOND_NAME_SHORT# #LAST_NAME#' => GetMessage('COMP_NAME_TEMPLATE_JOHN_L_SMITH'),
+			'' => GetMessage('COMP_PARAM_NAME_FORMAT_SITE')
 		);
 	}
-	
+
 	function GetDateFormatField($name="", $parent="", $no_year = false)
 	{
 		$timestamp = mktime(0,0,0,2,6,2010);
@@ -1194,33 +1194,37 @@ class CComponentUtil
 					"m-d" => FormatDate("m-d", $timestamp),//"02-22",
 					"m-d" => FormatDate("m-d", $timestamp),//"02-22",
 					"d.m" => FormatDate("d.m", $timestamp),//"22.02",
+					"d.M" => FormatDate("d.M", $timestamp),//"22.Ôåâ",
 					"m.d" => FormatDate("m.d", $timestamp),//"02.22",
 					"j M" => FormatDate("j M", $timestamp),//"22 Feb",
 					"M j" => FormatDate("M j", $timestamp),//"Feb 22",
 					"j F" => FormatDate("j F", $timestamp),//"22 February",
 					"f j" => FormatDate("f j", $timestamp),//"February 22"
+					CComponentUtil::GetDateFormatDefault($no_year) => GetMessage('COMP_PARAM_DATE_FORMAT_SITE')
 				):
 				array(
 					"d-m-Y" => FormatDate("d-m-Y", $timestamp),//"22-02-2007",
 					"m-d-Y" => FormatDate("m-d-Y", $timestamp),//"02-22-2007",
 					"Y-m-d" => FormatDate("Y-m-d", $timestamp),//"2007-02-22",
 					"d.m.Y" => FormatDate("d.m.Y", $timestamp),//"22.02.2007",
+					"d.M.Y" => FormatDate("d.M.Y", $timestamp),//"22.Ôåâ.2007",
 					"m.d.Y" => FormatDate("m.d.Y", $timestamp),//"02.22.2007",
 					"j M Y" => FormatDate("j M Y", $timestamp),//"22 Feb 2007",
 					"M j, Y" => FormatDate("M j, Y", $timestamp),//"Feb 22, 2007",
 					"j F Y" => FormatDate("j F Y", $timestamp),//"22 February 2007",
 					"f j, Y" => FormatDate("f j, Y", $timestamp),//"February 22",
+					"SHORT" => GetMessage('COMP_PARAM_DATE_FORMAT_SITE')
 				),
 			"DEFAULT" => CComponentUtil::GetDateFormatDefault($no_year),
 			"ADDITIONAL_VALUES" => "Y",
 		);
 	}
-	
+
 	function GetDateFormatDefault($no_year = false)
 	{
 		return $GLOBALS["DB"]->DateFormatToPHP($no_year ? preg_replace('/[\-\.\/]*[Y]{2,4}[\-\.\/]*/', '', CSite::GetDateFormat('SHORT')) : CSite::GetDateFormat("SHORT"));
 	}
-	
+
 	function GetDateTimeFormatField($name="", $parent="")
 	{
 		$timestamp = mktime(16,10,45,2,6,2010);
@@ -1238,19 +1242,24 @@ class CComponentUtil
 				"M j, Y H:i:s" => FormatDate("M j, Y H:i:s", $timestamp),//"Feb 22, 2007 7:30",
 				"j F Y H:i:s" => FormatDate("j F Y H:i:s", $timestamp),//"22 February 2007 7:30",
 				"f j, Y H:i:s" => FormatDate("f j, Y H:i:s", $timestamp),//"February 22, 2007",
-				"d.m.y g:i A" => FormatDate("d.m.y g:i A", $timestamp),//"22.02.07 1:30 PM",
+				"d.m.y g:i:s A" => FormatDate("d.m.y g:i:s A", $timestamp),//"22.02.07 1:30 PM",
+				"d.M.y g:i:s a" => FormatDate("d.M.y g:i:s a", $timestamp),//"22.Ôåâ.07 1:30 pm",
+				"d.M.Y g:i:s a" => FormatDate("d.M.Y g:i:s a", $timestamp),//"22.Ôåâ.2007 1:30 pm",
 				"d.m.y G:i" => FormatDate("d.m.y G:i", $timestamp),//"22.02.07 7:30",
 				"d.m.Y H:i:s" => FormatDate("d.m.Y H:i:s", $timestamp),//"22.02.2007 07:30",
+				"j F Y G:i" => FormatDate("j F Y G:i", $timestamp),//"ZHL cool RUS",
+				"j F Y g:i a" => FormatDate("j F Y g:i a", $timestamp),//"ZHL cool Burzh",
+				"FULL" => GetMessage('COMP_PARAM_DATETIME_FORMAT_SITE')
 			),
 			"DEFAULT" => CComponentUtil::GetDateTimeFormatDefault(),
 			"ADDITIONAL_VALUES" => "Y",
 		);
 	}
-	
+
 	function GetDateTimeFormatDefault()
 	{
 		return $GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("FULL"));
 	}
-	
+
 }
 ?>

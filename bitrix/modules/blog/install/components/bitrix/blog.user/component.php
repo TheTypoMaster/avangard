@@ -22,15 +22,15 @@ if(strLen($arParams["PAGE_VAR"])<=0)
 	$arParams["PAGE_VAR"] = "page";
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
 if(strlen($arParams["PATH_TO_BLOG"])<=0)
-	$arParams["PATH_TO_BLOG"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if(strlen($arParams["PATH_TO_USER"])<=0)
-	$arParams["PATH_TO_USER"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 if(strlen($arParams["PATH_TO_USER_EDIT"])<=0)
-	$arParams["PATH_TO_USER_EDIT"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#&mode=edit");
+	$arParams["PATH_TO_USER_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#&mode=edit");
 $arParams["PATH_TO_SEARCH"] = trim($arParams["PATH_TO_SEARCH"]);
 if(strlen($arParams["PATH_TO_SEARCH"])<=0)
-	$arParams["PATH_TO_SEARCH"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search");
+	$arParams["PATH_TO_SEARCH"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=search");
 if(strpos($arParams["PATH_TO_SEARCH"], "?")===false)
 	$arParams["PATH_TO_SEARCH"] .= "?";
 else
@@ -181,7 +181,8 @@ else
 			"M"=>GetMessage("B_B_USER_SEX_M"),
 			"F"=>GetMessage("B_B_USER_SEX_F"),
 		);
-	$arResult["userName"] = CBlogUser::GetUserName($arResult["BlogUser"]["ALIAS"], $arResult["arUser"]["NAME"], $arResult["arUser"]["LAST_NAME"], $arResult["arUser"]["LOGIN"]);
+
+	$arResult["userName"] = CBlogUser::GetUserNameEx($arResult["arUser"], $arResult["BlogUser"], $arParams);
 	$arResult["User"] = $arResult["arUser"];
 	
 	$arResult["BlogUser"]["LAST_VISIT_FORMATED"] = FormatDate($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($arResult["BlogUser"]["LAST_VISIT"], CSite::GetDateFormat("FULL")));
@@ -196,13 +197,13 @@ else
 			{
 				foreach($v as $k1 => $v1)
 				{
-					$arResult["User"][$k1] = htmlspecialchars($v1);
+					$arResult["User"][$k1] = htmlspecialcharsbx($v1);
 					$arResult["User"]['~'.$k1] = $v1;
 				}
 			}
 			else
 			{
-				$arResult["User"][$k] = htmlspecialchars($v);
+				$arResult["User"][$k] = htmlspecialcharsbx($v);
 				$arResult["User"]['~'.$k] = $v;						
 			}
 		}
@@ -301,5 +302,6 @@ else
 	}
 	// ******************** /User properties ***************************************************
 }
+
 $this->IncludeComponentTemplate();
 ?>

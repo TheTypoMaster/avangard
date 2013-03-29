@@ -665,4 +665,4 @@ function isInTabSection(el)
 	}
 	return false;
 }
-*/
+*/;   

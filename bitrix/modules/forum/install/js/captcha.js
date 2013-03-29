@@ -21,6 +21,13 @@ ForumFormCaptcha.prototype.BindLHEEvents = function()
 	BX.bind(window.oLHE.pEditorDocument, 'keydown', BX.proxy(this.Show, this));
 	BX.bind(window.oLHE.pTextarea, 'keydown', BX.proxy(this.Show, this));
 	BX.bind(window.oLHE.pButtonsCont, 'click', BX.proxy(this.Show, this));
+	if (BX("post-buttons-bottom"))
+	{
+		var el = BX("post-buttons-bottom").lastChild;
+		while(el = el.previousSibling) {
+			BX.bind(el, 'mousedown', BX.proxy(this.Show, this));
+		}
+	}
 }
 
 ForumFormCaptcha.prototype.BindLHE = function()
@@ -34,6 +41,8 @@ ForumFormCaptcha.prototype.BindLHE = function()
 		this.forumFormCaptcha.BindLHEEvents();
 		return result;
 	}
+	if (window.oLHE.GetContent().length > 0)
+		this.Show();
 }
 
 ForumFormCaptcha.prototype.Show = function() {
@@ -57,4 +66,3 @@ ForumFormCaptcha.prototype.UpdateControls = function(data) {
 ForumFormCaptcha.prototype.Update = function() {
 	BX.ajax.getCaptcha(BX.proxy(this.UpdateControls, this));
 }
-

@@ -281,6 +281,21 @@ class CComponentAjax
 		return false;
 	}
 
+	function _checkPcreLimit($data)
+	{
+		$pcre_backtrack_limit = intval(ini_get("pcre.backtrack_limit"));
+		$text_len = function_exists('mb_strlen') ? mb_strlen($data, 'latin1') : strlen($data);
+		$text_len++;
+
+		if ($pcre_backtrack_limit > 0 && $pcre_backtrack_limit < $text_len)
+		{
+			@ini_set("pcre.backtrack_limit", $text_len);
+			$pcre_backtrack_limit = intval(ini_get("pcre.backtrack_limit"));
+		}
+
+		return $pcre_backtrack_limit >= $text_len;
+	}
+
 	function __PrepareLinks(&$data)
 	{
 		$add_param = CAjax::GetSessionParam($this->componentID);
@@ -288,9 +303,11 @@ class CComponentAjax
 		$link_offset = 0;
 
 		$regexp_links = '/(<a[^>]*?>.*?<\/a>)/i'.BX_UTF_PCRE_MODIFIER;
-		$regexp_params = '/([\w]+)=\"([^\"]*)\"/i'.BX_UTF_PCRE_MODIFIER;
+		$regexp_params = '/([\w]+)\s*=\s*([\"\'])(.*?)\2/is'.BX_UTF_PCRE_MODIFIER;
 
+		$this->_checkPcreLimit($data);
 		$arData = preg_split($regexp_links, $data, -1, PREG_SPLIT_DELIM_CAPTURE);
+
 		$cData = count($arData);
 		if($cData < 2)
 			return;
@@ -339,7 +356,7 @@ class CComponentAjax
 
 			if ($url_key >= 0 && !$bIgnoreLink)
 			{
-				$url = str_replace('&amp;', '&', $arLinkParams[2][$url_key]);
+				$url = str_replace('&amp;', '&', $arLinkParams[3][$url_key]);
 				$url = str_replace($arSearch, '', $url);
 
 				if ($this->__isAjaxURL($url))
@@ -367,46 +384,58 @@ class CComponentAjax
 
 	function __PrepareForms(&$data)
 	{
-		if (preg_match_all('/<form([^>]*)>/i', $data, $arResult))
-		{
-			$arIgnoreAttributes = array('target');
+		$this->_checkPcreLimit($data);
+		$arData = preg_split('/(<form([^>]*)>)/i'.BX_UTF_PCRE_MODIFIER, $data, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-			foreach ($arResult[0] as $key => $tag)
+		$bDataChanged = false;
+		for ($key = 0, $l = count($arData); $key < $l; $key++)
+		{
+			if ($key % 3 != 0)
 			{
+				$arIgnoreAttributes = array('target');
 				$bIgnore = false;
 				foreach ($arIgnoreAttributes as $attr)
 				{
-					if (false !== strpos($arResult[1][$key], $attr.'="'))
+					if (strpos($arData[$key], $attr.'="') !== false)
 					{
 						$bIgnore = true;
 						break;
 					}
 				}
-				if ($bIgnore)
-					break;
 
-				preg_match_all('/action=(["\']{1})(.*?)\1/i', $arResult[1][$key], $arAction);
-				$url = $arAction[2][0];
-
-				if ($url === '' || $this->__isAjaxURL($url))
+				if (!$bIgnore)
 				{
-					$new_tag = CAjax::GetForm($arResult[1][$key], 'comp_'.$this->componentID, $this->componentID, true, $this->bShadow);
-				}
-				else
-				{
-					$new_url = str_replace(CAjax::GetSessionParam($ajax_id), '', $url);
-					$new_tag = str_replace($url, $new_url, $tag);
+					preg_match_all('/action=(["\']{1})(.*?)\1/i', $arData[$key], $arAction);
+					$url = $arAction[2][0];
+
+					if ($url === '' || $this->__isAjaxURL($url))
+					{
+						$arData[$key] = CAjax::GetForm($arData[$key+1], 'comp_'.$this->componentID, $this->componentID, true, $this->bShadow);
+					}
+					else
+					{
+						$new_url = str_replace(CAjax::GetSessionParam($ajax_id), '', $url);
+						$arData[$key] = str_replace($url, $new_url, $arData[$key]);
+					}
+
+					$bDataChanged = true;
 				}
 
-				$data = str_replace($tag, $new_tag, $data);
+				unset($arData[$key+1]);
+				$key++;
 			}
+
 		}
+
+		if ($bDataChanged)
+			$data = implode('', $arData);
 	}
 
 	function __prepareScripts(&$data)
 	{
-		$regexp = '/(<script([^>]*)?>)([\S\s]*?)(<\/script>)/i';
+		$regexp = '/(<script(?:[^>]*)?>)(.*?)<\/script>/is'.BX_UTF_PCRE_MODIFIER;
 
+		$this->_checkPcreLimit($data);
 		$scripts_num = preg_match_all($regexp, $data, $out);
 
 		$arScripts = array();
@@ -417,23 +446,24 @@ class CComponentAjax
 			{
 				$data = str_replace($out[0][$i], '', $data);
 
-				if (strlen($out[2][$i]) > 0 && strpos($out[2][$i], 'src=') !== false)
+				if (strlen($out[1][$i]) > 0 && strpos($out[1][$i], 'src=') !== false)
 				{
 					$regexp_src = '/src="([^"]*)?"/i';
-					if (preg_match($regexp_src, $out[2][$i], $out1) != 0)
+					if (preg_match($regexp_src, $out[1][$i], $out1) != 0)
 					{
 						$arScripts[] = array(
 							'TYPE' => 'SCRIPT_SRC',
 							'DATA' => $out1[1],
 						);
+
 					}
 				}
 				else
 				{
-					$out[3][$i] = str_replace('<!--', '', $out[3][$i]);
+					$out[2][$i] = str_replace('<!--', '', $out[2][$i]);
 					$arScripts[] = array(
 						'TYPE' => 'SCRIPT',
-						'DATA' => $out[3][$i],
+						'DATA' => $out[2][$i],
 					);
 				}
 			}
@@ -491,14 +521,27 @@ top.bxcompajaxframeonload = function() {
 		$cnt_new = count($arHeadScripts);
 		$arHeadScriptsNew = array();
 
+
 		if ($cnt_old != $cnt_new)
 			for ($i = $cnt_old; $i<$cnt_new; $i++)
 				$arHeadScriptsNew[] = $arHeadScripts[$i];
 
+		if(!$APPLICATION->IsJSOptimized())
+		{
+			$arHeadScriptsNew = array_merge(CJSCore::GetScriptsList(), $arHeadScriptsNew);
+		}
+
 		// prepare additional data
 		$arAdditionalData = array();
 		$arAdditionalData['TITLE'] = htmlspecialcharsback($APPLICATION->GetTitle());
-		$arAdditionalData['SCRIPTS'] = array_values(array_unique($arHeadScriptsNew));
+
+		$arAdditionalData['SCRIPTS'] = array();
+		$arHeadScriptsNew = array_unique($arHeadScriptsNew);
+
+		foreach($arHeadScriptsNew as $script)
+		{
+			$arAdditionalData['SCRIPTS'][] = CUtil::GetAdditionalFileURL($script);
+		}
 
 		if (null !== $this->__nav_params)
 		{
@@ -506,16 +549,23 @@ top.bxcompajaxframeonload = function() {
 		}
 
 		if ($this->bStyle)
-			$arAdditionalData["CSS"] = array_values(array_unique($arCSSNew));
+		{
+			$arAdditionalData["CSS"] = array();
+			$arCSSNew = array_unique($arCSSNew);
+			foreach($arCSSNew as $style)
+			{
+				$arAdditionalData['CSS'][] = CUtil::GetAdditionalFileURL($style);
+			}
+		}
 
-		$additional_data = '<script type="text/javascript">'."\n";
+		$additional_data = '<script type="text/javascript" bxrunfirst="true">'."\n";
 		$additional_data .= 'var arAjaxPageData = '.CUtil::PhpToJSObject($arAdditionalData).";\r\n";
 		$additional_data .= 'top.BX.ajax.UpdatePageData(arAjaxPageData)'.";\r\n";
 		if (!$this->bIFrameMode && $this->bHistory)
 			$additional_data .= 'top.BX.ajax.history.put(window.AJAX_PAGE_STATE.getState(), \''.CUtil::JSEscape(CAjax::encodeURI($APPLICATION->GetCurPageParam('', array(BX_AJAX_PARAM_ID), false))).'\')'.";\r\n";
-
 		if ($this->bJump)
 		{
+			$additional_data .= '</script><script type="text/javascript">';
 			if ($this->bIFrameMode)
 				$additional_data .= 'top.setTimeout(\'BX.scrollToNode("comp_'.$this->componentID.'")\', 100)'.";\r\n";
 			else

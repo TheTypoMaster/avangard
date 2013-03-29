@@ -77,7 +77,7 @@ if(!empty($_POST['sub_form'])) {
 		$post_data .="MERCHANTID=".$N_MERCHANTID;
 		
         $ch=curl_init();
-		curl_setopt($ch, CURLOPT_URL,"http://yes-credit.su/receiver/postReceiver.aspx");
+		curl_setopt($ch, CURLOPT_URL,"http://retail-credit.su/receiver/postReceiver.aspx");
 		curl_setopt($ch, CURLOPT_POST,1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS,$post_data);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION,1); 
@@ -225,4 +225,3 @@ if(!empty($errors) && isset($submit))
         рабочего дня.
     </p>
 	</form>
-

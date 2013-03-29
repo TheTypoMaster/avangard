@@ -33,7 +33,7 @@
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"FILTER_NAME" => $arParams["FILTER_NAME"],
 		"FIELD_CODE" => $arParams["FILTER_FIELD_CODE"],
- 		"PROPERTY_CODE" => $arParams["FILTER_PROPERTY_CODE"],
+		"PROPERTY_CODE" => $arParams["FILTER_PROPERTY_CODE"],
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"CACHE_GROUPS" => $arParams["CACHE_GROUPS"],

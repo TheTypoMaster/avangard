@@ -71,13 +71,13 @@ function GetStrings(&$item, $key, $p)
 		}
 		$searchstring .= $item["text"];
 	}
-	
+
 	if($item["title"])
 		$searchstring .= " ".$item["title"];
-	
+
 	if($item["keywords"])
 		$searchstring .= " ".$item["keywords"];
-	
+
 	if($item["icon"]=='')
 		$item["icon"] = $icon;
 
@@ -119,32 +119,24 @@ if($bFound)
 	<table class="adm-search-result">
 		<?foreach($arResult["CATEGORIES"] as $category_id => $arCategory):
 			if(count($arCategory["ITEMS"])==0)
-				continue;			
+				continue;
 			?>
-			<tr>
-				<th class="adm-search-separator">&nbsp;</th>
-				<td class="adm-search-separator">&nbsp;</td>
-			</tr>
 			<?foreach($arCategory["ITEMS"] as $i => $arItem):
 				if($i>9)
 					break;
 				?>
-			<tr>
+			<tr onclick="window.location='<?=CUtil::JSEscape($arItem["URL"]);?>';">
 				<?if($i == 0):?>
-					<th>&nbsp;<?echo $arCategory["TITLE"]?></th>
+					<th>&nbsp;<?=$arCategory["TITLE"]?></th>
 				<?else:?>
 					<th>&nbsp;</th>
 				<?endif?>
 				<td class="adm-search-item" <?if($arItem["TITLE"]!='' && $arItem["TITLE"]!=$arItem["NAME"]):?>title="<?=$arItem["TITLE"]?>"<?endif?>>
-					<a <?if($arItem["ICON"]!=''):?>id="<?echo $arItem["ICON"]?>"<?endif?> href="<?echo $arItem["URL"]?>"><?echo $arItem["NAME"]?></a>
+					<a href="<?=$arItem["URL"]?>"><?if($arItem["ICON"]!=''):?><span class="adm-submenu-item-link-icon <?=$arItem["ICON"]?>"></span><?endif?><span class="adm-submenu-item-name-link-text"><?=$arItem["NAME"]?></span></a>
 				</td>
 			</tr>
 			<?endforeach;?>
 		<?endforeach;?>
-		<tr>
-			<th class="adm-search-separator">&nbsp;</th>
-			<td class="adm-search-separator">&nbsp;</td>
-		</tr>
 	</table>
 <?
 }

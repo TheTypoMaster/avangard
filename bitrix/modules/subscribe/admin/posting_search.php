@@ -31,10 +31,13 @@ $tabControl->BeginNextTab();
 		<td colspan="2"><?=GetMessage("post_search_rub")?></td>
 	</tr>
 	<tr>
-		<td width="40%"><?=GetMessage("post_rub")?>:</td>
+		<td width="40%" class="adm-detail-valign-top"><?=GetMessage("post_rub")?>:</td>
 		<td width="60%">
-			<input type="checkbox" id="RUB_ID_ALL" name="RUB_ID_ALL" value="Y" OnClick="CheckAll('RUB_ID', true)">
-			<label for="RUB_ID_ALL"><?echo GetMessage("MAIN_ALL")?></label><br>
+			<div class="adm-list">
+				<div class="adm-list-item">
+					<div class="adm-list-control"><input type="checkbox" id="RUB_ID_ALL" name="RUB_ID_ALL" value="Y" OnClick="CheckAll('RUB_ID', true)"></div>
+					<div class="adm-list-label"><label for="RUB_ID_ALL"><?echo GetMessage("MAIN_ALL")?></label></div>
+				</div>
 			<?
 			if(!is_array($RUB_ID))
 				$RUB_ID = array();
@@ -43,11 +46,12 @@ $tabControl->BeginNextTab();
 			while($ar = $rub->GetNext()):
 				$aRub[] = $ar["ID"];
 			?>
-				<input type="checkbox" id="RUB_ID_<?echo $ar["ID"]?>" name="RUB_ID[]" value="<?echo $ar["ID"]?>"<?if(in_array($ar["ID"], $RUB_ID)) echo " checked"?> OnClick="CheckAll('RUB_ID')">
-				<label for="RUB_ID_<?echo $ar["ID"]?>"><?echo "[".$ar["LID"]."] ".$ar["NAME"]?></label><br>
-			<?
-			endwhile;
-			?>
+				<div class="adm-list-item">
+					<div class="adm-list-control"><input type="checkbox" id="RUB_ID_<?echo $ar["ID"]?>" name="RUB_ID[]" value="<?echo $ar["ID"]?>"<?if(in_array($ar["ID"], $RUB_ID)) echo " checked"?> OnClick="CheckAll('RUB_ID')"></div>
+					<div class="adm-list-label"><label for="RUB_ID_<?echo $ar["ID"]?>"><?echo "[".$ar["LID"]."] ".$ar["NAME"]?></label></div>
+				</div>
+			<?endwhile;?>
+			</div>
 		</td>
 	</tr>
 	<tr>
@@ -64,10 +68,13 @@ $tabControl->BeginNextTab();
 		<td colspan="2"><?echo GetMessage("post_search_users")?></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("post_group")?></td>
+		<td class="adm-detail-valign-top"><?echo GetMessage("post_group")?></td>
 		<td>
-			<input type="checkbox" id="GROUP_ID_ALL" name="GROUP_ID_ALL" value="Y" OnClick="CheckAll('GROUP_ID', true)">
-			<label for="GROUP_ID_ALL"><?echo GetMessage("MAIN_ALL")?></label><br>
+			<div class="adm-list">
+				<div class="adm-list-item">
+					<div class="adm-list-control"><input type="checkbox" id="GROUP_ID_ALL" name="GROUP_ID_ALL" value="Y" OnClick="CheckAll('GROUP_ID', true)"></div>
+					<div class="adm-list-label"><label for="GROUP_ID_ALL"><?echo GetMessage("MAIN_ALL")?></label></div>
+				</div>
 			<?
 			if(!is_array($GROUP_ID))
 				$GROUP_ID = array();
@@ -76,11 +83,12 @@ $tabControl->BeginNextTab();
 			while($ar = $group->GetNext()):
 				$aGroup[] = $ar["ID"];
 			?>
-				<input type="checkbox" id="GROUP_ID_<?echo $ar["ID"]?>" name="GROUP_ID[]" value="<?echo $ar["ID"]?>"<?if(in_array($ar["ID"], $GROUP_ID)) echo " checked"?> OnClick="CheckAll('GROUP_ID')">
-				<label for="GROUP_ID_<?echo $ar["ID"]?>"><?echo $ar["NAME"]?>&nbsp;[<a target="_blank" href="/bitrix/admin/group_edit.php?ID=<?echo $ar["ID"]?>&amp;lang=<?echo LANGUAGE_ID?>"><?echo $ar["ID"]?></a>]</label><br>
-			<?
-			endwhile;
-			?>
+				<div class="adm-list-item">
+					<div class="adm-list-control"><input type="checkbox" id="GROUP_ID_<?echo $ar["ID"]?>" name="GROUP_ID[]" value="<?echo $ar["ID"]?>"<?if(in_array($ar["ID"], $GROUP_ID)) echo " checked"?> OnClick="CheckAll('GROUP_ID')"></div>
+					<div class="adm-list-label"><label for="GROUP_ID_<?echo $ar["ID"]?>"><?echo $ar["NAME"]?>&nbsp;[<a target="_blank" href="/bitrix/admin/group_edit.php?ID=<?echo $ar["ID"]?>&amp;lang=<?echo LANGUAGE_ID?>"><?echo $ar["ID"]?></a>]</label></div>
+				</div>
+			<?endwhile;?>
+			</div>
 		</td>
 	</tr>
 	<tr class="heading">
@@ -88,7 +96,7 @@ $tabControl->BeginNextTab();
 	</tr>
 	<tr>
 		<td><?echo GetMessage("post_filter")?></td>
-		<td><input type="text" name="EMAIL_FILTER" value="<?echo htmlspecialchars($EMAIL_FILTER)?>" size="30" maxlength="255"></td>
+		<td><input type="text" name="EMAIL_FILTER" value="<?echo htmlspecialcharsbx($EMAIL_FILTER)?>" size="30" maxlength="255"></td>
 	</tr>
 <?
 $tabControl->Buttons();
@@ -182,7 +190,7 @@ CheckAll('RUB_ID');
 CheckAll('GROUP_ID');
 //-->
 </script>
-<input title="<?echo GetMessage("post_search_set_title")?> (<?echo count($aEmail);?>)"  type="button" name="Set" value="<?echo GetMessage("post_set")?>" OnClick="SetValues()">
+<input title="<?echo GetMessage("post_search_set_title")?> (<?echo count($aEmail);?>)"  type="button" name="Set" value="<?echo GetMessage("post_set")?>" OnClick="SetValues()" class="adm-btn-save">
 <input type="button" name="Close" value="<?echo GetMessage("post_cancel")?>" OnClick="window.close()">
 </form>
 <?echo BeginNote();?>

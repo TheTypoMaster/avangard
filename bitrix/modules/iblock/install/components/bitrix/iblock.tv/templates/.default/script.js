@@ -120,6 +120,7 @@ jsPublicTV.prototype.Init = function(arValues, TBID, DBID, arStart)
 		this.PlayerConfig.block_id = arStart.block_id;
 		this.PlayerConfig.obj_id = arStart.obj_id;
 		this.PlayerConfig.logo = arStart.logo;
+		this.PlayerConfig.windowless = 'true';
 
 		//create player
 		this.GeneratePlayer();
@@ -144,7 +145,6 @@ jsPublicTV.prototype.GeneratePlayer = function()
 			BX.ready(function(){
 				var wmv = BX(_this.PlayerConfig.block_id.wmv);
 				var flv = BX(_this.PlayerConfig.block_id.flv);
-
 				wmv.style.display = "block";
 				if (flv)
 					flv.style.display = "none";
@@ -162,10 +162,9 @@ jsPublicTV.prototype.GeneratePlayer = function()
 			BX.ready(function(){
 				var wmv = BX(_this.PlayerConfig.block_id.wmv);
 				var flv = BX(_this.PlayerConfig.block_id.flv);
-
-				flv.style.display = "block";
 				if (wmv)
 					wmv.style.display = "none";
+				flv.style.display = "block";
 			});
 
 			if (window.jwplayer)
@@ -364,41 +363,16 @@ jsPublicTV.prototype.PlayFile = function(i, j, autoplay, handle)
 		if(this.Player.oJw && flv.style.display != 'none') //if current not wmv, stop flv
 			this.Player.oJw.stop();
 
-		if(!this.Player.wmv) //generate WMV if not exists
-			this.GeneratePlayer(); //Opera want to regenerate? O.o
+		this.PlayerConfig.image = params.image;
+		this.PlayerConfig.link = params.link;
+		this.PlayerConfig.file = params.file;
+		this.PlayerConfig.autostart = autoplay ? "true" : "false";
 
-		if(this.Player.wmv)
-		{
-			var _player  = this.Player.wmv;
-			_player.configuration.image = params.image; // \\only once???<<<
-			_player.configuration.link = params.link; //modify link
+		this.GeneratePlayer();
 
-			if(wmv.style.display != 'block') //wmv hidden
-			{
-				if(flv)
-					flv.style.display = 'none';
-				if(wmv)
-					wmv.style.display = 'block';
-			}
+		if(flv)
+			flv.style.display = 'none';
 
-			if(!this.Player.wmv_state_listener_added)
-			{
-				//state listener
-				this.RunDelayFunction(function(){_this.SetListener('STATE', function(oldstate, newstate){_this.StateListener(oldstate, newstate);}, 'wmv')}, 50, 0);
-			}
-
-			if(autoplay == true)
-				this.RunDelayFunction(function()
-				{
-					_player.sendEvent('LOAD', params.file);
-					_this.RunDelayFunction(function()
-					{
-						_player.sendEvent('PLAY');
-					}, 50, 0, 50);
-				}, 50, 0, BX.browser.IsSafari() ? 100 : 0); //Safari +100
-			else
-				this.RunDelayFunction(function(){_player.sendEvent('LOAD', params.file);}, 50, 0);
-		}
 	}
 	else if (params.type == 'flv')
 	{
@@ -424,11 +398,15 @@ jsPublicTV.prototype.PlayFile = function(i, j, autoplay, handle)
 				image: params.image
 			};
 
+			this.Player.oJw.onPlaylist(function() { _this.Player.oJw.play(!!autoplay); });
+
 			this.Player.oJw.load(flvparams);
-			setTimeout(function()
+
+/*			setTimeout(function()
 			{
 				_this.Player.oJw.play(!!autoplay);
 			}, 500);
+*/
 		}
 	}
 }
@@ -521,13 +499,20 @@ jsPublicTV.prototype.GetNextItem = function(in_section)
 jsPublicTV.prototype.PlayNextItem = function()
 {
 	var nextItem = this.GetNextItem();
+	var _this = this;
+
 	if(nextItem===false)
 		return;
 
 	if(this.CurrentItem!==false)
 	{
-		this.PlayFile(nextItem.Section, nextItem.Item, true);
-		this.SetDescription(nextItem.Section, nextItem.Item);
+		setTimeout(
+			function()
+			{
+				_this.PlayFile(nextItem.Section, nextItem.Item, true);
+				_this.SetDescription(nextItem.Section, nextItem.Item);
+			}
+		,1000);
 	}
 }
 

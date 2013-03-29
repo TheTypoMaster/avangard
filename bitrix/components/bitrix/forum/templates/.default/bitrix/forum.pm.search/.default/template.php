@@ -1,4 +1,31 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+$arParams["SEO_USER"] = (in_array($arParams["SEO_USER"], array("Y", "N", "TEXT")) ? $arParams["SEO_USER"] : "Y");
+$arParams["USER_TMPL"] = '<noindex><a rel="nofollow" href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a></noindex>';
+if ($arParams["SEO_USER"] == "N") $arParams["USER_TMPL"] = '<a href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a>';
+elseif ($arParams["SEO_USER"] == "TEXT") $arParams["USER_TMPL"] = '#NAME#';
+
+if ($arResult["SHOW_SELF_CLOSE"] == "Y")
+{
+?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><body>
+<script type="text/javascript">
+<?=($_REQUEST["search_insert"] == "Y" ? "opener" : "top")?>.document.getElementById("div_USER_ID").innerHTML = '<?=(
+	$arResult["SHOW_MODE"] == "none" ?
+		"<i>".GetMessageJS("PM_NOT_FINED")."</i>" : (
+		$arResult["SHOW_MODE"] == "light" ?
+			GetMessageJS("PM_IS_FINED") :
+			"[".Cutil::JSEscape(str_replace(array("#URL#", "#NAME#"), array($arResult["profile_view"], $arResult["SHOW_NAME"]), $arParams["USER_TMPL"]))."]"
+		)
+)?>';
+<?=($_REQUEST["search_insert"] == "Y" ? "opener" : "top")?>.document.getElementById('USER_ID').value = '<?=$arResult["UID"]?>';
+self.close();
+</script>
+</body>
+</html>
+<?
+	die();
+}
+
 if (!$this->__component->__parent || empty($this->__component->__parent->__name)):
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/themes/blue/style.css');
@@ -17,35 +44,6 @@ endif;
 	</style>
 </head>
 <body class="forum-popup-body">
-
-<?
-if ($arResult["SHOW_SELF_CLOSE"] == "Y"):
-?>
-<script type="text/javascript">
-	<?if ($arResult["SHOW_MODE"] == "none"):?>
-		window.parent.document.getElementById("div_USER_ID").innerHTML='<i><?=CUtil::JSEscape(GetMessage("PM_NOT_FINED"));?></i>';
-	<?elseif ($arResult["SHOW_MODE"] == "light"):?>
-		window.parent.document.getElementById("div_USER_ID").innerHTML='<?=CUtil::JSEscape(GetMessage("PM_IS_FINED"));?>';
-	<?elseif ($arResult["SHOW_MODE"] == "full"):?>
-		window.parent.document.getElementById("div_USER_ID").innerHTML='<?=Cutil::JSEscape("[<a href=\"".$arResult["profile_view"]."\">".$arResult["SHOW_NAME"]."</a>]")?>';
-	<?else:?>
-	opener.switcher='<?=CUtil::JSEscape($arResult["SHOW_NAME"])?>';
-	var handler = opener.document.getElementById('USER_ID');
-	if (handler)
-		handler.value = '<?=$arResult["UID"]?>';
-	handler = opener.document.getElementById('div_USER_ID');
-	if (handler)
-		handler.innerHTML = '[<a href="<?=CUtil::JSEscape($arResult["profile_view"])?>"><?=CUtil::JSEscape($arResult["SHOW_NAME"])?></a>]';
-	handler = opener.document.getElementById('input_USER_ID');
-	if (handler)
-		handler.value = '<?=CUtil::JSEscape($arResult["SHOW_NAME"])?>';
-	<?endif;?>
-	self.close();
-</script>
-<?
-die();
-endif;
-?>
 <div class="forum-info-box forum-filter">
 	<div class="forum-info-box-inner">
 <form action="<?=$APPLICATION->GetCurPageParam("", array(BX_AJAX_PARAM_ID))?>" method=GET>
@@ -54,8 +52,8 @@ endif;
 	<?=bitrix_sessid_post()?>
 	<?/*?><?=GetMessage("PM_SEARCH_PATTERN")?><?*/?>
 	<div class="forum-filter-field forum-pmessage-search-user search-input">
-		<label for="<?=$res["ID"]?>"><?=GetMessage("PM_SEARCH_INSERT")?>:</label>
-		<span><input type="text" class="search-input" name="search_template" id="search_template" value="<?=$arResult["search_template"]?>" />
+		<label class="forum-filter-field-title" for="<?=$res["ID"]?>"><?=GetMessage("PM_SEARCH_INSERT")?>:</label>
+		<span class="forum-filter-field-item"><input type="text" class="search-input" name="search_template" id="search_template" value="<?=$arResult["search_template"]?>" />
 		<input type=submit value="<?=GetMessage("PM_SEARCH")?>" name="do_search1" class="inputbutton" /></span>
 	</div>
 <?/*?>	
@@ -68,10 +66,9 @@ endif;
 </form>
 	</div>
 </div>
-
 <?
 if ($arResult["SHOW_SEARCH_RESULT"] == "Y"):
-if ($arResult["NAV_RESULT"] && $arResult["NAV_RESULT"]->NavPageCount > 0):
+	if ($arResult["NAV_RESULT"] && $arResult["NAV_RESULT"]->NavPageCount > 0):
 ?>
 <div class="forum-navigation-box forum-navigation-top">
 	<div class="forum-page-navigation">
@@ -80,14 +77,14 @@ if ($arResult["NAV_RESULT"] && $arResult["NAV_RESULT"]->NavPageCount > 0):
 	<div class="forum-clear-float"></div>
 </div>
 <?
-endif;
+	endif;
 ?>
 <div class="forum-header-box">
 	<div class="forum-header-title"><span><?=GetMessage("PM_TITLE")?></span></div>
 </div>
 <?
 ?>
-<div class="forum-info-box forum-users">
+<div class="forum-info-box forum-info-box-pmsearch">
 	<div class="forum-info-box-inner">
 <?
 if (!empty($arResult["SEARCH_RESULT"])):
@@ -113,8 +110,7 @@ else:
 endif;
 ?>
 	</div>
-</div>
-<?
+</div><?
 if ($arResult["NAV_RESULT"] && $arResult["NAV_RESULT"]->NavPageCount > 0):
 ?>
 <div class="forum-navigation-box forum-navigation-bottom">

@@ -239,7 +239,7 @@ class CIBlockResult extends CDBResult
 				if($use_tilda)
 				{
 					$res["~LIST_PAGE_URL"] = CIBlock::ReplaceDetailUrl($TEMPLATE, $res_tmp, true, false);
-					$res["LIST_PAGE_URL"] = htmlspecialchars($res["~LIST_PAGE_URL"]);
+					$res["LIST_PAGE_URL"] = htmlspecialcharsbx($res["~LIST_PAGE_URL"]);
 				}
 				else
 				{
@@ -276,7 +276,7 @@ class CIBlockResult extends CDBResult
 					if($use_tilda)
 					{
 						$res["~DETAIL_PAGE_URL"] = CIBlock::ReplaceDetailUrl($TEMPLATE, $res, true, $type);
-						$res["DETAIL_PAGE_URL"] = htmlspecialchars($res["~DETAIL_PAGE_URL"]);
+						$res["DETAIL_PAGE_URL"] = htmlspecialcharsbx($res["~DETAIL_PAGE_URL"]);
 					}
 					else
 					{
@@ -298,7 +298,7 @@ class CIBlockResult extends CDBResult
 					if($use_tilda)
 					{
 						$res["~SECTION_PAGE_URL"] = CIBlock::ReplaceSectionUrl($TEMPLATE, $res, true, $type);
-						$res["SECTION_PAGE_URL"] = htmlspecialchars($res["~SECTION_PAGE_URL"]);
+						$res["SECTION_PAGE_URL"] = htmlspecialcharsbx($res["~SECTION_PAGE_URL"]);
 					}
 					else
 					{

@@ -1,5 +1,4 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 if (!CModule::IncludeModule("vote"))
 	return;
@@ -10,7 +9,6 @@ while ($arChannel=$rs->GetNext())
 {
 	$arrChannels[$arChannel["SID"]] = "[".$arChannel["SID"]."] ".html_entity_decode($arChannel["TITLE"]);
 }
-
 
 $arComponentParameters = array(
 	"PARAMETERS" => array(
@@ -26,8 +24,8 @@ $arComponentParameters = array(
 			"NAME" => GetMessage("VOTE_VOTE_ID"), 
 			"TYPE" => "STRING", 
 			"DEFAULT" => ""
-        ),
-        "VOTE_ALL_RESULTS" => array(
+		),
+		"VOTE_ALL_RESULTS" => array(
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("VOTE_ALL_RESULTS"), 
 			"TYPE" => "CHECKBOX",
@@ -37,4 +35,14 @@ $arComponentParameters = array(
 		"AJAX_MODE" => array(),
 	)
 );
+/* GetMessage("F_VOTE_UNIQUE_SESSION");
+GetMessage("F_VOTE_UNIQUE_COOKIE_ONLY");
+GetMessage("F_VOTE_UNIQUE_IP_ONLY");
+GetMessage("F_VOTE_UNIQUE_USER_ID_ONLY");
+GetMessage("F_VOTE_UNIQUE_IP_DELAY");
+GetMessage("F_VOTE_UNIQUE");
+GetMessage("F_VOTE_SECONDS");
+GetMessage("F_VOTE_MINUTES");
+GetMessage("F_VOTE_HOURS");
+GetMessage("F_VOTE_DAYS"); */
 ?>

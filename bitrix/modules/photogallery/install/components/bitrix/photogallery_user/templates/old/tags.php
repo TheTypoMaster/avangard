@@ -8,7 +8,7 @@
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "ELEMENT_ID", "ACTION", "sessid", "edit", "order"));
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 ?>
 <div class="empty-clear"></div>
@@ -24,19 +24,19 @@
 		<td class="body-text">
 			<div class="photo-head"><?=GetMessage("P_TAGS_CLOUD")?></div><?
 ?><?$APPLICATION->IncludeComponent(
-	"bitrix:search.tags.cloud", 
-	".default", 
+	"bitrix:search.tags.cloud",
+	".default",
 	Array(
 		"SEARCH" => $arResult["REQUEST"]["~QUERY"],
 		"TAGS" => $arResult["REQUEST"]["~TAGS"],
 		"PERMISSION" => $arResult["MENU_VARIABLES"]["PERMISSION"],
-		
+
 		"PAGE_ELEMENTS" => 0,
 		"PERIOD" => $arParams["TAGS_PERIOD"],
 		"TAGS_INHERIT" => $arParams["TAGS_INHERIT"],
-		
+
 		"URL_SEARCH" =>  CComponentEngine::MakePathFromTemplate($arParams["~SEARCH_URL"], array()),
-		
+
 		"FONT_MAX" => $arParams["TAGS_FONT_MAX"],
 		"FONT_MIN" => $arParams["TAGS_FONT_MIN"],
 		"COLOR_NEW" => $arParams["TAGS_COLOR_NEW"],
@@ -45,8 +45,8 @@
 		"WIDTH" => "100%",
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-		"arrFILTER" => array("iblock_".$arParams["IBLOCK_TYPE"]), 
-		"arrFILTER_iblock_".$arParams["IBLOCK_TYPE"] => array($arParams["IBLOCK_ID"])), 
+		"arrFILTER" => array("iblock_".$arParams["IBLOCK_TYPE"]),
+		"arrFILTER_iblock_".$arParams["IBLOCK_TYPE"] => array($arParams["IBLOCK_ID"])),
 	$component,
 	array("HIDE_ICONS" => "Y"));
 ?>		</td>

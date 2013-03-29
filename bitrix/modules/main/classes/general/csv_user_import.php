@@ -286,13 +286,20 @@ class CSVUserImport
 
 		$arFields = Array();
 		foreach($this->arHeader as $index => $key)
-			$arFields[$key] = trim($arUser[$index]);
+			if(($f = trim($arUser[$index])) <> '')
+				$arFields[$key] = $f;
 
 		if (!array_key_exists("NAME", $arFields) || strlen($arFields["NAME"]) < 1)
+		{
+			$this->errorMessage = GetMessage("CSV_IMPORT_NO_NAME")." (".implode(", ", $arFields).").<br>";
 			return true;
+		}
 
 		if (!array_key_exists("LAST_NAME", $arFields) || strlen($arFields["LAST_NAME"]) < 1)
+		{
+			$this->errorMessage = GetMessage("CSV_IMPORT_NO_LASTNAME")." (".implode(", ", $arFields).").<br>";
 			return true;
+		}
 
 		if (!array_key_exists("PASSWORD", $arFields) || strlen($arFields["PASSWORD"]) < 6)
 			$arFields["PASSWORD"] = $this->GenerateUserPassword(6);
@@ -317,7 +324,7 @@ class CSVUserImport
 			$arFields["XML_ID"] = md5(uniqid(rand(), true));
 
 		if(!array_key_exists("CHECKWORD", $arFields) || strlen($arFields["CHECKWORD"]) <= 0)
-			$arFields["CHECKWORD"] = randString(8);
+			$arFields["CHECKWORD"] = md5(CMain::GetServerUniqID().uniqid());
 
 		if ($this->imageFilePath !== null)
 		{
@@ -348,8 +355,8 @@ class CSVUserImport
 
 		if($userID <= 0)
 		{
-			if(($e = $GLOBALS['APPLICATION']->GetException()))
-				$this->errorMessage = $arFields["NAME"]." ".$arFields["LAST_NAME"].": ".$e->GetString();
+			if($user->LAST_ERROR <> '')
+				$this->errorMessage = $arFields["NAME"]." ".$arFields["LAST_NAME"].": ".$user->LAST_ERROR;
 		}
 
 		if ($userID <= 0 && $this->ignoreDuplicate === false)

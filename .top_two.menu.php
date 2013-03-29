@@ -50,7 +50,14 @@ $aMenuLinks = Array(
 		"" 
 	),
 	Array(
-		"ÈÍÒÅÐÍÅÒ-ÌÀÃÀÇÈÍ", 
+		"Èíòåðíåò-ìàãàçèí ôàáðèêè", 
+		"/shop/index.php", 
+		Array(), 
+		Array("ID"=>"where_buy_shop", "IS_PARENT"=>"0", "PARENT"=>"where_buy"), 
+		"" 
+	),
+	Array(
+		"ÈÍÒÅÐÍÅÒ-ÌÀÃÀÇÈÍ ÔÀÁÐÈÊÈ", 
 		"/shop/index.php", 
 		Array(), 
 		Array("ID"=>"shop", "IS_PARENT"=>"0", "PARENT"=>""), 
@@ -65,7 +72,7 @@ $aMenuLinks = Array(
 	),
 	Array(
 		"ÄÈÑÊÎÍÒ", 
-		"/sale/discount.php?salon=all&id=all", 
+		"/sale/discount_1.php?salon=all&id=all&ch[1]=on&ch[2]=on&ch[3]=on&ch[4]=on&ch[5]=on&ch[6]=on", 
 		Array(), 
 		Array("ID"=>"discont", "IS_PARENT"=>"0", "PARENT"=>""), 
 		"" 

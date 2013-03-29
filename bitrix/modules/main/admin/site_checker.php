@@ -5,9 +5,9 @@
 # http://www.bitrixsoft.com                  #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
-ini_set("track_errors", "1");
-ini_set('display_errors', 1);
-error_reporting(E_ALL &~E_NOTICE);
+@ini_set("track_errors", "1");
+@ini_set('display_errors', 1);
+error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT);
 $message = null;
 
 # NO AUTH TESTS
@@ -16,10 +16,10 @@ if ($_REQUEST['unique_id'])
 	if ($_REQUEST['unique_id'] != checker_get_unique_id())
 		die('<h1>Permission denied: UNIQUE ID ERROR</h1>');
 
-	if ($_GET['socket_test']) 
+	if ($_GET['socket_test'])
 	{
 		echo "SUCCESS";
-	} 
+	}
 	elseif ($_GET['dbconn_test'])
 	{
 		ob_start();
@@ -36,11 +36,11 @@ if ($_REQUEST['unique_id'])
 			mb_internal_encoding('ISO-8859-1');
 		echo $buff === '' ? 'SUCCESS' : 'Length: '.strlen($buff).' ('.$buff . ')';
 	}
-	elseif ($_GET['upload_test']) 
+	elseif ($_GET['upload_test'])
 	{
 		if (function_exists('mb_internal_encoding'))
 			mb_internal_encoding('ISO-8859-1');
-		
+
 		$dir = $_SERVER['DOCUMENT_ROOT'].'/bitrix/tmp';
 		if (!file_exists($dir))
 			mkdir($dir);
@@ -70,42 +70,42 @@ if ($_REQUEST['unique_id'])
 			echo "SUCCESS";
 		else
 			echo 'strlen($binaryData)='.strlen($binaryData).', strlen($binaryData_received)='.strlen($binaryData_received);
-	} 
-	elseif ($_GET['post_test']) 
+	}
+	elseif ($_GET['post_test'])
 	{
 		$ok = true;
 		for ($i=0;$i<201;$i++)
 			$ok = $ok && ($_POST['i'.$i] == md5($i));
 
 		echo $ok ? 'SUCCESS' : 'FAIL';
-	} 
-	elseif ($_GET['memory_test']) 
+	}
+	elseif ($_GET['memory_test'])
 	{
 		@ini_set("memory_limit", "512M");
 		$max = intval($_GET['max']);
-		if ($max) 
+		if ($max)
 		{
 			for($i=1;$i<=$max;$i++)
-			       $a[] = str_repeat(chr($i),1024*1024); // 1 Mb
+				$a[] = str_repeat(chr($i),1024*1024); // 1 Mb
 
 			echo "SUCCESS";
 		}
-	} 
-	elseif ($_GET['auth_test']) 
+	}
+	elseif ($_GET['auth_test'])
 	{
 		$remote_user = $_SERVER["REMOTE_USER"] ? $_SERVER["REMOTE_USER"] : $_SERVER["REDIRECT_REMOTE_USER"];
 		$strTmp = base64_decode(substr($remote_user,6));
 		if ($strTmp)
 			list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', $strTmp);
-		if ($_SERVER['PHP_AUTH_USER']=='test_user' && $_SERVER['PHP_AUTH_PW']=='test_password') 
+		if ($_SERVER['PHP_AUTH_USER']=='test_user' && $_SERVER['PHP_AUTH_PW']=='test_password')
 			echo('SUCCESS');
-	} 
-	elseif ($_GET['session_test']) 
+	}
+	elseif ($_GET['session_test'])
 	{
 		session_start();
 		echo $_SESSION['CHECKER_CHECK_SESSION'];
 		$_SESSION['CHECKER_CHECK_SESSION'] = 'SUCCESS';
-	} 
+	}
 	elseif ($_GET['redirect_test'])
 	{
 		$GLOBALS['_SERVER'] = $GLOBALS['_REQUEST'];
@@ -158,7 +158,7 @@ define('FIX_LINK', ' <a href="javascript:show_popup(\'' . GetMessage('SC_FIX_DAT
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/prolog.php");
 define("HELP_FILE", "utilities/site_checker.php");
-error_reporting(E_ALL &~E_NOTICE);
+//error_reporting(E_ALL &~E_NOTICE);
 
 ////////////////////////////////////////////////////////////////////////
 //////////   PARAMS   //////////////////////////////////////////////////
@@ -198,7 +198,7 @@ if ($_POST['access_check'])
 		$ob = new CSearchFiles;
 		$ob->TimeLimit = 10;
 
-		if ($_REQUEST['break_point']) 
+		if ($_REQUEST['break_point'])
 			$ob->SkipPath = $_REQUEST['break_point'];
 
 		$check_type = $_REQUEST['check_type'];
@@ -241,7 +241,7 @@ if ($_POST['access_check'])
 					<?=bitrix_sessid_post();?>
 					<input type=hidden name=cnt_total value="<?=$cnt_total?>">
 					<input type=hidden name=check_type value="<?=$check_type?>">
-					<input type=hidden name=break_point value="<?=htmlspecialchars($sNextPath)?>">
+					<input type=hidden name=break_point value="<?=htmlspecialcharsbx($sNextPath)?>">
 				</form>
 				<?
 				CAdminMessage::ShowMessage(array(
@@ -255,7 +255,7 @@ if ($_POST['access_check'])
 				<script>
 				if (parent.document.getElementById('access_submit').disabled)
 					window.setTimeout("parent.ShowWaitWindow();document.getElementById('postform').submit()",500);
-				</script><? 
+				</script><?
 			}
 			else
 			{
@@ -382,7 +382,7 @@ $tabControl->BeginNextTab();
 	<?
 	$clean_test_table = '<table id="result_table" width="100%" class="internal"><tr class="heading"><td width="40%"><b>'.GetMessage("SC_TEST_NAME").'</b></td><td><b>'.GetMessage("SC_TEST_RES").'</b></td></tr></table>';
 
-	$oTest = new CSiteCheckerTest(); 
+	$oTest = new CSiteCheckerTest();
 	?>
 
 	<style>
@@ -421,7 +421,7 @@ $tabControl->BeginNextTab();
 
 			d = new BX.CAdminDialog({
 				'title': title,
-				'content_url': '/bitrix/admin/site_checker.php' + link, 
+				'content_url': '/bitrix/admin/site_checker.php' + link,
 				//   'content_post': this.JSParamsToPHP(arParams, 'PARAMS')+ '&' +
 				//  this.JSParamsToPHP(arProp, 'PROP')+'&'+this.SESS,
 				'draggable': true,
@@ -459,7 +459,7 @@ $tabControl->BeginNextTab();
 			try
 			{
 				eval(result);
-				
+
 				if (document.getElementById('test_start').disabled) // Stop was not pressed
 				{
 					document.getElementById('percent').innerHTML = iPercent + '%';
@@ -510,12 +510,12 @@ $tabControl->BeginNextTab();
 						{
 							if (window.tabControl)
 								tabControl.SelectTab('edit5');
-							SubmitToSupport();	
+							SubmitToSupport();
 						}
 					}
 				}
 			}
-			catch(e) 
+			catch(e)
 			{
 				CloseWaitWindow();
 				document.getElementById('test_start').disabled = '';
@@ -529,13 +529,13 @@ $tabControl->BeginNextTab();
 			try
 			{
 				eval(result);
-				
+
 				fix_status = document.getElementById('fix_status');
 				if (test_percent < 100)
 					fix_status.innerHTML = '<table width="100%" class="internal" style="padding:20;padding-top:0"><tr><td width="40%">' + strNextTestName + '</td><td><div class="test_status" style="width:' + test_percent + '%">' + test_percent +  '%</div></table>';
 				else
 					fix_status.innerHTML = '';
-				
+
 				if (strResult != '')
 				{
 					oTable = document.getElementById('fix_table');
@@ -556,18 +556,18 @@ $tabControl->BeginNextTab();
 				else // Finish
 					fix_status.innerHTML = '';
 			}
-			catch(e) 
+			catch(e)
 			{
 				if (o = document.getElementById('fix_status'))
 				{
 					o.innerHTML = result;
 					alert('<?=GetMessage("SC_TEST_FAIL")?>');
-				}	
+				}
 			}
 		}
 	</script>
-
-		<input type=button value="<?=GetMessage("SC_START_TEST_B")?>" id="test_start" onclick="set_start(1)">
+		<br>
+		<input type=button value="<?=GetMessage("SC_START_TEST_B")?>" id="test_start" onclick="set_start(1)" class="adm-btn-green">
 		<input type=button value="<?=GetMessage("SC_STOP_TEST_B")?>" disabled id="test_stop" onclick="bSubmit=false;set_start(0)">
 		<div id="progress" style="visibility:hidden;padding-top:4px;" width="100%">
 			<div id="status" style="font-weight:bold;font-size:1.2em"></div>
@@ -687,7 +687,7 @@ if(!isset($strTicketError))
 			alert('<?=GetMessage("SC_TEST_WARN")?>');
 //			if (window.tabControl)
 //				tabControl.SelectTab('edit3');
-			bSubmit = true; // submit after test 
+			bSubmit = true; // submit after test
 			set_start(1);
 		}
 		else if(frm.ticket_test.checked)
@@ -706,17 +706,18 @@ if(!isset($strTicketError))
 <?
 		?>
 <form method="POST" action="<?=SUPPORT_PAGE?>" name="fticket">
+<?echo bitrix_sessid_post();?>
 <input type="hidden" name="send_ticket" value="Y">
 <input type="hidden" name="license_key" value="<?=(LICENSE_KEY == "DEMO"? "DEMO" : md5("BITRIX".LICENSE_KEY."LICENCE"))?>">
 <input type="hidden" name="test_file_name" value="<?=$oTest->LogFile;?>">
 <input type="hidden" name="test_file_contents" value="">
-<input type="hidden" name="ticket_title" value="<?=GetMessage('SC_RUS_L1').' '.htmlspecialchars($_SERVER['HTTP_HOST'])?>">
+<input type="hidden" name="ticket_title" value="<?=GetMessage('SC_RUS_L1').' '.htmlspecialcharsbx($_SERVER['HTTP_HOST'])?>">
 <input type="hidden" name="BX_UTF" value="<?=(defined('BX_UTF') && BX_UTF==true)?'Y':'N'?>">
 <input type="hidden" name="tabControl_active_tab" value="edit5">
 <tr>
 	<td valign="top"><span class="required">*</span><?=GetMessage("SC_TIK_DESCR")?><br>
 			<small><?=GetMessage("SC_TIK_DESCR_DESCR")?></small></td>
-	<td valign="top"><textarea name="ticket_text" rows="6" cols="60"><?= htmlspecialchars($ticket_text)?></textarea></td>
+	<td valign="top"><textarea name="ticket_text" rows="6" cols="60"><?= htmlspecialcharsbx($ticket_text)?></textarea></td>
 </tr>
 <tr>
 	<td valign="top"><label for="ticket_test"><?=GetMessage("SC_TIK_ADD_TEST")?></label></td>
@@ -727,7 +728,7 @@ if(!isset($strTicketError))
 		<td valign="top"><?=GetMessage("SC_TIK_LAST_ERROR")?></td>
 		<td valign="top">
 			<?=GetMessage("SC_TIK_LAST_ERROR_ADD")?>
-			<input type="hidden" name="last_error_query" value="<?= htmlspecialchars($_REQUEST["last_error_query"])?>">
+			<input type="hidden" name="last_error_query" value="<?= htmlspecialcharsbx($_REQUEST["last_error_query"])?>">
 		</td>
 	</tr>
 <?endif;?>
@@ -787,7 +788,7 @@ class CSearchFiles
 
 	}
 
-	function Search($path) 
+	function Search($path)
 	{
 		if (time() - $this->StartTime > $this->TimeLimit)
 		{
@@ -869,7 +870,7 @@ function GetHttpResponse($res, $strRequest, &$strHeaders)
 
 		if (preg_match("/Content-Length: +([0-9]+)/i", $line, $regs))
 			$Content_Length = $regs[1];
-				
+
 	}
 
 	$strRes = "";
@@ -1015,7 +1016,11 @@ class CSiteCheckerTest
 		list($this->function, $this->strCurrentTestName) = each($this->arTest[$this->step]);
 		$this->strNextTestName = $this->strCurrentTestName;
 
-		include($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/license_key.php');
+		if (file_exists($file = $_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/license_key.php'))
+			include($file);
+
+		if (!$LICENSE_KEY)
+			$LICENSE_KEY = 'DEMO';
 		$this->LogFile = BX_ROOT.'/site_checker_'.md5('SITE_CHECKER'.$LICENSE_KEY).'.log';
 	}
 
@@ -1075,7 +1080,7 @@ class CSiteCheckerTest
 	function Result($result, $text = '')
 	{
 		if ($result === true)
-		{	
+		{
 			$this->LogResult = 'Ok';
 			$color = 'green';
 		}
@@ -1126,7 +1131,7 @@ class CSiteCheckerTest
 		echo "Connection to $ssl$host:$port";
 		if (!$res = fsockopen($ssl.$host, $port, $errno, $errstr, 5))
 			return $this->Result(false, "Socket error [$errno]: $errstr");
-		
+
 		return $res;
 	}
 
@@ -1202,11 +1207,11 @@ class CSiteCheckerTest
 	function check_upload($big = false, $raw = false)
 	{
 		if (($sp = ini_get("upload_tmp_dir")))
-		{	
+		{
 			if (!file_exists($sp))
-				return $this->Result(false,GetMessage('SC_NO_TMP_FOLDER').' <i>('.htmlspecialchars($sp).')</i>');
+				return $this->Result(false,GetMessage('SC_NO_TMP_FOLDER').' <i>('.htmlspecialcharsbx($sp).')</i>');
 			elseif (!is_writable($sp))
-				return $this->Result(false,GetMessage('SC_TMP_FOLDER_PERMS').' <i>('.htmlspecialchars($sp).')</i>'); 
+				return $this->Result(false,GetMessage('SC_TMP_FOLDER_PERMS').' <i>('.htmlspecialcharsbx($sp).')</i>');
 		}
 
 		$binaryData = '';
@@ -1437,7 +1442,7 @@ class CSiteCheckerTest
 		{
 			$strRes = GetHttpResponse($res, $strRequest, $strHeaders);
 
-			$strRes = strtolower(strip_tags($strRes)); 
+			$strRes = strtolower(strip_tags($strRes));
 			if ($strRes == "license key is invalid" || $strRes == "license key is required")
 				return true;
 			else
@@ -1503,7 +1508,7 @@ class CSiteCheckerTest
 			return $this->Result(null,GetMessage('SC_WARN_SECURITY'));
 		return true;
 	}
-	
+
 	function check_divider()
 	{
 		$locale_info = localeconv();
@@ -1532,7 +1537,7 @@ class CSiteCheckerTest
 
 	function check_getimagesize()
 	{
-		$file = $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/fileman/install/components/bitrix/player/mediaplayer/player.swf';
+		$file = $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/fileman/install/components/bitrix/player/mediaplayer/player';
 		if (!file_exists($file))
 			return $this->Result(null, "File not found: ".$file);
 
@@ -1572,7 +1577,7 @@ class CSiteCheckerTest
 
 				return true;
 			}
-			
+
 			echo "\n== Request ==\n".$strRequest . "\n== Response ==\n" . $strHeaders . "\n== Body ==\n" . $strRes . "\n==========";
 			return false;
 		}
@@ -1678,7 +1683,7 @@ class CSiteCheckerTest
 		if (count($arDocRoot) == 1)
 		{
 			if ($root = $arDocRoot[0])
-				$strError = GetMessage('SC_PATH_FAIL_SET').' <i>'.htmlspecialchars($root).'</i><br>';
+				$strError = GetMessage('SC_PATH_FAIL_SET').' <i>'.htmlspecialcharsbx($root).'</i><br>';
 		}
 		else
 		{
@@ -1687,7 +1692,7 @@ class CSiteCheckerTest
 				if ($root)
 				{
 					if (!is_readable($root.'/bitrix'))
-						$strError .= GetMessage('SC_NO_ROOT_ACCESS').' <i>'.htmlspecialchars($root).'/bitrix</i><br>';
+						$strError .= GetMessage('SC_NO_ROOT_ACCESS').' <i>'.htmlspecialcharsbx($root).'/bitrix</i><br>';
 				}
 			}
 		}
@@ -1734,14 +1739,14 @@ class CSiteCheckerTest
 	function check_php_settings()
 	{
 		$strError = '';
-		$PHP_vercheck_min = '5.0.0';
+		$PHP_vercheck_min = '5.3.0';
 		if (version_compare($v = phpversion(), $PHP_vercheck_min, '<'))
 			$strError = GetMessage('SC_VER_ERR', array('#CUR#' => $v, '#REQ#' => $PHP_vercheck_min))."<br>\n";
 
 		$arRequiredParams = array(
 			'safe_mode' => 0,
 			'magic_quotes_sybase' => 0,
-			'allow_call_time_pass_reference' => 1,
+//			'allow_call_time_pass_reference' => 1,
 			'file_uploads' => 1,
 			'session.cookie_httponly' => 0,
 			'file_uploads' => 1,
@@ -1758,7 +1763,7 @@ class CSiteCheckerTest
 				$cur = 0;
 
 			if ($cur != $val)
-				$strError .=  GetMessage('SC_ERR_PHP_PARAM', array('#PARAM#' => $param, '#CUR#' => $cur ? htmlspecialchars($cur) : 'off', '#REQ#' => $val ? 'on' : 'off'))."<br>\n"; 
+				$strError .=  GetMessage('SC_ERR_PHP_PARAM', array('#PARAM#' => $param, '#CUR#' => $cur ? htmlspecialcharsbx($cur) : 'off', '#REQ#' => $val ? 'on' : 'off'))."<br>\n";
 		}
 		if ($strError)
 			return $this->Result(false, $strError);
@@ -1788,7 +1793,7 @@ class CSiteCheckerTest
 		if ($host != 'localhost' && !preg_match('#^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$#',$host))
 		{
 			if (!preg_match('#^[a-z0-9\-\.]{2,192}\.(xn--)?[a-z0-9]{2,63}$#i', $host))
-				$strError .= GetMessage("SC_TEST_DOMAIN_VALID", array('#VAL#' => htmlspecialchars($_SERVER['HTTP_HOST'])))."<br>\n";
+				$strError .= GetMessage("SC_TEST_DOMAIN_VALID", array('#VAL#' => htmlspecialcharsbx($_SERVER['HTTP_HOST'])))."<br>\n";
 		}
 		if ($strError)
 			return $this->Result(false, $strError);
@@ -1805,7 +1810,7 @@ class CSiteCheckerTest
 	##############################
 	function check_mysql_bug_version()
 	{
-		$MySql_vercheck_min = "4.1.11";
+		$MySql_vercheck_min = "5.0.0";
 		$MySql_vercheck_max = "";
 
 		$Oracle_vercheck_min = "10.0";
@@ -1887,7 +1892,7 @@ class CSiteCheckerTest
 					unset($this->arTestVars['last_value']);
 				continue;
 			}
-			
+
 //			if ($f0['Data_length'] > $warn_size)
 //				$result.= $this->Result(null,GetMessage('SC_TABLE_SIZE_WARN',array('#TABLE#'=>$table,'#SIZE#'=>floor($f0['Data_length']/1024/1024))))."<br>\n";
 
@@ -1917,7 +1922,7 @@ class CSiteCheckerTest
 			echo $strError; // to log
 			return $this->Result(false, GetMessage('SC_TABLES_NEED_REPAIR') . ' <a href="javascript:show_popup(\'' . GetMessage('SC_FIX_DATABASE') . '\', \'?fix_mode=1\')">' . GetMessage('SC_FIX') . '</a>');
 		}
-		
+
 		return $this->Result(false, $strError);
 
 	}
@@ -1945,16 +1950,16 @@ class CSiteCheckerTest
 		if (defined('BX_UTF') && BX_UTF === true)
 		{
 			if ($character_set_connection != 'utf8')
-				$strError = GetMessage("SC_CONNECTION_CHARSET_WRONG", array('#VAL#' => 'utf8', '#VAL1#' => $character_set_connection)); 
+				$strError = GetMessage("SC_CONNECTION_CHARSET_WRONG", array('#VAL#' => 'utf8', '#VAL1#' => $character_set_connection));
 			elseif ($collation_connection != 'utf8_unicode_ci')
-				$strError = GetMessage("SC_CONNECTION_COLLATION_WRONG_UTF", array('#VAL#' => $collation_connection)); 
+				$strError = GetMessage("SC_CONNECTION_COLLATION_WRONG_UTF", array('#VAL#' => $collation_connection));
 		}
 		else
 		{
 			if ($bAllIn1251 && $character_set_connection != 'cp1251')
-				$strError = GetMessage("SC_CONNECTION_CHARSET_WRONG", array('#VAL#' => 'cp1251', '#VAL1#' => $character_set_connection)); 
+				$strError = GetMessage("SC_CONNECTION_CHARSET_WRONG", array('#VAL#' => 'cp1251', '#VAL1#' => $character_set_connection));
 			elseif ($character_set_connection == 'utf8')
-				$strError = GetMessage("SC_CONNECTION_CHARSET_WRONG_NOT_UTF", array('#VAL#' => $character_set_connection)); 
+				$strError = GetMessage("SC_CONNECTION_CHARSET_WRONG_NOT_UTF", array('#VAL#' => $character_set_connection));
 		}
 
 		echo 'CHARSET='.$character_set_connection.', COLLATION='.$collation_connection;
@@ -1990,7 +1995,7 @@ class CSiteCheckerTest
 			if ($DB->Query($sql = 'ALTER DATABASE `' . $DB->DBName. '` DEFAULT CHARACTER SET ' . $character_set_connection . ' COLLATE ' . $collation_connection, true))
 				$strError = '';
 			else
-				$strError .= $sql . ' [' . $DB->db_Error . ']'; 
+				$strError .= $sql . ' [' . $DB->db_Error . ']';
 		}
 		else
 		{
@@ -1999,7 +2004,7 @@ class CSiteCheckerTest
 			elseif ($collation_database != $collation_connection)
 				$strError = GetMessage('SC_DATABASE_COLLATION_DIFF', array('#VAL0#' => $collation_connection, '#VAL1#' => $collation_database)) . FIX_LINK;
 		}
-		
+
 		echo 'CHARSET='.$character_set_database.', COLLATION='.$collation_database;
 
 		if (!$strError)
@@ -2037,8 +2042,8 @@ class CSiteCheckerTest
 		$cnt = $res->SelectedRowsCount();
 
 		$arExclusion = array(
-			'b_search_content_stem' => 'STEM', 
-			'b_search_content_freq' => 'STEM', 
+			'b_search_content_stem' => 'STEM',
+			'b_search_content_freq' => 'STEM',
 			'b_search_stem' => 'STEM',
 			'b_search_tags' => 'NAME'
 		);
@@ -2053,7 +2058,7 @@ class CSiteCheckerTest
 					unset($this->arTestVars['last_value']);
 				continue;
 			}
-			
+
 			$res0 = $DB->Query('SHOW CREATE TABLE `' . $table . '`');
 			$f0 = $res0->Fetch();
 
@@ -2096,7 +2101,7 @@ class CSiteCheckerTest
 				}
 				elseif (!$DB->Query($sql = 'ALTER TABLE `' . $table . '` COLLATE ' . $collation, true))
 				{
-					$strError .= $sql . ' [' . $DB->db_Error . ']'; 
+					$strError .= $sql . ' [' . $DB->db_Error . ']';
 					break;
 				}
 			}
@@ -2141,7 +2146,7 @@ class CSiteCheckerTest
 			{
 				if (!$DB->Query($sql = 'ALTER TABLE `'.$table.'` '.implode(",\n", $arFix), true))
 				{
-					$strError .= $sql . ' [' . $DB->db_Error . ']'; 
+					$strError .= $sql . ' [' . $DB->db_Error . ']';
 					break;
 				}
 			}
@@ -2164,7 +2169,7 @@ class CSiteCheckerTest
 			echo $strError; // to log
 			return $this->Result(false, GetMessage('SC_CHECK_TABLES_ERRORS', array('#VAL#' => intval($this->arTestVars['iError']), '#VAL1#' => intval($this->arTestVars['iErrorAutoFix']))) . ($this->arTestVars['iErrorAutoFix'] > 0 ? FIX_LINK : ''));
 		}
-		
+
 
 	}
 	###############

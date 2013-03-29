@@ -74,6 +74,11 @@ create table b_blog_post
 ,  PATH varchar(255) null
 ,  CODE varchar(255) null
 ,  MICRO char(1) not null default 'N'
+,  HAS_IMAGES VARCHAR(1) default NULL
+,  HAS_PROPS VARCHAR(1) default NULL
+,  HAS_TAGS VARCHAR(1) default NULL
+,  HAS_COMMENT_IMAGES VARCHAR(1) default NULL
+,  HAS_SOCNET_ALL VARCHAR(1) default NULL
 ,  primary key (ID)
 ,  index IX_BLOG_POST_1(BLOG_ID, PUBLISH_STATUS, DATE_PUBLISH)
 ,  index IX_BLOG_POST_2(BLOG_ID, DATE_PUBLISH, PUBLISH_STATUS)
@@ -81,6 +86,7 @@ create table b_blog_post
 ,  index IX_BLOG_POST_4(PUBLISH_STATUS, DATE_PUBLISH)
 ,  index IX_BLOG_POST_5(DATE_PUBLISH, AUTHOR_ID)
 ,  index IX_BLOG_POST_CODE(BLOG_ID, CODE)
+,  index IX_BLOG_POST_6(CODE)
 );
 
 create table b_blog_category
@@ -108,6 +114,7 @@ create table b_blog_comment
 ,  TITLE varchar(255) null
 ,  POST_TEXT text not null
 ,  PUBLISH_STATUS char(1) not null default 'P'
+,  HAS_PROPS varchar(1) default null
 ,  PATH varchar(255) null
 ,  primary key (ID)
 ,  index IX_BLOG_COMM_1(BLOG_ID, POST_ID)
@@ -236,7 +243,8 @@ create table b_blog_post_category (
 	POST_ID int not null,  
 	CATEGORY_ID int not null,  
 	primary key (ID),  
-	unique IX_BLOG_POST_CATEGORY(POST_ID, CATEGORY_ID)
+	unique IX_BLOG_POST_CATEGORY(POST_ID, CATEGORY_ID),
+	index IX_BLOG_POST_CATEGORY_CAT_ID(CATEGORY_ID)
 );
 
 CREATE TABLE b_blog_socnet (
@@ -244,4 +252,14 @@ CREATE TABLE b_blog_socnet (
   BLOG_ID int(11) NOT NULL,
   PRIMARY KEY (ID),
   unique IX_BLOG_SOCNET(BLOG_ID)
+);
+
+CREATE TABLE b_blog_socnet_rights (
+  ID int(11) NOT NULL AUTO_INCREMENT,
+  POST_ID int(11) NOT NULL,
+  ENTITY_TYPE varchar(45) NOT NULL,
+  ENTITY_ID int(11) NOT NULL,
+  ENTITY varchar(45) NOT NULL,
+  PRIMARY KEY (ID),
+  index IX_BLOG_SR_1(POST_ID)
 );

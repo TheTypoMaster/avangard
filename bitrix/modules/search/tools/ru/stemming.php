@@ -107,7 +107,16 @@ function stemming_ru($word, $flags = 0)
 	//There is a 33rd letter, ¸ (?), but it is rarely used, and we assume it is mapped into å (e).
 	$word=str_replace("¨", "Å", $word);
 	//Exceptions
-	static $STEMMING_RU_EX = array("ÁÅÇÅ"=>true,"ÁÛËÜ"=>true,"ÌÅÍÞ"=>true,"ÃÐÀÍÀÒ"=>true,"ÃÐÀÍÈÒ"=>true,"ÈËÈ"=>true);
+	static $STEMMING_RU_EX = array(
+		"ÁÅÇÅ"=>true,
+		"ÁÛËÜ"=>true,
+		"ÌÅÍÞ"=>true,
+		"ÃÐÀÍÀÒ"=>true,
+		"ÃÐÀÍÈÒ"=>true,
+		"ÈËÈ"=>true,
+		"ÐÓÊÀÂ"=>true,
+		"ÏÐÈÅÌ"=>true,
+	);
 	if(isset($STEMMING_RU_EX[$word]))
 		return $word;
 

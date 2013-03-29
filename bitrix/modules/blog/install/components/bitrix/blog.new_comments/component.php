@@ -39,17 +39,17 @@ if(strLen($arParams["COMMENT_ID_VAR"])<=0)
 	
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
 if(strlen($arParams["PATH_TO_BLOG"])<=0)
-	$arParams["PATH_TO_BLOG"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 
 $arParams["PATH_TO_SMILE"] = strlen(trim($arParams["PATH_TO_SMILE"]))<=0 ? false : trim($arParams["PATH_TO_SMILE"]);
 	
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
 if(strlen($arParams["PATH_TO_POST"])<=0)
-	$arParams["PATH_TO_POST"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
+	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if(strlen($arParams["PATH_TO_USER"])<=0)
-	$arParams["PATH_TO_USER"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 $arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
 
@@ -63,8 +63,11 @@ $UserGroupID = Array(1);
 if($USER->IsAuthorized())
 	$UserGroupID[] = 2;
 
+$user_id = IntVal($USER->GetID());
 $cache = new CPHPCache;
 $cache_id = "blog_last_comments_".serialize($arParams)."_".serialize($UserGroupID)."_".$USER->IsAdmin();
+if($arParams["USE_SOCNET"] == "Y")
+	$cache_id .= "_".$user_id;
 if(($tzOffset = CTimeZone::GetOffset()) <> 0)
 	$cache_id .= "_".$tzOffset;
 $cache_path = "/".SITE_ID."/blog/last_comments/";
@@ -99,30 +102,25 @@ else
 
 	$arSelectedFields = array("ID", "BLOG_ID", "POST_ID", "PARENT_ID", "AUTHOR_ID", "AUTHOR_NAME", "AUTHOR_EMAIL", "AUTHOR_IP", "AUTHOR_IP1", "TITLE", "POST_TEXT", "BLOG_URL", "DATE_CREATE", "BLOG_ACTIVE", "BLOG_GROUP_ID", "BLOG_GROUP_SITE_ID", "BLOG_OWNER_ID", "BLOG_SOCNET_GROUP_ID", "POST_CODE");
 
-	if(CModule::IncludeModule("socialnetwork") && IntVal($arParams["SOCNET_GROUP_ID"]) <= 0 && IntVal($arParams["USER_ID"]) <= 0 && $arParams["USE_SOCNET"] == "Y")
+	if(CModule::IncludeModule("socialnetwork") && $arParams["USE_SOCNET"] == "Y")
 	{
 		unset($arFilter[">PERMS"]);
-		$arSelectedFields[] = "SOCNET_BLOG_READ";
-		$arFilter["BLOG_USE_SOCNET"] = "Y";
-	}
-	elseif((IntVal($arParams["SOCNET_GROUP_ID"]) > 0 || IntVal($arParams["USER_ID"]) > 0) && $arParams["USE_SOCNET"] == "Y")
-	{
-		$user_id = $USER->GetID();
-		$arFilterTmp = Array("ACTIVE" => "Y", "GROUP_SITE_ID" => SITE_ID, "USE_SOCNET" => "Y");
-
-		if(IntVal($arParams["SOCNET_GROUP_ID"]) > 0)
-			$arFilterTmp["SOCNET_GROUP_ID"] = $arParams["SOCNET_GROUP_ID"];
-		if(IntVal($arParams["USER_ID"]) > 0)
-			$arFilterTmp["OWNER_ID"] = $arParams["USER_ID"];
-		if(!empty($arParams["GROUP_ID"]))
-			$arFilterTmp["GROUP_ID"] = $arParams["GROUP_ID"];
-
-		$perms = BLOG_PERMS_DENY;
-		$dbBlog = CBlog::GetList(Array(), $arFilterTmp, false, Array("nTopCount" => 1), Array("ID"));
-		if($arBlog = $dbBlog->Fetch())
+		unset($arFilter["!BLOG_POST_MICRO"]);
+		if(IntVal($arParams["SOCNET_GROUP_ID"]) <= 0 && IntVal($arParams["USER_ID"]) <= 0)
 		{
-			if(IntVal($arParams["SOCNET_GROUP_ID"]) > 0)
+			$arFilter["FOR_USER"] = $user_id;
+			$arFilter["BLOG_USE_SOCNET"] = "Y";
+		}
+		else
+		{
+			if(IntVal($arParams["USER_ID"]) > 0)
 			{
+				$arFilter["AUTHOR_ID"] = $arParams["USER_ID"];
+				$arFilter["FOR_USER"] = $user_id;
+			}
+			elseif(IntVal($arParams["SOCNET_GROUP_ID"]) > 0)
+			{
+				$arFilter["SOCNET_GROUP_ID"] = $arParams["SOCNET_GROUP_ID"];
 				$perms = BLOG_PERMS_DENY;
 				if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "blog", "full_post", CSocNetUser::IsCurrentUserModuleAdmin()) || $APPLICATION->GetGroupRight("blog") >= "W")
 					$perms = BLOG_PERMS_FULL;
@@ -131,22 +129,10 @@ else
 				elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "blog", "view_post"))
 					$perms = BLOG_PERMS_READ;
 			}
-			else
-			{
-				$perms = BLOG_PERMS_DENY;
-				if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "blog", "full_post", CSocNetUser::IsCurrentUserModuleAdmin()) || $APPLICATION->GetGroupRight("blog") >= "W" || $arParams["USER_ID"] == $user_id)
-					$perms = BLOG_PERMS_FULL;
-				elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "blog", "write_post"))
-					$perms = BLOG_PERMS_WRITE;
-				elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "blog", "view_post"))
-					$perms = BLOG_PERMS_READ;
-			}
-			$arFilter["BLOG_ID"] = $arBlog["ID"];
-			unset($arFilter[">PERMS"]);
 		}
 	}
 
-	if(strlen($perms) <= 0 || (!empty($arFilter["BLOG_ID"]) && $perms >= BLOG_PERMS_READ))
+	if($perms != BLOG_PERMS_DENY)
 	{
 		$SORT = Array($arParams["SORT_BY1"]=>$arParams["SORT_ORDER1"], $arParams["SORT_BY2"]=>$arParams["SORT_ORDER2"]);
 		
@@ -168,8 +154,9 @@ else
 		$itemCnt = 0;
 		while ($arComment = $dbComment->GetNext())
 		{
-			$arAllow = array("HTML" => "N", "ANCHOR" => "N", "BIU" => "N", "IMG" => "N", "QUOTE" => "N", "CODE" => "N", "FONT" => "N", "LIST" => "N", "SMILES" => "Y", "NL2BR" => "N", "VIDEO" => "N");
+			$arAllow = array("HTML" => "N", "ANCHOR" => "N", "BIU" => "N", "IMG" => "N", "QUOTE" => "N", "CODE" => "N", "FONT" => "N", "LIST" => "N", "SMILES" => "Y", "NL2BR" => "N", "VIDEO" => "N", "USER" => "N");
 			$text = preg_replace("#\[img\](.+?)\[/img\]#ie", "", $arComment["~POST_TEXT"]);
+			$text = preg_replace("#\[user\](.+?)\[/user\]#ie", "", $text);
 			$text = preg_replace("#\[code\](.+?)\[/code\]#is", "", $text);
 			$text = preg_replace("#\[quote\](.+?)\[/quote\]#is", "", $text);
 			if($arResult["NO_URL_IN_COMMENTS"] == "L" || (IntVal($arComment["AUTHOR_ID"]) <= 0  && $arParams["NO_URL_IN_COMMENTS"] == "A"))
@@ -193,7 +180,7 @@ else
 			}
 
 			$text = $p->convert($text, false, false, $arAllow);
-			$text = preg_replace("#(\[|<)(/?)(b|u|i|list|code|quote|url|img|color|font|video|table|tr|td|align|/*)(.*?)(\]|>)#is", "", $text);
+			$text = preg_replace("#(\[|<)(/?)(b|u|i|list|code|quote|url|img|color|font|video|table|tr|td|align|user|/*)(.*?)(\]|>)#is", "", $text);
 			$text = TruncateText($text, $arParams["MESSAGE_LENGTH"]);
 			$arComment["TEXT_FORMATED"] = $text;
 			

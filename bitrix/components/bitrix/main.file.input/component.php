@@ -18,26 +18,26 @@ if ($_POST['mfi_mode'])
 {
 	$APPLICATION->RestartBuffer();
 	while(ob_end_clean()); // hack!
-	Header('Content-Type: text/html; charset='.LANG_CHARSET);
 
 	$cid = trim($_REQUEST['cid']);
-	if (!$cid || !check_bitrix_sessid())
+	if (!$cid || !preg_match('/^[a-f01-9]{32}$/', $cid) || !check_bitrix_sessid())
 		die();
+
+	Header('Content-Type: text/html; charset='.LANG_CHARSET);
 
 	if ($_POST["mfi_mode"] == "upload")
 	{
 		$count = sizeof($_FILES["mfi_files"]["name"]);
-
 		$mid = $arParams['MODULE_ID'];
 		$max_file_size = $arParams['MAX_FILE_SIZE'];
 
 		if (!$mid || !IsModuleInstalled($mid))
 			$mid = 'main';
-
 		for($i = 0; $i < $count; $i++)
 		{
+			$fileName = CUtil::ConvertToLangCharset($_FILES["mfi_files"]["name"][$i]);
 			$arFile = array(
-				"name" => $_FILES["mfi_files"]["name"][$i],
+				"name" => $fileName,
 				"size" => $_FILES["mfi_files"]["size"][$i],
 				"tmp_name" => $_FILES["mfi_files"]["tmp_name"][$i],
 				"type" => $_FILES["mfi_files"]["type"][$i],
@@ -45,6 +45,7 @@ if ($_POST['mfi_mode'])
 			);
 
 			$res = '';
+
 			if ($arParams["ALLOW_UPLOAD"] == "I"):
 				$res = CFile::CheckImageFile($arFile, $max_file_size, 0, 0);
 			elseif ($arParams["ALLOW_UPLOAD"] == "F"):
@@ -53,13 +54,15 @@ if ($_POST['mfi_mode'])
 				$res = CFile::CheckFile($arFile, $max_file_size, false, false);
 			endif;
 
-			if ($res === '')
+			if (strlen($res) <= 0)
 			{
 				$fileID = CFile::SaveFile($arFile, $mid);
+
 				$tmp = array(
-					"fileName" => $_FILES["mfi_files"]["name"][$i],
+					"fileName" => $fileName,
 					"fileID" => $fileID
 				);
+
 				if ($fileID)
 				{
 					if (!isset($_SESSION["MFI_UPLOADED_FILES_".$cid]))
@@ -73,9 +76,15 @@ if ($_POST['mfi_mode'])
 					$file = CFile::GetFileArray($fileID);
 					if ($file)
 					{
-						$tmp["fileURL"] = $file["SRC"];
+						$tmp["fileContentType"] = $file["CONTENT_TYPE"];
+						$tmp["fileURL"] = CHTTP::URN2URI($APPLICATION->GetCurPageParam("mfi_mode=down&fileID=".$fileID."&cid=".$cid."&".bitrix_sessid_get(), array("mfi_mode", "fileID", "cid")));
 						$tmp["fileSize"] = CFile::FormatSize($file['FILE_SIZE']);
 					}
+				}
+
+				foreach(GetModuleEvents("main", "main.file.input.upload", true) as $arEvent)
+				{
+					$eventResult = ExecuteModuleEventEx($arEvent, array(&$tmp));
 				}
 				$arResult[] = $tmp;
 			}
@@ -84,7 +93,7 @@ if ($_POST['mfi_mode'])
 		$uid = intval($_POST["uniqueID"]);
 ?>
 <script type="text/javascript">
-top.FILE_UPLOADER_CALLBACK_<?=$uid?>(<?=CUtil::PhpToJsObject($arResult);?>, <?=$uid;?>);
+parent.FILE_UPLOADER_CALLBACK_<?=$uid?>(<?=CUtil::PhpToJsObject($arResult);?>, <?=$uid;?>);
 </script>
 <?
 	}
@@ -102,19 +111,49 @@ top.FILE_UPLOADER_CALLBACK_<?=$uid?>(<?=CUtil::PhpToJsObject($arResult);?>, <?=$
 	die();
 }
 
+if ($_GET['mfi_mode'] === 'down')
+{
+	$fid = intval($_GET["fileID"]);
+
+	$cid = trim($_REQUEST['cid']);
+	if (!$cid || !preg_match('/^[a-f01-9]{32}$/', $cid) || !check_bitrix_sessid())
+		die();
+
+	if ($fid > 0 && isset($_SESSION["MFI_UPLOADED_FILES_".$cid]) && in_array($fid, $_SESSION["MFI_UPLOADED_FILES_".$cid]))
+	{
+		$arFile = CFile::GetFileArray($fid);
+		if ($arFile)
+		{
+			$APPLICATION->RestartBuffer();
+			while(ob_end_clean()); // hack!
+
+			if ($arParams['ALLOW_UPLOAD'] == 'I')
+				CFile::ViewByUser($arFile, array("content_type" => $arFile["CONTENT_TYPE"]));
+			else
+				CFile::ViewByUser($arFile, array("force_download" => true));
+
+			die();
+		}
+	}
+}
+
 if ($arParams['SILENT'])
 	return;
 
-if (substr($arParams['INPUT_NAME'], 0, -2) == '[]')
-	$arParams['INPUT_NAME'] = substr($arParams['INPUT_NAME'], -2);
-if (substr($arParams['INPUT_NAME_UNSAVED'], 0, -2) == '[]')
-	$arParams['INPUT_NAME_UNSAVED'] = substr($arParams['INPUT_NAME_UNSAVED'], -2);
+if (substr($arParams['INPUT_NAME'], -2) == '[]')
+	$arParams['INPUT_NAME'] = substr($arParams['INPUT_NAME'], 0, -2);
+if (substr($arParams['INPUT_NAME_UNSAVED'], -2) == '[]')
+	$arParams['INPUT_NAME_UNSAVED'] = substr($arParams['INPUT_NAME_UNSAVED'], 0, -2);
+if (!is_array($arParams['INPUT_VALUE']) && intval($arParams['INPUT_VALUE']) > 0)
+	$arParams['INPUT_VALUE'] = array($arParams['INPUT_VALUE']);
 
 $arParams['INPUT_NAME'] = preg_match('/^[a-zA-Z0-9_]+$/', $arParams['INPUT_NAME']) ? $arParams['INPUT_NAME'] : false;
 $arParams['INPUT_NAME_UNSAVED'] = preg_match('/^[a-zA-Z0-9_]+$/', $arParams['INPUT_NAME_UNSAVED']) ? $arParams['INPUT_NAME_UNSAVED'] : '';
 $arParams['CONTROL_ID'] = preg_match('/^[a-zA-Z0-9_]+$/', $arParams['CONTROL_ID']) ? $arParams['CONTROL_ID'] : randString();
 
 $arParams['INPUT_CAPTION'] = $arParams['INPUT_CAPTION'] ? $arParams['INPUT_CAPTION'] : GetMessage('MFI_INPUT_CAPTION_DEFAULT');
+
+$arParams['MULTIPLE'] = $arParams['MULTIPLE'] == 'N' ? 'N' : 'Y';
 
 if (!$arParams['INPUT_NAME'])
 {
@@ -126,12 +165,13 @@ $arResult['CONTROL_UID'] = md5(randString(15));
 
 $_SESSION["MFI_UPLOADED_FILES_".$arResult['CONTROL_UID']] = array();
 $arResult['FILES'] = array();
-if (is_array($arParams['INPUT_VALUE']))
+
+if (is_array($arParams['INPUT_VALUE']) && strlen(implode(",", $arParams["INPUT_VALUE"])) > 0)
 {
 	$dbRes = CFile::GetList(array(), array("@ID" => implode(",", $arParams["INPUT_VALUE"])));
 	while ($arFile = $dbRes->GetNext())
 	{
-		$arFile['URL'] = CHTTP::URN2URI(CFile::GetFileSRC($arFile));
+		$arFile['URL'] = CHTTP::URN2URI($APPLICATION->GetCurPageParam("mfi_mode=down&fileID=".$arFile['ID']."&cid=".$arResult['CONTROL_UID']."&".bitrix_sessid_get(), array("mfi_mode", "fileID", "cid")));
 		$arFile['FILE_SIZE_FORMATTED'] = CFile::FormatSize($arFile['FILE_SIZE']);
 		$arResult['FILES'][$arFile['ID']] = $arFile;
 		$_SESSION["MFI_UPLOADED_FILES_".$arResult['CONTROL_UID']][] = $arFile['ID'];

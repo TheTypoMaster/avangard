@@ -18,6 +18,7 @@ else:
 		'CONTROLS' => $arParams['CONTROLS'],
 		'OPTIONS' => $arParams['OPTIONS'],
 		'MAP_ID' => $arParams['MAP_ID'],
+		'LOCALE' => $arParams['LOCALE'],
 		'ONMAPREADY' => 'BX_SetPlacemarks_'.$arParams['MAP_ID'],
 	);
 
@@ -57,7 +58,7 @@ function BX_SetPlacemarks_<?echo $arParams['MAP_ID']?>(map)
 <?
 		endfor;
 	endif;
-	
+
 	if ($arParams['ONMAPREADY']):
 ?>
 	if (window.<?echo $arParams['ONMAPREADY']?>)

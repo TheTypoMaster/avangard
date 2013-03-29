@@ -64,9 +64,9 @@ if ($arBlog = CBlog::GetByUrl($arParams["BLOG_URL"]))
 				}
 
 				if(strlen($_POST["BACK_URL"])>0)
-					$arResult["BACK_URL"] = htmlspecialchars($_POST["BACK_URL"]);
+					$arResult["BACK_URL"] = htmlspecialcharsbx($_POST["BACK_URL"]);
 				else
-					$arResult["BACK_URL"] = htmlspecialchars($APPLICATION->GetCurPageParam());
+					$arResult["BACK_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam());
 
 				$res=CBlogUserGroup::GetList(Array("NAME" => "ASC"), Array("BLOG_ID" => $arBlog["ID"]), array("ID", "NAME", "BLOG_ID", "COUNT" => "USER2GROUP_ID"));
 				while ($arGroup=$res->Fetch())

@@ -17,9 +17,8 @@ while ($arAnswer = $res->Fetch())
 {
 	$arChart[] = Array(
 		"COLOR"=>(strlen($arAnswer["COLOR"])>0 ? TrimEx($arAnswer["COLOR"],"#") : ($color = GetNextRGB($color, $totalRecords))),
-		"COUNTER" => $arAnswer["COUNTER"]
-    );
-    $sum += $arAnswer["COUNTER"];
+		"COUNTER" => $arAnswer["COUNTER"]);
+	$sum += $arAnswer["COUNTER"];
 }
 
 // create an image
@@ -29,7 +28,7 @@ imagefill($ImageHandle, 0, 0, imagecolorallocate($ImageHandle, 255,255,255));
 // drawing pie chart
 if ($sum > 0) 
 {
-    Circular_Diagram($ImageHandle, $arChart, "FFFFFF", $diameter, $diameter/2, $diameter/2);
+	Circular_Diagram($ImageHandle, $arChart, "FFFFFF", $diameter, $diameter/2, $diameter/2);
 }
 
 // displaying of the resulting image

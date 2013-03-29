@@ -14,6 +14,15 @@ endif;
 
 <a name="comments"></a>
 <?
+if ($arParams['FETCH_USER_ALIAS'])
+{
+	$arUserIds = array();
+	foreach ($arResult['USER_CACHE'] as $u)
+		$arUserIds[] = $u['arUser']['ID'];
+	CPGalleryInterface::HandleUserAliases($arUserIds, $arParams['IBLOCK_ID']);
+}
+
+
 if($arResult["is_ajax_post"] != "Y")
 	include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/script.php");
 else
@@ -146,7 +155,7 @@ else
 						?>
 						<div class="blog-comment-field blog-comment-field-captcha">
 							<div class="blog-comment-field-captcha-label">
-								<label for=""><?=GetMessage("B_B_MS_CAPTCHA_SYM")?></label><span class="blog-required-field">*</span><br>
+								<label for="captcha_code"><?=GetMessage("B_B_MS_CAPTCHA_SYM")?></label><span class="blog-required-field">*</span><br>
 								<input type="hidden" name="captcha_code" id="captcha_code" value="<?=$arResult["CaptchaCode"]?>">
 								<input type="text" size="30" name="captcha_word" id="captcha_word" value=""  tabindex="7">
 								</div>
@@ -210,7 +219,7 @@ else
 					elseif($prevTab > 10)
 						$prevPaddingSize = 2.5 * 5 + 1.5 * 5 + ($prevTab-10) * 1;
 
-						$prevTab = $tabCount;
+					$prevTab = $tabCount;
 					?>
 					<a name="<?=$comment["ID"]?>"></a>
 					<div class="blog-comment" style="padding-left:<?=$paddingSize?>em;">
@@ -259,25 +268,11 @@ else
 
 						<div class="blog-comment-info">
 							<?
-							if (COption::GetOptionString("blog", "allow_alias", "Y") == "Y" && (strlen($comment["urlToBlog"]) > 0 || strlen($comment["urlToAuthor"]) > 0) && array_key_exists("ALIAS", $comment["BlogUser"]) && strlen($comment["BlogUser"]["ALIAS"]) > 0)
-								$arTmpUser = array(
-									"NAME" => "",
-									"LAST_NAME" => "",
-									"SECOND_NAME" => "",
-									"LOGIN" => "",
-									"NAME_LIST_FORMATTED" => $comment["BlogUser"]["~ALIAS"],
-								);
-							elseif (strlen($comment["urlToBlog"]) > 0 || strlen($comment["urlToAuthor"]) > 0)
-								$arTmpUser = array(
-									"NAME" => $comment["arUser"]["~NAME"],
-									"LAST_NAME" => $comment["arUser"]["~LAST_NAME"],
-									"SECOND_NAME" => $comment["arUser"]["~SECOND_NAME"],
-									"LOGIN" => $comment["arUser"]["~LOGIN"],
-									"NAME_LIST_FORMATTED" => "",
-								);
+							if ($arParams['FETCH_USER_ALIAS'])
+								$comment["urlToAuthor"] = CPGalleryInterface::GetPathWithUserAlias($comment["urlToAuthor"], $comment["arUser"]["ID"], $arParams['IBLOCK_ID']);
 							?>
 							<?if (intVal($comment["arUser"]["ID"]) > 0 && !empty($comment["urlToAuthor"])):?>
-							<a class="photo-comment-name" href="<?=$res["urlToAuthor"]?>"><?= $comment["AuthorName"]?></a>
+							<a class="photo-comment-name" href="<?=$comment["urlToAuthor"]?>"><?= $comment["AuthorName"]?></a>
 							<?else:?>
 							<span class="photo-comment-name"><?= $comment["AuthorName"]?></span>
 							<?endif;?>
@@ -404,7 +399,7 @@ else
 				}
 			}
 		}
-		
+
 		if($arResult["is_ajax_post"] != "Y")
 		{
 			if($arResult["CanUserComment"])
@@ -425,7 +420,7 @@ else
 					<?
 				}
 			}
-			
+
 			if($arResult["CanUserComment"])
 			{
 				?>
@@ -467,7 +462,9 @@ else
 			}
 		}
 		else
+		{
 			RecursiveComments($arResult["CommentsResult"], $arResult["firstLevel"], 0, true, $arResult["canModerate"], $arResult["User"], $arResult["use_captcha"], $arResult["CanUserComment"], $arResult["COMMENT_ERROR"], $arResult["Comments"], $arParams);
+		}
 
 		if($arResult["is_ajax_post"] != "Y")
 		{

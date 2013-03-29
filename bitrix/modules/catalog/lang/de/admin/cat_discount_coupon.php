@@ -1,0 +1,33 @@
+<?
+$MESS["ERROR_UPDATE_DISCOUNT_CPN"] = "Fehler beim Aktualisieren der Gutscheinparameter mit dem Code #ID# ";
+$MESS["ERROR_DELETE_DISCOUNT_CPN"] = "Fehler beim Löschen des Gutscheins mit dem Code #ID# ";
+$MESS["DSC_NAV"] = "Gutscheine";
+$MESS["DSC_DELETE_ALT"] = "Gutschein löschen";
+$MESS["DSC_DELETE"] = "Löschen";
+$MESS["DSC_UPDATE_ALT"] = "Gutscheinparameter bearbeiten";
+$MESS["DSC_UPDATE"] = "Ändern";
+$MESS["DSC_DELETE_CONF"] = "Sind Sie sicher, dass Sie diesen Gutschein  löschen wollen?";
+$MESS["DSC_CPN_NAME"] = "Rabattbezeichnung";
+$MESS["DSC_CPN_ACTIVE"] = "Aktivität";
+$MESS["DSC_CPN_CPN"] = "Gutschein";
+$MESS["DSC_CPN_DATE"] = "Verwendungsdatum des Gutscheins";
+$MESS["DSC_CPN_TIME"] = "Einfach";
+$MESS["DSC_CPN_TIME2"] = "Gutscheintyp";
+$MESS["DSC_CPN_ORDER"] = "Anwendbar für alle Bestellungspositionen";
+$MESS["DSC_CPN_ADD"] = "Gutschein hinzufügen";
+$MESS["DSC_CPN_ADD_ALT"] = "Neuen Gutschein hinzufügen";
+$MESS["DSC_CPN_TITLE"] = "Gutscheine für den Rabatt";
+$MESS["DSC_CPN_ACT"] = "Aktivität";
+$MESS["DSC_CPN_DISC"] = "Rabatt";
+$MESS["DSC_CPN_ALL"] = "Alle";
+$MESS["DSC_CPN_YES"] = "Ja";
+$MESS["DSC_CPN_NO"] = "Nein";
+$MESS["DSC_CPN_DESCRIPTION"] = "Kommentar";
+$MESS["DSC_CREATED_BY"] = "Erstellt von";
+$MESS["DSC_DATE_CREATE"] = "Erstellt am";
+$MESS["DSC_MODIFIED_BY"] = "Geändert von";
+$MESS["DSC_TIMESTAMP_X"] = "Geändert am";
+$MESS["DSC_COUPON_TYPE_ONE_TIME"] = "Für eine Position der Bestellung";
+$MESS["DSC_COUPON_TYPE_ONE_ORDER"] = "einfach";
+$MESS["DSC_COUPON_TYPE_NO_LIMIT"] = "unbegrenzt";
+?>

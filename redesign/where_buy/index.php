@@ -1,6 +1,6 @@
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetPageProperty("title", "Адреса магазинов, салонов где продаётся мягкая мебель. Купить диван");
+$APPLICATION->SetPageProperty("title", "Адреса магазинов и салонов где продается мягкая мебель от российской фабрики Авангард. Купить диван с доставкой.");
 $APPLICATION->SetPageProperty("keywords", "купить угловой диван кресло кровать мебель мягкая");
 $APPLICATION->SetPageProperty("description", "Где купить мягкую мебель фабрики Авангард : салоны и подиумы Москвы и России");
 $APPLICATION->SetTitle("Адреса магазинов, салонов где продаётся мягкая мебель. Купить диванАдреса магазинов, салонов где продаётся мягкая мебель. Купить диван");
@@ -41,42 +41,51 @@ else $sect = 6;
  
 <div style="text-align: justify; margin-bottom: 5px; " class="cityname"><img width="25" height="20" border="0" style="border-width: 0px; border-style: none;" src="/wharetobuy/maps/salon.gif"  />Фирменные Салоны</div>
  	 
-<div style="text-align: justify; "><?$arrFilterType = Array( "PROPERTY_SALON_TYPE_2_VALUE" => "Фирменный Салон");?> <?$APPLICATION->IncludeComponent(
-	"anp:catalog.section",
-	"spisok",
-	Array(
-		"IBLOCK_TYPE" => "shops",
-		"IBLOCK_ID" => "8",
-		"SECTION_ID" => $sect,
-		"ELEMENT_SORT_FIELD" => "sort",
-		"ELEMENT_SORT_ORDER" => "asc",
-		"FILTER_NAME" => "arrFilterType",
-		"PAGE_ELEMENT_COUNT" => "300",
-		"LINE_ELEMENT_COUNT" => "1",
-		"PROPERTY_CODE" => array(0=>"SALON_ADRESS",1=>"SALON_CITY",2=>"SALON_TYPE_2",3=>"SALON_PHONE",4=>"SALON_METRO",5=>"SALON_TIME",6=>"SALON_ACTION_TEXT",7=>"SALON_ACTION_TEXT_2",8=>"",9=>"",),
-		"SECTION_URL" => "/wharetobuy/moscow/",
-		"DETAIL_URL" => "/wharetobuy/moscow/salon_#ELEMENT_ID#.html",
-		"BASKET_URL" => "/personal/basket.php",
-		"ACTION_VARIABLE" => "action",
-		"PRODUCT_ID_VARIABLE" => "id",
-		"SECTION_ID_VARIABLE" => "SECTION_ID",
-		"CACHE_TYPE" => "A",
-		"CACHE_TIME" => "3600",
-		"DISPLAY_PANEL" => "N",
-		"DISPLAY_COMPARE" => "N",
-		"SET_TITLE" => "Y",
-		"CACHE_FILTER" => "N",
-		"PRICE_CODE" => array(),
-		"USE_PRICE_COUNT" => "N",
-		"SHOW_PRICE_COUNT" => "1",
-		"DISPLAY_TOP_PAGER" => "N",
-		"DISPLAY_BOTTOM_PAGER" => "Y",
-		"PAGER_TITLE" => "Салоны",
-		"PAGER_SHOW_ALWAYS" => "N",
-		"PAGER_TEMPLATE" => "",
-		"PAGER_DESC_NUMBERING" => "N",
-		"PAGER_DESC_NUMBERING_CACHE_TIME" => "36000"
-	)
+<div style="text-align: justify; "><?$arrFilterType = Array( "PROPERTY_SALON_TYPE_2_VALUE" => "Фирменный Салон");?> <?$APPLICATION->IncludeComponent("anp:catalog.section", "spisok3_2", Array(
+	"IBLOCK_TYPE" => "shops",	// Тип инфо-блока
+	"IBLOCK_ID" => "8",	// Инфо-блок
+	"SECTION_ID" => $sect,	// ID раздела
+	"ELEMENT_SORT_FIELD" => "sort",	// По какому полю сортируем элементы
+	"ELEMENT_SORT_ORDER" => "asc",	// Порядок сортировки элементов
+	"FILTER_NAME" => "arrFilterType",	// Имя массива со значениями фильтра для фильтрации элементов
+	"PAGE_ELEMENT_COUNT" => "300",	// Количество элементов на странице
+	"LINE_ELEMENT_COUNT" => "1",	// Количество элементов выводимых в одной строке таблицы
+	"PROPERTY_CODE" => array(	// Свойства
+		0 => "SALON_ADRESS",
+		1 => "SALON_CITY",
+		2 => "SALON_TYPE_2",
+		3 => "SALON_PHONE",
+		4 => "SALON_METRO",
+		5 => "SALON_TIME",
+		6 => "SALON_ACTION_TEXT",
+		7 => "SALON_ACTION_TEXT_2",
+		8 => "",
+		9 => "",
+	),
+	"SECTION_URL" => "/wharetobuy/moscow/",	// URL, ведущий на страницу с содержимым раздела
+	"DETAIL_URL" => "/wharetobuy/moscow/salon_#ELEMENT_ID#.html",	// URL, ведущий на страницу с содержимым элемента раздела
+	"BASKET_URL" => "/personal/basket.php",	// URL, ведущий на страницу с корзиной покупателя
+	"ACTION_VARIABLE" => "action",	// Название переменной, в которой передается действие
+	"PRODUCT_ID_VARIABLE" => "id",	// Название переменной, в которой передается код товара для покупки
+	"SECTION_ID_VARIABLE" => "SECTION_ID",	// Название переменной, в которой передается код группы
+	"CACHE_TYPE" => "A",	// Тип кеширования
+	"CACHE_TIME" => "3600",	// Время кеширования (сек.)
+	"DISPLAY_PANEL" => "N",	// Добавлять в админ. панель кнопки для данного компонента
+	"DISPLAY_COMPARE" => "N",	// Выводить кнопку сравнения
+	"SET_TITLE" => "Y",	// Устанавливать заголовок страницы
+	"CACHE_FILTER" => "N",	// Кэшировать при установленном фильтре
+	"PRICE_CODE" => "",	// Тип цены
+	"USE_PRICE_COUNT" => "N",	// Использовать вывод цен с диапазонами
+	"SHOW_PRICE_COUNT" => "1",	// Выводить цены для количества
+	"DISPLAY_TOP_PAGER" => "N",	// Выводить над списком
+	"DISPLAY_BOTTOM_PAGER" => "Y",	// Выводить под списком
+	"PAGER_TITLE" => "Салоны",	// Название категорий
+	"PAGER_SHOW_ALWAYS" => "N",	// Выводить всегда
+	"PAGER_TEMPLATE" => "",	// Название шаблона
+	"PAGER_DESC_NUMBERING" => "N",	// Использовать обратную навигацию
+	"PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",	// Время кеширования страниц для обратной навигации
+	),
+	false
 );?></div>
  
 <div style="text-align: justify; margin-bottom: 5px; " class="cityname"> <img width="25" height="20" border="0" style="border-width: 0px; border-style: none;" src="/wharetobuy/maps/podium.gif"  /> 		 Фирменные подиумы</div>

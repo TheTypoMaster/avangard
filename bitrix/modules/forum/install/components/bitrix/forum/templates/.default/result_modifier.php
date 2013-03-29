@@ -22,7 +22,7 @@
 		if (strLen(trim($res["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$res["URL_TEMPLATES_".strToUpper($URL)] = $GLOBALS["APPLICATION"]->GetCurPage()."?".$URL_VALUE;
 		$res["~URL_TEMPLATES_".strToUpper($URL)] = $res["URL_TEMPLATES_".strToUpper($URL)];
-		$res["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($res["~URL_TEMPLATES_".strToUpper($URL)]);
+		$res["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($res["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 	$res["URL"] = array(
 		"ACTIVE" => CComponentEngine::MakePathFromTemplate($res["URL_TEMPLATES_ACTIVE"], array()), 
@@ -56,6 +56,9 @@ if ($_GET["rapid_access"] == "Y"):
 	$url = (empty($url) ? $arResult["URL_TEMPLATES"]["INDEX"] : $url);
 	LocalRedirect($url);
 endif;
+
+
+
 // Show Page
 if ($this->__page !== "menu"):
 	$sTempatePage = $this->__page;
@@ -63,8 +66,13 @@ if ($this->__page !== "menu"):
 	$this->__component->IncludeComponentTemplate("menu");
 	$this->__page = $sTempatePage;
 	$this->__file = $sTempateFile;
-	
-	if (in_array(strToLower($this->__page), array("profile", "profile_view", "subscr_list", "user_post"))):
+
+	if ($arParams["SEO_USER"] == "TEXT" && strToLower($this->__page) == "profile_view" &&
+		$GLOBALS["USER"]->GetId() != $arResult["UID"] && $GLOBALS["APPLICATION"]->GetGroupRight("forum") < "W") {
+		$APPLICATION->AuthForm("");
+	}
+
+	if ($arParams["SHOW_FORUM_USERS"] != "N" && in_array(strToLower($this->__page), array("profile", "profile_view", "subscr_list", "user_post"))):
 		$GLOBALS["APPLICATION"]->AddChainItem(GetMessage("F_USERS"), CComponentEngine::MakePathFromTemplate($res["~URL_TEMPLATES_USER_LIST"], array()));
 	endif;
 else:
@@ -88,12 +96,17 @@ endif;
 $sTemplateDir = $this->__component->__template->__folder;
 $sTemplateDir = preg_replace("'[\\\\/]+'", "/", $sTemplateDir."/");
 
+$arParams["SEO_USER"] = (in_array($arParams["SEO_USER"], array("Y", "N", "TEXT")) ? $arParams["SEO_USER"] : "Y");
+$arParams["SHOW_FORUM_USERS"] = ($arParams["SHOW_FORUM_USERS"] == "N" ? "N" : "Y");
 $arParams["SHOW_AUTH_FORM"] = ($arParams["SHOW_AUTH_FORM"] == "N" ? "N" : "Y");
 $arParams["SHOW_NAVIGATION"] = ($arParams["SHOW_NAVIGATION"] == "N" ? "N" : "Y");
 $arParams["SHOW_SUBSCRIBE_LINK"] = ($arParams["SHOW_SUBSCRIBE_LINK"] == "Y" ? "Y" : "N");
 $arParams["SHOW_LEGEND"] = ($arParams["SHOW_LEGEND"] == "N" ? "N" : "Y");
 $arParams["SHOW_STATISTIC"] = ($arParams["SHOW_STATISTIC"] == "N" ? "N" : "Y");
-$arParams["SHOW_NAME_LINK"] = ($arParams["SHOW_NAME_LINK"] == "N" ? "N" : "Y");
+if (!is_set($arParams, "SHOW_STATISTIC_BLOCK"))
+	$arParams["SHOW_STATISTIC_BLOCK"] = ($arParams["SHOW_STATISTIC"] == "Y" ? array("STATISTIC", "BIRTHDAY", "USERS_ONLINE") : array());
+$arParams["SHOW_STATISTIC_BLOCK"] = (is_array($arParams["SHOW_STATISTIC_BLOCK"]) ? $arParams["SHOW_STATISTIC_BLOCK"] : array($arParams["SHOW_STATISTIC_BLOCK"])); 
+$arParams["SHOW_NAME_LINK"] = "Y";
 $arParams["SHOW_FORUMS"] = ($arParams["SHOW_FORUMS"] == "N" ? "N" : "Y");
 $arParams["SHOW_FIRST_POST"] = ($arParams["SHOW_FIRST_POST"] == "Y" ? "Y" : "N");
 $arParams["SHOW_AUTHOR_COLUMN"] = ($arParams["SHOW_AUTHOR_COLUMN"] == "Y" ? "Y" : "N");
@@ -132,8 +145,8 @@ else:
 endif;
 $date = @filemtime($sTemplateDirFull."styles/additional.css");
 $GLOBALS['APPLICATION']->SetAdditionalCSS($sTemplateDir.'styles/additional.css?'.$date);
-$GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/js/main/utils.js"></script>', true);
-$GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/components/bitrix/forum.interface/templates/.default/script.js"></script>', true);
+$GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/main/utils.js");
+$GLOBALS['APPLICATION']->AddHeadScript("/bitrix/components/bitrix/forum.interface/templates/.default/script.js");
 
 $file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/".LANGUAGE_ID."/result_modifier.php")));
 if (!file_exists($file))
@@ -237,7 +250,7 @@ if ($arParams["SHOW_FORUMS"] == "Y" && in_array($this->__page, array("forums", "
 	if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 	{
 		$res = $cache->GetVars();
-		$arForums = $res["arForums"];
+		$arForums = CForumCacheManager::Expand($res["arForums"]);
 	}
 	$arForums = (is_array($arForums) ? $arForums : array());
 	if (empty($arForums))
@@ -252,7 +265,7 @@ if ($arParams["SHOW_FORUMS"] == "Y" && in_array($this->__page, array("forums", "
 		}
 		if ($arParams["CACHE_TIME"] > 0):
 			$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
-			$cache->EndDataCache(array("arForums" => $arForums));
+			$cache->EndDataCache(array("arForums" => CForumCacheManager::Compress($arForums)));
 		endif;
 	}
 	$arResult["FORUMS"] = $arForums;
@@ -298,7 +311,7 @@ endif;
 	{
 		var oText = {};
 	}
-	oText['wait_window'] = '<?=GetMessage("F_LOAD")?>';
+	oText['wait_window'] = '<?=GetMessageJS("F_LOAD")?>';
 //]]>
 window.oForumForm = {};
 </script>

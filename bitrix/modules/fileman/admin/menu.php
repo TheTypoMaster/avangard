@@ -104,7 +104,6 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 					"fileman_file_upload.php?".$addUrl,
 					"fileman_html_edit.php?".$addUrl,
 					"fileman_file_edit.php?".$addUrl,
-					"fileman_fck_edit.php?".$addUrl,
 					"fileman_folder.php?".$addUrl,
 					"fileman_menu_edit.php?".$addUrl,
 					"fileman_newfolder.php?".$addUrl,
@@ -116,7 +115,6 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 					$more_urls[] = "fileman_html_edit.php";
 					$more_urls[] = "fileman_file_view.php";
 					$more_urls[] = "fileman_file_edit.php";
-					$more_urls[] = "fileman_fck_edit.php";
 				}
 
 				if ($bCheckFolders)
@@ -198,7 +196,6 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 					"fileman_admin.php?logical=Y&site=".$arSites["ID"],
 					"fileman_file_download.php?site=".$arSites["ID"].'&logical=Y',
 					"fileman_file_edit.php?site=".$arSites["ID"].'&logical=Y',
-					"fileman_fck_edit.php?site=".$arSites["ID"].'&logical=Y',
 					"fileman_file_list.php?site=".$arSites["ID"].'&logical=Y',
 					"fileman_file_upload.php?site=".$arSites["ID"].'&logical=Y',
 					"fileman_file_view.php?site=".$arSites["ID"].'&logical=Y',
@@ -223,7 +220,6 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 	switch($GLOBALS["APPLICATION"]->GetCurPage())
 	{
 		case "/bitrix/admin/fileman_file_edit.php":
-		case "/bitrix/admin/fileman_fck_edit.php":
 		case "/bitrix/admin/fileman_file_view.php":
 		case "/bitrix/admin/fileman_html_edit.php":
 			if($_REQUEST['path'] && $_REQUEST['new']!='y')
@@ -237,7 +233,6 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 		"sort" => 100,
 		"text" => GetMessage("FM_MENU_TITLE"),
 		"title" => GetMessage("FM_MENU_DESC"),
-		"url" => "fileman_index.php?lang=".LANG,
 		"icon" => "fileman_menu_icon",
 		"page_icon" => "fileman_page_icon",
 		"items_id" => "menu_fileman",
@@ -247,7 +242,6 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 			"fileman_file_view.php",
 			"fileman_folder.php",
 			"fileman_html_edit.php",
-			"fileman_fck_edit.php",
 			"fileman_menu_edit.php",
 			"fileman_newfolder.php",
 			"fileman_rename.php"
@@ -322,7 +316,6 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 							"fileman_file_view.php?site=".$site_id.'&'.$addUrl,
 							"fileman_folder.php?site=".$site_id.'&'.$addUrl,
 							"fileman_html_edit.php?site=".$site_id.'&'.$addUrl,
-							"fileman_fck_edit.php?site=".$site_id.'&'.$addUrl,
 							"fileman_menu_edit.php?site=".$site_id.'&'.$addUrl,
 							"fileman_newfolder.php?site=".$site_id.'&'.$addUrl,
 							"fileman_rename.php?site=".$site_id.'&'.$addUrl
@@ -350,7 +343,6 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 					"fileman_file_view.php",
 					"fileman_folder.php",
 					"fileman_html_edit.php",
-					"fileman_fck_edit.php",
 					"fileman_menu_edit.php",
 					"fileman_newfolder.php",
 					"fileman_rename.php"
@@ -391,7 +383,6 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 					"fileman_file_download.php?".$addUrl,
 					"fileman_file_edit.php?".$addUrl,
 					"fileman_html_edit.php?".$addUrl,
-					"fileman_fck_edit.php?".$addUrl,
 					"fileman_file_upload.php?".$addUrl,
 					"fileman_file_view.php?".$addUrl,
 					"fileman_folder.php?".$addUrl,
@@ -425,7 +416,6 @@ if (COption::GetOptionString('fileman', "use_medialib", "Y") != "N" && CModule::
 				"fileman_file_view.php",
 				"fileman_folder.php",
 				"fileman_html_edit.php",
-				"fileman_fck_edit.php",
 				"fileman_menu_edit.php",
 				"fileman_newfolder.php",
 				"fileman_rename.php"

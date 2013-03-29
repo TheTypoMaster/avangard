@@ -131,7 +131,7 @@ if(
 				.GetMessage("main_cache_files_deleted_count", array("#value#" => "<b>".intval($_SESSION["CACHE_STAT"]["deleted"])."</b>"))."<br>"
 				.GetMessage("main_cache_files_deleted_size", array("#value#" => "<b>".CFile::FormatSize($_SESSION["CACHE_STAT"]["space_freed"])."</b>"))."<br>"
 				.GetMessage("main_cache_files_delete_errors", array("#value#" => "<b>".intval($_SESSION["CACHE_STAT"]["errors"])."</b>"))."<br>"
-				.GetMessage("main_cache_files_last_path", array("#value#" => "<b>".htmlspecialchars($currentPath)."</b>"))."<br>"
+				.GetMessage("main_cache_files_last_path", array("#value#" => "<b>".htmlspecialcharsbx($currentPath)."</b>"))."<br>"
 			,
 			"HTML"=>true,
 			"TYPE"=>"OK",
@@ -292,7 +292,7 @@ function DoNext(path)
 {
 	var queryString = 'ajax=y'
 		+ '&clearcache=Y'
-		+ '&lang=<?echo htmlspecialchars(LANG)?>'
+		+ '&lang=<?echo htmlspecialcharsbx(LANG)?>'
 		+ '&<?echo bitrix_sessid_get()?>'
 	;
 
@@ -376,6 +376,7 @@ $tabControl->Begin();
 		<?else:?>
 			<span style="color:red;"><b><?echo GetMessage("MAIN_OPTION_CACHE_OFF")?>.</b></span>
 		<?endif?>
+		<br><br>
 	</td>
 </tr>
 <tr>
@@ -385,7 +386,7 @@ $tabControl->Begin();
 			<input type="submit" name="cache_siteb" value="<?echo GetMessage("MAIN_OPTION_CACHE_BUTTON_OFF")?>"<?if(!$isAdmin) echo " disabled"?>>
 		<?else:?>
 			<input type="hidden" name="cache_on" value="Y">
-			<input type="submit" name="cache_siteb" value="<?echo GetMessage("MAIN_OPTION_CACHE_BUTTON_ON")?>"<?if(!$isAdmin) echo " disabled"?>>
+			<input type="submit" name="cache_siteb" value="<?echo GetMessage("MAIN_OPTION_CACHE_BUTTON_ON")?>"<?if(!$isAdmin) echo " disabled"?> class="adm-btn-save">
 		<?endif?>
 	</td>
 </tr>
@@ -411,6 +412,7 @@ $tabControl->Begin();
 		<?else:?>
 			<span style="color:red;"><b><?echo GetMessage("main_cache_managed_off")?></b></span>
 		<?endif?>
+		<br><br>
 	</td>
 </tr>
 <tr>
@@ -421,7 +423,7 @@ $tabControl->Begin();
 			<?if($component_managed_cache == "N"):?><br><br><?echo GetMessage("main_cache_managed_const")?><?endif?>
 		<?else:?>
 			<input type="hidden" name="managed_cache_on" value="Y">
-			<input type="submit" name="" value="<?echo GetMessage("main_cache_managed_turn_on")?>"<?if(!$isAdmin) echo " disabled"?>>
+			<input type="submit" name="" value="<?echo GetMessage("main_cache_managed_turn_on")?>"<?if(!$isAdmin) echo " disabled"?> class="adm-btn-save">
 		<?endif?>
 	</td>
 </tr>
@@ -454,7 +456,7 @@ $tabControl->Begin();
 		<?else:?>
 			<div style="color:red;"><b><?echo GetMessage("MAIN_OPTION_HTML_CACHE_OFF")?>.</b></div><br>
 			<input type="hidden" name="html_cache_on" value="Y">
-			<input type="submit" name="html_cache_siteb" value="<?echo GetMessage("MAIN_OPTION_HTML_CACHE_BUTTON_ON")?>"<?if(!$isAdmin) echo " disabled"?>>
+			<input type="submit" name="html_cache_siteb" value="<?echo GetMessage("MAIN_OPTION_HTML_CACHE_BUTTON_ON")?>"<?if(!$isAdmin) echo " disabled"?> class="adm-btn-save">
 		<?endif?>
 	</td>
 </tr>
@@ -490,13 +492,13 @@ $tabControl->Begin();
 <tr>
 	<td><?echo GetMessage("MAIN_OPTION_HTML_CACHE_INC_MASK");?>:</td>
 	<td>
-		<input type="text" size="45" name="html_cache_include_mask" value="<?echo htmlspecialchars($arHTMLCacheOptions["INCLUDE_MASK"])?>">
+		<input type="text" size="45" name="html_cache_include_mask" value="<?echo htmlspecialcharsbx($arHTMLCacheOptions["INCLUDE_MASK"])?>">
 	</td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_OPTION_HTML_CACHE_EXC_MASK");?>:</td>
 	<td>
-		<input type="text" size="45" name="html_cache_exclude_mask" value="<?echo htmlspecialchars($arHTMLCacheOptions["EXCLUDE_MASK"])?>">
+		<input type="text" size="45" name="html_cache_exclude_mask" value="<?echo htmlspecialcharsbx($arHTMLCacheOptions["EXCLUDE_MASK"])?>">
 	</td>
 </tr>
 <tr>
@@ -541,6 +543,7 @@ $tabControl->BeginNextTab();
 		<input type="radio" name="cachetype" id="cachetype3" value="menu"<?if($cachetype=="menu")echo " checked"?>> <label for="cachetype3"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_MENU")?></label><br>
 		<input type="radio" name="cachetype" id="cachetype4" value="managed"<?if($cachetype=="managed")echo " checked"?>> <label for="cachetype4"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_MANAGED")?></label><br>
 		<input type="radio" name="cachetype" id="cachetype5" value="html"<?if($cachetype=="static")echo " checked"?>> <label for="cachetype5"><?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_STATIC")?></label><br>
+		<br>
 	</td>
 </tr>
 <?
@@ -548,13 +551,13 @@ $obCache = new CPHPCache;
 if(strtolower(get_class($obCache->_cache)) != "cphpcachefiles"):?>
 	<tr>
 		<td valign="top" colspan="2" align="left">
-			<input type="submit" name="clear" value="<?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_CLEAR")?>"<?if(!$isAdmin) echo " disabled"?>>
+			<input type="submit" name="clear" value="<?echo GetMessage("MAIN_OPTION_CLEAR_CACHE_CLEAR")?>"<?if(!$isAdmin) echo " disabled"?> class="adm-btn-save">
 		</td>
 	</tr>
 <?else:?>
 	<tr>
 		<td valign="top" colspan="2" align="left">
-			<input type="button" id="start_button" value="<?echo GetMessage("main_cache_files_start")?>" OnClick="StartClearCache();"<?if(!$isAdmin) echo " disabled"?>>
+			<input type="button" id="start_button" value="<?echo GetMessage("main_cache_files_start")?>" OnClick="StartClearCache();"<?if(!$isAdmin) echo " disabled"?> class="adm-btn-save">
 			<input type="button" id="stop_button" value="<?echo GetMessage("main_cache_files_stop")?>" OnClick="StopClearCache();" disabled>
 			<input type="button" id="continue_button" value="<?echo GetMessage("main_cache_files_continue")?>" OnClick="ContinueClearCache();" disabled>
 		</td>

@@ -73,4 +73,6 @@ $MESS["BLOG_LINK_TIP"] = "Генерация адреса сообщения из названия";
 $MESS["BLOG_POST_AUTOSAVE"] = "Данные сообщения не были сохранены. ";
 $MESS["BLOG_POST_GROUP_CHOOSE"] = "выбрать";
 $MESS["BLOG_POST_GROUP"] = "Написать в группу";
+$MESS["MPF_IMAGE_TITLE"] = "Вставить изображение в сообщение";
+$MESS["BLOG_ADD_FILES"] = "Добавить файлы";
 ?>

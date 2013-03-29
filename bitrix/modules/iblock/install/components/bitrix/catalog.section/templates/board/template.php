@@ -46,9 +46,9 @@
 						<?
 						$pub_date = '';
 						if ($arElement["ACTIVE_FROM"])
-							$pub_date = $arElement["ACTIVE_FROM"];
+							$pub_date = FormatDate($GLOBALS['DB']->DateFormatToPhp(CSite::GetDateFormat('FULL')), MakeTimeStamp($arElement["ACTIVE_FROM"]));
 						elseif ($arElement["DATE_CREATE"])
-							$pub_date = $arElement["DATE_CREATE"];
+							$pub_date =  FormatDate($GLOBALS['DB']->DateFormatToPhp(CSite::GetDateFormat('FULL')), MakeTimeStamp($arElement["DATE_CREATE"]));
 
 						if ($pub_date)
 							echo '<b>'.GetMessage('PUB_DATE').'</b>&nbsp;'.$pub_date.'<br />';
@@ -165,6 +165,13 @@
 				<?endif?>
 			<?elseif((count($arResult["PRICES"]) > 0) || is_array($arElement["PRICE_MATRIX"])):?>
 				<?=GetMessage("CATALOG_NOT_AVAILABLE")?>
+				<?$APPLICATION->IncludeComponent("bitrix:sale.notice.product", ".default", array(
+							"NOTIFY_ID" => $arElement['ID'],
+							"NOTIFY_URL" => htmlspecialcharsback($arElement["SUBSCRIBE_URL"]),
+							"NOTIFY_USE_CAPTHA" => "N"
+							),
+							$component
+						);?>
 			<?endif?>
 			&nbsp;
 		</td>

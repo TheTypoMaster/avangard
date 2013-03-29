@@ -34,10 +34,11 @@ endif;
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	$arParams["PATH_TO_SMILE"] = (empty($arParams["PATH_TO_SMILE"]) ? "/bitrix/images/forum/smile/" : $arParams["PATH_TO_SMILE"]);
 	$arParams["PATH_TO_ICON"] = (empty($arParams["PATH_TO_ICON"]) ? "/bitrix/images/forum/icons/" : $arParams["PATH_TO_ICON"]);
 	if ($arParams["AJAX_TYPE"] == "Y" || ($arParams["AJAX_TYPE"] == "A" && COption::GetOptionString("main", "component_ajax_on", "Y") == "Y"))
@@ -75,8 +76,8 @@ if ($arParams["SHOW_VOTE"] == "Y" && CModule::IncludeModule("vote"))
 		: CVoteChannel::GetGroupPermission($arParams["VOTE_CHANNEL_ID"]));
 	if ($permission < 2)
 		$arParams["SHOW_VOTE"] = "N";
-    $res = array_intersect($USER->GetUserGroupArray(), $arParams["VOTE_GROUP_ID"]);
-    $arParams["SHOW_VOTE"] = (empty($res) ? "N" : $arParams["SHOW_VOTE"]);
+	$res = array_intersect($USER->GetUserGroupArray(), $arParams["VOTE_GROUP_ID"]);
+	$arParams["SHOW_VOTE"] = (empty($res) ? "N" : $arParams["SHOW_VOTE"]);
 }
 
 if ($arParams["MESSAGE_TYPE"] == "EDIT")
@@ -150,14 +151,13 @@ if (!empty($arError)):
 		if ($_REQUEST["CONVERT_DATA"] == "Y")
 			array_walk($res, "htmlspecialcharsEx");
 		$APPLICATION->RestartBuffer();
-		?><?=CUtil::PhpToJSObject()?><?
+		?><?=CUtil::PhpToJSObject($res)?><?
 		die();
 	endif;
 	ShowError($arError["title"]);
 	return false;
 endif;
 
-ForumSetLastVisit();
 
 /********************************************************************
 				Default params
@@ -179,21 +179,8 @@ $_REQUEST["FILES"] = (is_array($_REQUEST["FILES"]) ? $_REQUEST["FILES"] : array(
 $_REQUEST["FILES_TO_UPLOAD"] = (is_array($_REQUEST["FILES_TO_UPLOAD"]) ? $_REQUEST["FILES_TO_UPLOAD"] : array());
 
 $arResult["MESSAGE_VIEW"] = array();
-$arAllow = array(
-	"HTML" => $arResult["FORUM"]["ALLOW_HTML"],
-	"ANCHOR" => $arResult["FORUM"]["ALLOW_ANCHOR"],
-	"BIU" => $arResult["FORUM"]["ALLOW_BIU"],
-	"IMG" => $arResult["FORUM"]["ALLOW_IMG"],
-	"VIDEO" => $arResult["FORUM"]["ALLOW_VIDEO"],
-	"LIST" => $arResult["FORUM"]["ALLOW_LIST"],
-	"QUOTE" => $arResult["FORUM"]["ALLOW_QUOTE"],
-	"CODE" => $arResult["FORUM"]["ALLOW_CODE"],
-	"FONT" => $arResult["FORUM"]["ALLOW_FONT"],
-	"SMILES" => $arResult["FORUM"]["ALLOW_SMILES"],
-	"UPLOAD" => $arResult["FORUM"]["ALLOW_UPLOAD"],
-	"NL2BR" => $arResult["FORUM"]["ALLOW_NL2BR"],
-	"TABLE" => $arResult["FORUM"]["ALLOW_TABLE"],
-	"SMILES" => ($_POST["USE_SMILES"] == "Y" ? "Y" : "N"));
+$arAllow = forumTextParser::GetFeatures($arResult["FORUM"]);
+$arAllow['SMILES'] = (($_POST["USE_SMILES"] == "Y") ? $arAllow['SMILES'] : 'N');
 $arResult["GROUP_NAVIGATION"] = array();
 $arResult["GROUPS"] = CForumGroup::GetByLang(LANGUAGE_ID);
 $parser = new forumTextParser(LANGUAGE_ID, $arParams["PATH_TO_SMILE"]);
@@ -205,12 +192,14 @@ $parser = new forumTextParser(LANGUAGE_ID, $arParams["PATH_TO_SMILE"]);
 				Action
 ********************************************************************/
 /************** Save message ***************************************/
-if ($_SERVER["REQUEST_METHOD"] == "POST"):
+if ($_SERVER["REQUEST_METHOD"] == "POST")
+{
 	if (!check_bitrix_sessid())
 	{
 		$strErrorMessage .= GetMessage("F_ERR_SESS_FINISH");
 	}
-	elseif (!in_array($arResult["FORUM"]["ALLOW_UPLOAD"], array("Y", "A", "F")) && (!empty($_FILES) || !empty($_REQUEST["FILES"])))
+	elseif (!in_array($arResult["FORUM"]["ALLOW_UPLOAD"], array("Y", "A", "F")) &&
+		(!empty($_FILES["FILE_NEW_0"]) || !empty($_REQUEST["FILES"])))
 	{
 		$strErrorMessage .= GetMessage("F_ERRRO_FILE_NOT_UPLOAD");
 		unset($_REQUEST["FILES"]);
@@ -223,52 +212,54 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"):
 			"FILES" => array());
 		if ($arParams["SHOW_VOTE"] == "Y" && !empty($_REQUEST["QUESTION"]))
 		{
-			$VOTE_ID = ($arResult["MESSAGE"]["PARAM1"] == 'VT' ? intVal($arResult["MESSAGE"]["PARAM2"]) : 0);
+			$VOTE_ID = ($arResult["MESSAGE"]["PARAM1"] == 'VT' ? intval($arResult["MESSAGE"]["PARAM2"]) : 0);
 			$arVote = array(
 				"CHANNEL_ID" => $arParams["VOTE_CHANNEL_ID"],
-				"TITLE" => $_REQUEST["TITLE"]);
+				"TITLE" => $_REQUEST["TITLE"],
+				"DATE_END" => $_REQUEST["DATE_END"],
+				"QUESTIONS" => array()
+			);
 			if ($VOTE_ID <= 0):
 				$arVote["DATE_START"] = GetTime(CForumNew::GetNowTime(), "FULL");
-				$arVote["DATE_END"] = GetTime(MakeTimeStamp($_REQUEST['DATE_END']), "FULL");
-			else:
-				$arVote["DATE_END"] = $_REQUEST['DATE_END'];
+				$arVote["DATE_END"] = GetTime(MakeTimeStamp($_REQUEST["DATE_END"]), "FULL");
 			endif;
 
-			$arVote["QUESTIONS"] = array();
-			foreach ($_REQUEST["QUESTION"] as $key => $val):
+			foreach ($_REQUEST["QUESTION"] as $key => $val)
+			{
 				$res = array(
 					"QUESTION" => trim($val),
-					"MULTI" => ($_REQUEST["MULTI"][$key] == "Y" ? "Y" : "N"));
-				if (is_set($arResult["~QUESTIONS"], $_REQUEST["QUESTION_ID"][$key])):
-					$res["ID"] = intVal($_REQUEST["QUESTION_ID"][$key]);
-					if ($_REQUEST["QUESTION_DEL"][$key] == "Y"):
-						$res["DEL"] = "Y";
-					endif;
-				elseif ($_REQUEST["QUESTION_DEL"][$key] == "Y"):
-					continue;
-				endif;
+					"MULTI" => ($_REQUEST["MULTI"][$key] == "Y" ? "Y" : "N"),
+					"ANSWERS" => array());
+				if (is_set($arResult["~QUESTIONS"], $_REQUEST["QUESTION_ID"][$key])) {
+					$res["ID"] = intval($_REQUEST["QUESTION_ID"][$key]);
+					if ($_REQUEST["QUESTION_DEL"][$key] == "Y")
+						$res["DEL"] = "Y";}
+				elseif ($_REQUEST["QUESTION_DEL"][$key] == "Y") {
+					continue;}
 
-				$res["ANSWERS"] = array();
-				foreach ($_REQUEST["ANSWER"][$key] as $keya => $vala):
+				$arAnswers = (is_array($arResult["~QUESTIONS"][$res["ID"]]["ANSWERS"]) ?
+					$arResult["~QUESTIONS"][$res["ID"]]["ANSWERS"] : array());
+				foreach ($_REQUEST["ANSWER"][$key] as $keya => $vala)
+				{
 					$resa = array(
 						"MESSAGE" => trim($vala),
 						"FIELD_TYPE" => ($res["MULTI"] == "Y" ? 1 : 0));
-					if ($res["ID"] > 0 && is_set($arResult["~QUESTIONS"][$res["ID"]]["ANSWERS"], $_REQUEST["ANSWER_ID"][$key][$keya])):
-						$resa["ID"] = intVal($_REQUEST["ANSWER_ID"][$key][$keya]);
-						if ($_REQUEST["ANSWER_DEL"][$key][$keya] == "Y"):
-							$resa["DEL"] = "Y";
-						endif;
-					elseif ($_REQUEST["ANSWER_DEL"][$key][$keya] == "Y" || empty($resa["MESSAGE"])):
-						continue;
-					endif;
+					if ($res["ID"] > 0 && is_set($arAnswers, $_REQUEST["ANSWER_ID"][$key][$keya])) {
+						$resa["ID"] = intval($_REQUEST["ANSWER_ID"][$key][$keya]);
+						unset($arAnswers[$_REQUEST["ANSWER_ID"][$key][$keya]]);
+						if ($_REQUEST["ANSWER_DEL"][$key][$keya] == "Y")
+							$resa["DEL"] = "Y"; }
+					elseif ($_REQUEST["ANSWER_DEL"][$key][$keya] == "Y" || empty($resa["MESSAGE"])) {
+						continue; }
 					$res["ANSWERS"][] = $resa;
-				endforeach;
+				}
+				foreach ($arAnswers as $keya => $vala) {
+					$res["ANSWERS"][] = array_merge($vala, array("DEL" => "Y")); }
 
-				if (empty($res["ANSWERS"]) && empty($res["QUESTION"]) && intVal($res["ID"]) <= 0):
+				if (empty($res["ANSWERS"]) && empty($res["QUESTION"]) && empty($res["ID"]))
 					continue;
-				endif;
 				$arVote["QUESTIONS"][] = $res;
-			endforeach;
+			}
 
 			if (!empty($arVote["QUESTIONS"]))
 			{
@@ -278,32 +269,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"):
 				$uniqType += 5;
 
 				list($uniqDelay, $uniqDelayType) = explode(" ", $arParams['VOTE_UNIQUE_IP_DELAY']);
-				$uniqDelay = intVal(trim($uniqDelay));
-				$uniqDelayType = trim($uniqDelayType);
-				if (!in_array($uniqDelayType, array("S", "M", "H", "D")))
-					$uniqDelayType = "D";
 
 				$arVoteParams = array(
 					"UNIQUE_TYPE" => $uniqType,
-					"DELAY" => $uniqDelay,
-					"DELAY_TYPE" => $uniqDelayType
-				);
+					"DELAY" => intval($uniqDelay),
+					"DELAY_TYPE" => trim(!in_array(trim($uniqDelayType), array("S", "M", "H", "D")) ? "D" : $uniqDelayType));
+
 				$VOTE_ID = VoteVoteEditFromArray($arParams["VOTE_CHANNEL_ID"], ($VOTE_ID > 0 ? $VOTE_ID : false), $arVote, $arVoteParams);
-				if (intVal($VOTE_ID) > 0)
+				if ($VOTE_ID > 0)
 				{
 					$arFieldsG["PARAM1"] = "VT";
 					$arFieldsG["PARAM2"] = $VOTE_ID;
 				}
+				elseif ($VOTE_ID === 0)
+				{
+					$arFieldsG["PARAM1"] = "";
+					$arFieldsG["PARAM2"] = 0;
+				}
 				else
 				{
-					$VOTE_ID = false;
 					$e = $GLOBALS['APPLICATION']->GetException();
 					if ($e)
 						$strErrorMessage .= $e->GetString();
 				}
 			}
 		}
-
 		if (empty($strErrorMessage))
 		{
 			foreach (array("AUTHOR_NAME", "AUTHOR_EMAIL", "TITLE", "TAGS", "DESCRIPTION", "ICON_ID") as $res)
@@ -341,18 +331,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"):
 					$arFieldsG["FILES"] = $arFiles;
 			}
 
-			if ($arParams["MESSAGE_TYPE"] == "EDIT")
-			{
-				$arFieldsG["EDIT_ADD_REASON"] = $_REQUEST["EDIT_ADD_REASON"];
-				$arFieldsG["EDITOR_NAME"] = $_REQUEST["EDITOR_NAME"];
-				$arFieldsG["EDITOR_EMAIL"] = $_REQUEST["EDITOR_EMAIL"];
-				$arFieldsG["EDIT_REASON"] = $_REQUEST["EDIT_REASON"];
-			}
+			if ($arParams["MESSAGE_TYPE"] == "EDIT") {
+				$arFieldsG += array(
+					"EDIT_ADD_REASON" => $_REQUEST["EDIT_ADD_REASON"],
+					"EDITOR_NAME" => $_REQUEST["EDITOR_NAME"],
+					"EDITOR_EMAIL" => $_REQUEST["EDITOR_EMAIL"],
+					"EDIT_REASON" => $_REQUEST["EDIT_REASON"]); }
 			$TID1 = ($arParams["MESSAGE_TYPE"]=="NEW") ? 0 : intVal($arParams["TID"]);
 			$MID1 = ($arParams["MESSAGE_TYPE"]=="NEW") ? 0 : intVal($arParams["MID"]);
 
-
-			$MID1 = intVal(ForumAddMessage($arParams["MESSAGE_TYPE"], $arParams["FID"], $TID1, $MID1, $arFieldsG, $strErrorMessage, $strOKMessage, false, $_POST["captcha_word"], 0, $_POST["captcha_code"]));
+			$MID1 = intVal(ForumAddMessage($arParams["MESSAGE_TYPE"],
+				$arParams["FID"], $TID1, $MID1, $arFieldsG,
+				$strErrorMessage, $strOKMessage,
+				false,
+				$_POST["captcha_word"], 0, $_POST["captcha_code"]));
 			if ($MID1 > 0 && empty($strErrorMessage))
 			{
 				$arParams["MID"] = $MID1;
@@ -386,7 +378,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"):
 					$arResult["SHOW_MESSAGE_FOR_AJAX"] = "Y";
 				}
 			}
-			elseif (intVal($arFieldsG["PARAM2"]) > 0 && $arFieldsG["PARAM1"] == "VT")
+			elseif ($arParams["MESSAGE_TYPE"] != "EDIT" && $arFieldsG["PARAM1"] == "VT" && intVal($arFieldsG["PARAM2"]) > 0)
 			{
 				CVote::Delete($arFieldsG["PARAM2"]);
 			}
@@ -396,8 +388,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"):
 	elseif ($arResult["VIEW"] == "Y")
 	{
 		$bVarsFromForm = true;
-		$arResult["POST_MESSAGE_VIEW"] = $parser->convert($_POST["POST_MESSAGE"], $arAllow);
-		$arResult["MESSAGE_VIEW"]["TEXT"] = $arResult["POST_MESSAGE_VIEW"];
 		$arFields = array(
 			"FORUM_ID" => intVal($arParams["FID"]),
 			"TOPIC_ID" => intVal($arParams["TID"]),
@@ -439,6 +429,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"):
 		$arFilesExists = array_keys($arFilesExists);
 		sort($arFilesExists);
 		$arResult["MESSAGE_VIEW"]["FILES"] = $_REQUEST["FILES"] = $arFilesExists;
+		$arResult["MESSAGE_VIEW"]["TEXT"] = $arResult["POST_MESSAGE_VIEW"] = $parser->convert($_POST["POST_MESSAGE"], $arAllow, "html", $arFilesExists);
+		$arResult["MESSAGE_VIEW"]["FILES_PARSED"] = $parser->arFilesIDParsed;
+
 		if ($arParams['AUTOSAVE'])
 			$arParams['AUTOSAVE']->Reset();
 	}
@@ -447,7 +440,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"):
 		$arResult["ERROR_MESSAGE"] = $strErrorMessage;
 		$bVarsFromForm = true;
 	}
-endif;
+}
 /************** Show message for ajax ******************************/
 if ($arResult["SHOW_MESSAGE_FOR_AJAX"] == "Y")
 {
@@ -472,7 +465,8 @@ if ($arResult["SHOW_MESSAGE_FOR_AJAX"] == "Y")
 		}
 		$res = $arResult["MESSAGE"];
 		$res["POST_MESSAGE_TEXT"] = (COption::GetOptionString("forum", "FILTER", "Y")=="Y" ? $res["~POST_MESSAGE_FILTER"] : $res["~POST_MESSAGE"]);
-		$res["POST_MESSAGE_TEXT"] = $parser->convert($res["POST_MESSAGE_TEXT"], $arAllow);
+		$res["POST_MESSAGE_TEXT"] = $parser->convert($res["POST_MESSAGE_TEXT"], $arAllow, "html", $res["FILES"]);
+		$res["FILES_PARSED"] = $parser->arFilesIDParsed;
 //				************************message attach img****************************************
 		$res["ATTACH_IMG"] = "";
 		if (intVal($res["~ATTACH_IMG"])>0 && in_array($arResult["FORUM"]["ALLOW_UPLOAD"], array("Y", "A", "F")))
@@ -544,9 +538,9 @@ if ($arParams["SET_NAVIGATION"] != "N"):
 	foreach ($arResult["GROUP_NAVIGATION"] as $key => $res):
 		$APPLICATION->AddChainItem($res["NAME"], $res["URL"]["~GROUP"]);
 	endforeach;
-	$APPLICATION->AddChainItem(htmlspecialchars($arResult["FORUM"]["NAME"]), $arResult["URL"]["~LIST"]);
+	$APPLICATION->AddChainItem(htmlspecialcharsbx($arResult["FORUM"]["NAME"]), $arResult["URL"]["~LIST"]);
 	if ($arParams["MESSAGE_TYPE"] == "EDIT")
-		$APPLICATION->AddChainItem(htmlspecialchars($arResult["TOPIC"]["TITLE"]), $arResult["URL"]["~READ"]);
+		$APPLICATION->AddChainItem(htmlspecialcharsbx($arResult["TOPIC"]["TITLE"]), $arResult["URL"]["~READ"]);
 endif;
 
 if ($arParams["SET_TITLE"] != "N")

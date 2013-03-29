@@ -43,4 +43,12 @@ $MESS["MOD_SMP_INSTALLED"] = "Die Lösung \"#MODULE_NAME#\" wurde erfolgreich ins
 $MESS["MOD_SMP_UNINSTALLED"] = "Die Lösung \"#MODULE_NAME#\" wurde erfolgreich deinstalliert.";
 $MESS["MOD_SMP_DELETED"] = "Die Lösung \"#MODULE_NAME#\" wurde erfolgreich endgültig gelöscht.";
 $MESS["MOD_SMP_DOWNLOAD"] = "Herunterladen";
+$MESS["MOD_DATE_TO"] = "Aktiv bis";
+$MESS["MOD_DEMO"] = "Demo-Modus";
+$MESS["MOD_DEMO_END"] = "Die Testzeit ist abgelaufen.";
+$MESS["MOD_UPDATE_BUY"] = "Neue Version kaufen";
+$MESS["MOD_UPDATE_BUY_DEMO"] = "Kaufen";
+$MESS["MOD_INSTALL_ERROR"] = "Fehler bei der Installation der Lösung #CODE#";
+$MESS["MOD_UNINSTALL_ERROR"] = "Fehler bei der Deinstallation der Lösung #CODE#";
+$MESS["MOD_CLEAR_CONFIRM"] = "Möchten Sie die Lösung #NAME# wirklich löschen? Sie wird dann von der Website komplett entfernt.";
 ?>

@@ -21,44 +21,19 @@ $MESS["cache_admin_note4"] = "<p>Es wird empfolen, für Seitenabschnitte, die sel
 <li> Disk Quota sollten sorgfältig definiert werden, um DOS-Attacken auf den Speicher zu vermeiden</li>
 <li>Alle Funktionalitäten sollten kontrolliert werden, nachdem der HTML-Cachespeicher aktiviert wurde (z.B. Blog-Kommentare werden nicht mit alten Blog-Vorlagen funktionieren usw.);</li>
 </ul>";
-$MESS["cache_admin_note1"] = "<table width=\"100%\" border=\"0\" cellpadding=\"5\" cellspacing=\"0\"><tr>
-<td valign=\"top\">Durch das Aktivieren des Autocachemodus wird Ihre Seite schneller!</td>
-</tr>
-<tr>
-<td valign=\"top\"><br />
-Im Autocachemodus wird die Information, die von den Komponenten wiedergegeben wird, gemäß der Einstellungen dieser Komponenten aktualisiert.</td>
-</tr>
-<tr>
-<td valign=\"top\"><br />
-Um die von der Seite zwischengespeicherte Objekte zu aktualisieren, können Sie:</td>
-</tr>
-</table>
-<table width=\"100%\" border=\"0\" cellpadding=\"5\" cellspacing=\"0\"><tr>
-<td align=\"center\" valign=\"top\">&nbsp;</td>
-</tr>
-<tr>
-<td valign=\"top\">1. In der Leiste des Ansicht-Modus auf den \"Cache\" Button klicken, um die Objekte zu aktualisieren<br />
-<img src=\"/bitrix/images/main/page_cache_de.png\" vspace=\"5\" /></td>
-</tr>
-<tr>
-<td align=\"center\" valign=\"top\">&nbsp;</td>
-</tr>
-<tr>
-<td valign=\"top\">2. Im Ansicht-Modus bei eingeschaltetem Bearbeitungsmodus im Kontextmenü der benötigten Komponente auf den Button \"Komponenten-Cache löschen\" klicken. <br />
-<img src=\"/bitrix/images/main/comp_cache_de.png\" vspace=\"5\" /></td>
-</tr>
-<tr>
-<td valign=\"top\">&nbsp;</td>
-</tr>
-<tr>
-<td valign=\"top\">3. direkt zu den Komponenten-Parameter wechseln und bei den benötigten Komponenten die Cache-Einstellung \"nicht cachen\" auswählen.<br>
-<img src=\"/bitrix/images/main/spisok_de.gif\" vspace=\"5\" /></td>
-</tr>
-</table>
-<br />
-<p>Nach dem Einschalten des Cache-Modus als Standardeinstellung werden alle Komponenten mit der Cache-Einstellung <i>\"Auto verwaltet\"</i> zum Arbeiten mit dem Zwischenspeicher aktiviert.<br><br>
-Komponenten im Cache-Modus <i>\"cachen\"</i> und mit einer Zwischnspeicherzeit größer als 0 (null), werden immer im Cache-Modus arbeiten.<br><br>
-Komponenten im Cache-Modus <i>\"nicht cachen\"</i> oder mit einer Zwischenspeicherzeit die 0 (null) beträgt, werden immer ohne Cache-Modus arbeiten.</p>";
+$MESS["cache_admin_note1"] = "
+<p>Durch das Aktivieren des Autocachemodus wird Ihre Seite schneller!</p>
+<p>Im Autocachemodus wird die Information, die von den Komponenten wiedergegeben wird, gemäß der Einstellungen dieser Komponenten aktualisiert.</p>
+<p>Um die von der Seite zwischengespeicherte Objekte zu aktualisieren, können Sie:</p>
+<p>1. In der Leiste des Ansicht-Modus auf den \"Cache\" Button klicken, um die Objekte zu aktualisieren</p>
+<img src=\"/bitrix/images/main/page_cache_de.png\" vspace=\"5\" />
+<p>2. Im Ansicht-Modus bei eingeschaltetem Bearbeitungsmodus im Kontextmenü der benötigten Komponente auf den Button \"Komponenten-Cache löschen\" klicken. </p>
+<img src=\"/bitrix/images/main/comp_cache_de.png\" vspace=\"5\" />
+<p>3. direkt zu den Komponenten-Parameter wechseln und bei den benötigten Komponenten die Cache-Einstellung \"nicht cachen\" auswählen.</p>
+<img src=\"/bitrix/images/main/spisok_de.png\" vspace=\"5\" />
+<p>Nach dem Einschalten des Cache-Modus als Standardeinstellung werden alle Komponenten mit der Cache-Einstellung <i>\"Auto verwaltet\"</i> zum Arbeiten mit dem Zwischenspeicher aktiviert.</p>
+<p>Komponenten im Cache-Modus <i>\"cachen\"</i> und mit einer Zwischnspeicherzeit größer als 0 (null), werden immer im Cache-Modus arbeiten.</p>
+<p>Komponenten im Cache-Modus <i>\"nicht cachen\"</i> oder mit einer Zwischenspeicherzeit die 0 (null) beträgt, werden immer ohne Cache-Modus arbeiten.</p>";
 $MESS["cache_admin_note2"] = "Nach dem Säubern der zwischengespeicherten Dateien werden alle angezeigten Inhalte gemäß neuen Daten aktualisiert.
 Neue zwischengespeicherte Dateien werden schrittweise auf den angeforderten Seiten mit Zwischenspeicherbereichen erzeugt.";
 $MESS["MAIN_OPTION_CLEAR_CACHE_ALL"] = "Alle";
@@ -107,7 +82,7 @@ $MESS["main_cache_managed_off"] = "Der verwaltete Cache ist nicht aktiv (nicht e
 $MESS["main_cache_managed_turn_off"] = "Den verwalteten Cache deaktivieren (nicht empfohlen)";
 $MESS["main_cache_managed_const"] = "Die Konstante BX_COMP_MANAGED_CACHE ist angegeben. Der verwaltete Cache ist immer aktiv.";
 $MESS["main_cache_managed_turn_on"] = "Den verwalteten Cache aktivieren";
-$MESS["main_cache_managed_note"] = "Die <b>Technologie der Cache-Abhängigkeit</b> aktualisiert den Cache jedes Mal, wenn Daten geändert warden. Wenn diese Funktion eingeschaltet ist, müssen Sie den Cache beim Update von News oder Produkten nicht manuell aktualisieren: die Website-Besucher werden immer aktuelle Informationen sehen. <br><br> Mehr Information über die Technologie der Cache-Abhängigkeit bekommen Sie auf der Bitrix Website. 
+$MESS["main_cache_managed_note"] = "Die <b>Technologie der Cache-Abhängigkeit</b> aktualisiert den Cache jedes Mal, wenn Daten geändert warden. Wenn diese Funktion eingeschaltet ist, müssen Sie den Cache beim Update von News oder Produkten nicht manuell aktualisieren: die Website-Besucher werden immer aktuelle Informationen sehen. <br><br> Mehr Information über die Technologie der Cache-Abhängigkeit bekommen Sie auf der Bitrix Website.
 <br><br><span style=\"color:grey\"> Bitte beachten: nicht alle Komponenten unterstützen diese Funktion. </span>
 ";
 $MESS["cache_admin_note5"] = "In dieser Edition ist der HTML-Cache immer aktiviert.";

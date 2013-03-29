@@ -1262,3 +1262,4 @@ jsWizard.prototype._OnStepShow = function()
 
 var jsPopup = new JCPopup();
 var jsComponentUtils = new JCComponentUtils();
+;   

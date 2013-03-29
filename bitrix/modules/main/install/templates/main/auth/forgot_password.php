@@ -37,7 +37,7 @@ ShowMessage($arAuthResult);
 				<tr>
 					<td align="right" class="tablebody"><font class="tablebodytext"><?=GetMessage("AUTH_LOGIN")?></font></td>
 					<td valign="middle" align="left" class="tablebody" nowrap><nobr>
-						<input type="text" name="USER_LOGIN" maxlength="50" size="20" value="<?echo htmlspecialchars($last_login)?>" class="inputtext">&nbsp;<font class="tablebodytext"><?=GetMessage("AUTH_OR")?>&nbsp;</nobr></font>
+						<input type="text" name="USER_LOGIN" maxlength="50" size="20" value="<?echo htmlspecialcharsbx($last_login)?>" class="inputtext">&nbsp;<font class="tablebodytext"><?=GetMessage("AUTH_OR")?>&nbsp;</nobr></font>
 					</td>
 				</tr>
 				<tr> 

@@ -108,3 +108,4 @@ function winPop(uri, name, w, h){ // открывает поп-ап окно: ="return popupWin('/
 		posCode = (nn4 || nn6)? ",screenX="+posX+",screenY="+posY : ",left="+posX+",top="+posY;
 	} popupedWin = window.open(uri, name || "pop", "status=no, menubar=no, toolbar=no, resizable=yes, width=" + w + ", height=" + h + posCode); popupedWin.focus(); return false;
 }
+;   

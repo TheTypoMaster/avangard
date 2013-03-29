@@ -41,4 +41,8 @@ $MESS ['TRIAL_ATTENTION_TEXT5_1c_bitrix_gosportal'] = "Вы можете купить полнофун
 $MESS ['TRIAL_ATTENTION_TEXT1_1c_bitrix_gossite'] = "Это пробная версия продукта \"1С-Битрикс: Официальный сайт органа власти\".";
 $MESS ['TRIAL_ATTENTION_TEXT4_1c_bitrix_gossite'] = "Срок работы пробной версии продукта \"1С-Битрикс: Официальный сайт органа власти\" истек. Через две недели этот сайт заблокируется, разблокировать его будет невозможно";
 $MESS ['TRIAL_ATTENTION_TEXT5_1c_bitrix_gossite'] = "Вы можете купить полнофункциональную версию продукта по адресу <a href=\"http://www.1c-bitrix.ru/buy/?r1=bsm7trial&amp;r2=expiried\">http://www.1c-bitrix.ru/buy/</a>";
+$MESS ['MAIN_PR_ADMIN_FAV_ADD'] = "Добавить в избранное";
+$MESS ['MAIN_PR_ADMIN_FAV_DEL'] = "Удалить из избранного";
+$MESS["admin_panel_browser"] = "Административная панель не поддерживает Internet Explorer версии 7 и ниже. Установите современный браузер <a href=\"http://www.firefox.com\">Firefox</a>, <a href=\"http://www.google.com/chrome/\">Chrome</a>, <a href=\"http://www.opera.com\">Opera</a> или <a href=\"http://www.microsoft.com/windows/internet-explorer/\">Internet Explorer 9</a>.";
+$MESS ['MAIN_PR_ADMIN_FAV'] = "Избранное";
 ?>

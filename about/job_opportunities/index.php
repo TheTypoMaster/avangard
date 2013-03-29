@@ -24,25 +24,22 @@ $APPLICATION->SetTitle("Вакансии");
   <br />
  Оформление согласно ТК РФ. 
   <br />
- <b><i>Вакансии в торговых точках:</i></b> 
-  <br />
- ТРЦ &laquo;РИО&raquo;, м. Алтуфьево, Дмитровское шоссе, дом 163 А; 
-  <br />
- ТЦ «Люблинское поле», м. Люблино, Тихорецкий бульвар, дом 1; 
-  <br />
- ТЦ «Интерьер Плаза», г. Балашиха; 
-  <br />
- ТЦ «Скарабей», м. Выхино, МКАД, 8-й километр, внешняя сторона; 
-  <br />
- ТЦ «Мебель России», м. Водный стадион, Кронштадский бульвар, дом 14;</p>
+ <b><i>Вакансии в торговых точках:</i></b></p>
  
-<p style="font-size: 11pt; line-height: 1.5; "><span style="font-family: Arial, Helvetica, sans-serif; ">ТЦ «Мебель России», м. ВДНХ, Ярославское ш., дом 19;</span><span style="font-family: Arial, Helvetica, sans-serif; "> </span>  
+<p> <span style="font-size: 15px; line-height: 22px; ">ДМ &laquo;Медведково&raquo;,  м. Бабушкинская, ул.Полярная , дом 21</span><span style="font-size: 11pt; line-height: 1.5; ">; </span></p>
+ 
+<p style="font-size: 11pt; line-height: 1.5; "> ТЦ «Миллион Мелочей», м.Бибирево, улица Пришвина, дом 26;</p>
+<p style="font-size: 11pt; line-height: 1.5; "> ТЦ «Вагант»,  г.Подольск, улица Станционная, дом 11;</p>
+<p style="font-size: 11pt; line-height: 1.5; "> ТЦ «ГОРОД», м.Шоссе Энтузиастов, Шоссе энтузиастов дом 12, корпус 2;</p>
+<p style="font-size: 11pt; line-height: 1.5; "> ТЦ «Интерьер Плаза», г.Балашиха, Шоссе Энтузиастов, владение 1А;</p>
+<p style="font-size: 11pt; line-height: 1.5; "> Бизнес Парк «Румянцево», м.Юго-Западная, Киевское ш., 500 м. от МКАД;</p>
+ 
+<p><font face="Arial, Helvetica, sans-serif"><span style="font-size: 11pt; line-height: 1.5; ">ТЦ «Мебель России», </span><span style="font-size: 15px; line-height: 22px; ">шоссе Энтузиастов, дом 54</span><span style="font-size: 11pt; line-height: 1.5; ">;</span></font><span style="font-size: 11pt; line-height: 1.5; "> </span>
   <br />
- ТЦ «Миллион Мелочей», м. Бибирево, ул. Пришвина, дом 26; 
-  <br />
- ТЦ «Центр Мебели», м. Медведково, ул. Широкая, дом 29; 
-  <br />
- ТЦ «Золотой Вавилон», м. ВДНХ, просп. Мира, дом 211. 
+ </p>
+
+
+<p style="font-size: 11pt; line-height: 1.5; ">МТЦ «Три кита», Можайское шоссе, 2 км от МКАД. 
   <br />
  
   <br />
@@ -50,28 +47,53 @@ $APPLICATION->SetTitle("Вакансии");
  
 <p>&nbsp;</p>
  
-<p style="font-size: 11pt; line-height: 1.5; "><b>Администратор торгового зала</b> 
-  <br />
- <b><i>Требования:</i></b> 
-  <br />
- Опыт работы от 3 лет в розничной торговле (ТНП). Опыт работы от 1 года в должности старшего продавца или администратора. Грамотная речь, навыки делового общения, навыки управления людьми. 
-  <br />
- <b><i>Условия работы:</i></b> 
-  <br />
- Режим работы согласно режима работы торгового центра, график работы 5/2. 
-  <br />
- Оплата: фиксированный оклад + проценты от общих продаж розничной точки + проценты от личных продаж, от 50 000 тысяч рублей. 
-  <br />
- Оформление согласно ТК РФ. 
-  <br />
- <b><i>Вакансии в торговых точках:</i></b> 
-  <br />
-<span style="font-size: 11pt; line-height: 1.5; ">ТЦ «Мебель России», м. ВДНХ, Ярославское ш., дом 19; </span>
-  <br />
- ТЦ «Город», м. Авиамоторная, ш. Энтузиастов, дом 12. 
-  <br />
- 
-  <br />
+
+<p style="font-size: 11pt; line-height: 1.5; "> 
+<br />
+<br />
+<p style="font-size: 11pt; line-height: 1.5; align:center;"><b>ПРОЙТИ СОБЕСЕДОВАНИЕ НА ВАКАНСИЮ ПРОДАВЦА-КОНСУЛЬТАНТА В НАШЕЙ КОМПАНИИ<br />ВЫ МОЖЕТЕ В УДОБНОМ ДЛЯ ВАС ЦЕНТРЕ СТАЖИРОВКИ ФМ «АВАНГАРД»</b>
+</p><br />
+<table width="100%" align="center" cellspacing="1" cellpadding="4" border="0" bgcolor="#e8e8e8" class="s" >
+	<tbody>
+		<tr class="header_tr">
+			<td height="25" bgcolor="#f8f8f8" align="center"><b>Метро</b></td>
+			<td bgcolor="#f8f8f8" align="center"><b>Торговый Центр</b></td>
+			<td bgcolor="#f8f8f8" align="center"><b>Адрес</b></td>
+			<td bgcolor="#f8f8f8" align="center"><b>Администратор</b></td>
+		</tr>
+		<tr>
+			<td height="25" bgcolor="#ffffff">Пражская</td>
+			<td bgcolor="#ffffff" align="center">МТЦ «Армада»</td>
+			<td bgcolor="#ffffff" align="center">улица Кировоградская, дом 11, корпус 1</td>
+			<td bgcolor="#ffffff" align="center">Анна Гавриленко</td>
+		</tr>
+		<tr>
+			<td height="25" bgcolor="#ffffff">Шоссе Энтузиастов</td>
+			<td bgcolor="#ffffff" align="center">ТЦ «Город»</td>
+			<td bgcolor="#ffffff" align="center">Шоссе энтузиастов дом 12 корпус 2</td>
+			<td bgcolor="#ffffff" align="center">Иван Резницкий</td>
+		</tr>
+		<tr>
+			<td height="25" bgcolor="#ffffff">Водный стадион</td>
+			<td bgcolor="#ffffff" align="center">МТЦ «Мебель России»</td>
+			<td bgcolor="#ffffff" align="center">Кронштадтский бульвар, дом 14</td>
+			<td bgcolor="#ffffff" align="center">Ольга Романова</td>
+		</tr>
+		<tr>
+			<td height="25" bgcolor="#ffffff">Домодедовская</td>
+			<td bgcolor="#ffffff" align="center">МТЦ «Мебель Град»</td>
+			<td bgcolor="#ffffff" align="center">улица Генерала Белова, дом 35</td>
+			<td bgcolor="#ffffff" align="center">Любовь Кожевникова</td>
+		</tr>
+		<tr>
+			<td height="25" bgcolor="#ffffff">г.Пушкино</td>
+			<td bgcolor="#ffffff" align="center">ТЦ «Пулмарт»</td>
+			<td bgcolor="#ffffff" align="center">Ярославское шоссе, 20 км. от МКАД, владение 190, корп. 100</td>
+			<td bgcolor="#ffffff" align="center">Андрей Панченко</td>
+		</tr>
+	</tbody>
+</table>
+<br /><br />
  </p>
  
 <p style="font-size: 11pt; line-height: 1.5; ">Резюме направлять на e-mail: <a href="mailto:TGarbarchuk@avangard.biz" >TGarbarchuk@avangard.biz</a> 

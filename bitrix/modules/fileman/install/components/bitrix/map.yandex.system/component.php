@@ -2,57 +2,46 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 if (!isset($arParams['YANDEX_VERSION']))
-	$arParams['YANDEX_VERSION'] = '1.0';
-
-$arParams['KEY'] = trim($arParams['KEY']);
-
-if (!$arParams['KEY'] && !$arParams['WAIT_FOR_EVENT'])
-{
-	$MAP_KEY = '';
-	$strMapKeys = COption::GetOptionString('fileman', 'map_yandex_keys');
-
-	$strDomain = $_SERVER['HTTP_HOST'];
-	$wwwPos = strpos($strDomain, 'www.');
-	if ($wwwPos === 0)
-		$strDomain = substr($strDomain, 4);
-
-	if ($strMapKeys)
-	{
-		$arMapKeys = unserialize($strMapKeys);
-		
-		if (array_key_exists($strDomain, $arMapKeys))
-			$MAP_KEY = $arMapKeys[$strDomain];
-	}
-	
-	if (!$MAP_KEY)
-	{
-		ShowError(GetMessage('MYMS_ERROR_NO_KEY'));
-		return;
-	}
-	else
-		$arParams['KEY'] = $MAP_KEY;
-}
+	$arParams['YANDEX_VERSION'] = '2.0';
 
 $arParams['DEV_MODE'] = $arParams['DEV_MODE'] == 'Y' ? 'Y' : 'N';
-/*if ($APPLICATION->GetPublicShowMode() != 'view')
-	$arParams['DEV_MODE'] = 'Y';*/
+
+if (!$arParams['LOCALE'])
+{
+	switch (LANGUAGE_ID)
+	{
+		case 'ru':
+			$arParams['LOCALE'] = 'ru-RU';
+		break;
+		case 'ua':
+			$arParams['LOCALE'] = 'ru-UA';
+		break;
+		case 'tk':
+			$arParams['LOCALE'] = 'tr-TR';
+		break;
+		default:
+			$arParams['LOCALE'] = 'en-US';
+		break;
+	}
+}
 
 if (!defined('BX_YMAP_SCRIPT_LOADED'))
 {
-	//$APPLICATION->AddHeadScript('/bitrix/js/main/utils.js');
-	
+	$scheme = (CMain::IsHTTPS() ? "https" : "http");
+	$arResult['MAPS_SCRIPT_URL'] = $scheme.'://api-maps.yandex.ru/'.$arParams['YANDEX_VERSION'].'/?load=package.full&mode=release&lang='.$arParams['LOCALE'].'&wizard=bitrix';
 	if ($arParams['DEV_MODE'] != 'Y')
 	{
+
 		$APPLICATION->AddHeadString(
-			'<script src="http://api-maps.yandex.ru/'.$arParams['YANDEX_VERSION'].'/?key='.$arParams['KEY'].'&wizard=bitrix" type="text/javascript" charset="utf-8"></script>'
+			'<script src="'.$arResult['MAPS_SCRIPT_URL'].'" type="text/javascript" charset="utf-8"></script>'
 		);
 		define('BX_YMAP_SCRIPT_LOADED', 1);
 	}
 }
 
-$arParams['MAP_ID'] = 
-	(strlen($arParams["MAP_ID"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["MAP_ID"])) ? 
-	'MAP_'.RandString() : $arParams['MAP_ID']; 
+$arParams['MAP_ID'] =
+	(strlen($arParams["MAP_ID"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["MAP_ID"])) ?
+	'MAP_'.RandString() : $arParams['MAP_ID'];
 
 $arParams['INIT_MAP_LON'] = floatval($arParams['INIT_MAP_LON']);
 $arParams['INIT_MAP_LON'] = $arParams['INIT_MAP_LON'] ? $arParams['INIT_MAP_LON'] : 37.64;
@@ -63,11 +52,12 @@ $arParams['INIT_MAP_SCALE'] = $arParams['INIT_MAP_SCALE'] ? $arParams['INIT_MAP_
 
 //echo '<pre>'; print_r($arParams); echo '</pre>';
 
-$arResult['ALL_MAP_TYPES'] = array('MAP', 'SATELLITE', 'HYBRID');
-$arResult['ALL_MAP_OPTIONS'] = array('ENABLE_SCROLL_ZOOM' => 'ScrollZoom', 'ENABLE_DBLCLICK_ZOOM' => 'DblClickZoom', 'ENABLE_DRAGGING' => 'Dragging', 'ENABLE_HOTKEYS' => 'HotKeys', 'ENABLE_RULER' => 'Ruler');
-$arResult['ALL_MAP_CONTROLS'] = array('TOOLBAR' => 'ToolBar', 'ZOOM' => 'Zoom', 'SMALLZOOM' => 'SmallZoom', 'MINIMAP' => 'MiniMap', 'TYPECONTROL' => 'TypeControl', 'SCALELINE' => 'ScaleLine');
+$arResult['ALL_MAP_TYPES'] = array('MAP' => 'map', 'SATELLITE' => 'satellite', 'HYBRID' => 'hybrid', 'PUBLIC' => 'publicMap', 'PUBLIC_HYBRID' => 'publicMapHybrid');
 
-if (!$arParams['INIT_MAP_TYPE'] || !in_array($arParams['INIT_MAP_TYPE'], $arResult['ALL_MAP_TYPES']))
+$arResult['ALL_MAP_OPTIONS'] = array('ENABLE_SCROLL_ZOOM' => 'scrollZoom', 'ENABLE_DBLCLICK_ZOOM' => 'dblClickZoom', 'ENABLE_DRAGGING' => 'drag', /*'ENABLE_RULER' => 'ruler', */'ENABLE_RIGHT_MAGNIFIER' => 'rightMouseButtonMagnifier'/*, 'ENABLE_LEFT_MAGNIFIER' => 'leftMouseButtonMagnifier'*/);
+$arResult['ALL_MAP_CONTROLS'] = array('ZOOM' => 'zoomControl', 'SMALLZOOM' => 'smallZoomControl', 'MINIMAP' => 'miniMap', 'TYPECONTROL' => 'typeSelector', 'SCALELINE' => 'scaleLine', 'SEARCH' => 'searchControl');
+
+if (!$arParams['INIT_MAP_TYPE'] || !array_key_exists($arParams['INIT_MAP_TYPE'], $arResult['ALL_MAP_TYPES']))
 	$arParams['INIT_MAP_TYPE'] = 'MAP';
 
 if (!is_array($arParams['OPTIONS']))
@@ -79,7 +69,7 @@ else
 		if (!$arResult['ALL_MAP_OPTIONS'][$option])
 			unset($arParams['OPTIONS'][$key]);
 	}
-	
+
 	$arParams['OPTIONS'] = array_values($arParams['OPTIONS']);
 }
 
@@ -92,7 +82,7 @@ else
 		if (!$arResult['ALL_MAP_CONTROLS'][$control])
 			unset($arParams['CONTROLS'][$key]);
 	}
-	
+
 	$arParams['CONTROLS'] = array_values($arParams['CONTROLS']);
 }
 
@@ -111,6 +101,8 @@ if (substr($arParams['MAP_HEIGHT'], -1, 1) != '%')
 	if ($arParams['MAP_HEIGHT'] <= 0) $arParams['MAP_HEIGHT'] = 500;
 	$arParams['MAP_HEIGHT'] .= 'px';
 }
-	
+
+CJSCore::Init();
+
 $this->IncludeComponentTemplate();
 ?>

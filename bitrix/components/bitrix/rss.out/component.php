@@ -31,12 +31,12 @@ $arParams["SORT_BY1"] = trim($arParams["SORT_BY1"]);
 if(strlen($arParams["SORT_BY1"])<=0)
 	$arParams["SORT_BY1"] = "ACTIVE_FROM";
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER1"]))
-	 $arParams["SORT_ORDER1"]="DESC";
+	$arParams["SORT_ORDER1"]="DESC";
 
 if(strlen($arParams["SORT_BY2"])<=0)
 	$arParams["SORT_BY2"] = "SORT";
 if(!preg_match('/^(asc|desc|nulls)(,asc|,desc|,nulls){0,1}$/i', $arParams["SORT_ORDER2"]))
-	 $arParams["SORT_ORDER2"]="ASC";
+	$arParams["SORT_ORDER2"]="ASC";
 
 if(strlen($arParams["FILTER_NAME"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
 {
@@ -96,7 +96,7 @@ if($this->StartResultCache(false, array($arParams["CACHE_GROUPS"]==="N"? false: 
 			if(substr($k, 0, 1)!=="~")
 			{
 				$arResult["~".$k] = $v;
-				$arResult[$k] = htmlspecialchars($v);
+				$arResult[$k] = htmlspecialcharsbx($v);
 			}
 		}
 	}
@@ -137,7 +137,7 @@ if($this->StartResultCache(false, array($arParams["CACHE_GROUPS"]==="N"? false: 
 				if(substr($k, 0, 1)!=="~")
 				{
 					$arResult["SECTION"]["~".$k] = $v;
-					$arResult["SECTION"][$k] = htmlspecialchars($v);
+					$arResult["SECTION"][$k] = htmlspecialcharsbx($v);
 				}
 			}
 		}
@@ -241,8 +241,8 @@ if($this->StartResultCache(false, array($arParams["CACHE_GROUPS"]==="N"? false: 
 		$arNodesElement = array();
 		foreach($arElement as $code => $value)
 			$arNodesElement["#".$code."#"] = $value;
-		$arNodesElement["#PREVIEW_TEXT#"] = htmlspecialchars($arNodesElement["#PREVIEW_TEXT#"]);
-		$arNodesElement["#DETAIL_TEXT#"] = htmlspecialchars($arNodesElement["#DETAIL_TEXT#"]);
+		$arNodesElement["#PREVIEW_TEXT#"] = htmlspecialcharsbx($arNodesElement["#PREVIEW_TEXT#"]);
+		$arNodesElement["#DETAIL_TEXT#"] = htmlspecialcharsbx($arNodesElement["#DETAIL_TEXT#"]);
 		foreach($arProperties as $code=>$arProperty)
 			$arNodesElement["#".$code."#"] = $arProperty["VALUE"];
 		$arNodesSearch = array_keys($arNodesElement);
@@ -259,7 +259,7 @@ if($this->StartResultCache(false, array($arParams["CACHE_GROUPS"]==="N"? false: 
 			$arItem["title"] = str_replace($arNodesSearch, $arNodesReplace, $arResult["NODES"]["title"]);
 		else
 			$arItem["title"] = $arElement["NAME"];
-		$arItem["title"] = htmlspecialchars(htmlspecialcharsback($arItem["title"]));
+		$arItem["title"] = htmlspecialcharsbx(htmlspecialcharsback($arItem["title"]));
 
 		if(strlen($arResult["NODES"]["link"])>0)
 			$arItem["link"] = str_replace($arNodesSearch, $arNodesReplace, $arResult["NODES"]["link"]);
@@ -271,7 +271,7 @@ if($this->StartResultCache(false, array($arParams["CACHE_GROUPS"]==="N"? false: 
 		if(strlen($arResult["NODES"]["description"])>0)
 			$arItem["description"] = str_replace($arNodesSearch, $arNodesReplace, $arResult["NODES"]["description"]);
 		else
-			$arItem["description"]=htmlspecialchars(($arElement["PREVIEW_TEXT"] || $arParams["YANDEX"]) ? $arElement["PREVIEW_TEXT"] : $arElement["DETAIL_TEXT"]);
+			$arItem["description"]=htmlspecialcharsbx(($arElement["PREVIEW_TEXT"] || $arParams["YANDEX"]) ? $arElement["PREVIEW_TEXT"] : $arElement["DETAIL_TEXT"]);
 
 		if(strlen($arResult["NODES"]["enclosure"])>0)
 		{
@@ -304,13 +304,13 @@ if($this->StartResultCache(false, array($arParams["CACHE_GROUPS"]==="N"? false: 
 			$rsNavChain = CIBlockSection::GetNavChain($arResult["ID"], $arElement["IBLOCK_SECTION_ID"]);
 			while($arNavChain = $rsNavChain->Fetch())
 			{
-				$arItem["category"] .= htmlspecialchars($arNavChain["NAME"])."/";
+				$arItem["category"] .= htmlspecialcharsbx($arNavChain["NAME"])."/";
 			}
 		}
 
 		if($arParams["YANDEX"])
 		{
-			$arItem["full-text"] = htmlspecialchars(htmlspecialcharsback($arElement["DETAIL_TEXT"]));
+			$arItem["full-text"] = htmlspecialcharsbx(htmlspecialcharsback($arElement["DETAIL_TEXT"]));
 		}
 
 		if(strlen($arResult["NODES"]["pubDate"])>0)
@@ -320,6 +320,10 @@ if($this->StartResultCache(false, array($arParams["CACHE_GROUPS"]==="N"? false: 
 		elseif(strlen($arElement["ACTIVE_FROM"])>0)
 		{
 			$arItem["pubDate"] = date("r", MkDateTime($DB->FormatDate($arElement["ACTIVE_FROM"], Clang::GetDateFormat("FULL"), "DD.MM.YYYY H:I:S"), "d.m.Y H:i:s"));
+		}
+		elseif(strlen($arElement["DATE_CREATE"])>0)
+		{
+			$arItem["pubDate"] = date("r", MkDateTime($DB->FormatDate($arElement["DATE_CREATE"], Clang::GetDateFormat("FULL"), "DD.MM.YYYY H:I:S"), "d.m.Y H:i:s"));
 		}
 		else
 		{
@@ -345,6 +349,6 @@ else
 {
 	$contents = ob_get_contents();
 	ob_end_clean();
-	echo "<pre>",htmlspecialchars($contents),"</pre>";
+	echo "<pre>",htmlspecialcharsbx($contents),"</pre>";
 }
 ?>

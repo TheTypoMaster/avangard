@@ -35,6 +35,8 @@ $APPLICATION->IncludeComponent("bitrix:catalog.section", "list", Array(
 	"PAGER_DESC_NUMBERING_CACHE_TIME" => $arParams["PAGER_DESC_NUMBERING_CACHE_TIME"],
 	"PAGER_SHOW_ALL" => $arParams["PAGER_SHOW_ALL"],
 	"PRICE_VAT_INCLUDE" => $arParams["PRICE_VAT_INCLUDE"],
+	"CONVERT_CURRENCY" => $arParams["CONVERT_CURRENCY"],
+	"CURRENCY_ID" => $arParams["CURRENCY_ID"],
 ),
 $component);
 ?>

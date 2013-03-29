@@ -66,15 +66,57 @@ if($BX_GLOBAL_AREA_EDIT_ICON == true)
 			),
 		),
 	);
-	
+
 	echo $GLOBALS['APPLICATION']->IncludeStringAfter($arIcons, array('TOOLTIP'=>GetMessage("main_epilog_before_menu_title"), 'ICON'=>'edit-icon', "COMPONENT_ID" => "page_edit_control"));
 }
 
 $GLOBALS["APPLICATION"]->ShowSpreadCookieHTML();
 
+/*
+//Prints global url classes and  variables for HotKeys
+if($USER->IsAuthorized())
+{
+	AddEventHandler("main", "OnBeforeEndBufferContent", 'PrintHKGlobalUrlVar');
+
+	function PrintHKGlobalUrlVar()
+	{
+		$GLOBALS["APPLICATION"]->AddBufferContent("PrintHKGlobalUrlVar2");
+	}
+
+	function PrintHKGlobalUrlVar2()
+	{
+		return CHotKeys::GetInstance()->PrintGlobalUrlVar();
+	}
+}
+*/
 $sPreviewFile = $_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/tmp/templates/__bx_preview/footer.php";
-if($_GET['bx_template_preview_mode'] == 'Y' && $USER->CanDoOperation('edit_other_settings') && file_exists($sPreviewFile))
+if(
+	isset($_GET['bx_template_preview_mode'])
+	&& $_GET['bx_template_preview_mode'] == 'Y'
+	&& $USER->CanDoOperation('edit_other_settings')
+	&& file_exists($sPreviewFile)
+)
 	include_once($sPreviewFile);
 else
+{
+	if($GLOBALS['APPLICATION']->IsCSSOptimized())
+	{
+		$arCSS = $APPLICATION->GetCSSArray();
+		$arCSSKeys = array_keys($arCSS);
+		$cntCSSKeys = count($arCSS);
+		$APPLICATION->SetWorkAreaLastCss($arCSSKeys[$cntCSSKeys-1]);
+		unset($arCSS, $arCSSKeys);
+	}
+
+	if($GLOBALS['APPLICATION']->IsJSOptimized())
+	{
+		$arScripts = array_unique($APPLICATION->arHeadScripts);
+		$arJsKeys = array_keys($arScripts);
+		$cntJsKeys = count($arScripts);
+		$APPLICATION->SetWorkAreaLastJs($arJsKeys[$cntJsKeys-1]);
+		unset($arCSS, $arCSSKeys);
+	}
+
 	include_once($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".SITE_TEMPLATE_ID."/footer.php");
+}
 ?>

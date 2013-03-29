@@ -40,4 +40,6 @@ $MESS["CP_BCST_USE_PRODUCT_QUANTITY"] = "Feld fpr die Produktmenge einschalten";
 $MESS["CP_BCST_PRODUCT_PROPERTIES"] = "Produkteigenschaften";
 $MESS["CP_BCST_SECTION_FIELDS"] = "Bereichsfelder";
 $MESS["CP_BCST_SECTION_USER_FIELDS"] = "Bereichseigenschaften";
+$MESS["CP_BCST_CONVERT_CURRENCY"] = "Preise in einer Währung anzeigen";
+$MESS["CP_BCST_CURRENCY_ID"] = "Währung in die die Preise konvertiert werden";
 ?>

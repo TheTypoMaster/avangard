@@ -27,7 +27,7 @@ function JCMainLookupSelector(arParams)
 	this.arParams.PROACTIVE = 'NONE';
 	if (arParams.PROACTIVE)
 		this.arParams.PROACTIVE = arParams.PROACTIVE;
-	this.arParams.PROACTIVE = this.arParams.PROACTIVE.toUpperCase(); 
+	this.arParams.PROACTIVE = this.arParams.PROACTIVE.toUpperCase();
 
 	if (null != arParams.AJAX_PARAMS)
 	{
@@ -69,45 +69,41 @@ function JCMainLookupSelector(arParams)
 
 		var DATA = [];
 
-		if ('MESSAGE' == _this.arParams.PROACTIVE)
+		if (BX.type.isNotEmptyString(data))
 		{
-			if ((2 >= data.length) || ('[' == data.substring(0,1)))
+			var data_test = BX.parseJSON(data);
+			if (data_test)
 			{
-				if (data.length > 0)
-					eval('DATA = ' + data);
-			}
-			else
-			{
-				alert(data);	// this alert show proactive message
-				_this.VISUAL.TEXT.value = _this.VISUAL.TEXT.value.replace(_this._currentSearchStr,'');
-				_this._currentSearchStr = '';
-			}
-		}
-		else if ('BXWINDOW' == _this.arParams.PROACTIVE)
-		{
-			if ((2 >= data.length) || ('[' == data.substring(0,1)))
-			{
-				if (data.length > 0)
-					eval('DATA = ' + data);
-			}
-			else
-			{
-				var obDialog = new BX.CDialog({
-					'content': data,
-					'draggable': true,
-					'resizable': false,
-					'buttons': [BX.CDialog.btnClose]
-				});
-				obDialog.Show();
-				_this.VISUAL.TEXT.value = _this.VISUAL.TEXT.value.replace(_this._currentSearchStr,'');
-				_this._currentSearchStr = '';
-			}
-		}
-		else
-		{
-			if (data.length > 0)
 				eval('DATA = ' + data);
+			}
+			else
+			{
+				if ("''" != data)
+				{
+					if ('MESSAGE' == _this.arParams.PROACTIVE || 'BXWINDOW' == _this.arParams.PROACTIVE)
+					{
+						if ('MESSAGE' == _this.arParams.PROACTIVE)
+						{
+							alert(data);	// this alert show proactive message
+						}
+						else
+						{
+							var obDialog = new BX.CDialog({
+							'content': data,
+							'draggable': true,
+							'resizable': false,
+							'buttons': [BX.CDialog.btnClose]
+						});
+							obDialog.Show();
+						}
+
+						_this.VISUAL.TEXT.value = _this.VISUAL.TEXT.value.replace(_this._currentSearchStr,'');
+						_this._currentSearchStr = '';
+					}
+				}
+			}
 		}
+
 		if (DATA.length > 0)
 		{
 			if (DATA.length == 1 && null != DATA[0].READY)
@@ -279,7 +275,7 @@ JCMainLookupSelector.prototype.Init = function()
 	this.__hideSearch = function() {if (null != _this.SEARCH) _this.SEARCH.style.display = 'none';}
 	this.__delayedHideSearch = function() {if (null != _this.SEARCH) setTimeout(_this.__hideSearch, 500);}
 
-	jsUtils.addEvent(this.VISUAL.TEXT, 'blur', _this.__delayedHideSearch);
+	jsUtils.addEvent(this.VISUAL.TEXT, 'blur', this.__delayedHideSearch);
 
 	this.VALUE_CONTAINER = this.LAYOUT.appendChild(document.createElement('DIV'));
 	this.VALUE_CONTAINER.style.display = 'none';
@@ -302,7 +298,7 @@ JCMainLookupSelector.prototype.Clear = function()
 	this.VISUAL.onControlKeyPressed = null;
 	this.VISUAL.onSuspiciousTokensFound = null;
 
-	jsUtils.removeEvent(this.VISUAL.TEXT, 'blur', _this.__delayedHideSearch);
+	jsUtils.removeEvent(this.VISUAL.TEXT, 'blur', this.__delayedHideSearch);
 
 	// reset and kill textarea processing object
 	this.VISUAL.Reset(false, true);
@@ -319,6 +315,7 @@ JCMainLookupSelector.prototype.Clear = function()
 	}
 
 	this._currentSearchStr = '';
+	BX.cleanNode(this.LAYOUT, true);
 }
 
 JCMainLookupSelector.prototype.SetTokenInput = function(arParams, arEventParams)
@@ -431,7 +428,7 @@ function JCMainLookupSelectorText(arParams)
 	this.TEXT.bx_focused = false;
 
 	this.TEXT.style.width = '95%';
-	if (this.arParams.MAX_WIDTH) this.TEXT.style.width = this.arParams.MAX_WIDTH + 'px'; 
+	if (this.arParams.MAX_WIDTH) this.TEXT.style.width = this.arParams.MAX_WIDTH + 'px';
 	if(this.TEXT.type.toLowerCase() == "textarea")
 		this.TEXT.style.height = this.arParams.MIN_HEIGHT + 'px';
 
@@ -614,12 +611,13 @@ JCMainLookupSelectorText.prototype.__split = function (str, separator, limit) {
 }
 
 //This function splits string with respect to __check_reg pattern
-JCMainLookupSelectorText.prototype.__parse = function(str, split_reg, check_reg, arTokens)
+JCMainLookupSelectorText.prototype.__parse = function(str, split_reg, check_reg, arTokens, newStr)
 {
 	var arResult = [];
 
 	var arToks = [];
 	var tok = '';
+
 	if(arTokens && arTokens.length > 0)
 	{
 		for(var j = 0; j < arTokens.length; j++)
@@ -628,7 +626,51 @@ JCMainLookupSelectorText.prototype.__parse = function(str, split_reg, check_reg,
 			{
 				tok = jsUtils.trim(arTokens[j].TOKEN);
 				if(tok.length)
+				{
 					arToks[arToks.length] = tok;
+					var start = -1;
+					while( (start = str.indexOf(tok, start+1)) > -1 )
+					{
+						arResult[arResult.length] = {
+							'start' : start,
+							'end' : start + tok.length,
+							'tok' : tok,
+							'delim' : ''
+						};
+					}
+				}
+			}
+		}
+	}
+	if(newStr && newStr.length > 0)
+	{
+		tok = jsUtils.trim(newStr);
+		if(tok.length)
+		{
+			arToks[arToks.length] = tok;
+			var start = -1;
+			while( (start = str.indexOf(tok, start+1)) > -1 )
+			{
+				var found = false;
+				for(var i =0; i < arResult.length; i++)
+				{
+					if(start >= arResult[i].start && start < arResult[i].end)
+					{
+						start = arResult[i].end;
+						found = true;
+					}
+				}
+
+				if(!found)
+				{
+					arResult[arResult.length] = {
+						'start' : start,
+						'end' : start + tok.length,
+						'tok' : tok,
+						'delim' : ''
+					};
+					break;
+				}
 			}
 		}
 	}
@@ -648,7 +690,22 @@ JCMainLookupSelectorText.prototype.__parse = function(str, split_reg, check_reg,
 		else
 			delim = '';
 
+		var skip = false;
 		if(tok.length)
+		{
+			for(var ii = 0; ii < arResult.length && !skip; ii++)
+			{
+				if ( cur_pos >= arResult[ii].start && cur_pos < arResult[ii].end )
+				{
+					arResult[ii].delim = delim;
+					skip = true;
+				}
+			}
+			//if ( cur_pos >= strNew_start && cur_pos < strNew_end )
+			//	skip = true;
+		}
+
+		if(tok.length && !skip)
 		{
 			//Additional check if this is string followed known token
 			if(check_reg.test(tok) && arToks.length > 0)
@@ -808,6 +865,8 @@ JCMainLookupSelectorText.prototype.Reset = function(bClearText, bClearEvents)
 
 	for (var i = 0; i < this.arTokens.length; i++)
 	{
+		if (null == this.arTokens[i])
+			continue;
 		this.arTokensMap[this.arTokens[i].TEXT_HASH] = null;
 		this.arTokens[i] = null;
 	}
@@ -893,12 +952,12 @@ JCMainLookupSelectorText.prototype.AddTokenData = function(data, bSelect)
 
 	if(this.TEXT.type.toLowerCase() == "textarea")
 	{
-		if (this.TEXT.value.length > 0 && this.TEXT.value.substr(this.TEXT.value.length-1, 1) != "\n")
-			this.TEXT.value += "\n";
-
 		var str = jsUtils.trim(data.NAME + ' [' + data.ID + ']');
 		if(this.TEXT.value.indexOf(str) < 0)
 		{
+			if (this.TEXT.value.length > 0 && this.TEXT.value.substr(this.TEXT.value.length-1, 1) != "\n")
+				this.TEXT.value += "\n";
+
 			this.TEXT.value += str + "\n";
 			this.TEXT.scrollTop = scrollTop;
 			this.SetTokenData(str, data, bSelect);
@@ -920,7 +979,7 @@ JCMainLookupSelectorText.prototype.SetTokenData = function(str, data, bSelect)
 {
 	if (null == bSelect) bSelect = true;
 
-	var arToks = this.__parse(this.TEXT.value, this.__split_reg, this.__check_reg, this.arTokens);
+	var arToks = this.__parse(this.TEXT.value, this.__split_reg, this.__check_reg, this.arTokens, str);
 
 	var delim = '';
 	for (var i = 0; i < arToks.length; i++)

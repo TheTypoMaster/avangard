@@ -247,7 +247,7 @@ if ($arParams["SHOW_FORUMS_LIST"] != "N")
 	if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 	{
 		$res = $cache->GetVars();
-		$arForums = $res["arForums"];
+		$arForums = CForumCacheManager::Expand($res["arForums"]);
 	}
 	$arForums = (is_array($arForums) ? $arForums : array());
 	if (empty($arForums))
@@ -262,7 +262,7 @@ if ($arParams["SHOW_FORUMS_LIST"] != "N")
 		}
 		if ($arParams["CACHE_TIME"] > 0):
 			$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
-			$cache->EndDataCache(array("arForums" => $arForums));
+			$cache->EndDataCache(array("arForums" => CForumCacheManager::Compress($arForums)));
 		endif;
 	}
 /*******************************************************************/

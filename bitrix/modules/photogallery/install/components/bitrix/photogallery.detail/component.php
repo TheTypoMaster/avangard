@@ -1,17 +1,14 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
-if (!CModule::IncludeModule("photogallery")):
-	ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
-	return 0;
-elseif (!IsModuleInstalled("iblock")):
-	ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
-	return 0;
-elseif (intval($arParams["ELEMENT_ID"]) <= 0):
-	ShowError(GetMessage("PHOTO_ELEMENT_NOT_FOUND"));
+if (!CModule::IncludeModule("photogallery"))
+	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+elseif (!IsModuleInstalled("iblock"))
+	return ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+elseif (intval($arParams["ELEMENT_ID"]) <= 0)
+{
 	if ($arParams["SET_STATUS_404"] == "Y")
 		CHTTP::SetStatus("404 Not Found");
-	return 0;
-endif;
-
+	return ShowError(GetMessage("PHOTO_ELEMENT_NOT_FOUND"));
+}
 /********************************************************************
 				For custom components
 ********************************************************************/
@@ -102,7 +99,7 @@ if (!empty($arParams["ELEMENT_SORT_FIELD1"]))
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 //***************** ADDITIONAL **************************************/
 	$arParams["PASSWORD_CHECKED"] = true;
@@ -133,12 +130,12 @@ if (!empty($arParams["ELEMENT_SORT_FIELD1"]))
 $arResult["ELEMENT"] = array();
 $ELEMENT_ID = intVal($arParams["ELEMENT_ID"]);
 $cache = new CPHPCache;
-$cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]."/");
+$cache_path = "/".SITE_ID."/photogallery/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"];
+
 /************** ELEMENT ********************************************/
 $cache_id = "element_".$arParams["ELEMENT_ID"];
 if(($tzOffset = CTimeZone::GetOffset()) <> 0)
 	$cache_id .= "_".$tzOffset;
-$cache_path = $cache_path_main."detail/".$arParams["SECTION_ID"]."/".$arParams["ELEMENT_ID"];
 
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
@@ -170,13 +167,14 @@ else
 		"CREATED_BY",
 		"PROPERTY_*"
 	);
-	foreach ($arParams["ELEMENT_SELECT_FIELDS"] as $val):
+	foreach ($arParams["ELEMENT_SELECT_FIELDS"] as $val)
+	{
 		$val = strtoupper($val);
 		if (strpos($val, "PROPERTY_") !== false && !in_array($val, $arParams["PROPERTY_CODE"]))
 			$arParams["PROPERTY_CODE"][] = $val;
 		elseif (strpos($val, "PROPERTY_") === false && !in_array($val, $arSelect))
 			$arSelect[] = $val;
-	endforeach;
+	}
 
 	$arParams["PROPERTY_CODE"][] = "PROPERTY_REAL_PICTURE";
 	//WHERE
@@ -238,7 +236,7 @@ else
 		{
 			$ar["~TAGS_URL"] = CComponentEngine::MakePathFromTemplate($arParams["~SEARCH_URL"], array()).
 				(strpos($arParams["~SEARCH_URL"], "?") === false ? "?" : "&")."tags=";
-			$ar["TAGS_URL"] = htmlspecialchars($ar["~TAGS_URL"]).urlencode($tags);
+			$ar["TAGS_URL"] = htmlspecialcharsbx($ar["~TAGS_URL"]).urlencode($tags);
 			$ar["TAGS_NAME"] = htmlspecialcharsex($tags);
 			$arElement["TAGS_LIST"][] = $ar;
 		}
@@ -259,8 +257,6 @@ $oPhoto = new CPGalleryInterface(
 		"Permission" => $arParams["PERMISSION_EXTERNAL"]),
 	array(
 		"cache_time" => $arParams["CACHE_TIME"],
-		"cache_path" => $cache_path_main,
-		"show_error" => "Y",
 		"set_404" => $arParams["SET_STATUS_404"]
 		)
 	);
@@ -321,8 +317,8 @@ if (!array_key_exists("ID", $arSort))
 $cache_id = "elementlist_".serialize(array(
 	"ELEMENT_ID" => $arParams["ELEMENT_ID"],
 	"FILTER" => $arFilter,
-	"SORT" => $arSort));
-$cache_path = $cache_path_main."detaillist/".$arParams["SECTION_ID"]."/".$arParams["ELEMENT_ID"];
+	"SORT" => $arSort
+));
 
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
@@ -334,7 +330,8 @@ else
 	$arResult["ELEMENTS_LIST"] = array(
 		"PREV_ELEMENT" => array(),
 		"PREV_ELEMENT_COUNT" => 0,
-		"NEXT_ELEMENT" => array());
+		"NEXT_ELEMENT" => array()
+	);
 	$arSelect = array("ID", "IBLOCK_ID", "IBLOCK_SECTION_ID", "NAME");
 	$db_res = CIBlockElement::GetList($arSort, $arFilter, false, array("nElementID" => $arParams["ELEMENT_ID"], "nPageSize" => 1), $arSelect);
 	$bFounded = false;
@@ -344,7 +341,7 @@ else
 		{
 			$res["~DETAIL_PAGE_URL"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_URL"],
 				array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $res["IBLOCK_SECTION_ID"], "ELEMENT_ID" => $res["ID"]));
-			$res["DETAIL_PAGE_URL"] = htmlspecialchars($res["~DETAIL_PAGE_URL"]);
+			$res["DETAIL_PAGE_URL"] = htmlspecialcharsbx($res["~DETAIL_PAGE_URL"]);
 			if ($res["ID"] == $arParams["ELEMENT_ID"])
 			{
 				$bFounded = true;
@@ -378,42 +375,44 @@ else
 $ii = $arResult["ELEMENTS_LIST_CURRENT_NUMBER"] = intVal($arResult["ELEMENTS_LIST"]["PREV_ELEMENT_COUNT"]);
 $arResult["ELEMENTS_LIST"] = array(
 	$ii - 2 => $arResult["ELEMENTS_LIST"]["PREV_ELEMENT"],
-	$ii => $arResult["ELEMENTS_LIST"]["NEXT_ELEMENT"]);
+	$ii => $arResult["ELEMENTS_LIST"]["NEXT_ELEMENT"]
+);
 $arResult["ELEMENT"]["CURRENT"] = array(
 	"NO" => $ii,
-	"COUNT" => ($arParams["PERMISSION"] < "U" ? $arResult["SECTION"]["SECTION_ELEMENTS_CNT"] : $arResult["SECTION"]["SECTION_ELEMENTS_CNT_ALL"]));
+	"COUNT" => ($arParams["PERMISSION"] < "U" ? $arResult["SECTION"]["SECTION_ELEMENTS_CNT"] : $arResult["SECTION"]["SECTION_ELEMENTS_CNT_ALL"])
+);
 /************** Custom Components/**********************************/
 $arResult["SECTION"]["~BACK_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"],
 		array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arParams["SECTION_ID"]));
-$arResult["SECTION"]["BACK_LINK"] = htmlspecialchars($arResult["SECTION"]["~BACK_LINK"]);
+$arResult["SECTION"]["BACK_LINK"] = htmlspecialcharsbx($arResult["SECTION"]["~BACK_LINK"]);
 if ($arParams["PERMISSION"] >= "U")
 {
 	$arResult["SECTION"]["~UPLOAD_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["~UPLOAD_URL"],
 		array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arParams["SECTION_ID"]));
-	$arResult["SECTION"]["UPLOAD_LINK"] = htmlspecialchars($arResult["SECTION"]["~UPLOAD_LINK"]);
+	$arResult["SECTION"]["UPLOAD_LINK"] = htmlspecialcharsbx($arResult["SECTION"]["~UPLOAD_LINK"]);
 
 	$arResult["ELEMENT"]["~DETAIL_PAGE_URL"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_URL"],
 		array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arParams["SECTION_ID"], "ELEMENT_ID" => $arResult["ELEMENT"]["ID"]));
-	$arResult["ELEMENT"]["DETAIL_PAGE_URL"] = htmlspecialchars($arResult["ELEMENT"]["~DETAIL_PAGE_URL"]);
+	$arResult["ELEMENT"]["DETAIL_PAGE_URL"] = htmlspecialcharsbx($arResult["ELEMENT"]["~DETAIL_PAGE_URL"]);
 
 	$arResult["ELEMENT"]["~EDIT_URL"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_EDIT_URL"],
 		array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arParams["SECTION_ID"], "ELEMENT_ID" => $arResult["ELEMENT"]["ID"], "ACTION" => "edit"));
-	$arResult["ELEMENT"]["EDIT_URL"] = htmlspecialchars($arResult["ELEMENT"]["~EDIT_URL"]);
+	$arResult["ELEMENT"]["EDIT_URL"] = htmlspecialcharsbx($arResult["ELEMENT"]["~EDIT_URL"]);
 
 	$arResult["ELEMENT"]["~DROP_URL"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_EDIT_URL"],
 		array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arParams["SECTION_ID"],
 			"ELEMENT_ID" => $arResult["ELEMENT"]["ID"], "ACTION" => "drop")).
 			(strpos($arParams["~DETAIL_EDIT_URL"], "?") === false ? "?" : "&").bitrix_sessid_get();
-	$arResult["ELEMENT"]["DROP_URL"] = htmlspecialchars($arResult["ELEMENT"]["~DROP_URL"]);
+	$arResult["ELEMENT"]["DROP_URL"] = htmlspecialcharsbx($arResult["ELEMENT"]["~DROP_URL"]);
 }
 
 $arResult["ELEMENT"]["~DETAIL_PAGE_URL"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_URL"],
 	array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arParams["SECTION_ID"], "ELEMENT_ID" => $arResult["ELEMENT"]["ID"]));
-$arResult["ELEMENT"]["DETAIL_PAGE_URL"] = htmlspecialchars($arResult["ELEMENT"]["~DETAIL_PAGE_URL"]);
+$arResult["ELEMENT"]["DETAIL_PAGE_URL"] = htmlspecialcharsbx($arResult["ELEMENT"]["~DETAIL_PAGE_URL"]);
 
 $arResult["~SLIDE_SHOW"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_SLIDE_SHOW_URL"],
 	array("USER_ALIAS" => $arParams["USER_ALIAS"], "SECTION_ID" => $arParams["SECTION_ID"], "ELEMENT_ID" => $arResult["ELEMENT"]["ID"]));
-$arResult["SLIDE_SHOW"] = htmlspecialchars($arResult["~SLIDE_SHOW"]);
+$arResult["SLIDE_SHOW"] = htmlspecialcharsbx($arResult["~SLIDE_SHOW"]);
 /*************************************************************************
 			/Data
 *************************************************************************/
@@ -428,7 +427,6 @@ $this->IncludeComponentTemplate();
 
 if($arParams["SET_TITLE"] != "N")
 	$APPLICATION->SetTitle($arResult["SECTION"]["NAME"].": ".$arResult["ELEMENT"]["NAME"]);
-	//$APPLICATION->SetTitle($arResult["SECTION"]["NAME"]);
 
 /************** BreadCrumb *****************************************/
 if ($arParams["SET_NAV_CHAIN"] != "N")

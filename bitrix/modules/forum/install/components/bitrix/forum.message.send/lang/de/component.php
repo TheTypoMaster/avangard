@@ -19,4 +19,5 @@ $MESS ['F_MESS_NOAUTH'] = "Nicht autorisiert";
 $MESS ['F_NO_DUSER'] = "Der User mit der ID #UID# wurde nicht gefunden.";
 $MESS ['F_NO_ACCESS'] = "Das Versenden von Nachrichten zum Posteingang ist verboten";
 $MESS ['F_NO_ICQ'] = "Sie können keine ICQ-Nachrichten versenden";
+$MESS ['F_OK_MESSAGE_SEND'] = "Der Beitrag wurde erfolgreich gesendet";
 ?>

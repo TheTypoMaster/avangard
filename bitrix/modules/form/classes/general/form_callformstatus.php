@@ -50,25 +50,25 @@ class CAllFormStatus
 	function GetPermissions($STATUS_ID)
 	{
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetPermissions<br>Line: ";
-		
+
 		global $DB, $USER, $strError;
-		
+
 		$USER_ID = $USER->GetID();
 		$STATUS_ID = intval($STATUS_ID);
 		$arReturn = array();
 		$arGroups = $USER->GetUserGroupArray();
-		
-		if (!is_array($arGroups) || count($arGroups) <= 0) 
+
+		if (!is_array($arGroups) || count($arGroups) <= 0)
 			$arGroups = array(2);
-			
-		if (CForm::IsAdmin()) 
+
+		if (CForm::IsAdmin())
 		{
 			$arReturn = CFormStatus::GetMaxPermissions();
 		}
 		else
 		{
 			$groups = implode(",",$arGroups);
-			
+
 			$strSql = "
 				SELECT
 					G.PERMISSION
@@ -76,14 +76,14 @@ class CAllFormStatus
 					b_form_status_2_group G
 				WHERE
 					G.STATUS_ID = $STATUS_ID
-				AND	
+				AND
 					G.GROUP_ID IN (0,".$groups.")";
 
 			$z = $DB->Query($strSql, false, $err_mess.__LINE__);
-			while ($zr = $z->Fetch()) 
+			while ($zr = $z->Fetch())
 				$arReturn[] = $zr["PERMISSION"];
 		}
-		
+
 		return $arReturn;
 	}
 
@@ -176,17 +176,17 @@ class CAllFormStatus
 
 			if (is_set($arFields, "MAIL_EVENT_TYPE"))
 				$arFields_i["MAIL_EVENT_TYPE"] = "'".$DB->ForSql($arFields["MAIL_EVENT_TYPE"],255)."'";
-				
+
 			$DEFAULT_STATUS_ID = intval(CFormStatus::GetDefault($arFields["FORM_ID"]));
 			if ($DEFAULT_STATUS_ID<=0 || $DEFAULT_STATUS_ID==$STATUS_ID)
 			{
 				if (is_set($arFields, "DEFAULT_VALUE"))
 					$arFields_i["DEFAULT_VALUE"] = ($arFields["DEFAULT_VALUE"]=="Y") ? "'Y'" : "'N'";
 			}
-			
+
 			//echo '<pre>'; print_r($arFields); echo '</pre>';
 			//die();
-			
+
 			if ($STATUS_ID>0)
 			{
 				$DB->Update("b_form_status", $arFields_i, "WHERE ID='".$STATUS_ID."'", $err_mess.__LINE__);
@@ -310,7 +310,7 @@ class CAllFormStatus
 		if ($arStatus = $rsStatus->Fetch())
 		{
 			$RIGHT_OK = "N";
-			if ($CHECK_RIGHTS!="Y" || CForm::IsAdmin()) 
+			if ($CHECK_RIGHTS!="Y" || CForm::IsAdmin())
 				$RIGHT_OK="Y";
 			else
 			{
@@ -329,11 +329,11 @@ class CAllFormStatus
 							return true;
 					}
 				}
-				else 
+				else
 					$strError .= GetMessage("FORM_ERROR_CANNOT_DELETE_STATUS")."<br>";
 			}
 		}
-		else 
+		else
 			$strError .= GetMessage("FORM_ERROR_STATUS_NOT_FOUND")."<br>";
 		return false;
 	}
@@ -398,7 +398,7 @@ class CAllFormStatus
 		else $strError .= GetMessage("FORM_ERROR_STATUS_NOT_FOUND")."<br>";
 		return false;
 	}
-	
+
 	function SetMailTemplate($WEB_FORM_ID, $STATUS_ID, $ADD_NEW_TEMPLATE="Y", $old_SID="", $bReturnFullInfo = false)
 	{
 		global $DB, $MESS, $strError;
@@ -412,7 +412,7 @@ class CAllFormStatus
 			if ($arrStatus = $dbRes->Fetch())
 			{
 				$MAIL_EVENT_TYPE = "FORM_STATUS_CHANGE_".$arrForm["SID"]."_".$arrStatus['ID'];
-				if (strlen($old_SID)>0) 
+				if (strlen($old_SID)>0)
 					$old_MAIL_EVENT_TYPE = "FORM_STATUS_CHANGE_".$old_SID."_".$arrStatus['ID'];
 
 				$et = new CEventType;
@@ -476,7 +476,7 @@ class CAllFormStatus
 
 							$SUBJECT = GetMessage("FORM_CHANGE_STATUS_S");
 							$MESSAGE = GetMessage("FORM_CHANGE_STATUS_B");
-							
+
 							// добавляем новый шаблон
 							$arFields = Array(
 								"ACTIVE"		=> "Y",
@@ -497,11 +497,11 @@ class CAllFormStatus
 								);
 							else
 								$arrReturn[] = $TEMPLATE_ID;
-								
+
 						}
 					}
 				}
-				
+
 				CFormStatus::Set(array('FORM_ID' => $WEB_FORM_ID, 'MAIL_EVENT_TYPE' => $MAIL_EVENT_TYPE), $STATUS_ID, 'N');
 
 				$MESS = $OLD_MESS;
@@ -509,16 +509,16 @@ class CAllFormStatus
 		}
 		return $arrReturn;
 	}
-	
+
 	function GetMailTemplateArray($STATUS_ID)
 	{
 		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetMailTemplateArray<br>Line: ";
-		
+
 		global $DB, $USER, $strError;
-		
+
 		$STATUS_ID = intval($STATUS_ID);
 		if ($STATUS_ID <= 0) return false;
-		
+
 		$arrRes = array();
 		$strSql = "
 SELECT
@@ -535,12 +535,12 @@ WHERE
 
 		return $arrRes;
 	}
-	
+
 	function GetTemplateList($STATUS_ID)
 	{
 		$err_mess = (CAllForm::err_mess())."<br>Function: GetTemplateList<br>Line: ";
 		global $DB, $strError;
-		
+
 		$STATUS_ID = intval($STATUS_ID);
 		if ($STATUS_ID > 0)
 		{
@@ -562,10 +562,10 @@ WHERE
 				$MAIL_EVENT_TYPE = $zr["MAIL_EVENT_TYPE"];
 				$arrSITE[] = $zr["SITE_ID"];
 			}
-			
+
 			if (strlen($MAIL_EVENT_TYPE) <= 0)
 				return false;
-			
+
 			$arReferenceId = array();
 			$arReference = array();
 			$arFilter = Array(

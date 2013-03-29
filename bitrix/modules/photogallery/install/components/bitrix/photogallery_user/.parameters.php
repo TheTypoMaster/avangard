@@ -41,7 +41,7 @@ $handle = opendir($path);
 $file_exist = false;
 if ($handle)
 {
-	while($file = readdir($handle)) 
+	while($file = readdir($handle))
 	{
 		if ($file == "." || $file == ".." || !is_file($path.$file))
 			continue;
@@ -66,7 +66,7 @@ $arComponentParameters = array(
 	"PARAMETERS" => array(
 		"USE_LIGHT_VIEW" => array(
 			"PARENT" => "BASE",
-	        "NAME" => GetMessage("P_USE_LIGHT_VIEW"),
+			"NAME" => GetMessage("P_USE_LIGHT_VIEW"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "Y",
 			"REFRESH" => "Y"),
@@ -94,14 +94,14 @@ $arComponentParameters = array(
 		),
 		"ONLY_ONE_GALLERY" => array(
 			"PARENT" => "BASE",
-	        "NAME" => GetMessage("P_ONLY_ONE_GALLERY"),
+			"NAME" => GetMessage("P_ONLY_ONE_GALLERY"),
 			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "Y", 
+			"DEFAULT" => "Y",
 			"HIDDEN" => $hidden
 		),
 		"MODERATION" => array(
 			"PARENT" => "BASE",
-	        "NAME" => GetMessage("P_GLOBAL_MODERATE"),
+			"NAME" => GetMessage("P_GLOBAL_MODERATE"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N"),
 /*		"GALLERY_SIZE" => Array(
@@ -117,11 +117,11 @@ $arComponentParameters = array(
 			"VALUES" => array(
 				"ID" => "ID",
 				"NAME" => GetMessage("IBLOCK_SORT_NAME"),
-				"SORT" => GetMessage("IBLOCK_SORT_SORT"), 
+				"SORT" => GetMessage("IBLOCK_SORT_SORT"),
 				"ELEMENTS_CNT" => GetMessage("IBLOCK_SORT_ELEMENTS_CNT"),
 				"UF_DATE" => GetMessage("IBLOCK_SORT_DATE")
 			),
-			"DEFAULT" => "UF_DATE", 
+			"DEFAULT" => "UF_DATE",
 			"HIDDEN" => $hidden
 		),
 		"SECTION_SORT_ORD" => array(
@@ -131,7 +131,7 @@ $arComponentParameters = array(
 			"VALUES" => array(
 				"ASC" => GetMessage("IBLOCK_SORT_ASC"),
 				"DESC" => GetMessage("IBLOCK_SORT_DESC")),
-			"DEFAULT" => "DESC", 
+			"DEFAULT" => "DESC",
 			"HIDDEN" => $hidden),
 		"ELEMENT_SORT_FIELD" => array(
 			"PARENT" => "BASE",
@@ -146,7 +146,7 @@ $arComponentParameters = array(
 				"rating" => GetMessage("IBLOCK_SORT_RATING"),
 				"comments" => GetMessage("IBLOCK_SORT_COMMENTS")),
 			"ADDITIONAL_VALUES" => "Y",
-			"DEFAULT" => "id", 
+			"DEFAULT" => "id",
 			"HIDDEN" => $hidden),
 		"ELEMENT_SORT_ORDER" => array(
 			"PARENT" => "BASE",
@@ -155,7 +155,7 @@ $arComponentParameters = array(
 			"VALUES" => array(
 				"asc" => GetMessage("IBLOCK_SORT_ASC"),
 				"desc" => GetMessage("IBLOCK_SORT_DESC")),
-			"DEFAULT" => "desc", 
+			"DEFAULT" => "desc",
 			"HIDDEN" => $hidden
 		),
 
@@ -165,7 +165,7 @@ $arComponentParameters = array(
 			"TYPE" => "STRING",
 			"DEFAULT" => ""
 		),
-	
+
 		"VARIABLE_ALIASES" => Array(
 			"USER_ID" => Array("NAME" => GetMessage("USER_ID_DESC")),
 			"USER_ALIAS" => Array("NAME" => GetMessage("USER_ALIAS_DESC")),
@@ -173,13 +173,13 @@ $arComponentParameters = array(
 			"ELEMENT_ID" => Array("NAME" => GetMessage("ELEMENT_ID_DESC")),
 			"PAGE_NAME" => Array("NAME" => GetMessage("PAGE_NAME_DESC")),
 			"ACTION" => Array("NAME" => GetMessage("ACTION_DESC"))),
-			
+
 		"SEF_MODE" => Array(
 			"index" => array(
 				"NAME" => GetMessage("INDEX_PAGE"),
 				"DEFAULT" => "index.php",
 				"VARIABLES" => array()),
-				
+
 			"galleries" => array(
 				"NAME" => GetMessage("GALLERIES_PAGE"),
 				"DEFAULT" => "galleries/#USER_ID#/",
@@ -192,7 +192,7 @@ $arComponentParameters = array(
 				"NAME" => GetMessage("GALLERY_EDIT_PAGE"),
 				"DEFAULT" => "#USER_ALIAS#/action/#ACTION#/",
 				"VARIABLES" => array("USER_ALIAS", "ACTION")),
-				
+
 			"section" => array(
 				"NAME" => GetMessage("SECTION_PAGE"),
 				"DEFAULT" => "#USER_ALIAS#/#SECTION_ID#/",
@@ -231,25 +231,25 @@ $arComponentParameters = array(
 			"PARENT" => "PAGE_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_SECTION_PAGE_ELEMENT_COUNT"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "15", 
+			"DEFAULT" => "15",
 			"HIDDEN" => $hidden),
 		"ELEMENTS_PAGE_ELEMENTS" => array(
 			"PARENT" => "PAGE_SETTINGS",
 			"NAME" => GetMessage("IBLOCK_ELEMENTS_PAGE_ELEMENTS"),
 			"TYPE" => "STRING",
-			"DEFAULT" => '50', 
+			"DEFAULT" => '50',
 			"HIDDEN" => $hidden),
 		"PAGE_NAVIGATION_TEMPLATE" => array(
 			"PARENT" => "PAGE_SETTINGS",
 			"NAME" => GetMessage("P_PAGE_NAVIGATION_TEMPLATE"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "", 
+			"DEFAULT" => "",
 			"HIDDEN" => $hidden),
 		// "ELEMENTS_USE_DESC_PAGE" => Array(
 			// "PARENT" => "PAGE_SETTINGS",
 			// "NAME" => GetMessage("T_ELEMENTS_USE_DESC_PAGE"),
 			// "TYPE" => "CHECKBOX",
-			// "DEFAULT" => "Y", 
+			// "DEFAULT" => "Y",
 			// "HIDDEN" => $hidden),
 
 		"DATE_TIME_FORMAT_SECTION" => CIBlockParameters::GetDateFormat(GetMessage("T_DATE_TIME_FORMAT_SECTION"), "ADDITIONAL_SETTINGS"),
@@ -284,24 +284,24 @@ $arComponentParameters = array(
 			"PARENT" => "PHOTO_SETTINGS",
 			"NAME" => GetMessage("P_ORIGINAL_SIZE"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "1280"), 
+			"DEFAULT" => "1280"),
 		"JPEG_QUALITY1" => Array(
 			"PARENT" => "PHOTO_SETTINGS",
 			"NAME" => GetMessage("P_JPEG_QUALITY1"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "100", 
+			"DEFAULT" => "100",
 			"HIDDEN" => $hidden),
 		// "JPEG_QUALITY2" => Array(
 			// "PARENT" => "PHOTO_SETTINGS",
 			// "NAME" => GetMessage("P_JPEG_QUALITY2"),
 			// "TYPE" => "STRING",
-			// "DEFAULT" => "95", 
+			// "DEFAULT" => "95",
 			// "HIDDEN" => $hidden),
 		"JPEG_QUALITY" => Array(
 			"PARENT" => "PHOTO_SETTINGS",
 			"NAME" => GetMessage("P_JPEG_QUALITY"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "100", 
+			"DEFAULT" => "100",
 			"HIDDEN" => $hidden),
 		"ADDITIONAL_SIGHTS" => array(
 			"PARENT" => "PHOTO_SETTINGS",
@@ -309,7 +309,7 @@ $arComponentParameters = array(
 			"TYPE" => "LIST",
 			"VALUES" => $arSights,
 			"DEFAULT" => array(),
-			"MULTIPLE" => "Y", 
+			"MULTIPLE" => "Y",
 			"HIDDEN" => $hidden
 		),
 
@@ -321,21 +321,21 @@ $arComponentParameters = array(
 			"REFRESH" => "Y"),
 		"SHOW_TAGS" => array(
 			"PARENT" => "TAGS_CLOUD",
-	        "NAME" => GetMessage("P_SHOW_TAGS"),
+			"NAME" => GetMessage("P_SHOW_TAGS"),
 			"TYPE" => "CHECKBOX",
 			"REFRESH" => (IsModuleInstalled("search") ? "Y" : "N"),
 			"DEFAULT" => "N"),
-		
+
 		// "DISPLAY_PANEL" => Array(
 			// "PARENT" => "ADDITIONAL_SETTINGS",
 			// "NAME" => GetMessage("T_IBLOCK_DESC_NEWS_PANEL"),
 			// "TYPE" => "CHECKBOX",
-			// "DEFAULT" => "N", 
+			// "DEFAULT" => "N",
 			// "HIDDEN" => $hidden),
 		"SET_TITLE" => Array(),
 		"CACHE_TIME"  =>  Array("DEFAULT"=>3600),
 		),
-		
+
 		"DRAG_SORT" => array(
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("P_DRAG_SORT"),
@@ -356,7 +356,7 @@ $arComponentParameters["PARAMETERS"]["SHOW_NAVIGATION"] = array(
 	"TYPE" => "CHECKBOX",
 	"DEFAULT" => "Y"
 );
-	
+
 /* UPLOADER PARAMS */
 $arComponentParameters["PARAMETERS"]["UPLOADER_TYPE"] = array(
 	"PARENT" => "UPLOADER",
@@ -389,7 +389,7 @@ if (!$arCurrentValues["UPLOADER_TYPE"] || $arCurrentValues["UPLOADER_TYPE"] == "
 if (!function_exists("_get_size"))
 {
 	function _get_size($v)
-	{ 
+	{
 		$l = substr($v, -1);
 		$ret = substr($v, 0, -1);
 		switch(strtoupper($l))
@@ -404,7 +404,7 @@ if (!function_exists("_get_size"))
 				$ret /= 1024;
 			break;
 		}
-	     return $ret;
+		return $ret;
 	}
 }
 
@@ -509,20 +509,25 @@ if ($arCurrentValues["USE_WATERMARK"] != "N")
 				"br" => GetMessage("P_WATERMARK_POSITION_BR")),
 			"DEFAULT" => "mc"
 		);
-		$arComponentParameters["PARAMETERS"]["WATERMARK_TRANSPARENCY"] = array(
-			"PARENT" => "UPLOADER",
-			"NAME" => GetMessage("P_WATERMARK_TRANSPARENCY"),
-			"TYPE" => "STRING",
-			"DEFAULT" => "20"
-		);
+
+		if ($arCurrentValues["WATERMARK_TYPE"] != "TEXT")
+			$arComponentParameters["PARAMETERS"]["WATERMARK_TRANSPARENCY"] = array(
+				"PARENT" => "UPLOADER",
+				"NAME" => GetMessage("P_WATERMARK_TRANSPARENCY"),
+				"TYPE" => "STRING",
+				"DEFAULT" => "50"
+			);
 	}
 
-	$arComponentParameters["PARAMETERS"]["PATH_TO_FONT"] = array(
-		"PARENT" => "UPLOADER",
-		"NAME" => GetMessage("P_PATH_TO_FONT"),
-		"TYPE" => "STRING",
-		"DEFAULT" => ""
-	);
+	if ($arCurrentValues["UPLOADER_TYPE"] != "applet")
+	{
+		$arComponentParameters["PARAMETERS"]["PATH_TO_FONT"] = array(
+			"PARENT" => "UPLOADER",
+			"NAME" => GetMessage("P_PATH_TO_FONT"),
+			"TYPE" => "STRING",
+			"DEFAULT" => "default.ttf"
+		);
+	}
 
 	$arComponentParameters["PARAMETERS"]["WATERMARK_MIN_PICTURE_SIZE"] = array(
 		"PARENT" => "UPLOADER",
@@ -630,19 +635,19 @@ if (IsModuleInstalled("blog") || IsModuleInstalled("forum"))
 				"PARENT" => "REVIEW_SETTINGS",
 				"NAME" => GetMessage("F_COMMENTS_COUNT"),
 				"TYPE" => "STRING",
-				"DEFAULT" => 25, 
+				"DEFAULT" => 25,
 				"HIDDEN" => $hidden);
 			$arComponentParameters["PARAMETERS"]["PATH_TO_BLOG"] = Array(
 				"PARENT" => "REVIEW_SETTINGS",
 				"NAME" => GetMessage("P_PATH_TO_BLOG"),
 				"TYPE" => "STRING",
-				"DEFAULT" => "", 
+				"DEFAULT" => "",
 				"HIDDEN" => $hidden);
 			$arComponentParameters["PARAMETERS"]["PATH_TO_SMILE"] = Array(
 				"PARENT" => "REVIEW_SETTINGS",
 				"NAME" => GetMessage("F_PATH_TO_SMILE"),
 				"TYPE" => "STRING",
-				"DEFAULT" => "/bitrix/images/blog/smile/", 
+				"DEFAULT" => "/bitrix/images/blog/smile/",
 				"HIDDEN" => $hidden);
 		}
 		elseif (IsModuleInstalled("forum") && $arCurrentValues["COMMENTS_TYPE"]=="forum")
@@ -672,43 +677,43 @@ if (IsModuleInstalled("blog") || IsModuleInstalled("forum"))
 				"PARENT" => "REVIEW_SETTINGS",
 				"NAME" => GetMessage("F_PATH_TO_SMILE"),
 				"TYPE" => "STRING",
-				"DEFAULT" => "/bitrix/images/forum/smile/", 
+				"DEFAULT" => "/bitrix/images/forum/smile/",
 				"HIDDEN" => $hidden);
 			$arComponentParameters["PARAMETERS"]["URL_TEMPLATES_READ"] = Array(
 				"PARENT" => "REVIEW_SETTINGS",
 				"NAME" => GetMessage("F_READ_TEMPLATE"),
 				"TYPE" => "STRING",
-				"DEFAULT" => "", 
+				"DEFAULT" => "",
 				"HIDDEN" => $hidden);
 			$arComponentParameters["PARAMETERS"]["URL_TEMPLATES_PROFILE_VIEW"] = Array(
 				"PARENT" => "REVIEW_SETTINGS",
 				"NAME" => GetMessage("F_PROFILE_VIEW_TEMPLATE"),
 				"TYPE" => "STRING",
-				"DEFAULT" => "", 
+				"DEFAULT" => "",
 				"HIDDEN" => $hidden);
 			$arComponentParameters["PARAMETERS"]["USE_CAPTCHA"] = Array(
 				"PARENT" => "REVIEW_SETTINGS",
 				"NAME" => GetMessage("F_USE_CAPTCHA"),
 				"TYPE" => "CHECKBOX",
-				"DEFAULT" => "N", 
+				"DEFAULT" => "N",
 				"HIDDEN" => $hidden);
 			$arComponentParameters["PARAMETERS"]["SHOW_LINK_TO_FORUM"] = Array(
 				"PARENT" => "REVIEW_SETTINGS",
 				"NAME" => GetMessage("F_SHOW_LINK_TO_FORUM"),
 				"TYPE" => "CHECKBOX",
-				"DEFAULT" => "Y", 
+				"DEFAULT" => "Y",
 				"HIDDEN" => $hidden);
 			$arComponentParameters["PARAMETERS"]["PREORDER"] = Array(
 				"PARENT" => "REVIEW_SETTINGS",
 				"NAME" => GetMessage("F_PREORDER"),
 				"TYPE" => "CHECKBOX",
-				"DEFAULT" => "Y", 
+				"DEFAULT" => "Y",
 				"HIDDEN" => $hidden);
 			$arComponentParameters["PARAMETERS"]["POST_FIRST_MESSAGE"] = Array(
 				"PARENT" => "REVIEW_SETTINGS",
 				"NAME" => GetMessage("F_POST_FIRST_MESSAGE"),
 				"TYPE" => "CHECKBOX",
-				"DEFAULT" => "N", 
+				"DEFAULT" => "N",
 				"HIDDEN" => $hidden
 			);
 		}
@@ -732,19 +737,19 @@ if (IsModuleInstalled("search"))
 			"PARENT" => "TAGS_CLOUD",
 			"NAME" => GetMessage("SEARCH_PAGE_ELEMENTS"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "150", 
+			"DEFAULT" => "150",
 			"HIDDEN" => $hidden);
 		$arComponentParameters["PARAMETERS"]["TAGS_PERIOD"] = array(
 			"PARENT" => "TAGS_CLOUD",
 			"NAME" => GetMessage("SEARCH_PERIOD"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "", 
+			"DEFAULT" => "",
 			"HIDDEN" => $hidden);
 		$arComponentParameters["PARAMETERS"]["TAGS_INHERIT"] = array(
 			"PARENT" => "TAGS_CLOUD",
 			"NAME" => GetMessage("SEARCH_TAGS_INHERIT"),
 			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "Y", 
+			"DEFAULT" => "Y",
 			"HIDDEN" => $hidden);
 		$arComponentParameters["PARAMETERS"]["TAGS_FONT_MAX"] = array(
 			"PARENT" => "TAGS_CLOUD",
@@ -757,7 +762,7 @@ if (IsModuleInstalled("search"))
 			"TYPE" => "STRING",
 			"DEFAULT" => "14");
 		$arComponentParameters["PARAMETERS"]["TAGS_COLOR_NEW"] = array(
-	    	"NAME" => GetMessage("SEARCH_COLOR_NEW"),
+			"NAME" => GetMessage("SEARCH_COLOR_NEW"),
 			"PARENT" => "TAGS_CLOUD",
 			"TYPE" => "STRING",
 			"DEFAULT" => "486DAA");
@@ -770,7 +775,7 @@ if (IsModuleInstalled("search"))
 			"NAME" => GetMessage("SEARCH_SHOW_CHAIN"),
 			"PARENT" => "TAGS_CLOUD",
 			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "Y", 
+			"DEFAULT" => "Y",
 			"HIDDEN" => $hidden);
 	}
 }
@@ -780,7 +785,7 @@ if (IsModuleInstalled("socialnetwork"))
 		"PARENT" => "BASE",
 		"NAME" => GetMessage("F_ANALIZE_SOCNET_PERMISSION"),
 		"TYPE" => "CHECKBOX",
-		"REFRESH" => "Y", 
+		"REFRESH" => "Y",
 		"DEFAULT" => "N");
 }
 $arComponentParameters["PARAMETERS"]["DATE_TIME_FORMAT_SECTION"]["HIDDEN"] = $hidden;

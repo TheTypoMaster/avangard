@@ -312,8 +312,8 @@ class CAllBlogTrackback
 		header("Content-type: text/xml");
 		echo "<"."?xml version=\"1.0\" encoding=\"".SITE_CHARSET."\"?".">\n";
 		echo "<response>\n";
-		echo "<error>".htmlspecialchars($error)."</error>\n";
-		echo "<message>".htmlspecialchars($text)."</message>\n";
+		echo "<error>".htmlspecialcharsbx($error)."</error>\n";
+		echo "<message>".htmlspecialcharsbx($text)."</message>\n";
 		echo "</response>";
 	}
 }

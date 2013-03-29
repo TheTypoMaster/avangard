@@ -17,7 +17,10 @@ function BxShowAuthService(id, suffix)
 	if(el)
 		try{el.focus();}catch(e){}
 	window['bxCurrentAuthId'+suffix] = id;
-	document.forms['bx_auth_services'+suffix].auth_service_id.value = id;
+    if(document.forms['bx_auth_services'+suffix])
+        document.forms['bx_auth_services'+suffix].auth_service_id.value = id;
+    else if(document.forms['bx_user_profile_form'+suffix])
+        document.forms['bx_user_profile_form'+suffix].auth_service_id.value = id;
 }
 
 var bxAuthWnd = false;
@@ -36,7 +39,7 @@ function BxShowAuthFloat(id, suffix)
 	}
 	bxAuthWnd.Show();
 
-	if(bCreated);
+	if(bCreated)
 		BX('bx_auth_float_container').appendChild(BX('bx_auth_float'));
 			
 	BxShowAuthService(id, suffix);

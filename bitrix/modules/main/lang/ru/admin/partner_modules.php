@@ -1,5 +1,5 @@
 <?
-$MESS["TITLE"] = "Доступные решения";
+$MESS["TITLE"] = "Решения Marketplace";
 $MESS["MOD_SETUP"] = "Статус";
 $MESS["MOD_ACTION"] = "Действие";
 $MESS["MOD_NAME"] = "Название";
@@ -43,4 +43,12 @@ $MESS["MOD_SMP_INSTALLED"] = "Решение \"#MODULE_NAME#\" успешно установлено.";
 $MESS["MOD_SMP_UNINSTALLED"] = "Решение \"#MODULE_NAME#\" успешно удалено.";
 $MESS["MOD_SMP_DELETED"] = "Решение \"#MODULE_NAME#\" успешно стерто с вашего сайта.";
 $MESS["MOD_SMP_DOWNLOAD"] = "Загрузить";
+$MESS["MOD_DATE_TO"] = "Обновления до";
+$MESS["MOD_DEMO"] = "Демонстрационный режим";
+$MESS["MOD_DEMO_END"] = "Демо период закончился";
+$MESS["MOD_UPDATE_BUY"] = "Купить новую версию";
+$MESS["MOD_UPDATE_BUY_DEMO"] = "Купить";
+$MESS["MOD_INSTALL_ERROR"] = "Произошла ошибка при установке решения #CODE#";
+$MESS["MOD_UNINSTALL_ERROR"] = "Произошла ошибка при удалении решения #CODE#";
+$MESS["MOD_CLEAR_CONFIRM"] = "Вы уверены, что хотите стереть решение #NAME#? Решение будет полностью удалено с сайта.";
 ?>

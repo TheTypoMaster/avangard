@@ -121,7 +121,7 @@ class CIBlockXMLFile
 			global $DB;
 
 			if(defined("MYSQL_TABLE_TYPE") && strlen(MYSQL_TABLE_TYPE) > 0)
-				$DB->Query("SET table_type = '".MYSQL_TABLE_TYPE."'", true);
+				$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 
 			$res = $DB->Query("create table ".$this->_table_name."
 				(
@@ -616,6 +616,9 @@ class CIBlockXMLFile
 
 	function UnZip($file_name, $last_zip_entry = "", $start_time = 0, $interval = 0)
 	{
+		global $APPLICATION;
+		$io = CBXVirtualIo::GetInstance();
+
 		//Function and securioty checks
 		if(!function_exists("zip_open"))
 			return false;
@@ -634,6 +637,7 @@ class CIBlockXMLFile
 					break;
 		}
 
+		$io = CBXVirtualIo::GetInstance();
 		//Continue unzip
 		while($entry = zip_read($hZip))
 		{
@@ -642,17 +646,29 @@ class CIBlockXMLFile
 			zip_entry_open($hZip, $entry);
 			if(zip_entry_filesize($entry))
 			{
-				$file_name = $dir_name.$entry_name;
-				CheckDirPath($file_name);
-				$fout = fopen($file_name, "wb");
-				if(!$fout)
-					return false;
-				while($data = zip_entry_read($entry, 102400))
+
+				$file_name = trim(str_replace("\\", "/", trim($entry_name)), "/");
+				$file_name = $APPLICATION->ConvertCharset($file_name, "cp866", LANG_CHARSET);
+
+				$bBadFile = HasScriptExtension($file_name)
+					|| IsFileUnsafe($file_name)
+					|| !$io->ValidatePathString("/".$file_name)
+				;
+
+				if(!$bBadFile)
 				{
-					$data_len = function_exists('mb_strlen') ? mb_strlen($data, 'latin1') : strlen($data);
-					$result = fwrite($fout, $data);
-					if($result !== $data_len)
+					$file_name =  $io->GetPhysicalName($dir_name.rel2abs("/", $file_name));
+					CheckDirPath($file_name);
+					$fout = fopen($file_name, "wb");
+					if(!$fout)
 						return false;
+					while($data = zip_entry_read($entry, 102400))
+					{
+						$data_len = function_exists('mb_strlen') ? mb_strlen($data, 'latin1') : strlen($data);
+						$result = fwrite($fout, $data);
+						if($result !== $data_len)
+							return false;
+					}
 				}
 			}
 			zip_entry_close($entry);
@@ -668,5 +684,4 @@ class CIBlockXMLFile
 		return true;
 	}
 }
-
 ?>

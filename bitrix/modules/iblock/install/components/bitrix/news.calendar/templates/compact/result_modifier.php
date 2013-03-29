@@ -26,7 +26,7 @@ if(strlen($arParams["FILTER_NAME"]) > 0 && strlen($arParams["LIST_URL"]) > 0)
 				$LIST_URL .= URLEncode($arParams["FILTER_NAME"]."[>=".$arParams["DATE_FIELD"]."]")."=".URLEncode($strFROM);
 				$LIST_URL .= "&".URLEncode($arParams["FILTER_NAME"]."[<".$arParams["DATE_FIELD"]."]")."=".URLEncode($strTO);
 
-				$arResult["MONTH"][$week][$day]["events"][0]["url"] = htmlspecialchars($LIST_URL);
+				$arResult["MONTH"][$week][$day]["events"][0]["url"] = htmlspecialcharsbx($LIST_URL);
 				$arResult["MONTH"][$week][$day]["events"][0]["title"] = "";
 			}
 		}

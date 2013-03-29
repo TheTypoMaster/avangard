@@ -53,7 +53,7 @@ class CUserTypeInteger
 		if(strlen($value) > 0)
 			$value = intval($value);
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_INTEGER_DEFAULT_VALUE").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[DEFAULT_VALUE]" size="20"  maxlength="225" value="'.$value.'">
@@ -67,7 +67,7 @@ class CUserTypeInteger
 		else
 			$value = 20;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_INTEGER_SIZE").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[SIZE]" size="20"  maxlength="20" value="'.$value.'">
@@ -81,7 +81,7 @@ class CUserTypeInteger
 		else
 			$value = 0;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_INTEGER_MIN_VALUE").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[MIN_VALUE]" size="20"  maxlength="20" value="'.$value.'">
@@ -95,7 +95,7 @@ class CUserTypeInteger
 		else
 			$value = 0;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_INTEGER_MAX_VALUE").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[MAX_VALUE]" size="20"  maxlength="20" value="'.$value.'">
@@ -108,7 +108,8 @@ class CUserTypeInteger
 	function GetEditFormHTML($arUserField, $arHtmlControl)
 	{
 		if($arUserField["ENTITY_VALUE_ID"]<1 && strlen($arUserField["SETTINGS"]["DEFAULT_VALUE"])>0)
-			$arHtmlControl["VALUE"] = htmlspecialchars($arUserField["SETTINGS"]["DEFAULT_VALUE"]);
+			$arHtmlControl["VALUE"] = htmlspecialcharsbx($arUserField["SETTINGS"]["DEFAULT_VALUE"]);
+		$arHtmlControl["VALIGN"] = "middle";
 		return '<input type="text" '.
 			'name="'.$arHtmlControl["NAME"].'" '.
 			'size="'.$arUserField["SETTINGS"]["SIZE"].'" '.
@@ -181,5 +182,4 @@ class CUserTypeInteger
 			return $arUserField["VALUE"];
 	}
 }
-AddEventHandler("main", "OnUserTypeBuildList", array("CUserTypeInteger", "GetUserTypeDescription"));
 ?>

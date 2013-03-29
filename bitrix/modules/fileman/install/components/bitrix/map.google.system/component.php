@@ -9,18 +9,19 @@ $arParams['DEV_MODE'] = $arParams['DEV_MODE'] == 'Y' ? 'Y' : 'N';
 if (!defined('BX_GMAP_SCRIPT_LOADED'))
 {
 	CUtil::InitJSCore();
-	
+
 	if ($arParams['DEV_MODE'] != 'Y')
 	{
-		$APPLICATION->AddHeadString('<script src="http://maps.google.com/maps/api/js?sensor=false&language='.LANGUAGE_ID.'" charset="utf-8"></script>');
-		
+		$scheme = (CMain::IsHTTPS() ? "https" : "http");
+		$APPLICATION->AddHeadString('<script src="'.$scheme.'://maps.google.com/maps/api/js?sensor=false&language='.LANGUAGE_ID.'" charset="utf-8"></script>');
+
 		define('BX_GMAP_SCRIPT_LOADED', 1);
 	}
 }
 
-$arParams['MAP_ID'] = 
-	(strlen($arParams["MAP_ID"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["MAP_ID"])) ? 
-	'MAP_'.RandString() : $arParams['MAP_ID']; 
+$arParams['MAP_ID'] =
+	(strlen($arParams["MAP_ID"])<=0 || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["MAP_ID"])) ?
+	'MAP_'.RandString() : $arParams['MAP_ID'];
 
 $arParams['INIT_MAP_LON'] = floatval($arParams['INIT_MAP_LON']);
 $arParams['INIT_MAP_LON'] = $arParams['INIT_MAP_LON'] ? $arParams['INIT_MAP_LON'] : 37.64;
@@ -33,9 +34,9 @@ $arParams['INIT_MAP_SCALE'] = $arParams['INIT_MAP_SCALE'] ? $arParams['INIT_MAP_
 
 $arResult['ALL_MAP_TYPES'] = array('NORMAL' => 'ROADMAP', 'SATELLITE', 'HYBRID', 'TERRAIN');
 $arResult['ALL_MAP_OPTIONS'] = array(
-	'ENABLE_SCROLL_ZOOM' => 'scrollwheel: #true#', 
-	'ENABLE_DBLCLICK_ZOOM' => 'disableDoubleClickZoom: #false#', 
-	'ENABLE_DRAGGING' => 'draggable: #true#', 
+	'ENABLE_SCROLL_ZOOM' => 'scrollwheel: #true#',
+	'ENABLE_DBLCLICK_ZOOM' => 'disableDoubleClickZoom: #false#',
+	'ENABLE_DRAGGING' => 'draggable: #true#',
 	'ENABLE_KEYBOARD' => 'keyboardShortcuts: #true#'
 );
 
@@ -61,7 +62,7 @@ else
 		if (!$arResult['ALL_MAP_OPTIONS'][$option])
 			unset($arParams['OPTIONS'][$key]);
 	}
-	
+
 	$arParams['OPTIONS'] = array_values($arParams['OPTIONS']);
 }
 
@@ -74,7 +75,7 @@ else
 		if (!$arResult['ALL_MAP_CONTROLS'][$control])
 			unset($arParams['CONTROLS'][$key]);
 	}
-	
+
 	$arParams['CONTROLS'] = array_values($arParams['CONTROLS']);
 }
 
@@ -93,6 +94,6 @@ if (substr($arParams['MAP_HEIGHT'], -1, 1) != '%')
 	if ($arParams['MAP_HEIGHT'] <= 0) $arParams['MAP_HEIGHT'] = 500;
 	$arParams['MAP_HEIGHT'] .= 'px';
 }
-	
+
 $this->IncludeComponentTemplate();
 ?>

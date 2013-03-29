@@ -22,10 +22,10 @@ $arResult["~q"] = trim($_REQUEST["q"]);
 $arResult["~tags"] = trim($_REQUEST["tags"]);
 $arResult["~where"] = trim($_REQUEST["where"]);
 $arResult["~how"] = trim($_REQUEST["how"]);
-$arResult["q"] = htmlspecialchars($arResult["~q"]);
-$arResult["tags"] = htmlspecialchars($arResult["~tags"]);
-$arResult["where"] = htmlspecialchars($arResult["~where"]);
-$arResult["how"] = htmlspecialchars($arResult["~how"]);
+$arResult["q"] = htmlspecialcharsbx($arResult["~q"]);
+$arResult["tags"] = htmlspecialcharsbx($arResult["~tags"]);
+$arResult["where"] = htmlspecialcharsbx($arResult["~where"]);
+$arResult["how"] = htmlspecialcharsbx($arResult["~how"]);
 
 if(strLen($arParams["BLOG_VAR"])<=0)
 	$arParams["BLOG_VAR"] = "blog";
@@ -38,15 +38,15 @@ if(strLen($arParams["POST_VAR"])<=0)
 	
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
 if(strlen($arParams["PATH_TO_BLOG"])<=0)
-	$arParams["PATH_TO_BLOG"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
 if(strlen($arParams["PATH_TO_POST"])<=0)
-	$arParams["PATH_TO_POST"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
+	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if(strlen($arParams["PATH_TO_USER"])<=0)
-	$arParams["PATH_TO_USER"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 if($arParams["SET_TITLE"]=="Y")
 	$APPLICATION->SetTitle(GetMessage("BLOG_MAIN_SEARCH_TITLE"));
@@ -92,7 +92,7 @@ if($obSearch->errorno==0)
 			$arSearch["PARAM2"] = $Blog["OWNER_ID"];
 			$arSearch["BLOG_URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("blog" => $Blog["URL"]));
 			$arSearch["USER_URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $Blog["OWNER_ID"]));
-            $arSearch["URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("blog" => $Blog["URL"], "post_id"=>substr($arSearch["ITEM_ID"], 1)));
+			$arSearch["URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("blog" => $Blog["URL"], "post_id"=>substr($arSearch["ITEM_ID"], 1)));
 		}
 		elseif($arSearch["PARAM1"]=="USER")
 		{
@@ -119,7 +119,7 @@ if($obSearch->errorno==0)
 				$arSearch["PARAM2"] = $Blog["OWNER_ID"];
 				$arSearch["BLOG_URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("blog" => $Blog["URL"]));
 				$arSearch["USER_URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $Blog["OWNER_ID"]));
-	            $arSearch["URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("blog" => $Blog["URL"], "post_id"=>$postID));
+				$arSearch["URL"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("blog" => $Blog["URL"], "post_id"=>$postID));
 				if(strpos($arSearch["URL"], "?") !== false)
 					$arSearch["URL"] .= "&";
 				else

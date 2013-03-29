@@ -157,7 +157,7 @@ class CIBlock extends CAllIBlock
 					b_iblock B
 					".$sqlJoinSites."
 					LEFT JOIN b_iblock_element BE ON (BE.IBLOCK_ID=B.ID
-				 		AND (
+						AND (
 							(BE.WF_STATUS_ID=1 AND BE.WF_PARENT_ELEMENT_ID IS NULL )
 							".($arFilter["CNT_ALL"]=="Y"? " OR BE.WF_NEW='Y' ":"")."
 						)
@@ -191,6 +191,7 @@ class CIBlock extends CAllIBlock
 				elseif ($by == "name") $arSqlOrder[$by] = " B.NAME ".$order." ";
 				elseif ($by == "active") $arSqlOrder[$by] = " B.ACTIVE ".$order." ";
 				elseif ($by == "sort") $arSqlOrder[$by] = " B.SORT ".$order." ";
+				elseif ($by == "code") $arSqlOrder[$by] = " B.CODE ".$order." ";
 				elseif ($bIncCnt && $by == "element_cnt") $arSqlOrder[$by] = " ELEMENT_CNT ".$order." ";
 				else
 				{
@@ -222,7 +223,7 @@ class CIBlock extends CAllIBlock
 
 		if(defined("MYSQL_TABLE_TYPE") && strlen(MYSQL_TABLE_TYPE) > 0)
 		{
-			$DB->Query("SET table_type = '".MYSQL_TABLE_TYPE."'", true);
+			$DB->Query("SET storage_engine = '".MYSQL_TABLE_TYPE."'", true);
 		}
 		$strSql = "
 			CREATE TABLE IF NOT EXISTS b_iblock_element_prop_s".$ID." (

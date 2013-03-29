@@ -44,8 +44,8 @@ if (strlen($filename) > 0 && ($mess = CFileMan::CheckFileName($filename)) !== tr
 	$bVarsFromForm = true;
 }
 
-$path = $io->CombinePath("/", $path);
 $path = urldecode($path);
+$path = $io->CombinePath("/", $path);
 
 $site = CFileMan::__CheckSite($site);
 if(!$site)
@@ -53,6 +53,9 @@ if(!$site)
 
 $DOC_ROOT = CSite::GetSiteDocRoot($site);
 $abs_path = $DOC_ROOT.$path;
+
+if(GetFileType($abs_path) == "IMAGE")
+	$strWarning = GetMessage("PUBLIC_EDIT_FILE_IMAGE_ERROR");
 
 $arPath = Array($site, $path);
 
@@ -96,7 +99,7 @@ if(
 {
 	$strWarning = GetMessage("ACCESS_DENIED");
 }
-else
+elseif(strlen($strWarning) <= 0)
 {
 	if(!$USER->IsAdmin() && substr(CFileman::GetFileName($abs_path), 0, 1)==".")
 	{
@@ -150,16 +153,20 @@ if(strlen($strWarning) <= 0)
 	{
 		$arTemplates = CFileman::GetFileTemplates(LANGUAGE_ID, array($site_template));
 		if(strlen($template) > 0)
-			for ($i=0; $i < count($arTemplates); $i++)
+		{
+			foreach ($arTemplates as $arTemplate)
 			{
-				if($arTemplates[$i]["file"] == $template)
+				if($arTemplate["file"] == $template)
 				{
-					$filesrc_tmp = CFileman::GetTemplateContent($arTemplates[$i]["file"],LANGUAGE_ID, array($site_template));
+					$filesrc_tmp = CFileman::GetTemplateContent($arTemplate["file"],LANGUAGE_ID, array($site_template));
 					break;
 				}
 			}
+		}
 		else
+		{
 			$filesrc_tmp = CFileman::GetTemplateContent($arTemplates[0]["file"], LANGUAGE_ID, array($site_template));
+		}
 	}
 
 	if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST['save'] == 'Y')
@@ -271,7 +278,8 @@ if(strlen($strWarning) <= 0)
 						"PAGE_EDIT",
 						"main",
 						"",
-						serialize($res_log)
+						serialize($res_log),
+						$_REQUEST["site"]
 					);
 				}
 
@@ -387,10 +395,6 @@ $obJSPopup->StartContent(
 ?>
 </form>
 
-<?//dont forget to remove it?>
-<script src="/bitrix/js/main/utils.js"></script>
-<script src="/bitrix/js/main/admin_tools.js"></script>
-
 <iframe src="javascript:void(0)" name="file_edit_form_target" height="0" width="0" style="display: none;"></iframe>
 <form action="/bitrix/admin/public_file_edit.php" name="editor_form" method="post" enctype="multipart/form-data" target="file_edit_form_target" style="margin: 0px; padding: 0px; ">
 <?
@@ -405,23 +409,23 @@ if (CAutoSave::Allowed())
 <input type="submit" name="submitbtn" style="display: none;" />
 <input type="hidden" name="mode" id="mode" value="public" />
 <input type="hidden" name="save" id="save" value="Y" />
-<input type="hidden" name="site" id="site" value="<?=htmlspecialchars($site)?>" />
-<input type="hidden" name="template" id="template" value="<?echo htmlspecialchars($template)?>" />
-<input type="hidden" name="templateID" id="templateID" value="<?echo htmlspecialchars($_REQUEST['templateID'])?>" />
-<input type="hidden" name="subdialog" value="<?echo htmlspecialchars($_REQUEST['subdialog'])?>" />
+<input type="hidden" name="site" id="site" value="<?=htmlspecialcharsbx($site)?>" />
+<input type="hidden" name="template" id="template" value="<?echo htmlspecialcharsbx($template)?>" />
+<input type="hidden" name="templateID" id="templateID" value="<?echo htmlspecialcharsbx($_REQUEST['templateID'])?>" />
+<input type="hidden" name="subdialog" value="<?echo htmlspecialcharsbx($_REQUEST['subdialog'])?>" />
 <?if (is_set($_REQUEST, 'back_url')):?>
-	<input type="hidden" name="back_url" value="<?=htmlspecialchars($_REQUEST['back_url'])?>" />
+	<input type="hidden" name="back_url" value="<?=htmlspecialcharsbx($_REQUEST['back_url'])?>" />
 <?endif;?>
 <?if (is_set($_REQUEST, 'edit_new_file_undo')):?>
-	<input type="hidden" name="edit_new_file_undo" value="<?=htmlspecialchars($_REQUEST['edit_new_file_undo'])?>" />
+	<input type="hidden" name="edit_new_file_undo" value="<?=htmlspecialcharsbx($_REQUEST['edit_new_file_undo'])?>" />
 <?endif;?>
 <?if(!$bEdit):?>
 	<input type="hidden" name="new" id="new" value="Y" />
-	<input type="hidden" name="filename" id="filename" value="<?echo htmlspecialchars($filename)?>" />
-	<input type="hidden" name="path" id="path" value="<?=htmlspecialchars($path.'/'.$filename)?>" />
+	<input type="hidden" name="filename" id="filename" value="<?echo htmlspecialcharsbx($filename)?>" />
+	<input type="hidden" name="path" id="path" value="<?=htmlspecialcharsbx($path.'/'.$filename)?>" />
 <?else:?>
-	<input type="hidden" name="title" value="<?=htmlspecialchars($title)?>" />
-	<input type="hidden" name="path" id="path" value="<?=htmlspecialchars($path)?>" />
+	<input type="hidden" name="title" value="<?=htmlspecialcharsbx($title)?>" />
+	<input type="hidden" name="path" id="path" value="<?=htmlspecialcharsbx($path)?>" />
 <?endif;?>
 
 <script>
@@ -478,7 +482,8 @@ arEditorFastDialogs['asksave'] = function(pObj)
 						if(pObj.params.savetype == 'save')
 							BXFormSubmit();
 						window.oBXEditorDialog.Close(true);
-					}
+					},
+					className: 'adm-btn-save'
 				}),
 				new BX.CWindowButton(
 				{
@@ -493,7 +498,7 @@ arEditorFastDialogs['asksave'] = function(pObj)
 				window.oBXEditorDialog.btnCancel
 			]);
 
-			BX.addClass(window.oBXEditorDialog.PARTS.CONTENT, "bxed-dialog");
+			BX.addClass(window.oBXEditorDialog.PARTS.CONTENT_DATA, "bxed-dialog");
 		}
 	};
 };
@@ -522,6 +527,9 @@ function CheckEditorFinish()
 	BX.addClass(pMainObj.oPublicDialog.PARTS.CONTENT, "bx-editor-dialog-cont");
 	pMainObj.oPublicDialog.AllowClose();
 
+	// Hack for prevent editor visual bugs from reappending styles from core_window.css
+	BX.removeClass(BX.findParent(pMainObj.pWnd, {tagName: "DIV", className: "bx-core-dialog-content"}), "bx-core-dialog-content");
+
 	if (BX.browser.IsIE())
 	{
 		pMainObj.pWnd.firstChild.rows[0].style.height = '1px';
@@ -536,12 +544,13 @@ function CheckEditorFinish()
 	var onWinResizeExt = function(Params)
 	{
 		var
+			topTlbrH = BX('filesrc_pub_toolBarSet0').offsetHeight || 51,
 			h = parseInt(Params.height) - 2,
-			w = parseInt(Params.width) - 10;
+			w = parseInt(Params.width) - 3;
 
 		pMainObj.pWnd.style.height = h + "px";
 		pMainObj.pWnd.style.width = w + "px";
-		BX.findParent(pMainObj.cEditor, {tagName: "TABLE"}).style.height = (h - 86) + "px";
+		BX.findParent(pMainObj.cEditor, {tagName: "TABLE"}).style.height = (h - (topTlbrH + 35)) + "px";
 		pMainObj.arTaskbarSet[2]._SetTmpClass(true);
 		pMainObj.arTaskbarSet[2].Resize(false, false, false);
 		pMainObj.arTaskbarSet[3].Resize(false, false, false);
@@ -567,18 +576,27 @@ BX.WindowManager.Get().__expand();
 <?
 else: //if ($bDisableEditor)
 ?>
-<textarea name="<?=htmlspecialchars($editor_name)?>" id="<?=htmlspecialchars($editor_name)?>" style="height: 99%; width: 100%;"><?=htmlspecialcharsex($filesrc)?></textarea>
+<textarea name="<?=htmlspecialcharsbx($editor_name)?>" id="<?=htmlspecialcharsbx($editor_name)?>" style="height: 99%; width: 100%;"><?=htmlspecialcharsex($filesrc)?></textarea>
 <script type="text/javascript">
-var border = null, ta = null, wnd = BX.WindowManager.Get();
+var
+	border,
+	ta,
+	wnd = BX.WindowManager.Get();
 
 function TAResize(data)
 {
-	if (null == ta) ta = BX('<?=CUtil::JSEscape($editor_name)?>');
-	if (null == border) border = parseInt(BX.style(ta, 'border-left-width')) + parseInt(BX.style(ta, 'border-right-width'));
-	if (isNaN(border)) border = 0;
+	if (null == ta)
+		ta = BX('<?=CUtil::JSEscape($editor_name)?>');
+	if (null == border)
+		border = parseInt(BX.style(ta, 'border-left-width')) + parseInt(BX.style(ta, 'border-right-width'));
 
-	if (data.height) ta.style.height = (data.height - border - 10) + 'px';
-	if (data.width) ta.style.width = (data.width - border - 10) + 'px';
+	if (isNaN(border))
+		border = 0;
+
+	if (data.height)
+		ta.style.height = (data.height - border - 10) + 'px';
+	if (data.width)
+		ta.style.width = (data.width - border - 10) + 'px';
 }
 
 BX.addCustomEvent(wnd, 'onWindowResizeExt', TAResize);
@@ -588,7 +606,7 @@ TAResize(wnd.GetInnerPos());
 endif; //if (!$bDisableEditor)
 $obJSPopup->StartButtons();
 ?>
-	<input type="button" id="btn_popup_save" name="btn_popup_save" value="<?=GetMessage("JSPOPUP_SAVE_CAPTION")?>" onclick="BXFormSubmit();" title="<?=GetMessage("JSPOPUP_SAVE_CAPTION")?>" />
+	<input type="button" class="adm-btn-save" id="btn_popup_save" name="btn_popup_save" value="<?=GetMessage("JSPOPUP_SAVE_CAPTION")?>" onclick="BXFormSubmit();" title="<?=GetMessage("JSPOPUP_SAVE_CAPTION")?>" />
 <?
 $obJSPopup->ShowStandardButtons(array('cancel'));
 $obJSPopup->EndButtons();
@@ -597,6 +615,6 @@ if (CAutoSave::Allowed())
 {
 	$AUTOSAVE->checkRestore();
 }
-die();
+
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
 ?>

@@ -38,7 +38,7 @@ if (!empty($arGadgetsFixed))
 	$arTemplateParameters["GADGETS_FIXED"] = Array(
 			"NAME" => GetMessage("CMDESKTOP_PARAMS_GADGETS_FIXED"),
 			"TYPE" => "LIST",
-			"DEFAULT" => false,
+			"DEFAULT" => array(),
 			"MULTIPLE" => "Y",
 			"SIZE"=>"10",
 			"REFRESH" => "N",

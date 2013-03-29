@@ -14,14 +14,19 @@ endif;
 	$arParams["UID"] = intVal(empty($arParams["UID"]) ? $_REQUEST["UID"] : $arParams["UID"]);
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
+			"message_send" => "PAGE_NAME=message_send&UID=#UID#&TYPE=#TYPE#",
 			"profile_view" => "PAGE_NAME=profile_view&UID=#UID#",
 		);
 	foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	{
-		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
+		if (!isset($arParams["URL_TEMPLATES_".strToUpper($URL)]))
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["URL_TEMPLATES_".strToUpper($URL)]);
 	}
+/***************** ADDITIONAL **************************************/
+	$arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "",
+		(!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : CSite::GetDefaultNameFormat()));
 /***************** STANDART ****************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
@@ -29,17 +34,13 @@ endif;
 		$arParams["CACHE_TIME"] = 0;
 		
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
-	// $arParams["DISPLAY_PANEL"] = ($arParams["DISPLAY_PANEL"] == "Y" ? "Y" : "N");
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 /********************************************************************
 				/Input params
 ********************************************************************/
 
 if ($arParams["SEND_".strToUpper($arParams["TYPE"])] <= "A"):
-	if ($arParams["TYPE"] != "ICQ")	
-		ShowError(GetMessage("F_NO_ACCESS"));
-	else 
-		ShowError(GetMessage("F_NO_ICQ"));
+	ShowError($arParams["TYPE"] != "ICQ" ? GetMessage("F_NO_ACCESS") : GetMessage("F_NO_ICQ"));
 	return false;
 elseif ($arParams["SEND_".strToUpper($arParams["TYPE"])] <= "E" && !$USER->IsAuthorized()):
 	$GLOBALS["APPLICATION"]->AuthForm($arParams["TYPE"] == "MAIL" ? GetMessage("F_NO_AUTH_MAIL") : GetMessage("F_NO_AUTH_ICQ"));
@@ -53,36 +54,34 @@ if (!($db_userX && $userRec = $db_userX->GetNext())):
 	return false;
 endif;
 
-ForumSetLastVisit();
 /********************************************************************
 				Default params
 ********************************************************************/
 $arError = array();
 $bVarsFromForm = false;
 $userSend = array();
-$ShowName = "";
-$ShowMyName = "";
-$NAME = false;
-$EMAIL = false;
 $arResult["ERROR_MESSAGE"] = "";
 $arResult["SHOW_USER"] = "Y";
 $arResult["CURRENT_USER"] = array();
 $arResult["URL"] = array(
 	"RECIPIENT" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $arParams["UID"])), 
-	"~RECIPIENT" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $arParams["UID"])));
+	"~RECIPIENT" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $arParams["UID"])),
+	"MESSAGE_SEND" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE_SEND"],
+		array("UID" => $arParams["UID"], "TYPE" => strtolower($arParams["TYPE"]))),
+	"~MESSAGE_SEND" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE_SEND"],
+		array("UID" => $arParams["UID"], "TYPE" => strtolower($arParams["TYPE"])))
+);
+
 $arResult["profile_view"] = $arResult["URL"]["RECIPIENT"];
 
 $res = CForumUser::GetByUSER_ID($arParams["UID"]);
 if ($res)
 {
 	while (list($key, $val) = each($res))
-		$userRec[$key] = htmlspecialchars($val);
+		$userRec[$key] = htmlspecialcharsbx($val);
 }
-if ($userRec["SHOW_NAME"] == "Y")
-	$ShowName = trim($userRec["NAME"]." ".$userRec["LAST_NAME"]);
-if (empty($ShowName))
-	$ShowName = $userRec["LOGIN"];
-$arResult["RECIPIENT"] = $userRec;
+$userRec["FULL_NAME"] = CForumUser::GetFormattedNameByUserID($arParams["UID"], $arParams["NAME_TEMPLATE"], $userRec);
+
 if ($USER->IsAuthorized())
 {
 	$db_userY = CUser::GetByID($USER->GetID());
@@ -92,16 +91,10 @@ if ($USER->IsAuthorized())
 	if ($db_res)
 	{
 		while (list($key, $val) = each($db_res))
-			$userSend[$key] = htmlspecialchars($val);
+			$userSend[$key] = htmlspecialcharsbx($val);
 	}
-	
-	if ($userSend["SHOW_NAME"] == "Y")
-		$ShowMyName = htmlspecialchars($USER->GetFullName());
-	if (empty($ShowMyName))
-		$ShowMyName = htmlspecialchars($USER->GetLogin());
-		
-	$NAME = $ShowMyName;
-	$EMAIL = ($arParams["TYPE"]=="ICQ") ? $userSend["PERSONAL_ICQ"] : $USER->GetEmail();
+	$userSend["FULL_NAME"] = CForumUser::GetFormattedNameByUserID($USER->GetID(), $arParams["NAME_TEMPLATE"], $userSend);
+	$userSend["E-MAIL"] = ($arParams["TYPE"]=="ICQ") ? $userSend["PERSONAL_ICQ"] : $USER->GetEmail();
 	$arResult["CURRENT_USER"] = $userSend;
 }
 /********************************************************************
@@ -113,8 +106,8 @@ if ($USER->IsAuthorized())
 ********************************************************************/
 if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"] == "SEND" && check_bitrix_sessid())
 {
-	$NAME = trim(empty($NAME) ? $_POST["NAME"] : $NAME);
-	$EMAIL = trim(empty($EMAIL) ? $_POST["EMAIL"] : $EMAIL);
+	$userSend["FULL_NAME"] = trim(empty($userSend["FULL_NAME"]) ? $_POST["NAME"] : $userSend["FULL_NAME"]);
+	$userSend["E-MAIL"] = trim(empty($userSend["E-MAIL"]) ? $_POST["EMAIL"] : $userSend["E-MAIL"]);
 	
 	// Use captcha
 	if (($arParams["SEND_".strToUpper($arParams["TYPE"])] < "Y") && !$USER->IsAuthorized())
@@ -134,12 +127,12 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"] == "SEND" && check_bi
 		}
 	}
 	
-	if (empty($NAME))
+	if (empty($userSend["FULL_NAME"]))
 		$arError[] = array("id" => "NO_NAME", "text" => GetMessage("F_NO_NAME"));
-	if (empty($EMAIL))
+	if (empty($userSend["E-MAIL"]))
 		$arError[] = array("id" => ($arParams["TYPE"]=="ICQ" ? "NO_ICQ" : "NO_MAIL"), 
 			"text" => GetMessage("F_NO_EMAIL1")." ".(($arParams["TYPE"]=="ICQ") ? GetMessage("F_NO_EMAIL2") : GetMessage("F_NO_EMAIL3")));
-	elseif ($arParams["TYPE"]!="ICQ" && !check_email($EMAIL))
+	elseif ($arParams["TYPE"]!="ICQ" && !check_email($userSend["E-MAIL"]))
 		$arError[] = array("id" => "BAD_MAIL", "text" => GetMessage("F_BAD_EMAIL"));
 	if (empty($_POST["SUBJECT"]))
 		$arError[] = array("id" => "NO_SUBJECT", "text" => GetMessage("F_NO_SUBJECT"));
@@ -154,23 +147,23 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"] == "SEND" && check_bi
 	{
 		if ($arParams["TYPE"]=="ICQ")
 		{
-			$body   = "From ".$NAME." (UIN ".$EMAIL.")\n";
+			$body   = "From ".$userSend["FULL_NAME"]." (UIN ".$userSend["E-MAIL"].")\n";
 			$body  .= ($USER->IsAuthorized() ? GetMessage("F_MESS_AUTH") : GetMessage("F_MESS_NOAUTH"))."\n";
 			$body  .= "<br>-----<br>\n";
 			$body  .= $_POST["SUBJECT"]."\n";
 			$body  .= "<br>-----<br>\n";
 			$body  .= $_POST["MESSAGE"]."\n";
 			$headers  = "Content-Type: text/plain; charset=windows-1254\n";
-			$headers .= "From: $NAME\nX-Mailer: System33r";
+			$headers .= "From: ".$userSend["FULL_NAME"]."\nX-Mailer: System33r";
 //				@mail($x_PERSONAL_ICQ."@pager.mirabilis.com", $_POST["SUBJECT"], $body, $headers);
 		}
 		else
 		{
 			$event = new CEvent;
 			$arFields = Array(
-				"FROM_NAME" => $NAME,
-				"FROM_EMAIL" => $EMAIL,
-				"TO_NAME" => $ShowName,
+				"FROM_NAME" => $userSend["FULL_NAME"],
+				"FROM_EMAIL" => $userSend["E-MAIL"],
+				"TO_NAME" => $userRec["FULL_NAME"],
 				"TO_EMAIL" => $userRec["EMAIL"],
 				"SUBJECT" => $_POST["SUBJECT"],
 				"MESSAGE" => $_POST["MESSAGE"],
@@ -179,7 +172,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"] == "SEND" && check_bi
 			);
 			$event->Send("NEW_FORUM_PRIV", SITE_ID, $arFields);
 		}
-		LocalRedirect(ForumAddPageParams($arResult["URL"]["RECIPIENT"], array("result" => "message_send")));
+		LocalRedirect(ForumAddPageParams($arResult["URL"]["MESSAGE_SEND"], array("result" => "message_send")));
 	}
 	else 
 	{
@@ -194,10 +187,10 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"] == "SEND" && check_bi
 				Data
 ********************************************************************/
 $arResult["IsAuthorized"] = $USER->IsAuthorized() ? "Y" : "N";
-$arResult["ShowName"] = $ShowName;
+$arResult["ShowName"] = $userRec["FULL_NAME"];
 if ($USER->IsAuthorized())
 {
-	$arResult["ShowMyName"] = $ShowMyName;
+	$arResult["ShowMyName"] = $userSend["FULL_NAME"];
 	$arResult["AuthorContacts"] = $arParams["TYPE"]=="ICQ" ? $userSend["PERSONAL_ICQ"] : $USER->GetEmail();
 }
 elseif ($arParams["SEND_".strToUpper($arParams["TYPE"])] < "Y" && !$USER->IsAuthorized())
@@ -211,7 +204,7 @@ elseif ($arParams["SEND_".strToUpper($arParams["TYPE"])] < "Y" && !$USER->IsAuth
 		COption::SetOptionString("main", "captcha_password", $captchaPass);
 	}
 	$cpt->SetCodeCrypt($captchaPass);
-	$arResult["CAPTCHA_CODE"] = htmlspecialchars($cpt->GetCodeCrypt());
+	$arResult["CAPTCHA_CODE"] = htmlspecialcharsbx($cpt->GetCodeCrypt());
 }
 if ($bVarsFromForm)
 {
@@ -227,16 +220,19 @@ if ($bVarsFromForm)
 		$arResult["ERROR_MESSAGE"] = $err->GetString();
 	}
 }
+$arResult["OK_MESSAGE"] = ($_REQUEST["result"] == "message_send" ? GetMessage("F_OK_MESSAGE_SEND") : "");
 /********************************************************************
 				/Data
 ********************************************************************/
+$this->IncludeComponentTemplate();
+
 $title = ($arParams["TYPE"] == "ICQ" ? GetMessage("F_TITLE_ICQ") : GetMessage("F_TITLE_MAIL"));
 if ($arParams["SET_NAVIGATION"] != "N"):
-	$APPLICATION->AddChainItem($ShowName, $arResult["URL"]["~RECIPIENT"]);
+	$APPLICATION->AddChainItem($userRec["FULL_NAME"], $arResult["URL"]["~RECIPIENT"]);
 	$APPLICATION->AddChainItem($title);
 endif;
 if ($arParams["SET_TITLE"] != "N")
 	$APPLICATION->SetTitle($title);
 /*******************************************************************/
-$this->IncludeComponentTemplate();
+
 ?>

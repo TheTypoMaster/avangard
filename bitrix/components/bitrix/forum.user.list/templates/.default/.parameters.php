@@ -2,7 +2,7 @@
 
 $arTemplateParameters = array(
 	"SEO_USER" => array(
-        "NAME" => GetMessage("F_SEO_USER"),
+		"NAME" => GetMessage("F_SEO_USER"),
 		"TYPE" => "CHECKBOX",
 		"DEFAULT" => "Y")
 );

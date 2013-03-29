@@ -5,7 +5,7 @@ class CLightHTMLEditor // LHE
 	var $ownerType;
 	function Init(&$arParams)
 	{
-		global $USER;
+		global $USER, $APPLICATION;
 		$basePath = '/bitrix/js/fileman/light_editor/';
 		$this->Id = (isset($arParams['id']) && strlen($arParams['id']) > 0) ? $arParams['id'] : 'bxlhe'.substr(uniqid(mt_rand(), true), 0, 4);
 		$this->cssPath = $this->GetActualPath($basePath.'light_editor.css');
@@ -16,10 +16,14 @@ class CLightHTMLEditor // LHE
 			$this->GetActualPath($basePath.'le_core.js')
 		);
 
-		$this->bBBCode = $arParams['BBCode'] === true;
-		//if ($this->bBBCode)
-			$this->arJSPath[] = $this->GetActualPath($basePath.'le_bb.js');
+		if($GLOBALS['APPLICATION']->IsJSOptimized())
+		{
+			$APPLICATION->AddHeadScript($basePath.'le_dialogs.js');
+			$APPLICATION->AddHeadScript($basePath.'le_controls.js');
+			$APPLICATION->AddHeadScript($basePath.'le_core.js');
+		}
 
+		$this->bBBCode = $arParams['BBCode'] === true;
 		$arJS = Array();
 		$arCSS = Array();
 		$events = GetModuleEvents("fileman", "OnBeforeLightEditorScriptsGet");
@@ -44,6 +48,7 @@ class CLightHTMLEditor // LHE
 		$this->bUseMedialib = $arParams['bUseMedialib'] !== false && COption::GetOptionString('fileman', "use_medialib", "Y") == "Y" && CMedialib::CanDoOperation('medialib_view_collection', 0);
 
 		$this->bResizable = $arParams['bResizable'] === true;
+		$this->bManualResize = $this->bResizable && $arParams['bManualResize'] !== false;
 		$this->bAutoResize = $arParams['bAutoResize'] !== false;
 		$this->bInitByJS = $arParams['bInitByJS'] === true;
 		$this->bSaveOnBlur = $arParams['bSaveOnBlur'] !== false;
@@ -96,19 +101,20 @@ class CLightHTMLEditor // LHE
 			'bSaveOnBlur' => $this->bSaveOnBlur,
 			'bResizable' => $this->bResizable,
 			'autoResizeSaveSize' => $arParams['autoResizeSaveSize'] !== false,
+			'bManualResize' => $this->bManualResize,
 			'bAutoResize' => $this->bAutoResize,
 			'bReplaceTabToNbsp' => true,
 			'bSetDefaultCodeView' => isset($arParams['bSetDefaultCodeView']) && $arParams['bSetDefaultCodeView'],
 			'bBBParseImageSize' => isset($arParams['bBBParseImageSize']) && $arParams['bBBParseImageSize'],
 			'smileCountInToolbar' => intVal($arParams['smileCountInToolbar']),
-			'bQuoteFromSelection' => $arParams['bQuoteFromSelection'],
-			'bConvertContentFromBBCodes' => $arParams['bConvertContentFromBBCodes'],
+			'bQuoteFromSelection' => isset($arParams['bQuoteFromSelection']) && $arParams['bQuoteFromSelection'],
+			'bConvertContentFromBBCodes' => isset($arParams['bConvertContentFromBBCodes']) && $arParams['bConvertContentFromBBCodes'],
 			'oneGif' => '/bitrix/images/1.gif',
 			'imagePath' => '/bitrix/images/fileman/light_htmledit/'
 		);
 
 		// Set editor from visual mode to textarea for mobile devices
-		if (CLightHTMLEditor::IsMobileDevice())
+		if (!isset($this->JSConfig['bSetDefaultCodeView']) && CLightHTMLEditor::IsMobileDevice())
 			$this->JSConfig['bSetDefaultCodeView'] = true;
 
 		if (isset($arParams['width']) && intVal($arParams['width']) > 0)
@@ -119,7 +125,14 @@ class CLightHTMLEditor // LHE
 			$this->JSConfig['toolbarConfig'] = $arParams['toolbarConfig'];
 		if (isset($arParams['documentCSS']))
 			$this->JSConfig['documentCSS'] = $arParams['documentCSS'];
-
+		if (isset($arParams['fontFamily']))
+			$this->JSConfig['fontFamily'] = $arParams['fontFamily'];
+		if (isset($arParams['fontSize']))
+			$this->JSConfig['fontSize'] = $arParams['fontSize'];
+		if (isset($arParams['lineHeight']))
+			$this->JSConfig['lineHeight'] = $arParams['lineHeight'];
+		if (isset($arParams['bHandleOnPaste']))
+			$this->JSConfig['bHandleOnPaste'] = $arParams['bHandleOnPaste'];
 		if (isset($arParams['autoResizeOffset']))
 			$this->JSConfig['autoResizeOffset'] = $arParams['autoResizeOffset'];
 		if (isset($arParams['autoResizeMaxHeight']))
@@ -138,7 +151,7 @@ class CLightHTMLEditor // LHE
 
 	function GetActualPath($path)
 	{
-		return $path.'?v='.@filemtime($_SERVER['DOCUMENT_ROOT'].$path);
+		return $path.'?'.@filemtime($_SERVER['DOCUMENT_ROOT'].$path);
 	}
 
 	function Show($arParams)
@@ -185,14 +198,11 @@ class CLightHTMLEditor // LHE
 		$db_events = GetModuleEvents("fileman", "OnIncludeLightEditorScript");
 		while($arEvent = $db_events->Fetch())
 			ExecuteModuleEventEx($arEvent, array($this->Id));
-
 		$scripts = trim(ob_get_contents());
 		ob_end_clean();
 
 		$scripts = str_replace("<script>", "", $scripts);
 		$scripts = str_replace("</script>", "", $scripts);
-
-		//$GLOBALS["APPLICATION"]->SetAdditionalCSS($this->cssPath); /**/
 
 		?>
 		<script>
@@ -205,30 +215,25 @@ class CLightHTMLEditor // LHE
 				window.BXLHEStyles = true;
 			}
 
-			var arScripts = [<?for ($i = 0, $l = count($this->arJSPath); $i < $l; $i++){echo '\''.$this->arJSPath[$i].'\''.($i == $l - 1 ? '' : ',');}?>];
-			BX.loadScript(arScripts, function()
+			function _lheScriptloaded()
 			{
-				// Place to add user script
-				try{
-				<?= $scripts?>
-				}catch(e){alert('Errors in customization scripts! ' + e);}
+				<?if (!empty($scripts)):?>
+				// User's customization scripts here
+				try{<?= $scripts?>}
+				catch(e){alert('Errors in customization scripts! ' + e);}
+				<?endif;?>
 
-				/*setTimeout(function()
-				{*/
-					window.<?=$this->jsObjName?> = new window.JCLightHTMLEditor(<?=CUtil::PhpToJSObject($this->JSConfig)?>);
-				/*}, 100);*/
-			});
+				if(JCLightHTMLEditor.items['<?= $this->Id?>'] == undefined)
+				{
+					top.<?=$this->jsObjName?> = window.<?=$this->jsObjName?> = new window.JCLightHTMLEditor(<?=CUtil::PhpToJSObject($this->JSConfig)?>);
+				}
+			}
+
+			BX.loadScript(['<?= implode('\',\'', $this->arJSPath)?>'], _lheScriptloaded);
 		}
 
 		<?if(!$this->bInitByJS):?>
-		BX.ready(function()
-		{
-			/*var ww = BX('bxlhe_ww_<?=$this->Id?>');
-			if (ww)
-				BX.showWait(ww, '<?= GetMessage('FILEMAN_LHE_WAIT')?>');
-			setTimeout(LoadLHE_<?=$this->Id?>, 50)*/
-			LoadLHE_<?=$this->Id?>();
-		});
+			BX.ready(function(){LoadLHE_<?=$this->Id?>();});
 		<?endif;?>
 
 		</script><?
@@ -237,12 +242,11 @@ class CLightHTMLEditor // LHE
 	function InitLangMess()
 	{
 		$langPath = $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/fileman/lang/'.LANGUAGE_ID.'/classes/general/light_editor_js.php';
-		if(file_exists($langPath))
-			include($langPath);
-		else
+		if(!file_exists($langPath))
 			$langPath = $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/fileman/lang/en/classes/general/light_editor_js.php';
+		include($langPath);
 
-		?><script>LHE_MESS = window.LHE_MESS = <?=CUtil::PhpToJSObject($MESS)?>;</script><?
+		?><script>LHE_MESS = window.LHE_MESS = <?= CUtil::PhpToJSObject($MESS)?>;</script><?
 	}
 
 	function InitFileDialogs()

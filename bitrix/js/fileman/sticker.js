@@ -2704,3 +2704,4 @@ BXStickerList.prototype = {
 		this.pActionSel.disabled = !bEnable;
 	}
 };
+;   

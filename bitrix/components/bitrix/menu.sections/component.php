@@ -109,7 +109,7 @@ foreach($arResult["SECTIONS"] as $arSection)
 	$previousDepthLevel = $arSection["DEPTH_LEVEL"];
 
 	$aMenuLinksNew[$menuIndex++] = array(
-		htmlspecialchars($arSection["~NAME"]),
+		htmlspecialcharsbx($arSection["~NAME"]),
 		$arSection["~SECTION_PAGE_URL"],
 		$arResult["ELEMENT_LINKS"][$arSection["ID"]],
 		array(

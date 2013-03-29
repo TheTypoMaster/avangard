@@ -241,7 +241,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 				$url = "http://".$arRes["SERVER_NAME"].":".$arRes["SERVER_PORT"].$url;
 		}
 
-		$row->AddViewField("REQUEST_URI", '<a href="'.htmlspecialchars($url).'" title="'.htmlspecialchars($url).'">&gt;&gt;</a>&nbsp;<a href="perfmon_sql_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_hit_id='.$f_ID.'" title="'.$f_REQUEST_URI.'">'.(strlen($f_REQUEST_URI)>$max_display_url? substr($f_REQUEST_URI, 0, $max_display_url)."...": $f_REQUEST_URI).'</a> ');
+		$row->AddViewField("REQUEST_URI", '<a href="'.htmlspecialcharsbx($url).'" title="'.htmlspecialcharsbx($url).'">&gt;&gt;</a>&nbsp;<a href="perfmon_sql_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_hit_id='.$f_ID.'" title="'.$f_REQUEST_URI.'">'.(strlen($f_REQUEST_URI)>$max_display_url? substr($f_REQUEST_URI, 0, $max_display_url)."...": $f_REQUEST_URI).'</a> ');
 		if($f_QUERIES > 0)
 			$row->AddViewField("QUERIES", '<a href="perfmon_sql_list.php?lang='.LANGUAGE_ID.'&amp;set_filter=Y&amp;find_hit_id='.$f_ID.'">'.$f_QUERIES.'</a>');
 		if($f_COMPONENTS > 0)
@@ -285,7 +285,7 @@ $oFilter = new CAdminFilter(
 <tr>
 	<td><b><?=GetMessage("PERFMON_HIT_FIND")?>:</b></td>
 	<td>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("PERFMON_HIT_FIND")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("PERFMON_HIT_FIND")?>">
 		<?
 		$arr = array(
 			"reference" => array(
@@ -303,17 +303,17 @@ $oFilter = new CAdminFilter(
 </tr>
 <tr>
 	<td><?=GetMessage("PERFMON_HIT_SCRIPT_NAME")?></td>
-	<td><input type="text" name="find_script_name" size="47" value="<?echo htmlspecialchars($find_script_name)?>"></td>
+	<td><input type="text" name="find_script_name" size="47" value="<?echo htmlspecialcharsbx($find_script_name)?>"></td>
 </tr>
 <tr>
 	<td><?=GetMessage("PERFMON_HIT_ID")?></td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>"></td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("PERFMON_HIT_IS_ADMIN")?>:</td>
 	<td><?
 		$arr = array("reference"=>array(GetMessage("MAIN_YES"), GetMessage("MAIN_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_is_admin", $arr, htmlspecialchars($find_is_admin), GetMessage("MAIN_ALL"));
+		echo SelectBoxFromArray("find_is_admin", $arr, htmlspecialcharsbx($find_is_admin), GetMessage("MAIN_ALL"));
 	?></td>
 </tr>
 <tr>
@@ -326,7 +326,7 @@ $oFilter = new CAdminFilter(
 			$arr["reference"][] = $arMethod["REQUEST_METHOD"];
 			$arr["reference_id"][] = $arMethod["REQUEST_METHOD"];
 		}
-		echo SelectBoxFromArray("find_request_method", $arr, htmlspecialchars($find_is_admin), GetMessage("MAIN_ALL"));
+		echo SelectBoxFromArray("find_request_method", $arr, htmlspecialcharsbx($find_is_admin), GetMessage("MAIN_ALL"));
 	?></td>
 </tr>
 <?

@@ -1,11 +1,17 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+<?
+/**
+ * @global CMain $APPLICATION
+ * @global CUser $USER
+ * @global CUserTypeManager $USER_FIELD_MANAGER
+ * @param array $arParams
+ * @param CBitrixComponent $this
+ */
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
-/***************************************************************************
-             Компонент редактирования профайла пользователя
-****************************************************************************/
+global $USER_FIELD_MANAGER;
 
-$arResult["ID"]=intval($USER->GetID());
+$arResult["ID"] = intval($USER->GetID());
 $arResult["GROUP_POLICY"] = CUser::GetGroupPolicy($arResult["ID"]);
 
 $arParams['SEND_INFO'] = $arParams['SEND_INFO'] == 'Y' ? 'Y' : 'N';
@@ -13,18 +19,13 @@ $arParams['CHECK_RIGHTS'] = $arParams['CHECK_RIGHTS'] == 'Y' ? 'Y' : 'N';
 
 if(!($arParams['CHECK_RIGHTS'] == 'N' || $USER->CanDoOperation('edit_own_profile')) || $arResult["ID"]<=0)
 {
-	$APPLICATION->ShowAuthForm(GetMessage("ACCESS_DENIED"));
+	$APPLICATION->ShowAuthForm("");
 	return;
 }
 
-/***************************************************************************
-                        Обработка GET | POST
-****************************************************************************/
-
 $strError = '';
-$arResult["ID"] = IntVal($arResult["ID"]);
 
-if($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_REQUEST["save"])>0 || strlen($_REQUEST["apply"])>0) && check_bitrix_sessid())
+if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"] <> '' || $_REQUEST["apply"] <> '') && check_bitrix_sessid())
 {
 	if(COption::GetOptionString('main', 'use_encrypted_auth', 'N') == 'Y')
 	{
@@ -60,46 +61,46 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_REQUEST["save"])>0 || strlen(
 			$arWORK_LOGO["del"] = $_REQUEST["WORK_LOGO_del"];
 		}
 	
-		$arFields = Array(
-			"NAME"					=> $_REQUEST["NAME"],
-			"LAST_NAME"				=> $_REQUEST["LAST_NAME"],
-			"SECOND_NAME"			=> $_REQUEST["SECOND_NAME"],
-			"EMAIL"					=> $_REQUEST["EMAIL"],
-			"LOGIN"					=> $_REQUEST["LOGIN"],
-			"PERSONAL_PROFESSION"	=> $_REQUEST["PERSONAL_PROFESSION"],
-			"PERSONAL_WWW"			=> $_REQUEST["PERSONAL_WWW"],
-			"PERSONAL_ICQ"			=> $_REQUEST["PERSONAL_ICQ"],
-			"PERSONAL_GENDER"		=> $_REQUEST["PERSONAL_GENDER"],
-			"PERSONAL_BIRTHDAY"		=> $_REQUEST["PERSONAL_BIRTHDAY"],
-			"PERSONAL_PHOTO"		=> $arPERSONAL_PHOTO,
-			"PERSONAL_PHONE"		=> $_REQUEST["PERSONAL_PHONE"],
-			"PERSONAL_FAX"			=> $_REQUEST["PERSONAL_FAX"],
-			"PERSONAL_MOBILE"		=> $_REQUEST["PERSONAL_MOBILE"],
-			"PERSONAL_PAGER"		=> $_REQUEST["PERSONAL_PAGER"],
-			"PERSONAL_STREET"		=> $_REQUEST["PERSONAL_STREET"],
-			"PERSONAL_MAILBOX"		=> $_REQUEST["PERSONAL_MAILBOX"],
-			"PERSONAL_CITY"			=> $_REQUEST["PERSONAL_CITY"],
-			"PERSONAL_STATE"		=> $_REQUEST["PERSONAL_STATE"],
-			"PERSONAL_ZIP"			=> $_REQUEST["PERSONAL_ZIP"],
-			"PERSONAL_COUNTRY"		=> $_REQUEST["PERSONAL_COUNTRY"],
-			"PERSONAL_NOTES"		=> $_REQUEST["PERSONAL_NOTES"],
-			"WORK_COMPANY"			=> $_REQUEST["WORK_COMPANY"],
-			"WORK_DEPARTMENT"		=> $_REQUEST["WORK_DEPARTMENT"],
-			"WORK_POSITION"			=> $_REQUEST["WORK_POSITION"],
-			"WORK_WWW"				=> $_REQUEST["WORK_WWW"],
-			"WORK_PHONE"			=> $_REQUEST["WORK_PHONE"],
-			"WORK_FAX"				=> $_REQUEST["WORK_FAX"],
-			"WORK_PAGER"			=> $_REQUEST["WORK_PAGER"],
-			"WORK_STREET"			=> $_REQUEST["WORK_STREET"],
-			"WORK_MAILBOX"			=> $_REQUEST["WORK_MAILBOX"],
-			"WORK_CITY"				=> $_REQUEST["WORK_CITY"],
-			"WORK_STATE"			=> $_REQUEST["WORK_STATE"],
-			"WORK_ZIP"				=> $_REQUEST["WORK_ZIP"],
-			"WORK_COUNTRY"			=> $_REQUEST["WORK_COUNTRY"],
-			"WORK_PROFILE"			=> $_REQUEST["WORK_PROFILE"],
-			"WORK_LOGO"				=> $arWORK_LOGO,
-			"WORK_NOTES"			=> $_REQUEST["WORK_NOTES"],
-			"AUTO_TIME_ZONE"		=> ($_REQUEST["AUTO_TIME_ZONE"] == "Y" || $_REQUEST["AUTO_TIME_ZONE"] == "N"? $_REQUEST["AUTO_TIME_ZONE"] : ""),
+		$arFields = array(
+			"NAME" => $_REQUEST["NAME"],
+			"LAST_NAME" => $_REQUEST["LAST_NAME"],
+			"SECOND_NAME" => $_REQUEST["SECOND_NAME"],
+			"EMAIL" => $_REQUEST["EMAIL"],
+			"LOGIN" => $_REQUEST["LOGIN"],
+			"PERSONAL_PROFESSION" => $_REQUEST["PERSONAL_PROFESSION"],
+			"PERSONAL_WWW" => $_REQUEST["PERSONAL_WWW"],
+			"PERSONAL_ICQ" => $_REQUEST["PERSONAL_ICQ"],
+			"PERSONAL_GENDER" => $_REQUEST["PERSONAL_GENDER"],
+			"PERSONAL_BIRTHDAY" => $_REQUEST["PERSONAL_BIRTHDAY"],
+			"PERSONAL_PHOTO" => $arPERSONAL_PHOTO,
+			"PERSONAL_PHONE" => $_REQUEST["PERSONAL_PHONE"],
+			"PERSONAL_FAX" => $_REQUEST["PERSONAL_FAX"],
+			"PERSONAL_MOBILE" => $_REQUEST["PERSONAL_MOBILE"],
+			"PERSONAL_PAGER" => $_REQUEST["PERSONAL_PAGER"],
+			"PERSONAL_STREET" => $_REQUEST["PERSONAL_STREET"],
+			"PERSONAL_MAILBOX" => $_REQUEST["PERSONAL_MAILBOX"],
+			"PERSONAL_CITY" => $_REQUEST["PERSONAL_CITY"],
+			"PERSONAL_STATE" => $_REQUEST["PERSONAL_STATE"],
+			"PERSONAL_ZIP" => $_REQUEST["PERSONAL_ZIP"],
+			"PERSONAL_COUNTRY" => $_REQUEST["PERSONAL_COUNTRY"],
+			"PERSONAL_NOTES" => $_REQUEST["PERSONAL_NOTES"],
+			"WORK_COMPANY" => $_REQUEST["WORK_COMPANY"],
+			"WORK_DEPARTMENT" => $_REQUEST["WORK_DEPARTMENT"],
+			"WORK_POSITION" => $_REQUEST["WORK_POSITION"],
+			"WORK_WWW" => $_REQUEST["WORK_WWW"],
+			"WORK_PHONE" => $_REQUEST["WORK_PHONE"],
+			"WORK_FAX" => $_REQUEST["WORK_FAX"],
+			"WORK_PAGER" => $_REQUEST["WORK_PAGER"],
+			"WORK_STREET" => $_REQUEST["WORK_STREET"],
+			"WORK_MAILBOX" => $_REQUEST["WORK_MAILBOX"],
+			"WORK_CITY" => $_REQUEST["WORK_CITY"],
+			"WORK_STATE" => $_REQUEST["WORK_STATE"],
+			"WORK_ZIP" => $_REQUEST["WORK_ZIP"],
+			"WORK_COUNTRY" => $_REQUEST["WORK_COUNTRY"],
+			"WORK_PROFILE" => $_REQUEST["WORK_PROFILE"],
+			"WORK_LOGO" => $arWORK_LOGO,
+			"WORK_NOTES" => $_REQUEST["WORK_NOTES"],
+			"AUTO_TIME_ZONE" => ($_REQUEST["AUTO_TIME_ZONE"] == "Y" || $_REQUEST["AUTO_TIME_ZONE"] == "N"? $_REQUEST["AUTO_TIME_ZONE"] : ""),
 		);
 	
 		if(isset($_REQUEST["TIME_ZONE"]))
@@ -107,23 +108,24 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_REQUEST["save"])>0 || strlen(
 	
 		if($arUser)
 		{
-			if(strlen($arUser['EXTERNAL_AUTH_ID']) > 0)
+			if($arUser['EXTERNAL_AUTH_ID'] <> '')
 			{
 				$arFields['EXTERNAL_AUTH_ID'] = $arUser['EXTERNAL_AUTH_ID'];
 			}
 		}
 	
-		//if($arResult["MAIN_RIGHT"]=="W" && is_set($_POST, 'EXTERNAL_AUTH_ID')) $arFields['EXTERNAL_AUTH_ID'] = $_POST["EXTERNAL_AUTH_ID"];
 		if($USER->IsAdmin())
 		{
-			$arFields["ADMIN_NOTES"]=$_REQUEST["ADMIN_NOTES"];
+			$arFields["ADMIN_NOTES"] = $_REQUEST["ADMIN_NOTES"];
 		}
-		if(strlen($_REQUEST["NEW_PASSWORD"])>0)
+
+		if($_REQUEST["NEW_PASSWORD"] <> '' && $arUser['EXTERNAL_AUTH_ID'] == '')
 		{
-			$arFields["PASSWORD"]=$_REQUEST["NEW_PASSWORD"];
-			$arFields["CONFIRM_PASSWORD"]=$_REQUEST["NEW_PASSWORD_CONFIRM"];
+			$arFields["PASSWORD"] = $_REQUEST["NEW_PASSWORD"];
+			$arFields["CONFIRM_PASSWORD"] = $_REQUEST["NEW_PASSWORD_CONFIRM"];
 		}
-		$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("USER", $arFields);
+
+		$USER_FIELD_MANAGER->EditFormAddFields("USER", $arFields);
 	
 		if(!$obUser->Update($arResult["ID"], $arFields, true))
 			$strError .= $obUser->LAST_ERROR.'<br />';
@@ -134,7 +136,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_REQUEST["save"])>0 || strlen(
 		if (CModule::IncludeModule("forum"))
 		{
 			$APPLICATION->ResetException();
-			$arforumFields = Array(
+			$arforumFields = array(
 				"SHOW_NAME"		=> ($_REQUEST["forum_SHOW_NAME"]=="Y") ? "Y" : "N",
 				"DESCRIPTION"	=> $_REQUEST["forum_DESCRIPTION"],
 				"INTERESTS"		=> $_REQUEST["forum_INTERESTS"],
@@ -169,7 +171,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_REQUEST["save"])>0 || strlen(
 		if (CModule::IncludeModule("blog"))
 		{
 			$APPLICATION->ResetException();
-			$arblogFields = Array(
+			$arblogFields = array(
 				"ALIAS" => $_REQUEST["blog_ALIAS"],
 				"DESCRIPTION" => $_REQUEST["blog_DESCRIPTION"],
 				"INTERESTS" => $_REQUEST["blog_INTERESTS"],
@@ -181,10 +183,10 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_REQUEST["save"])>0 || strlen(
 			if ($ar_res)
 			{
 				$arblogFields["AVATAR"]["old_file"] = $ar_res["AVATAR"];
-				$BLOG_USER_ID = IntVal($ar_res["ID"]);
+				$BLOG_USER_ID = intval($ar_res["ID"]);
 
 				$BLOG_USER_ID1 = CBlogUser::Update($BLOG_USER_ID, $arblogFields);
-				$blog_res = (IntVal($BLOG_USER_ID1)>0);
+				$blog_res = (intval($BLOG_USER_ID1)>0);
 			}
 			else
 			{
@@ -192,7 +194,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_REQUEST["save"])>0 || strlen(
 				$arblogFields["~DATE_REG"] = CDatabase::CurrentTimeFunction();
 
 				$BLOG_USER_ID = CBlogUser::Add($arblogFields);
-				$blog_res = (IntVal($BLOG_USER_ID)>0);
+				$blog_res = (intval($BLOG_USER_ID)>0);
 			}
 
 			if($ex = $APPLICATION->GetException())
@@ -202,13 +204,12 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_REQUEST["save"])>0 || strlen(
 
 	if(CModule::IncludeModule("learning") && $strError == '')
 	{
-		//$APPLICATION->ResetException();
-		$arStudentFields = Array(
+		$arStudentFields = array(
 			"RESUME" => $_REQUEST["student_RESUME"],
 			"PUBLIC_PROFILE" => ($_REQUEST["student_PUBLIC_PROFILE"]=="Y" ? "Y" : "N")
 		);
 
-		$ar_res = CStudent::GetList(Array(), Array("USER_ID" => $arResult["ID"]));
+		$ar_res = CStudent::GetList(array(), array("USER_ID" => $arResult["ID"]));
 
 		if ($arStudent = $ar_res->Fetch())
 		{
@@ -220,10 +221,6 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_REQUEST["save"])>0 || strlen(
 			$STUDENT_USER_ID = CStudent::Add($arStudentFields);
 			$learning_res = (intval($STUDENT_USER_ID)>0);
 		}
-
-		//if($ex = $APPLICATION->GetException())
-		//	$strError = $ex->GetString();
-
 	}
 
 	if($strError == '')
@@ -238,12 +235,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_REQUEST["save"])>0 || strlen(
 $rsUser = CUser::GetByID($arResult["ID"]);
 if(!$arResult["arUser"] = $rsUser->GetNext(false))
 {
-	$arResult["ID"]=0;
-	//$arResult["arUser"]["ACTIVE"]="Y";
-}
-else
-{
-	//$arResult["arUser"]["GROUP_ID"] = CUser::GetUserGroup($arResult["ID"]);
+	$arResult["ID"] = 0;
 }
 
 if (CModule::IncludeModule("blog"))
@@ -257,7 +249,7 @@ if (CModule::IncludeModule("blog"))
 		foreach($arBlg as $key => $val)
 		{
 			$arResult["arBlogUser"]["~".$key] = $val;
-			$arResult["arBlogUser"][$key] = htmlspecialchars($val);
+			$arResult["arBlogUser"][$key] = htmlspecialcharsbx($val);
 		}
 	}
 	
@@ -300,8 +292,6 @@ if($strError <> '')
 			$arResult["arForumUser"][$k] = $val;
 		}
 	}
-
-	$arResult["arUser"]["GROUP_ID"] = $GROUP_ID;
 }
 
 $arResult["FORM_TARGET"] = $APPLICATION->GetCurPage();
@@ -350,7 +340,7 @@ if (strlen($arResult["COOKIE_PREFIX"]) <= 0)
 $arResult["USER_PROPERTIES"] = array("SHOW" => "N");
 if (!empty($arParams["USER_PROPERTY"]))
 {
-	$arUserFields = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("USER", $arResult["ID"], LANGUAGE_ID);
+	$arUserFields = $USER_FIELD_MANAGER->GetUserFields("USER", $arResult["ID"], LANGUAGE_ID);
 	if (count($arParams["USER_PROPERTY"]) > 0)
 	{
 		foreach ($arUserFields as $FIELD_NAME => $arUserField)
@@ -393,5 +383,7 @@ if(!CMain::IsHTTPS() && COption::GetOptionString('main', 'use_encrypted_auth', '
 	}
 }
 
+//socialservices
+$arResult["SOCSERV_ENABLED"] = IsModuleInstalled("socialservices");
+
 $this->IncludeComponentTemplate();
-?>

@@ -21,7 +21,7 @@ $arParams["GROUP_PERMISSIONS"] = (!is_array($arParams["GROUP_PERMISSIONS"]) ? ar
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 //***************** ADDITTIONAL ************************************/
 //***************** STANDART ***************************************/
@@ -30,7 +30,7 @@ if(!isset($arParams["CACHE_TIME"]))
 if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 else
-	$arParams["CACHE_TIME"] = 0;	
+	$arParams["CACHE_TIME"] = 0;
 /********************************************************************
 				/Input params
 ********************************************************************/
@@ -43,18 +43,18 @@ if (empty($arResult["SEARCH"]))
 }
 
 $cache = new CPHPCache;
-$arResult["ELEMENTS_LIST"] = array(); 
+$arResult["ELEMENTS_LIST"] = array();
 $arResult["ELEMENTS"] = array("MAX_WIDTH" => 0, "MAX_HEIGHT" => $maxHeight);
 $arParams["PERMISSION"] = "D";
 
 $maxWidth = 0; $maxHeight = 0;
 
-// Permission 
+// Permission
 $cache_path = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]."/search");
 $cache_id = "permission_".serialize(array("USER_GROUP" => $GLOBALS["USER"]->GetGroups(), "IBLOCK_ID" => $arParams["IBLOCK_ID"]));
-if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path)): 
+if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path)):
 	$arParams["PERMISSION"] = $cache->GetVars();
-else: 
+else:
 	$arParams["PERMISSION"] = CIBlock::GetPermission($arParams["IBLOCK_ID"]);
 	if ($arParams["CACHE_TIME"] > 0):
 		$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
@@ -64,11 +64,11 @@ endif;
 if ($arParams["PERMISSION"] <= "D"):
 	return false;
 endif;
-// Additional Permission 
+// Additional Permission
 $bUSER_HAVE_ACCESS = (!$arParams["USE_PERMISSIONS"] || $arParams["PERMISSION"] >= "U");
 if (!$bUSER_HAVE_ACCESS)
 {
-	$res = array_intersect($GLOBALS["USER"]->GetUserGroupArray(), $arParams["GROUP_PERMISSIONS"]); 
+	$res = array_intersect($GLOBALS["USER"]->GetUserGroupArray(), $arParams["GROUP_PERMISSIONS"]);
 	$bUSER_HAVE_ACCESS = (empty($res) ? false : true);
 }
 $arResult["USER_HAVE_ACCESS"] = $bUSER_HAVE_ACCESS;
@@ -79,7 +79,7 @@ if ($arParams["PERMISSION"] < "W")
 	$db_res = CIBlockSection::GetList(Array(), array("IBLOCK_ID" => $arParams["IBLOCK_ID"], "ACTIVE" => "Y"), false, array("UF_PASSWORD"));
 	if ($db_res && $res = $db_res->Fetch())
 	{
-		do 
+		do
 		{
 			if (!empty($res["UF_PASSWORD"]) && ($res["UF_PASSWORD"] != $_SESSION['PHOTOGALLERY']['SECTION'][$res["ID"]]))
 			{
@@ -89,7 +89,7 @@ if ($arParams["PERMISSION"] < "W")
 	}
 }
 
-$arParams["ADDITIONAL_SIGHTS"] = $arParams["~ADDITIONAL_SIGHTS"]; 
+$arParams["ADDITIONAL_SIGHTS"] = $arParams["~ADDITIONAL_SIGHTS"];
 $arParams["ADDITIONAL_SIGHTS"] = (is_array($arParams["~ADDITIONAL_SIGHTS"]) ? $arParams["~ADDITIONAL_SIGHTS"] : array()); // sights list from component params
 $arParams["PICTURES"] = array();
 if (!empty($arParams["ADDITIONAL_SIGHTS"]))
@@ -112,26 +112,26 @@ if (!empty($arParams["ADDITIONAL_SIGHTS"]))
 			$arTemplateParams = (!is_array($arTemplateParams) ? array() : $arTemplateParams);
 			$arParams["PICTURES_SIGHT"] = $arTemplateParams['sight'];
 			if ($_REQUEST["PICTURES_SIGHT"] && check_bitrix_sessid() && $arTemplateParams["sight"] != $_REQUEST["PICTURES_SIGHT"]):
-				$arTemplateParams['sight'] = $arParams["PICTURES_SIGHT"] = $_REQUEST["PICTURES_SIGHT"]; 
+				$arTemplateParams['sight'] = $arParams["PICTURES_SIGHT"] = $_REQUEST["PICTURES_SIGHT"];
 				CUserOptions::SetOption('photogallery', 'template', $arTemplateParams);
 			endif;
 		}
-		else 
+		else
 		{
 			if (!empty($_SESSION['photogallery']['sight']))
-				$arParams["PICTURES_SIGHT"] = $_SESSION['photogallery']['sight']; 
+				$arParams["PICTURES_SIGHT"] = $_SESSION['photogallery']['sight'];
 			if (!empty($_REQUEST["PICTURES_SIGHT"]))
 				$_SESSION['photogallery']['sight'] = $arParams["PICTURES_SIGHT"] = $_REQUEST["PICTURES_SIGHT"];
 		}
-	elseif ($arParams["PICTURES_SIGHT"] != "real" && $arParams["PICTURES_SIGHT"] != "detail"): 
+	elseif ($arParams["PICTURES_SIGHT"] != "real" && $arParams["PICTURES_SIGHT"] != "detail"):
 		$arParams["PICTURES_SIGHT"]	= substr($arParams["PICTURES_SIGHT"], 5);
 	endif;
-}	
+}
 
 
 foreach($arResult["SEARCH"] as $key => $arItem)
 {
-	// WHAT	
+	// WHAT
 	$arSelect = array(
 		"ID",
 		"CODE",
@@ -150,7 +150,7 @@ foreach($arResult["SEARCH"] as $key => $arItem)
 		"TAGS",
 		"DATE_CREATE",
 		"CREATED_BY",
-		"SHOW_COUNTER", 
+		"SHOW_COUNTER",
 		"PROPERTY_*");
 	//WHERE
 	$arFilter = array(
@@ -166,60 +166,60 @@ foreach($arResult["SEARCH"] as $key => $arItem)
 	//EXECUTE
 	$rsElement = CIBlockElement::GetList(array(), $arFilter, false, false, $arSelect);
 	$arElement = array();
-	$arSections = array(); 
-	$arGalleries = array(); 
+	$arSections = array();
+	$arGalleries = array();
 	if($obElement = $rsElement->GetNextElement())
 	{
 		$arElement = $obElement->GetFields();
-		
+
 		if (strToUpper($arParams["PICTURES_SIGHT"]) == "DETAIL" && !empty($arElement["DETAIL_PICTURE"]))
 			$arElement["~PICTURE"] = $arElement["DETAIL_PICTURE"];
 		elseif (!empty($arElement["PROPERTIES"][strToUpper($arParams["PICTURES_SIGHT"])."_PICTURE"]["VALUE"]))
 			$arElement["~PICTURE"] = $arElement["PROPERTIES"][strToUpper($arParams["PICTURES_SIGHT"])."_PICTURE"]["VALUE"];
-		else 
+		else
 			$arElement["~PICTURE"] = $arElement["PREVIEW_PICTURE"];
-			
+
 		$arElement["PICTURE"] = CFile::GetFileArray($arElement["~PICTURE"]);
 		if (!empty($arParams["PICTURES_SIGHT"]) && $arParams["PICTURES"][$arParams["PICTURES_SIGHT"]])
 		{
 			$size = intVal($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"]);
 			if ($size > 0 && ($arElement["PICTURE"]["WIDTH"] > $size || $arElement["PICTURE"]["HEIGHT"] > $size))
 			{
-				$koeff = min($size / $arElement["PICTURE"]["WIDTH"], $size / $arElement["PICTURE"]["HEIGHT"]); 
+				$koeff = min($size / $arElement["PICTURE"]["WIDTH"], $size / $arElement["PICTURE"]["HEIGHT"]);
 				$arElement["PICTURE"]["WIDTH"] = intVal($arElement["PICTURE"]["WIDTH"] * $koeff);
 				$arElement["PICTURE"]["HEIGHT"] = intVal($arElement["PICTURE"]["HEIGHT"] * $koeff);
 			}
 		}
-		
+
 		$maxWidth = max($maxWidth, $arElement["PICTURE"]["WIDTH"]);
 		$maxHeight = max($maxHeight, $arElement["PICTURE"]["HEIGHT"]);
-		
+
 		if (empty($arGalleries[$arElement["IBLOCK_SECTION_ID"]])) // Get Gallery Info
 		{
 			if (empty($arSections[$arElement["IBLOCK_SECTION_ID"]])) // Get Section Info
 			{
-				$db_res = CIBlockSection::GetList(array(), array("ID" => $arElement["IBLOCK_SECTION_ID"]), false, 
+				$db_res = CIBlockSection::GetList(array(), array("ID" => $arElement["IBLOCK_SECTION_ID"]), false,
 					array("ID", "LEFT_MARGIN", "RIGHT_MARGIN"));
 				$arSections[$arElement["IBLOCK_SECTION_ID"]] = $db_res->Fetch();
 			}
-			$arSection = $arSections[$arElement["IBLOCK_SECTION_ID"]]; 
-			
+			$arSection = $arSections[$arElement["IBLOCK_SECTION_ID"]];
+
 			$db_res = CIBlockSection::GetList(
-				array(), 
+				array(),
 				array(
-					"IBLOCK_ID" => $arParams["IBLOCK_ID"], 
-					"SECTION_ID" => 0, 
+					"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+					"SECTION_ID" => 0,
 					"!LEFT_MARGIN" => $arSection["LEFT_MARGIN"],
-					"!RIGHT_MARGIN" => $arSection["RIGHT_MARGIN"], 
-					"!ID" => $arElement["IBLOCK_SECTION_ID"]), 
-				false, 
-				array("ID", "CODE")); 
-			$arGalleries[$arElement["IBLOCK_SECTION_ID"]] = $db_res->Fetch();	
+					"!RIGHT_MARGIN" => $arSection["RIGHT_MARGIN"],
+					"!ID" => $arElement["IBLOCK_SECTION_ID"]),
+				false,
+				array("ID", "CODE"));
+			$arGalleries[$arElement["IBLOCK_SECTION_ID"]] = $db_res->Fetch();
 		}
-		$arGallery = $arGalleries[$arElement["IBLOCK_SECTION_ID"]];		
-		$arElement["~URL"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_URL"], 
+		$arGallery = $arGalleries[$arElement["IBLOCK_SECTION_ID"]];
+		$arElement["~URL"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_URL"],
 			array("USER_ALIAS" => $arGallery["CODE"], "SECTION_ID" => $arElement["IBLOCK_SECTION_ID"], "ELEMENT_ID" => $arElement["ID"]));
-		$arElement["URL"] = htmlspecialchars($arElement["~URL"]);
+		$arElement["URL"] = htmlspecialcharsbx($arElement["~URL"]);
 	}
 	$arResult["ELEMENTS_LIST"][$arItem["ITEM_ID"]] = $arElement;
 }

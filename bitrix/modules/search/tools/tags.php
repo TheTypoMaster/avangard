@@ -30,13 +30,7 @@ function tags_prepare($sText, $site_id = false)
 
 function TagsShowScript()
 {
-	static $bShown = false;
-	if(!$bShown && ($_REQUEST["mode"] != 'excel'))
-	{
-		$bShown = true;
-		$bOpera = (strpos($_SERVER["HTTP_USER_AGENT"], "Opera") !== false);
-		echo "<script type=\"text/javascript\" src=\"/bitrix/js/search/tags.js".($bOpera? '':'?'.filemtime($_SERVER["DOCUMENT_ROOT"].'/bitrix/js/search/tags.js'))."\"></script>";
-	}
+	CJSCore::Init('search_tags');
 }
 
 function InputTags($sName="", $sValue="", $arSites=array(), $sHTML="", $sId="")
@@ -45,6 +39,6 @@ function InputTags($sName="", $sValue="", $arSites=array(), $sHTML="", $sId="")
 		$sId = GenerateUniqId($sName);
 	TagsShowScript();
 	$order = class_exists("cuseroptions")? CUserOptions::GetOption("search_tags", "order", "CNT"): "CNT";
-	return '<input name="'.htmlspecialchars($sName).'" id="'.htmlspecialchars($sId).'" type="text" autocomplete="off" value="'.htmlspecialcharsex($sValue).'" onfocus="'.htmlspecialchars('window.oObject[this.id] = new JsTc(this, '.CUtil::PhpToJSObject($arSites).');').'" '.$sHTML.'/><input type="checkbox" id="ck_'.$sId.'" name="ck_'.htmlspecialchars($sName).'" '.($order=="NAME"? "checked": "").' title="'.GetMessage("SEARCH_TAGS_SORTING_TIP").'">';
+	return '<input name="'.htmlspecialcharsbx($sName).'" id="'.htmlspecialcharsbx($sId).'" type="text" autocomplete="off" value="'.htmlspecialcharsex($sValue).'" onfocus="'.htmlspecialcharsbx('window.oObject[this.id] = new JsTc(this, '.CUtil::PhpToJSObject($arSites).');').'" '.$sHTML.'/><input type="checkbox" id="ck_'.$sId.'" name="ck_'.htmlspecialcharsbx($sName).'" '.($order=="NAME"? "checked": "").' title="'.GetMessage("SEARCH_TAGS_SORTING_TIP").'">';
 }
 ?>

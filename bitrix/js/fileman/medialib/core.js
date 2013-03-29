@@ -58,7 +58,7 @@ BXMediaLib.prototype =
 				{
 					_this.Overlay.Show({zIndex: _this.zIndex - 10, clickCallback:{func:_this.Close, obj: _this}});
 					_this.arCollections = window.MLCollections;
-					_this.pWnd = document.body.appendChild(jsUtils.CreateElement("DIV", {id: 'bxmedialib', className: 'bxml-dialog'}));
+					_this.pWnd = document.body.appendChild(BX.create("DIV", {props:{id: 'bxmedialib', className: 'bxml-dialog'}}));
 					var
 						w = BX.GetWindowSize(),
 						left = parseInt(w.scrollLeft + w.innerWidth / 2 - _this.width / 2),
@@ -66,7 +66,7 @@ BXMediaLib.prototype =
 
 					if (!_this.bReadOnly)
 					{
-						_this.pDialogCont = document.body.appendChild(jsUtils.CreateElement("DIV", {className: 'bxml-subdialog-cont'}));
+						_this.pDialogCont = document.body.appendChild(BX.create("DIV", {props:{className: 'bxml-subdialog-cont'}}));
 						_this.pDialogCont.innerHTML = innerHTML.substring(innerHTML.indexOf('#ML_SUBDIALOGS_BEGIN#') + 21, innerHTML.indexOf('#ML_SUBDIALOGS_END#'));
 						_this.pDialogCont.style.zIndex = _this.zIndex + 250;
 					}
@@ -162,6 +162,12 @@ BXMediaLib.prototype =
 		this.pButSave = BX('medialib_but_save');
 		this.pButSave.onclick = function(){_this.Submit();};
 
+		if (this.bNoCollections)
+		{
+			BX.addClass(this.pLeftCont, 'ml-no-colls-sect');
+			this.pAddNewItem.style.display = 'none';
+		}
+
 		window.MlOnKeypress = function(e)
 		{
 			if(!e) e = window.event;
@@ -201,10 +207,12 @@ BXMediaLib.prototype =
 		else if(resTupe == "FORM" && document.forms[oRes.FORM_NAME] && document.forms[oRes.FORM_NAME][oRes.FORM_ELEMENT_NAME])
 		{
 			document.forms[oRes.FORM_NAME][oRes.FORM_ELEMENT_NAME].value = oItem.path;
+			BX.fireEvent(document.forms[oRes.FORM_NAME][oRes.FORM_ELEMENT_NAME], 'change');
 		}
 		else if(resTupe == "ID" && BX(oRes.ELEMENT_ID))
 		{
 			BX(oRes.ELEMENT_ID).value = oItem.path;
+			BX.fireEvent(BX(oRes.ELEMENT_ID), 'change');
 			if(this.oConfig.description_id.length > 0 && BX(this.oConfig.description_id))
 				BX(this.oConfig.description_id).value = oItem.name;
 		}
@@ -299,14 +307,14 @@ BXMediaLib.prototype =
 			var
 				bDel = this.UserCan(oCol, 'del'),
 				bEdit = this.UserCan(oCol, 'edit'),
-				titleDiv = jsUtils.CreateElement("DIV", {id : 'ml_coll_title_' + oCol.id}),
-				img = titleDiv.appendChild(jsUtils.CreateElement("IMG", {src: '/bitrix/images/1.gif', className: 'ml-col-icon'})),
+				titleDiv = BX.create("DIV", {props:{id : 'ml_coll_title_' + oCol.id}}),
+				img = titleDiv.appendChild(BX.create("IMG", {props:{src: '/bitrix/images/1.gif', className: 'ml-col-icon'}})),
 				span = titleDiv.appendChild(BX.create("SPAN", {props: {title: bxspcharsback(oCol.desc || oCol.name)}, text: oCol.name})),
-				childDiv = jsUtils.CreateElement("DIV", {className: 'ml-coll-child-cont'});
+				childDiv = BX.create("DIV", {props:{className: 'ml-coll-child-cont'}});
 
 			if (bDel)
 			{
-				var del = titleDiv.appendChild(jsUtils.CreateElement("IMG", {src: '/bitrix/images/1.gif', className: 'ml-col-del', title: ML_MESS.DelCollection}));
+				var del = titleDiv.appendChild(BX.create("IMG", {props: {src: '/bitrix/images/1.gif', className: 'ml-col-del', title: ML_MESS.DelCollection}}));
 				del.onclick = function(e)
 				{
 					_this.DelCollection(this.parentNode.id.substr('ml_coll_title_'.length));
@@ -316,7 +324,7 @@ BXMediaLib.prototype =
 
 			if (bEdit)
 			{
-				var edit = titleDiv.appendChild(jsUtils.CreateElement("IMG", {src: '/bitrix/images/1.gif', className: 'ml-col-edit', title: ML_MESS.EditCollection}));
+				var edit = titleDiv.appendChild(BX.create("IMG", {props: {src: '/bitrix/images/1.gif', className: 'ml-col-edit', title: ML_MESS.EditCollection}}));
 				edit.onclick = function(e)
 				{
 					var id = this.parentNode.id.substr('ml_coll_title_'.length);
@@ -517,7 +525,7 @@ BXMediaLib.prototype =
 			if (i > 0)
 			{
 				// Add separator
-				this.pBread.appendChild(jsUtils.CreateElement("DIV", {className: 'ml-crumb-sep'})).appendChild(document.createTextNode(' '));
+				this.pBread.appendChild(BX.create("DIV", {props:{className: 'ml-crumb-sep'}})).appendChild(document.createTextNode(' '));
 				pCr.onclick = function(){_this.SelectCollection(this.id.substr('ml_crumb_'.length));};
 			}
 			else
@@ -852,7 +860,7 @@ BXMediaLib.prototype =
 			_this = this,
 			D = {
 				width: 360,
-				height: 220,
+				height: 260,
 				pWnd: BX('mlsd_coll'),
 				pTitle: BX('mlsd_coll_title'),
 				pName: BX('mlsd_coll_name'),
@@ -1024,9 +1032,13 @@ BXMediaLib.prototype =
 			_this = this,
 			w = this.oConfig.thumbWidth,
 			h = this.oConfig.thumbHeight,
-			itemDiv = jsUtils.CreateElement("DIV", {id : 'ml_item_' + oItem.id, className: 'ml-item-cont', title: bxspcharsback(oItem.name)}, {width: (w + 15) + 'px', height: (h + 35) + 'px'}),
-			tmbImg = itemDiv.appendChild(jsUtils.CreateElement("IMG", {src: oItem.thumb_path || '/bitrix/images/1.gif', className: 'ml-item-thumb'})),
-			titleDiv = itemDiv.appendChild(jsUtils.CreateElement("DIV", {className: 'ml-item-title'}, {width: (w + 8) + 'px'}));
+			itemDiv = BX.create("DIV", {props:{id : 'ml_item_' + oItem.id, className: 'ml-item-cont', title: bxspcharsback(oItem.name)}, style: {width: (w + 15) + 'px', height: (h + 35) + 'px'}}),
+			tmbImg = itemDiv.appendChild(BX.create("IMG", {props: {src: oItem.thumb_path || '/bitrix/images/1.gif', className: 'ml-item-thumb'}})),
+			titleDiv = itemDiv.appendChild(BX.create("DIV", {props:{className: 'ml-item-title'}, style: {width: (w + 8) + 'px'}}));
+
+		var tmb_path = oItem.thumb_path || oItem.path;
+		if (oItem.type == 'image' && tmb_path) // For small images
+			tmbImg.style.backgroundImage = 'url(\'' + tmb_path + '\')';
 
 		if (!oItem.thumb_path || !oItem.width || !oItem.height)
 		{
@@ -1045,9 +1057,9 @@ BXMediaLib.prototype =
 		}
 
 		titleDiv.appendChild(document.createTextNode(bxspcharsback(oItem.name)));
-		var butCont = itemDiv.appendChild(jsUtils.CreateElement("DIV", {className: 'ml-item-but-cont'}));
+		var butCont = itemDiv.appendChild(BX.create("DIV", {props:{className: 'ml-item-but-cont'}}));
 
-		var view = butCont.appendChild(jsUtils.CreateElement("IMG", {src: '/bitrix/images/1.gif', className: 'ml-item-view', title: ML_MESS.ViewItem}));
+		var view = butCont.appendChild(BX.create("IMG", {props:{src: '/bitrix/images/1.gif', className: 'ml-item-view', title: ML_MESS.ViewItem}}));
 		view.onclick = function(e)
 		{
 			var id = this.parentNode.parentNode.id.substr('ml_item_'.length);
@@ -1059,7 +1071,7 @@ BXMediaLib.prototype =
 		{
 			if (arAccess.edit)
 			{
-				var edit = butCont.appendChild(jsUtils.CreateElement("IMG", {src: '/bitrix/images/1.gif', className: 'ml-item-edit', title: ML_MESS.EditItem}));
+				var edit = butCont.appendChild(BX.create("IMG", {props:{src: '/bitrix/images/1.gif', className: 'ml-item-edit', title: ML_MESS.EditItem}}));
 				edit.onclick = function(e)
 				{
 					var id = this.parentNode.parentNode.id.substr('ml_item_'.length);
@@ -1070,7 +1082,7 @@ BXMediaLib.prototype =
 
 			if (arAccess.del)
 			{
-				var del = butCont.appendChild(jsUtils.CreateElement("IMG", {src: '/bitrix/images/1.gif', className: 'ml-item-del', title: ML_MESS.DelItem}));
+				var del = butCont.appendChild(BX.create("IMG", {props:{src: '/bitrix/images/1.gif', className: 'ml-item-del', title: ML_MESS.DelItem}}));
 				del.onclick = function(e)
 				{
 					var id = this.parentNode.parentNode.id.substr('ml_item_'.length);
@@ -1186,7 +1198,7 @@ BXMediaLib.prototype =
 		D.pName.title = oItem.name;
 
 		// Link
-		D.pLink.href = oItem.path;
+		D.pLink.onclick = function () { jsUtils.Redirect([], 'fileman_file_download.php?path='+BX.util.urlencode(oItem.path)); };
 
 		// Keywords
 		if (oItem.keywords.length > 0)
@@ -1205,12 +1217,6 @@ BXMediaLib.prototype =
 		{
 			D.pDesc.innerHTML = BX.util.htmlspecialchars(oItem.desc.replace(/\n/g, '<br />'));
 			D.pDesc.parentNode.className = 'small-grey';
-
-			if (parseInt(D.pDesc.offsetHeight) > 300)
-			{
-				//D.pDesc.style.height = "300px";
-				//D.pDesc.style.overflow = "auto";
-			}
 		}
 		else
 		{
@@ -1241,9 +1247,7 @@ BXMediaLib.prototype =
 
 	SetItemHTML: function(oItem)
 	{
-		var
-			D = this.ViewItDialog,
-			_this = this;
+		var D = this.ViewItDialog;
 
 		this.Request({
 			action: 'get_item_view',
@@ -1459,7 +1463,7 @@ BXMediaLib.prototype =
 				ind = strKeys.lastIndexOf(',');
 
 			if(kh > h && ind > 0)
-				_this._ChooseKeysCount(pk, pp, jsUtils.trim(strKeys.substr(0, ind)), h, true)
+				_this._ChooseKeysCount(pk, pp, BX.util.trim(strKeys.substr(0, ind)), h, true)
 			else if(bCut)
 				pk.innerHTML += '...';
 		}, 1);
@@ -1603,7 +1607,7 @@ BXMediaLib.prototype =
 			D = {
 				Params: Params || false,
 				width: 420,
-				height: 340,
+				height: 350,
 				pWnd: BX('mlsd_item'),
 				pTitle: BX('mlsd_item_title'),
 				pIfrm: BX('mlsd_iframe_upload'),
@@ -1613,7 +1617,7 @@ BXMediaLib.prototype =
 		D.pIfrm.src = this.GetRequestUrl('upload_form');
 
 		var _this = this;
-		if (jsUtils.IsIE())
+		if (BX.browser.IsIE())
 			D.pIfrm.onreadystatechange = function(){_this.EditItemDialogOnload()};
 		else
 			D.pIfrm.onload = function(){_this.EditItemDialogOnload()};
@@ -1652,7 +1656,6 @@ BXMediaLib.prototype =
 			return;
 
 		this.EditItemDialog.alreadyLoaded = true;
-
 		D.pDesc = D.pFrameDoc.getElementById("mlsd_item_desc");
 		D.pKeys = D.pFrameDoc.getElementById("mlsd_item_keywords");
 		D.pColSelect = D.pFrameDoc.getElementById("mlsd_coll_sel");
@@ -1757,6 +1760,7 @@ BXMediaLib.prototype =
 			D.pItemPath.focus();
 			D.pItemPath.select();
 			D.pItemPath.onchange();
+			BX.fireEvent(D.pItemPath, 'change');
 		};
 
 		D.pKeys.onchange = D.pKeys.onblur = function() {_this.EditItemDialog.bFocusKeywords = true;}
@@ -1874,7 +1878,7 @@ BXMediaLib.prototype =
 			pSel = this.EditItemDialog.pColSelect,
 			pDiv = BX.create("DIV", {props: {className: 'mlsd-ch-col', title: oCol.name}}, this.EditItemDialog.pFrameDoc),
 			pSpan = pDiv.appendChild(BX.create("SPAN", {text: oCol.name}, this.EditItemDialog.pFrameDoc)),
-			pDel = pDiv.appendChild(jsUtils.CreateElement("IMG", {src: '/bitrix/images/1.gif', className: 'ml-col-del', title: ML_MESS.DelColFromItem, id: 'mlsd_it_' + id}, false, this.EditItemDialog.pFrameDoc));
+			pDel = pDiv.appendChild(BX.create("IMG", {props: {src: '/bitrix/images/1.gif', className: 'ml-col-del', title: ML_MESS.DelColFromItem, id: 'mlsd_it_' + id}}, this.EditItemDialog.pFrameDoc));
 
 		if (oCol && oCol.name)
 		{
@@ -1941,7 +1945,7 @@ BXMediaLib.prototype =
 		this.EditItemDialog.pItCollCont.style.height = rows * 28 + 'px';
 		this.EditItemDialog.pIfrm.style.height = 275 + delta + 'px';
 		this.EditItemDialog.pTbl.style.height = 265 + delta + 'px';
-		this.EditItemDialog.pWnd.style.height = 340 + delta + 'px';
+		this.EditItemDialog.pWnd.style.height = 350 + delta + 'px';
 		jsFloatDiv.AdjustShadow(this.EditItemDialog.pWnd);
 	},
 
@@ -2408,8 +2412,8 @@ BXMediaLib.prototype =
 
 		for (i = 0; i < l; i++)
 		{
-			kw = jsUtils.trim(arKeysR[i]);
-			if (kw && !jsUtils.in_array(kw, arKeys))
+			kw = BX.util.trim(arKeysR[i]);
+			if (kw && !BX.util.in_array(kw, arKeys))
 				arKeys.push(kw);
 		}
 
@@ -2569,3 +2573,4 @@ BXMLSearch.prototype = {
 		}
 	}
 }
+;   

@@ -40,4 +40,5 @@ $MESS["FORUM_LOGS_ADDITIONAL"] = "Beitragsänderungen durch Autor";
 $MESS["F_FORUM_STATUSES"] = "Bezeichnung:";
 $MESS["F_PARSER_NOFOLLOW"] = "Links mit rel='nofollow' versehen";
 $MESS["F_USE_AUTOSAVE"] = "Automatisches Speichern benutzen";
+$MESS["F_PARSER_LINK_TARGET"] = "Links in einer neuen Registerkarte öffnen (target='_blank')";
 ?>

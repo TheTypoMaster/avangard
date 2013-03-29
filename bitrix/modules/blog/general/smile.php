@@ -43,7 +43,8 @@ class CAllBlogSmile
 		$DB->Query("DELETE FROM b_blog_smile_lang WHERE SMILE_ID = ".$ID, True);
 		$DB->Query("DELETE FROM b_blog_smile WHERE ID = ".$ID, True);
 		$CACHE_MANAGER->Clean("b_blog_smile");
-
+		BXClearCache(true, "/blog/smiles/");
+		
 		return true;
 	}
 
@@ -103,6 +104,38 @@ class CAllBlogSmile
 			return $res;
 		}
 		return False;
+	}
+	function GetSmilesList()
+	{
+		$cache = new CPHPCache;
+		$cache_id = "blog_smiles_".LANGUAGE_ID;
+		$cache_path = "/blog/smiles/";
+
+		$arParams["CACHE_TIME"] = 60*60*24*30;
+		if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
+		{
+			$Vars = $cache->GetVars();
+			$arSmiles = $Vars["arResult"];
+		}
+		else
+		{
+			if ($arParams["CACHE_TIME"] > 0)
+				$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
+
+			$arSelectFields = array("ID", "SMILE_TYPE", "TYPING", "IMAGE", "DESCRIPTION", "CLICKABLE", "SORT", "IMAGE_WIDTH", "IMAGE_HEIGHT", "LANG_NAME");
+			$arSmiles = array();
+			$res = CBlogSmile::GetList(array("SORT"=>"ASC","ID"=>"DESC"), array("SMILE_TYPE"=>"S", "LANG_LID"=>LANGUAGE_ID), false, false, $arSelectFields);
+			while ($arr = $res->GetNext())
+			{
+				list($type)=explode(" ",$arr["TYPING"]);
+				$arr["TYPE"]=str_replace("'","\'",$type);
+				$arr["TYPE"]=str_replace("\\","\\\\",$arr["TYPE"]);
+				$arSmiles[] = $arr;
+			}
+			if ($arParams["CACHE_TIME"] > 0)
+				$cache->EndDataCache(array("arResult" => $arSmiles));
+		}
+		return $arSmiles;
 	}
 }
 ?>

@@ -10,4 +10,5 @@ $MESS["RATING_ALLOW_VOTE_SELF"] = "You cannot vote for yourself.";
 $MESS["RATING_ALLOW_VOTE_GUEST"] = "Only the authorized users are allowed to vote.";
 $MESS["RATING_ALLOW_VOTE_COUNT_VOTE"] = "You have exceeded your daily voting quota.";
 $MESS["RATING_ALLOW_VOTE_ACCESS"] = "You do not have permission to vote.";
+$MESS["RATING_ALLOW_VOTE_LOW_WEIGHT"] = "Your authority is insufficient for voting.";
 ?>

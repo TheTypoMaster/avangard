@@ -36,19 +36,51 @@ $APPLICATION->SetTitle("Черная мягкая мебель. Кожаные диваны черного цвета купит
 <p> </p>
  
 <p> </p>
+ 
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">
+    <br />
+  </span></p>
 
-<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255); "><span data-mce-style="font-size: 8.0pt; line-height: 115%;" id="mailru-webagent-gen-45" style="font-size: 8pt; line-height: 12px; ">Радикальный чёрный цвет в интерьере раньше использовался не очень часто и в небольших деталях, как отделка. Но ситуация меняется, дизайнеры всё чаще создают коллекции мебели в чёрном цвете и это неудивительно. Интерьер, в котором одним из доминирующих цветов является чёрный &ndash; смелый, оригинальный, необычный и стильный.</span></p>
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">
+    <br />
+  </span></p>
+
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" id="mailru-webagent-gen-45" style="font-size: 8pt; line-height: 12px;">Радикальный чёрный цвет в интерьере раньше использовался не очень часто и в небольших деталях, как отделка. Но ситуация меняется, дизайнеры всё чаще создают коллекции мебели в чёрном цвете и это неудивительно. Интерьер, в котором одним из доминирующих цветов является чёрный &ndash; смелый, оригинальный, необычный и стильный.</span></p>
+
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">
+    <br />
+  </span></p>
  
-<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255); "><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px; ">Диван в блестящей чёрной коже, лаконичный и строгий, отлично подходит к интерьеру в стиле хай-тек. Также хорошо кожаный диван будет смотреться в рабочем кабинете. Он подчеркнёт уравновешенность и значимость владельца.</span></p>
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">Диван в блестящей чёрной коже, лаконичный и строгий, отлично подходит к интерьеру в стиле хай-тек. Также хорошо кожаный диван будет смотреться в рабочем кабинете. Он подчеркнёт уравновешенность и значимость владельца.</span></p>
+
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">
+    <br />
+  </span></p>
  
-<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255); "><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px; ">Комфортный<span data-mce-style="mso-spacerun: yes;">  </span>и стильный диванчик в жаккарде, со сложным серебристым узором на чёрном фоне, великолепно украсит комнату в стиле ар-деко.</span></p>
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">Комфортный<span data-mce-style="mso-spacerun: yes;">  </span>и стильный диванчик в жаккарде, со сложным серебристым узором на чёрном фоне, великолепно украсит комнату в стиле ар-деко.</span></p>
+
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">
+    <br />
+  </span></p>
  
-<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255); "><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px; ">Переливающийся чёрный бархат или плюш выделяет вычурные сложные формы углового дивана. Такой роскошный и уютный диван станет украшением классической гостиной.</span></p>
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">Переливающийся чёрный бархат или плюш выделяет вычурные сложные формы углового дивана. Такой роскошный и уютный диван станет украшением классической гостиной.</span></p>
+
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">
+    <br />
+  </span></p>
  
-<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255); "><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px; ">Контраст глубокого чёрного цвета подлокотников со светлой обивкой, на которой распускаются причудливые узоры чёрного цвета, подчеркнёт стиль гостиной модерн.</span></p>
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">Контраст глубокого чёрного цвета подлокотников со светлой обивкой, на которой распускаются причудливые узоры чёрного цвета, подчеркнёт стиль гостиной модерн.</span></p>
+
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">
+    <br />
+  </span></p>
  
-<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255); "><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px; ">С помощью одного только эффектного чёрного дивана на светлом фоне отделки стен, пола и потолка можно визуально увеличить гостиную. В такой гостиной создаётся спокойная и умиротворяющая обстановка. Если же в комнате несколько предметов чёрного цвета: диван, пара кресел, столик, то образуется &laquo;закрытое&raquo;, очень уютное пространство, в котором можно уединиться и отдохнуть.</span></p>
- <span data-mce-style="font-size: 8.0pt; line-height: 115%; font-family: 'Calibri','sans-serif'; mso-ascii-theme-font: minor-latin; mso-fareast-font-family: Calibri; mso-fareast-theme-font: minor-latin; mso-hansi-theme-font: minor-latin; mso-bidi-font-family: 'Times New Roman'; mso-bidi-theme-font: minor-bidi; mso-ansi-language: RU; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;" style="background-color: rgb(255, 255, 255); font-size: 8pt; line-height: 12px; font-family: Calibri, sans-serif; ">Если купить диван в обивке чёрного цвета, то он станет  центром интерьера, будет  притягивать к себе взгляды гостей и подчеркнёт  утончённый  и безупречный вкус хозяина.</span> 
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">С помощью одного только эффектного чёрного дивана на светлом фоне отделки стен, пола и потолка можно визуально увеличить гостиную. В такой гостиной создаётся спокойная и умиротворяющая обстановка. Если же в комнате несколько предметов чёрного цвета: диван, пара кресел, столик, то образуется &laquo;закрытое&raquo;, очень уютное пространство, в котором можно уединиться и отдохнуть.</span></p>
+
+<p style="font-family: Arial, Tahoma, Verdana, sans-serif; font-size: 13px; background-color: rgb(255, 255, 255);"><span data-mce-style="font-size: 8.0pt; line-height: 115%;" style="font-size: 8pt; line-height: 12px;">
+    <br />
+  </span></p>
+ <span data-mce-style="font-size: 8.0pt; line-height: 115%; font-family: 'Calibri','sans-serif'; mso-ascii-theme-font: minor-latin; mso-fareast-font-family: Calibri; mso-fareast-theme-font: minor-latin; mso-hansi-theme-font: minor-latin; mso-bidi-font-family: 'Times New Roman'; mso-bidi-theme-font: minor-bidi; mso-ansi-language: RU; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;" style="background-color: rgb(255, 255, 255); font-size: 8pt; line-height: 12px; font-family: Calibri, sans-serif;">Если купить диван в обивке чёрного цвета, то он станет  центром интерьера, будет  притягивать к себе взгляды гостей и подчеркнёт  утончённый  и безупречный вкус хозяина.</span> 
 <p></p>
  
 <p></p>

@@ -3,12 +3,12 @@ var
 	image_path = '/bitrix/images/fileman/htmledit2',
 	c2wait_path = image_path + '/c2waiter.gif',
 	global_iconkit_path = image_path + '/_global_iconkit.gif',
-	settings_page_path = '/bitrix/admin/fileman_manage_settings.php?sessid=' + bxsessid,
-	editor_action_path = '/bitrix/admin/fileman_editor_action.php?sessid=' + bxsessid,
+	settings_page_path = '/bitrix/admin/fileman_manage_settings.php?sessid=' + BX.bitrix_sessid(),
+	editor_action_path = '/bitrix/admin/fileman_editor_action.php?sessid=' + BX.bitrix_sessid(),
 	editor_dialog_path = '/bitrix/admin/fileman_editor_dialog.php',
 	flash_preview_path = '/bitrix/admin/fileman_flash_preview.php',
-	manage_snippets_path = '/bitrix/admin/fileman_manage_snippets.php?lang=' + BXLang + '&site=' + BXSite + '&sessid=' + bxsessid,
-	to_template_path = BX_PERSONAL_ROOT + "/templates/",
+	manage_snippets_path = '/bitrix/admin/fileman_manage_snippets.php?lang=' + window.BXLang + '&site=' + window.BXSite + '&sessid=' + BX.bitrix_sessid(),
+	to_template_path = window.BX_PERSONAL_ROOT + "/templates/",
 	dxShadowImgPath = '';
 
 // Methods for PHP version
@@ -67,8 +67,7 @@ BXHTMLEditor.prototype.IsSessionExpired = function(result)
 		i1 = result.indexOf(this.SessionLostStr) + this.SessionLostStr.length,
 		sessid = result.substr(i1, result.indexOf('-->') - i1);
 
-	bxsessid = sessid; // Renew sessid;
-	return bxsessid;
+	return sessid;
 }
 
 BXHTMLEditor.prototype.OnLoad_ex = function()
@@ -206,7 +205,7 @@ BXHTMLEditor.prototype.SystemParse_ex = function(sContent)
 	{
 		var _this = this;
 		sContent = sContent.replace(/#PHP(\d{4})#/ig, function(s, s1){
-			return "<img src=\"/bitrix/images/fileman/htmledit2/php.gif\" id=\"" + _this.SetBxTag(false, {tag: 'php_disabled', params: {value: s1}}) + "\"";});
+			return "<img src=\"/bitrix/images/fileman/htmledit2/php.gif\" id=\"" + _this.SetBxTag(false, {tag: 'php_disabled', params: {value: s1}}) + "\" border=\"0\"/>";});
 	}
 
 	//Replacing PHP by IMG
@@ -475,6 +474,7 @@ BXParser.prototype.ParsePHP = function (str)
 		p = i;
 	}
 	this.arScripts = [];
+
 	if(arScripts.length > 0)
 	{
 		var newstr = "";
@@ -482,7 +482,7 @@ BXParser.prototype.ParsePHP = function (str)
 
 		arComponents2 = [];
 		arComponents2Length = 0;
-		for(i=0; i<arScripts.length; i++)
+		for(i = 0; i < arScripts.length; i++)
 		{
 			arScript = arScripts[i];
 			strParsed = false;
@@ -499,11 +499,11 @@ BXParser.prototype.ParsePHP = function (str)
 			}catch(e) {_alert('ERROR: '+e.message+'\n'+'BXParser.prototype.ParsePHP'+'\n'+'Type: '+e.name);}
 
 			if (strParsed)
-				newstr += str.substr(plast, arScript[0]-plast) + str1;
-			else if(!limit_php_access)
+				newstr += str.substr(plast, arScript[0] - plast) + str1;
+			else if(!this.pMainObj.limit_php_access || (this.pMainObj.limit_php_access && !this.pMainObj.pComponent2Taskbar))
 			{
 				var id = this.pMainObj.SetBxTag(false, {tag: "php", params: {value : arScript[2]}});
-				newstr += str.substr(plast, arScript[0]-plast) + '<img id="' + id + '" src="/bitrix/images/fileman/htmledit2/php.gif" border="0"/>';
+				newstr += str.substr(plast, arScript[0] - plast) + '<img id="' + id + '" src="/bitrix/images/fileman/htmledit2/php.gif" border="0"/>';
 			}
 			else
 			{
@@ -564,7 +564,7 @@ BXEditorUtils.prototype.addPHPParser = function(func, pos, extra_access)
 	{
 		if (pos<0)
 			pos = 0;
-		else if (pos>arPHPParsers.length+1)
+		else if (pos > arPHPParsers.length+1)
 			pos = arPHPParsers.length+1;
 
 		var newAr = arPHPParsers.slice(0,pos);

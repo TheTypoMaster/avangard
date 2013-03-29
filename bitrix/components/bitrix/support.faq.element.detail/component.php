@@ -30,7 +30,7 @@ $arSelect = Array(
 	"PREVIEW_TEXT",
 	"DETAIL_TEXT_TYPE",
 	"DETAIL_TEXT",
-	"CREATED_BY",	
+	"CREATED_BY",
 );
 //WHERE
 $arFilter = Array(
@@ -68,7 +68,7 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 }
 
 // activation rating
-CRatingsComponentsMain::GetShowRating(&$arParams);
+CRatingsComponentsMain::GetShowRating($arParams);
 if($arParams['SHOW_RATING'] == 'Y' && $arResult['ITEM'] > 0)
 	$arResult['RATING'] = CRatings::GetRatingVoteResult('IBLOCK_ELEMENT', $arResult['ITEM']);
 //include template

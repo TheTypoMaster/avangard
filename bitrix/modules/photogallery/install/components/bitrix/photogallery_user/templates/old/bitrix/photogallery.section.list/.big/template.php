@@ -62,7 +62,7 @@ else:
 								if (!empty($res["DETAIL_PICTURE"]["SRC"])):
 									?>background-image:url('<?=$res["DETAIL_PICTURE"]["SRC"]?>');<?
 								endif;
-							?>" title="<?=htmlspecialchars($res["~NAME"])?>"></div>
+							?>" title="<?=htmlspecialcharsbx($res["~NAME"])?>"></div>
 							</a>
 						</div>
 					</div>
@@ -92,26 +92,26 @@ else:
 			<div class="date" id="photo_album_date_<?=$res["ID"]?>"><?=$res["DATE"]?></div>
 			<div class="photos"><?=GetMessage("P_PHOTOS_CNT")?>: <a href="<?=$res["LINK"]?>"><?=$res["ELEMENTS_CNT"]?></a></div>
 <?
-			
+
 			if (intVal($res["SECTIONS_CNT"]) > 0 && $arParams["PERMISSION"] >= "U"):
 				?><div class="photo-album-cnt-album"><?=GetMessage("P_ALBUMS_CNT")?>: <a href="<?=$res["LINK"]?>"><?=$res["SECTIONS_CNT"]?></a></div><?
 			endif;
-		
-			
+
+
 			?><div class="photo-controls photo-album-controls"><?
-			
+
 			if (!empty($res["EDIT_LINK"])):
 				?><noindex><a rel="nofollow" href="<?=$res["EDIT_LINK"]?>" class="photo-action album-edit" <?
 					?>onclick="EditAlbum('<?=CUtil::JSEscape($res["EDIT_LINK"])?>'); return false;"><?
 					?><?=GetMessage("P_SECTION_EDIT")?></a></noindex><?
 			endif;
-		
+
 			if (!empty($res["EDIT_ICON_LINK"])):
 				?><noindex><a rel="nofollow" href="<?=$res["EDIT_ICON_LINK"]?>" class="photo-action album-edit-icon" <?
 					?>onclick="EditAlbum('<?=CUtil::JSEscape($res["EDIT_ICON_LINK"])?>'); return false;"><?
 					?><?=GetMessage("P_EDIT_ICON")?></a></noindex><?
 			endif;
-			
+
 			if (!empty($res["DROP_LINK"])):
 				?><noindex><a rel="nofollow" href="<?=$res["DROP_LINK"]?>" class="photo-action album-delete" <?
 					?>onclick="return confirm('<?=GetMessage('P_SECTION_DELETE_ASK')?>');" class="edit"><?

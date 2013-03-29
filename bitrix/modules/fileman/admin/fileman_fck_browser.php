@@ -222,7 +222,7 @@ if ($WF_CONVERT=="Y" && intval($DOCUMENT_ID) > 0 && CModule::IncludeModule("work
 							?>
 							<tr>
 								<td class="tablebody"><font class="tablebodytext"><?=$zr["ID"]?></font></td>
-								<td class="tablebody"><font class="tablebodytext"><a href="javascript:WF_OnFileSelect('<?=$zr["FILENAME"]?>')" ><?=$zr["FILENAME"]?></a></font></td>
+								<td class="tablebody"><font class="tablebodytext"><a onclick="WF_OnFileSelect('<?= AddSlashes(htmlspecialcharsex($zr["FILENAME"]))?>'); return false;" href="javascript:void(0)" ><?= htmlspecialcharsex($zr["FILENAME"])?></a></font></td>
 								<td class="tablebody" align="right"><font class="tablebodytext"><?=$zr["FILESIZE"]?></font></td>
 								<td class="tablebody" align="center" nowrap><font class="tablebodytext"><?=$zr["TIMESTAMP_X"]?></font></td>
 								<td class="tablebody"><font class="tablebodytext">[<a target="_blank" class="tablebodylink" href="user_edit.php?ID=<?echo $zr["MODIFIED_BY"]?>&lang=<?=LANG?>"><?echo $zr["MODIFIED_BY"]?></a>]&nbsp;<?echo $zr["USER_NAME"]?></font></td>

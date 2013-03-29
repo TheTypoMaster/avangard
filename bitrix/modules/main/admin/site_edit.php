@@ -21,7 +21,7 @@ $isAdmin = $USER->CanDoOperation('edit_other_settings') || $USER->CanDoOperation
 IncludeModuleLangFile(__FILE__);
 $aMsg=array(); $message=null;
 /***************************************************************************
-                                  Функции
+			Helper functions
 ***************************************************************************/
 
 function SaveFileLang($strFileName, $strContent)
@@ -55,6 +55,7 @@ if(!$bNew)
 
 if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && $isAdmin && check_bitrix_sessid())
 {
+
 	$em = new CEventMessage;
 	$arFields = Array(
 		"ACTIVE"			=> $_POST["ACTIVE"],
@@ -64,7 +65,9 @@ if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && $isAdmin 
 		"DIR"				=> $_POST["DIR"],
 		"FORMAT_DATE"		=> trim($_POST["FORMAT_DATE"]),
 		"FORMAT_DATETIME"	=> trim($_POST["FORMAT_DATETIME"]),
+		"WEEK_START"		=> intval($_POST["WEEK_START"]),
 		"CHARSET"			=> $_POST["CHARSET"],
+		"FORMAT_NAME"		=> CSite::GetNameFormatByValue($_POST["FORMAT_NAME"]),
 		"SITE_NAME"			=> $_POST["SITE_NAME"],
 		"SERVER_NAME"		=> $_POST["SERVER_NAME"],
 		"EMAIL"				=> $_POST["EMAIL"],
@@ -211,7 +214,19 @@ if($bNew && $COPY_ID == '')
 	$str_SORT = '1';
 	$str_DIR = '/';
 	$str_FORMAT_DATE = (LANGUAGE_ID == 'ru'? 'DD.MM.YYYY' : 'MM/DD/YYYY');
-	$str_FORMAT_DATETIME = (LANGUAGE_ID == 'ru'? 'DD.MM.YYYY HH:MI:SS' : 'MM/DD/YYYY HH:MI:SS');
+	if (LANGUAGE_ID == 'ru')
+		$str_FORMAT_DATETIME = 'DD.MM.YYYY HH:MI:SS';
+	elseif (LANGUAGE_ID == 'en')
+		$str_FORMAT_DATETIME = 'MM/DD/YYYY H:MI T';
+	else
+		$str_FORMAT_DATETIME = 'DD.MM.YYYY HH:MI:SS';
+
+	$str_FORMAT_NAME = CSite::GetDefaultNameFormat();
+	$str_WEEK_START = GetMessage('SITE_EDIT_WEEK_START_DEFAULT');
+	if (!$str_WEEK_START && $str_WEEK_START !== '0')
+		$str_WEEK_START = 1;
+	$str_WEEK_START = intval($str_WEEK_START);
+
 	$str_CHARSET = (defined('BX_UTF')? 'UTF-8' : (LANGUAGE_ID == 'ru'? 'Windows-1251' : 'ISO-8859-1'));
 }
 
@@ -232,8 +247,9 @@ elseif(!$bNew)
 if($bVarsFromForm)
 {
 	$DB->InitTableVarsForEdit("b_lang", "", "str_");
-	$str_DOMAINS = htmlspecialchars($DOMAINS);
-	$str_SERVER_NAME = htmlspecialchars($_POST["SERVER_NAME"]);
+	$str_DOMAINS = htmlspecialcharsbx($DOMAINS);
+	$str_SERVER_NAME = htmlspecialcharsbx($_POST["SERVER_NAME"]);
+	$str_FORMAT_NAME = CSite::GetNameFormatByValue($_POST["FORMAT_NAME"]);
 }
 
 $APPLICATION->SetTitle(($bNew? GetMessage("NEW_SITE_TITLE") : GetMessage("EDIT_SITE_TITLE", array("#ID#"=>$str_LID))));
@@ -301,14 +317,14 @@ $limitSitesCount = IntVal(COption::GetOptionInt("main", "PARAM_MAX_SITES", 100))
 <input type="hidden" name="new" value="Y">
 <?endif?>
 <?if($COPY_ID <> ''):?>
-<input type="hidden" name="COPY" value="<?echo htmlspecialchars($COPY_ID)?>">
+<input type="hidden" name="COPY" value="<?echo htmlspecialcharsbx($COPY_ID)?>">
 <?endif?>
 <?
 $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
-	<tr valign="top">
-		<td width="40%"><span class="required">*</span>ID:</td>
+	<tr class="adm-detail-required-field">
+		<td width="40%">ID:</td>
 		<td width="60%"><?
 			if(!$bNew):
 				echo $str_LID;
@@ -318,87 +334,102 @@ $tabControl->BeginNextTab();
 			endif;
 				?></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><label for="ACTIVE"><?echo GetMessage('ACTIVE')?></label></td>
 		<td><input type="checkbox" name="ACTIVE" value="Y" id="ACTIVE"<?if($str_ACTIVE=="Y")echo " checked"?>></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><?echo GetMessage('NAME')?></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage('NAME')?></td>
 		<td><input type="text" name="NAME" size="30" maxlength="50" value="<? echo $str_NAME?>"></td>
 	</tr>
 	<tr class="heading">
 		<td colspan="2"><?echo GetMessage("MAIN_SITE_DEFINITIONS")?></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><label for="DEF"><?echo GetMessage('DEF')?></label></td>
 		<td><input type="checkbox" name="DEF" value="Y" id="DEF"<?if($str_DEF=="Y")echo " checked"?>></td>
 	</tr>
-	<tr valign="top">
-		<td valign="top"><?echo GetMessage("MAIN_SITE_DOMAIN")?><br>
+	<tr>
+		<td class="adm-detail-valign-top"><?echo GetMessage("MAIN_SITE_DOMAIN")?><br>
 		<?echo GetMessage("MAIN_SITE_EDIT_DOMAINS")?>
 		</td>
-		<td valign="top"><textarea name="DOMAINS" cols="40" rows="5"><? echo $str_DOMAINS?></textarea>
+		<td><textarea name="DOMAINS" cols="40" rows="5"><? echo $str_DOMAINS?></textarea>
 		<?=BeginNote();?>
 		<?echo GetMessage("MAIN_SITE_EDIT_DOMAINS_HELP")?>
 		<?=EndNote();?>
 		</td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><? echo GetMessage('DIR')?></td>
+	<tr class="adm-detail-required-field">
+		<td><? echo GetMessage('DIR')?></td>
 		<td><input type="text" name="DIR" size="30" maxlength="50" value="<? echo $str_DIR?>"></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><?echo GetMessage('SORT')?></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage('SORT')?></td>
 		<td><input type="text" name="SORT" size="10" maxlength="10" value="<? echo $str_SORT?>"></td>
 	</tr>
 	<tr class="heading">
 		<td colspan="2"><?echo GetMessage("MAIN_SITE_PARAMS")?></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><?echo GetMessage("MAIN_SITE_LANG")?></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("MAIN_SITE_LANG")?></td>
 		<td><?echo CLanguage::SelectBox("LANGUAGE_ID", $str_LANGUAGE_ID);?></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><? echo GetMessage('FORMAT_DATE')?></td>
+	<tr class="adm-detail-required-field">
+		<td><? echo GetMessage('FORMAT_DATE')?></td>
 		<td><input type="text" name="FORMAT_DATE" size="30" maxlength="50" value="<? echo $str_FORMAT_DATE?>"></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><? echo GetMessage('FORMAT_DATETIME')?></td>
+	<tr class="adm-detail-required-field">
+		<td><? echo GetMessage('FORMAT_DATETIME')?></td>
 		<td><input type="text" name="FORMAT_DATETIME" size="30" maxlength="50" value="<?echo $str_FORMAT_DATETIME?>"></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><? echo GetMessage('CHARSET')?></td>
+	<tr>
+		<td><? echo GetMessage('SITE_EDIT_WEEK_START')?></td>
+		<td><select name="WEEK_START">
+<?
+for ($i = 0; $i < 7; $i++)
+{
+	echo '<option value="'.$i.'"'.($i == $str_WEEK_START ? ' selected="selected"' : '').'>'.GetMessage('DAY_OF_WEEK_' .$i).'</option>';
+}
+?>
+		</select></td>
+	</tr>
+	<tr class="adm-detail-required-field">
+		<td><? echo GetMessage('FORMAT_NAME')?></td>
+		<td><?echo CSite::SelectBoxName("FORMAT_NAME", $str_FORMAT_NAME);?></td>
+	</tr>
+	<tr class="adm-detail-required-field">
+		<td><? echo GetMessage('CHARSET')?></td>
 		<td><input type="text" name="CHARSET" size="30" maxlength="50" value="<?echo $str_CHARSET?>"></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("MAIN_SITE_NAME")?></td>
 		<td><input type="text" name="SITE_NAME" size="30" maxlength="50" value="<?echo $str_SITE_NAME?>"></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("MAIN_SERVER_URL")?></td>
 		<td><input type="text" name="SERVER_NAME" size="30" maxlength="50" value="<?echo $str_SERVER_NAME?>"></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("MAIN_DEFAULT_EMAIL")?></td>
 		<td><input type="text" name="EMAIL" size="30" maxlength="50" value="<?echo $str_EMAIL?>"></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage("MAIN_DOC_ROOT")?><br />
 		<?echo GetMessage("MAIN_DOC_ROOT_TIPS")?>
 		</td>
 		<td><input type="text" name="DOC_ROOT" size="30" value="<?echo $str_DOC_ROOT?>">
-		 [<a title="<?=GetMessage('MAIN_DOC_ROOT_INS')?>" href="javascript:void(0)" onClick="document.bform.DOC_ROOT.value='<?=htmlspecialchars(CUtil::addslashes($_SERVER["DOCUMENT_ROOT"]))?>'; BX.fireEvent(document.bform.DOC_ROOT, 'change')"><?echo GetMessage("MAIN_DOC_ROOT_SET")?></a>]
+		<a title="<?=GetMessage('MAIN_DOC_ROOT_INS')?>" href="javascript:void(0)" onClick="document.bform.DOC_ROOT.value='<?=htmlspecialcharsbx(CUtil::addslashes($_SERVER["DOCUMENT_ROOT"]))?>'; BX.fireEvent(document.bform.DOC_ROOT, 'change')"><?echo GetMessage("MAIN_DOC_ROOT_SET")?></a>
 		</td>
 	</tr>
 	<?if($bNew):?>
-	<tr valign="top">
-		<td><?echo GetMessage("MAIN_SITE_CREATE_MESS_TEPL")?></td>
+	<tr>
+		<td class="adm-detail-valign-top"><?echo GetMessage("MAIN_SITE_CREATE_MESS_TEPL")?></td>
 		<td>
 			<input type="radio"<?if($SITE_MESSAGE_LINK!="E" && $SITE_MESSAGE_LINK!="C") echo " checked"?> name="SITE_MESSAGE_LINK" value="N" id="SITE_MESSAGE_LINK_n" onClick="if(this.checked){document.bform.SITE_MESSAGE_LINK_E_SITE.disabled=true; document.bform.SITE_MESSAGE_LINK_C_SITE.disabled=true}"><label for="SITE_MESSAGE_LINK_n"> <?echo GetMessage("MAIN_SITE_CREATE_MESS_TEPL_N")?></label><br>
 			<input type="radio"<?if($SITE_MESSAGE_LINK=="E") echo " checked"?> name="SITE_MESSAGE_LINK" id="SITE_MESSAGE_LINK_e" value="E" onClick="if(this.checked){document.bform.SITE_MESSAGE_LINK_C_SITE.disabled=true; document.bform.SITE_MESSAGE_LINK_E_SITE.disabled=false}"><label for="SITE_MESSAGE_LINK_e"> <?echo GetMessage("MAIN_SITE_CREATE_MESS_TEPL_LINK")?></label><br>
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?=CSite::SelectBox("SITE_MESSAGE_LINK_E_SITE", $SITE_MESSAGE_LINK_E_SITE, "", "", ($SITE_MESSAGE_LINK!="E"?'disabled':''));?><br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?=CSite::SelectBox("SITE_MESSAGE_LINK_E_SITE", $SITE_MESSAGE_LINK_E_SITE, "", "", ($SITE_MESSAGE_LINK!="E"?'disabled':''));?><br>
 			<input type="radio"<?if($SITE_MESSAGE_LINK=="C") echo " checked"?> name="SITE_MESSAGE_LINK" id="SITE_MESSAGE_LINK_c" value="C" onClick="if(this.checked){document.bform.SITE_MESSAGE_LINK_E_SITE.disabled=true; document.bform.SITE_MESSAGE_LINK_C_SITE.disabled=false}"><label for="SITE_MESSAGE_LINK_c"> <?echo GetMessage("MAIN_SITE_CREATE_MESS_TEPL_COPY")?></label><br>
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?=CSite::SelectBox("SITE_MESSAGE_LINK_C_SITE", $SITE_MESSAGE_LINK_C_SITE, "", "", ($SITE_MESSAGE_LINK!="C"?'disabled':''));?><br />
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?=CSite::SelectBox("SITE_MESSAGE_LINK_C_SITE", $SITE_MESSAGE_LINK_C_SITE, "", "", ($SITE_MESSAGE_LINK!="C"?'disabled':''));?><br />
 
 		</td>
 	</tr>
@@ -408,7 +439,7 @@ $tabControl->BeginNextTab();
 		<td colspan="2"><?echo GetMessage("MAIN_SITE_EDIT_TEMPLATE")?></td>
 	</tr>
 	<?if ($bNew):?>
-	<tr valign="top">
+	<tr>
 		<td>&nbsp;</td>
 		<td>
 			<input type="radio" name="START_SITE_WIZARD" value="Y"<?= ($str_START_SITE_WIZARD != "N") ? " checked" : "" ?> onclick="TurnStartSiteWizardOn(false)" id="ID_START_SITE_WIZARD_Y"> <label for="ID_START_SITE_WIZARD_Y"><?= GetMessage("M_START_SITE_WIZARD_Y") ?></label><br />
@@ -417,7 +448,7 @@ $tabControl->BeginNextTab();
 			<!--
 				function TurnStartSiteWizardOn(bOn)
 				{
-					document.getElementById("ID_HIDDENABLE_TR").style.display = (bOn ? "block" : "none");
+					document.getElementById("ID_HIDDENABLE_TR").style.display = (bOn ? "" : "none");
 					document.getElementById("ID_START_SITE_WIZARD_REWRITE").disabled = (bOn ? true : false);
 				}
 			//-->
@@ -426,11 +457,11 @@ $tabControl->BeginNextTab();
 		</td>
 	</tr>
 	<?endif;?>
-	<tr valign="top" id="ID_HIDDENABLE_TR"<?= ($bNew && ($str_START_SITE_WIZARD != "N")) ? "style='display:none'" : ""?>>
+	<tr id="ID_HIDDENABLE_TR"<?= ($bNew && ($str_START_SITE_WIZARD != "N")) ? "style='display:none'" : ""?>>
 		<td colspan="2" align="center">
 			<table border="0" cellspacing="0" cellpadding="0" class="internal">
 			<tr class="heading">
-				<td align="center" colspan=2><span class="required">*</span><?echo GetMessage("MAIN_SITE_EDIT_TEMPL")?></td>
+				<td align="center" colspan=2><?echo GetMessage("MAIN_SITE_EDIT_TEMPL")?></td>
 				<td align="center"><?echo GetMessage("MAIN_SITE_EDIT_SORT")?></td>
 				<td align="center"><?echo GetMessage("MAIN_SITE_EDIT_TYPE")?></td>
 				<td align="center"><?echo GetMessage("MAIN_SITE_EDIT_COND")?></td>
@@ -485,7 +516,7 @@ $tabControl->BeginNextTab();
 			foreach($SITE_TEMPLATE as $i=>$val):
 				ConditionParse($val['CONDITION']);
 			?>
-			<tr valign="top">
+			<tr>
 				<td>
 					<select name="SITE_TEMPLATE[<?=$i?>][TEMPLATE]" id="SITE_TEMPLATE[<?=$i?>][TEMPLATE]">
 						<option value=""><?echo GetMessage("SITE_EDIT_TEMPL_NO")?></option>
@@ -517,8 +548,4 @@ $tabControl->End();
 $tabControl->ShowWarnings("bform", $message);
 ?>
 </form>
-<?echo BeginNote();?>
-<span class="required">*</span> - <?echo GetMessage("REQUIRED_FIELDS")?><br>
-<span class="required"><sup>1</sup></span> - <?=GetMessage("MAIN_PERIOD_NOTE")?>
-<?echo EndNote();?>
 <?require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");?>

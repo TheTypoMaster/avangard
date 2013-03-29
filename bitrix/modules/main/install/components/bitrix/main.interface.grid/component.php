@@ -155,7 +155,7 @@ if(!$bEmptyCols)
 //*********************
 
 $sTabParam = "";
-$aDelParam = array("bxajaxid", "AJAX_CALL");
+$aDelParam = array("bxajaxid", "AJAX_CALL", $arParams["SORT_VARS"]["by"], $arParams["SORT_VARS"]["order"]);
 if($arParams["FORM_ID"] <> '' && $arParams["TAB_ID"] <> '')
 {
 	$sTabParam = $arParams["FORM_ID"].'_active_tab='.$arParams["TAB_ID"];
@@ -163,12 +163,7 @@ if($arParams["FORM_ID"] <> '' && $arParams["TAB_ID"] <> '')
 }
 
 $arResult["CURRENT_URL"] = $APPLICATION->GetCurPageParam($sTabParam, $aDelParam);
-
-$aDelParam[] = $arParams["SORT_VARS"]["by"];
-$aDelParam[] = $arParams["SORT_VARS"]["order"];
-
-$path = $APPLICATION->GetCurPageParam($sTabParam, $aDelParam);
-$sep = (strpos($path, "?") !== false? "&":"?");
+$sep = (strpos($arResult["CURRENT_URL"], "?") !== false? "&":"?");
 
 reset($arParams["SORT"]);
 $aSort = each($arParams["SORT"]);
@@ -185,7 +180,7 @@ foreach($arResult["HEADERS"] as $id=>$header)
 			else
 				$arResult["HEADERS"][$id]["sort_state"] = "asc";
 		}
-		$arResult["HEADERS"][$id]["sort_url"] = htmlspecialchars($path.$sep.$arParams["SORT_VARS"]["by"]."=".$header["sort"]."&".$arParams["SORT_VARS"]["order"]."=");
+		$arResult["HEADERS"][$id]["sort_url"] = htmlspecialcharsbx($arResult["CURRENT_URL"].$sep.$arParams["SORT_VARS"]["by"]."=".$header["sort"]."&".$arParams["SORT_VARS"]["order"]."=");
 		$arResult["HEADERS"][$id]["order"] = ($header["order"] == 'desc'? 'desc':'asc');
 	}
 }

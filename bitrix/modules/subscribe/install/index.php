@@ -139,7 +139,6 @@ class subscribe extends CModule
 		if($_ENV["COMPUTERNAME"]!='BX')
 		{
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/subscribe/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/subscribe/install/images/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/subscribe", false, true);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/subscribe/install/themes/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", false, true);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/subscribe/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", True, True);
 		}
@@ -206,10 +205,6 @@ class subscribe extends CModule
 			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/subscribe/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
 			//css
 			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/subscribe/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");
-			//icons
-			DeleteDirFilesEx("/bitrix/themes/.default/icons/subscribe/");
-			//images
-			DeleteDirFilesEx("/bitrix/images/subscribe/");
 		}
 		return true;
 	}

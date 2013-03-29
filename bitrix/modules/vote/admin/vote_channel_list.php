@@ -1,9 +1,9 @@
 <?
 ##############################################
-# Bitrix Site Manager Forum                  #
-# Copyright (c) 2002-2009 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
+# Bitrix Site Manager Forum					 #
+# Copyright (c) 2002-2009 Bitrix			 #
+# http://www.bitrixsoft.com					 #
+# mailto:admin@bitrixsoft.com				 #
 ##############################################
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
@@ -38,6 +38,7 @@ InitBVar($find_id_exact_match);
 InitBVar($find_sid_exact_match);
 InitBVar($find_title_exact_match);
 
+$aMenu = array();
 $arFilter = Array(
 	"ID"				=> $find_id,
 	"ID_EXACT_MATCH"	=> $find_id_exact_match,
@@ -83,41 +84,41 @@ if ($lAdmin->EditAction() && $VOTE_RIGHT>="W" && check_bitrix_sessid())
 
 if(($arID = $lAdmin->GroupAction()) && $VOTE_RIGHT=="W" && check_bitrix_sessid())
 {
-        if($_REQUEST['action_target']=='selected')
-        {
-                $arID = Array();
-                $rsData = CVoteChannel::GetList($by, $order, $arFilter, $is_filtered);
-                while($arRes = $rsData->Fetch())
-                        $arID[] = $arRes['ID'];
-        }
+		if($_REQUEST['action_target']=='selected')
+		{
+				$arID = Array();
+				$rsData = CVoteChannel::GetList($by, $order, $arFilter, $is_filtered);
+				while($arRes = $rsData->Fetch())
+						$arID[] = $arRes['ID'];
+		}
 
-        foreach($arID as $ID)
-        {
-                if(strlen($ID)<=0)
-                        continue;
-                $ID = IntVal($ID);
-                switch($_REQUEST['action'])
-                {
-                case "delete":
-                        @set_time_limit(0);
-                        $DB->StartTransaction();
-                        if(!CVoteChannel::Delete($ID))
-                        {
-                                $DB->Rollback();
-                                $lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
-                        }
-                        $DB->Commit();
-                        break;
-                case "activate":
-                case "deactivate":
-                        $arFields = Array("ACTIVE"=>($_REQUEST['action']=="activate"?"'Y'":"'N'"));
+		foreach($arID as $ID)
+		{
+				if(strlen($ID)<=0)
+						continue;
+				$ID = IntVal($ID);
+				switch($_REQUEST['action'])
+				{
+				case "delete":
+						@set_time_limit(0);
+						$DB->StartTransaction();
+						if(!CVoteChannel::Delete($ID))
+						{
+								$DB->Rollback();
+								$lAdmin->AddGroupError(GetMessage("DELETE_ERROR"), $ID);
+						}
+						$DB->Commit();
+						break;
+				case "activate":
+				case "deactivate":
+						$arFields = Array("ACTIVE"=>($_REQUEST['action']=="activate"?"'Y'":"'N'"));
 						if (!$DB->Update("b_vote_channel",$arFields,"WHERE ID='$ID'",$err_mess.__LINE__))
-                                $lAdmin->AddGroupError(GetMessage("VOTE_SAVE_ERROR"), $ID);
+								$lAdmin->AddGroupError(GetMessage("VOTE_SAVE_ERROR"), $ID);
 						else
 							$CACHE_MANAGER->CleanDir("b_vote_channel");
-                        break;
-                }
-        }
+						break;
+				}
+		}
 }
 $rsData = CVoteChannel::GetList($by, $order, $arFilter, $is_filtered);
 $rsData = new CAdminResult($rsData, $sTableID);
@@ -131,6 +132,7 @@ $lAdmin->AddHeaders(array(
 		array("id"=>"TIMESTAMP_X", "content"=>GetMessage("VOTE_TIMESTAMP"), "sort"=>"s_timestamp", "default"=>true),
 		array("id"=>"SITE", "content"=>GetMessage("VOTE_SITE"), "default"=>true),
 		array("id"=>"ACTIVE", "content"=>GetMessage("VOTE_ACTIVE"), "sort"=>"s_active", "default"=>true),
+		array("id"=>"HIDDEN", "content"=>GetMessage("VOTE_HIDDEN"), "sort"=>"s_hidden", "default"=>true),
 		array("id"=>"C_SORT", "content"=>GetMessage("VOTE_C_SORT"), "sort"=>"s_c_sort", "default"=>true),
 		array("id"=>"SYMBOLIC_NAME", "content"=>GetMessage("VOTE_SID"), "sort"=>"s_symbolic_name", "default"=>true),
 		array("id"=>"TITLE", "content"=>GetMessage("VOTE_TITLE"), "sort"=>"s_title", "default"=>true),
@@ -142,7 +144,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 {
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
 
-	$arrSITE =  CVoteChannel::GetSiteArray($f_ID);
+	$arrSITE =	CVoteChannel::GetSiteArray($f_ID);
 	$str = "";
 	if(is_array($arrSITE))
 	{
@@ -154,6 +156,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	{
 		$row->AddViewField("SITE", trim($str, " ,"));
 		$row->AddCheckField("ACTIVE");
+		$row->AddViewField("HIDDEN", ($f_HIDDEN=="Y"? GetMessage("VOTE_YES"):GetMessage("VOTE_NO")));
 		$row->AddInputField("C_SORT");
 		$row->AddInputField("SYMBOLIC_NAME");
 		$row->AddInputField("TITLE");
@@ -161,8 +164,9 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	}
 	else
 	{
-		$row->AddViewField("SITE", ($f_SITE=="Y"? GetMessage("MAIN_YES"):GetMessage("MAIN_NO")));
-		$row->AddViewField("ACTIVE", ($f_ACTIVE=="Y"? GetMessage("MAIN_YES"):GetMessage("MAIN_NO")));
+		$row->AddViewField("SITE", ($f_SITE=="Y"? GetMessage("VOTE_YES"):GetMessage("VOTE_NO")));
+		$row->AddViewField("ACTIVE", ($f_ACTIVE=="Y"? GetMessage("VOTE_YES"):GetMessage("VOTE_NO")));
+		$row->AddViewField("HIDDEN", ($f_HIDDEN=="Y"? GetMessage("VOTE_YES"):GetMessage("VOTE_NO")));
 	}
 
 	$row->AddViewField("VOTES", '<a title="'.GetMessage("VOTE_OPEN_VOTES").'" href="vote_list.php?lang='.LANGUAGE_ID.'&find_channel='.$f_ID.'&set_filter=Y">'.$f_VOTES.'</a>&nbsp;[<a title="'.GetMessage("VOTE_ADD_VOTE").'" href="vote_edit.php?CHANNEL_ID='.$f_ID.'&lang='.LANGUAGE_ID.'">+</a>]');
@@ -235,12 +239,12 @@ $oFilter->Begin();
 ?>
 <tr>
 	<td nowrap><b><?=GetMessage("VOTE_F_TITLE")?></b></td>
-	<td nowrap><input type="text" name="find_title" value="<?echo htmlspecialchars($find_title)?>" size="47"><?=InputType("checkbox", "find_title_exact_match", "Y", $find_title_exact_match, false, "", "title='".GetMessage("VOTE_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td nowrap><input type="text" name="find_title" value="<?echo htmlspecialcharsbx($find_title)?>" size="47"><?=InputType("checkbox", "find_title_exact_match", "Y", $find_title_exact_match, false, "", "title='".GetMessage("VOTE_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 
 <tr>
 	<td>ID:</td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>"><?=InputType("checkbox", "find_id_exact_match", "Y", $find_id_exact_match, false, "", "title='".GetMessage("VOTE_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"><?=InputType("checkbox", "find_id_exact_match", "Y", $find_id_exact_match, false, "", "title='".GetMessage("VOTE_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr valign="top">
 	<td><?=GetMessage("VOTE_F_SITE")?><br><img src="/bitrix/images/vote/mouse.gif" width="44" height="21" border=0 alt=""></td>
@@ -260,12 +264,12 @@ $oFilter->Begin();
 	<td nowrap><?=GetMessage("VOTE_F_ACTIVE")?></td>
 	<td nowrap><?
 		$arr = array("reference"=>array(GetMessage("VOTE_YES"), GetMessage("VOTE_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_active", $arr, htmlspecialchars($find_active), GetMessage("VOTE_ALL"));
+		echo SelectBoxFromArray("find_active", $arr, htmlspecialcharsbx($find_active), GetMessage("VOTE_ALL"));
 		?></td>
 </tr>
 <tr>
 	<td nowrap><?=GetMessage("VOTE_F_SID")?></td>
-	<td nowrap><input type="text" name="find_sid" value="<?echo htmlspecialchars($find_sid)?>" size="47"><?=InputType("checkbox", "find_sid_exact_match", "Y", $find_sid_exact_match, false, "", "title='".GetMessage("VOTE_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td nowrap><input type="text" name="find_sid" value="<?echo htmlspecialcharsbx($find_sid)?>" size="47"><?=InputType("checkbox", "find_sid_exact_match", "Y", $find_sid_exact_match, false, "", "title='".GetMessage("VOTE_EXACT_MATCH")."'")?>&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage(), "form"=>"find_form"));

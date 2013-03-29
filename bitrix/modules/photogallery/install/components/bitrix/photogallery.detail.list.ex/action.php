@@ -1,44 +1,14 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 $this->IncludeComponentLang("action.php");
 
-if (isset($_REQUEST["MUL_MODE"]) && $_REQUEST["USER_ID"] > 0 && false)
-{
-	$APPLICATION->IncludeComponent("bitrix:main.user.link",
-		'',
-		array(
-			"ID" => $arResult["Event"]["USER_ID"],
-			"HTML_ID" => "group_requests_".$arResult["Event"]["USER_ID"],
-			"NAME" => $arResult["Event"]["USER_NAME"],
-			"LAST_NAME" => $arResult["Event"]["USER_LAST_NAME"],
-			"SECOND_NAME" => $arResult["Event"]["USER_SECOND_NAME"],
-			"LOGIN" => $arResult["Event"]["USER_LOGIN"],
-			"USE_THUMBNAIL_LIST" => "N",
-			"PERSONAL_PHOTO_IMG" => $arResult["Event"]["USER_PERSONAL_PHOTO_IMG"],
-			"PERSONAL_PHOTO_FILE" => $arResult["Event"]["USER_PERSONAL_PHOTO_FILE"],
-			"PROFILE_URL" => $arResult["Event"]["USER_PROFILE_URL"],
-			"PATH_TO_SONET_MESSAGES_CHAT" => $arParams["PATH_TO_MESSAGES_CHAT"],
-			"PATH_TO_SONET_USER_PROFILE" => $arParams["PATH_TO_USER"],
-			"SHOW_FIELDS" => $arParams["SHOW_FIELDS_TOOLTIP"],
-			"USER_PROPERTY" => $arParams["USER_PROPERTY_TOOLTIP"],
-			"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
-			"SHOW_YEAR" => $arParams["SHOW_YEAR"],
-			"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-			"CACHE_TIME" => $arParams["CACHE_TIME"],
-			"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
-			"SHOW_LOGIN" => $arParams["SHOW_LOGIN"]
-		),
-		false,
-		array("HIDE_ICONS" => "Y")
-	);
-}
-
 $photo_list_action = $_REQUEST["photo_list_action"];
 if (isset($photo_list_action) && $photo_list_action != "")
 {
 	$APPLICATION->RestartBuffer();
+	$UCID = preg_replace("/[^a-z0-9\_]+/is" , "", $_REQUEST["UCID"]);
 	?><script>
 	if (!window.BX && top.BX){BX = top.BX;}
-	window.bxph_action_url_<?= CUtil::JSEscape($_REQUEST['UCID'])?> = '<?= CUtil::JSEscape(CHTTP::urlDeleteParams(htmlspecialcharsback(POST_FORM_ACTION_URI), array("view_mode", "sessid", "uploader_redirect", "photo_list_action", "pio", "ELEMENT_ID", "UCID"), true));?>';
+	window.bxph_action_url_<?= $UCID?> = '<?= CUtil::JSEscape(CHTTP::urlDeleteParams(htmlspecialcharsback(POST_FORM_ACTION_URI), array("view_mode", "sessid", "uploader_redirect", "photo_list_action", "pio", "ELEMENT_ID", "UCID"), true));?>';
 	<?
 	if (!check_bitrix_sessid()){?>window.bxph_error = '<?= GetMessage("IBLOCK_WRONG_SESSION")?>';<?die('</'.'script>');}?>
 	</script>
@@ -49,24 +19,25 @@ if (isset($photo_list_action) && $photo_list_action != "")
 		$arCommentsParams = Array(
 			"POPUP_MODE" => "Y",
 			"ACTION_URL" => $arParams["ACTION_URL"].(strpos($arParams["ACTION_URL"], "?") === false ? "?" : "&")."photo_list_action=load_comments",
-	 		"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
-	 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
-	 		"SECTION_ID" => $arParams["SECTION_ID"],
-	 		"ELEMENT_ID" => intVal($_REQUEST["photo_element_id"]),
-	 		"COMMENTS_TYPE" => $arParams["COMMENTS_TYPE"],
+			"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
+			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+			"SECTION_ID" => $arParams["SECTION_ID"],
+			"ELEMENT_ID" => intVal($_REQUEST["photo_element_id"]),
+			"COMMENTS_TYPE" => $arParams["COMMENTS_TYPE"],
 			"DETAIL_URL" => $arParams["~DETAIL_URL"],
 			"SECTION_URL" => $arParams["~SECTION_URL"],
-	 		"COMMENTS_COUNT" => $arParams["COMMENTS_COUNT"],
+			"COMMENTS_COUNT" => $arParams["COMMENTS_COUNT"],
 			"PATH_TO_SMILE" => $arParams["PATH_TO_SMILE"],
 			"IS_SOCNET" => $arParams["IS_SOCNET"],
 			"SHOW_RATING" => $arParams["USE_RATING"] == "Y" && $arParams["DISPLAY_AS_RATING"] == "rating_main"? "Y": "N",
 			"RATING_TYPE" => $arParams["RATING_MAIN_TYPE"],
 			"CACHE_TYPE" => "N",
-			"CACHE_TIME" => 0
+			"CACHE_TIME" => 0,
+			"PATH_TO_USER" => $arParams["PATH_TO_USER"],
+			"FETCH_USER_ALIAS" => preg_match("/#user_alias#/i".BX_UTF_PCRE_MODIFIER, $arParams["PATH_TO_USER"])
 		);
 
 		$arCommentsParams["COMMENTS_TYPE"] = (strToLower($arParams["COMMENTS_TYPE"]) == "forum" ? "forum" : "blog");
-		$arCommentsParams["PATH_TO_USER"] = $arParams["PATH_TO_USER"];
 
 		if ($arCommentsParams["COMMENTS_TYPE"] == "blog")
 		{
@@ -87,8 +58,10 @@ if (isset($photo_list_action) && $photo_list_action != "")
 			$arCommentsParams["SHOW_LINK_TO_FORUM"] = "N";
 		}
 
-		if ($arCommentsParams["IS_SOCNET"] == "Y")
+		if ($arCommentsParams["IS_SOCNET"] == "Y" || !empty($arParams["USER_ALIAS"]))
 			$arCommentsParams["USER_ALIAS"] = $arParams["USER_ALIAS"];
+
+		$arCommentsParams["NAME_TEMPLATE"] = $arParams["NAME_TEMPLATE"];
 
 		$APPLICATION->IncludeComponent(
 			"bitrix:photogallery.detail.comment",
@@ -97,49 +70,6 @@ if (isset($photo_list_action) && $photo_list_action != "")
 			$this,
 			array("HIDE_ICONS" => "Y")
 		);
-	}
-	elseif($photo_list_action == 'get_rating' && $arParams["PERMISSION"] >= "R")
-	{
-		$this->InitComponentTemplate("", false, "");
-		if ($arParams["USE_RATING"] == "Y" && $arParams["DISPLAY_AS_RATING"] == "rating_main")
-		{
-			// Don't delete <!--BX_PHOTO_RARING-->, <!--BX_PHOTO_RARING_END--> comments - they are used in js to catch html content
-			?><!--BX_PHOTO_RARING--><?
-			$GLOBALS["APPLICATION"]->IncludeComponent(
-			  "bitrix:rating.vote",
-			  $arParams["RATING_MAIN_TYPE"],
-				Array(
-					"ENTITY_TYPE_ID" => "IBLOCK_ELEMENT",
-					"ENTITY_ID" => $arParams["ELEMENT_ID"],
-					"OWNER_ID" => intval($_REQUEST["AUTHOR_ID"]),
-					"PATH_TO_USER_PROFILE" => $arParams["PATH_TO_USER"],
-					"AJAX_MODE" => "Y",
-				),
-				$this,
-				array("HIDE_ICONS" => "Y")
-			);
-			?><!--BX_PHOTO_RARING_END--><?
-		}
-		elseif ($arParams["USE_RATING"] == "Y")
-		{
-			$GLOBALS["APPLICATION"]->IncludeComponent(
-				"bitrix:iblock.vote",
-				"ajax",
-				Array(
-					"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
-					"IBLOCK_ID" => $arParams["IBLOCK_ID"],
-					"ELEMENT_ID" => intVal($_REQUEST["ELEMENT_ID"]),
-					"READ_ONLY" => $arParams["READ_ONLY"],
-					"MAX_VOTE" => $arParams["MAX_VOTE"],
-					"VOTE_NAMES" => $arParams["VOTE_NAMES"],
-					"DISPLAY_AS_RATING" => $arParams["DISPLAY_AS_RATING"],
-					"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-					"CACHE_TIME" => $arParams["CACHE_TIME"]
-				),
-				$this,
-				array("HIDE_ICONS" => "Y")
-			);
-		}
 	}
 	elseif($photo_list_action == 'save_sort_order' && $arParams["PERMISSION"] >= "U")
 	{
@@ -154,17 +84,7 @@ if (isset($photo_list_action) && $photo_list_action != "")
 					$bs->Update(intVal($id), array("SORT" => intVal($sort)),false,false);
 			}
 
-			PClearComponentCache(array(
-				"search.page",
-				"photogallery.section/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-				"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"],
-				"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/0",
-				"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"],
-				"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/0",
-				"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-				"photogallery.section.list/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-				"photogallery.section.list/".$arParams["IBLOCK_ID"]."/sections0",
-			));
+			PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0, $arParams["SECTION_ID"]));
 		}
 	}
 	elseif($photo_list_action == 'save_description' && $arParams["PERMISSION"] >= "U")
@@ -177,6 +97,7 @@ if (isset($photo_list_action) && $photo_list_action != "")
 		$arFields["DETAIL_TEXT"] = $_REQUEST["description"];
 		$arFields["DETAIL_TEXT_TYPE"] = "text";
 		$arFields["PREVIEW_TEXT_TYPE"] = "text";
+		$arFields["IBLOCK_SECTION_ID"] = $arParams["SECTION_ID"];
 
 		$bs = new CIBlockElement;
 		$ID = $bs->Update($arParams["ELEMENT_ID"], $arFields);
@@ -191,18 +112,7 @@ if (isset($photo_list_action) && $photo_list_action != "")
 		}
 		else
 		{
-			PClearComponentCache(array(
-				"search.page",
-				"photogallery.detail/".$arParams["IBLOCK_ID"]."/detail/".$arParams["SECTION_ID"]."/",
-				"photogallery.section/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-				"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"],
-				"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/0",
-				"photogallery.section.list/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-				"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"],
-				"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/0",
-				"photogallery.section.list.ex/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"]
-				)
-			);
+			PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0, $arParams["SECTION_ID"]));
 		}
 	}
 	elseif($photo_list_action == 'activate' && $arParams["PERMISSION"] >= "X")
@@ -217,18 +127,7 @@ if (isset($photo_list_action) && $photo_list_action != "")
 		}
 		else
 		{
-			PClearComponentCache(array(
-				"search.page",
-				"photogallery.detail/".$arParams["IBLOCK_ID"]."/detail/".$arParams["SECTION_ID"]."/",
-				"photogallery.section/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-				"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"],
-				"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/0",
-				"photogallery.section.list/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-				"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"],
-				"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/0",
-				"photogallery.section.list.ex/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"]
-				)
-			);
+			PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0, $arParams["SECTION_ID"]));
 		}
 	}
 	elseif($photo_list_action == 'rotate' && $_REQUEST['angle'] > 0 && $arParams["PERMISSION"] >= "U")
@@ -320,17 +219,7 @@ if (isset($photo_list_action) && $photo_list_action != "")
 					};
 					</script><?
 
-					PClearComponentCache(array(
-						"search.page",
-						"photogallery.detail/".$arParams["IBLOCK_ID"]."/detail/".$arParams["SECTION_ID"]."/",
-						"photogallery.section/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-						"photogallery.section.list.ex/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-						"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"],
-						"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/0",
-						"photogallery.section.list/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-						"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"],
-						"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/0",
-					));
+					PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0, $arParams["SECTION_ID"]));
 				}
 			}
 			else
@@ -360,17 +249,7 @@ if (isset($photo_list_action) && $photo_list_action != "")
 			while ($arEvent = $events->Fetch())
 				ExecuteModuleEventEx($arEvent, array($arEventFields, $arParams));
 
-			PClearComponentCache(array(
-				"search.page",
-				"photogallery.section/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-				"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"],
-				"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/0",
-				"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"],
-				"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/0",
-				"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-				"photogallery.section.list/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-				"photogallery.section.list/".$arParams["IBLOCK_ID"]."/sections0",
-			));
+			PClearComponentCacheEx($arParams["IBLOCK_ID"], array(0, $arParams["SECTION_ID"]));
 		}
 		else
 		{
@@ -396,32 +275,27 @@ if (isset($photo_list_action) && $photo_list_action != "")
 			"bitrix:photogallery.detail.edit",
 			"",
 			Array(
-		 		"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
-		 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+				"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
+				"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 				"USER_ALIAS" => $arParams["USER_ALIAS"],
 				"PERMISSION" => $arParams["PERMISSION"],
-		 		"SECTION_ID" => $arParams["SECTION_ID"],
-		 		"SECTION_CODE" => $arParams["SECTION_CODE"],
-		 		"ELEMENT_ID" => $arParams["ELEMENT_ID"],
+				"SECTION_ID" => $arParams["SECTION_ID"],
+				"SECTION_CODE" => $arParams["SECTION_CODE"],
+				"ELEMENT_ID" => $arParams["ELEMENT_ID"],
 				"BEHAVIOUR" => $arParams["BEHAVIOUR"],
-
 				"ACTION" => "EDIT",
-
 				"GALLERY_URL" => $arResult["URL_TEMPLATES"]["gallery"],
 				"DETAIL_URL" => $arResult["URL_TEMPLATES"]["detail"],
 				"SECTION_URL" => $arResult["URL_TEMPLATES"]["section"],
-
-		 		"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
+				"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT_DETAIL"],
 				"SHOW_TAGS"	=>	$arParams["SHOW_TAGS"],
 				"GALLERY_SIZE" => $arParams["GALLERY_SIZE"],
 				"SET_STATUS_404" => $arParams["SET_STATUS_404"],
-
 				"CACHE_TYPE" => $arParams["CACHE_TYPE"],
 				"CACHE_TIME" => $arParams["CACHE_TIME"],
-		 		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
-		 		"SET_TITLE" => "N",
+				"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
+				"SET_TITLE" => "N",
 				"ADD_CHAIN_ITEM" => "N",
-
 				"SHOW_PUBLIC" => "N",
 				"SHOW_APPROVE" => "N",
 				"SHOW_TITLE" => "N",
@@ -431,19 +305,6 @@ if (isset($photo_list_action) && $photo_list_action != "")
 			$component
 		);
 		?><!--BX_PHOTO_EDIT_RES_END--><?
-	}
-	elseif($photo_list_action == 'counter_inc' && $arParams["PERMISSION"] >= "R")
-	{
-		CUtil::JSPostUnEscape();
-		CModule::IncludeModule("iblock");
-		CIBlockElement::CounterInc($arParams["ELEMENT_ID"]);
-		PClearComponentCache(array(
-			"search.page",
-			"photogallery.detail/".$arParams["IBLOCK_ID"]."/detail/".$arParams["SECTION_ID"]."/",
-			"photogallery.section/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"],
-			"photogallery.detail.list/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"],
-			"photogallery.detail.list.ex/".$arParams["IBLOCK_ID"]."/detaillist/".$arParams["SECTION_ID"]
-		));
 	}
 	die();
 }

@@ -815,3 +815,4 @@ else
 
     //window.onload = BXEditorLoad;
 }
+;   

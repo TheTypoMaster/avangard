@@ -47,7 +47,7 @@ if($arUserField["USER_TYPE"])
 				$res = intVal($res);
 				break;
 			default:
-				$res = htmlspecialchars($res);
+				$res = htmlspecialcharsbx($res);
 				break;
 		}
 		$arResult["VALUE"][$key] = $res;

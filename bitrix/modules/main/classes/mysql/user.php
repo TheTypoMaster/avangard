@@ -32,7 +32,7 @@ class CUser extends CAllUser
 			unset($arFields["STORED_HASH"]);
 
 			$salt =  randString(8);
-			$checkword = ($arFields["CHECKWORD"] == ''? randString(8) : $arFields["CHECKWORD"]);
+			$checkword = ($arFields["CHECKWORD"] == ''? md5(CMain::GetServerUniqID().uniqid()) : $arFields["CHECKWORD"]);
 			$arFields["CHECKWORD"] = $salt.md5($salt.$checkword);
 
 			$arFields["~CHECKWORD_TIME"] = $DB->CurrentTimeFunction();
@@ -154,12 +154,21 @@ class CUser extends CAllUser
 
 		$obUserFieldsSql = new CUserTypeSQL;
 		$obUserFieldsSql->SetEntity("USER", "U.ID");
+		$obUserFieldsSql->obWhere->AddFields(array(
+			"F_LAST_NAME" => array(
+				"TABLE_ALIAS" => "U",
+				"FIELD_NAME" => "U.LAST_NAME",
+				"MULTIPLE" => "N",
+				"FIELD_TYPE" => "string",
+				"JOIN" => false,
+			),
+		));
 		$obUserFieldsSql->SetSelect($arParams["SELECT"]);
 		$obUserFieldsSql->SetFilter($arFilter);
 		$obUserFieldsSql->SetOrder($arOrder);
 
-		$arFields_m = array("ID", "ACTIVE", "LAST_LOGIN", "LOGIN", "EMAIL", "NAME", "LAST_NAME", "SECOND_NAME", "TIMESTAMP_X", "PERSONAL_BIRTHDAY");
-		$arFields = array("DATE_REGISTER", "PERSONAL_PROFESSION", "PERSONAL_WWW", "PERSONAL_ICQ", "PERSONAL_GENDER", "PERSONAL_PHOTO", "PERSONAL_PHONE", "PERSONAL_FAX", "PERSONAL_MOBILE", "PERSONAL_PAGER", "PERSONAL_STREET", "PERSONAL_MAILBOX", "PERSONAL_CITY", "PERSONAL_STATE", "PERSONAL_ZIP", "PERSONAL_COUNTRY", "PERSONAL_NOTES", "WORK_COMPANY", "WORK_DEPARTMENT", "WORK_POSITION", "WORK_WWW", "WORK_PHONE", "WORK_FAX", "WORK_PAGER", "WORK_STREET", "WORK_MAILBOX", "WORK_CITY", "WORK_STATE", "WORK_ZIP", "WORK_COUNTRY", "WORK_PROFILE", "WORK_NOTES", "ADMIN_NOTES", "XML_ID", "LAST_NAME", "SECOND_NAME", "STORED_HASH", "CHECKWORD_TIME", "EXTERNAL_AUTH_ID", "CONFIRM_CODE", "LOGIN_ATTEMPTS", "LAST_ACTIVITY_DATE", "AUTO_TIME_ZONE", "TIME_ZONE", "PASSWORD", "CHECKWORD", "LID", "IS_ONLINE");
+		$arFields_m = array("ID", "ACTIVE", "LAST_LOGIN", "LOGIN", "EMAIL", "NAME", "LAST_NAME", "SECOND_NAME", "TIMESTAMP_X", "PERSONAL_BIRTHDAY", "IS_ONLINE");
+		$arFields = array("DATE_REGISTER", "PERSONAL_PROFESSION", "PERSONAL_WWW", "PERSONAL_ICQ", "PERSONAL_GENDER", "PERSONAL_PHOTO", "PERSONAL_PHONE", "PERSONAL_FAX", "PERSONAL_MOBILE", "PERSONAL_PAGER", "PERSONAL_STREET", "PERSONAL_MAILBOX", "PERSONAL_CITY", "PERSONAL_STATE", "PERSONAL_ZIP", "PERSONAL_COUNTRY", "PERSONAL_NOTES", "WORK_COMPANY", "WORK_DEPARTMENT", "WORK_POSITION", "WORK_WWW", "WORK_PHONE", "WORK_FAX", "WORK_PAGER", "WORK_STREET", "WORK_MAILBOX", "WORK_CITY", "WORK_STATE", "WORK_ZIP", "WORK_COUNTRY", "WORK_PROFILE", "WORK_NOTES", "ADMIN_NOTES", "XML_ID", "LAST_NAME", "SECOND_NAME", "STORED_HASH", "CHECKWORD_TIME", "EXTERNAL_AUTH_ID", "CONFIRM_CODE", "LOGIN_ATTEMPTS", "LAST_ACTIVITY_DATE", "AUTO_TIME_ZONE", "TIME_ZONE", "TIME_ZONE_OFFSET", "PASSWORD", "CHECKWORD", "LID");
 		$arFields_all = array_merge($arFields_m, $arFields);
 
 		$arSelectFields = array();
@@ -169,7 +178,7 @@ class CUser extends CAllUser
 			foreach ($arOrder as $field => $dir)
 			{
 				if (in_array(strtoupper($field), $arFields_all))
-					$arParams['FIELDS'][] = $field;			
+					$arParams['FIELDS'][] = $field;
 			}
 			foreach ($arParams['FIELDS'] as $field)
 			{
@@ -216,6 +225,10 @@ class CUser extends CAllUser
 					$key != "LOGIN_EQUAL_EXACT"
 					&& $key != "CONFIRM_CODE"
 					&& $key != "!CONFIRM_CODE"
+					&& $key != "LAST_ACTIVITY"
+					&& $key != "!LAST_ACTIVITY"
+					&& $key != "LAST_LOGIN"
+					&& $key != "!LAST_LOGIN"
 				)
 				{
 					if( (strlen($val) <= 0) || ($val === "NOT_REF") )
@@ -253,6 +266,14 @@ class CUser extends CAllUser
 					break;
 				case "LAST_LOGIN_2":
 					$arSqlSearch[] = "U.LAST_LOGIN <= FROM_UNIXTIME('".MkDateTime(FmtDate($val,"D.M.Y")." 23:59:59","d.m.Y")."')";
+					break;
+				case "LAST_LOGIN":
+					if ($val === false)
+						$arSqlSearch[] = "U.LAST_LOGIN IS NULL";
+					break;
+				case "!LAST_LOGIN":
+					if ($val === false)
+						$arSqlSearch[] = "U.LAST_LOGIN IS NOT NULL";
 					break;
 				case "DATE_REGISTER_1":
 					$arSqlSearch[] = "U.DATE_REGISTER >= FROM_UNIXTIME('".MkDateTime(FmtDate($val,"D.M.Y"),"d.m.Y")."')";
@@ -362,10 +383,14 @@ class CUser extends CAllUser
 					$arSqlSearch[] = "not exists (SELECT * FROM b_user_group UGNA WHERE UGNA.USER_ID=U.ID AND UGNA.GROUP_ID = 1)";
 					break;
 				case "LAST_ACTIVITY":
-					$arSqlSearch[] = "U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".intval($val)." SECOND)";
+					if ($val === false)
+						$arSqlSearch[] = "U.LAST_ACTIVITY_DATE IS NULL";
+					elseif (intval($val)>0)
+						$arSqlSearch[] = "U.LAST_ACTIVITY_DATE > DATE_SUB(NOW(), INTERVAL ".intval($val)." SECOND)";
 					break;
 				case "!LAST_ACTIVITY":
-					$arSqlSearch[] = "U.LAST_ACTIVITY_DATE IS NULL";
+					if ($val === false)
+						$arSqlSearch[] = "U.LAST_ACTIVITY_DATE IS NOT NULL";
 					break;
 				case "INTRANET_USERS":
 					$arSqlSearch[] = "U.ACTIVE = 'Y' AND U.LAST_LOGIN IS NOT NULL AND EXISTS(SELECT 'x' FROM b_utm_user UF1, b_user_field F1 WHERE F1.ENTITY_ID = 'USER' AND F1.FIELD_NAME = 'UF_DEPARTMENT' AND UF1.FIELD_ID = F1.ID AND UF1.VALUE_ID = U.ID AND UF1.VALUE_INT IS NOT NULL AND UF1.VALUE_INT <> 0)";
@@ -434,12 +459,13 @@ class CUser extends CAllUser
 			}
 		}
 
+		$userFieldsSelect = $obUserFieldsSql->GetSelect();
 		$arSqlSearch[] = $obUserFieldsSql->GetFilter();
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 
 		$sSelect = ($obUserFieldsSql->GetDistinct()? "DISTINCT " : "")
 			.implode(', ',$arSelectFields)."
-			".$obUserFieldsSql->GetSelect()."
+			".$userFieldsSelect."
 		";
 
 		if (is_array($arParams['SELECT']))
@@ -459,41 +485,54 @@ class CUser extends CAllUser
 						$sSelect .= ", RR".$ratingId.".CURRENT_POSITION as RATING_".$ratingId."_CURRENT_POSITION";
 						$sSelect .= ", RR".$ratingId.".PREVIOUS_POSITION as RATING_".$ratingId."_PREVIOUS_POSITION";
 						$strJoin .=	" LEFT JOIN  b_rating_results RR".$ratingId."
-										ON RR".$ratingId.".RATING_ID=".$ratingId."
-										and RR".$ratingId.".ENTITY_TYPE_ID = 'USER'
-										and RR".$ratingId.".ENTITY_ID = U.ID ";
+							ON RR".$ratingId.".RATING_ID=".$ratingId."
+							and RR".$ratingId.".ENTITY_TYPE_ID = 'USER'
+							and RR".$ratingId.".ENTITY_ID = U.ID ";
 						$arRatingInSelect[] = $ratingId;
 					}
 				}
 			}
 		}
-		$strSql = "
+		$strFrom = "
 			FROM
 				b_user U
 				".$obUserFieldsSql->GetJoin("U.ID")."
 				".$strJoin."
 			WHERE
-				$strSqlSearch
+				".$strSqlSearch."
 			";
 
 		$strSqlOrder = '';
 		if (count($strSqlOrder) > 0)
 			$strSqlOrder = 'ORDER BY '.implode(', ', $arSqlOrder);
 
+		$strSql = "SELECT ".$sSelect.$strFrom.$strSqlOrder;
+
 		if(array_key_exists("NAV_PARAMS", $arParams) && is_array($arParams["NAV_PARAMS"]))
 		{
-			$res_cnt = $DB->Query("SELECT COUNT(".($obUserFieldsSql->GetDistinct()? "DISTINCT ":"")."U.ID) as C ".$strSql);
-			$res_cnt = $res_cnt->Fetch();
-			$strSql = "SELECT ".$sSelect.$strSql.$strSqlOrder;
-			$res = new CDBResult();
-			$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("USER"));
-			$res->NavQuery($strSql, $res_cnt["C"], $arParams["NAV_PARAMS"]);
+			$nTopCount = intval($arParams['NAV_PARAMS']['nTopCount']);
+			if($nTopCount > 0)
+			{
+				$strSql = $DB->TopSql($strSql, $nTopCount);
+				$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+				if($userFieldsSelect <> '')
+					$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("USER"));
+			}
+			else
+			{
+				$res_cnt = $DB->Query("SELECT COUNT(".($obUserFieldsSql->GetDistinct()? "DISTINCT ":"")."U.ID) as C ".$strFrom);
+				$res_cnt = $res_cnt->Fetch();
+				$res = new CDBResult();
+				if($userFieldsSelect <> '')
+					$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("USER"));
+				$res->NavQuery($strSql, $res_cnt["C"], $arParams["NAV_PARAMS"]);
+			}
 		}
 		else
 		{
-			$strSql = "SELECT ".$sSelect.$strSql.$strSqlOrder;
 			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
-			$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("USER"));
+			if($userFieldsSelect <> '')
+				$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("USER"));
 		}
 
 		$res->is_filtered = IsFiltered($strSqlSearch);
@@ -569,27 +608,27 @@ class CGroup extends CAllGroup
 			if (is_array($arFields["USER_ID"][0]) && count($arFields["USER_ID"][0]) > 0)
 			{
 				$arTmp = array();
-				for ($i = 0; $i < count($arFields["USER_ID"]); $i++)
+				foreach ($arFields["USER_ID"] as $userId)
 				{
-					if (IntVal($arFields["USER_ID"][$i]["USER_ID"]) > 0
-						&& !in_array(IntVal($arFields["USER_ID"][$i]["USER_ID"]), $arTmp))
+					if (IntVal($userId["USER_ID"]) > 0
+						&& !in_array(IntVal($userId["USER_ID"]), $arTmp))
 					{
-						$arInsert = $DB->PrepareInsert("b_user_group", $arFields["USER_ID"][$i]);
+						$arInsert = $DB->PrepareInsert("b_user_group", $userId);
 
 						$strSql =
 							"INSERT INTO b_user_group(GROUP_ID, ".$arInsert[0].") ".
 							"VALUES(".$ID.", ".$arInsert[1].")";
 						$DB->Query($strSql);
 
-						$arTmp[] = IntVal($arFields["USER_ID"][$i]["USER_ID"]);
+						$arTmp[] = IntVal($userId["USER_ID"]);
 					}
 				}
 			}
 			else
 			{
 				$strUsers = "0";
-				for($i=0; $i<count($arFields["USER_ID"]); $i++)
-					$strUsers.=",".IntVal($arFields["USER_ID"][$i]);
+				foreach ($arFields["USER_ID"] as $userId)
+					$strUsers.=",".intval($userId);
 
 				$strSql =
 					"INSERT INTO b_user_group(GROUP_ID, USER_ID) ".
@@ -702,7 +741,8 @@ class CGroup extends CAllGroup
 						break;
 				}
 			}
-			for($i=0; $i<count($arSqlSearch_h); $i++) $strSqlSearch_h .= " and (".$arSqlSearch_h[$i].") ";
+			foreach($arSqlSearch_h as $condition)
+				$strSqlSearch_h .= " and (".$condition.") ";
 		}
 
 
@@ -888,10 +928,10 @@ class CGroup extends CAllGroup
 				|| count($arSelectFields)<=0
 				|| in_array("*", $arSelectFields))
 			{
-				for ($i = 0; $i < count($arFieldsKeys); $i++)
+				foreach ($arFields as $FIELD_ID => $arField)
 				{
-					if (isset($arFields[$arFieldsKeys[$i]]["WHERE_ONLY"])
-						&& $arFields[$arFieldsKeys[$i]]["WHERE_ONLY"] == "Y")
+					if (isset($arField["WHERE_ONLY"])
+						&& $arField["WHERE_ONLY"] == "Y")
 					{
 						continue;
 					}
@@ -899,21 +939,21 @@ class CGroup extends CAllGroup
 					if (strlen($strSqlSelect) > 0)
 						$strSqlSelect .= ", ";
 
-					if ($arFields[$arFieldsKeys[$i]]["TYPE"] == "datetime")
-						$strSqlSelect .= $DB->DateToCharFunction($arFields[$arFieldsKeys[$i]]["FIELD"], "FULL")." as ".$arFieldsKeys[$i];
-					elseif ($arFields[$arFieldsKeys[$i]]["TYPE"] == "date")
-						$strSqlSelect .= $DB->DateToCharFunction($arFields[$arFieldsKeys[$i]]["FIELD"], "SHORT")." as ".$arFieldsKeys[$i];
+					if ($arField["TYPE"] == "datetime")
+						$strSqlSelect .= $DB->DateToCharFunction($arField["FIELD"], "FULL")." as ".$FIELD_ID;
+					elseif ($arField["TYPE"] == "date")
+						$strSqlSelect .= $DB->DateToCharFunction($arField["FIELD"], "SHORT")." as ".$FIELD_ID;
 					else
-						$strSqlSelect .= $arFields[$arFieldsKeys[$i]]["FIELD"]." as ".$arFieldsKeys[$i];
+						$strSqlSelect .= $arField["FIELD"]." as ".$FIELD_ID;
 
-					if (isset($arFields[$arFieldsKeys[$i]]["FROM"])
-						&& strlen($arFields[$arFieldsKeys[$i]]["FROM"]) > 0
-						&& !in_array($arFields[$arFieldsKeys[$i]]["FROM"], $arAlreadyJoined))
+					if (isset($arField["FROM"])
+						&& strlen($arField["FROM"]) > 0
+						&& !in_array($arField["FROM"], $arAlreadyJoined))
 					{
 						if (strlen($strSqlFrom) > 0)
 							$strSqlFrom .= " ";
-						$strSqlFrom .= $arFields[$arFieldsKeys[$i]]["FROM"];
-						$arAlreadyJoined[] = $arFields[$arFieldsKeys[$i]]["FROM"];
+						$strSqlFrom .= $arField["FROM"];
+						$arAlreadyJoined[] = $arField["FROM"];
 					}
 				}
 			}
@@ -969,122 +1009,116 @@ class CGroup extends CAllGroup
 		// WHERE -->
 		$arSqlSearch = Array();
 
-		if (!is_array($arFilter))
-			$filter_keys = Array();
-		else
-			$filter_keys = array_keys($arFilter);
-
-		for ($i = 0; $i < count($filter_keys); $i++)
+		if (is_array($arFilter))
 		{
-			$vals = $arFilter[$filter_keys[$i]];
-			if (!is_array($vals))
-				$vals = array($vals);
-
-			$key = $filter_keys[$i];
-			$key_res = CGroup::GetFilterOperation($key);
-			$key = $key_res["FIELD"];
-			$strNegative = $key_res["NEGATIVE"];
-			$strOperation = $key_res["OPERATION"];
-			$strOrNull = $key_res["OR_NULL"];
-
-			if (array_key_exists($key, $arFields))
+			foreach ($arFilter as $key => $vals)
 			{
-				$arSqlSearch_tmp = array();
-				for ($j = 0; $j < count($vals); $j++)
-				{
-					$val = $vals[$j];
+				if (!is_array($vals))
+					$vals = array($vals);
 
-					if (isset($arFields[$key]["WHERE"]))
+				$key_res = CGroup::GetFilterOperation($key);
+				$key = $key_res["FIELD"];
+				$strNegative = $key_res["NEGATIVE"];
+				$strOperation = $key_res["OPERATION"];
+				$strOrNull = $key_res["OR_NULL"];
+
+				if (array_key_exists($key, $arFields))
+				{
+					$arSqlSearch_tmp = array();
+					foreach($vals as $val)
 					{
-						$arSqlSearch_tmp1 = call_user_func_array(
-								$arFields[$key]["WHERE"],
-								array($val, $key, $strOperation, $strNegative, $arFields[$key]["FIELD"], $arFields, $arFilter)
-							);
-						if ($arSqlSearch_tmp1 !== false)
-							$arSqlSearch_tmp[] = $arSqlSearch_tmp1;
-					}
-					else
-					{
-						if ($arFields[$key]["TYPE"] == "int")
+						if (isset($arFields[$key]["WHERE"]))
 						{
-							if (IntVal($val) <= 0)
-								$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL OR ".$arFields[$key]["FIELD"]." <= 0)";
-							else
-								$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".IntVal($val)." )";
+							$arSqlSearch_tmp1 = call_user_func_array(
+									$arFields[$key]["WHERE"],
+									array($val, $key, $strOperation, $strNegative, $arFields[$key]["FIELD"], $arFields, $arFilter)
+								);
+							if ($arSqlSearch_tmp1 !== false)
+								$arSqlSearch_tmp[] = $arSqlSearch_tmp1;
 						}
-						elseif ($arFields[$key]["TYPE"] == "double")
+						else
 						{
-							$val = str_replace(",", ".", $val);
-							if (DoubleVal($val) <= 0)
-								$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL OR ".$arFields[$key]["FIELD"]." <= 0)";
-							else
-								$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".DoubleVal($val)." )";
-						}
-						elseif ($arFields[$key]["TYPE"] == "string" || $arFields[$key]["TYPE"] == "char")
-						{
-							if ($strOperation == "QUERY")
+							if ($arFields[$key]["TYPE"] == "int")
 							{
-								$arSqlSearch_tmp[] = GetFilterQuery($arFields[$key]["FIELD"], $val, "Y");
+								if (IntVal($val) <= 0)
+									$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL OR ".$arFields[$key]["FIELD"]." <= 0)";
+								else
+									$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".IntVal($val)." )";
 							}
-							else
+							elseif ($arFields[$key]["TYPE"] == "double")
+							{
+								$val = str_replace(",", ".", $val);
+								if (DoubleVal($val) <= 0)
+									$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL OR ".$arFields[$key]["FIELD"]." <= 0)";
+								else
+									$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".DoubleVal($val)." )";
+							}
+							elseif ($arFields[$key]["TYPE"] == "string" || $arFields[$key]["TYPE"] == "char")
+							{
+								if ($strOperation == "QUERY")
+								{
+									$arSqlSearch_tmp[] = GetFilterQuery($arFields[$key]["FIELD"], $val, "Y");
+								}
+								else
+								{
+									if (strlen($val) <= 0)
+										$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL OR LENGTH(".$arFields[$key]["FIELD"].")<=0)";
+									else
+										$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." '".$DB->ForSql($val)."' )";
+								}
+							}
+							elseif ($arFields[$key]["TYPE"] == "datetime")
 							{
 								if (strlen($val) <= 0)
-									$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL OR LENGTH(".$arFields[$key]["FIELD"].")<=0)";
+									$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL)";
 								else
-									$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." '".$DB->ForSql($val)."' )";
+									$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "FULL").")";
+							}
+							elseif ($arFields[$key]["TYPE"] == "date")
+							{
+								if (strlen($val) <= 0)
+									$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL)";
+								else
+									$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "SHORT").")";
 							}
 						}
-						elseif ($arFields[$key]["TYPE"] == "datetime")
-						{
-							if (strlen($val) <= 0)
-								$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL)";
-							else
-								$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "FULL").")";
-						}
-						elseif ($arFields[$key]["TYPE"] == "date")
-						{
-							if (strlen($val) <= 0)
-								$arSqlSearch_tmp[] = ($strNegative=="Y"?"NOT":"")."(".$arFields[$key]["FIELD"]." IS NULL)";
-							else
-								$arSqlSearch_tmp[] = ($strNegative=="Y"?" ".$arFields[$key]["FIELD"]." IS NULL OR NOT ":"")."(".$arFields[$key]["FIELD"]." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "SHORT").")";
-						}
 					}
-				}
 
-				if (isset($arFields[$key]["FROM"])
-					&& strlen($arFields[$key]["FROM"]) > 0
-					&& !in_array($arFields[$key]["FROM"], $arAlreadyJoined))
-				{
-					if (strlen($strSqlFrom) > 0)
-						$strSqlFrom .= " ";
-					$strSqlFrom .= $arFields[$key]["FROM"];
-					$arAlreadyJoined[] = $arFields[$key]["FROM"];
-				}
+					if (isset($arFields[$key]["FROM"])
+						&& strlen($arFields[$key]["FROM"]) > 0
+						&& !in_array($arFields[$key]["FROM"], $arAlreadyJoined))
+					{
+						if (strlen($strSqlFrom) > 0)
+							$strSqlFrom .= " ";
+						$strSqlFrom .= $arFields[$key]["FROM"];
+						$arAlreadyJoined[] = $arFields[$key]["FROM"];
+					}
 
-				$strSqlSearch_tmp = "";
-				for ($j = 0; $j < count($arSqlSearch_tmp); $j++)
-				{
-					if ($j > 0)
-						$strSqlSearch_tmp .= ($strNegative=="Y" ? " AND " : " OR ");
-					$strSqlSearch_tmp .= "(".$arSqlSearch_tmp[$j].")";
-				}
-				if ($strOrNull == "Y")
-				{
-					if (strlen($strSqlSearch_tmp) > 0)
-						$strSqlSearch_tmp .= ($strNegative=="Y" ? " AND " : " OR ");
-					$strSqlSearch_tmp .= "(".$arFields[$key]["FIELD"]." IS ".($strNegative=="Y" ? "NOT " : "")."NULL)";
-				}
+					$strSqlSearch_tmp = "";
+					foreach ($arSqlSearch_tmp as $condition)
+					{
+						if ($strSqlSearch_tmp != "")
+							$strSqlSearch_tmp .= ($strNegative=="Y" ? " AND " : " OR ");
+						$strSqlSearch_tmp .= "(".$condition.")";
+					}
+					if ($strOrNull == "Y")
+					{
+						if ($strSqlSearch_tmp != "")
+							$strSqlSearch_tmp .= ($strNegative=="Y" ? " AND " : " OR ");
+						$strSqlSearch_tmp .= "(".$arFields[$key]["FIELD"]." IS ".($strNegative=="Y" ? "NOT " : "")."NULL)";
+					}
 
-				if ($strSqlSearch_tmp != "")
-					$arSqlSearch[] = "(".$strSqlSearch_tmp.")";
+					if ($strSqlSearch_tmp != "")
+						$arSqlSearch[] = "(".$strSqlSearch_tmp.")";
+				}
 			}
 		}
 
-		for ($i = 0; $i < count($arSqlSearch); $i++)
+		foreach ($arSqlSearch as $condition)
 		{
-			if (strlen($strSqlWhere) > 0)
+			if ($strSqlWhere != "")
 				$strSqlWhere .= " AND ";
-			$strSqlWhere .= "(".$arSqlSearch[$i].")";
+			$strSqlWhere .= "(".$condition.")";
 		}
 		// <-- WHERE
 
@@ -1113,13 +1147,7 @@ class CGroup extends CAllGroup
 			}
 		}
 
-		$strSqlOrderBy = "";
-		for ($i = 0; $i < count($arSqlOrder); $i++)
-		{
-			if (strlen($strSqlOrderBy) > 0)
-				$strSqlOrderBy .= ", ";
-			$strSqlOrderBy .= $arSqlOrder[$i];
-		}
+		$strSqlOrderBy = implode(", ", $arSqlOrder);
 		// <-- ORDER BY
 
 		return array(
@@ -1217,8 +1245,8 @@ class CGroup extends CAllGroup
 		}
 		else
 		{
-			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"])>0)
-				$strSql .= "LIMIT ".$arNavStartParams["nTopCount"];
+			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])>0)
+				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 			$dbRes = $DB->Query($strSql);
 		}
 
@@ -1228,6 +1256,7 @@ class CGroup extends CAllGroup
 	function GetByID($ID, $SHOW_USERS_AMOUNT = "N")
 	{
 		global $DB;
+
 		$err_mess = (CGroup::err_mess())."<br>Function: GetList<br>Line: ";
 		$ID = intval($ID);
 

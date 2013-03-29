@@ -11,6 +11,9 @@ class CForumUser extends CAllForumUser
 		$strSqlSearch = "";
 		$strSqlOrder = "";
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
+		$arAddParams = (is_array($arAddParams) ? $arAddParams : array($arAddParams));
+		if (is_set($arAddParams, "nameTemplate"))
+			$arAddParams["sNameTemplate"] = $arAddParams["nameTemplate"];
 
 		if (isset($arFilter['PERSONAL_BIRTHDAY_DATE']))
 		{
@@ -48,18 +51,18 @@ class CForumUser extends CAllForumUser
 			switch ($key)
 			{
 				case "USER_ID":
+					$userID = intval($val);
 					if (is_array($val) && $strOperation == 'IN')
 					{
 						$userID = array();
 						foreach($val as $valI)
 							$userID[] = intval($valI);
-						$userID = '(' . implode(', ', array_unique($userID)). ')';
+						$userID = array_unique($userID);
+						if (empty($userID))
+							$val = $userID = 0;
+						else
+							$userID = '(' . implode(', ', $userID). ')';
 					}
-					else
-					{
-						$userID = intval($val);
-					}
-
 					if (!is_array($val) && intVal($userID)<=0)
 						$arSqlSearch[] = ($strNegative=="Y"?"NOT":"")."(U.ID IS NULL OR U.ID<=0)";
 					else
@@ -113,24 +116,49 @@ class CForumUser extends CAllForumUser
 					break;
 				case "SHOW_ABC":
 					$val = trim($val);
-					if ((strLen($val) > 0) && ($val != "Y"))
+					if (!empty($val) && $val != "Y")
 					{
-						$arSqlSearch[] = "((FU.SHOW_NAME='Y') AND (LENGTH(TRIM(CONCAT_WS('',U.NAME,U.LAST_NAME)))>0) AND (CONCAT_WS(' ',U.NAME, U.LAST_NAME) LIKE '%".$DB->ForSQL($val)."%'))
-								OR (((FU.SHOW_NAME!='Y' OR (FU.SHOW_NAME IS NULL)) OR ((FU.SHOW_NAME='Y') AND (LENGTH(TRIM(CONCAT_WS('',U.NAME,U.LAST_NAME)))<=0)))
-								AND	U.LOGIN LIKE '%".$DB->ForSQL($val)."%')";
+						$arSqlSearch[] =
+							"(
+								(
+									FU.SHOW_NAME = 'Y'
+									AND
+									LENGTH(TRIM(CONCAT_WS('',".self::GetNameFieldsForQuery($arAddParams["sNameTemplate"])."))) > 0
+									AND
+									(REPLACE(CONCAT_WS(' ',".self::GetNameFieldsForQuery($arAddParams["sNameTemplate"])."), '  ', ' ') LIKE '%".$DB->ForSql($val)."%')
+								)
+								OR
+								(
+									(
+										FU.SHOW_NAME != 'Y'
+										OR
+										FU.SHOW_NAME IS NULL
+										OR
+										(
+											FU.SHOW_NAME = 'Y'
+											AND
+											LENGTH(TRIM(CONCAT_WS('',".self::GetNameFieldsForQuery($arAddParams["sNameTemplate"])."))) <= 0
+										)
+									)
+									AND
+									(
+										U.LOGIN LIKE '%".$DB->ForSql($val)."%'
+									)
+								)
+							)";
 					}
 					break;
 			}
 		}
 		if (count($arSqlSearch) > 0)
 			$strSqlSearch = " AND (".implode(") AND (", $arSqlSearch).") ";
-		
+
 		foreach ($arOrder as $by=>$order)
 		{
 			$by = strtoupper($by); $order = strtoupper($order);
-			
+
 			if ($order!="ASC") $order = "DESC";
-			
+
 			if ($by == "USER_ID") $arSqlOrder[] = " U.ID ".$order." ";
 			elseif ($by == "SHOW_NAME") $arSqlOrder[] = " FU.SHOW_NAME ".$order." ";
 			elseif ($by == "HIDE_FROM_ONLINE") $arSqlOrder[] = " FU.HIDE_FROM_ONLINE ".$order." ";
@@ -151,64 +179,70 @@ class CForumUser extends CAllForumUser
 				$by = "ID";
 			}
 		}
-		DelDuplicateSort($arSqlOrder); 
+		DelDuplicateSort($arSqlOrder);
 		if (count($arSqlOrder) > 0)
 			$strSqlOrder = " ORDER BY ".implode(", ", $arSqlOrder);
 
-		$strSql = 
-			"SELECT FU.ID, U.ID as USER_ID, FU.SHOW_NAME, FU.DESCRIPTION, FU.IP_ADDRESS, 
-				FU.REAL_IP_ADDRESS, FU.AVATAR, FU.NUM_POSTS, FU.POINTS as NUM_POINTS, 
-				FU.INTERESTS, FU.SUBSC_GROUP_MESSAGE, FU.SUBSC_GET_MY_MESSAGE, 
-				FU.LAST_POST, FU.ALLOW_POST, FU.SIGNATURE, FU.RANK_ID, 
-				U.EMAIL, U.NAME, U.LAST_NAME, U.LOGIN, U.PERSONAL_BIRTHDATE, 
-				".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG, 
-				".$DB->DateToCharFunction("FU.LAST_VISIT", "FULL")." as LAST_VISIT, 
-				".$DB->DateToCharFunction("FU.LAST_VISIT", "SHORT")." as LAST_VISIT_SHORT, 
-			   ".$DB->DateToCharFunction("U.DATE_REGISTER", "SHORT")." as DATE_REGISTER_SHORT, 
-				U.PERSONAL_ICQ, U.PERSONAL_WWW, U.PERSONAL_PROFESSION, U.DATE_REGISTER, 
-				U.PERSONAL_CITY, U.PERSONAL_COUNTRY, U.PERSONAL_PHOTO, 
-				U.PERSONAL_GENDER, FU.POINTS, FU.HIDE_FROM_ONLINE, 
-				".$DB->DateToCharFunction("U.PERSONAL_BIRTHDAY", "SHORT")." as PERSONAL_BIRTHDAY ";
-		if (array_key_exists("SHOW_ABC", $arFilter))
-			$strSql .= ",
-			CASE
-		         WHEN ((FU.SHOW_NAME='Y') AND (LENGTH(TRIM(CONCAT_WS('',U.NAME,U.LAST_NAME)))>0)) THEN trim(CONCAT_WS(' ',U.NAME, U.LAST_NAME))
-		         ELSE U.LOGIN
-			END AS SHOW_ABC ";
-
-		if (isset($arFilter['USER_ID']) || isset($arFilter['@USER_ID']))
-			$strSql .= "FROM b_user U LEFT JOIN b_forum_user FU ON (FU.USER_ID = U.ID)";
-		else
-			$strSql .= "FROM b_forum_user FU LEFT JOIN b_user U ON (FU.USER_ID = U.ID)";
-
-		$strSql .= "WHERE 1 = 1 
-			".$strSqlSearch."
-			".$strSqlOrder;
+		$strSql =
+			"SELECT FU.ID, U.ID as USER_ID, FU.SHOW_NAME, FU.DESCRIPTION, FU.IP_ADDRESS,
+				FU.REAL_IP_ADDRESS, FU.AVATAR, FU.NUM_POSTS, FU.POINTS as NUM_POINTS,
+				FU.INTERESTS, FU.SUBSC_GROUP_MESSAGE, FU.SUBSC_GET_MY_MESSAGE,
+				FU.LAST_POST, FU.ALLOW_POST, FU.SIGNATURE, FU.RANK_ID,
+				U.EMAIL, U.NAME, U.SECOND_NAME, U.LAST_NAME, U.LOGIN, U.PERSONAL_BIRTHDATE,
+				".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG,
+				".$DB->DateToCharFunction("FU.LAST_VISIT", "FULL")." as LAST_VISIT,
+				".$DB->DateToCharFunction("FU.LAST_VISIT", "SHORT")." as LAST_VISIT_SHORT,
+				".$DB->DateToCharFunction("U.DATE_REGISTER", "SHORT")." as DATE_REGISTER_SHORT,
+				U.PERSONAL_ICQ, U.PERSONAL_WWW, U.PERSONAL_PROFESSION, U.DATE_REGISTER,
+				U.PERSONAL_CITY, U.PERSONAL_COUNTRY, U.PERSONAL_PHOTO,
+				U.PERSONAL_GENDER, FU.POINTS, FU.HIDE_FROM_ONLINE,
+				".$DB->DateToCharFunction("U.PERSONAL_BIRTHDAY", "SHORT")." as PERSONAL_BIRTHDAY ".
+				(array_key_exists("SHOW_ABC", $arFilter) || array_key_exists("sNameTemplate", $arAddParams) ?
+					", \n".self::GetFormattedNameFieldsForSelect(
+						array_merge(
+							$arAddParams,
+							array(
+								"sUserTablePrefix" => "U.",
+								"sForumUserTablePrefix" => "FU.",
+								"sFieldName" => "SHOW_ABC")
+						),
+						false
+					)
+					:
+					""
+				).
+				((isset($arFilter['USER_ID']) || isset($arFilter['@USER_ID'])) ?
+					" FROM b_user U LEFT JOIN b_forum_user FU ON (FU.USER_ID = U.ID)"
+					:
+					" FROM b_forum_user FU LEFT JOIN b_user U ON (FU.USER_ID = U.ID)"
+				).
+				" WHERE 1 = 1 ".$strSqlSearch." \n".
+				$strSqlOrder;
 
 		if (is_array($arAddParams) && (intVal($arAddParams["nTopCount"])>0))
 			$strSql .= " LIMIT 0,".intVal($arAddParams["nTopCount"]);
-
 		if (is_array($arAddParams) && is_set($arAddParams, "bDescPageNumbering") && (intVal($arAddParams["nTopCount"])<=0))
 		{
 			$iCnt = 0;
-			$strSqlCount = "
-				SELECT COUNT('x') as CNT 
-				FROM b_user U 
-				LEFT JOIN b_forum_user FU ON (FU.USER_ID = U.ID) 
-					WHERE 1 = 1 
-					".$strSqlSearch;
+			$strSqlCount =
+				"SELECT COUNT('x') as CNT ".
+				((isset($arFilter['USER_ID']) || isset($arFilter['@USER_ID'])) ?
+					" FROM b_user U LEFT JOIN b_forum_user FU ON (FU.USER_ID = U.ID)"
+					:
+					" FROM b_forum_user FU LEFT JOIN b_user U ON (FU.USER_ID = U.ID)"
+				).
+				" WHERE 1 = 1 ".$strSqlSearch;
 			$db_res = $DB->Query($strSqlCount, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($db_res && ($res = $db_res->Fetch()))
 				$iCnt = $res["CNT"];
-					
+
 			$db_res =  new CDBResult();
 			$db_res->NavQuery($strSql, $iCnt, $arAddParams);
 		}
-		else 
+		else
 		{
 			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
-		
 		return $db_res;
 	}
 
@@ -230,7 +264,14 @@ class CForumUser extends CAllForumUser
 		$tmp = array();
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
 
-		$arMainUserFields = array("LOGIN"=>"S", "NAME"=>"S", "LAST_NAME"=>"S", "PERSONAL_PROFESSION"=>"S", "PERSONAL_WWW"=>"S", "PERSONAL_ICQ"=>"S", "PERSONAL_GENDER"=>"E", "PERSONAL_PHONE"=>"S", "PERSONAL_FAX"=>"S", "PERSONAL_MOBILE"=>"S", "PERSONAL_PAGER"=>"S", "PERSONAL_STREET"=>"S", "PERSONAL_MAILBOX"=>"S", "PERSONAL_CITY"=>"S", "PERSONAL_STATE"=>"S", "PERSONAL_ZIP"=>"S", "PERSONAL_COUNTRY"=>"I", "PERSONAL_NOTES"=>"S", "WORK_COMPANY"=>"S", "WORK_DEPARTMENT"=>"S", "WORK_POSITION"=>"S", "WORK_WWW"=>"S", "WORK_PHONE"=>"S", "WORK_FAX"=>"S", "WORK_PAGER"=>"S", "WORK_STREET"=>"S", "WORK_MAILBOX"=>"S", "WORK_CITY"=>"S", "WORK_STATE"=>"S", "WORK_ZIP"=>"S", "WORK_COUNTRY"=>"I", "WORK_PROFILE"=>"S", "WORK_NOTES"=>"S");
+		$arMainUserFields = array("LOGIN"=>"S", "NAME"=>"S", "LAST_NAME"=>"S", "SECOND_NAME"=>"S",
+			"PERSONAL_PROFESSION"=>"S", "PERSONAL_WWW"=>"S", "PERSONAL_ICQ"=>"S", "PERSONAL_GENDER"=>"E",
+			"PERSONAL_PHONE"=>"S", "PERSONAL_FAX"=>"S", "PERSONAL_MOBILE"=>"S", "PERSONAL_PAGER"=>"S",
+			"PERSONAL_STREET"=>"S", "PERSONAL_MAILBOX"=>"S", "PERSONAL_CITY"=>"S", "PERSONAL_STATE"=>"S",
+			"PERSONAL_ZIP"=>"S", "PERSONAL_COUNTRY"=>"I", "PERSONAL_NOTES"=>"S", "WORK_COMPANY"=>"S",
+			"WORK_DEPARTMENT"=>"S", "WORK_POSITION"=>"S", "WORK_WWW"=>"S", "WORK_PHONE"=>"S", "WORK_FAX"=>"S",
+			"WORK_PAGER"=>"S", "WORK_STREET"=>"S", "WORK_MAILBOX"=>"S", "WORK_CITY"=>"S", "WORK_STATE"=>"S",
+			"WORK_ZIP"=>"S", "WORK_COUNTRY"=>"I", "WORK_PROFILE"=>"S", "WORK_NOTES"=>"S");
 		$arSqlSelectConst = array(
 			"FU.ID" => "FU.ID", 
 			"USER_ID" => "U.ID", 
@@ -252,8 +293,9 @@ class CForumUser extends CAllForumUser
 			"FU.HIDE_FROM_ONLINE" => "FU.HIDE_FROM_ONLINE", 
 			"U.DATE_REGISTER" => "U.DATE_REGISTER", 
 			"U.EMAIL" => "U.EMAIL", 
-			"U.NAME" => "U.NAME", 
-			"U.LAST_NAME" => "U.LAST_NAME", 
+			"U.NAME" => "U.NAME",
+			"U.SECOND_NAME" => "U.SECOND_NAME",
+			"U.LAST_NAME" => "U.LAST_NAME",
 			"U.LOGIN" => "U.LOGIN",
 			"U.PERSONAL_BIRTHDATE" => "U.PERSONAL_BIRTHDATE", 
 			"U.PERSONAL_ICQ" => "U.PERSONAL_ICQ", 
@@ -335,7 +377,7 @@ class CForumUser extends CAllForumUser
 					$arSqlSearch[] = GetFilterQuery("U.".$key, $val);
 					break;
 				case "NAME":
-					$arSqlSearch[] = GetFilterQuery("U.NAME, U.LAST_NAME", $val);
+					$arSqlSearch[] = GetFilterQuery("U.NAME, U.LAST_NAME, U.SECOND_NAME", $val);
 					break;
 				case"SUBSC_NEW_TOPIC_ONLY":
 					$key = "NEW_TOPIC_ONLY";
@@ -458,55 +500,154 @@ class CForumUser extends CAllForumUser
 		return $db_res;
 	}
 
-	function SearchUser($template)
+	function SearchUser($template, $arAddParams = array())
 	{
 		global $DB;
 		$template = $DB->ForSql(str_replace("*", "%", $template));
-		
-		$strSql = "
-			SELECT U.ID, U.NAME, U.LAST_NAME, U.LOGIN, F.SHOW_NAME,
-			CASE
-		         WHEN ((F.SHOW_NAME='Y') AND (LENGTH(TRIM(CONCAT_WS('',U.NAME,U.LAST_NAME)))>0)) THEN trim(CONCAT_WS(' ',U.NAME,U.LAST_NAME))
-		         ELSE U.LOGIN
-         	END AS SHOW_ABC 
-			FROM b_user U 
-				LEFT JOIN b_forum_user F ON(F.USER_ID = U.ID) 
+		$arAddParams = (is_array($arAddParams) ? $arAddParams : array($arAddParams));
+		$arAddParams["sNameTemplate"] = (is_set($arAddParams, "nameTemplate") ? $arAddParams["nameTemplate"] : $arAddParams["sNameTemplate"]);
+		$strSql =
+			"SELECT U.ID, U.NAME, U.SECOND_NAME, U.LAST_NAME, U.LOGIN, F.SHOW_NAME,
+				CASE
+					WHEN (F.SHOW_NAME = 'Y' AND LENGTH(TRIM(CONCAT_WS('',".self::GetNameFieldsForQuery($arAddParams["sNameTemplate"])."))) > 0)
+					THEN TRIM(REPLACE(CONCAT_WS(' ',".self::GetNameFieldsForQuery($arAddParams["sNameTemplate"])."), '  ', ' '))
+					ELSE U.LOGIN
+				END AS SHOW_ABC
+			FROM b_user U
+				LEFT JOIN b_forum_user F ON (F.USER_ID = U.ID)
 			WHERE ";
 		if (substr($template, 0, 1) == '%')
-			$strSql .= "
+			$strSql .=
+			"(
 				(
-					(F.SHOW_NAME='Y') AND (LENGTH(TRIM(CONCAT_WS('',U.NAME,U.LAST_NAME)))>0) AND 
-					(CONCAT_WS(' ',U.NAME, U.LAST_NAME) LIKE '".$template."')
+					F.SHOW_NAME = 'Y'
+					AND
+					LENGTH(TRIM(CONCAT_WS('',U.NAME,U.LAST_NAME))) > 0
+					AND
+					REPLACE(CONCAT_WS(' ',".self::GetNameFieldsForQuery($arAddParams["sNameTemplate"])."), '  ', ' ') LIKE '".$template."'
 				)
 				OR
 				(
 					(
-						(F.SHOW_NAME='N') OR (F.SHOW_NAME='') OR (F.SHOW_NAME IS NULL) OR 
+						F.SHOW_NAME = 'N' OR F.SHOW_NAME = '' OR (F.SHOW_NAME IS NULL)
+						OR
 						(
-							(F.SHOW_NAME='Y') AND (LENGTH(TRIM(CONCAT_WS('',U.NAME,U.LAST_NAME)))<=0) 
+							F.SHOW_NAME = 'Y'
+							AND
+							LENGTH(TRIM(CONCAT_WS('',".self::GetNameFieldsForQuery($arAddParams["sNameTemplate"])."))) <= 0
 						)
 					)
-					AND	U.LOGIN LIKE '".$template."')
-				";
+					AND
+					U.LOGIN LIKE '".$template."'
+				)
+			)";
 		else 
-			$strSql .= "
-				(F.SHOW_NAME='Y' AND LENGTH(U.NAME)>0 AND U.NAME LIKE '".$template."')
-				OR
-				(F.SHOW_NAME='Y' AND LENGTH(U.NAME)<=0 AND LENGTH(U.LAST_NAME)>0 AND U.LAST_NAME LIKE '".$template."')
-				OR
+			$strSql .=
+			"(
+				F.SHOW_NAME = 'Y' AND LENGTH(U.NAME) > 0 AND U.NAME LIKE '".$template."'
+			)
+			OR
+			(
+				F.SHOW_NAME = 'Y' AND LENGTH(U.NAME) <= 0
+				AND
+				LENGTH(U.LAST_NAME) > 0 AND U.LAST_NAME LIKE '".$template."'
+			)
+			OR
+			(
 				(
+					F.SHOW_NAME = 'N' OR F.SHOW_NAME = '' OR (F.SHOW_NAME IS NULL)
+					OR
 					(
-						(F.SHOW_NAME='N') OR (F.SHOW_NAME='') OR (F.SHOW_NAME IS NULL) OR 
-						(
-							(F.SHOW_NAME='Y') AND (LENGTH(TRIM(CONCAT_WS('',U.NAME,U.LAST_NAME)))<=0)
-						)
+						F.SHOW_NAME = 'Y'
+						AND
+						LENGTH(TRIM(CONCAT_WS('',".self::GetNameFieldsForQuery($arAddParams["sNameTemplate"]).")))<=0
 					)
-					AND	U.LOGIN LIKE '".$template."'
 				)
-				";
-		$strSql .= "ORDER BY SHOW_ABC";		
+				AND
+				U.LOGIN LIKE '".$template."'
+			)";
+		$strSql .= "ORDER BY SHOW_ABC";
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		return $dbRes;
+	}
+
+	/**
+	* Converts name template fields from Bitrix name template to SQL query fields
+	*
+	* @param string $sNameTemplate Bitrix name template (ex: #LAST_NAME# #NAME#). Uses site name template if empty @see CSite::GetNameTemplates
+	* @return string (ex: U.LAST_NAME, U.NAME)
+	*/
+	function GetNameFieldsForQuery($sNameTemplate, $userTablePrefix = "U.")
+	{
+		$sNameTemplate = (empty($sNameTemplate) ? CSite::GetDefaultNameFormat() : $sNameTemplate);
+
+		//make sure the data is safe
+		if (!preg_match_all("/(#NAME#)|(#LAST_NAME#)|(#SECOND_NAME#)|(#NAME_SHORT#)|(#SECOND_NAME_SHORT#)|\s|\,/".BX_UTF_PCRE_MODIFIER, $sNameTemplate, $matches))
+			preg_match_all("/(#NAME#)|(#LAST_NAME#)|(#SECOND_NAME#)|(#NAME_SHORT#)|(#SECOND_NAME_SHORT#)|\s|\,/".BX_UTF_PCRE_MODIFIER, CSite::GetDefaultNameFormat(), $matches);
+
+		// Switching spaces to *** is necessary to save original spaces
+		$res = str_replace(
+			array(
+				" ",
+				"#NAME#",
+				"#LAST_NAME#,",
+				"#LAST_NAME#",
+				"#SECOND_NAME#",
+				"#NAME_SHORT#",
+				"#SECOND_NAME_SHORT#",
+				"***"
+			),
+			array(
+				"***",
+				$userTablePrefix."NAME",
+				"IF (LENGTH(TRIM(".$userTablePrefix."LAST_NAME)) <= 0, '', CONCAT(".$userTablePrefix."LAST_NAME, ','))",
+				$userTablePrefix."LAST_NAME",
+				$userTablePrefix."SECOND_NAME", 
+				"IF (LENGTH(TRIM(".$userTablePrefix."NAME)) <= 0,'',CONCAT(SUBSTRING(".$userTablePrefix."NAME,1,1),'.'))", 
+				"IF (LENGTH(TRIM(".$userTablePrefix."SECOND_NAME)) <= 0,'',CONCAT(SUBSTRING(".$userTablePrefix."SECOND_NAME,1,1),'.'))",
+				","
+			),
+			implode("", $matches[0])
+		);
+		return $res;
+	}
+
+	function GetFormattedNameFieldsForSelect($arParams = array(), $bReturnAll = true)
+	{
+		$arParams = (is_array($arParams) ? $arParams : array($arParams));
+		$arParams["sNameTemplate"] = trim($arParams["sNameTemplate"]);
+		$arParams["sUserTablePrefix"] = rtrim((!empty($arParams["sUserTablePrefix"]) ? $arParams["sUserTablePrefix"] : "U"), ".").".";
+		$arParams["sForumUserTablePrefix"] = rtrim((!empty($arParams["sForumUserTablePrefix"]) ? $arParams["sForumUserTablePrefix"] : "FU"), ".").".";
+		$arParams["sFieldName"] = (!empty($arParams["sFieldName"]) ? $arParams["sFieldName"] : "AUTHOR_NAME_FRMT");
+		$arParams["sUserIDFieldName"] = (!empty($arParams["sUserIDFieldName"]) ? $arParams["sUserIDFieldName"] : "F.LAST_POSTER_ID");
+		$res = array(
+			"select" =>
+				"CASE ".
+					" WHEN (".
+						$arParams["sForumUserTablePrefix"]."USER_ID > 0 ".
+						" AND ".
+						$arParams["sForumUserTablePrefix"]."SHOW_NAME = 'Y' ".
+						" AND ".
+						"LENGTH(TRIM(CONCAT_WS('',".
+							CForumUser::GetNameFieldsForQuery(
+								$arParams["sNameTemplate"],
+								$arParams["sUserTablePrefix"])."))) > 0".
+					") ".
+					" THEN TRIM(REPLACE(CONCAT_WS(' ',".
+						CForumUser::GetNameFieldsForQuery(
+							$arParams["sNameTemplate"],
+							$arParams["sUserTablePrefix"])."), '  ', ' '))".
+					" ELSE ".$arParams["sUserTablePrefix"]."LOGIN ".
+				" END AS ".$arParams["sFieldName"],
+			"join" =>
+				"LEFT JOIN b_forum_user ".rtrim($arParams["sForumUserTablePrefix"], ".").
+					" ON (".$arParams["sUserIDFieldName"]."=".$arParams["sForumUserTablePrefix"]."USER_ID) ".
+				"LEFT JOIN b_user ".rtrim($arParams["sUserTablePrefix"], ".").
+					" ON (".$arParams["sUserIDFieldName"]."=".$arParams["sUserTablePrefix"]."ID) "
+		);
+		if ($bReturnAll)
+			return $res;
+		return $res["select"];
 	}
 }
 
@@ -540,31 +681,16 @@ class CForumRank extends CAllForumRank
 
 class CForumStat extends CALLForumStat 
 {
-	function GetListEx($arOrder = Array("ID"=>"ASC"), $arFilter = Array())
+	function GetListEx($arOrder = Array("ID"=>"ASC"), $arFilter = Array(), $arAddParams = array())
 	{
 		global $DB;
 		$arSqlSearch = array();
-		$arSqlSelect = array();
 		$arSqlFrom = array();
-		$arSqlGroup = array();
 		$arSqlOrder = array();
-		$arSql = array(); 
 		$strSqlSearch = "";
-		$strSqlSelect = "";
 		$strSqlFrom = "";
-		$strSqlGroup = "";
 		$strSqlOrder = "";
-		$strSql = "";
 		$arFilter = (is_array($arFilter) ? $arFilter : array());
-		$arSqlSelectConst = array(
-			"FSTAT.USER_ID" => "FSTAT.USER_ID", 
-			"FSTAT.IPADDRES" => "FSTAT.IPADDRES", 
-			"FSTAT.PHPSESSID" => "FSTAT.PHPSESSID", 
-			"LAST_VISIT" => $DB->DateToCharFunction("FSTAT.LAST_VISIT", "FULL"), 
-			"FSTAT.FORUM_ID" => "FSTAT.FORUM_ID",
-			"FSTAT.TOPIC_ID" => "FSTAT.TOPIC_ID"
-		);
-		$arSqlSelect = $arSqlSelectConst;
 
 		foreach ($arFilter as $key => $val)
 		{
@@ -582,8 +708,8 @@ class CForumStat extends CALLForumStat
 						$arSqlSearch[] = ($strNegative=="Y"?" FSTAT.".$key." IS NULL OR NOT ":"")."(FSTAT.".$key." ".$strOperation." ".intVal($val).")";
 					break;
 				case "SITE_ID":
+					$bOrNull = false;
 					if (is_array($val)):
-						$bOrNull = false;
 						$res = array();
 						foreach ($val as $v):
 							$v = trim($v);
@@ -594,7 +720,7 @@ class CForumStat extends CALLForumStat
 						endforeach;
 						$val = (!empty($res) ? implode(", ", $res) : "");
 						$strOperation = (!empty($res) ? "IN" : $strOperation);
-					else: 
+					else:
 						$val = "'".$DB->ForSql($val)."'";
 					endif;
 					if (strlen($val) <= 0)
@@ -626,33 +752,17 @@ class CForumStat extends CALLForumStat
 						$arSqlSearch[] = ($strNegative=="Y"?" FU.".$key." IS NULL OR NOT ":"")."(((FU.".$key." ".$strOperation." '".$DB->ForSql($val)."' ) AND (FSTAT.USER_ID > 0)) OR (FSTAT.USER_ID <= 0))";
 					break;
 				break;
-				case "COUNT_GUEST":
-					$arSqlSelect = array(
-						"FSTAT.USER_ID" => "FSTAT.USER_ID", 
-						"FSTAT.SHOW_NAME" => "FSTAT.SHOW_NAME", 
-						"COUNT_USER" => "COUNT(FSTAT.PHPSESSID) AS COUNT_USER", 
-						"FU.HIDE_FROM_ONLINE" => "FU.HIDE_FROM_ONLINE", 
-					);
-					$arSqlFrom["FU"] = "LEFT JOIN b_forum_user FU ON (FSTAT.USER_ID=FU.USER_ID)";
-					$arSqlGroup["FSTAT.USER_ID"] = "FSTAT.USER_ID";
-					$arSqlGroup["FSTAT.SHOW_NAME"] = "FSTAT.SHOW_NAME";
-					$arSqlGroup["FU.HIDE_FROM_ONLINE"] = "FU.HIDE_FROM_ONLINE";
-					break;
 				case "ACTIVE":
 						$arSqlFrom["U"] = "LEFT JOIN b_user U ON (FSTAT.USER_ID=U.ID)";
 						$arSqlSearch[] = ($strNegative=="Y"?" U.".$key." IS NULL OR NOT ":"")."(FSTAT.USER_ID = 0 OR U.ACTIVE = 'Y')";
 					break;
 			}
 		}
-		if (count($arSqlSearch) > 0)
+		if (!empty($arSqlSearch))
 			$strSqlSearch = " AND ".implode(" AND ", $arSqlSearch)." ";
-		if (count($arSqlSelect) > 0)
-			$strSqlSelect = implode(", ", $arSqlSelect);
-		if (count($arSqlFrom) > 0)
-			$strSqlFrom = implode(" ", $arSqlFrom);
-		if (count($arSqlGroup) > 0)
-			$strSqlGroup = " GROUP BY ".implode(", ", $arSqlGroup);
 
+		if (!empty($arSqlFrom))
+			$strSqlFrom = implode("\n", $arSqlFrom);
 
 		foreach ($arOrder as $by=>$order)
 		{
@@ -662,16 +772,51 @@ class CForumStat extends CALLForumStat
 			if ($by == "USER_ID") $arSqlOrder[] = " FSTAT.USER_ID ".$order." ";
 		}
 
-		DelDuplicateSort($arSqlOrder); 
+		DelDuplicateSort($arSqlOrder);
 		if (count($arSqlOrder) > 0)
 			$strSqlOrder = " ORDER BY ".implode(", ", $arSqlOrder);
 
-		$strSql = "SELECT ".$strSqlSelect."
-			FROM b_forum_stat FSTAT
-			".$strSqlFrom."
-			WHERE 1=1 ".$strSqlSearch."
-			".$strSqlGroup."
-			".$strSqlOrder;
+		$strSql =
+			"SELECT FSTAT.USER_ID, FSTAT.IP_ADDRESS, FSTAT.PHPSESSID, \n".
+			"	".$DB->DateToCharFunction("FSTAT.LAST_VISIT", "FULL")." AS LAST_VISIT, \n".
+			"	FSTAT.FORUM_ID, FSTAT.TOPIC_ID \n".
+			"FROM b_forum_stat FSTAT ".$strSqlFrom. "\n".
+			"WHERE 1=1 ".$strSqlSearch."\n".
+			$strSqlOrder;
+
+		if (is_set($arFilter, "COUNT_GUEST"))
+		{
+			$strSql =
+				"SELECT FST.*, FU.*, FSTAT.IP_ADDRESS, FSTAT.PHPSESSID, \n".
+				"	".$DB->DateToCharFunction("FSTAT.LAST_VISIT", "FULL")." AS LAST_VISIT, \n".
+				"	FSTAT.FORUM_ID, FSTAT.TOPIC_ID, \n".
+				"	U.LOGIN, U.NAME, U.SECOND_NAME, U.LAST_NAME, \n".
+				"	".
+				(!empty($arAddParams["sNameTemplate"]) ?
+					CForumUser::GetFormattedNameFieldsForSelect(
+						array_merge(
+							$arAddParams,
+							array(
+								"sUserTablePrefix" => "U.",
+								"sForumUserTablePrefix" => "FU.",
+								"sFieldName" => "SHOW_NAME")
+						),
+						false
+					) :
+					"FSTAT.SHOW_NAME"
+				)."\n ".
+			" FROM ( ".
+				" SELECT FSTAT.USER_ID, MAX(FSTAT.ID) FST_ID, COUNT(FSTAT.PHPSESSID) COUNT_USER ".
+				" FROM b_forum_stat FSTAT ".
+				$strSqlFrom.
+				" WHERE 1=1 ".$strSqlSearch.
+				" GROUP BY FSTAT.USER_ID".
+			") FST ".
+			"LEFT JOIN b_forum_stat FSTAT ON (FST.FST_ID = FSTAT.ID) ".
+			"LEFT JOIN b_forum_user FU ON (FST.USER_ID = FU.USER_ID) ".
+			"LEFT JOIN b_user U ON (FST.USER_ID = U.ID) ".
+			$strSqlOrder;
+		}
 		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		return $db_res;
 	}

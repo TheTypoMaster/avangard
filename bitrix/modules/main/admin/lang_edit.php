@@ -31,13 +31,15 @@ if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && $isAdmin 
 {
 	$arFields = Array(
 		"ACTIVE"			=> $_REQUEST['ACTIVE'],
-		"SORT"			=> $_REQUEST['SORT'],
-		"DEF"			=> $_REQUEST['DEF'],
-		"NAME"			=> $_REQUEST['NAME'],
+		"SORT"				=> $_REQUEST['SORT'],
+		"DEF"				=> $_REQUEST['DEF'],
+		"NAME"				=> $_REQUEST['NAME'],
 		"FORMAT_DATE"		=> $_REQUEST['FORMAT_DATE'],
 		"FORMAT_DATETIME"	=> $_REQUEST['FORMAT_DATETIME'],
+		"WEEK_START"		=> intval($_REQUEST["WEEK_START"]),
+		"FORMAT_NAME"		=> CSite::GetNameFormatByValue($_REQUEST["FORMAT_NAME"]),
 		"CHARSET"			=> $_REQUEST['CHARSET'],
-		"DIRECTION"		=> $_REQUEST['DIRECTION']
+		"DIRECTION"			=> $_REQUEST['DIRECTION']
 		);
 
 	if($ID<=0)
@@ -68,6 +70,10 @@ if($REQUEST_METHOD=="POST" && (strlen($save)>0 || strlen($apply)>0) && $isAdmin 
 }
 
 $str_ACTIVE="Y";
+$str_WEEK_START = GetMessage('LANG_EDIT_WEEK_START_DEFAULT');
+if (!$str_WEEK_START && $str_WEEK_START !== '0')
+	$str_WEEK_START = 1;
+$str_WEEK_START = intval($str_WEEK_START);
 
 $ID=0;
 if(strlen($COPY_ID)>0)
@@ -81,14 +87,24 @@ elseif(strlen($LID)>0)
 	if($x = $lng->ExtractFields("str_"))
 		$ID=1;
 }
+else
+{
+	//only if new
+	if (empty($str_FORMAT_NAME))
+		$str_FORMAT_NAME = CSite::GetDefaultNameFormat();
+}
+
 
 if($bVarsFromForm)
+{
 	$DB->InitTableVarsForEdit("b_lang", "", "str_");
+	$str_FORMAT_NAME = CSite::GetNameFormatByValue($_POST["FORMAT_NAME"]);
+}
 
 $strTitle = ($ID>0) ? str_replace("#ID#", "$str_LID", GetMessage("EDIT_LANG_TITLE")) : GetMessage("NEW_LANG_TITLE");
 $APPLICATION->SetTitle($strTitle);
 /***************************************************************************
-                               HTML форма
+				HTML form
 ****************************************************************************/
 
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_after.php");
@@ -144,14 +160,14 @@ if($message)
 <?=bitrix_sessid_post()?>
 <input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
 <input type="hidden" name="ID" value="<?echo $ID?>">
-<?if(strlen($COPY_ID)>0):?><input type="hidden" name="COPY_ID" value="<?echo htmlspecialchars($COPY_ID)?>"><?endif?>
+<?if(strlen($COPY_ID)>0):?><input type="hidden" name="COPY_ID" value="<?echo htmlspecialcharsbx($COPY_ID)?>"><?endif?>
 <?
 $tabControl->Begin();
 
 $tabControl->BeginNextTab();
 ?>
-	<tr valign="top">
-		<td width="40%"><span class="required">*</span>ID:</td>
+	<tr class="adm-detail-required-field">
+		<td width="40%">ID:</td>
 		<td width="60%"><?
 			if($ID>0):
 				echo $str_LID;
@@ -161,36 +177,51 @@ $tabControl->BeginNextTab();
 			endif;
 				?></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><label for="active"><?echo GetMessage('ACTIVE')?></label></td>
 		<td><input type="checkbox" name="ACTIVE" id="active" value="Y"<?if($str_ACTIVE=="Y")echo " checked"?>></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><?echo GetMessage('NAME')?></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage('NAME')?></td>
 		<td><input type="text" name="NAME" size="30" maxlength="50" value="<? echo $str_NAME?>"></td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><label for="def"><?echo GetMessage('DEF')?></label></td>
 		<td><input type="checkbox" name="DEF" id="def" value="Y"<?if($str_DEF=="Y")echo " checked"?>></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><?echo GetMessage('SORT')?></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage('SORT')?></td>
 		<td><input type="text" name="SORT" size="10" maxlength="10" value="<? echo $str_SORT?>"></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><? echo GetMessage('FORMAT_DATE')?></td>
+	<tr class="adm-detail-required-field">
+		<td><? echo GetMessage('FORMAT_DATE')?></td>
 		<td><input type="text" name="FORMAT_DATE" size="30" maxlength="50" value="<? echo $str_FORMAT_DATE?>"></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><? echo GetMessage('FORMAT_DATETIME')?></td>
+	<tr class="adm-detail-required-field">
+		<td><? echo GetMessage('FORMAT_DATETIME')?></td>
 		<td><input type="text" name="FORMAT_DATETIME" size="30" maxlength="50" value="<?echo $str_FORMAT_DATETIME?>"></td>
 	</tr>
-	<tr valign="top">
-		<td><span class="required">*</span><? echo GetMessage('CHARSET')?></td>
+	<tr>
+		<td><? echo GetMessage('LANG_EDIT_WEEK_START')?></td>
+		<td><select name="WEEK_START">
+<?
+for ($i = 0; $i < 7; $i++)
+{
+	echo '<option value="'.$i.'"'.($i == $str_WEEK_START ? ' selected="selected"' : '').'>'.GetMessage('DAY_OF_WEEK_' .$i).'</option>';
+}
+?>
+		</select></td>
+	</tr>
+	<tr class="adm-detail-required-field">
+		<td><? echo GetMessage('FORMAT_NAME')?></td>
+		<td><?echo CSite::SelectBoxName("FORMAT_NAME", $str_FORMAT_NAME);?></td>
+	</tr>
+	<tr class="adm-detail-required-field">
+		<td><? echo GetMessage('CHARSET')?></td>
 		<td><input type="text" name="CHARSET" size="30" maxlength="50" value="<?echo $str_CHARSET?>">
 		</td>
 	</tr>
-	<tr valign="top">
+	<tr>
 		<td><?echo GetMessage('DIRECTION')?></td>
 		<td><select name="DIRECTION">
 				<option value="Y"><?=GetMessage('DIRECTION_LTR')?></option>
@@ -203,7 +234,5 @@ $tabControl->End();
 $tabControl->ShowWarnings("form1", $message);
 ?>
 </form>
-<?echo BeginNote();?>
-<span class="required">*</span> - <?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote();?>
+
 <?require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");?>

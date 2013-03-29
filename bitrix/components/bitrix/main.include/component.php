@@ -45,7 +45,7 @@ if (!$bHasPath)
 			$sFileName = substr($APPLICATION->GetCurPage(true), 0, strlen($APPLICATION->GetCurPage(true))-4)."_".$arParams["AREA_FILE_SUFFIX"].".php";
 			$sFileName = substr($sFileName, strlen($sFilePath));
 		}
-		
+
 		$sFilePathTMP = $sFilePath;
 		$bFileFound = $io->FileExists($_SERVER['DOCUMENT_ROOT'].$sFilePath.$sFileName);
 	}
@@ -62,7 +62,7 @@ if (!$bHasPath)
 		{
 			$sFilePath = $APPLICATION->GetCurDir();
 		}
-		
+
 		$sFilePathTMP = $sFilePath;
 		$sFileName = "sect_".$arParams["AREA_FILE_SUFFIX"].".php";
 
@@ -72,16 +72,16 @@ if (!$bHasPath)
 		if (!$bFileFound && $arParams["AREA_FILE_RECURSIVE"] == "Y" && $sFilePath != "/")
 		{
 			$finish = false;
-			
+
 			do
 			{
 				// back one level
 				if (substr($sFilePath, -1) == "/") $sFilePath = substr($sFilePath, 0, -1);
 				$slash_pos = strrpos($sFilePath, "/");
 				$sFilePath = substr($sFilePath, 0, $slash_pos+1);
-				
+
 				$bFileFound = $io->FileExists($_SERVER['DOCUMENT_ROOT'].$sFilePath.$sFileName);
-				
+
 				// if we are on the root - finish
 				$finish = $sFilePath == "/";
 			}
@@ -107,13 +107,13 @@ else
 
 		$arParams['PATH'] = Rel2Abs($sFilePath, $arParams['PATH']);
 	}
-	
+
 	$slash_pos = strrpos($arParams['PATH'], "/");
 	$sFilePath = substr($arParams['PATH'], 0, $slash_pos+1);
 	$sFileName = substr($arParams['PATH'], $slash_pos+1);
 
 	$bFileFound = $io->FileExists($_SERVER['DOCUMENT_ROOT'].$sFilePath.$sFileName);
-	
+
 	$sFilePathTMP = $sFilePath;
 }
 
@@ -128,7 +128,7 @@ if($APPLICATION->GetShowIncludeAreas())
 	if($bCanEdit || $bCanAdd)
 	{
 		$editor = '&site='.SITE_ID.'&back_url='.urlencode($_SERVER['REQUEST_URI']).'&templateID='.urlencode(SITE_TEMPLATE_ID);
-	
+
 		if ($bFileFound)
 		{
 			if ($bCanEdit)
@@ -143,7 +143,8 @@ if($APPLICATION->GetShowIncludeAreas())
 								"PARAMS" => array(
 									'width' => 770,
 									'height' => 570,
-									'resize' => true
+									'resize' => true,
+									"dialog_type" => 'EDITOR'
 								)
 							)
 						),
@@ -172,7 +173,7 @@ if($APPLICATION->GetShowIncludeAreas())
 					),
 				);
 			}
-	
+
 			if ($sFilePath != $sFilePathTMP && $bCanAdd)
 			{
 				$arMenu = array();
@@ -185,7 +186,8 @@ if($APPLICATION->GetShowIncludeAreas())
 								"PARAMS" => array(
 									'width' => 770,
 									'height' => 570,
-									'resize' => true
+									'resize' => true,
+									"dialog_type" => 'EDITOR'
 								)
 							)
 						),
@@ -225,7 +227,8 @@ if($APPLICATION->GetShowIncludeAreas())
 							"PARAMS" => array(
 								'width' => 770,
 								'height' => 570,
-								'resize' => true
+								'resize' => true,
+								"dialog_type" => 'EDITOR'
 							)
 						)
 					),
@@ -254,7 +257,7 @@ if($APPLICATION->GetShowIncludeAreas())
 				),
 			);
 		}
-		
+
 		if (is_array($arIcons) && count($arIcons) > 0)
 		{
 			$this->AddIncludeAreaIcons($arIcons);

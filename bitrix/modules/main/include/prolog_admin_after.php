@@ -10,7 +10,12 @@ if(!defined("BX_ROOT"))
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/init_admin.php");
 
 if (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1)
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/prolog_main_admin.php");
+{
+	if (!defined('BX_AUTH_FORM') || !BX_AUTH_FORM)
+		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/prolog_main_admin.php");
+	else
+		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/prolog_auth_admin.php");
+}
 else
 	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/prolog_jspopup_admin.php");
 

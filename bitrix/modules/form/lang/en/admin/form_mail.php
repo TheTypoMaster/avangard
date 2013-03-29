@@ -27,4 +27,9 @@ $MESS ['FORM_NOT_REGISTERED'] = "not registered";
 $MESS ['FORM_AUTHORIZED'] = "authorized";
 $MESS ['FORM_NOT_AUTHORIZED'] = "not authorized";
 $MESS ['FORM_WEB_FORMS'] = "[web forms]";
+$MESS ['FILE_SIZE_b'] = 'b';
+$MESS ['FILE_SIZE_Kb'] = 'Kb';
+$MESS ['FILE_SIZE_Mb'] = 'Mb';
+$MESS ['FILE_SIZE_Gb'] = 'Gb';
+$MESS ['FILE_SIZE_Tb'] = 'Tb';
 ?>

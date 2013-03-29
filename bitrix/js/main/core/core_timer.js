@@ -72,7 +72,7 @@ BX.CTimer = function(params, index)
 	if (isNaN(this.dt))
 		this.dt = 0;
 
-	this.display = params.display || 'clock'; // other variants - 'simple', 'worktime'
+	this.display = params.display || (BX.isAmPmMode() ? 'clock_am_pm' : 'clock'); // other variants - 'simple', 'worktime'
 
 	this.accuracy = params.accuracy || 60; // default timing acccuracy is 1 minute
 
@@ -97,8 +97,17 @@ BX.CTimer.prototype.Init = function()
 
 	this.container = BX(this.container);
 	this.container_value_fld = this.container.tagName.toUpperCase() == 'INPUT' ? 'value' : 'innerHTML';
-	if (this.container_value_fld == 'value' && this.display == 'clock')
-		this.display = 'simple';
+	if (this.container_value_fld == 'value' && (this.display == 'clock' || this.display == 'clock_am_pm'))
+	{
+		if (this.display == 'clock')
+		{
+			this.display = 'simple';
+		}
+		else if (this.display == 'clock_am_pm')
+		{
+			this.display = 'simple_am_pm';
+		}
+	}
 
 	this.formatValue = this.formatValueHandlers[this.display] ? this.formatValueHandlers[this.display] : this.formatValueHandlers.clock;
 
@@ -172,6 +181,38 @@ BX.CTimer.prototype.formatValueHandlers = {
 				(d + BX.util.str_pad(s, 2, '0', 'left'))
 			);
 	},
+	clock_am_pm: function(h, m, s)
+	{
+		var mt = 'am';
+		var d = '<span class="bx-timer-semicolon">:</span>';
+
+		if (h > 12)
+		{
+			h = h - 12;
+			mt = 'pm';
+		}
+		else if (h == 0)
+		{
+			h = 12;
+			mt = 'am';
+		}
+		else if (h == 12)
+		{
+			mt = 'pm';
+		}
+
+		return h
+			+ d
+			+ (this.accuracy >= 3600
+				? '00'
+				: BX.util.str_pad(m, 2, '0', 'left'))
+			+ (this.accuracy >= 60
+				? ''
+				:
+				(d + BX.util.str_pad(s, 2, '0', 'left'))
+			)
+			+ ' ' + mt;
+	},
 	simple: function(h, m, s)
 	{
 		return BX.util.str_pad(h, 2, '0', 'left')
@@ -185,6 +226,36 @@ BX.CTimer.prototype.formatValueHandlers = {
 				:
 				(':' + BX.util.str_pad(s, 2, '0', 'left'))
 			);
+	},
+	simple_am_pm: function(h, m, s)
+	{
+		var mt = 'am';
+
+		if (h > 12)
+		{
+			h = h - 12;
+			mt = 'pm';
+		}
+		else if (h == 0)
+		{
+			h = 12;
+			mt = 'am';
+		}
+		else if (h == 12)
+		{
+			mt = 'pm';
+		}
+		return h
+			+ ':'
+			+ (this.accuracy >= 3600
+				? '00'
+				: BX.util.str_pad(m, 2, '0', 'left'))
+
+			+ (this.accuracy >= 60
+				? ''
+				:
+				(':' + BX.util.str_pad(s, 2, '0', 'left'))
+			) + ' ' + mt;
 	},
 	worktime: function(h, m, s)
 	{
@@ -247,4 +318,4 @@ function _RunTimer()
 
 	current_moment = null;
 }
-})(window)
+})(window)  

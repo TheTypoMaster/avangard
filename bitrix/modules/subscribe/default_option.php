@@ -3,7 +3,6 @@ $subscribe_default_option = array(
 	"allow_anonymous"=>"Y",
 	"show_auth_links"=>"Y",
 	"subscribe_section"=>"#SITE_DIR#about/",
-	"posting_use_editor"=>"N",
 	"posting_interval"=>"20",
 	"default_from"=>"",
 	"default_to"=>"",

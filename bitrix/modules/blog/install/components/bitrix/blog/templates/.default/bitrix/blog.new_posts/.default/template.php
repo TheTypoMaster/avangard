@@ -76,10 +76,8 @@ foreach($arResult as $arPost)
 	?>	
 	</div>
 	<div class="blog-clear-float"></div>
-
 	<div class="blog-mainpage-title"><a href="<?=$arPost["urlToPost"]?>"><?echo $arPost["TITLE"]; ?></a></div>
 	<div class="blog-mainpage-content">
-
 	<?=$arPost["TEXT_FORMATED"]?>
 	</div>
 	<div class="blog-mainpage-meta">

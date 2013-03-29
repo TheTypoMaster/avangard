@@ -16,4 +16,4 @@ document.write('С 22 по 31 января <b>cкидка<font color="#ff0000"> 20%</font></b>
 document.write('<br />');
 document.write('<font color="#f16522"><b>Спешите приобрести лучшие в своем классе диваны-кровати по ценам акции!</b></font></font>');
 document.write('<br />');
-document.write('<br />');
+document.write('<br />');;   

@@ -10,7 +10,7 @@ $MESS["class_post_err_auto_time"] = "Wrong time format was specified for schedul
 $MESS["class_post_err_status"] = "The issue has an invalid status.";
 $MESS["class_post_err_status2"] = "Illegal change of the issue status.";
 $MESS["class_post_err_status4"] = "Send Error (issue has no recipients).";
-$MESS["class_post_err_att"] = "An error occured during attachement save.";
+$MESS["class_post_err_att"] = "An error occurred during attachment save.";
 $MESS["class_post_err_lock"] = "Database error while trying to lock newsletter issue:";
 $MESS["class_post_err_lock_advice"] = "Please contact the database administrator to obtain permission to run dbms_lock.";
 ?>

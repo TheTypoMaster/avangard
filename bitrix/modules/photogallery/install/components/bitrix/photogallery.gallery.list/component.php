@@ -1,11 +1,8 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
-if (!IsModuleInstalled("photogallery")):
-	ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
-	return 0;
-elseif (!IsModuleInstalled("iblock")):
-	ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
-	return 0;
-endif;
+if (!IsModuleInstalled("photogallery"))
+	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+elseif (!IsModuleInstalled("iblock"))
+	return ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 /********************************************************************
 				Input params
@@ -33,7 +30,7 @@ foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 		$arParams[strToUpper($URL)."_URL"] = $GLOBALS["APPLICATION"]->GetCurPageParam($URL_VALUE,
 			array("PAGE_NAME", "USER_ALIAS", "GALLERY_ID", "ACTION", "AJAX_CALL", "USER_ID", "sessid", "save", "login", "order", "group_by"));
 	$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-	$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+	$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 }
 /***************** ADDITIONAL **************************************/
 	$arParams["ONLY_ONE_GALLERY"] = ($arParams["ONLY_ONE_GALLERY"] == "N" ? "N" : "Y");
@@ -76,9 +73,8 @@ if ($arParams["USER_ID"] > 0)
 	if (!($db_res && $arResult["USER"] = $db_res->GetNext()))
 	{
 		ShowError(GetMessage("P_USER_NOT_FOUND"));
-		if ($arParams["SET_STATUS_404"] == "Y"):
+		if ($arParams["SET_STATUS_404"] == "Y")
 			CHTTP::SetStatus("404 Not Found");
-		endif;
 		return 0;
 	}
 	else
@@ -92,44 +88,48 @@ if ($arParams["USER_ID"] > 0)
 				Main Data
 ********************************************************************/
 $cache = new CPHPCache;
-$cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]."/");
+$cache_path = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]);
+
 /************** PERMISSION *****************************************/
-$cache_id = serialize(array(
+$cache_id = "permission".serialize(array(
 	"USER_GROUP" => $GLOBALS["USER"]->GetGroups(),
-	"IBLOCK_ID" => $arParams["IBLOCK_ID"]));
+	"IBLOCK_ID" => $arParams["IBLOCK_ID"]
+));
 if(($tzOffset = CTimeZone::GetOffset()) <> 0)
 	$cache_id .= "_".$tzOffset;
-$cache_path = $cache_path_main."permission";
-if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path)):
+
+if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
+{
 	$arParams["PERMISSION"] = $cache->GetVars();
-else:
+}
+else
+{
 	CModule::IncludeModule("iblock");
 	$arParams["PERMISSION"] = CIBlock::GetPermission($arParams["IBLOCK_ID"]);
-	if ($arParams["CACHE_TIME"] > 0):
+	if ($arParams["CACHE_TIME"] > 0)
+	{
 		$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
 		$cache->EndDataCache($arParams["PERMISSION"]);
-	endif;
-endif;
+	}
+}
 $arParams["ABS_PERMISSION"] = $arParams["PERMISSION"];
 $arParams["PERMISSION"] = (!empty($arParams["PERMISSION_EXTERNAL"]) ? $arParams["PERMISSION_EXTERNAL"] : $arParams["PERMISSION"]);
-if ("R" <= $arParams["PERMISSION"] && $arParams["PERMISSION"] < "W" && $arParams["BEHAVIOUR"] == "USER" &&
-	$arParams["USER_ID"] == $GLOBALS["USER"]->GetId()):
+if ("R" <= $arParams["PERMISSION"] && $arParams["PERMISSION"] < "W" && $arParams["BEHAVIOUR"] == "USER" && $arParams["USER_ID"] == $GLOBALS["USER"]->GetId())
 	$arParams["PERMISSION"] = "W";
-elseif ($arParams["PERMISSION"] < "R"):
-	ShowError(GetMessage("P_DENIED_ACCESS"));
-	return 0;
-endif;
+elseif ($arParams["PERMISSION"] < "R")
+	return ShowError(GetMessage("P_DENIED_ACCESS"));
+
 /************** GALLERIES ******************************************/
 //PAGENAVIGATION
 $arNavParams = false; $arNavigation = false;
 if ($arParams["PAGE_ELEMENTS"] > 0)
 {
-
 	$arNavParams = array("nPageSize" => $arParams["PAGE_ELEMENTS"], "bShowAll" => false);
 	$arNavigation = CDBResult::GetNavParams($arNavParams);
 }
+
 //CACHE
-$cache_id = serialize(array(
+$cache_id = "gallerylist".serialize(array(
 	"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 	"USER_ID" => $arParams["USER_ID"],
 	"SECTION_FILTER" => $arParams["SECTION_FILTER"],
@@ -138,15 +138,16 @@ $cache_id = serialize(array(
 	"PAGE_NAVIGATION_TEMPLATE" => $arParams["PAGE_NAVIGATION_TEMPLATE"],
 	"PERMISSION" => $arParams["PERMISSION"],
 	"NAV1" => $arNavParams,
-	"NAV2" => $arNavigation));
+	"NAV2" => $arNavigation
+));
 
-$cache_path = $cache_path_main."gallerylist".$arParams["USER_ID"];
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
 	$res = $cache->GetVars();
 	$arResult["GALLERIES"] = $res["GALLERIES"];
 	$arResult["NAV_STRING"] = $res["NAV_STRING"];
 	$arResult["NAV_RESULT"] = $res["NAV_RESULT"];
+	$GLOBALS['NavNum'] = intVal($GLOBALS['NavNum']) + 1;
 }
 else
 {
@@ -155,17 +156,21 @@ else
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"IBLOCK_ACTIVE" => "Y",
 		"ACTIVE" => "Y",
-		"SECTION_ID" => 0);
-	if ($arParams["USER_ID"] > 0):
+		"SECTION_ID" => 0
+	);
+
+	if ($arParams["USER_ID"] > 0)
 		$arFilter["CREATED_BY"] = $arParams["USER_ID"];
-	endif;
-	if (!empty($arParams["SECTION_FILTER"])):
-		if ($arParams["SECTION_FILTER"][">ELEMENTS_CNT"] == 0):
+
+	if (!empty($arParams["SECTION_FILTER"]))
+	{
+		if ($arParams["SECTION_FILTER"][">ELEMENTS_CNT"] == 0)
+		{
 			unset($arParams["SECTION_FILTER"][">ELEMENTS_CNT"]);
 			$arFilter[">UF_GALLERY_SIZE"] = "0";
-		endif;
+		}
 		$arFilter = $arFilter + $arParams["SECTION_FILTER"];
-	endif;
+	}
 
 	$arSelect = array("ID", "CODE", "NAME", "CREATED_BY", "RIGHT_MARGIN", "LEFT_MARGIN", "PICTURE", "UF_GALLERY_SIZE", "UF_DEFAULT",  "UF_GALLERY_RECALC", "UF_DATE", "SOCNET_GROUP_ID");
 	$db_res = CIBlockSection::GetList(
@@ -257,7 +262,7 @@ else
 			$res["LINK"]["DROP"] .= (strpos($res["LINK"]["DROP"], "?") === false ? "?" : "&")."GALLERY_ID=".$res["ID"];
 			foreach ($res["LINK"] as $key => $val):
 				$res["LINK"]["~".$key] = $val;
-				$res["LINK"][$key] = htmlspecialchars($val);
+				$res["LINK"][$key] = htmlspecialcharsbx($val);
 			endforeach;
 			$arResult["GALLERIES"][$res["ID"]] = $res;
 		}
@@ -269,6 +274,7 @@ else
 		endif;
 	}
 }
+
 /********************************************************************
 				/Main Data
 ********************************************************************/
@@ -283,7 +289,7 @@ if ($arParams["PERMISSION"] >= "U")
 	foreach ($arResult["GALLERIES"] as $key => $res)
 	{
 		$arResult["GALLERIES"][$key]["LINK"]["~DROP"] .= "&".bitrix_sessid_get();
-		$arResult["GALLERIES"][$key]["LINK"]["DROP"] = htmlspecialchars($arResult["GALLERIES"][$key]["LINK"]["~DROP"]);
+		$arResult["GALLERIES"][$key]["LINK"]["DROP"] = htmlspecialcharsbx($arResult["GALLERIES"][$key]["LINK"]["~DROP"]);
 	}
 }
 /************** PERMISSION *****************************************/

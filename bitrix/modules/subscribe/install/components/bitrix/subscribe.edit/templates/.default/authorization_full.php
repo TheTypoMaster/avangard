@@ -4,7 +4,7 @@
 //subscription authorization form
 //******************************************
 ?>
-<form action="<?echo $arResult["FORM_ACTION"].($_SERVER["QUERY_STRING"]<>""? "?".htmlspecialchars($_SERVER["QUERY_STRING"]):"")?>" method="post">
+<form action="<?echo $arResult["FORM_ACTION"].($_SERVER["QUERY_STRING"]<>""? "?".htmlspecialcharsbx($_SERVER["QUERY_STRING"]):"")?>" method="post">
 <table width="100%" border="0" cellpadding="0" cellspacing="0" class="data-table">
 <thead><tr><td colspan="2"><?echo GetMessage("subscr_auth_sect_title")?></td></tr></thead>
 <tr valign="top">

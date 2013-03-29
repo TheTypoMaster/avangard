@@ -26,7 +26,10 @@ if(strlen($Reindex)>0 && check_bitrix_sessid())
 	else
 		$NS = unserialize($_REQUEST['NS']);
 
-	$res = CUrlRewriter::ReIndexAll(($NS["stepped"]=="Y"? $NS["max_execution_time"]:0), $NS);
+	if (class_exists("\\Bitrix\\Main\\Application", false))
+		$res = \Bitrix\Main\UrlRewriter::reindexAll(($NS["stepped"]=="Y"? $NS["max_execution_time"]:0), $NS);
+	else
+		$res = CUrlRewriter::ReIndexAll(($NS["stepped"]=="Y"? $NS["max_execution_time"]:0), $NS);
 
 	if(is_array($res)):
 		//$res["STAT"]=$NS["STAT"];
@@ -39,7 +42,7 @@ if(strlen($Reindex)>0 && check_bitrix_sessid())
 			"TYPE"=>"OK",
 		));
 	?>
-		<input type="hidden" id="NS" name="NS" value="<?=htmlspecialchars(serialize($res))?>">
+		<input type="hidden" id="NS" name="NS" value="<?=htmlspecialcharsbx(serialize($res))?>">
 	<?else:
 		CAdminMessage::ShowMessage(array(
 			"MESSAGE"=>GetMessage("MURL_REINDEX_COMPLETE"),
@@ -90,7 +93,7 @@ function DoNext()
 	}
 	if(newNS!=savedNS)
 	{
-		queryString='lang=<?echo htmlspecialchars(LANG)?>';
+		queryString='lang=<?echo htmlspecialcharsbx(LANG)?>';
 		if(savedNS!='start!')
 		{
 			queryString+='&Next=Y';
@@ -145,7 +148,7 @@ function EndReindex()
 
 <div id="reindex_result_div" style="margin:0px"></div>
 
-<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?echo htmlspecialchars(LANG)?>" name="fs1">
+<form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?lang=<?echo htmlspecialcharsbx(LANG)?>" name="fs1">
 <?
 $tabControl->Begin();
 $tabControl->BeginNextTab();
@@ -164,13 +167,13 @@ $tabControl->BeginNextTab();
 	</tr>
 	<tr id="trs" <?if($stepped!="Y") echo " disabled"?>>
 		<td><?echo GetMessage("MURL_REINDEX_STEP")?></td>
-		<td><input type="text" name="max_execution_time" id="max_execution_time" size="3" value="<?echo htmlspecialchars($max_execution_time);?>"  <?if($stepped!="Y") echo " disabled"?>> <?echo GetMessage("MURL_REINDEX_STEP_sec")?></td>
+		<td><input type="text" name="max_execution_time" id="max_execution_time" size="3" value="<?echo htmlspecialcharsbx($max_execution_time);?>"  <?if($stepped!="Y") echo " disabled"?>> <?echo GetMessage("MURL_REINDEX_STEP_sec")?></td>
 	</tr>
 
 <?
 $tabControl->Buttons();
 ?>
-	<input type="button" id="start_button" value="<?echo GetMessage("MURL_REINDEX_REINDEX_BUTTON")?>" OnClick="StartReindex();">
+	<input type="button" id="start_button" value="<?echo GetMessage("MURL_REINDEX_REINDEX_BUTTON")?>" OnClick="StartReindex();" class="adm-btn-save">
 	<input type="button" id="stop_button" value="<?=GetMessage("MURL_REINDEX_STOP")?>" OnClick="StopReindex();" disabled>
 	<input type="button" id="continue_button" value="<?=GetMessage("MURL_REINDEX_CONTINUE")?>" OnClick="ContinueReindex();" disabled>
 <?

@@ -9,7 +9,7 @@ endif;
 // *****************************************************************************************
 if(!function_exists("GetUserName"))
 {
-	function GetUserName($USER_ID)
+	function GetUserName($USER_ID, $nameTemplate = "")
 	{
 		$ar_res = false;
 		if (IntVal($USER_ID)>0)
@@ -30,15 +30,15 @@ if(!function_exists("GetUserName"))
 		$forum_user = CForumUser::GetByUSER_ID($USER_ID);
 		if (($forum_user["SHOW_NAME"]=="Y") && (strlen(trim($ar_res["NAME"]))>0 || strlen(trim($ar_res["LAST_NAME"]))>0))
 		{
-			return trim(htmlspecialcharsex($ar_res["NAME"])." ". htmlspecialcharsex($ar_res["LAST_NAME"]));
+			$nameTemplate = trim(empty($nameTemplate)) ? CSite::GetNameFormat() : $nameTemplate;
+			return trim(CUser::FormatName($nameTemplate, array(	"NAME"			=> htmlspecialcharsEx($ar_res["NAME"]),
+																"LAST_NAME"		=> htmlspecialcharsEx($ar_res["LAST_NAME"]),
+																"SECOND_NAME"	=> htmlspecialcharsEx($ar_res["SECOND_NAME"]))));
 		}
 		else
 			return $f_LOGIN;
 	}
 }
-
-	InitSorting();
-	global $by, $order;
 
 /********************************************************************
 				Input params
@@ -51,9 +51,12 @@ if(!function_exists("GetUserName"))
 	elseif (empty($mode))
 		$mode = "edit";
 	else
-		$mode = htmlspecialchars($mode);
+		$mode = htmlspecialcharsbx($mode);
 	$arParams["UID"] = intVal(empty($arParams["UID"]) ? $_REQUEST["UID"] : $arParams["UID"]);
 	$arParams["FID"] = intVal(empty($arParams["FID"]) ? $_REQUEST["FID"] : $arParams["FID"]);
+/***************** Sorting *****************************************/
+	InitSorting($GLOBALS["APPLICATION"]->GetCurPage()."?PAGE_NAME=pm_list&FID=".$arParams["FID"]);
+	global $by, $order;
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 		"pm_list" => "PAGE_NAME=pm_list&FID=#FID#",
@@ -73,9 +76,11 @@ if(!function_exists("GetUserName"))
 			$arParams["~URL_TEMPLATES_".strToUpper($URL)] = ForumAddPageParams($arParams["URL_TEMPLATES_".strToUpper($URL)], 
 				array("by" => $by, "order" => $order), false, false);
 		}
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
+	$arParams["NAME_TEMPLATE"] = str_replace(array("#NOBR#","#/NOBR#"), "",
+		(!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : CSite::GetDefaultNameFormat()));
 	$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
 	$arParams["EDITOR_CODE_DEFAULT"] = ($arParams["EDITOR_CODE_DEFAULT"] == "Y" ? "Y" : "N");
 	$arParams["AUTOSAVE"] = CForumAutosave::GetInstance();
@@ -89,7 +94,6 @@ if(!function_exists("GetUserName"))
 /********************************************************************
 				/Input params
 ********************************************************************/
-
 $arResult["MESSAGE"] = array();
 if ($mode != "new"):
 	if (!CForumPrivateMessage::CheckPermissions($arParams["MID"])):
@@ -105,13 +109,11 @@ if ($mode != "new"):
 	endif;
 endif;
 
-ForumSetLastVisit();
-
 /********************************************************************
 				Default params
 ********************************************************************/
 $bVarsFromForm = false;
-$arResult["CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_EDIT"], 
+$arResult["CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PM_EDIT"],
 	array("FID" => $arParams["FID"], "MID" => $arParams["MID"], "mode" => $mode, "UID" => $arParams["UID"]));
 $arResult["pm_list"] = CComponentEngine::MakePathFromTemplate(
 	$arParams["URL_TEMPLATES_PM_LIST"], array("FID" => $arParams["FID"]));
@@ -127,12 +129,13 @@ $arResult["OK_MESSAGE"] = "";
 ********************************************************************/
 $action = strToLower($_REQUEST["action"]);
 $arError = array();
-if ($_SERVER['REQUEST_METHOD']=="POST" && !empty($action))
+if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($action))
 {
 	$APPLICATION->ResetException();
 	if (!check_bitrix_sessid()):
 		$arError[] = array("id" => "BAD_SESSID", "text" => GetMessage("F_ERR_SESS_FINISH"));
 	elseif ($action != "save" && $action != "send"):
+
 	elseif ($action == "save" && !CForumPrivateMessage::CheckPermissions($arParams["MID"])):
 		$arError[] = array("id" => "bad_permission","text" => GetMessage("PM_NOT_RIGHT"));
 	elseif ($action == "save"):
@@ -155,10 +158,10 @@ if ($_SERVER['REQUEST_METHOD']=="POST" && !empty($action))
 		}
 	elseif ($action == "send"):
 		$USER_INFO = array();
-		if(strLen($_REQUEST["USER_ID"])>0)
+		if(!empty($_REQUEST["USER_ID"]))
 		{
-			if (intVal($_REQUEST["USER_ID"]) > 0)
-				$USER_INFO = CForumUser::GetByUSER_ID(intval($_REQUEST["USER_ID"]));
+			if (intval($_REQUEST["USER_ID"]) > 0)
+				$USER_INFO = CForumUser::GetByUSER_ID($_REQUEST["USER_ID"]);
 			if (empty($USER_INFO))
 				$USER_INFO = CForumUser::GetByLogin($_REQUEST["USER_ID"]);
 			if (empty($USER_INFO))
@@ -222,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD']=="POST" && !empty($action))
 				$arParams['AUTOSAVE']->Reset();
 			// Clear cache.
 			BXClearCache(true, "/bitrix/forum/user/".$res["RECIPIENT_ID"]."/");
-			$arComponentPath = array("bitrix:forum", "bitrix:forum.menu");
+			$arComponentPath = array("bitrix:forum");
 			foreach ($arComponentPath as $path)
 			{
 				$componentRelativePath = CComponentEngine::MakeComponentPath($path);
@@ -296,13 +299,14 @@ if (($resFolder) && ($resF = $resFolder->GetNext()))
 }
 // *****************************************************************************************
 // Info about current user
-$arResult["CurrUser"]["SHOW_NAME"] = (trim($USER->GetFullName()) <= 0 ? $USER->GetLogin() : $USER->GetFullName());
+$arResult["CurrUser"]["SHOW_NAME"] = (trim($USER->GetFormattedName(false)) <= 0 ? $USER->GetLogin() : $USER->GetFormattedName(false));
 $arResult["ForumPrintSmilesList"] = ForumPrintSmilesList(3, LANGUAGE_ID, $arParams["PATH_TO_SMILE"]);
 $arResult["SMILES"] = CForumSmile::GetByType("S", LANGUAGE_ID);
-$arResult["FolderName"] = ($arParams["FID"] <= $arResult["SystemFolder"]) ? GetMessage("PM_FOLDER_ID_".$arParams["FID"]) : 
-	$arResult["UserFolder"][$arParams["FID"]]["TITLE"];
+$arResult["FolderName"] = ($arParams["FID"] <= $arResult["SystemFolder"]) ?
+	GetMessage("PM_FOLDER_ID_".$arParams["FID"]) : $arResult["UserFolder"][$arParams["FID"]]["TITLE"];
 // *****************************************************************************************
 $arResult["POST_VALUES"] = array();
+
 if (!$bVarsFromForm && ($mode == "edit" || $mode=="reply"))
 {
 	$arResult["POST_VALUES"] = $arResult["MESSAGE"];
@@ -313,7 +317,7 @@ if (!$bVarsFromForm && ($mode == "edit" || $mode=="reply"))
 		$arResult["POST_VALUES"]["POST_SUBJ"] = GetMessage("PM_REPLY").$arResult["POST_VALUES"]["POST_SUBJ"];
 		$arResult["POST_VALUES"]["POST_MESSAGE"] = "[QUOTE]".$arResult["POST_VALUES"]["POST_MESSAGE"]."[/QUOTE]";
 		$arResult["POST_VALUES"]["USER_ID"] = $arResult["POST_VALUES"]["AUTHOR_ID"];
-		$arResult["POST_VALUES"]["USER_LOGIN"] = htmlspecialcharsEx(GetUserName($arResult["POST_VALUES"]["USER_ID"]));
+		$arResult["POST_VALUES"]["USER_LOGIN"] = htmlspecialcharsEx(GetUserName($arResult["POST_VALUES"]["USER_ID"], $arParams["NAME_TEMPLATE"]));
 	}
 }
 elseif ($bVarsFromForm)
@@ -330,7 +334,10 @@ elseif ($arParams["UID"] > 0)
 
 if (intVal($arResult["POST_VALUES"]["USER_ID"]) > 0)
 {
-	$db_res = CForumUser::GetList(array(), array("USER_ID" => $arResult["POST_VALUES"]["USER_ID"], "SHOW_ABC" => ""));
+	$db_res = CForumUser::GetList(
+		array(),
+		array("USER_ID" => $arResult["POST_VALUES"]["USER_ID"], "SHOW_ABC" => ""),
+		array("sNameTemplate" => $arParams["NAME_TEMPLATE"]));
 	if ($db_res && ($res = $db_res->GetNext()))
 	{
 		$arResult["POST_VALUES"]["SHOW_NAME"] = array(

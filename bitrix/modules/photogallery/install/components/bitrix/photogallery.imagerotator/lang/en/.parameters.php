@@ -48,4 +48,5 @@ $MESS["P_IR_TR_FLASH"] = "Flash";
 $MESS["P_IR_TR_FLUIDS"] = "Fluids";
 $MESS["P_IR_TR_LINES"] = "Lines";
 $MESS["P_IR_TR_SLOWFADE"] = "Slow fade out";
+$MESS["P_IR_SHUFFLE"] = "Shuffle items";
 ?>

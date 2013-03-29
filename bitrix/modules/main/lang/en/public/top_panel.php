@@ -38,7 +38,7 @@ $MESS["top_panel_access"] = "Access";
 $MESS["top_panel_del_page"] = "Delete Current Page";
 $MESS["top_panel_del"] = "Delete";
 $MESS["top_panel_templ_site_css"] = "Edit Site Styles";
-$MESS["top_panel_templ_site_css_title"] = "Edit main stite styles (styles.css)";
+$MESS["top_panel_templ_site_css_title"] = "Edit main site styles (styles.css)";
 $MESS["top_panel_templ_templ_css"] = "Edit Template Styles";
 $MESS["top_panel_templ_templ_css_title"] = "Edit template styles (template_styles.css)";
 $MESS["top_panel_templ_edit"] = "Edit Template";
@@ -164,4 +164,5 @@ $MESS["MTP_SHORT_URI_LIST"] = "URL's";
 $MESS["MTP_SHORT_URI_LIST_ALT"] = "Shows all short URL's";
 $MESS["MTP_SHORT_URI_HINT"] = "Short URL";
 $MESS["MTP_SHORT_URI_HINT_ALT"] = "Configure current page's short URL";
+$MESS["top_panel_notif_block_title"] = "View notifications";
 ?>

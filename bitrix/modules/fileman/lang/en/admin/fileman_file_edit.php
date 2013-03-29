@@ -31,4 +31,5 @@ $MESS["FILEMAN_FILE_DELETE_CONFIRM"] = "Do you really want to delete file?";
 $MESS["FILEMAN_FILE_EDIT"] = "Edit";
 $MESS["FILEMAN_FILE_TRANS_LINKED"] = "Use titles for file names: Enabled";
 $MESS["FILEMAN_FILE_TRANS_UNLINKED"] = "Use titles for file names: Disabled";
+$MESS["FILEMAN_APPLY_PROCESS"] = "Apply changes";
 ?>

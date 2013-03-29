@@ -1,7 +1,7 @@
 <?
 $MESS ['VOTE_SAVE'] = "Сохранить";
 $MESS ['VOTE_RESET'] = "Сбросить";
-$MESS ['VOTE_USE_HTML_EDIT'] = "Использовать HTML редактор:";
+$MESS ['VOTE_USE_HTML_EDIT'] = "Использовать HTML-редактор:";
 $MESS ['VOTE_TEMPLATE_VOTES'] = "Путь к шаблонам показа форм опросов:";
 $MESS ['VOTE_TEMPLATE_RESULTS_VOTE'] = "Путь к шаблонам показа результатов опроса:";
 $MESS ['VOTE_TEMPLATE_RESULTS_QUESTION'] = "Путь к шаблонам показа результатов вопроса:";

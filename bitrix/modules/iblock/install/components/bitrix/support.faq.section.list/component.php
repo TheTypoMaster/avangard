@@ -72,7 +72,7 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 					$arResult['SECTIONS'][$arResInc['ID']]['REAL_DEPTH'] = $arResInc['DEPTH_LEVEL']-$tmpParentDepth;
 
 					//detail url
-					$arResult['SECTIONS'][$arResInc['ID']]['SECTION_PAGE_URL'] = htmlspecialchars(str_replace(
+					$arResult['SECTIONS'][$arResInc['ID']]['SECTION_PAGE_URL'] = htmlspecialcharsbx(str_replace(
 						array("#SERVER_NAME#", "#SITE_DIR#", "#IBLOCK_ID#", "#SECTION_ID#", "#ELEMENT_ID#"),
 						array(SITE_SERVER_NAME, SITE_DIR, $arParams["IBLOCK_ID"], $arResInc["ID"], ""),
 						(strlen($arParams["SECTION_URL"])>0?$arParams["SECTION_URL"]:$arResInc["SECTION_PAGE_URL"])
@@ -81,7 +81,7 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 				}
 			}
 			//detail url
-			$arResult['SECTIONS'][$arRes['ID']]['SECTION_PAGE_URL'] = htmlspecialchars(str_replace(
+			$arResult['SECTIONS'][$arRes['ID']]['SECTION_PAGE_URL'] = htmlspecialcharsbx(str_replace(
 				array("#SERVER_NAME#", "#SITE_DIR#", "#IBLOCK_ID#", "#SECTION_ID#", "#ELEMENT_ID#"),
 				array(SITE_SERVER_NAME, SITE_DIR, $arParams["IBLOCK_ID"], $arRes["ID"], ""),
 				(strlen($arParams["SECTION_URL"])>0?$arParams["SECTION_URL"]:$arRes["SECTION_PAGE_URL"])

@@ -4,18 +4,17 @@
 		function GetUniqueID()
 		{
 			static $arID = array();
-			
+
 			$iUniq = rand();
-			
 			if (in_array($iUniq, $arID))
 				$iUniq = GetUniqueID();
-			else 
+			else
 				$arID[] = $iUniq;
 
 			return $iUniq;
 		}
 	}
-	
+
 	$arResult["data"] = $arParams["~DATA"];
 	$arResult["head"] = $arParams["~HEAD"];
 	$arResult["id"] = "id_".GetUniqueID();

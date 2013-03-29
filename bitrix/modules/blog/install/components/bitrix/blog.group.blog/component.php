@@ -49,15 +49,15 @@ if(strLen($arParams["POST_VAR"])<=0)
 	
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
 if(strlen($arParams["PATH_TO_BLOG"])<=0)
-	$arParams["PATH_TO_BLOG"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
 if(strlen($arParams["PATH_TO_POST"])<=0)
-	$arParams["PATH_TO_POST"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
+	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if(strlen($arParams["PATH_TO_USER"])<=0)
-	$arParams["PATH_TO_USER"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 
 if(empty($arParams["GROUP_ID"]) || (!empty($arParams["GROUP_ID"]) && in_array($arParams["ID"], $arParams["GROUP_ID"])) || $bShowAll)
@@ -111,6 +111,8 @@ if(empty($arParams["GROUP_ID"]) || (!empty($arParams["GROUP_ID"]) && in_array($a
 				$arSelectFields[] = "SOCNET_BLOG_READ";
 				$arFilter["USE_SOCNET"] = "Y";
 			}
+			if($arParams["SHOW_BLOG_WITHOUT_POSTS"] != "Y")
+				$arFilter[">LAST_POST_ID"] = 0;
 
 			$dbBlog = CBlog::GetList(
 					$SORT,
@@ -123,36 +125,24 @@ if(empty($arParams["GROUP_ID"]) || (!empty($arParams["GROUP_ID"]) && in_array($a
 			$arResult["BLOG"] = Array();
 			while($arBlog = $dbBlog->GetNext())
 			{
-				if(IntVal($arBlog["SOCNET_GROUP_ID"]) > 0)
-				{
-					$arBlog["urlToPost"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_BLOG_POST"], array("blog" => $arBlog["URL"], "post_id"=>$arBlog["LAST_POST_ID"], "group_id" => $arBlog["SOCNET_GROUP_ID"]));
-					$arBlog["urlToBlog"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_BLOG"], array("blog" => $arBlog["URL"], "group_id" => $arBlog["SOCNET_GROUP_ID"]));
-				}
-				else
-				{
-					$arBlog["urlToPost"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("blog" => $arBlog["URL"], "post_id"=>$arBlog["LAST_POST_ID"], "user_id" => $arBlog["OWNER_ID"]));
-					$arBlog["urlToBlog"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("blog" => $arBlog["URL"], "user_id" => $arBlog["OWNER_ID"]));
-				}
-				
-				//$arBlog["urlToBlog"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("blog" => $arBlog["URL"]));
-				//$arBlog["urlToPost"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("blog" => $arBlog["URL"], "post_id"=>$arBlog["LAST_POST_ID"]));
-				if(IntVal($arBlog["OWNER_ID"]) > 0)
-				{
-					$arBlog["urlToAuthor"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arBlog["OWNER_ID"]));
-					$arBlog["AuthorName"] = CBlogUser::GetUserName($arBlog["BLOG_USER_ALIAS"], $arBlog["OWNER_NAME"], $arBlog["OWNER_LAST_NAME"], $arBlog["OWNER_LOGIN"]);
-					$arBlog["BLOG_USER_AVATAR_ARRAY"] = CFile::GetFileArray($arBlog["BLOG_USER_AVATAR"]);
-					if ($arBlog["BLOG_USER_AVATAR_ARRAY"] !== false)
-					{
-						$arBlog["Avatar_resized"] = CFile::ResizeImageGet(
-									$arBlog["BLOG_USER_AVATAR_ARRAY"],
-									array("width" => 100, "height" => 100),
-									BX_RESIZE_IMAGE_EXACT,
-									false
-								);
+				$arBlog["urlToPost"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_POST"], array("blog" => $arBlog["URL"], "post_id"=>$arBlog["LAST_POST_ID"], "user_id" => $arBlog["OWNER_ID"]));
+				$arBlog["urlToBlog"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("blog" => $arBlog["URL"], "user_id" => $arBlog["OWNER_ID"]));
 
-						$arBlog["BLOG_USER_AVATAR_IMG"] = CFile::ShowImage($arBlog["Avatar_resized"]["src"], 100, 100, 'align="right"'); 
-					}
+				$arBlog["urlToAuthor"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arBlog["OWNER_ID"]));
+				$arBlog["AuthorName"] = CBlogUser::GetUserName($arBlog["BLOG_USER_ALIAS"], $arBlog["OWNER_NAME"], $arBlog["OWNER_LAST_NAME"], $arBlog["OWNER_LOGIN"]);
+				$arBlog["BLOG_USER_AVATAR_ARRAY"] = CFile::GetFileArray($arBlog["BLOG_USER_AVATAR"]);
+				if ($arBlog["BLOG_USER_AVATAR_ARRAY"] !== false)
+				{
+					$arBlog["Avatar_resized"] = CFile::ResizeImageGet(
+								$arBlog["BLOG_USER_AVATAR_ARRAY"],
+								array("width" => 100, "height" => 100),
+								BX_RESIZE_IMAGE_EXACT,
+								false
+							);
+
+					$arBlog["BLOG_USER_AVATAR_IMG"] = CFile::ShowImage($arBlog["Avatar_resized"]["src"], 100, 100, 'align="right"'); 
 				}
+
 				$arBlog["LAST_POST_DATE_FORMATED"] = FormatDate($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($arBlog["LAST_POST_DATE"], CSite::GetDateFormat("FULL")));
 				$arResult["BLOG"][] = $arBlog;
 			}

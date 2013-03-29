@@ -14,22 +14,23 @@ $strRedirect = BX_ROOT."/admin/user_edit.php?lang=".LANG;
 
 ClearVars();
 
-if (!($USER->CanDoOperation('view_own_profile') || $USER->CanDoOperation('edit_own_profile') || $USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('view_all_users')))
+$canViewUserList = ($USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('view_all_users') || $USER->CanDoOperation('edit_all_users') || $USER->CanDoOperation('edit_subordinate_users'));
+
+if(!($USER->CanDoOperation('view_own_profile') || $USER->CanDoOperation('edit_own_profile') || $canViewUserList))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+
+if($USER->CanDoOperation('edit_own_profile') && !$canViewUserList)
+{
+	$ID = $USER->GetID();
+	if(intval($ID) <= 0)
+		$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+	$COPY_ID = 0;
+}
+
+IncludeModuleLangFile(__FILE__);
 
 $PROPERTY_ID = "USER";
 
-if($USER->CanDoOperation('edit_own_profile') && !($USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('view_all_users') || $USER->CanDoOperation('edit_all_users') || $USER->CanDoOperation('edit_subordinate_users')))
-{
-	$ID = $USER->GetID();
-	if (intval($ID)<=0) $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
-	$COPY_ID = 0;
-}
-IncludeModuleLangFile(__FILE__);
-
-/***************************************************************************
-			GET | POST handle
-****************************************************************************/
 $message = null;
 $strError = '';
 $res = true;
@@ -119,7 +120,17 @@ if(
 
 $tabControl = new CAdminForm("user_edit", $aTabs);
 
-if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"]<>'' || $_REQUEST["apply"]<>'' || $_REQUEST["Update"]=="Y") && $editable && check_bitrix_sessid())
+if(
+	$_SERVER["REQUEST_METHOD"]=="POST"
+	&& (
+		$_REQUEST["save"]<>''
+		|| $_REQUEST["apply"]<>''
+		|| $_REQUEST["Update"]=="Y"
+		|| $_REQUEST["save_and_add"]<>''
+	)
+	&& $editable
+	&& check_bitrix_sessid()
+)
 {
 	if(COption::GetOptionString('main', 'use_encrypted_auth', 'N') == 'Y')
 	{
@@ -135,33 +146,33 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"]<>'' || $_REQUEST["ap
 				$strError .= GetMessage("main_profile_decode_err", array("#ERRCODE#"=>$errno)).'<br />';
 		}
 	}
-	
+
 	if($strError == '')
 	{
 		$user = new CUser;
-	
+
 		if ($ID=="1" && $COPY_ID<=0)
 			$ACTIVE = "Y";
-	
+
 		$arPERSONAL_PHOTO = $_FILES["PERSONAL_PHOTO"];
 		$arWORK_LOGO = $_FILES["WORK_LOGO"];
-	
+
 		$arUser = false;
 		if($ID>0)
 		{
 			$dbUser = CUser::GetById($ID);
 			$arUser = $dbUser->Fetch();
 		}
-	
+
 		if($arUser)
 		{
 			$arPERSONAL_PHOTO["old_file"] = $arUser["PERSONAL_PHOTO"];
 			$arPERSONAL_PHOTO["del"] = $_POST["PERSONAL_PHOTO_del"];
-	
+
 			$arWORK_LOGO["old_file"] = $arUser["WORK_LOGO"];
 			$arWORK_LOGO["del"] = $_POST["WORK_LOGO_del"];
 		}
-	
+
 		$arFields = Array(
 			"NAME"					=> $_POST["NAME"],
 			"LAST_NAME"				=> $_POST["LAST_NAME"],
@@ -203,20 +214,20 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"]<>'' || $_REQUEST["ap
 			"WORK_NOTES"			=> $_POST["WORK_NOTES"],
 			"AUTO_TIME_ZONE"		=> ($_POST["AUTO_TIME_ZONE"] == "Y" || $_POST["AUTO_TIME_ZONE"] == "N"? $_POST["AUTO_TIME_ZONE"] : ""),
 		);
-	
+
 		if(isset($_POST["TIME_ZONE"]))
 			$arFields["TIME_ZONE"] = $_POST["TIME_ZONE"];
-	
+
 		if($USER->CanDoOperation('edit_all_users') || $USER->CanDoOperation('edit_subordinate_users'))
 		{
 			if(strlen($LID)>0)
 				$arFields["LID"] = $LID;
-	
+
 			if(is_set($_REQUEST, 'EXTERNAL_AUTH_ID'))
 				$arFields['EXTERNAL_AUTH_ID'] = $EXTERNAL_AUTH_ID;
-	
+
 			$arFields["ACTIVE"]=$ACTIVE;
-	
+
 			if($showGroupTabs && isset($_REQUEST["GROUP_ID_NUMBER"]))
 			{
 				$GROUP_ID_NUMBER = IntVal($GROUP_ID_NUMBER);
@@ -227,20 +238,20 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"]<>'' || $_REQUEST["ap
 					if (${"GROUP_ID_ACT_".$i} == "Y")
 					{
 						$gr_id = IntVal(${"GROUP_ID_".$i});
-	
+
 						if($gr_id == 1 && !$USER->IsAdmin())
 							continue;
-	
+
 						if ($USER->CanDoOperation('edit_subordinate_users') && !$USER->CanDoOperation('edit_all_users') && !in_array($gr_id, $arUserSubordinateGroups))
 							continue;
-	
+
 						$ind++;
 						$GROUP_ID[$ind]["GROUP_ID"] = $gr_id;
 						$GROUP_ID[$ind]["DATE_ACTIVE_FROM"] = ${"GROUP_ID_FROM_".$i};
 						$GROUP_ID[$ind]["DATE_ACTIVE_TO"] = ${"GROUP_ID_TO_".$i};
 					}
 				}
-	
+
 				if ($ID == "1" && $COPY_ID<=0)
 				{
 					$ind++;
@@ -248,20 +259,20 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"]<>'' || $_REQUEST["ap
 					$GROUP_ID[$ind]["DATE_ACTIVE_FROM"] = false;
 					$GROUP_ID[$ind]["DATE_ACTIVE_TO"] = false;
 				}
-	
+
 				$arFields["GROUP_ID"]=$GROUP_ID;
 			}
-	
+
 			if (($editable && $ID!=$USER->GetID()) || $USER->IsAdmin())
 				$arFields["ADMIN_NOTES"]=$ADMIN_NOTES;
 		}
-	
+
 		if(strlen($NEW_PASSWORD) > 0)
 		{
 			$arFields["PASSWORD"] = $NEW_PASSWORD;
 			$arFields["CONFIRM_PASSWORD"] = $NEW_PASSWORD_CONFIRM;
 		}
-	
+
 		$USER_FIELD_MANAGER->EditFormAddFields($PROPERTY_ID, $arFields);
 		if($ID>0 && $COPY_ID<=0)
 		{
@@ -279,7 +290,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"]<>'' || $_REQUEST["ap
 			$new="Y";
 		}
 		if ($USER->CanDoOperation('edit_ratings') && ($selfEdit || $ID!=$USER->GetID()) && is_array($_POST['RATING_BONUS']))
-		{			
+		{
 			foreach ($_POST['RATING_BONUS'] as $ratingId => $ratingBonus)
 			{
 				$arParam = array(
@@ -290,7 +301,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"]<>'' || $_REQUEST["ap
 				CRatings::UpdateRatingUserBonus($arParam);
 			}
 		}
-	
+
 		$strError .= $user->LAST_ERROR;
 		if ($GLOBALS['APPLICATION']->GetException())
 		{
@@ -319,7 +330,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"]<>'' || $_REQUEST["ap
 							if ($MODULE_RIGHT>="R")
 							{
 								include($ofile);
-								if(!${$mdir."_res"}) 
+								if(!${$mdir."_res"})
 								{
 									$res = false;
 									if($GLOBALS['APPLICATION']->GetException())
@@ -361,6 +372,8 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"]<>'' || $_REQUEST["ap
 					LocalRedirect($strRedirect_admin);
 				elseif(strlen($apply)>0)
 					LocalRedirect($strRedirect."&ID=".$ID."&".$tabControl->ActiveTabParam());
+				elseif(strlen($save_and_add)>0)
+					LocalRedirect($strRedirect."&ID=0&".$tabControl->ActiveTabParam());
 			}
 			elseif($new=="Y")
 				LocalRedirect($strRedirect."&ID=".$ID."&".$tabControl->ActiveTabParam());
@@ -423,7 +436,7 @@ else
 require_once ($DOCUMENT_ROOT.BX_ROOT."/modules/main/include/prolog_admin_after.php");
 
 $aMenu = array();
-if($USER->CanDoOperation('view_all_users'))
+if($canViewUserList)
 {
 	$aMenu[] = array(
 		"TEXT"	=> GetMessage("RECORD_LIST"),
@@ -446,7 +459,7 @@ if($USER->CanDoOperation('edit_all_users') || $USER->CanDoOperation('edit_subord
 		);
 		$aMenu[] = array(
 			"TEXT"	=> GetMessage("MAIN_COPY_RECORD"),
-			"LINK"	=> "/bitrix/admin/user_edit.php?lang=".LANGUAGE_ID.htmlspecialchars("&COPY_ID=").$ID,
+			"LINK"	=> "/bitrix/admin/user_edit.php?lang=".LANGUAGE_ID.htmlspecialcharsbx("&COPY_ID=").$ID,
 			"ICON"	=> "btn_copy",
 			"TITLE"	=> GetMessage("MAIN_COPY_RECORD_TITLE"),
 		);
@@ -465,14 +478,6 @@ if($USER->CanDoOperation('edit_all_users') || $USER->CanDoOperation('edit_subord
 
 if(!empty($aMenu))
 	$aMenu[] = array("SEPARATOR"=>"Y");
-$link = DeleteParam(array("mode"));
-$link = $GLOBALS["APPLICATION"]->GetCurPage()."?mode=settings".($link <> ""? "&".$link:"");
-$aMenu[] = array(
-	"TEXT"=>GetMessage("user_edit_form_settings"),
-	"TITLE"=>GetMessage("user_edit_form_settings_title"),
-	"LINK"=>"javascript:".$tabControl->GetName().".ShowSettings('".htmlspecialchars(CUtil::addslashes($link))."')",
-	"ICON"=>"btn_settings",
-);
 
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
@@ -557,9 +562,9 @@ if(!CMain::IsHTTPS() && COption::GetOptionString('main', 'use_encrypted_auth', '
 	}
 }
 ?>
-	<tr id="bx_pass_row" style="display:<?=($str_EXTERNAL_AUTH_ID <> ''? 'none':'')?>;">
-		<td><?if($ID<=0 || $COPY_ID>0):?><span class="required">*</span><?endif?><?echo GetMessage('NEW_PASSWORD_REQ')?><sup><span class="required">1</span></sup>:</td>
-		<td><input type="password" name="NEW_PASSWORD" size="30" maxlength="50" value="<? echo htmlspecialchars($NEW_PASSWORD) ?>" autocomplete="off" style="vertical-align:middle;">
+	<tr id="bx_pass_row" style="display:<?=($str_EXTERNAL_AUTH_ID <> ''? 'none':'')?>;"<?if($ID<=0 || $COPY_ID>0):?> class="adm-detail-required-field"<?endif?>>
+		<td><?echo GetMessage('NEW_PASSWORD_REQ')?>:<sup><span class="required">1</span></sup></td>
+		<td><input type="password" name="NEW_PASSWORD" size="30" maxlength="50" value="<? echo htmlspecialcharsbx($NEW_PASSWORD) ?>" autocomplete="off" style="vertical-align:middle;">
 <?if($bSecure):?>
 				<span class="bx-auth-secure" id="bx_auth_secure" title="<?echo GetMessage("AUTH_SECURE_NOTE")?>" style="display:none">
 					<div class="bx-auth-secure-icon"></div>
@@ -575,9 +580,9 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 <?endif?>
 		</td>
 	</tr>
-	<tr id="bx_pass_confirm_row" style="display:<?=($str_EXTERNAL_AUTH_ID <> ''? 'none':'')?>;">
-		<td><?if($ID<=0 || $COPY_ID>0):?><span class="required">*</span><?endif?><?echo GetMessage('NEW_PASSWORD_CONFIRM')?></td>
-		<td><input type="password" name="NEW_PASSWORD_CONFIRM" size="30" maxlength="50" value="<? echo htmlspecialchars($NEW_PASSWORD_CONFIRM) ?>" autocomplete="off"></td>
+	<tr id="bx_pass_confirm_row" style="display:<?=($str_EXTERNAL_AUTH_ID <> ''? 'none':'')?>;"<?if($ID<=0 || $COPY_ID>0):?> class="adm-detail-required-field"<?endif?>>
+		<td><?echo GetMessage('NEW_PASSWORD_CONFIRM')?></td>
+		<td><input type="password" name="NEW_PASSWORD_CONFIRM" size="30" maxlength="50" value="<? echo htmlspecialcharsbx($NEW_PASSWORD_CONFIRM) ?>" autocomplete="off"></td>
 	</tr>
 <?
 $tabControl->EndCustomField("PASSWORD");
@@ -620,7 +625,7 @@ if($USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('vie
 	<tr>
 		<td><?echo $tabControl->GetCustomLabelHTML()?></td>
 		<?if(!$canSelfEdit) $dis = " disabled"?>
-		<td><?=CSite::SelectBox("LID", $str_LID, "", "",$dis);?></td>
+		<td><?=CSite::SelectBox("LID", $str_LID, "", "", "style=\"width:220px\"".$dis);?></td>
 	</tr>
 <?
 	$tabControl->EndCustomField("LID", '<input type="hidden" name="LID" value="'.$str_LID.'">');
@@ -640,13 +645,12 @@ if($showGroupTabs):
 	$tabControl->BeginNextFormTab();
 	$tabControl->BeginCustomField("GROUP_ID", GetMessage("user_edit_form_groups"));
 ?>
-	<tr valign="top">
-		<td colspan="2" align="center"><table border="0" cellpadding="0" cellspacing="0" align="center">
-			<tr>
-				<td width="0%" nowrap colspan="2" align="center">&nbsp;</td>
-				<td width="0%" nowrap colspan="2" style="padding-left:10px"><?=GetMessage('TBL_GROUP_DATE')?> (<?=FORMAT_DATETIME?>)</td>
-				<td nowrap align="center">&nbsp;</td>
-				<td nowrap align="center">&nbsp;</td>
+	<tr>
+		<td colspan="2" align="center">
+			<table border="0" cellpadding="0" cellspacing="0" class="internal" style="width:80%;">
+			<tr class="heading">
+				<td colspan="2"><?echo GetMessage("TBL_GROUP")?></td>
+				<td><?=GetMessage('TBL_GROUP_DATE')?></td>
 			</tr>
 			<?
 			$ind = -1;
@@ -660,22 +664,18 @@ if($showGroupTabs):
 				$ind++;
 				?>
 				<tr>
-					<td width="0%" nowrap>
+					<td>
 						<input type="hidden" name="GROUP_ID_<?=$ind?>" value="<?=$arGroups["ID"]?>" /><input type="checkbox" name="GROUP_ID_ACT_<?=$ind?>" id="GROUP_ID_ACT_ID_<?=$ind?>" value="Y"<?
 						if (array_key_exists($arGroups["ID"], $str_GROUP_ID))
 							echo " checked=\"checked\"";
 						?> />
 					</td>
-					<td width="0%" nowrap>
-						<label for="GROUP_ID_ACT_ID_<?= $ind ?>"><?=htmlspecialchars($arGroups["NAME"])?> [<a href="/bitrix/admin/group_edit.php?ID=<?=$arGroups["ID"]?>&lang=<?=LANGUAGE_ID?>" title="<?=GetMessage("MAIN_VIEW_GROUP")?>"><?echo intval($arGroups["ID"])?></a>]</label>
+					<td>
+						<label for="GROUP_ID_ACT_ID_<?= $ind ?>"><?=htmlspecialcharsbx($arGroups["NAME"])?> [<a href="/bitrix/admin/group_edit.php?ID=<?=$arGroups["ID"]?>&lang=<?=LANGUAGE_ID?>" title="<?=GetMessage("MAIN_VIEW_GROUP")?>"><?echo intval($arGroups["ID"])?></a>]</label>
 					</td>
-					<td width="0%" nowrap align="center" style="padding-right:10px; padding-left:10px">
-						<?= GetMessage('USER_GROUP_DATE_FROM')?>
-						<?= CalendarDate("GROUP_ID_FROM_".$ind, (array_key_exists($arGroups["ID"], $str_GROUP_ID) ? htmlspecialchars($str_GROUP_ID[$arGroups["ID"]]["DATE_ACTIVE_FROM"]) : ""), $tabControl->GetFormName(), "10")?>
-					</td>
-					<td width="0%" nowrap align="center">
-						<?= GetMessage('USER_GROUP_DATE_TO')?>
-						<?= CalendarDate("GROUP_ID_TO_".$ind, (array_key_exists($arGroups["ID"], $str_GROUP_ID) ? htmlspecialchars($str_GROUP_ID[$arGroups["ID"]]["DATE_ACTIVE_TO"]) : ""), $tabControl->GetFormName(), "10")?>
+					<td>
+						<?= CalendarDate("GROUP_ID_FROM_".$ind, (array_key_exists($arGroups["ID"], $str_GROUP_ID) ? htmlspecialcharsbx($str_GROUP_ID[$arGroups["ID"]]["DATE_ACTIVE_FROM"]) : ""), $tabControl->GetFormName(), "22")?>
+						<?= CalendarDate("GROUP_ID_TO_".$ind, (array_key_exists($arGroups["ID"], $str_GROUP_ID) ? htmlspecialcharsbx($str_GROUP_ID[$arGroups["ID"]]["DATE_ACTIVE_TO"]) : ""), $tabControl->GetFormName(), "22")?>
 					</td>
 				</tr>
 				<?
@@ -694,7 +694,7 @@ $tabControl->AddEditField("PERSONAL_PROFESSION", GetMessage('USER_PROFESSION'), 
 $tabControl->AddEditField("PERSONAL_WWW", GetMessage('USER_WWW'), false, array("size"=>30, "maxlength"=>255), $str_PERSONAL_WWW);
 $tabControl->AddEditField("PERSONAL_ICQ", GetMessage('USER_ICQ'), false, array("size"=>30, "maxlength"=>255), $str_PERSONAL_ICQ);
 $tabControl->AddDropDownField("PERSONAL_GENDER", GetMessage('USER_GENDER'), false, array(""=>GetMessage("USER_DONT_KNOW"), "M"=>GetMessage("USER_MALE"), "F"=>GetMessage("USER_FEMALE")), $str_PERSONAL_GENDER);
-$tabControl->AddCalendarField("PERSONAL_BIRTHDAY", GetMessage("USER_BIRTHDAY_DT")." (".CLang::GetDateFormat("SHORT")."):", $str_PERSONAL_BIRTHDAY);
+$tabControl->AddCalendarField("PERSONAL_BIRTHDAY", GetMessage("USER_BIRTHDAY_DT").":", $str_PERSONAL_BIRTHDAY);
 $tabControl->AddFileField("PERSONAL_PHOTO", GetMessage("USER_PHOTO"), $str_PERSONAL_PHOTO, array("iMaxW"=>150, "iMaxH"=>150));
 
 $tabControl->AddSection("USER_PHONES", GetMessage("USER_PHONES"));
@@ -768,8 +768,8 @@ $tabControl->BeginCustomField("RATING_BOX", '', false);
 			$arRatings[$arRatingsTmp['ID']] = $arRatingsTmp;
 			$i++;
 		}
-		
-		if (is_array($arRatings) && !empty($arRatings)) 
+
+		if (is_array($arRatings) && !empty($arRatings))
 		{
 			$ratingWeightType 	 = COption::GetOptionString("main", "rating_weight_type", "auto");
 			$authorityRatingId	 = CRatings::GetAuthorityRating();
@@ -782,16 +782,16 @@ $tabControl->BeginCustomField("RATING_BOX", '', false);
 			{
 				$arRatingResult = CRatings::GetRatingResult($ratingId, $ID);
 				$arRatingUserProp = CRatings::GetRatingUserProp($ratingId, $ID);
-				
+
 				if ($ratingId == $authorityRatingId && $arRatingUserProp['BONUS'] == 0)
 					$arRatingUserProp['BONUS'] = COption::GetOptionString("main", "rating_start_authority", 3);
-					
+
 				$viewTabControl->BeginNextTab();
 				?>
 					<table cellspacing="7" cellpadding="0" border="0" width="100%" class="edit-table">
 				<?	if ($USER->CanDoOperation('edit_ratings') && ($selfEdit || $ID!=$uid)): ?>
 					<tr>
-						<td class="field-name" width="40%"><?=GetMessage('RATING_BONUS')?><sup><span class="required">2</span></sup>:</td>
+						<td class="field-name" width="40%"><?=GetMessage('RATING_BONUS')?>:<sup><span class="required">2</span></sup></td>
 						<td><?=InputType('text', "RATING_BONUS[$ratingId]", floatval($arRatingUserProp['BONUS']), false, false, '', 'size="5" maxlength="11"')?> <?=($ratingWeightType == 'auto'? 'x '.GetMessage('RATING_NORM_VOTE_WEIGHT'): '')?></td>
 					</tr>
 				<? endif; ?>
@@ -897,7 +897,7 @@ if (($editable && $ID!=$USER->GetID()) || $USER->IsAdmin()):
 	$tabControl->BeginNextFormTab();
 	$tabControl->BeginCustomField("ADMIN_NOTES", GetMessage("USER_ADMIN_NOTES"));
 ?>
-	<tr valign="top">
+	<tr>
 		<td align="center" colspan="2"><textarea name="ADMIN_NOTES" cols="50" rows="10" style="width:100%;"><?echo $str_ADMIN_NOTES?></textarea></td>
 	</tr>
 <?
@@ -914,7 +914,23 @@ if(
 	$tabControl->ShowUserFields($PROPERTY_ID, $ID, ($strError <> '' || !$res));
 }
 
-$tabControl->Buttons(array("disabled" => (!$editable), "back_url"=>"user_admin.php?lang=".LANGUAGE_ID));
+if($canViewUserList)
+{
+	$tabControl->Buttons(array(
+		"disabled" => !$editable,
+		"btnSaveAndAdd" => true,
+		"back_url" => "user_admin.php?lang=".LANGUAGE_ID,
+	));
+}
+else
+{
+	$tabControl->Buttons(array(
+		"disabled" => !$editable,
+		"btnSave" => false,
+		"btnCancel" => false,
+		"btnSaveAndAdd" => true,
+	));
+}
 
 $tabControl->Show();
 
@@ -925,7 +941,6 @@ $tabControl->ShowWarnings($tabControl->GetName(), $message);
 <?echo BeginNote();?>
 <span class="required">1</span> <?$GROUP_POLICY = CUser::GetGroupPolicy($ID);echo $GROUP_POLICY["PASSWORD_REQUIREMENTS"];?><br>
 <span class="required">2</span> <?echo GetMessage("RATING_BONUS_NOTICE")?><br>
-<span class="required">*</span> <?echo GetMessage("REQUIRED_FIELDS")?>
 <?echo EndNote();?>
 <?endif;?>
 <?

@@ -432,4 +432,4 @@ function CFormValidatorSettings(bSimple)
 		oStructureSaver.value = struct_serialized;
 		return true;
 	}
-}
+};   

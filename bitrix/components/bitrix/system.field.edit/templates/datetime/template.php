@@ -31,7 +31,9 @@ foreach ($arResult["VALUE"] as $res):
 		array(
 			"SHOW_INPUT" => "N",
 			"FORM_NAME" => $arParams["form_name"],
-			"INPUT_NAME" => $name),
+			"INPUT_NAME" => $name,
+			"SHOW_TIME" => 'Y',
+		),
 		$component,
 		array("HIDE_ICONS" => "Y"));
 ?></div><?
@@ -63,7 +65,9 @@ if ($arParams["arUserField"]["EDIT_IN_LIST"] =="Y"):?>
 		array(
 			"SHOW_INPUT" => "N",
 			"FORM_NAME" => $arParams["form_name"],
-			"INPUT_NAME" => "#FIELD_NAME#"),
+			"INPUT_NAME" => "#FIELD_NAME#",
+			"SHOW_TIME" => 'Y',
+		),
 		$component,
 		array("HIDE_ICONS" => "Y"));
 ?></div>

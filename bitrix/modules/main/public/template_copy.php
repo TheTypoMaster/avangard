@@ -13,7 +13,7 @@ IncludeModuleLangFile(__FILE__);
 
 CUtil::JSPostUnescape();
 
-$obJSPopup = new CJSPopup('', 
+$obJSPopup = new CJSPopup('',
 	array(
 		'TITLE' => GetMessage("template_copy_title"),
 		'ARGS' => 'component_name='.urlencode($_GET["component_name"]).
@@ -155,7 +155,7 @@ if($strWarning == "")
 								$strJSText = $APPLICATION->GetPopupLink(
 									array(
 										'URL' => '/bitrix/admin/public_file_edit_src.php?lang='.LANGUAGE_ID.'&site='.SITE_ID.'&back_url='.urlencode($_REQUEST["back_path"]).'&path='.urlencode($template->GetFile()),
-										"PARAMS" => Array("width"=>770, "height" => 570, "resize" => true),
+										"PARAMS" => Array("width" => 770, "height" => 570,"resize" => true,"dialog_type" => 'EDITOR'),
 									)
 								);
 							}
@@ -189,18 +189,18 @@ if($arComponentDescription["ICON"] <> "" && is_file($_SERVER["DOCUMENT_ROOT"]."/
 else
 	$sIcon = "/bitrix/images/fileman/htmledit/component.gif";
 
-$sCurrentTemplateName = ($arComponent["DATA"]["TEMPLATE_NAME"] <> ""? htmlspecialchars($arComponent["DATA"]["TEMPLATE_NAME"]) : ".default");
+$sCurrentTemplateName = ($arComponent["DATA"]["TEMPLATE_NAME"] <> ""? htmlspecialcharsbx($arComponent["DATA"]["TEMPLATE_NAME"]) : ".default");
 
 $obJSPopup->ShowTitlebar();
 $obJSPopup->StartDescription($sIcon);
 ?>
 <?if($arComponentDescription["NAME"] <> ""):?>
-<p title="<?echo GetMessage("comp_prop_name")?>"><b><?echo htmlspecialchars($arComponentDescription["NAME"])?></b></p>
+<p title="<?echo GetMessage("comp_prop_name")?>"><b><?echo htmlspecialcharsbx($arComponentDescription["NAME"])?></b></p>
 <?endif;?>
 <?if($arComponentDescription["DESCRIPTION"] <> ""):?>
-<p title="<?echo GetMessage("comp_prop_desc")?>"><?echo htmlspecialchars($arComponentDescription["DESCRIPTION"])?></p>
+<p title="<?echo GetMessage("comp_prop_desc")?>"><?echo htmlspecialcharsbx($arComponentDescription["DESCRIPTION"])?></p>
 <?endif;?>
-<p class="note" title="<?echo GetMessage("comp_prop_path")?>"><a href="/bitrix/admin/fileman_admin.php?lang=<?echo LANGUAGE_ID?>&amp;path=<?echo urlencode("/bitrix/components".$componentPath)?>"><?echo htmlspecialchars($_GET["component_name"])?></a></p>
+<p class="note" title="<?echo GetMessage("comp_prop_path")?>"><a href="/bitrix/admin/fileman_admin.php?lang=<?echo LANGUAGE_ID?>&amp;path=<?echo urlencode("/bitrix/components".$componentPath)?>"><?echo htmlspecialcharsbx($_GET["component_name"])?></a></p>
 <?
 if($_GET['system_template'] == 'Y')
 	ShowNote(GetMessage("copy_comp_sys_templ"));
@@ -245,7 +245,7 @@ if($templateSiteTemplate<>""):
 ?>
 	<tr>
 		<td class="bx-popup-label bx-width50"><?= GetMessage("comp_templ_cur_site_template")?>:</td>
-		<td><b><?= htmlspecialchars($templateSiteTemplate)?></b><?if($sSiteTemplate <> "") echo " (".htmlspecialchars($sSiteTemplate).")"?></td>
+		<td><b><?= htmlspecialcharsbx($templateSiteTemplate)?></b><?if($sSiteTemplate <> "") echo " (".htmlspecialcharsbx($sSiteTemplate).")"?></td>
 	</tr>
 <?
 endif;
@@ -266,7 +266,7 @@ if(!$bParentComp):
 		if(strpos($templ["NAME"], $def) === 0 && ($v = intval(substr($templ["NAME"], strlen($def))))>$max)
 			$max = $v;
 ?>
-			<input type="text" name="TEMPLATE_NAME" value="<?echo (strlen($_REQUEST["TEMPLATE_NAME"]) > 0? htmlspecialchars($_REQUEST["TEMPLATE_NAME"]) : htmlspecialchars($def).($max+1)); ?>">
+			<input type="text" name="TEMPLATE_NAME" value="<?echo (strlen($_REQUEST["TEMPLATE_NAME"]) > 0? htmlspecialcharsbx($_REQUEST["TEMPLATE_NAME"]) : htmlspecialcharsbx($def).($max+1)); ?>">
 <?else:?>
 			<?echo $sCurrentTemplateName?>
 			<input type="hidden" name="TEMPLATE_NAME" value="<?echo $sCurrentTemplateName?>">
@@ -278,7 +278,7 @@ if(!$bParentComp):
 		<td>
 <input type="radio" name="SITE_TEMPLATE" value=".default" id="SITE_TEMPLATE_def"<?if($_REQUEST["SITE_TEMPLATE"] == "" || $_REQUEST["SITE_TEMPLATE"] == ".default") echo " checked"?> onclick="CheckSiteTemplate(this)"><label for="SITE_TEMPLATE_def"><?echo GetMessage("template_copy_def")?> / .default (<?echo GetMessage("comp_templ_def_templ")?>)</label><br>
 <?if($_GET["template_id"] <> "" && $_GET["template_id"] <> ".default"):?>
-<input type="radio" name="SITE_TEMPLATE" value="<?echo htmlspecialchars($_GET["template_id"])?>" id="SITE_TEMPLATE_cur"<?if($_REQUEST["SITE_TEMPLATE"] == $_GET["template_id"]) echo " checked"?> onclick="CheckSiteTemplate(this)"><label for="SITE_TEMPLATE_cur"><?echo GetMessage("template_copy_cur")?> / <?echo htmlspecialchars($_GET["template_id"])?><?if($arSiteTemplates[$_GET["template_id"]] <> '') echo " (".$arSiteTemplates[$_GET["template_id"]].")"?></label><br>
+<input type="radio" name="SITE_TEMPLATE" value="<?echo htmlspecialcharsbx($_GET["template_id"])?>" id="SITE_TEMPLATE_cur"<?if($_REQUEST["SITE_TEMPLATE"] == $_GET["template_id"]) echo " checked"?> onclick="CheckSiteTemplate(this)"><label for="SITE_TEMPLATE_cur"><?echo GetMessage("template_copy_cur")?> / <?echo htmlspecialcharsbx($_GET["template_id"])?><?if($arSiteTemplates[$_GET["template_id"]] <> '') echo " (".$arSiteTemplates[$_GET["template_id"]].")"?></label><br>
 <?endif?>
 <?
 $bList = ($_REQUEST["SITE_TEMPLATE"] <> "" && $_REQUEST["SITE_TEMPLATE"] <> $_GET["template_id"] && $_REQUEST["SITE_TEMPLATE"] <> ".default")
@@ -290,7 +290,7 @@ $bList = ($_REQUEST["SITE_TEMPLATE"] <> "" && $_REQUEST["SITE_TEMPLATE"] <> $_GE
 					if($templ_id == ".default" || $templ_id == $_GET["template_id"])
 						continue;
 				?>
-				<option value="<?= htmlspecialchars($templ_id) ?>"<?if ((StrLen($_REQUEST["SITE_TEMPLATE"]) > 0 && $_REQUEST["SITE_TEMPLATE"] == $templ_id) || (StrLen($_REQUEST["SITE_TEMPLATE"]) <= 0 && $templ_id == $template_site_template)) echo " selected";?>><?= htmlspecialchars($templ_id." (".$templ_name.")") ?></option>
+				<option value="<?= htmlspecialcharsbx($templ_id) ?>"<?if ((StrLen($_REQUEST["SITE_TEMPLATE"]) > 0 && $_REQUEST["SITE_TEMPLATE"] == $templ_id) || (StrLen($_REQUEST["SITE_TEMPLATE"]) <= 0 && $templ_id == $template_site_template)) echo " selected";?>><?= htmlspecialcharsbx($templ_id." (".$templ_name.")") ?></option>
 				<?endforeach;?>
 			</select>
 		</td>

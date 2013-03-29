@@ -9,4 +9,5 @@ $MESS["EVENT_LIST_PAGE_NAV"] = "Записи на странице";
 $MESS["EVENT_LIST_DATE_FILTER_DAYS"] = "дн.";
 $MESS["EVENT_LIST_FILTER_SHOW"] = "показать";
 $MESS["EVENT_LIST_FILTER_HIDE"] = "скрыть";
+$MESS["EVENT_LIST_NO_ACTIVE_FEATURES_ERROR"] = "Не заданы события в фильтре для отображения";
 ?>

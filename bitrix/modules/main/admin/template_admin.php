@@ -126,9 +126,10 @@ $lAdmin->AddFooter(
 
 if ($edit_php)
 {
-	$groupAction["copy"] = GetMessage("MAIN_T_ADMIN_COPY_1");
-	$groupAction["delete"] = GetMessage("MAIN_ADMIN_LIST_DELETE");
-	$lAdmin->AddGroupActionTable($groupAction);
+	$lAdmin->AddGroupActionTable(array(
+		"copy" => GetMessage("MAIN_T_ADMIN_COPY_1"),
+		"delete" => GetMessage("MAIN_ADMIN_LIST_DELETE"),
+	));
 }
 
 $aContext = array();

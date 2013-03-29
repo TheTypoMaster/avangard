@@ -8,7 +8,7 @@ jsUtils.addCustomEvent('EditorLoadFinish_CONTENT', templatePreparseHeaders)
 window.fullEditMode = true;
 
 var edit_hbf = [ //hbf - head, body, footer
-	'BXButton', 
+	'BXButton',
 	{
 		id : 'edit_hbf',
 		iconkit : '_global_iconkit.gif',
@@ -22,7 +22,7 @@ var edit_hbf = [ //hbf - head, body, footer
 ];
 
 var insert_wa = [
-	'BXButton', 
+	'BXButton',
 	{
 		id : 'insert_wa',
 		iconkit : '_global_iconkit.gif',
@@ -35,15 +35,15 @@ var insert_wa = [
 ];
 
 var preview_tmpl = [
-	'BXButton', 
+	'BXButton',
 	{
 		id : 'preview_tmpl',
 		iconkit : '_global_iconkit.gif',
 		name : TE_MESS.FILEMAN_PREVIEW_TEMPLATE,
 		title : TE_MESS.FILEMAN_PREVIEW_TEMPLATE_TITLE,
-		handler : function () 
+		handler : function ()
 		{
-			preview_template(__ID, bxsessid);
+			preview_template(__ID, BX.bitrix_sessid());
 		}
 	}
 ];

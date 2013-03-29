@@ -58,13 +58,13 @@ if($REQUEST_METHOD=="POST" && !empty($Import) && $POST_RIGHT>="W" && check_bitri
 	//constant part of the subscriber
 	$subscr = new CSubscription;
 	$arFields = Array(
-		"ACTIVE" => "Y", 
-		"FORMAT" => ($FORMAT <> "html"? "text":"html"), 
+		"ACTIVE" => "Y",
+		"FORMAT" => ($FORMAT <> "html"? "text":"html"),
 		"CONFIRMED" => ($CONFIRMED <> "Y"? "N":"Y"),
 		"SEND_CONFIRM" => ($SEND_CONFIRM <> "Y"? "N":"Y"),
 		"RUB_ID" => $RUB_ID
 	);
-	
+
 	//constant part of the user
 	if($USER_TYPE == "U")
 		$user = new CUser;
@@ -102,7 +102,7 @@ if($REQUEST_METHOD=="POST" && !empty($Import) && $POST_RIGHT>="W" && check_bitri
 				continue;
 			}
 		}//$USER_TYPE == "U"
-		
+
 		//add subscription
 		$arFields["USER_ID"] = $USER_ID;
 		$arFields["EMAIL"] = $email;
@@ -139,13 +139,19 @@ if(count($arError)>0)
 	echo $message->Show();
 }
 ?>
-<?if($bShowRes):?>
-<p class="text"><b><?echo GetMessage("imp_results")?></b><br>
-<?echo GetMessage("imp_results_total")?> <b><?echo count($aEmail)?></b><br>
-<?echo GetMessage("imp_results_added")?> <font class="<?echo ($nSuccess==0? "required":"pointed")?>"><b><?echo $nSuccess?></b></font><br>
-<?echo GetMessage("imp_results_err")?> <font class="<?echo ($nError>0? "required":"pointed")?>"><b><?echo $nError?></b></font>
-</p>
-<?endif;?>
+<?
+if($bShowRes)
+{
+	CAdminMessage::ShowMessage(array(
+		"MESSAGE"=>GetMessage("imp_results"),
+		"DETAILS"=>GetMessage("imp_results_total").' <b>'.count($aEmail).'</b><br>'
+			.GetMessage("imp_results_added").' <b>'.$nSuccess.'</b><br>'
+			.GetMessage("imp_results_err").' <b>'.$nError.'</b>',
+		"HTML"=>true,
+		"TYPE"=>"PROGRESS",
+	));
+}
+?>
 <form ENCTYPE="multipart/form-data" action="<?echo $APPLICATION->GetCurPage();?>" method="POST" name="impform">
 <?
 $tabControl->Begin();
@@ -159,7 +165,7 @@ $tabControl->BeginNextTab();
 		<td><input type=file name="ADDR_FILE" size=30></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("imp_list")?></td>
+		<td class="adm-detail-valign-top"><?echo GetMessage("imp_list")?></td>
 		<td><textarea name="ADDR_LIST" rows=10 cols=45></textarea></td>
 	</tr>
 	<tr>
@@ -174,7 +180,7 @@ $tabControl->BeginNextTab();
 		<td colspan="2"><?echo GetMessage("imp_user")?><br><?echo GetMessage("imp_user_anonym")?></td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("imp_add")?></td>
+		<td class="adm-detail-valign-top"><?echo GetMessage("imp_add")?></td>
 		<td>
 		<input id="USER_TYPE_1" name="USER_TYPE" type="radio" value="A"<?if($USER_TYPE == "A") echo " checked"?> onClick="DisableControls(true);"><label for="USER_TYPE_1"><?echo GetMessage("imp_add_anonym")?></label><br>
 		<input id="USER_TYPE_2" name="USER_TYPE" type="radio" value="U"<?if($USER_TYPE == "U") echo " checked"?> onClick="DisableControls(false);"><label for="USER_TYPE_2"><?echo GetMessage("imp_add_users")?></label></td>
@@ -195,14 +201,14 @@ $tabControl->BeginNextTab();
 		?></script>
 <?endif;?>
 		</td>
-	</tr>		
+	</tr>
 <?if($USER->IsAdmin()):?>
 	<tr>
-		<td><?echo GetMessage("imp_add_gr")?></td>
+		<td class="adm-detail-valign-top"><?echo GetMessage("imp_add_gr")?></td>
 		<td><select name="USER_GROUP_ID[]" multiple size=10><?
 		$groups = CGroup::GetList(($by1="sort"), ($order1="asc"), Array("ACTIVE"=>"Y"));
 		while(($gr = $groups->Fetch())):
-		?><OPTION VALUE="<?echo $gr["ID"]?>"<?if(in_array($gr["ID"], $USER_GROUP_ID)) echo " SELECTED"?>><?echo htmlspecialchars($gr["NAME"])." [".$gr["ID"]."]"?></OPTION><?
+		?><OPTION VALUE="<?echo $gr["ID"]?>"<?if(in_array($gr["ID"], $USER_GROUP_ID)) echo " SELECTED"?>><?echo htmlspecialcharsbx($gr["NAME"])." [".$gr["ID"]."]"?></OPTION><?
 		endwhile;
 		?></SELECT>
 		<script language="JavaScript">
@@ -220,15 +226,22 @@ $tabControl->BeginNextTab();
 	</tr>
 <?endif;?>
 	<tr>
-		<td><?echo GetMessage("imp_subscr")?></td>
-		<td><?
+		<td class="adm-detail-valign-top"><?echo GetMessage("imp_subscr")?></td>
+		<td>
+			<div class="adm-list">
+			<?
 		$rubrics = CRubric::GetList(array("LID"=>"ASC", "SORT"=>"ASC", "NAME"=>"ASC"), array("ACTIVE"=>"Y"));
 		$n=1;
 		while(($rub=$rubrics->Fetch())):
-			?><input type="checkbox" id="RUB_ID_<?echo $n?>" name="RUB_ID[]" value="<?echo $rub["ID"]?>"<?if(!$bShowRes || in_array($rub["ID"], $RUB_ID)) echo " checked"?>><label for="RUB_ID_<?echo $n?>"><?echo "[".$rub["LID"]."]&nbsp;".htmlspecialchars($rub["NAME"])?></label><br><?
+			?>
+			<div class="adm-list-item">
+				<div class="adm-list-control"><input type="checkbox" id="RUB_ID_<?echo $n?>" name="RUB_ID[]" value="<?echo $rub["ID"]?>"<?if(!$bShowRes || in_array($rub["ID"], $RUB_ID)) echo " checked"?>></div>
+				<div class="adm-list-label"><label for="RUB_ID_<?echo $n?>"><?echo "[".$rub["LID"]."]&nbsp;".htmlspecialcharsbx($rub["NAME"])?></label></div>
+			</div>
+			<?
 			$n++;
 		endwhile;
-		?></td>
+		?></div></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("imp_fmt")?></td>
@@ -241,7 +254,7 @@ $tabControl->BeginNextTab();
 <?
 $tabControl->Buttons();
 ?>
-<input<?if($POST_RIGHT<"W") echo " disabled";?> class="button" type="submit" name="Import" value="<?echo GetMessage("imp_butt")?>">
+<input<?if($POST_RIGHT<"W") echo " disabled";?> type="submit" name="Import" value="<?echo GetMessage("imp_butt")?>" class="adm-btn-save">
 <input type="hidden" name="lang" value="<?echo LANG?>">
 <?echo bitrix_sessid_post();?>
 <?

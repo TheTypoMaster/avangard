@@ -70,8 +70,8 @@
 				$capCode = $GLOBALS["APPLICATION"]->CaptchaGetCode();
 			?>
 				<p><?=GetMessage("subscr_CAPTCHA_REGF_TITLE")?><br />
-				<input type="hidden" name="captcha_sid" value="<?= htmlspecialchars($capCode) ?>" />
-				<img src="/bitrix/tools/captcha.php?captcha_sid=<?= htmlspecialchars($capCode) ?>" width="180" height="40" alt="CAPTCHA" /></p>
+				<input type="hidden" name="captcha_sid" value="<?= htmlspecialcharsbx($capCode) ?>" />
+				<img src="/bitrix/tools/captcha.php?captcha_sid=<?= htmlspecialcharsbx($capCode) ?>" width="180" height="40" alt="CAPTCHA" /></p>
 				<p><?=GetMessage("subscr_CAPTCHA_REGF_PROMT")?><span class="starrequired">*</span><br />
 				<input type="text" name="captcha_word" size="30" maxlength="50" value="" /></p>
 			<?endif;?>

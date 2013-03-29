@@ -10,6 +10,9 @@ endif;
 	$arParams["SEND_MAIL"] = (in_array($arParams["SEND_MAIL"], array("A", "E", "U", "Y")) ? $arParams["SEND_MAIL"] : "E");
 	$arParams["SEND_ICQ"] = (in_array($arParams["SEND_ICQ"], array("A", "E", "U", "Y")) ? $arParams["SEND_ICQ"] : "A");
 	$arParams["SHOW_USER_STATUS"] = ($arParams["SHOW_USER_STATUS"] == "Y" ? "Y" : "N");
+/***************** Sorting *****************************************/
+	InitSorting($GLOBALS["APPLICATION"]->GetCurPage()."?PAGE_NAME=user_list");
+	global $by, $order;
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
 			"message_send" => "PAGE_NAME=message_send&TYPE=#TYPE#&UID=#UID#",
@@ -21,7 +24,7 @@ endif;
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	// Page elements
@@ -29,6 +32,7 @@ endif;
 	// Data and data-time format
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 	$arParams["WORD_LENGTH"] = intVal($arParams["WORD_LENGTH"]);
 /***************** STANDART ****************************************/
@@ -59,8 +63,6 @@ $parser->MaxStringLen = $arParams["WORD_LENGTH"];
 $strError = "";
 $cache = new CPHPCache();
 $cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/");
-InitSorting();
-global $by, $order;
 /********************************************************************
 				/Default params
 ********************************************************************/
@@ -68,17 +70,15 @@ global $by, $order;
 /********************************************************************
 				Data
 ********************************************************************/
-$cache_id = "forum_forums_listex_".serialize(array());
-if(($tzOffset = CTimeZone::GetOffset()) <> 0)
-	$cache_id .= "_".$tzOffset;
+$cache_id = "forum_forums_listex_".(($tzOffset = CTimeZone::GetOffset()) <> 0 ? "_".$tzOffset : "");
 $cache_path = $cache_path_main."forums";
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
 	$res = $cache->GetVars();
 	if (is_array($res["arForums"]))
-		$arForums = $res["arForums"];
+		$arForums = CForumCacheManager::Expand($res["arForums"]);
 }
-if (!is_array($arForums) || count($arForums) <= 0)
+if (!is_array($arForums) || empty($arForums))
 {
 	$db_res = CForumNew::GetListEx();
 	while ($res = $db_res->GetNext())
@@ -86,7 +86,7 @@ if (!is_array($arForums) || count($arForums) <= 0)
 
 	if ($arParams["CACHE_TIME"] > 0):
 		$cache->StartDataCache($arParams["CACHE_TIME"], $cache_id, $cache_path);
-		$cache->EndDataCache(array("arForums" => $arForums));
+		$cache->EndDataCache(array("arForums" => CForumCacheManager::Compress($arForums)));
 	endif;
 }
 /******************************************************************/
@@ -119,7 +119,7 @@ if (strLen($_REQUEST["del_filter"]) <= 0 && strLen($_REQUEST["set_filter"]) > 0)
 	$arResult["filter"]["date_last_visit"] = CalendarPeriod("date_last_visit1", $_REQUEST["date_last_visit1"], "date_last_visit2",
 		$_REQUEST["date_last_visit2"], "form1", "Y", "", "");
 	$arResult["filter"]["~user_name"] = $_REQUEST["user_name"];
-	$arResult["filter"]["user_name"] = htmlspecialchars($_REQUEST["user_name"]);
+	$arResult["filter"]["user_name"] = htmlspecialcharsbx($_REQUEST["user_name"]);
 /************** For custom/****************************************/
 }
 elseif (strLen($_REQUEST["del_filter"]) > 0)
@@ -149,7 +149,11 @@ elseif (!$by && is_set($_REQUEST, "sort"))
 $arResult["ERROR_MESSAGE"] = $strError;
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 $db_res = CForumUser::GetList(array($by => $order), $arFilter,
-	array("bDescPageNumbering" => false, "nPageSize"=>$arParams["USERS_PER_PAGE"], "bShowAll" => false));
+	array("bDescPageNumbering" => false,
+		"nPageSize"=>$arParams["USERS_PER_PAGE"],
+		"bShowAll" => false,
+		"sNameTemplate" => $arParams["NAME_TEMPLATE"]));
+$arParams["SHOW_USER_STATUS"] = "Y";
 if($db_res)
 {
 	$db_res->NavStart($arParams["USERS_PER_PAGE"], false);
@@ -177,23 +181,7 @@ if($db_res)
 				foreach ($arForums as $forum)
 					$UserPerm[] = CForumNew::GetUserPermission($forum["ID"], $arUserGroup);
 				rsort($UserPerm);
-				if ($UserPerm[0] == "Q"):
-					$res["AUTHOR_STATUS"] = $GLOBALS["FORUM_STATUS_NAME"]["moderator"];
-					$res["AUTHOR_STATUS_CODE"] = 'moderator';
-				elseif ($UserPerm[0] == "U"):
-					$res["AUTHOR_STATUS"] = $GLOBALS["FORUM_STATUS_NAME"]["editor"];
-					$res["AUTHOR_STATUS_CODE"] = 'editor';
-				elseif ($UserPerm[0] == "Y"):
-					$res["AUTHOR_STATUS"] = $GLOBALS["FORUM_STATUS_NAME"]["administrator"];
-					$res["AUTHOR_STATUS_CODE"] = 'administrator';
-				elseif ($arResult["SHOW_VOTES"]=="Y"):
-					$arUserRank = CForumUser::GetUserRank($res["USER_ID"], LANGUAGE_ID);
-					$res["AUTHOR_STATUS"] = $arUserRank["NAME"];
-					$res["AUTHOR_STATUS_CODE"] = $arUserRank["CODE"];
-				else:
-					$res["AUTHOR_STATUS"] = $GLOBALS["FORUM_STATUS_NAME"]["user"];
-					$res["AUTHOR_STATUS_CODE"] = "user";
-				endif;
+				list($res["AUTHOR_STATUS_CODE"], $res["AUTHOR_STATUS"]) = ForumGetUserForumStatus($res["USER_ID"], $UserPerm[0]);
 			}
 			$res["UserStatus"] = $res["AUTHOR_STATUS"];
 			$res["URL"] = array(
@@ -212,13 +200,11 @@ if($db_res)
 
 			if (strLen($res["AVATAR"])>0)
 			{
-				$res["~AVATAR"] = array("ID" => $res["AVATAR"]);
-				$res["~AVATAR"]["FILE"] = CFile::GetFileArray($res["~AVATAR"]["ID"]);
+				$res["~AVATAR"] = array("ID" => $res["AVATAR"], "FILE" => CFile::GetFileArray($res["AVATAR"]));
 				$res["~AVATAR"]["HTML"] = CFile::ShowImage($res["~AVATAR"]["FILE"],
 					COption::GetOptionString("forum", "avatar_max_width", 90),
 					COption::GetOptionString("forum", "avatar_max_height", 90),
 					"border=\"0\"", "", true);
-
 				$res["~AVATAR"]["HTML_SMALL"] = CFile::ShowImage($res["~AVATAR"]["FILE"], 20, 20, "border=0 alt=\"\"", "", true);
 				$res["AVATAR_ARRAY"] = $res["~AVATAR"];
 				$res["AVATAR"] = $res["~AVATAR"]["HTML_SMALL"];
@@ -231,10 +217,10 @@ if($db_res)
 /********************************************************************
 				/Data
 ********************************************************************/
+$this->IncludeComponentTemplate();
 if ($arParams["SET_NAVIGATION"] != "N")
 	$APPLICATION->AddChainItem(GetMessage("LU_TITLE_USER"));
 if ($arParams["SET_TITLE"] != "N")
 	$APPLICATION->SetTitle(GetMessage("LU_TITLE_USER"));
 /******************************************************************/
-$this->IncludeComponentTemplate();
 ?>

@@ -16,7 +16,7 @@ IncludeTemplateLangFile(__FILE__);
 			?>
 			<div id="footer">
 				<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-						<td id="f_1">&copy; 2009-2011 Мебельная фабрика Авангард&nbsp;<br><a target="_blank" href="http://www.cava.su/">Разработка сайта - студия «CA VA»</a><br><a target="_blank" href="http://www.media-bridge.ru/">Поддержка сайта - студия «Media-Bridge»</a></td>
+						<td id="f_1">&copy; 2009-2011 Мебельная фабрика Авангард&nbsp;<br><a target="_blank" href="http://www.media-bridge.ru/">Поддержка сайта - студия «Media-Bridge»</a></td>
 						<td id="f_2">Копирование, публикация и использование материалов сайта ЗАПРЕЩЕНЫ!
 						</td>
 					</tr></table>

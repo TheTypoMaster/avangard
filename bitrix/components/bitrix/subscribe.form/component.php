@@ -69,12 +69,12 @@ if(count($arRubrics)<=0)
 	return;
 }
 
-$arResult["FORM_ACTION"] = htmlspecialchars(str_replace("#SITE_DIR#", LANG_DIR, $arParams["PAGE"]));
+$arResult["FORM_ACTION"] = htmlspecialcharsbx(str_replace("#SITE_DIR#", LANG_DIR, $arParams["PAGE"]));
 
 if(strlen($_REQUEST["sf_EMAIL"])>0)
-	$arResult["EMAIL"] = htmlspecialchars($_REQUEST["sf_EMAIL"]);
+	$arResult["EMAIL"] = htmlspecialcharsbx($_REQUEST["sf_EMAIL"]);
 elseif(strlen($arSubscription["EMAIL"])>0)
-	$arResult["EMAIL"] = htmlspecialchars($arSubscription["EMAIL"]);
+	$arResult["EMAIL"] = htmlspecialcharsbx($arSubscription["EMAIL"]);
 else
 	$arResult["EMAIL"] = "";
 

@@ -16,7 +16,7 @@ class CFormValidatorImageSize
 			"HANDLER" => array("CFormValidatorImageSize", "DoValidate") // main validation method
 		);
 	}
-	
+
 	function GetSettings()
 	{
 		return array(
@@ -45,12 +45,12 @@ class CFormValidatorImageSize
 			),
 		);
 	}
-	
+
 	function ToDB($arParams)
 	{
 		$arParams["WIDTH_FROM"] = intval($arParams["WIDTH_FROM"]);
 		$arParams["WIDTH_TO"] = intval($arParams["WIDTH_TO"]);
-		
+
 		if ($arParams["WIDTH_FROM"] > $arParams["WIDTH_TO"])
 		{
 			$tmp = $arParams["WIDTH_FROM"];
@@ -60,7 +60,7 @@ class CFormValidatorImageSize
 
 		$arParams["HEIGHT_FROM"] = intval($arParams["HEIGHT_FROM"]);
 		$arParams["HEIGHT_TO"] = intval($arParams["HEIGHT_TO"]);
-		
+
 		if ($arParams["HEIGHT_FROM"] > $arParams["HEIGHT_TO"])
 		{
 			$tmp = $arParams["HEIGHT_FROM"];
@@ -70,22 +70,25 @@ class CFormValidatorImageSize
 
 		return serialize($arParams);
 	}
-	
+
 	function FromDB($strParams)
 	{
 		return unserialize($strParams);
 	}
-	
+
 	function DoValidate($arParams, $arQuestion, $arAnswers, $arValues)
 	{
 		global $APPLICATION;
-		
+
 		if (count($arValues) > 0)
 		{
 			foreach ($arValues as $arImage)
 			{
 				// if image successfully uploaded
-				if (strlen($arImage["tmp_name"]) > 0 && $arImageInfo = getimagesize($arImage["tmp_name"]))
+				if (
+					strlen($arImage["tmp_name"]) > 0
+					&& ($arImageInfo = CFile::GetImageSize($arImage["tmp_name"]))
+				)
 				{
 					// check minimum image width
 					if ($arParams["WIDTH_FROM"] > 0 && $arImageInfo[0] < $arParams["WIDTH_FROM"])
@@ -117,7 +120,7 @@ class CFormValidatorImageSize
 				}
 			}
 		}
-		
+
 		return true;
 	}
 }

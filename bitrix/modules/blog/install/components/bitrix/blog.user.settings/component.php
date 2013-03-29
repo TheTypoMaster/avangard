@@ -22,11 +22,11 @@ if(strLen($arParams["PAGE_VAR"])<=0)
 
 $arParams["PATH_TO_USER_SETTINGS_EDIT"] = trim($arParams["PATH_TO_USER_SETTINGS_EDIT"]);
 if(strlen($arParams["PATH_TO_USER_SETTINGS_EDIT"])<=0)
-	$arParams["PATH_TO_USER_SETTINGS_EDIT"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_settings_edit&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["USER_VAR"]."=#user_id#");
+	$arParams["PATH_TO_USER_SETTINGS_EDIT"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user_settings_edit&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if(strlen($arParams["PATH_TO_USER"])<=0)
-	$arParams["PATH_TO_USER"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 if (StrLen($arParams["BLOG_URL"]) > 0)
 {
@@ -137,7 +137,7 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 														
 														$dbUser = CUser::GetByID($arUserID[$i]);
 														$arUser = $dbUser->GetNext();
-														$AuthorName = CBlogUser::GetUserName($BlogUser["ALIAS"], $arUser["NAME"], $arUser["LAST_NAME"], $arUser["LOGIN"]);
+														$AuthorName = CBlogUser::GetUserName($BlogUser["ALIAS"], $arUser["NAME"], $arUser["LAST_NAME"], $arUser["LOGIN"], $arUser["SECOND_NAME"]);
 														$dbUser = CUser::GetByID($arBlog["OWNER_ID"]);
 														$arUserBlog = $dbUser->GetNext();
 														if (strlen($serverName) <=0)
@@ -198,13 +198,13 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 						array("BLOG_ID" => $arBlog["ID"]),
 						false,
 						false,
-						array("ID", "USER_ID", "BLOG_USER_ALIAS", "USER_LOGIN", "USER_NAME", "USER_LAST_NAME")
+						array("ID", "USER_ID", "BLOG_USER_ALIAS", "USER_LOGIN", "USER_NAME", "USER_LAST_NAME", "USER_SECOND_NAME")
 					);
 					$arResult["Candidate"] = Array();
 					while($arUsers = $dbUsers->GetNext())
 					{
 						$arUsers["urlToUser"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arUsers["USER_ID"]));
-						$arUsers["NameFormated"] = CBlogUser::GetUserName($arUsers["BLOG_USER_ALIAS"], $arUsers["USER_NAME"], $arUsers["USER_LAST_NAME"], $arUsers["USER_LOGIN"]);
+						$arUsers["NameFormated"] = CBlogUser::GetUserName($arUsers["BLOG_USER_ALIAS"], $arUsers["USER_NAME"], $arUsers["USER_LAST_NAME"], $arUsers["USER_LOGIN"], $arUsers["USER_SECOND_NAME"]);
 						$arUsers["urlToEdit"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_SETTINGS_EDIT"], array("user_id" => $arUsers["USER_ID"], "blog"=>$arBlog["URL"]));
 						$arUsers["urlToDelete"] = htmlspecialcharsex($APPLICATION->GetCurPageParam("del_id=".$arUsers["USER_ID"].'&'.bitrix_sessid_get(), Array("del_id", "sessid")));
 						$arResult["Candidate"][] = $arUsers;
@@ -213,13 +213,13 @@ if (StrLen($arParams["BLOG_URL"]) > 0)
 					$dbUsers = CBlogUser::GetList(
 						$arOrderBy,
 						array("GROUP_BLOG_ID" => $arBlog["ID"]),
-						array("ID", "USER_ID", "ALIAS", "USER_LOGIN", "USER_NAME", "USER_LAST_NAME")
+						array("ID", "USER_ID", "ALIAS", "USER_LOGIN", "USER_NAME", "USER_LAST_NAME", "USER_SECOND_NAME")
 					);
 					$arResult["Users"] = Array();
 					while($arUsers = $dbUsers->GetNext())
 					{
 						$arUsers["urlToUser"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER"], array("user_id" => $arUsers["USER_ID"]));
-						$arUsers["NameFormated"] = CBlogUser::GetUserName($arUsers["BLOG_USER_ALIAS"], $arUsers["USER_NAME"], $arUsers["USER_LAST_NAME"], $arUsers["USER_LOGIN"]);
+						$arUsers["NameFormated"] = CBlogUser::GetUserName($arUsers["BLOG_USER_ALIAS"], $arUsers["USER_NAME"], $arUsers["USER_LAST_NAME"], $arUsers["USER_LOGIN"], $arUsers["USER_SECOND_NAME"]);
 						$arUsers["urlToEdit"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_SETTINGS_EDIT"], array("user_id" => $arUsers["USER_ID"], "blog"=>$arBlog["URL"]));
 						$arUsers["urlToDelete"] = htmlspecialcharsex($APPLICATION->GetCurPageParam("del_id=".$arUsers["USER_ID"].'&'.bitrix_sessid_get(), Array("del_id", "sessid")));
 											

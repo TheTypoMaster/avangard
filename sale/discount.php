@@ -9,12 +9,12 @@ $APPLICATION->SetTitle("Дисконт");
 window.onload = function(){
 var div_pr = document.getElementById("prokrutka");
 if(is_ie) {
-var smeshenie = window.document.body.offsetHeight - 75;
+var smeshenie = window.document.body.offsetHeight - 80;
 div_pr.style.height=smeshenie+"px";
 }
 else
 {
-var smeshenie = window.innerHeight - 75;
+var smeshenie = window.innerHeight - 80;
  div_pr.style.height=smeshenie+"px";
 }
 }
@@ -23,12 +23,12 @@ var smeshenie = window.innerHeight - 75;
 window.onresize = function(){
 var div_pr = document.getElementById("prokrutka");
 if(is_ie) {
-var smeshenie = window.document.body.offsetHeight - 75;
+var smeshenie = window.document.body.offsetHeight - 80;
 div_pr.style.height=smeshenie+"px";
 }
 else
 {
-var smeshenie = window.innerHeight - 75;
+var smeshenie = window.innerHeight - 80;
  div_pr.style.height=smeshenie+"px";
 }
 }
@@ -271,6 +271,8 @@ if((klik.checked==false) && (m==l)) klik.checked=true;
 
 <?if($salon) $s_val = $salon; else $s_val=$id; ?>
 
+
+
 <div height="50" class="filter_td">
 <h3 align="center" style="color: #000000; padding: 2px; margin: 2px; font-size: 14px;">
 	<a style="font-size: 14px;" href="/">На главную</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -285,6 +287,8 @@ if((klik.checked==false) && (m==l)) klik.checked=true;
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	<a style="font-size: 14px;" href="/redesign/where_buy/">На страницу «Где купить»</a>
 </h3>
+
+
 
 <table style="border-top: solid #e20a17 2px;" height="30" class="filter_table" cellpadding="0" cellspacing="0">
 <tr>
@@ -326,13 +330,13 @@ $arSelect = Array("ID", "NAME", "DATE_ACTIVE_FROM", "PREVIEW_PICTURE", "PREVIEW_
 
 
 
-if($all_models) $arFilter = Array("IBLOCK_ID"=>IntVal(15), "ACTIVE_DATE"=>"Y", "ACTIVE"=>"Y", "PROPERTY_tovar"=>IntVal($all_models), ">PROPERTY_skidka" => 14);
+if($all_models) $arFilter = Array("IBLOCK_ID"=>IntVal(15), "ACTIVE_DATE"=>"Y", "ACTIVE"=>"Y", "PROPERTY_tovar"=>IntVal($all_models), ">PROPERTY_skidka" => 15);
 else 
 {
 
 if($id=="all") 
 {
-$arFilter = Array("IBLOCK_ID"=>IntVal(15), "ACTIVE_DATE"=>"Y", "ACTIVE"=>"Y", ">PROPERTY_skidka" => 14);
+$arFilter = Array("IBLOCK_ID"=>IntVal(15), "ACTIVE_DATE"=>"Y", "ACTIVE"=>"Y", ">PROPERTY_skidka" => 15);
 }
 else 
 {
@@ -403,8 +407,8 @@ $collections[42]="Le Roi";
 $collections[45]="EKKA";
 $collections[2761]="кроватей";
 
-echo "<H3>При заказе цена может быть более выгодной для Вас.<br>Уточняйте стоимость выбранной Вами модели у продавцов салонов,<br>с учетом проводимых акций и действующих скидок.</H3><br>";
-if ($id=="566") echo "<H3>Справки по телефону: 8(498) 720-50-44 доб.155.</H3><br>";
+//echo "<H3>При заказе цена может быть более выгодной для Вас.<br>Уточняйте стоимость выбранной Вами модели у продавцов салонов,<br>с учетом проводимых акций и действующих скидок.</H3><br>";
+//if ($id=="566") echo "<H3>Справки по телефону: 8(498) 720-50-44 доб.155.</H3><br>";
 echo "<H3><span style='color:#FF0000;'>Копирование, публикация и использование материалов сайта ЗАПРЕЩЕНЫ!</span></H3><br>";
 
 foreach ($collections as $key => $value) {

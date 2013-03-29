@@ -1,7 +1,7 @@
 <?
 $MESS ['PROFILE_DATA_SAVED'] = "Изменения сохранены";
 $MESS ['REG_SHOW_HIDE'] = "Регистрационная информация";
-$MESS ['forum_INFO'] = "Профайл форума";
+$MESS ['forum_INFO'] = "Профиль форума";
 $MESS ['forum_ALIAS'] = "Псевдоним:";
 $MESS ['forum_DESCRIPTION'] = "Пояснение:";
 $MESS ['forum_INTERESTS'] = "Интересы:";
@@ -63,7 +63,7 @@ $MESS ['USER_ADMIN_NOTES'] = "Заметки администратора";
 $MESS ['USER_SHOW_HIDE'] = "Показать / Скрыть";
 $MESS ['LAST_LOGIN'] = "Последняя авторизация:";
 $MESS ['MAIN_DEFAULT_SITE'] = "Сайт по умолчанию для уведомлений:";
-$MESS ['blog_INFO'] = "Профайл блога";
+$MESS ['blog_INFO'] = "Профиль блога";
 $MESS ['blog_TAB'] = "Блог";
 $MESS ['blog_ALIAS'] = "Псевдоним:";
 $MESS ['blog_DESCRIPTION'] = "Пояснение:";
@@ -73,7 +73,7 @@ $MESS ['blog_ALLOW_POST'] = "Разрешено писать:";
 $MESS ['blog_SIGNATURE'] = "Подпись:";
 $MESS ['learning_INFO'] = "Профиль студента";
 $MESS ['learning_RESUME'] = "Резюме";
-$MESS ['learning_PUBLIC_PROFILE'] = "Разрешить публичный доступ к профайлу студента";
+$MESS ['learning_PUBLIC_PROFILE'] = "Разрешить публичный доступ к профилю студента";
 $MESS ['learning_TRANSCRIPT'] = "Transcript #";
 $MESS ['NEW_PASSWORD_REQ'] = "Новый пароль:";
 $MESS["main_profile_time_zones"]="Часовые пояса";

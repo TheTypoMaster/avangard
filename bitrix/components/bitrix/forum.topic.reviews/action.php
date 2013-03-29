@@ -131,12 +131,12 @@ elseif ((empty($_REQUEST["preview_comment"]) || $_REQUEST["preview_comment"] == 
 	if ($FORUM_TOPIC_ID <= 0):
 		$db_res = CIBlockElement::GetProperty($arResult["ELEMENT"]["IBLOCK_ID"], $arResult["ELEMENT"]["ID"], false, false, array("CODE" => "FORUM_TOPIC_ID"));
 		if (!($db_res && $res = $db_res->Fetch()))
-			$needProperty[] = "FORUM_TOPIC_ID";	
+			$needProperty[] = "FORUM_TOPIC_ID";
 	endif;
 	if ($FORUM_MESSAGE_CNT <= 0):
 		$db_res = CIBlockElement::GetProperty($arResult["ELEMENT"]["IBLOCK_ID"], $arResult["ELEMENT"]["ID"], false, false, array("CODE" => "FORUM_MESSAGE_CNT"));
 		if (!($db_res && $res = $db_res->Fetch()))
-			$needProperty[] = "FORUM_MESSAGE_CNT";	
+			$needProperty[] = "FORUM_MESSAGE_CNT";
 	endif;
 	if (!empty($needProperty)):
 		$obProperty = new CIBlockProperty;
@@ -191,7 +191,7 @@ elseif ((empty($_REQUEST["preview_comment"]) || $_REQUEST["preview_comment"] == 
 			endif;
 			if (!empty($res)):
 				$arUserStart = $res;
-				$sName = ($res["SHOW_NAME"] == "Y" ? trim($res["NAME"]." ".$res["LAST_NAME"]) : "");
+				$sName = ($res["SHOW_NAME"] == "Y" ? trim(CUser::FormatName($arParams["NAME_TEMPLATE"], $res)) : "");
 				$arUserStart["NAME"] = (empty($sName) ? trim($res["LOGIN"]) : $sName);
 			endif;
 		}
@@ -319,7 +319,7 @@ elseif ((empty($_REQUEST["preview_comment"]) || $_REQUEST["preview_comment"] == 
 	}
 	$TOPIC_ID = ($FORUM_TOPIC_ID > 0 ? $FORUM_TOPIC_ID : $TID);
 	$MID = ForumAddMessage(($TOPIC_ID > 0 ? "REPLY" : "NEW"), $arParams["FORUM_ID"], $TOPIC_ID, 0, $arFieldsG, $strErrorMessage, $strOKMessage, false, 
-		$_POST["captcha_word"], 0, $_POST["captcha_code"]);
+		$_POST["captcha_word"], 0, $_POST["captcha_code"], $arParams["NAME_TEMPLATE"]);
 
 	if ($MID <= 0 || !empty($strErrorMessage)):
 		$arError[] = array(
@@ -336,9 +336,16 @@ elseif ((empty($_REQUEST["preview_comment"]) || $_REQUEST["preview_comment"] == 
 			$arParams["AUTOSAVE"]->Reset();
 	// 1.7 Update Iblock Property
 		if ($TID > 0)
+		{
 			CIBlockElement::SetPropertyValues($arParams["ELEMENT_ID"], $PRODUCT_IBLOCK_ID, intVal($TID), "FORUM_TOPIC_ID");
-		$FORUM_MESSAGE_CNT = CForumMessage::GetList(array(), array("TOPIC_ID" => $TID, "APPROVED" => "Y", "!PARAM1" => "IB"), true);
-		CIBlockElement::SetPropertyValues($arParams["ELEMENT_ID"], $PRODUCT_IBLOCK_ID, intVal($FORUM_MESSAGE_CNT), "FORUM_MESSAGE_CNT");
+		}
+		else
+		{
+			if ($TOPIC_ID > 0)
+				$TID = $TOPIC_ID;
+			if ($FORUM_TOPIC_ID > 0)
+				$TID = $FORUM_TOPIC_ID;
+		}
 
 		$strOKMessage = GetMessage("COMM_COMMENT_OK");
 		$arResult["FORUM_TOPIC_ID"] = intVal($FORUM_TOPIC_ID);
@@ -346,11 +353,8 @@ elseif ((empty($_REQUEST["preview_comment"]) || $_REQUEST["preview_comment"] == 
 		ForumClearComponentCache($componentName);
 
 		// SUBSCRIBE
-		if ($_REQUEST["TOPIC_SUBSCRIBE"] == "Y" || $_REQUEST["FORUM_SUBSCRIBE"] == "Y"):
-			if ($_REQUEST["TOPIC_SUBSCRIBE"] == "Y")
-				ForumSubscribeNewMessagesEx($arParams["FORUM_ID"], $FORUM_TOPIC_ID, "N", $strErrorMessage, $strOKMessage);
-			if ($_REQUEST["FORUM_SUBSCRIBE"] == "Y")
-				ForumSubscribeNewMessagesEx($arParams["FORUM_ID"], 0, "N", $strErrorMessage, $strOKMessage);
+		if ($_REQUEST["TOPIC_SUBSCRIBE"] == "Y"):
+			ForumSubscribeNewMessagesEx($arParams["FORUM_ID"], $FORUM_TOPIC_ID, "N", $strErrorMessage, $strOKMessage);
 			BXClearCache(true, "/bitrix/forum/user/".$GLOBALS["USER"]->GetID()."/subscribe/");
 		endif;
 
@@ -374,7 +378,7 @@ elseif ($_REQUEST["save_product_review"] == "Y") // preview
 	$arParams['SHOW_MINIMIZED'] = 'N';
 	$arAllow["SMILES"] = ($_POST["REVIEW_USE_SMILES"] !="Y" ? "N" : $arResult["FORUM"]["ALLOW_SMILES"]);
 	$arResult["MESSAGE_VIEW"] = array(
-		"POST_MESSAGE_TEXT" => $parser->convert($_POST["REVIEW_TEXT"], $arAllow), 
+		"POST_MESSAGE_TEXT" => $_POST["REVIEW_TEXT"],
 		"AUTHOR_NAME" => htmlspecialcharsEx($arResult["USER"]["SHOWED_NAME"]), 
 		"AUTHOR_ID" => intVal($USER->GetID()),
 		"AUTHOR_URL" => CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $USER->GetID())), 
@@ -417,14 +421,16 @@ elseif ($_REQUEST["save_product_review"] == "Y") // preview
 				"title" => $res1->GetString());
 		endif;
 	endif;
-	
+
 	$res = is_array($res) ? $res : array();
 	foreach ($res as $key => $val):
 		$arFilesExists[$key] = $val;
 	endforeach;
 	$arFilesExists = array_keys($arFilesExists);
 	sort($arFilesExists);
-	$arResult["MESSAGE_VIEW"]["FILES"] = $_REQUEST["FILES"] = $arFilesExists;	
+	$arResult["MESSAGE_VIEW"]["FILES"] = $_REQUEST["FILES"] = $arFilesExists;
+	$arResult["MESSAGE_VIEW"]["POST_MESSAGE_TEXT"] = $parser->convert($_POST["REVIEW_TEXT"], $arAllow, "html", $arFilesExists);
+
 }
 if (isset($_REQUEST['REVIEW_ACTION'])) {
 	$arFields = array();
@@ -432,9 +438,10 @@ if (isset($_REQUEST['REVIEW_ACTION'])) {
 	{
 		if (isset($_REQUEST['MID']) && intval($_REQUEST['MID']) > 0)
 			$arFields = array("MID" => intval($_REQUEST['MID']));
-		$result = ForumActions($_REQUEST['REVIEW_ACTION'], $arFields, $strErrorMessage, $strOKMessage);
-		if ($result)
+		if (ForumActions($_REQUEST['REVIEW_ACTION'], $arFields, $strErrorMessage, $strOKMessage))
+		{
 			ForumClearComponentCache($componentName);
+		}
 	}
 	if (isset($_REQUEST['AJAX_CALL']))
 	{
@@ -447,7 +454,7 @@ if (isset($_REQUEST['REVIEW_ACTION'])) {
 		}
 		echo CUtil::PhpToJSObject($arRes);
 		die();
-	} else { 
+	} else {
 		LocalRedirect($APPLICATION->GetCurPageParam("", array("REVIEW_ACTION", "sessid", "MID")));
 	}
 }

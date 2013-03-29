@@ -1,4 +1,12 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+/**
+ * @global CMain $APPLICATION
+ * @global CUser $USER
+ * @param array $arParams
+ * @param array $arResult
+ * @param string $componentName
+ * @param CBitrixComponent $this
+ */
 if (!CModule::IncludeModule("forum")):
 	ShowError(GetMessage("F_NO_MODULE"));
 	return false;
@@ -18,7 +26,7 @@ $arUserGroups = $USER->GetUserGroupArray();
 	$arParams["MID"] = (is_array($arParams["MID"]) ? 0 : intVal($arParams["MID"]));
 	$arParams["MID"] = intval((($arParams["MID"] <= 0) && ($_REQUEST["MID"] > 0) ? $_REQUEST["MID"] : $arParams["MID"]));
 	$arParams['AJAX_POST'] = ($arParams["AJAX_POST"] == "Y" ? "Y" : "N");
-    $arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" || $arResult["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
+	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" || $arResult["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 	$arParams["AUTOSAVE"] = CForumAutosave::GetInstance();
 	if (strToLower($arParams["MID_UNREAD"]) == "unread_mid")
 		$arParams["MID"] = intVal(ForumGetFirstUnreadMessage($arParams["FID"], $arParams["TID"]));
@@ -50,13 +58,14 @@ $arUserGroups = $USER->GetUserGroupArray();
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
-	$arParams["PAGEN"] = (intVal($arParams["PAGEN"]) <= 0 ? 1 : intVal($arParams["PAGEN"]));
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 	$arParams["PAGE_NAVIGATION_SHOW_ALL"] = ($arParams["PAGE_NAVIGATION_SHOW_ALL"] == "Y" ? "Y" : "N");
+
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 
 	$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
 	$arParams["PATH_TO_ICON"] = trim($arParams["PATH_TO_ICON"]);
@@ -67,6 +76,7 @@ $arUserGroups = $USER->GetUserGroupArray();
 	// Data and data-time format
 	$arParams["DATE_FORMAT"] = trim(empty($arParams["DATE_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")) : $arParams["DATE_FORMAT"]);
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	// AJAX
 	if ($arParams["AJAX_TYPE"] == "Y" || ($arParams["AJAX_TYPE"] == "A" && COption::GetOptionString("main", "component_ajax_on", "Y") == "Y"))
 		$arParams["AJAX_TYPE"] = "Y";
@@ -75,7 +85,7 @@ $arUserGroups = $USER->GetUserGroupArray();
 	$arParams["AJAX_CALL"] = (($arParams["AJAX_TYPE"] == "Y" && $_REQUEST["AJAX_CALL"] == "Y") ? "Y" : "N");
 	$arParams["SHOW_FIRST_POST"] = ($arParams["SHOW_FIRST_POST"] == "Y" ? "Y" : "N");
 
-    $arParams["SHOW_ICQ"] = ((COption::GetOptionString("forum", "SHOW_ICQ_CONTACT", "N") != "Y") ? "N" : (($arParams["SEND_ICQ"] <= "A" || ($arParams["SEND_ICQ"] <= "E" && !$GLOBALS['USER']->IsAuthorized())) ? "N" : "Y"));
+	$arParams["SHOW_ICQ"] = ((COption::GetOptionString("forum", "SHOW_ICQ_CONTACT", "N") != "Y") ? "N" : (($arParams["SEND_ICQ"] <= "A" || ($arParams["SEND_ICQ"] <= "E" && !$GLOBALS['USER']->IsAuthorized())) ? "N" : "Y"));
 /***************** STANDART ****************************************/
 	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
 		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
@@ -202,6 +212,9 @@ $arUserGroups = $USER->GetUserGroupArray();
 /********************************************************************
 				Main Data & Permissions
 ********************************************************************/
+	if (isset($_REQUEST['MESSAGE_TYPE']) && $_REQUEST['MESSAGE_TYPE']=='REPLY')
+		$arParams['MID'] = 0;
+
 	if ($arParams["MID"] > 0):
 		$res = CForumMessage::GetByIDEx($arParams["MID"], array("GET_TOPIC_INFO" => "Y", "GET_FORUM_INFO" => "Y"));
 
@@ -226,16 +239,16 @@ $arUserGroups = $USER->GetUserGroupArray();
 		endif;
 	endif;
 
-    if ($arParams["FID"] > 0)
-    {
-        $arValidSites = CForumNew::GetSites($arParams["FID"]);
-        if (!isset($arValidSites[SITE_ID]) && ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "N" || $GLOBALS["APPLICATION"]->GetGroupRight("forum") < "W"))
-        {
+	if ($arParams["FID"] > 0)
+	{
+		$arValidSites = CForumNew::GetSites($arParams["FID"]);
+		if (!isset($arValidSites[SITE_ID]) && ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "N" || $GLOBALS["APPLICATION"]->GetGroupRight("forum") < "W"))
+		{
 			$arError = array(
 				"code" => "404",
 				"title" => GetMessage("F_ERROR_TID_IS_LOST"));
-        }
-    }
+		}
+	}
 	if (empty($arResult["TOPIC"])):
 	elseif ($arResult["TOPIC"]["STATE"] == "L" && intVal($arResult["TOPIC"]["TOPIC_ID"]) > 0):
 		$res = CForumTopic::GetByIDEx($arResult["TOPIC"]["TOPIC_ID"], array("GET_FORUM_INFO" => "Y"));
@@ -276,7 +289,6 @@ elseif ($arResult["TOPIC"]["ID"] != $arParams["TID"] || $arResult["FORUM"]["ID"]
 	return false;
 endif;
 
-ForumSetLastVisit($arParams["FID"], $arParams["TID"]);
 ForumSetReadTopic($arParams["FID"], $arParams["TID"]);
 
 /********************************************************************
@@ -333,14 +345,14 @@ $arResult["USER"]["RIGHTS"] = array(
 if ($USER->IsAuthorized()):
 	$arResult["USER"]["INFO"] = CForumUser::GetByUSER_ID($USER->GetParam("USER_ID"));
 	$arResult["USER"]["SHOW_NAME"] = $_SESSION["FORUM"]["SHOW_NAME"];
-	$arResult["USER"]["RANK"] = CForumUser::GetUserRank($USER->GetParam("USER_ID"));
+	$arResult["USER"]["RANK"] = CForumUser::GetUserRank($USER->GetParam("USER_ID"), LANGUAGE_ID);
 	$arFields = array("USER_ID" => $USER->GetID(), "FORUM_ID" => $arParams["FID"], "TOPIC_ID" => $arParams["TID"], "SITE_ID" => SITE_ID);
 	$db_res = CForumSubscribe::GetList(array(), $arFields);
 	if ($db_res && $res = $db_res->Fetch())
 		$arResult["USER"]["SUBSCRIBE"][$res["ID"]] = $res;
-    $arResult["USER"]["RIGHTS"]["EDIT_MESSAGE"] = ($arResult["USER"]["RIGHTS"]["EDIT"] != "Y" ? $arResult["USER"]["RIGHTS"]["ADD_MESSAGE"] : "N");
+	$arResult["USER"]["RIGHTS"]["EDIT_MESSAGE"] = ($arResult["USER"]["RIGHTS"]["EDIT"] != "Y" ? $arResult["USER"]["RIGHTS"]["ADD_MESSAGE"] : "N");
 else:
-    $arResult["USER"]["RIGHTS"]["EDIT_MESSAGE"] = "N";
+	$arResult["USER"]["RIGHTS"]["EDIT_MESSAGE"] = "N";
 endif;
 $arResult["USER"]["RIGHTS"]["EDIT_OWN_POST"] = COption::GetOptionString("forum", "USER_EDIT_OWN_POST", "N");
 /************** Edit panels info ***********************************/
@@ -354,10 +366,7 @@ $arResult["PANELS"] = array(
 /************** Urls ***********************************************/
 $arResult["~CURRENT_PAGE"] = CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_READ"],
 	array("FID" => $arParams["FID"], "TID" => $arParams["TID"], "MID" => "s"));
-if ((intVal($_REQUEST["PAGEN_".$arParams["PAGEN"]]) > 1) && (intVal($arParams["MID"]) <= 0))
-	$arResult["~CURRENT_PAGE"] = ForumAddPageParams($arResult["~CURRENT_PAGE"],
-		array("PAGEN_".$arParams["PAGEN"] => intVal($_REQUEST["PAGEN_".$arParams["PAGEN"]])), false, false);
-$_SERVER["REQUEST_URI"] = $arResult["CURRENT_PAGE"] = htmlspecialchars($arResult["~CURRENT_PAGE"]);
+$_SERVER["REQUEST_URI"] = $arResult["CURRENT_PAGE"] = htmlspecialcharsbx($arResult["~CURRENT_PAGE"]);
 
 $arResult["URL"] = array(
 	"~TOPIC_NEW" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_TOPIC_NEW"], array("FID" => $arParams["FID"])),
@@ -376,21 +385,7 @@ $arResult["PARSER"] = $parser;
 $arResult["FILES"] = array();
 $arResult["MESSAGE_FILES"] = array();
 /************** Message List ***************************************/
-$arAllow = array(
-	"HTML" => $arResult["FORUM"]["ALLOW_HTML"],
-	"ANCHOR" => $arResult["FORUM"]["ALLOW_ANCHOR"],
-	"BIU" => $arResult["FORUM"]["ALLOW_BIU"],
-	"IMG" => $arResult["FORUM"]["ALLOW_IMG"],
-	"VIDEO" => $arResult["FORUM"]["ALLOW_VIDEO"],
-	"LIST" => $arResult["FORUM"]["ALLOW_LIST"],
-	"QUOTE" => $arResult["FORUM"]["ALLOW_QUOTE"],
-	"CODE" => $arResult["FORUM"]["ALLOW_CODE"],
-	"FONT" => $arResult["FORUM"]["ALLOW_FONT"],
-	"SMILES" => $arResult["FORUM"]["ALLOW_SMILES"],
-	"UPLOAD" => $arResult["FORUM"]["ALLOW_UPLOAD"],
-	"NL2BR" => $arResult["FORUM"]["ALLOW_NL2BR"],
-	"TABLE" => $arResult["FORUM"]["ALLOW_TABLE"]
-);
+$arAllow = forumTextParser::GetFeatures($arResult["FORUM"]);
 
 // LAST MESSAGE
 $arResult["TOPIC"]["iLAST_TOPIC_MESSAGE"] = 0;
@@ -403,26 +398,27 @@ if ($arResult["USER"]["RIGHTS"]["EDIT"] != "Y" && $USER->IsAuthorized() && COpti
 		endif;
 	endif;
 	if ($arResult["TOPIC"]["iLAST_TOPIC_MESSAGE"] <= 0):
-        $arResult["TOPIC"]["iLAST_TOPIC_MESSAGE"] = $arResult["TOPIC"]["LAST_MESSAGE_ID"];
+		$arResult["TOPIC"]["iLAST_TOPIC_MESSAGE"] = $arResult["TOPIC"]["LAST_MESSAGE_ID"];
 	endif;
 endif;
 // NUMBER CURRENT PAGE
-$iNumPage = 0;
-if ($arParams["MID"] > 0)
-	$iNumPage = CForumMessage::GetMessagePage($arParams["MID"], $arParams["MESSAGES_PER_PAGE"], $arUserGroups, $arParams["TID"]);
+$iNumPage = ($arParams["MID"] > 0 ? CForumMessage::GetMessagePage($arParams["MID"], $arParams["MESSAGES_PER_PAGE"], $arUserGroups, $arParams["TID"]) : 0);
 // Create filter and additional fields for message select
 $arFilter = array("TOPIC_ID" => $arParams["TID"]);
 if ($arResult["USER"]["RIGHTS"]["MODERATE"] != "Y") {$arFilter["APPROVED"] = "Y";}
 if ($USER->IsAuthorized()) {$arFilter["POINTS_TO_AUTHOR_ID"] = $USER->GetID();}
-$arFields = array("bDescPageNumbering" => false, "nPageSize" => $arParams["MESSAGES_PER_PAGE"], "bShowAll" => ($arParams["PAGE_NAVIGATION_SHOW_ALL"] == "Y"));
-if ($iNumPage > 0) {$arFields["iNumPage"] = $iNumPage;}
 /*******************************************************************/
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
-$db_res = CForumMessage::GetListEx(
-	array("ID"=>"ASC"), $arFilter, false, false,
-	$arFields);
+$db_res = CForumMessage::GetListEx(array("ID"=>"ASC"), $arFilter, false, false,
+	array(
+		"bDescPageNumbering" => false,
+		"nPageSize" => $arParams["MESSAGES_PER_PAGE"],
+		"bShowAll" => ($arParams["PAGE_NAVIGATION_SHOW_ALL"] == "Y"),
+		"iNumPage" => ($iNumPage > 0 ? $iNumPage : false),
+		"sNameTemplate" => $arParams["NAME_TEMPLATE"]));
 $db_res->NavStart($arParams["MESSAGES_PER_PAGE"], false, ($iNumPage > 0 ? $iNumPage : false));
 $db_res->nPageWindow = $arParams["PAGE_NAVIGATION_WINDOW"];
+
 /*******************************************************************/
 $arResult["NAV_RESULT"] = $db_res;
 $arResult["NAV_STRING"] = $db_res->GetPageNavStringEx($navComponentObject, GetMessage("F_TITLE_NAV"), $arParams["PAGE_NAVIGATION_TEMPLATE"]);
@@ -430,6 +426,7 @@ $number = intVal($db_res->NavPageNomer-1)*$arParams["MESSAGES_PER_PAGE"] + 1;
 $arResult['PAGE_NUMBER'] = $db_res->NavPageNomer;
 $bNeedFirstMessage = ($arParams["SHOW_FIRST_POST"] == "Y" && $number != 1 ? true : false);
 $bNeedLoop = true;
+
 while ($bNeedLoop)
 {
 	if (!($res = $db_res->GetNext())):
@@ -449,95 +446,67 @@ while ($bNeedLoop)
 	$res["POST_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["POST_DATE"], CSite::GetDateFormat()));
 	$res["EDIT_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["EDIT_DATE"], CSite::GetDateFormat()));
 	// text
-	$arAllow["SMILES"] = ($res["USE_SMILES"] == "Y" ? $arResult["FORUM"]["ALLOW_SMILES"] : "N");
+	$res["ALLOW"] = array_merge($arAllow, array("SMILES" => ($res["USE_SMILES"] == "Y" ? $arResult["FORUM"]["ALLOW_SMILES"] : "N")));
 	$res["~POST_MESSAGE_TEXT"] = (COption::GetOptionString("forum", "FILTER", "Y")=="Y" ? $res["~POST_MESSAGE_FILTER"] : $res["~POST_MESSAGE"]);
-	$res["POST_MESSAGE_TEXT"] = $parser->convert($res["~POST_MESSAGE_TEXT"], $arAllow);
-	$arAllow["SMILES"] = $arResult["FORUM"]["ALLOW_SMILES"];
 	// attach
 	$res["ATTACH_IMG"] = ""; $res["FILES"] = array();
 	$res["~ATTACH_FILE"] = array(); $res["ATTACH_FILE"] = array();
 /************** Message info/***************************************/
 /************** Author info ****************************************/
 	$res["AUTHOR_ID"] = intVal($res["AUTHOR_ID"]);
-	if ($res["AUTHOR_ID"] <= 0):
-		$arUser = array();
-	else:
-		if (!array_key_exists($res["AUTHOR_ID"], $UserInfo)):
-			$arUser["Groups"] = CUser::GetUserGroup($res["AUTHOR_ID"]);
-			$arUser["Perms"] = CForumNew::GetUserPermission($res["FORUM_ID"], $arUser["Groups"]);
-			if ($arUser["Perms"] <= "Q")
-				$arUser["Rank"] = CForumUser::GetUserRank($res["AUTHOR_ID"], LANGUAGE_ID);
-
-			$arUser["Points"] = (intVal($res["POINTS"]) > 0 ?
-				array("POINTS" => $res["POINTS"], "DATE_UPDATE" => $res["DATE_UPDATE"]) : false);
-			$UserInfo[$res["AUTHOR_ID"]] = $arUser;
-		endif;
-		$arUser = $UserInfo[$res["AUTHOR_ID"]];
-	endif;
-	// Status
-	$res["AUTHOR_STATUS"] = "";
-	$res["AUTHOR_STATUS_CODE"] = "";
-	if ($res["AUTHOR_ID"] > 0):
-		if ($arUser["Perms"] == "Q"):
-			$res["AUTHOR_STATUS"] = $GLOBALS["FORUM_STATUS_NAME"]["moderator"];
-			$res["AUTHOR_STATUS_CODE"] = 'moderator';
-		elseif ($arUser["Perms"] == "U"):
-			$res["AUTHOR_STATUS"] = $GLOBALS["FORUM_STATUS_NAME"]["editor"];
-			$res["AUTHOR_STATUS_CODE"] = 'editor';
-		elseif ($arUser["Perms"] == "Y"):
-			$res["AUTHOR_STATUS"] = $GLOBALS["FORUM_STATUS_NAME"]["administrator"];
-			$res["AUTHOR_STATUS_CODE"] = 'administrator';
-		elseif (COption::GetOptionString("forum", "SHOW_VOTES", "Y")=="Y"):
-			$res["AUTHOR_STATUS"] = $arUser["Rank"]["NAME"];
-			$res["AUTHOR_STATUS_CODE"] = $arUser["Rank"]["CODE"];
-		elseif (COption::GetOptionString("forum", "SHOW_VOTES", "Y")=="N"):
-			$res["AUTHOR_STATUS"] = $arUser["Rank"]["NAME"];
-			$res["AUTHOR_STATUS_CODE"] = $arUser["Rank"]["CODE"];
-		elseif ($arParams["SHOW_DEFAULT_RANK"] == "Y"):
-			$res["AUTHOR_STATUS"] = $GLOBALS["FORUM_STATUS_NAME"]["user"];
-			$res["AUTHOR_STATUS_CODE"] = "user";
-		endif;
-		?><?
-	else:
-		$res["AUTHOR_STATUS"] = $GLOBALS["FORUM_STATUS_NAME"]["guest"];
-		$res["AUTHOR_STATUS_CODE"] = "guest";
-	endif;
-	// Avatar
-	if (strLen($res["AVATAR"]) > 0):
-		$res["AVATAR"] = array("ID" => $res["AVATAR"]);
-		$res["AVATAR"]["FILE"] = CFile::GetFileArray($res["AVATAR"]["ID"]);
-		$res["AVATAR"]["HTML"] = CFile::ShowImage($res["AVATAR"]["FILE"], COption::GetOptionString("forum", "avatar_max_width", 90),
-			COption::GetOptionString("forum", "avatar_max_height", 90), "border=\"0\"", "", true);
-	endif;
-	// data
-	$res["DATE_REG"] = CForumFormat::DateFormat($arParams["DATE_FORMAT"], MakeTimeStamp($res["DATE_REG"], CSite::GetDateFormat()));
-	// Another data
 	$res["AUTHOR_NAME"] = $parser->wrap_long_words($res["AUTHOR_NAME"]);
-	$res["DESCRIPTION"] = $parser->wrap_long_words($res["DESCRIPTION"]);
-	if (strLen($res["SIGNATURE"]) > 0)
+	if ($res["AUTHOR_ID"] <= 0)
 	{
-		$arAllow["SMILES"] = "N";
-		$res["SIGNATURE"] = $parser->convert($res["~SIGNATURE"], $arAllow);
+		// Status
+		list($res["AUTHOR_STATUS_CODE"], $res["AUTHOR_STATUS"]) = ForumGetUserForumStatus(0);
 	}
-	$res["FOR_JS"]["AUTHOR_NAME"] = Cutil::JSEscape(htmlspecialchars($res["~AUTHOR_NAME"]));
-	$res["FOR_JS"]["POST_MESSAGE"] = Cutil::JSEscape(htmlspecialchars($res["~POST_MESSAGE_TEXT"]));
-	// Voting
-	$res["VOTING"] = "N";
-	if ($res["AUTHOR_ID"] > 0 && COption::GetOptionString("forum", "SHOW_VOTES", "Y") == "Y" && $USER->IsAuthorized() &&
-		($GLOBALS["APPLICATION"]->GetGroupRight("forum") >= "W" || (intVal($USER->GetID()) != $res["AUTHOR_ID"]))):
-		$bVote = "N"; $bUnVote = "N";
-		if ($arUser["Points"])
+	else
+	{
+		if (!array_key_exists($res["AUTHOR_ID"], $UserInfo))
 		{
-			$bUnVote = "Y";
-			if (intVal($arUser["Points"]["POINTS"]) < intVal($arResult["USER"]["RANK"]["VOTES"]))
-				$bVote = "Y";
-		}
-		elseif (intVal($arResult["USER"]["RANK"]["VOTES"]) > 0 || $GLOBALS["APPLICATION"]->GetGroupRight("forum") >= "W")
-			$bVote = "Y";
+			$perm = CForumNew::GetUserPermission($res["FORUM_ID"], CUser::GetUserGroup($res["AUTHOR_ID"]));
+			$arUser = array(
+				"Perms" => $perm,
+				"Rank" => ($perm <= "Q" ? CForumUser::GetUserRank($res["AUTHOR_ID"], LANGUAGE_ID) : ""),
+				"Points" => (intVal($res["POINTS"]) > 0 ? array("POINTS" => $res["POINTS"], "DATE_UPDATE" => $res["DATE_UPDATE"]) : false));
 
-		if ($bVote == "Y" || $bUnVote == "Y")
-			$res["VOTING"] = ($bVote == "Y" ? "VOTE" : "UNVOTE");
-	endif;
+			$arUData = array();
+
+			// Status
+			list($arUData["AUTHOR_STATUS_CODE"], $arUData["AUTHOR_STATUS"]) = ForumGetUserForumStatus($res["AUTHOR_ID"], $arUser["Perms"], $arUser);
+
+			// Avatar
+			if (!empty($res["AVATAR"])):
+				$arUData["AVATAR"] = array("ID" => $res["~AVATAR"], "FILE" => CFile::GetFileArray($res["~AVATAR"]));
+				$arUData["AVATAR"]["HTML"] = CFile::ShowImage($arUData["AVATAR"]["FILE"],
+					COption::GetOptionString("forum", "avatar_max_width", 90),
+					COption::GetOptionString("forum", "avatar_max_height", 90), "border=\"0\"", "", true);
+			endif;
+			// Voting
+			$arUData["VOTING"] = "N";
+			if (COption::GetOptionString("forum", "SHOW_VOTES", "Y") == "Y" && $USER->IsAuthorized() &&
+				($GLOBALS["APPLICATION"]->GetGroupRight("forum") >= "W" || $USER->GetID() != $res["AUTHOR_ID"]))
+			{
+				$bUnVote = $arUser["Points"];
+				$bVote = (!($arUser["Points"]) ? $arResult["USER"]["RANK"]["VOTES"] :
+					intval($arUser["Points"]["POINTS"]) < intval($arResult["USER"]["RANK"]["VOTES"]));
+				$bVote = ($bVote ? $bVote : $GLOBALS["APPLICATION"]->GetGroupRight("forum") >= "W");
+				$arUData["VOTING"] = ($bVote ? "VOTE" : ($bUnVote ? "UNVOTE" : $res["VOTING"]));
+			}
+			// data
+			$arUData["DATE_REG"] = CForumFormat::DateFormat($arParams["DATE_FORMAT"], MakeTimeStamp($res["DATE_REG"], CSite::GetDateFormat()));
+			// Another data
+			$arUData["DESCRIPTION"] = $parser->wrap_long_words($res["DESCRIPTION"]);
+			if (!empty($res["SIGNATURE"]))
+				$arUData["SIGNATURE"] = $parser->convert($res["~SIGNATURE"], array_merge($arAllow, array("SMILES" => "N")));
+
+			$UserInfo[$res["AUTHOR_ID"]] = $arUData;
+		}
+		$res = array_merge($res, $UserInfo[$res["AUTHOR_ID"]]);
+	}
+	// Another data
+	$res["FOR_JS"]["AUTHOR_NAME"] = Cutil::JSEscape(htmlspecialcharsbx($res["~AUTHOR_NAME"]));
+	$res["FOR_JS"]["POST_MESSAGE"] = Cutil::JSEscape(htmlspecialcharsbx($res["~POST_MESSAGE_TEXT"]));
 /************** Author info/****************************************/
 /************** Panels *********************************************/
 	$res["PANELS"] = array(
@@ -551,7 +520,7 @@ while ($bNeedLoop)
 
 	if ($arResult["USER"]["RIGHTS"]["EDIT_MESSAGE"] == "Y" && $res["AUTHOR_ID"] == $USER->GetId() &&
 		($arResult["USER"]["RIGHTS"]["EDIT_OWN_POST"] == "Y" || $arResult["TOPIC"]["iLAST_TOPIC_MESSAGE"] == intVal($res["ID"])))
-            $res["PANELS"]["EDIT"] = "Y";
+			$res["PANELS"]["EDIT"] = "Y";
 	$res["SHOW_PANEL"] = in_array("Y", $res["PANELS"]) ? "Y" : "N";
 
 	if ($arResult["USER"]["PERMISSION"] >= "Q")
@@ -639,6 +608,7 @@ while ($bNeedLoop)
 	endif;
 }
 /************** Attach files ***************************************/
+
 if (!empty($arResult["MESSAGE_LIST"]))
 {
 	$res = array_keys($arResult["MESSAGE_LIST"]);
@@ -696,6 +666,17 @@ if (!empty($arResult["MESSAGE_LIST"]))
 		}
 	}
 }
+
+/************** Message info ***************************************/
+$parser->arFiles = $arResult["FILES"];
+if (!empty($arResult["MESSAGE_FIRST"])):
+	$arResult["MESSAGE_FIRST"]["POST_MESSAGE_TEXT"] = $parser->convert($arResult["MESSAGE_FIRST"]["~POST_MESSAGE_TEXT"], $arResult["MESSAGE_FIRST"]["ALLOW"]);
+	$arResult["MESSAGE_FIRST"]["FILES_PARSED"] = $parser->arFilesIDParsed;
+endif;
+foreach ($arResult["MESSAGE_LIST"] as $iID => $res):
+	$arResult["MESSAGE_LIST"][$iID]["POST_MESSAGE_TEXT"] = $parser->convert($res["~POST_MESSAGE_TEXT"], $res["ALLOW"]);
+	$arResult["MESSAGE_LIST"][$iID]["FILES_PARSED"] = $parser->arFilesIDParsed;
+endforeach;
 /************** Message List/***************************************/
 /************** Navigation *****************************************/
 if (intVal($arResult["FORUM"]["FORUM_GROUP_ID"]) > 0):
@@ -745,6 +726,9 @@ if ($arParams["VERSION"] < 1)
 	$arResult["CanUserAddTopic"] = $arResult["USER"]["RIGHTS"]["ADD_TOPIC"] == "Y";
 }
 /************** For custom templates/*******************************/
+
+$this->IncludeComponentTemplate();
+
 if ($arParams["SET_TITLE"] != "N")
 	$APPLICATION->SetTitle(htmlspecialcharsEx($arResult["TOPIC"]["~TITLE"]));
 
@@ -803,8 +787,8 @@ if ($arParams["SET_NAVIGATION"] != "N")
 	foreach ($arResult["GROUP_NAVIGATION"] as $key => $res):
 		$APPLICATION->AddChainItem($res["NAME"], $res["URL"]["~GROUP"]);
 	endforeach;
-	$APPLICATION->AddChainItem(htmlspecialchars($arResult["FORUM"]["~NAME"]), $arResult["URL"]["~TOPIC_LIST"]);
-	$APPLICATION->AddChainItem(htmlspecialchars($arResult["TOPIC"]["~TITLE"]));
+	$APPLICATION->AddChainItem(htmlspecialcharsbx($arResult["FORUM"]["~NAME"]), $arResult["URL"]["~TOPIC_LIST"]);
+	$APPLICATION->AddChainItem(htmlspecialcharsbx($arResult["TOPIC"]["~TITLE"]));
 }
 if (($arParams["SET_PAGE_PROPERTY"] == "Y") && ($arParams["SET_DESCRIPTION"] == "N")):
 	if (!empty($arResult["TOPIC"]["~TAGS"])):
@@ -814,7 +798,6 @@ if (($arParams["SET_PAGE_PROPERTY"] == "Y") && ($arParams["SET_DESCRIPTION"] == 
 		$APPLICATION->SetPageProperty("description", str_replace(",", " ", $arResult["TOPIC"]["~DESCRIPTION"]));
 	endif;
 endif;
-$this->IncludeComponentTemplate();
 
 return array("FORUM" => $arResult["FORUM"], "bVarsFromForm" => ($bVarsFromForm ? "Y" : "N"),
 	"TID" => $arParams["TID"], "FID" => $arParams["FID"], "arFormParams" => $arResult);

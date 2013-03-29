@@ -63,7 +63,7 @@ if (IsModuleInstalled('intranet'))
 		'VALUES' => CComponentUtil::GetDefaultNameTemplates(),
 		'MULTIPLE' => 'N',
 		'ADDITIONAL_VALUES' => 'Y',
-		'DEFAULT' => GetMessage('CMDESKTOP_PARAMS_NAME_TEMPLATE_DEFAULT'),
+		'DEFAULT' => '',
 		'PARENT' => 'ADDITIONAL_SETTINGS',
 	);
 

@@ -288,4 +288,4 @@ dw_scrollObj.handleControlVis = function(controlsId, wndoId, axis) {
     } else {
         el.style.visibility = 'hidden';
     }
-}
+};   

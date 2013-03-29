@@ -41,12 +41,12 @@ if (!function_exists("CreatePattern"))
 					if (strLen($arrRepl[$ii]) == 1 )
 						$arrRes[$ii] = $arrRepl[$ii]."+";
 					elseif (substr($arrRepl[$ii], 0, 1) == "(" && (substr($arrRepl[$ii], -1, 1) == ")" || substr($arrRepl[$ii], -2, 1) == ")"))
-                    {
-                        if (substr($arrRepl[$ii], -1, 1) == ")")
-                            $arrRes[$ii] = $arrRepl[$ii]."+";
-                        else 
-                            $arrRes[$ii] = $arrRepl[$ii];
-                    }
+					{
+						if (substr($arrRepl[$ii], -1, 1) == ")")
+							$arrRes[$ii] = $arrRepl[$ii]."+";
+						else
+							$arrRes[$ii] = $arrRepl[$ii];
+					}
 					elseif (strLen($arrRepl[$ii]) > 1 )
 						$arrRes[$ii] = "[".$arrRepl[$ii]."]+";
 					else 
@@ -196,6 +196,8 @@ Class forum extends CModule
 		
 		RegisterModuleDependences("main", "OnGroupDelete", "forum", "CForumNew", "OnGroupDelete");
 		RegisterModuleDependences("main", "OnBeforeLangDelete", "forum", "CForumNew", "OnBeforeLangDelete");
+		RegisterModuleDependences("main", "OnFileDelete", "forum", "CForumFiles", "OnFileDelete");
+
 		RegisterModuleDependences("search", "OnReindex", "forum", "CForumNew", "OnReindex");
 		RegisterModuleDependences("main", "OnUserDelete", "forum", "CForumUser", "OnUserDelete");
 		RegisterModuleDependences("iblock", "OnIBlockPropertyBuildList", "main", "CIBlockPropertyTopicID", "GetUserTypeDescription", 100, "/modules/forum/tools/prop_topicid.php");
@@ -207,7 +209,7 @@ Class forum extends CModule
 
 		RegisterModuleDependences('mail', 'OnGetFilterList', 'forum', 'CForumEMail', 'OnGetSocNetFilterList');
 		
-		RegisterModuleDependences("main", "OnAfterAddRating", 	 "forum", "CRatingsComponentsForum", "OnAfterAddRating", 100);
+		RegisterModuleDependences("main", "OnAfterAddRating", "forum", "CRatingsComponentsForum", "OnAfterAddRating", 100);
 		RegisterModuleDependences("main", "OnAfterUpdateRating", "forum", "CRatingsComponentsForum", "OnAfterUpdateRating", 100);
 		RegisterModuleDependences("main", "OnSetRatingsConfigs", "forum", "CRatingsComponentsForum", "OnSetRatingConfigs", 100);
 		RegisterModuleDependences("main", "OnGetRatingsConfigs", "forum", "CRatingsComponentsForum", "OnGetRatingConfigs", 100);
@@ -259,10 +261,10 @@ Class forum extends CModule
 					$tmp_res_q = $GLOBALS["DB"]->Query(
 					"SELECT 
 						FD.ID, COUNT(FF.ID) AS COUNT_WORDS
-				    FROM b_forum_dictionary FD
-				    LEFT JOIN b_forum_filter FF ON (FD.ID=FF.DICTIONARY_ID)
-				    WHERE FD.ID=".($site["LID"] == "ru" ? "1" : ($site["LID"] == "de" ? "5" : "3"))." 
-				    GROUP BY FD.ID", True);
+						FROM b_forum_dictionary FD
+					LEFT JOIN b_forum_filter FF ON (FD.ID=FF.DICTIONARY_ID)
+					WHERE FD.ID=".($site["LID"] == "ru" ? "1" : ($site["LID"] == "de" ? "5" : "3"))."
+					GROUP BY FD.ID", True);
 					if (!($tmp_res_q && ($res = $tmp_res_q->Fetch())))
 					{
 						if(file_exists(	$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/".$GLOBALS["DBType"]."/".$site["LID"]."/".$site["LID"].".sql"))
@@ -297,6 +299,7 @@ Class forum extends CModule
 	function UnInstallDB($arParams = array())
 	{
 		$this->errors = false;
+		$arSQLErrors = array();
 		
 		if(CModule::IncludeModule("search"))
 			CSearch::DeleteIndex("forum");
@@ -314,6 +317,7 @@ Class forum extends CModule
 		UnRegisterModuleDependences("iblock", "OnIBlockPropertyBuildList", "main", "CIBlockPropertyTopicID", "GetUserTypeDescription");
 		UnRegisterModuleDependences("iblock", "OnBeforeIBlockElementDelete", "forum", "CForumTopic", "OnBeforeIBlockElementDelete");
 		UnRegisterModuleDependences("main", "OnUserDelete", "forum", "CForumUser", "OnUserDelete");
+		UnRegisterModuleDependences("main", "OnFileDelete", "forum", "CForumFiles", "OnFileDelete");
 		UnRegisterModuleDependences("search", "OnReindex", "forum", "CForumNew", "OnReindex");
 		UnRegisterModuleDependences("main", "OnPanelCreate", "forum", "CForumNew", "OnPanelCreate");
 		UnRegisterModuleDependences("main", "OnBeforeLangDelete", "forum", "CForumNew", "OnBeforeLangDelete");
@@ -375,7 +379,12 @@ Class forum extends CModule
 		if($_SERVER["DevServer"] != "Y" && $_ENV["COMPUTERNAME"]!="BX")
 		{
 			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");//css
+			DeleteDirFiles(
+				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/themes/.default/",
+				$_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");//css
+			DeleteDirFiles(
+				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/public/templates/.default/page_templates/forum/",
+				$_SERVER["DOCUMENT_ROOT"]."/bitrix/templates/.default/page_templates/forum/");//page template
 			DeleteDirFilesEx("/bitrix/themes/.default/icons/forum/");//icons
 		}
 		return true;

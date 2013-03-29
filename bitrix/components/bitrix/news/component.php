@@ -163,12 +163,12 @@ else
 	$arResult = array(
 		"FOLDER" => "",
 		"URL_TEMPLATES" => Array(
-			"news" => htmlspecialchars($APPLICATION->GetCurPage()),
-			"section" => htmlspecialchars($APPLICATION->GetCurPage()."?".$arVariableAliases["SECTION_ID"]."=#SECTION_ID#"),
-			"detail" => htmlspecialchars($APPLICATION->GetCurPage()."?".$arVariableAliases["ELEMENT_ID"]."=#ELEMENT_ID#"),
-			"search" => htmlspecialchars($APPLICATION->GetCurPage()),
-			"rss" => htmlspecialchars($APPLICATION->GetCurPage()."?rss=y"),
-			"rss_section" => htmlspecialchars($APPLICATION->GetCurPage()."?".$arVariableAliases["SECTION_ID"]."=#SECTION_ID#&rss=y"),
+			"news" => htmlspecialcharsbx($APPLICATION->GetCurPage()),
+			"section" => htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arVariableAliases["SECTION_ID"]."=#SECTION_ID#"),
+			"detail" => htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arVariableAliases["ELEMENT_ID"]."=#ELEMENT_ID#"),
+			"search" => htmlspecialcharsbx($APPLICATION->GetCurPage()),
+			"rss" => htmlspecialcharsbx($APPLICATION->GetCurPage()."?rss=y"),
+			"rss_section" => htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arVariableAliases["SECTION_ID"]."=#SECTION_ID#&rss=y"),
 		),
 		"VARIABLES" => $arVariables,
 		"ALIASES" => $arVariableAliases

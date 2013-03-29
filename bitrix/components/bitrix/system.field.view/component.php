@@ -41,13 +41,14 @@ if($arParams["arUserField"]["USER_TYPE"])
 				$res = intVal($res);
 				break;
 			case "enum":
-				$res = strLen($enum[$res]) > 0 ? $enum[$res] : htmlspecialchars($res);
+				$res = strLen($enum[$res]) > 0 ? $enum[$res] : htmlspecialcharsbx($res);
 				break;
 			default:
-				$res = htmlspecialchars($res);
+				$res = htmlspecialcharsbx($res);
 				break;
 		}
 		$arResult["VALUE"][$key] = $res;
 	}
 	$this->IncludeComponentTemplate();
-}?>
+}
+?>

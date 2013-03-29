@@ -21,4 +21,5 @@ $MESS ['USER_TYPE_FILTER_N'] = "не показывать";
 $MESS ['USER_TYPE_FILTER_I'] = "точное совпадение";
 $MESS ['USER_TYPE_FILTER_E'] = "поиск по маске";
 $MESS ['USER_TYPE_FILTER_S'] = "поиск по подстроке";
+$MESS ['USERTYPE_BACK_URL_BUTTON'] = 'Вернуться';
 ?>

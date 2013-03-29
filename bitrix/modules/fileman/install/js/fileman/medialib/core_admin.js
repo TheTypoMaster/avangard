@@ -63,6 +63,10 @@ BXMedialibAdmin.prototype =
 			this.SelectCollection(this.curColl, true);
 			this.OpenCollection(this.curColl);
 		}
+
+		// Temp hack for dialogs in Opera must die when redesigned
+		if (BX('mlsd_item'))
+			document.body.appendChild(BX('mlsd_item').parentNode);
 	},
 
 	BuildCollections: function()
@@ -141,14 +145,14 @@ BXMedialibAdmin.prototype =
 		{
 			var
 				html = '', i,
-				titleDiv = jsUtils.CreateElement("DIV", {id : 'ml_coll_title_' + oCol.id}),
-				img = titleDiv.appendChild(jsUtils.CreateElement("IMG", {src: '/bitrix/images/1.gif', className: 'ml-col-icon ml-col-icon-closed'})),
+				titleDiv = BX.create("DIV", {props:{id : 'ml_coll_title_' + oCol.id}}),
+				img = titleDiv.appendChild(BX.create("IMG", {props:{src: '/bitrix/images/1.gif', className: 'ml-col-icon ml-col-icon-closed'}})),
 				arHideItems = {length: 0},
-				ch = titleDiv.appendChild(jsUtils.CreateElement("INPUT", {type: 'checkbox', value: 'c_' + oCol.id})),
-				menuIc = titleDiv.appendChild(jsUtils.CreateElement("IMG", {src: '/bitrix/images/1.gif', className: 'ml-col-menu', id: 'mlccm_' + oCol.id})),
+				ch = titleDiv.appendChild(BX.create("INPUT", {props:{type: 'checkbox', value: 'c_' + oCol.id}})),
+				menuIc = titleDiv.appendChild(BX.create("IMG", {props:{src: '/bitrix/images/1.gif', className: 'ml-col-menu', id: 'mlccm_' + oCol.id}})),
 				span = titleDiv.appendChild(BX.create("SPAN", {props: {title: bxspcharsback(oCol.desc || oCol.name)}, text: oCol.name})),
-				childDiv = jsUtils.CreateElement("DIV"),
-				childTbl = childDiv.appendChild(jsUtils.CreateElement("TABLE"));
+				childDiv = BX.create("DIV"),
+				childTbl = childDiv.appendChild(BX.create("TABLE"));
 				itemsTd = childTbl.insertRow(-1).insertCell(-1),
 				colsTd = childTbl.insertRow(-1).insertCell(-1),
 				cellX = childTbl.insertRow(-1).insertCell(-1);
@@ -376,7 +380,7 @@ BXMedialibAdmin.prototype =
 			if (i > 0)
 			{
 				// Add separator
-				this.pBread.appendChild(jsUtils.CreateElement("DIV", {className: 'ml-crumb-sep'})).appendChild(document.createTextNode(' '));
+				this.pBread.appendChild(BX.create("DIV", {props:{className: 'ml-crumb-sep'}})).appendChild(document.createTextNode(' '));
 				pCr.onclick = function(){_this.SelectCollection(this.id.substr('ml_crumb_'.length));};
 			}
 			else
@@ -713,7 +717,7 @@ BXMedialibAdmin.prototype =
 			_this = this,
 			D = {
 				width: 360,
-				height: 220,
+				height: 260,
 				pWnd: BX('mlsd_coll'),
 				pTitle: BX('mlsd_coll_title'),
 				pName: BX('mlsd_coll_name'),
@@ -880,11 +884,14 @@ BXMedialibAdmin.prototype =
 			_this = this,
 			w = this.oConfig.thumbWidth,
 			h = this.oConfig.thumbHeight,
-			itemDiv = jsUtils.CreateElement("DIV", {id : 'ml_item_' + oItem.id, className: 'ml-item-cont', title: bxspcharsback(oItem.name)}, {width: (w + 15) + 'px', height: (h + 35) + 'px'}),
-			ch = itemDiv.appendChild(jsUtils.CreateElement("INPUT", {type: 'checkbox', className: 'item-checkbox', value: Params.id + '|' + oItem.id})),
-			tmbImg = itemDiv.appendChild(jsUtils.CreateElement("IMG", {src: oItem.thumb_path || '/bitrix/images/1.gif', className: 'ml-item-thumb'})),
-			titleDiv = itemDiv.appendChild(jsUtils.CreateElement("DIV", {className: 'ml-item-title'}, {width: (w + 8) + 'px'}));
+			itemDiv = BX.create("DIV", {props:{id : 'ml_item_' + oItem.id, className: 'ml-item-cont', title: bxspcharsback(oItem.name)}, style:{width: (w + 15) + 'px', height: (h + 35) + 'px'}}),
+			ch = itemDiv.appendChild(BX.create("INPUT", {props:{type: 'checkbox', className: 'item-checkbox', value: Params.id + '|' + oItem.id}})),
+			tmbImg = itemDiv.appendChild(BX.create("IMG", {props:{src: oItem.thumb_path || '/bitrix/images/1.gif', className: 'ml-item-thumb'}})),
+			titleDiv = itemDiv.appendChild(BX.create("DIV", {props:{className: 'ml-item-title'}, style:{width: (w + 8) + 'px'}}));
 
+		var tmb_path = oItem.thumb_path || oItem.path;
+		if (oItem.type == 'image' && tmb_path) // For small images
+			tmbImg.style.backgroundImage = 'url(\'' + tmb_path + '\')';
 
 		if (!oItem.thumb_path || !oItem.width || !oItem.height)
 		{
@@ -911,9 +918,9 @@ BXMedialibAdmin.prototype =
 			_this.EnableMultiAction(this.checked || _this.AskAllCheckBoxes());
 		};
 
-		var butCont = itemDiv.appendChild(jsUtils.CreateElement("DIV", {className: 'ml-item-but-cont'}));
+		var butCont = itemDiv.appendChild(BX.create("DIV", {props:{className: 'ml-item-but-cont'}}));
 
-		var view = butCont.appendChild(jsUtils.CreateElement("IMG", {src: '/bitrix/images/1.gif', className: 'ml-item-view', title: ML_MESS.ViewItem}));
+		var view = butCont.appendChild(BX.create("IMG", {props: {src: '/bitrix/images/1.gif', className: 'ml-item-view', title: ML_MESS.ViewItem}}));
 		view.onclick = function(e)
 		{
 			var id = this.parentNode.parentNode.id.substr('ml_item_'.length);
@@ -931,7 +938,7 @@ BXMedialibAdmin.prototype =
 		{
 			if (Params.Access.edit)
 			{
-				var edit = butCont.appendChild(jsUtils.CreateElement("IMG", {src: '/bitrix/images/1.gif', className: 'ml-item-edit', title: ML_MESS.EditItem}));
+				var edit = butCont.appendChild(BX.create("IMG", {props: {src: '/bitrix/images/1.gif', className: 'ml-item-edit', title: ML_MESS.EditItem}}));
 				edit.onclick = function(e)
 				{
 					var id = this.parentNode.parentNode.id.substr('ml_item_'.length);
@@ -942,7 +949,7 @@ BXMedialibAdmin.prototype =
 
 			if (Params.Access.del)
 			{
-				var del = butCont.appendChild(jsUtils.CreateElement("IMG", {src: '/bitrix/images/1.gif', className: 'ml-item-del', title: ML_MESS.DelItem}));
+				var del = butCont.appendChild(BX.create("IMG", {props:{src: '/bitrix/images/1.gif', className: 'ml-item-del', title: ML_MESS.DelItem}}));
 				del.onclick = function(e)
 				{
 					var id = this.parentNode.parentNode.id.substr('ml_item_'.length);
@@ -1095,7 +1102,8 @@ BXMedialibAdmin.prototype =
 		D.pName.title = oItem.name;
 
 		// Link
-		D.pLink.href = oItem.path;
+		//D.pLink.href = oItem.path;
+		D.pLink.onclick = function () { jsUtils.Redirect([], 'fileman_file_download.php?path='+BX.util.urlencode(oItem.path)); };
 
 		// Keywords
 		if (oItem.keywords.length > 0)
@@ -1267,7 +1275,7 @@ BXMedialibAdmin.prototype =
 				ind = strKeys.lastIndexOf(',');
 
 			if(kh > h && ind > 0)
-				_this._ChooseKeysCount(pk, pp, jsUtils.trim(strKeys.substr(0, ind)), h, true)
+				_this._ChooseKeysCount(pk, pp, BX.util.trim(strKeys.substr(0, ind)), h, true)
 			else if(bCut)
 				pk.innerHTML += '...';
 		}, 1);
@@ -1432,7 +1440,7 @@ BXMedialibAdmin.prototype =
 			D = {
 				Params: Params || false,
 				width: 420,
-				height: 340,
+				height: 350,
 				pWnd: BX('mlsd_item'),
 				pTitle: BX('mlsd_item_title'),
 				pIfrm: BX('mlsd_iframe_upload'),
@@ -1442,7 +1450,7 @@ BXMedialibAdmin.prototype =
 		D.pIfrm.src = this.GetRequestUrl('upload_form');
 
 		var _this = this;
-		if (jsUtils.IsIE())
+		if (BX.browser.IsIE())
 			D.pIfrm.onreadystatechange = function(){_this.EditItemDialogOnload()};
 		else
 			D.pIfrm.onload = function(){_this.EditItemDialogOnload()};
@@ -1696,7 +1704,7 @@ BXMedialibAdmin.prototype =
 			pSel = this.EditItemDialog.pColSelect,
 			pDiv = BX.create("DIV", {props: {className: 'mlsd-ch-col', title: oCol.name}}, this.EditItemDialog.pFrameDoc),
 			pSpan = pDiv.appendChild(BX.create("SPAN", {text: oCol.name}, this.EditItemDialog.pFrameDoc)),
-			pDel = pDiv.appendChild(jsUtils.CreateElement("IMG", {src: '/bitrix/images/1.gif', className: 'ml-col-del', title: ML_MESS.DelColFromItem, id: 'mlsd_it_' + id}, false, this.EditItemDialog.pFrameDoc));
+			pDel = pDiv.appendChild(BX.create("IMG", {props:{src: '/bitrix/images/1.gif', className: 'ml-col-del', title: ML_MESS.DelColFromItem, id: 'mlsd_it_' + id}}, this.EditItemDialog.pFrameDoc));
 
 		if (oCol.keywords && this.EditItemDialog.bNew && !this.EditItemDialog.bFocusKeywords)
 			this.AppendKeywords(this.EditItemDialog.pKeys, oCol.keywords);
@@ -1750,7 +1758,7 @@ BXMedialibAdmin.prototype =
 		this.EditItemDialog.pItCollCont.style.height = rows * 28 + 'px';
 		this.EditItemDialog.pIfrm.style.height = 275 + delta + 'px';
 		this.EditItemDialog.pTbl.style.height = 265 + delta + 'px';
-		this.EditItemDialog.pWnd.style.height = 340 + delta + 'px';
+		this.EditItemDialog.pWnd.style.height = 350 + delta + 'px';
 		jsFloatDiv.AdjustShadow(this.EditItemDialog.pWnd);
 	},
 
@@ -1976,6 +1984,9 @@ BXMedialibAdmin.prototype =
 		var
 			id = Params.id,
 			arCols = [];
+
+		if (Params.colId == 'search_result')
+			Params.bSearch = true;
 
 		if (Params.bSearch)
 		{
@@ -2392,8 +2403,8 @@ BXMedialibAdmin.prototype =
 
 		for (i = 0; i < l; i++)
 		{
-			kw = jsUtils.trim(arKeysR[i]);
-			if (kw && !jsUtils.in_array(kw, arKeys))
+			kw = BX.util.trim(arKeysR[i]);
+			if (kw && !BX.util.in_array(kw, arKeys))
 				arKeys.push(kw);
 		}
 
@@ -2432,7 +2443,7 @@ BXMedialibAdmin.prototype =
 	TypeOnChange: function(Params)
 	{
 		if (this.Types[Params.typeInd].id != this.curType.id)
-			window.location = "/bitrix/admin/fileman_medialib_admin.php?lang=" + this.oConfig.lang + "&type=" + this.Types[Params.typeInd].id + '&sessid=' + this.sessid;
+			window.location = "/bitrix/admin/fileman_medialib_admin.php?lang=" + this.oConfig.lang + "&type=" + this.Types[Params.typeInd].id; // + '&sessid=' + this.sessid;
 	},
 
 	CheckMLType: function(typeId)
@@ -2527,6 +2538,7 @@ BXMedialibAdmin.prototype =
 				_this.CloseChangeTypeDialog();
 		};
 		BX('mlsd_chtype_cancel').onclick = function(){_this.CloseChangeTypeDialog();};
+		BX('mlsd_chtype_close').onclick = function(){_this.CloseChangeTypeDialog();};
 
 		window.MlChTypeOnKeypress = function(e)
 		{
@@ -2778,7 +2790,7 @@ BXMLSearch.prototype = {
 		}
 		else
 		{
-			this.pResultCont.appendChild(jsUtils.CreateElement('DIV', {className: 'ml-search-no-result'})).innerHTML = ML_MESS.NoResult;
+			this.pResultCont.appendChild(BX.create('DIV', {props:{className: 'ml-search-no-result'}, text:ML_MESS.NoResult}));
 		}
 	},
 
@@ -2816,11 +2828,10 @@ MLContextMenu.prototype =
 	PreCreate: function()
 	{
 		this.pref = 'ML_' + this.id + '_';
-		this.oDiv = document.body.appendChild(jsUtils.CreateElement('DIV', {className: 'bx-cm', id: this.pref + '_cont'}, {zIndex: this.zIndex}));
-		this.oDiv.innerHTML = '<table><tr><td class="bxcm-popup"><table id="' + this.pref + '_cont_items"><tr><td></td></tr></table></td></tr></table>';
+		this.oDiv = document.body.appendChild(BX.create('DIV', {props:{className: 'bx-cm', id: this.pref + '_cont'}, style:{zIndex: this.zIndex}, html: '<table><tr><td class="bxcm-popup"><table id="' + this.pref + '_cont_items"><tr><td></td></tr></table></td></tr></table>'}));
 
 		// Part of logic of JCFloatDiv.Show()   Prevent bogus rerendering window in IE... And SpeedUp first context menu calling
-		document.body.appendChild(jsUtils.CreateElement('IFRAME',{id: this.pref + '_frame', src: "javascript:void(0)"}, {position: 'absolute', zIndex: this.zIndex - 5, left: '-1000px', top: '-1000px', visibility: 'hidden'}));
+		document.body.appendChild(BX.create('IFRAME', {props:{id: this.pref + '_frame', src: "javascript:void(0)"}, style:{position: 'absolute', zIndex: this.zIndex - 5, left: '-1000px', top: '-1000px', visibility: 'hidden'}}));
 		this.menu = new PopupMenu(this.pref + '_cont');
 	},
 
@@ -2853,7 +2864,7 @@ MLContextMenu.prototype =
 			for(i = 0; i < n; i++)
 			{
 				if (typeof this.Items[i] == 'object')
-					this.Items[i].pWnd.style.display = Params.arHideItems[this.Items[i].id] ? 'none' : (jsUtils.IsIE() ? 'inline' : 'table-cell');
+					this.Items[i].pWnd.style.display = Params.arHideItems[this.Items[i].id] ? 'none' : (BX.browser.IsIE() ? 'inline' : 'table-cell');
 			}
 		}
 

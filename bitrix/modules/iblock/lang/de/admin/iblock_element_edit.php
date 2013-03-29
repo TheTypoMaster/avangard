@@ -22,6 +22,7 @@ $MESS["IBEL_E_IBLOCK_SECTIONS"] = "Bereiche";
 $MESS["IBEL_E_COPY_ELEMENT"] = "Kopieren";
 $MESS["IBEL_E_COPY_ELEMENT_TITLE"] = "Element kopieren";
 $MESS["IBLOCK_ACCESS_DENIED_STATUS"] = "Sie haben nicht genügend Rechte, um diesen Eintrag im aktuellen Status zu bearbeiten";
+$MESS["IBLOCK_ACCESS_DENIED_SECTION"] = "Sie haben nicht genügend Rechte um die Elemente an angegebene Bereiche anzubinden.";
 $MESS["IBLOCK_TCATALOG"] = "Kommerzieller Katalog";
 $MESS["IBLOCK_WRONG_WF_STATUS"] = "Falscher Status";
 $MESS["IBLOCK_SECTION"] = "Bereiche:";
@@ -61,4 +62,6 @@ $MESS["IBEL_E_RIGHTS_SECTION_TITLE"] = "Zugriffsberechtigungen für Element";
 $MESS["IBEL_E_RIGHTS_FIELD"] = "Zugriffsberechtigungen für Element";
 $MESS["IBEL_E_WARNING"] = "Warnung.";
 $MESS["IBEL_E_TRANSLATION_SERVICE_NOT_CONFIGURED"] = "Der externe Übersetzungsdienst ist nicht angegeben. Geben Sie den Übersetzungsdienst in den <a href=\"settings.php?mid=main\">Einstellungen des Hauptmoduls</a> an.";
+$MESS["IBLOCK_EL_SAVE_AND_ADD"] = "Speichern und hinzufügen";
+$MESS["IBEL_HIST"] = "Änderungshistory";
 ?>

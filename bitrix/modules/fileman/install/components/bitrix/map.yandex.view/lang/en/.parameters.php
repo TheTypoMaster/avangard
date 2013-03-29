@@ -27,4 +27,8 @@ $MESS["MYMS_PARAM_DATA_GET_KEY_URL"] = "http://api.yandex.ru/maps/form.xml";
 $MESS["MYMS_PARAM_MAP_HEIGHT"] = "Map Height";
 $MESS["MYMS_PARAM_MAP_WIDTH"] = "Map Width";
 $MESS["MYMS_PARAM_MAP_ID"] = "Map ID";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_PUBLIC"] = "people's map";
+$MESS["MYMS_PARAM_INIT_MAP_TYPE_PUBLIC_HYBRID"] = "people's map with labels";
+$MESS["MYMS_PARAM_OPTIONS_ENABLE_RIGHT_MAGNIFIER"] = "use right mouse button to zoom";
+$MESS["MYMS_PARAM_CONTROLS_SEARCH"] = "Search map";
 ?>

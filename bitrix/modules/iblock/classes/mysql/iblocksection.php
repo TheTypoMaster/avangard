@@ -208,7 +208,7 @@ class CIBlockSection extends CAllIBlockSection
 					"	INNER JOIN b_iblock_section BSTEMP ON BSTEMP.IBLOCK_ID = BS.IBLOCK_ID
 						LEFT JOIN b_iblock_section_element BSE ON BSE.IBLOCK_SECTION_ID=BSTEMP.ID
 						LEFT JOIN b_iblock_element BE ON (BSE.IBLOCK_ELEMENT_ID=BE.ID
-					 		AND ((BE.WF_STATUS_ID=1 AND BE.WF_PARENT_ELEMENT_ID IS NULL )
+							AND ((BE.WF_STATUS_ID=1 AND BE.WF_PARENT_ELEMENT_ID IS NULL )
 							AND BE.IBLOCK_ID = BS.IBLOCK_ID
 					".($arFilter["CNT_ALL"]=="Y"?" OR BE.WF_NEW='Y' ":"").")
 					".($arFilter["CNT_ACTIVE"]=="Y"?
@@ -224,7 +224,9 @@ class CIBlockSection extends CAllIBlockSection
 						AND BSTEMP.RIGHT_MARGIN <= BS.RIGHT_MARGIN "
 				:""
 				)."
-				".$strSqlSearch;
+				".$strSqlSearch."
+			";
+			$strGroupBy = "";
 		}
 		else
 		{
@@ -259,7 +261,8 @@ class CIBlockSection extends CAllIBlockSection
 						AND BSTEMP.RIGHT_MARGIN <= BS.RIGHT_MARGIN "
 				)."
 				".$strSqlSearch."
-				GROUP BY BS.ID, B.ID";
+			";
+			$strGroupBy = "GROUP BY BS.ID, B.ID";
 		}
 
 		$arSqlOrder = Array();
@@ -302,11 +305,11 @@ class CIBlockSection extends CAllIBlockSection
 			$res_cnt = $DB->Query("SELECT COUNT(DISTINCT BS.ID) as C ".$strSql);
 			$res_cnt = $res_cnt->Fetch();
 			$res = new CDBResult();
-			$res->NavQuery("SELECT DISTINCT ".$strSelect.$strSql.$strSqlOrder, $res_cnt["C"], $arNavStartParams);
+			$res->NavQuery("SELECT DISTINCT ".$strSelect.$strSql.$strGroupBy.$strSqlOrder, $res_cnt["C"], $arNavStartParams);
 		}
 		else
 		{
-			$res = $DB->Query("SELECT DISTINCT ".$strSelect.$strSql.$strSqlOrder, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query("SELECT DISTINCT ".$strSelect.$strSql.$strGroupBy.$strSqlOrder, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
 		}
 
 		$res = new CIBlockResult($res);

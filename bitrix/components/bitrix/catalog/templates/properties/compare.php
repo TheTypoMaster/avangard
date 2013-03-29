@@ -13,7 +13,7 @@
 		"PROPERTY_CODE" => $arParams["COMPARE_PROPERTY_CODE"],
 		"NAME" => $arParams["COMPARE_NAME"],
 		"CACHE_TYPE" => $arParams["CACHE_TYPE"],
- 		"CACHE_TIME" => $arParams["CACHE_TIME"],
+		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"PRICE_CODE" => $arParams["PRICE_CODE"],
 		"USE_PRICE_COUNT" => $arParams["USE_PRICE_COUNT"],
 		"SHOW_PRICE_COUNT" => $arParams["SHOW_PRICE_COUNT"],
@@ -26,6 +26,8 @@
 		"ELEMENT_SORT_ORDER" => $arParams["COMPARE_ELEMENT_SORT_ORDER"],
 
 		"DETAIL_URL" => $arResult["FOLDER"].$arResult["URL_TEMPLATES"]["element"],
+		'CONVERT_CURRENCY' => $arParams['CONVERT_CURRENCY'],
+		'CURRENCY_ID' => $arParams['CURRENCY_ID'],
 	),
 	$component
 );?>

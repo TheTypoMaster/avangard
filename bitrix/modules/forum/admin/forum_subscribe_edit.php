@@ -17,16 +17,16 @@
 //************************************!Check filter ***************************************************************
 	$USER_ID = intVal($USER_ID);
 	$arFilter = array("USER_ID"=>$USER_ID);
-	$arMsg = array();	
+	$arMsg = array();
 	$err = false;
-		
+
 	if ($USER_ID<= 0)
 		$arMsg[] = array("id"=>"USER_ID", "text" => GetMessage("FM_WRONG_USER_ID"));
-	
+
 	$date1_stm = "";
 	$date2_stm = "";
-	
-	$DATE_FROM_S = trim($DATE_FROM_S); 
+
+	$DATE_FROM_S = trim($DATE_FROM_S);
 	$DATE_TO_S = trim($DATE_TO_S);
 	$DATE_FROM_S_DAYS_TO_BACK = intval($DATE_FROM_S_DAYS_TO_BACK);
 	if (strlen($DATE_FROM_S)>0 || strlen($DATE_TO_S)>0 || $DATE_FROM_S_DAYS_TO_BACK>0)
@@ -39,11 +39,11 @@
 			$date1_stm = time()-86400*$DATE_FROM_S_DAYS_TO_BACK;
 			$date1_stm = GetTime($date1_stm);
 		}
-		
-		if (!$date1_stm) 
+
+		if (!$date1_stm)
 			$arMsg[] = array("id"=>">=START_DATE", "text"=> GetMessage("FM_WRONG_DATE_FROM"));
-	
-		if (!$date2_stm && strlen($DATE_TO_S)>0) 
+
+		if (!$date2_stm && strlen($DATE_TO_S)>0)
 			$arMsg[] = array("id"=>"<=START_DATE", "text"=> GetMessage("FM_WRONG_DATE_TO"));
 		elseif ($date1_stm && $date2_stm && ($date2_stm <= $date1_stm))
 			$arMsg[] = array("id"=>"find_date_timestamp2", "text"=> GetMessage("FM_WRONG_PERIOD"));
@@ -52,16 +52,16 @@
 	$FilterType_S = strtolower(trim($FilterType_S));
 	if ((strLen($Filter_S) > 0) && in_array($FilterType_S, array("forum", "topic")))
 		$arFilter["".strToUpper($FilterType_S)] = $Filter_S;
-	
+
 	$FORUM_ID_S = intval($FORUM_ID_S);
 	if ($FORUM_ID_S>0)
 		$arFilter["FORUM_ID"] = $FORUM_ID_S;
-		
+
 	if (strlen($date1_stm)>0)
 		$arFilter[">=START_DATE"] = $DATE_FROM_S;
 	if (strlen($date2_stm)>0)
 		$arFilter["<=START_DATE"] = $DATE_TO_S;
-		
+
 	if (strLen($SUBSCR_TYPE_S) > 0)
 	{
 		switch ($SUBSCR_TYPE_S)
@@ -98,10 +98,10 @@
 				if(strlen($ID)<=0)
 					continue;
 				$ID = intval($ID);
-				
+
 				switch($_REQUEST['action'])
 				{
-					case "delete": 
+					case "delete":
 						if (CForumSubscribe::CanUserDeleteSubscribe($ID, $USER->GetUserGroupArray(), $USER->GetID()))
 							CForumSubscribe::Delete($ID);
 						else
@@ -115,7 +115,7 @@
 	if (!empty($arMsg))
 	{
 		$err = new CAdminException($arMsg);
-		$lAdmin->AddFilterError($err->GetString()); 
+		$lAdmin->AddFilterError($err->GetString());
 	}
 
 	$rsData = CForumSubscribe::GetListEx(array($by=>$order), $arFilter);
@@ -138,11 +138,10 @@ while ($arRes = $rsData->NavNext(true, "t_"))
 	if($t_TOPIC_ID <= 0)
 		$t_TITLE = $t_NEW_TOPIC_ONLY == "Y" ? GetMessage("FM_NEW_TOPIC_ONLY") : GetMessage("FM_ALL_MESSAGE");
 	$row->AddViewField("TITLE", $t_TITLE);
-	
- 	$arActions = array();
+	$arActions = array();
 	$arActions[] = array("ICON"=>"delete", "TEXT"=>GetMessage("FM_ACT_DELETE"), "ACTION"=>"if(confirm('".GetMessage("FM_ACT_DEL_CONFIRM")."')) ".$lAdmin->ActionDoGroup($t_ID, "delete", "USER_ID=".$USER_ID."&lang=".LANG));
 	$row->AddActions($arActions);
-	
+
 }
 //************************************ Footer *********************************************************************
 	$lAdmin->AddFooter(
@@ -163,11 +162,11 @@ while ($arRes = $rsData->NavNext(true, "t_"))
 			"ICON" => "btn_list",
 		)
 	);
-	
+
 	$lAdmin->AddAdminContextMenu($aMenu);
 
 	$lAdmin->CheckListMode();
-	
+
 //************************************ Page ***********************************************************************
 	$APPLICATION->SetTitle(GetMessage("FM_TITLE").$LOGIN);
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -193,7 +192,7 @@ while ($arRes = $rsData->NavNext(true, "t_"))
 		</td>
 	</tr>
 	<tr valign="center">
-		<td><?=GetMessage("FM_FLT_START_DATE")." (".CLang::GetDateFormat("SHORT")."):"?></td>
+		<td><?=GetMessage("FM_FLT_START_DATE").":"?></td>
 		<td><?echo CalendarPeriod("DATE_FROM_S", $DATE_FROM_S, "DATE_TO_S", $DATE_TO_S, "form1","Y")?></td>
 	</tr>
 	<tr valign="center">

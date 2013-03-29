@@ -65,4 +65,10 @@ $MESS["IBLOCK_CHOOSE_IBLOCK_TYPE"] = "(Typ wählen)";
 $MESS["IBLOCK_CHOOSE_IBLOCK"] = "(Informationsblock wählen)";
 $MESS["IBLOCK_PROP_EAUTOCOMPLETE_DESC"] = "Links auf Elemente mit dem Autovervollständigen";
 $MESS["IBLOCK_PROP_SKU_DESC"] = "Link auf Produktvarianten";
+$MESS["IBLOCK_PROP_S"] = "Zeile";
+$MESS["IBLOCK_PROP_N"] = "Zahl";
+$MESS["IBLOCK_PROP_L"] = "Liste";
+$MESS["IBLOCK_PROP_F"] = "Datei";
+$MESS["IBLOCK_PROP_G"] = "An Bereiche anbinden";
+$MESS["IBLOCK_PROP_E"] = "An Elemente anbinden";
 ?>

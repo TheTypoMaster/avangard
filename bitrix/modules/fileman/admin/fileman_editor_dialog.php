@@ -1,12 +1,14 @@
 <?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/prolog.php");
 
 if (!check_bitrix_sessid())
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/include.php");
+require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/include.php");
 IncludeModuleLangFile(__FILE__);
+
+CJSCore::Init(array("admin_interface"));
 
 define("FROMDIALOGS", true);
 ?>
@@ -81,7 +83,7 @@ function OnSave()
 </div>
 <?$dialogHTML = ob_get_contents(); ob_end_flush();?>
 
-<?elseif($name == "link"):?>
+<?elseif($name == "editlink"):?>
 <script>
 var pElement = null;
 var curLinkType = 't1';
@@ -148,6 +150,9 @@ function OnLoad()
 		pAnchorSelect.options.add(new Option('<?= GetMessage("FILEMAN_ED_NOANCHORS")?>', '', true, true));
 		pAnchorSelect.disabled = true;
 	}
+
+	if (BX.browser.IsIE())
+		pAnchorSelect.style.width = "220px";
 
 	var tip = pObj.pMainObj._dialogLinkTip || "t1";
 	var selectedText = false;
@@ -421,11 +426,16 @@ function ChangeFixStat()
 
 function SetUrl(filename, path, site)
 {
-	var url, pInput = BX("bx_url_1"), pText = BX("bx_link_text"), pTitle = BX("BXEditorDialog_title");
+	var
+		url,
+		pInput = BX("bx_url_1"),
+		pText = BX("bx_link_text"),
+		pTitle = BX("BXEditorDialog_title");
 	if (typeof filename == 'object') // Using medialibrary
 	{
 		url = filename.src;
-		pText.value = filename.name;
+        if (pText.value == '')
+			pText.value = filename.description || filename.name;
 		pTitle.value = filename.description || filename.name;
 	}
 	else // Using file dialog
@@ -483,7 +493,7 @@ function SetUrl(filename, path, site)
 	<tr class="bx-link-t2">
 		<td class="bx-par-title"><label for="bx_url_2"><?= GetMessage("FILEMAN_ED_LINK_DOC")?>:</label></td>
 		<td class="bx-par-val">
-			<select id='bx_url_type'>
+			<select id='bx_url_type' style="vertical-align: top; margin-top: 1px;">
 				<option value="http://">http://</option>
 				<option value="ftp://">ftp://</option>
 				<option value="https://">https://</option>
@@ -509,7 +519,7 @@ function SetUrl(filename, path, site)
 	<tr class="bx-link-t3">
 		<td class="bx-par-title"><label for="bx_url_3"><?= GetMessage("FILEMAN_ED_LINK_ACH")?></label></td>
 		<td class="bx-par-val">
-			<select id="bx_url_3"></select>
+			<select id="bx_url_3" style="max-width: 240px;"></select>
 		</td>
 	</tr>
 
@@ -583,9 +593,13 @@ CAdminFileDialog::ShowScript(Array
 <?elseif($name == "image"):?>
 <script>
 var pElement = null;
-function OnLoad()
+function OnLoad(params)
 {
-	pElement = pObj.pMainObj.GetSelectionObject();
+	if (params && params.pElement)
+		pElement = params.pElement;
+	else
+		pElement = pObj.pMainObj.GetSelectionObject();
+
 	var
 		bxTag = false,
 		preview = BX("bx_img_preview"),
@@ -600,7 +614,6 @@ function OnLoad()
 		if (!bxTag || bxTag.tag != "img")
 			bxTag = false;
 	}
-
 
 	if(!pElement || !bxTag)
 	{
@@ -779,8 +792,10 @@ function SetUrl(filename, path, site)
 	if (typeof filename == 'object') // Using medialibrary
 	{
 		url = filename.src;
-		BX("bx_img_title").value = filename.description || filename.name;
-		BX("bx_alt").value = filename.name;
+		var pTitle = BX("bx_img_title");
+		if (pTitle.value == '')
+            pTitle.value = filename.description || filename.name;
+		BX("bx_alt").value = filename.description || filename.name;
 	}
 	else // Using file dialog
 	{
@@ -942,7 +957,7 @@ function OnLoad()
 			if(v.substr(-2, 2) == "px")
 				v = v.substr(0, v.length-2);
 
-		 	BX("bx_width").value = v
+			BX("bx_width").value = v
 		}
 
 		v = GAttr(pElement, "height");
@@ -977,7 +992,7 @@ function OnSave()
 	if(!pElement)
 	{
 		var tmpid = Math.random().toString().substring(2);
-		var str = '<table id="'+tmpid+'"/>';
+		var str = '<table id="'+tmpid+'"/><br/>';
 		BXSelectRange(oPrevRange, pObj.pMainObj.pEditorDocument,pObj.pMainObj.pEditorWindow);
 		pObj.pMainObj.insertHTML(str);
 
@@ -1113,7 +1128,7 @@ function OnLoad()
 	else if (pFrame.pDocument.attachEvent)
 		pFrame.pDocument.body.attachEvent('onpaste', dialog_OnPaste);
 
-	if(jsUtils.IsIE())
+	if(BX.browser.IsIE())
 	{
 		BX("bx_word_ff").style.display = 'none';
 		pFrame.pDocument.body.contentEditable = true;
@@ -1151,7 +1166,7 @@ function dialog_OnKeyDown(e)
 {
 	if (e.ctrlKey && !e.shiftKey && !e.altKey)
 	{
-		if (!jsUtils.IsIE())
+		if (!BX.browser.IsIE())
 		{
 			switch (e.which)
 			{
@@ -1209,13 +1224,13 @@ function OnSave()
 		<td><?= GetMessage("FILEMAN_ED_FF")?> "<?= GetMessage("FILEMAN_ED_SAVE")?>":</td>
 	</tr>
 	<tr>
-		<td><iframe id="bx_word_text" src="javascript:void(0)" style="width:100%; height:150px; border:1px solid #CCCCCC;"></iframe></td>
+		<td><iframe id="bx_word_text" src="javascript:void(0)" style="width:98%; height:150px; border:1px solid #CCCCCC;"></iframe></td>
 	</tr>
 	<tr>
 		<td><?= GetMessage("FILEMAN_ED_HTML_AFTER_CLEANING")?></td>
 	</tr>
 	<tr>
-		<td><textarea id="bx_word_sourse" style="width:100%; height:100px; border:1px solid #CCCCCC;" readonly="true"></textarea></td>
+		<td><textarea id="bx_word_sourse" style="width:96%; height:100px; border:1px solid #CCCCCC;" readonly="true"></textarea></td>
 	</tr>
 	<tr>
 		<td>
@@ -1237,11 +1252,11 @@ var finput = false;
 function OnLoad()
 {
 	window.oBXEditorDialog.SetTitle('<?=GetMessage("FILEMAN_ED_EDITOR_PAGE_PROP")?>');
-	BX.addClass(window.oBXEditorDialog.PARTS.CONTENT, "bxed-dialog-props");
+	BX.addClass(window.oBXEditorDialog.PARTS.CONTENT_DATA, "bxed-dialog-props");
 
 	BX('BX_dialog_title').value = BX('title').value;
 	BX("BX_more_prop_but").onclick = function(e) {AppendRow('', '');};
-	var tag_property = "<? if(CModule::IncludeModule("search")){echo htmlspecialchars(COption::GetOptionString("search", "page_tag_property"));}?>";
+	var tag_property = "<? if(CModule::IncludeModule("search")){echo htmlspecialcharsbx(COption::GetOptionString("search", "page_tag_property"));}?>";
 
 	var i, code, val, name, cnt = parseInt(BX("maxind").value)+1;
 	for(i=0; i<cnt; i++)
@@ -1269,7 +1284,7 @@ function AppendRow(code, value, name)
 		r = tbl.insertRow(tbl.rows.length - 1),
 		c = r.insertCell(-1);
 
-	c.align="right";
+	c.className = "bx-par-title";
 	if(name)
 		c.innerHTML = '<input type="hidden" id="BX_dialog_CODE_'+cnt+'" name="BX_dialog_CODE_'+cnt+'" value="'+bxhtmlspecialchars(code)+'">'+bxhtmlspecialchars(name)+':';
 	else
@@ -1280,12 +1295,15 @@ function AppendRow(code, value, name)
 	}
 
 	c = r.insertCell(-1);
+	c.className = "bx-par-val";
 	c.innerHTML = '<input type="text" name="BX_dialog_VALUE_'+cnt+'" id="BX_dialog_VALUE_'+cnt+'" value="'+bxhtmlspecialchars(value)+'" size="55">';
 
 	if(!finput)
 		finput = BX('BX_dialog_VALUE_'+cnt);
 
 	BX("BX_dialog_maxind").value = cnt;
+
+	window.oBXEditorDialog.adjustSizeEx();
 }
 
 function AppendTagPropertyRow(code, value, name)
@@ -1318,6 +1336,8 @@ function AppendTagPropertyRow(code, value, name)
 		finput = BX('BX_dialog_VALUE_' + cnt);
 
 	BX("BX_dialog_maxind").value = cnt;
+
+	window.oBXEditorDialog.adjustSizeEx();
 }
 
 function OnSave()
@@ -1334,7 +1354,7 @@ function OnSave()
 	}
 
 	for(i = edcnt+1; i<=cnt; i++)
-		pObj.params.window._MoreRProps(BX("BX_dialog_CODE_"+i).value, BX("BX_dialog_VALUE_"+i).value);
+		window._MoreRProps(BX("BX_dialog_CODE_"+i).value, BX("BX_dialog_VALUE_"+i).value);
 
 	BX("maxind").value = cnt;
 	BX('title').value = BX('BX_dialog_title').value;
@@ -1514,6 +1534,7 @@ function OnLoad()
 <script>
 function OnLoad()
 {
+	window.oBXEditorDialog.PARTS.CONTENT_DATA.style.height = 'auto';
 	window.oBXEditorDialog.SetTitle('<?=GetMessage("FILEMAN_ED_SETTINGS")?>');
 	if (!pObj.params.lightMode)
 	{
@@ -1535,6 +1556,7 @@ function OnLoad()
 			title: '<?= GetMessage("FILEMAN_ED_SAVE")?>',
 			id: 'save',
 			name: 'save',
+			className: 'adm-btn-save',
 			action: function()
 			{
 				var r;
@@ -1807,19 +1829,18 @@ function OnSave()
 		$arTabs[] = array("DIV" => "__bx_set_1_toolbar", "TAB" => GetMessage("FILEMAN_ED_TOOLBARS"), "ICON" => "", "TITLE" => GetMessage("FILEMAN_ED_TOOLBARS_SETTINGS"), "ONSELECT" => "window.oBXEditorDialog.adjustSizeEx();");
 
 	$arTabs[] = array("DIV" => "__bx_set_2_taskbar", "TAB" => GetMessage("FILEMAN_ED_TASKBARS"), "ICON" => "", "TITLE" => GetMessage("FILEMAN_ED_TASKBARS_SETTINGS"), "ONSELECT" => "window.oBXEditorDialog.adjustSizeEx();");
-	
+
 	$arTabs[] = array("DIV" => "__bx_set_3_add_props", "TAB" => GetMessage("FILEMAN_ED_ADDITIONAL_PROPS"), "ICON" => "", "TITLE" => GetMessage("FILEMAN_ED_ADDITIONAL_PROPS"), "ONSELECT" => "window.oBXEditorDialog.adjustSizeEx();");
 
-	$tabControlDialog = new CAdmintabControl("tabControlDialog", $arTabs, false);
-	$tabControlDialog->Begin();
-?>
-
-<?$tabControlDialog->BeginNextTab();?>
+$tabControlDialog = new CAdmintabControl("tabControlDialog_opt", $arTabs, false, true);
+$tabControlDialog->Begin();
+$tabControlDialog->BeginNextTab();?>
 <tr><td></td></tr>
 <?$tabControlDialog->BeginNextTab();?>
 <tr><td></td></tr>
 <?$tabControlDialog->BeginNextTab();?>
 <tr><td></td></tr>
+<?$tabControlDialog->EndTab();?>
 <?$tabControlDialog->End();?>
 
 <?elseif($name == "flash"):?>
@@ -1827,6 +1848,7 @@ function OnSave()
 // F L A S H
 function OnLoad()
 {
+	window.oBXEditorDialog.PARTS.CONTENT_DATA.style.height = 'auto';
 	// ************************ TAB #1: Base params *************************************
 	var oDiv = BX("__bx_base_params");
 	oDiv.style.padding = "5px";
@@ -2143,28 +2165,27 @@ CAdminFileDialog::ShowScript(Array
 	)
 );
 
-$tabControlDialog = new CAdminTabControl("tabControlDialog", array(
+$tabControlDialog = new CAdminTabControl("tabControlDialog_flash", array(
 	array("DIV" => "__bx_base_params", "TAB" => GetMessage("FILEMAN_ED_BASE_PARAMS"), "ICON" => "", "TITLE" => GetMessage("FILEMAN_ED_BASE_PARAMS"), "ONSELECT" => "window.oBXEditorDialog.adjustSizeEx();"),
 	array("DIV" => "__bx_additional_params", "TAB" => GetMessage("FILEMAN_ED_ADD_PARAMS"), "ICON" => "", "TITLE" => GetMessage("FILEMAN_ED_ADD_PARAMS"), "ONSELECT" => "window.oBXEditorDialog.adjustSizeEx();"),
 	array("DIV" => "__bx_code", "TAB" => GetMessage("FILEMAN_ED_HTML_CODE"), "ICON" => "", "TITLE" => GetMessage("FILEMAN_ED_SWF_HTML_CODE"), "ONSELECT" => "window.oBXEditorDialog.adjustSizeEx();")
-), false);
-
+), false, true);
 $tabControlDialog->Begin();?>
 
 <?$tabControlDialog->BeginNextTab();?>
-<div id="__bx_base_params"></div>
+<tr><td></td></tr>
 <?$tabControlDialog->BeginNextTab();?>
-<div id="__bx_additional_params"></div>
+<tr><td></td></tr>
 <?$tabControlDialog->BeginNextTab();?>
-<div id="__bx_code"></div>
-<?$tabControlDialog->End();?>
-
-
+<tr><td></td></tr>
+<?$tabControlDialog->End();
+?>
 
 <?elseif($name == "snippets"):?>
 <script>
 function OnLoad()
 {
+	window.oBXEditorDialog.PARTS.CONTENT_DATA.style.height = 'auto';
 	window.oBXEditorDialog.SetTitle(pObj.params.mode == 'add' ? '<?=GetMessage("FILEMAN_ED_ADD_SNIPPET")?>' : '<?=GetMessage("FILEMAN_ED_EDIT_SNIPPET")?>');
 
 	window.arBXSnippetsTaskbars = [];
@@ -2177,24 +2198,20 @@ function OnLoad()
 	BX("__bx_sn_base_params").appendChild(BX("__bx_temp_sn_base_params"));
 	BX("__bx_sn_location").appendChild(BX("__bx_temp_sn_location"));
 	BX("__bx_sn_additional_params").appendChild(BX("__bx_temp_sn_additional_params"));
-
-	var st = BX('__snippet_template');
-	st.options[1].value = st.options[1].innerHTML = pObj.pMainObj.templateID;
+	var pTemplate = BX("__snippet_template");
+	pTemplate.options[1].value = pTemplate.options[1].innerHTML = pObj.pMainObj.templateID;
 
 	window.arSnGroups = {};
 	window.rootDefaultName = {};
-	var pTemplate = BX("__snippet_template");
 
 	if (pObj.params.mode == 'add')
 	{
-		BX("__snippet_template").onchange = fillLocation;
+		pTemplate.onchange = fillLocation;
 		fillLocation();
 		BX("__create_new_subfolder").onclick = function(e)
 		{
-			if (this.checked)
-				displayRow('_new_group_row',true);
-			else
-				displayRow('_new_group_row',false);
+			displayRow('_new_group_row', !!this.checked);
+			window.oBXEditorDialog.adjustSizeEx();
 		}
 	}
 	else if (pObj.params.mode == 'edit')
@@ -2222,27 +2239,25 @@ function OnLoad()
 		var _path = oEl.path.replace(/,/g,'/');
 		group_sel.parentNode.innerHTML = _pref+'snippets'+(_path == '' ? '' : '/'+_path)+_suf;
 
-		displayRow('_new_group_chck_row',false);
+		displayRow('_new_group_chck_row', false);
 
 		// ***** IMAGE *****
 		if (oEl.thumb != '')
 		{
 			displayRow('__bx_snd_exist_image_tr',true);
 			var old_img_tr = BX("__bx_snd_exist_image_tr");
-			var img_path = 'snippets/images/'+(_path == '' ? '' : _path+'/')+oEl.thumb;
-			old_img_tr.cells[1].innerHTML = _pref+img_path+_suf;
+			old_img_tr.cells[1].innerHTML = _pref + ('snippets/images/'+( _path == '' ? '' : _path + '/') + oEl.thumb) + _suf;
 			displayRow('__bx_snd_new_image_chbox_tr',true);
 			displayRow('__bx_snd_new_image_tr',false);
-			BX("__bx_snd_new_image_tr").cells[0].innerHTML = '<?=GetMessage("FILEMAN_ED_SN_NEW_IMG")?>:';
+			BX("thumb_src_label").innerHTML = '<?=GetMessage("FILEMAN_ED_SN_NEW_IMG")?>:';
 
 			BX("__new_image_chbox").onclick = function()
 			{
-				if (this.checked)
-					displayRow('__bx_snd_new_image_tr',true);
-				else
-					displayRow('__bx_snd_new_image_tr',false);
+				displayRow('__bx_snd_new_image_tr', !!this.checked);
+				window.oBXEditorDialog.adjustSizeEx();
 			}
 		}
+
 	}
 
 	window.oBXEditorDialog.adjustSizeEx();
@@ -2259,7 +2274,6 @@ function SetUrl(filename, path, site)
 function fillLocation()
 {
 	var template = BX("__snippet_template").value;
-
 	if (window.arSnGroups[template])
 		return _fillLocation(template);
 
@@ -2336,6 +2350,7 @@ function _fillLocation(template)
 	_addOption('..','snippets',-1,true);
 	for (var key in _arGroups)
 		_addOption(key,_arGroups[key].name,_arGroups[key].level,false);
+
 	return;
 
 	var url = path+'/'+filename;
@@ -2344,18 +2359,11 @@ function _fillLocation(template)
 		BX("thumb_src").onchange();
 }
 
-function displayRow(rowId,bDisplay)
+function displayRow(rowId, bDisplay)
 {
 	var row = BX(rowId);
-	if (bDisplay)
-	{
-		try{row.style.display = 'table-row';}
-		catch(e){row.style.display = 'block';}
-	}
-	else
-	{
-		row.style.display = 'none';
-	}
+	if (row)
+		row.style.display = bDisplay ? '' : 'none';
 }
 
 function Get_arSnGroups(template)
@@ -2402,9 +2410,9 @@ function OnSave()
 		var name = BX("__snippet_name").value;
 		name = name.replace(/[^a-z0-9\s!\$\(\)\[\]\{\}\-\.;=@\^_\~]/gi, "");
 
-		var template = BX("__snippet_template").value;
-		if (template == "")
-			template = ".default";
+		var templateId = BX("__snippet_template").value;
+		if (templateId == "")
+			templateId = ".default";
 
 		var new_group = '';
 		if (BX("__create_new_subfolder").checked)
@@ -2412,7 +2420,9 @@ function OnSave()
 
 		new_group = new_group.replace(/[^a-z0-9\s!\$\(\)\[\]\{\}\-\.;=@\^_\~]/gi, "");
 
-		checkAndSave(name, template, new_group);
+		var res = saveSnippet(name, templateId, new_group);
+		if (res !== true)
+			return false;
 	}
 	else if (pObj.params.mode == 'edit')
 	{
@@ -2420,7 +2430,7 @@ function OnSave()
 	}
 }
 
-function checkAndSave(fileName, templateId, new_group)
+function saveSnippet(fileName, templateId, new_group)
 {
 	if (new_group.length > 0)
 	{
@@ -2433,23 +2443,12 @@ function checkAndSave(fileName, templateId, new_group)
 
 		var ar_d = new_group.split('/');
 		if (ar_d.length > 2)
-		{
-			alert("<?=GetMessage("FILEMAN_ED_WRONG_PARAM_SUBGROUP2")?>");
-			return;
-		}
+			return alert("<?=GetMessage("FILEMAN_ED_WRONG_PARAM_SUBGROUP2")?>");
+
 		if (_arGroups[ar_d[0]] || _arGroups[new_group])
-		{
-			alert("<?=GetMessage("FILEMAN_ED_WRONG_PARAM_SUBGROUP")?>");
-			return;
-		}
+			return alert("<?=GetMessage("FILEMAN_ED_WRONG_PARAM_SUBGROUP")?>");
 	}
 
-	//if (confirm("<?=GetMessage("FILEMAN_ED_FILE_EXISTS")?>"))
-	saveSnippet(fileName, templateId, new_group);
-}
-
-function saveSnippet(fileName, templateId, new_group)
-{
 	var
 		title = BX("__snippet_title").value,
 		code = BX("__snippet_code").value,
@@ -2457,155 +2456,170 @@ function saveSnippet(fileName, templateId, new_group)
 		description = BX("__snippet_description").value,
 		location = BX("__snippet_group").value;
 
-	if (location == '..')
+	if (location.indexOf('..') != -1)
 		location = '';
 
-	var postData = "title="+escape(title)+"&code="+encodeURIComponent(code)+"&name="+escape(fileName)+"&description="+escape(description)+"&location="+escape(location)+"&new_group="+escape(new_group)+"&thumb="+escape(thumb);
+	var path = location + '/' + new_group;
+	path = path.replace(/\\/ig, '/');
+	if (path == '/' || path == '//')
+		path = fileName + '.snp';
+	else
+		path += '/' + fileName + '.snp';
 
-	var _ss = new JCHttpRequest();
+	path = path.replace(/\/+/ig, '/');
+	if (window.arSnippets[path])
+		return alert("<?=GetMessage("FILEMAN_ED_FILE_EXISTS")?>");
+
 	window.__bx_res_sn_filename = null;
-	_ss.Action = function(result) {setTimeout(function()
-	{
-		if (window.__bx_res_sn_filename)
-			fileName = window.__bx_res_sn_filename;
-
-		var _path = location+((location != '' && new_group != '') ? '/' : '')+new_group;
-		var createGroup = function(name, path)
+	BX.ajax.post(manage_snippets_path + '&target=add',
 		{
-			name = bxhtmlspecialchars(name);
-			for (var i = 0, l = arBXSnippetsTaskbars.length; i < l; i++)
-				arBXSnippetsTaskbars[i].AddElement({name : name, tagname : '', isGroup : true, childElements : [], icon : '', path : path, code : ''}, arBXSnippetsTaskbars[i].pCellSnipp, path);
-		}
-
-		reappend_rot_el = false;
-		if(location != '')
-		{
-			var ar_groups = location.split('/');
-			var len = ar_groups.length;
-			var _loc = '';
-			for (var _j = 0; _j<len; _j++)
-			{
-				_loc += ar_groups[_j];
-				if (!pObj.params.BXSnippetsTaskbar.GetGroup(pObj.params.BXSnippetsTaskbar.pCellSnipp,_loc))
-				{
-					createGroup(ar_groups[_j], (_j>0 ? ar_groups[_j-1] : ''));
-					reappend_rot_el = true;
-				}
-				_loc += ',';
-			}
-		}
-
-		if (new_group != '')
-		{
-			var ar_groups = new_group.split('/');
-			var len = ar_groups.length;
-
-			if (len>2)
-				return;
-			else if(len>0)
-				reappend_rot_el = true;
-
-			for (var _j = 0; _j<len; _j++)
-				createGroup(ar_groups[_j],(_j>0 ? ar_groups[_j-1] : location));
-		}
-
-		if (thumb != '')
-			thumb = fileName + thumb.substr(thumb.lastIndexOf('.'));
-
-		var c = "sn_" + Math.round(Math.random()*1000000);
-		var __arEl =
-		{
-			name: fileName + '.snp',
+			sessid: BX.bitrix_sessid(),
 			title: title,
-			tagname:'snippet',
+			code: code,
+			name: fileName,
 			description: description,
-			template:templateId,
-			thumb:thumb,
-			isGroup:false,
-			icon:'/bitrix/images/fileman/htmledit2/snippet.gif',
-			path: _path.replace(/\//ig, ","),
-			code:code,
-			params:{c:c}
-		};
+			location: location,
+			new_group: new_group,
+			thumb: thumb,
+			templateID: templateId
+		},
+		function()	{setTimeout(function(){
+			if (window.__bx_res_sn_filename)
+				fileName = window.__bx_res_sn_filename;
 
-		var key = (__arEl.path == '' ? '' : __arEl.path.replace(/,/ig, '/')+'/')+__arEl.name;
-		arSnippets[key] = __arEl;
+			var _path = location + ((location != '' && new_group != '') ? '/' : '')+new_group;
+			var createGroup = function(name, path)
+			{
+				name = bxhtmlspecialchars(name);
+				for (var i = 0, l = arBXSnippetsTaskbars.length; i < l; i++)
+					arBXSnippetsTaskbars[i].AddElement({name : name, tagname : '', isGroup : true, childElements : [], icon : '', path : path, code : ''}, arBXSnippetsTaskbars[i].pCellSnipp, path);
+			};
 
-		var _ar;
-		for (var el in GLOBAL_pMainObj)
-		{
-			_ar = GLOBAL_pMainObj[el].arSnippetsCodes;
-			if (_ar) _ar[c] = key;
-		}
+			reappend_rot_el = false;
+			if(location != '')
+			{
+				var ar_groups = location.split('/');
+				var len = ar_groups.length;
+				var _loc = '';
+				for (var _j = 0; _j<len; _j++)
+				{
+					_loc += ar_groups[_j];
+					if (!pObj.params.BXSnippetsTaskbar.GetGroup(pObj.params.BXSnippetsTaskbar.pCellSnipp,_loc))
+					{
+						createGroup(ar_groups[_j], (_j>0 ? ar_groups[_j-1] : ''));
+						reappend_rot_el = true;
+					}
+					_loc += ',';
+				}
+			}
 
-		for (var i = 0, l = arBXSnippetsTaskbars.length; i < l; i++)
-		{
-			arBXSnippetsTaskbars[i].AddElement(__arEl, arBXSnippetsTaskbars[i].pCellSnipp, __arEl.path);
-			arBXSnippetsTaskbars[i].AddSnippet_button();
-		}
-	}, 100);};
+			if (new_group != '')
+			{
+				var ar_groups = new_group.split('/');
+				var len = ar_groups.length;
 
-	_ss.Post(manage_snippets_path + '&templateID=' + templateId + '&target=add', postData);
+				if (len>2)
+					return;
+				else if(len>0)
+					reappend_rot_el = true;
+
+				for (var _j = 0; _j<len; _j++)
+					createGroup(ar_groups[_j],(_j>0 ? ar_groups[_j-1] : location));
+			}
+
+			if (thumb != '')
+				thumb = fileName + thumb.substr(thumb.lastIndexOf('.'));
+
+			var c = "sn_" + Math.round(Math.random()*1000000);
+			var __arEl =
+			{
+				name: fileName + '.snp',
+				title: title,
+				tagname:'snippet',
+				description: description,
+				template: templateId,
+				thumb:thumb,
+				isGroup:false,
+				icon:'/bitrix/images/fileman/htmledit2/snippet.gif',
+				path: _path.replace(/\//ig, ","),
+				code:code,
+				params:{c:c}
+			};
+
+			var key = (__arEl.path == '' ? '' : __arEl.path.replace(/,/ig, '/') + '/') + __arEl.name;
+
+			arSnippets[key] = __arEl;
+
+			var _ar, el;
+			for (el in GLOBAL_pMainObj)
+			{
+				_ar = GLOBAL_pMainObj[el].arSnippetsCodes;
+				if (_ar)
+					_ar[c] = key;
+			}
+
+			for (var i = 0, l = arBXSnippetsTaskbars.length; i < l; i++)
+			{
+				arBXSnippetsTaskbars[i].AddElement(__arEl, arBXSnippetsTaskbars[i].pCellSnipp, __arEl.path);
+				arBXSnippetsTaskbars[i].AddSnippet_button();
+			}
+		}, 50);}
+	);
+
+	return true;
 }
 
 function editSnippet(title, code)
 {
-	var oEl = pObj.params.oEl;
-	var description = BX("__snippet_description").value;
-	var elNode = pObj.params.elNode;
-	var thumb = '';
-	var pSessid = BX("sessid");
-	var post_data = '';
+	var
+		oEl = pObj.params.oEl,
+		description = BX("__snippet_description").value,
+		elNode = pObj.params.elNode,
+		thumb = oEl.thumb || '',
+		post = {
+			name: oEl.name,
+			path: oEl.path.replace(/,/g,'/'),
+			templateID: oEl.template,
+			sessid: BX.bitrix_sessid()
+		};
 
-	if (BX("__new_image_chbox").checked);
+	if (oEl.thumb != '' && BX("__new_image_chbox").checked || oEl.thumb == '')
 		thumb = BX("thumb_src").value;
+	thumb = BX.util.trim(thumb);
 
 	if (title != oEl.title)
 	{
-		oEl.title = title;
-		post_data += "title="+escape(oEl.title);
-		// Change title in elements list
-		var _id = elNode.parentNode.id;
+		oEl.title = post.title = title;
 		var titleCell = elNode.parentNode.parentNode.cells[1];
-		titleCell.innerHTML = bxhtmlspecialchars(oEl.title);
+		if (titleCell)
+			titleCell.innerHTML = bxhtmlspecialchars(oEl.title);
 	}
+
 	if (code != oEl.code)
-	{
-		oEl.code = code;
-		if (post_data != '')
-			post_data += '&';
-		post_data += "code="+jsUtils.urlencode(oEl.code);
-	}
+		post.code = oEl.code = code;
+
 	if (description != oEl.description)
-	{
-		oEl.description = description;
-		if (post_data != '')
-			post_data += '&';
-		post_data += "description="+escape(oEl.description);
-	}
+		post.description = oEl.description = description;
 
 	if (thumb != oEl.thumb)
 	{
-		if (post_data != '')
-			post_data += '&';
-		post_data += "thumb="+escape(thumb);
-
-		if (thumb != '' && thumb.lastIndexOf('.') > 0)
-			oEl.thumb = oEl.name.substr(0, oEl.name.lastIndexOf('.')) + thumb.substr(thumb.lastIndexOf('.')).toLowerCase();
+		post.thumb = thumb;
+		if (thumb != '' && thumb != '' && thumb.lastIndexOf('.') > 0)
+			oEl.thumb = oEl.name.substr(0, oEl.name.lastIndexOf('.')) + thumb.substr(thumb.lastIndexOf('.')).toLowerCase() + '?v=' + Math.random().toString().substring(5);
 		else
 			oEl.thumb = '';
 	}
 
-	if (post_data == '')
-		return;
-
-	post_data += "&name="+escape(oEl.name)+"&path="+escape(oEl.path.replace(/,/g,'/'))+"&templateID="+escape(oEl.template);
-
-	var _es = new JCHttpRequest();
-	_es.Action = function(result){setTimeout(function(){elNode.onclick();}, 500);}
-	_es.Post(manage_snippets_path + '&target=edit', post_data);
-
-	oBXEditorUtils.BXRemoveAllChild(pObj.params.prop_taskbar);
+	BX.ajax.post(manage_snippets_path + '&target=edit',
+		post,
+		function()
+		{
+			setTimeout(function()
+			{
+				elNode.onclick();
+			}, 500);
+		}
+	);
 }
 </script>
 
@@ -2625,16 +2639,14 @@ CAdminFileDialog::ShowScript(Array
 	)
 );
 
-$tabControlDialog = new CAdmintabControl("tabControlDialog", array(
+$tabControlDialog = new CAdmintabControl("tabControlDialog_sn", array(
 	array("DIV" => "__bx_sn_base_params", "TAB"=>GetMessage("FILEMAN_ED_BASE_PARAMS"), "ICON" => "", "ONSELECT" => "window.oBXEditorDialog.adjustSizeEx();"),
 	array("DIV" => "__bx_sn_location", "TAB"=>GetMessage("FILEMAN_ED_LOCATION"), "ICON" => "", "ONSELECT" => "window.oBXEditorDialog.adjustSizeEx();"),
 	array("DIV" => "__bx_sn_additional_params", "TAB"=>GetMessage("FILEMAN_ED_ADD_PARAMS"), "ICON" => "", "ONSELECT" => "window.oBXEditorDialog.adjustSizeEx();"),
-), false);
+), false, true);
 
 $tabControlDialog->Begin();
-?>
-
-<?$tabControlDialog->BeginNextTab();?>
+$tabControlDialog->BeginNextTab();?>
 <tr><td></td></tr>
 <?$tabControlDialog->BeginNextTab();?>
 <tr><td></td></tr>
@@ -2644,16 +2656,12 @@ $tabControlDialog->Begin();
 
 <table id="__bx_temp_sn_base_params" class="add_snippet">
 	<tr>
-		<td>
-			<?=GetMessage("FILEMAN_ED_TITLE")?>:<span class="required">*</span><br />
-			<input id="__snippet_title" type="text">
-		</td>
+		<td align="right" style="width: 40%;"><?=GetMessage("FILEMAN_ED_TITLE")?>:</td>
+		<td style="width: 60%;"><input id="__snippet_title" type="text" /></td>
 	</tr>
 	<tr>
-		<td>
-			<?=GetMessage("FILEMAN_ED_CODE")?>:<span class="required">*</span><br />
-			<textarea id="__snippet_code" rows="10"></textarea>
-		</td>
+		<td align="right" valign="top"><?=GetMessage("FILEMAN_ED_CODE")?>:</td>
+		<td><textarea id="__snippet_code" rows="10"></textarea></td>
 	</tr>
 </table>
 
@@ -2689,26 +2697,25 @@ $tabControlDialog->Begin();
 </table>
 
 <table id="__bx_temp_sn_additional_params" class="add_snippet">
-	<tr style="height:0%; display:none" id="__bx_snd_exist_image_tr">
-		<td width="30%"align="right"><?=GetMessage("FILEMAN_ED_SN_IMAGE")?>:</td>
-		<td width="70%"></td>
+	<tr style="height:0%; display:none;" id="__bx_snd_exist_image_tr">
+		<td width="40%"align="right"><?=GetMessage("FILEMAN_ED_SN_IMAGE")?>:</td>
+		<td width="60%"></td>
 	</tr>
-	<tr style="height:0%; display:none" id="__bx_snd_new_image_chbox_tr">
-		<td width="30%"align="right"><label for='__new_image_chbox'><?=GetMessage("FILEMAN_ED_SN_DEL_IMG")?>:</label></td>
-		<td width="70%"><input style="width:18px" id="__new_image_chbox" type="checkbox"></input></td>
+	<tr style="height:0%; display:none;" id="__bx_snd_new_image_chbox_tr">
+		<td width="40%" align="right"><label for='__new_image_chbox'><?=GetMessage("FILEMAN_ED_SN_DEL_IMG")?>:</label></td>
+		<td width="60%"><input style="width:18px" id="__new_image_chbox" type="checkbox"></input></td>
 	</tr>
 	<tr id="__bx_snd_new_image_tr">
-		<td colSpan="2">
-		<?=GetMessage("FILEMAN_ED_SN_IMAGE")?>:
-		<br/>
-		<input type="text" size="25" value="" id="thumb_src" style="width: 75%"><input id="OpenFileDialog_button" type="button" value="..." onclick="OpenFileDialog_thumb()" style="width: 10%">
+		<td align="right">
+			<label id="thumb_src_label" for="thumb_src"><?=GetMessage("FILEMAN_ED_SN_IMAGE")?>:</label>
+		</td>
+		<td>
+			<input type="text" size="25" value="" id="thumb_src" style="width: 75%"><input id="OpenFileDialog_button" type="button" value="..." onclick="OpenFileDialog_thumb()" style="width: 10%">
 		</td>
 	</tr>
 	<tr>
-		<td colSpan="2">
-			<?=GetMessage("FILEMAN_ED_DESCRIPTION")?>:<br />
-			<textarea id="__snippet_description" rows="9"></textarea>
-		</td>
+		<td align="right" valign="top"><?=GetMessage("FILEMAN_ED_DESCRIPTION")?>:</td>
+		<td><textarea id="__snippet_description" rows="9"></textarea></td>
 	</tr>
 </table>
 
@@ -2716,29 +2723,18 @@ $tabControlDialog->Begin();
 <script>
 function OnLoad()
 {
-	window.oBXEditorDialog.SetTitle('<?=GetMessage("FILEMAN_ED_EDIT_HBF")?>');
+	window.oBXEditorDialog.SetTitle('<?= GetMessageJS("FILEMAN_ED_EDIT_HBF")?>');
 	// TAB #1: HEAD
+	BX.addClass(window.oBXEditorDialog.PARTS.CONTENT_DATA, "bxed-dialog");
 
 	var oDiv = BX("__bx_head");
-	BX.findChild(oDiv, {tag: 'TABLE', className: 'edit-tab-title'}, true).style.display = BX.browser.IsIE() ? "inline" : "table";
-
-	oDiv.style.padding = "5px";
-	// Insert default HEAD
-	oDiv.getElementsByTagName("TABLE")[0].rows[1].cells[0].appendChild(BX.create("DIV", {props: {title: '<?=GetMessage("FILEMAN_ED_INSERT_DEF")?>', className: "iconkit_c bx-insert-hbf"}})).onclick = insertDefault_head;
-
-	// Textarea
 	oDiv.appendChild(BX.create("TEXTAREA", {props: {id: "__bx_head_ta", value: pObj.pMainObj._head + pObj.pMainObj._body}, style: {width: "99%", height: "280px"}}));
+	oDiv.appendChild(BX.create("A", {props: {href: 'javascript: void("")', title: '<?= GetMessageJS("FILEMAN_ED_INSERT_DEF")?>'}, text: '<?= GetMessageJS("FILEMAN_ED_INSERT_DEF")?>', style: {marginTop: '13px', display: 'inline-block'}})).onclick = insertDefault_head;
 
-	// TAB #3: Footer
-	var oDiv = BX("__bx_footer");
-	BX.findChild(oDiv, {tag: 'TABLE', className: 'edit-tab-title'}, true).style.display = BX.browser.IsIE() ? "inline" : "table";
-	oDiv.style.padding = "5px";
-
-	// Insert default FOOTER
-	oDiv.getElementsByTagName("TABLE")[0].rows[1].cells[0].appendChild(BX.create("DIV", {props: {title: '<?=GetMessage("FILEMAN_ED_INSERT_DEF")?>', className: "iconkit_c bx-insert-hbf"}})).onclick = insertDefault_footer;
-
-	// Textarea
-	var oTA = oDiv.appendChild(BX.create("TEXTAREA", {props: {id: "__bx_footer_ta", value: pObj.pMainObj._footer}, style:{width: "99%", height: "280px"}}));
+	// TAB #2: Footer
+	oDiv = BX("__bx_footer");
+	oDiv.appendChild(BX.create("TEXTAREA", {props: {id: "__bx_footer_ta", value: pObj.pMainObj._footer}, style:{width: "99%", height: "280px"}}));
+	oDiv.appendChild(BX.create("A", {props: {href: 'javascript: void("")', title: '<?= GetMessageJS("FILEMAN_ED_INSERT_DEF")?>'}, text: '<?= GetMessageJS("FILEMAN_ED_INSERT_DEF")?>', style: {marginTop: '13px', display: 'inline-block'}})).onclick = insertDefault_footer;
 
 	window.oBXEditorDialog.adjustSizeEx();
 }
@@ -2788,7 +2784,7 @@ $aTabs_dialog = array(
 array("DIV" => "__bx_head", "TAB" => GetMessage("FILEMAN_ED_TOP_AREA"), "ICON" => "", "TITLE" => GetMessage("FILEMAN_ED_EDIT_HEAD"), "ONSELECT" => "window.oBXEditorDialog.adjustSizeEx();"),
 array("DIV" => "__bx_footer", "TAB" => GetMessage("FILEMAN_ED_BOTTOM_AREA"), "ICON" => "", "TITLE" => GetMessage("FILEMAN_ED_EDIT_FOOTER"), "ONSELECT" => "window.oBXEditorDialog.adjustSizeEx();")
 );
-$tabControlDialog = new CAdminTabControl("tabControlDialog", $aTabs_dialog, false);
+$tabControlDialog = new CAdminTabControl("tabControlDialog_templ", $aTabs_dialog, false, true);
 
 $tabControlDialog->Begin();?>
 <?$tabControlDialog->BeginNextTab();?>
@@ -2803,14 +2799,15 @@ $tabControlDialog->Begin();?>
 	{
 		window.oBXEditorDialog.Show();
 		window.oBXEditorDialog.SetContent('<?= CUtil::JSEscape($dialogHTML)?>');
-		OnLoad();
+		OnLoad(window.oBXEditorDialog.editorParams || {});
 	}
 	else
 	{
 		CloseWaitWindow();
 		OnLoad();
 	}
-	BX.addClass(window.oBXEditorDialog.PARTS.CONTENT, "bxed-dialog");
+	BX.addClass(window.oBXEditorDialog.PARTS.CONTENT_DATA, "bxed-dialog");
+	window.oBXEditorDialog.PARTS.CONTENT_DATA.style.height = 'auto';
 
 	BX.addCustomEvent(window.oBXEditorDialog, 'onWindowUnRegister', function()
 	{
@@ -2827,6 +2824,7 @@ $tabControlDialog->Begin();?>
 				title: '<?= GetMessage("FILEMAN_ED_SAVE")?>',
 				id: 'save',
 				name: 'save',
+				className: 'adm-btn-save',
 				action: function()
 				{
 					var r;
@@ -2842,4 +2840,4 @@ $tabControlDialog->Begin();?>
 		]);
 	}
 </script>
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");?>
+<?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");?>

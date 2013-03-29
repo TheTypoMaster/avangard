@@ -11,15 +11,15 @@
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/prolog.php");
 //************************************ Forums *********************************************************************
 	$db_Forum = CForumNew::GetListEx(array("SORT"=>"ASC", "NAME"=>"ASC"));
-	
+
 	$FN = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST["FN"]);
 	$FC = preg_replace("/[^a-z0-9_\\[\\]:]/i", "", $_REQUEST["FC"]);
 	if (strlen($FC)<=0) $FC = "TOPIC_ID";
 
-	$arr = array();	
+	$arr = array();
 	$arr["reference_id"][] = "";
 	$arr["reference"][] = "";
-	$arrForum = array(); 
+	$arrForum = array();
 	$arrSelect = "";
 	while($dbForum = $db_Forum->Fetch())
 	{
@@ -34,15 +34,15 @@
 	$lAdmin = new CAdminList($sTableID, $oSort);
 	$lAdmin->InitFilter(array("FORUM_ID", "DATE_FROM", "DATE_TO", "CREATE_DATE_FROM", "CREATE_DATE_TO"));
 //************************************ Check filter ***************************************************************
-	$arMsg = array();	
+	$arMsg = array();
 	$err = false;
-	
+
 	$date1_create_stm = "";
 	$date1_create_stm = "";
 	$date1_stm = "";
 	$date2_stm = "";
-	
-	$CREATE_DATE_FROM = trim($CREATE_DATE_FROM); 
+
+	$CREATE_DATE_FROM = trim($CREATE_DATE_FROM);
 	$CREATE_DATE_TO = trim($CREATE_DATE_TO);
 	$CREATE_DATE_FROM_DAYS_TO_BACK = intval($CREATE_DATE_FROM_DAYS_TO_BACK);
 	if (strlen($CREATE_DATE_FROM)>0 || strlen($CREATE_DATE_TO)>0 || $CREATE_DATE_FROM_DAYS_TO_BACK>0)
@@ -55,17 +55,17 @@
 			$date1_create_stm = time()-86400*$CREATE_DATE_FROM_DAYS_TO_BACK;
 			$date1_create_stm = GetTime($date1_create_stm);
 		}
-		if (!$date1_create_stm) 
+		if (!$date1_create_stm)
 			$arMsg[] = array("id"=>">=START_DATE", "text"=> GetMessage("FM_WRONG_DATE_CREATE_FROM"));
-	
-		if (!$date2_create_stm && strlen($CREATE_DATE_TO)>0) 
+
+		if (!$date2_create_stm && strlen($CREATE_DATE_TO)>0)
 			$arMsg[] = array("id"=>"<=START_DATE", "text"=> GetMessage("FM_WRONG_DATE_CREATE_FROM"));
 		elseif ($date1_create_stm && $date2_create_stm && ($date2_create_stm <= $date1_create_stm))
 			$arMsg[] = array("id"=>"find_date_create_timestamp2", "text"=> GetMessage("SUP_FROM_TILL_DATE_TIMESTAMP"));
 	}
-	
+
 	// LAST TOPIC
-	$DATE_FROM = trim($DATE_FROM); 
+	$DATE_FROM = trim($DATE_FROM);
 	$DATE_TO = trim($DATE_TO);
 	$DATE_FROM_DAYS_TO_BACK = intval($DATE_FROM_DAYS_TO_BACK);
 	if (strlen($DATE_FROM)>0 || strlen($DATE_TO)>0 || $DATE_FROM_DAYS_TO_BACK>0)
@@ -78,41 +78,41 @@
 			$date1_stm = time()-86400*$DATE_FROM_DAYS_TO_BACK;
 			$date1_stm = GetTime($date1_stm);
 		}
-		if (!$date1_stm) 
+		if (!$date1_stm)
 			$arMsg[] = array("id"=>">=LAST_POST_DATE", "text"=> GetMessage("FM_WRONG_DATE_CREATE_FROM"));
-	
-		if (!$date2_stm && strlen($DATE_TO)>0) 
+
+		if (!$date2_stm && strlen($DATE_TO)>0)
 			$arMsg[] = array("id"=>"<=LAST_POST_DATE", "text"=> GetMessage("FM_WRONG_DATE_CREATE_FROM"));
 		elseif ($date1_stm && $date2_stm && ($date2_stm <= $date1_stm))
 			$arMsg[] = array("id"=>"find_date_timestamp2", "text"=> GetMessage("SUP_FROM_TILL_DATE_TIMESTAMP"));
 	}
-	
+
 	$arFilter = array();
 	$FORUM_ID = intval($FORUM_ID);
 	if ($FORUM_ID>0)
-		$arFilter = array("FORUM_ID" => $FORUM_ID);			
-		
+		$arFilter = array("FORUM_ID" => $FORUM_ID);
+
 	if (strlen($date1_create_stm)>0)
 		$arFilter = array_merge($arFilter, array(">=START_DATE" => $CREATE_DATE_FROM));
 	if (strlen($date2_create_stm)>0)
 		$arFilter = array_merge($arFilter, array("<=START_DATE"	=> $CREATE_DATE_TO));
-		
+
 	if (strlen($date1_stm)>0)
 		$arFilter = array_merge($arFilter, array(">=LAST_POST_DATE" => $DATE_FROM));
 	if (strlen($date2_stm)>0)
 		$arFilter = array_merge($arFilter, array("<=LAST_POST_DATE"	=> $DATE_TO));
-		
+
 	if (!empty($arMsg))
 	{
 		$err = new CAdminException($arMsg);
-		$lAdmin->AddFilterError($err->GetString()); 
+		$lAdmin->AddFilterError($err->GetString());
 	}
-	
+
 	$rsData = CForumTopic::GetList(array($by=>$order), $arFilter);
 	$rsData = new CAdminResult($rsData, $sTableID);
 	$rsData->NavStart();
 	$lAdmin->NavText($rsData->GetNavPrint(GetMessage("FM_TOPICS")));
-	
+
 //************************************ Headers ********************************************************************
 	$lAdmin->AddHeaders(array(
 		array("id"=>"ID", "content"=>"ID", "sort"=>"ID", "default"=>true),
@@ -173,7 +173,7 @@ while ($arForum = $rsData->NavNext(true, "t_"))
 	}
 	//-->
 	</script>
-	
+
 	<form name="form1" method="get" action="<?=$APPLICATION->GetCurPage()?>?">
 	<?$oFilter->Begin();?>
 	<tr valign="center">
@@ -181,14 +181,14 @@ while ($arForum = $rsData->NavNext(true, "t_"))
 		<td><?echo SelectBoxFromArray("FORUM_ID", $arr, $FORUM_ID)?></td>
 	</tr>
 	<tr valign="center">
-		<td><?echo GetMessage("FM_TITLE_DATE_CREATE")." (".CLang::GetDateFormat("SHORT")."):"?></td>
+		<td><?echo GetMessage("FM_TITLE_DATE_CREATE").":"?></td>
 		<td><?echo CalendarPeriod("CREATE_DATE_FROM", $CREATE_DATE_FROM, "CREATE_DATE_TO", $CREATE_DATE_TO, "form1","Y")?></td>
 	</tr>
 	<tr valign="center">
-		<td><?echo GetMessage("FM_TITLE_DATE_LAST_POST")." (".CLang::GetDateFormat("SHORT")."):"?></td>
+		<td><?echo GetMessage("FM_TITLE_DATE_LAST_POST").":"?></td>
 		<td><?echo CalendarPeriod("DATE_FROM", $DATE_FROM, "DATE_TO", $DATE_TO, "form1","Y")?></td>
 	</tr>
-	
+
 	<?
 	$oFilter->Buttons(array("table_id" => $sTableID,"url" => $APPLICATION->GetCurPage(),"form" => "find_form"));
 	$oFilter->End();

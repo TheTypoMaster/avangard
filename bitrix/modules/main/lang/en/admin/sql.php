@@ -1,6 +1,6 @@
 <?
 $MESS ['SQL_PAGE_TITLE'] = "SQL Query";
-$MESS ['SQL_EXECUTE'] = "Execute query (alt+x)";
+$MESS ['SQL_EXECUTE'] = "Execute query";
 $MESS ['SQL_CONFIRM_EXECUTE'] = "Are you sure you want to execute this SQL query to the database?";
 $MESS ['SQL_RESET'] = "Reset";
 $MESS ['SQL_QUERY_ERROR_1'] = "Error executing the query";

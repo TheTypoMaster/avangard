@@ -17,7 +17,7 @@ if ($arParams["PERMISSION"] >= "U")
 	<div class="photo-controls photo-controls-buttons photo-controls-gallery">
 		<ul class="photo-controls">
 			<li class="photo-control photo-control-album-add">
-				<a onclick="EditAlbum('<?= CUtil::JSEscape(htmlspecialchars($arResult["GALLERY"]["LINK"]["~NEW_ALBUM"]))?>'); return false;" <?
+				<a onclick="EditAlbum('<?= CUtil::JSEscape(htmlspecialcharsbx($arResult["GALLERY"]["LINK"]["~NEW_ALBUM"]))?>'); return false;" <?
 					?>rel="nofollow" href="<?=$arResult["GALLERY"]["LINK"]["NEW_ALBUM"]?>"><span><?=GetMessage("P_ADD_ALBUM")?></span></a>
 			</li>
 <??>

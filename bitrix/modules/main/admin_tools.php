@@ -65,18 +65,19 @@ class CTemplates
 
 		foreach($arFilter["FOLDER"] as $folder)
 		{
+			$folder = _normalizePath($folder);
 			$arTemplates[$folder] = Array();
 			$arPath = Array(
 					"/bitrix/modules/".$folder."/install/templates/",
 					BX_PERSONAL_ROOT."/templates/.default/"
 				);
-			if(is_array($template_id)>0)
+			if(is_array($template_id))
 			{
 				foreach($template_id as $v)
-					$arPath[] = BX_PERSONAL_ROOT."/templates/".$v."/";
+					$arPath[] = BX_PERSONAL_ROOT."/templates/"._normalizePath($v)."/";
 			}
 			elseif(strlen($template_id)>0)
-				$arPath[] = BX_PERSONAL_ROOT."/templates/".$template_id."/";
+				$arPath[] = BX_PERSONAL_ROOT."/templates/"._normalizePath($template_id)."/";
 
 			for($i=0; $i<count($arPath); $i++)
 			{
@@ -186,7 +187,7 @@ class CTemplates
 		}
 	}
 
-	function GetFolderList($template_id =  false)
+	function GetFolderList($template_id = false)
 	{
 		$arTemplateFolders = Array();
 		$arTemplateFoldersSort = Array();
@@ -205,7 +206,7 @@ class CTemplates
 						{
 							while(($file_templ = readdir($handle_mod)) !== false)
 							{
-								if($file_templ == "." || $file_templ == ".." || $file_templ=="lang") 
+								if($file_templ == "." || $file_templ == ".." || $file_templ=="lang")
 									continue;
 								if(is_dir($_SERVER["DOCUMENT_ROOT"].$path_mod."/".$file_templ))
 								{
@@ -245,7 +246,7 @@ class CTemplates
 			{
 				while(($folder_name = readdir($handle)) !== false)
 				{
-					if($folder_name == "." || $folder_name == ".." || $folder_name=="lang") 
+					if($folder_name == "." || $folder_name == ".." || $folder_name=="lang")
 						continue;
 					if(is_dir($_SERVER["DOCUMENT_ROOT"].$path."/".$folder_name))
 					{
@@ -299,7 +300,7 @@ class CPageTemplate
 			{
 				while(($file = readdir($handle)) !== false)
 				{
-					if($file == "." || $file == ".." || !is_dir($template_dir."/".$file)) 
+					if($file == "." || $file == ".." || !is_dir($template_dir."/".$file))
 						continue;
 
 					$template_file = $template_dir."/".$file."/template.php";
@@ -723,7 +724,7 @@ function GetDirList($path, &$arDirs, &$arFiles, $arFilter=Array(), $sort=Array()
 		if(is_set($arFilter, "MIN_PERMISSION") && $arFile["PERMISSION"]<$arFilter["MIN_PERMISSION"] && !$task_mode)
 			continue;
 
-		if(!$child->IsDirectory() && $arFile["PERMISSION"]<="R"  && !$task_mode)
+		if(!$child->IsDirectory() && $arFile["PERMISSION"]<="R" && !$task_mode)
 			continue;
 
 		if ($bLogical)
@@ -743,7 +744,7 @@ function GetDirList($path, &$arDirs, &$arFiles, $arFilter=Array(), $sort=Array()
 		if(substr($arFile["ABS_PATH"], 0, strlen(BX_ROOT."/modules"))==BX_ROOT."/modules" && !$USER->CanDoOperation('edit_php') && !$task_mode)
 			continue;
 
-		if ($arFile["PERMISSION"]=="U"  && !$task_mode)
+		if ($arFile["PERMISSION"]=="U" && !$task_mode)
 		{
 			$ftype = GetFileType($arFile["NAME"]);
 			if ($ftype!="SOURCE" && $ftype!="IMAGE" && $ftype!="UNKNOWN") continue;
@@ -787,46 +788,57 @@ class _FilesCmp
 {
 	function cmp_size_asc($a, $b)
 	{
-	   if($a["SIZE"] == $b["SIZE"])
-	       return 0;
-	   return ($a["SIZE"] < $b["SIZE"]) ? -1 : 1;
+		if($a["SIZE"] == $b["SIZE"])
+			return 0;
+		return ($a["SIZE"] < $b["SIZE"]) ? -1 : 1;
 	}
 	function cmp_size_desc($a, $b)
 	{
-	   if ($a["SIZE"] == $b["SIZE"])
-	       return 0;
-	   return ($a["SIZE"] > $b["SIZE"]) ? -1 : 1;
+		if ($a["SIZE"] == $b["SIZE"])
+			return 0;
+		return ($a["SIZE"] > $b["SIZE"]) ? -1 : 1;
 	}
 	function cmp_timestamp_asc($a, $b)
 	{
-	   if($a["TIMESTAMP"] == $b["TIMESTAMP"])
-	       return 0;
-	   return ($a["TIMESTAMP"] < $b["TIMESTAMP"]) ? -1 : 1;
+		if($a["TIMESTAMP"] == $b["TIMESTAMP"])
+			return 0;
+		return ($a["TIMESTAMP"] < $b["TIMESTAMP"]) ? -1 : 1;
 	}
 	function cmp_timestamp_desc($a, $b)
 	{
-	   if ($a["TIMESTAMP"] == $b["TIMESTAMP"])
-	       return 0;
-	   return ($a["TIMESTAMP"] > $b["TIMESTAMP"]) ? -1 : 1;
+		if ($a["TIMESTAMP"] == $b["TIMESTAMP"])
+			return 0;
+		return ($a["TIMESTAMP"] > $b["TIMESTAMP"]) ? -1 : 1;
 	}
 	function cmp_name_asc($a, $b)
 	{
-	   if($a["NAME"] == $b["NAME"])
-	       return 0;
-	   return ($a["NAME"] < $b["NAME"]) ? -1 : 1;
+		if($a["NAME"] == $b["NAME"])
+			return 0;
+		return ($a["NAME"] < $b["NAME"]) ? -1 : 1;
 	}
 	function cmp_name_desc($a, $b)
 	{
-	   if($a["NAME"] == $b["NAME"])
-	       return 0;
-	   return ($a["NAME"] > $b["NAME"]) ? -1 : 1;
+		if($a["NAME"] == $b["NAME"])
+			return 0;
+		return ($a["NAME"] > $b["NAME"]) ? -1 : 1;
 	}
 }
 
 function SetPrologTitle($prolog, $title)
 {
-	if(preg_match("'(\\\$APPLICATION->SetTitle\(\")(.*?)(?<!\\\\)(\"\);)'i", $prolog, $regs))
-		$prolog = str_replace($regs[1].$regs[2].$regs[3], $regs[1].EscapePHPString($title).$regs[3], $prolog);
+	if(preg_match('/
+		(\$APPLICATION->SetTitle\()
+		(
+			"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"                           # match double quoted string
+			|
+			\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'                       # match single quoted string
+		)
+		(\);)
+		/ix', $prolog, $regs)
+	)
+	{
+		$prolog = str_replace($regs[0], $regs[1]."\"".EscapePHPString($title)."\");", $prolog);
+	}
 	else
 	{
 		$p = strpos($prolog, "prolog_before");
@@ -842,7 +854,7 @@ function SetPrologTitle($prolog, $title)
 			elseif(preg_match("#<title>[^<]*</title>#i", $prolog))
 				$prolog = preg_replace("#<title>[^<]*</title>#i", "<title>".$title."</title>", $prolog);
 			else
-				$prolog = $prolog."\n<title>".htmlspecialchars($title)."</title>\n";
+				$prolog = $prolog."\n<title>".htmlspecialcharsbx($title)."</title>\n";
 		}
 		else
 		{

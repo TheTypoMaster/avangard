@@ -72,14 +72,14 @@ if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 	if(strlen($arParams["SECTION_CODE"])>0)
 	{
 		$arFilter["CODE"] = $arParams["SECTION_CODE"];
-		$rsSections = CIBlockSection::GetList(array(), $arFilter, true, $arSelect);
+		$rsSections = CIBlockSection::GetList(array(), $arFilter, $arParams["COUNT_ELEMENTS"], $arSelect);
 		$rsSections->SetUrlTemplates("", $arParams["SECTION_URL"]);
 		$arResult["SECTION"] = $rsSections->GetNext();
 	}
 	elseif($arParams["SECTION_ID"]>0)
 	{
 		$arFilter["ID"] = $arParams["SECTION_ID"];
-		$rsSections = CIBlockSection::GetList(array(), $arFilter, true, $arSelect);
+		$rsSections = CIBlockSection::GetList(array(), $arFilter, $arParams["COUNT_ELEMENTS"], $arSelect);
 		$rsSections->SetUrlTemplates("", $arParams["SECTION_URL"]);
 		$arResult["SECTION"] = $rsSections->GetNext();
 	}
@@ -122,7 +122,7 @@ if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 			$arSection["IBLOCK_ID"],
 			0,
 			$arSection["ID"],
-			array("SESSID"=>false)
+			array("SESSID"=>false, "CATALOG"=>true)
 		);
 		$arSection["EDIT_LINK"] = $arButtons["edit"]["edit_section"]["ACTION_URL"];
 		$arSection["DELETE_LINK"] = $arButtons["edit"]["delete_section"]["ACTION_URL"];
@@ -187,7 +187,7 @@ if($arResult["SECTIONS_COUNT"] > 0 || isset($arResult["SECTION"]))
 			$arParams["IBLOCK_ID"],
 			0,
 			$arResult["SECTION"]["ID"],
-			array("RETURN_URL" =>  $arReturnUrl)
+			array("RETURN_URL" =>  $arReturnUrl, "CATALOG"=>true)
 		);
 
 		$this->AddIncludeAreaIcons(CIBlock::GetComponentMenu($APPLICATION->GetPublicShowMode(), $arButtons));

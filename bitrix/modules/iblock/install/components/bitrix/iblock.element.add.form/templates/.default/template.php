@@ -25,7 +25,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 				<td colspan="2">&nbsp;</td>
 			</tr>
 		</thead>
-		<?if (is_array($arResult["PROPERTY_LIST"]) && count($arResult["PROPERTY_LIST"] > 0)):?>
+		<?if (is_array($arResult["PROPERTY_LIST"]) && !empty($arResult["PROPERTY_LIST"])):?>
 		<tbody>
 			<?foreach ($arResult["PROPERTY_LIST"] as $propertyID):?>
 				<tr>

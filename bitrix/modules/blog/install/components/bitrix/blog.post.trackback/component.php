@@ -25,7 +25,7 @@ if(strLen($arParams["POST_VAR"])<=0)
 	
 $arParams["PATH_TO_TRACKBACK"] = trim($arParams["PATH_TO_TRACKBACK"]);
 if(strlen($arParams["PATH_TO_TRACKBACK"])<=0)
-	$arParams["PATH_TO_TRACKBACK"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=trackback&".$arParams["BLOG_VAR"]."=#blog#"."&".$arParams["POST_VAR"]."=#post_id#");
+	$arParams["PATH_TO_TRACKBACK"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=trackback&".$arParams["BLOG_VAR"]."=#blog#"."&".$arParams["POST_VAR"]."=#post_id#");
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 
 if(COption::GetOptionString("blog","enable_trackback", "Y") == "Y")

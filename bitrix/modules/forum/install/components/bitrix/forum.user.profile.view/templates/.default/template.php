@@ -4,7 +4,7 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/themes/blue/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/styles/additional.css');
 endif;
-$GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/js/main/utils.js"></script>', true);
+$GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/main/utils.js");
 $arParams["SHOW_MAIL"] = (($arParams["SEND_MAIL"] <= "A" || ($arParams["SEND_MAIL"] <= "E" && !$GLOBALS['USER']->IsAuthorized())) ? "N" : "Y");
 
 /************** User options **************************************/
@@ -39,8 +39,8 @@ endif;
 
 if ($arParams["SHOW_RATING"] == 'Y')
 {
-    $authorId = intval($arParams["UID"]);
-    $arRatingResult = CRatings::GetRatingResult($arParams["RATING_ID"], $authorId);	
+	$authorId = intval($arParams["UID"]);
+	$arRatingResult = CRatings::GetRatingResult($arParams["RATING_ID"], $authorId);
 	$arRatingVote	= CRatings::GetRatingVoteResult('USER', $authorId);
 }
 
@@ -107,12 +107,12 @@ endif;
 if ($arResult["SHOW_RANK"] != "Y"):
 ?>
 					<div class="forum-user-status <?=(!empty($arResult["USER_RANK_CODE"]) ? "forum-user-".$arResult["USER_RANK_CODE"]."-status" : "")?>"><?
-						?><span><?=htmlspecialchars($arResult["USER_RANK"])?></span></div>
+						?><span><?=htmlspecialcharsbx($arResult["USER_RANK"])?></span></div>
 <?
 else:
 ?>
 					<div class="forum-user-status <?=(!empty($arResult["USER_RANK_CODE"]) ? "forum-user-".$arResult["USER_RANK_CODE"]."-status" : "")?>"><?
-						?><span><?=htmlspecialchars($arResult["arRank"]["NAME"])?></span></div>
+						?><span><?=htmlspecialcharsbx($arResult["arRank"]["NAME"])?></span></div>
 			
 <?
 endif;
@@ -147,25 +147,25 @@ endif;
 $sRatingTemplate = COption::GetOptionString("main", "rating_vote_type", "standart");
 if ($sRatingTemplate == 'standart' && $arParams["SHOW_RATING"] == 'Y' && $authorId > 0):
 ?>
-        <span>
-        <?
-        $GLOBALS["APPLICATION"]->IncludeComponent(
-            "bitrix:rating.result", "",
-            Array(
-                "RATING_ID" => $arParams["RATING_ID"],
-                "ENTITY_ID" => $arRatingResult['ENTITY_ID'],
-                "CURRENT_VALUE" => $arRatingResult['CURRENT_VALUE'],
-                "PREVIOUS_VALUE" => $arRatingResult['PREVIOUS_VALUE'],
-            ),
-            null,
-            array("HIDE_ICONS" => "Y")
-        );
-        ?>
-        </span>	
-		<span><?=GetMessage('F_VOTE_AUTH')?>:	
+	<span>
 		<?
 		$GLOBALS["APPLICATION"]->IncludeComponent(
-			"bitrix:rating.vote", $arParams["SHOW_RATING"],
+			"bitrix:rating.result", "",
+			Array(
+				"RATING_ID" => $arParams["RATING_ID"],
+				"ENTITY_ID" => $arRatingResult['ENTITY_ID'],
+				"CURRENT_VALUE" => $arRatingResult['CURRENT_VALUE'],
+				"PREVIOUS_VALUE" => $arRatingResult['PREVIOUS_VALUE'],
+			),
+			null,
+			array("HIDE_ICONS" => "Y")
+		);
+		?>
+	</span>
+	<span><?=GetMessage('F_VOTE_AUTH')?>:
+		<?
+		$GLOBALS["APPLICATION"]->IncludeComponent(
+			"bitrix:rating.vote", $arParams["RATING_TYPE"],
 			Array(
 				"ENTITY_TYPE_ID" => 'USER',
 				"ENTITY_ID" => $authorId,
@@ -182,7 +182,7 @@ if ($sRatingTemplate == 'standart' && $arParams["SHOW_RATING"] == 'Y' && $author
 			array("HIDE_ICONS" => "Y")
 		);
 		?>
-		</span>			
+		</span>	
 <?
 endif;
 
@@ -546,7 +546,7 @@ endif;
 			</td>
 		</tr>
 	</tbody>
-	 <tfoot>
+	<tfoot>
 		<tr>
 			<td colspan="5" class="forum-column-footer">
 				<div class="forum-footer-inner">

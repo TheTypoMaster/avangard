@@ -3,6 +3,8 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 include_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/desktop/include.php');
 
+CJSCore::Init(array('window'));
+
 $col = 0;
 $arDiff = array_diff($arParams["GADGETS_FIXED"], $arResult["GADGETS_LIST"]);
 
@@ -20,19 +22,19 @@ if (!empty($arDiff))
 		foreach($arUserOptions["GADGETS"] as $key => $arGadgetDefault)
 		{
 			list($gadget_id, $id) = explode("@", $key, 2);
-			
+
 			if (!in_array($gadget_id, $arParams["GADGETS_FIXED"]))
 				continue;
 
 			if (in_array($gadget_id, $arDiff))
 			{
 				$arGadgetDefaultAll = $arResult["ALL_GADGETS"][$gadget_id];
-				
+
 				if (!array_key_exists("CAN_BE_FIXED", $arGadgetDefaultAll) ||!$arGadgetDefaultAll["CAN_BE_FIXED"])
 					continue;
-				
+
 				$arGadgetDefault = array_merge($arGadgetDefault, $arGadgetDefaultAll);
-				$arGadgetDefault["TITLE"] = htmlspecialchars($arGadgetDefault["NAME"]);
+				$arGadgetDefault["TITLE"] = htmlspecialcharsbx($arGadgetDefault["NAME"]);
 
 				if (!array_key_exists("SETTINGS", $arGadgetDefault))
 					$arGadgetDefault["SETTINGS"] = array();

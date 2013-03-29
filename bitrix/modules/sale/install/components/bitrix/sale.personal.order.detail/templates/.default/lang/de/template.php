@@ -1,0 +1,36 @@
+<?
+$MESS["SPOD_RECORDS_LIST"] = "Bestellübersicht";
+$MESS["P_ORDER_PRICE"] = "Bestellsumme";
+$MESS["P_ORDER_CANCELED"] = "Storniert";
+$MESS["P_ORDER_PERS_TYPE"] = "Kundengruppe";
+$MESS["P_ORDER_PAYMENT"] = "Bezahlung und Versand";
+$MESS["P_ORDER_PAY_SYSTEM"] = "Zahlungssystem";
+$MESS["P_ORDER_PAYED"] = "Bezahlt";
+$MESS["P_ORDER_DELIVERY"] = "Versandart";
+$MESS["P_ORDER_BASKET"] = "Warenkorb";
+$MESS["SALE_YES"] = "Ja";
+$MESS["SALE_NO"] = "Nein";
+$MESS["SALE_CANCEL_ORDER"] = "Abbrechen";
+$MESS["SALE_REPEAT_PAY"] = "Zahlung wiederholen";
+$MESS["SPOD_ORDER_NO"] = "Bestellung Nr.";
+$MESS["SPOD_FROM"] = "von";
+$MESS["SPOD_ORDER_STATUS"] = "Aktueller Bestellstatus:";
+$MESS["SPOD_ORDER_FROM"] = "(von";
+$MESS["SPOD_ACCOUNT_DATA"] = "Ihre Account Informationen";
+$MESS["SPOD_ACCOUNT"] = "Konto";
+$MESS["SPOD_LOGIN"] = "Loginname";
+$MESS["SPOD_EMAIL"] = "E-Mail-Adresse:";
+$MESS["SPOD_NONE"] = "Keine";
+$MESS["SPOD_NAME"] = "Überschrift";
+$MESS["SPOD_PROPS"] = "Eigenschaften";
+$MESS["SPOD_PRICETYPE"] = "Preistyp";
+$MESS["SPOD_QUANTITY"] = "Anzahl";
+$MESS["SPOD_PRICE"] = "Preis";
+$MESS["SPOD_DISCOUNT"] = "Rabatt";
+$MESS["SPOD_TAX"] = "Steuerbetrag";
+$MESS["SPOD_DELIVERY"] = "Versandkosten";
+$MESS["SPOD_ITOG"] = "Gesamt";
+$MESS["SPOD_ALREADY_PAID"] = "bereits bezahlt";
+$MESS["P_ORDER_USER"] = "Bestellungsparameter";
+$MESS["P_ORDER_USER_COMMENT"] = "Kundenkommentare";
+?>

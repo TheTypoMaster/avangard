@@ -8,4 +8,5 @@ $MESS["PUBLIC_EDIT_DESCRIPTION"] = "Datei bearbeiten";
 $MESS["PUBLIC_EDIT_SAVE"] = "Speichern";
 $MESS["PUBLIC_EDIT_SAVE_TITLE"] = "Speichern";
 $MESS["PUBLIC_EDIT_SAVE_TOOLBAR_TITLE"] = "Button \"Speichern\"";
+$MESS["PUBLIC_EDIT_FILE_IMAGE_ERROR"] = "Ungültiger Dateityp";
 ?>

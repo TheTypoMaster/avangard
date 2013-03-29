@@ -1,41 +1,5 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-/*******************************************************************/
-if (!$this->__component->__parent || empty($this->__component->__parent->__name))
-{
-	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/style.css');
-	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/themes/blue/style.css');
-	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/styles/additional.css');
-};
-$arUserSettings = array("smiles" => "hide");
-if ($GLOBALS["USER"]->IsAuthorized())
-{
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
-	$arUserSettings = @unserialize(CUserOptions::GetOption("forum", "default_template", ""));
-}
-
-/********************************************************************
-				Input params
-********************************************************************/
-/***************** BASE ********************************************/
-$arParams["SHOW_TAGS"] = ($arParams["SHOW_TAGS"] != "N" ? "Y" : "N");
-$arParams["FILES_COUNT"] = intVal(intVal($arParams["FILES_COUNT"]) > 0 ? $arParams["FILES_COUNT"] : 5);
-$arParams["IMAGE_SIZE"] = (intVal($arParams["IMAGE_SIZE"]) > 0 ? $arParams["IMAGE_SIZE"] : 100);
-$arParams["SMILES_COUNT"] = (intVal($arParams["SMILES_COUNT"]) > 0 ? intVal($arParams["SMILES_COUNT"]) : 0);
-$arParams["VOTE_COUNT_QUESTIONS"] = (intVal($arParams["VOTE_COUNT_QUESTIONS"]) > 0 ? intVal($arParams["VOTE_COUNT_QUESTIONS"]) : 10);
-$arParams["VOTE_COUNT_ANSWERS"] = (intVal($arParams["VOTE_COUNT_ANSWERS"]) > 0 ? intVal($arParams["VOTE_COUNT_ANSWERS"]) : 20);
-$arParams["form_index"] = $_REQUEST["INDEX"];
-if (!empty($arParams["form_index"]))
-	$arParams["form_index"] = preg_replace("/[^a-z0-9]/is", "_", $arParams["form_index"]);
-$tabIndex = 10;
-/*******************************************************************/
-if (LANGUAGE_ID == 'ru')
-{
-	$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/ru/script.php");
-	@include_once($path);
-}
-/********************************************************************
-				/Input params
-********************************************************************/
+$postMessageTabIndex = $tabIndex = $arParams["tabIndex"];
 ?>
 <a name="postform"></a>
 <div class="forum-header-box">
@@ -61,7 +25,6 @@ else
 	?></span></div>
 </div>
 
-
 <div class="forum-reply-form">
 <?
 if (!empty($arResult["ERROR_MESSAGE"])) 
@@ -73,10 +36,8 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 <?
 };
 ?>
-
-<form name="REPLIER<?=$arParams["form_index"]?>" id="REPLIER<?=$arParams["form_index"]?>" action="<?=POST_FORM_ACTION_URI?>#postform"<?
-	?> method="POST" enctype="multipart/form-data" onsubmit="return ValidateForm(this, '<?=$arParams["AJAX_TYPE"]?>',  '<?=$arParams["AJAX_POST"]?>');"<?
-	?> class="forum-form">
+<form name="<?=$arParams["FORM_ID"]?>" id="<?=$arParams["FORM_ID"]?>" action="<?=POST_FORM_ACTION_URI?>#postform"<?
+	?> method="POST" enctype="multipart/form-data" class="forum-form">
 	<input type="hidden" name="PAGE_NAME" value="<?=$arParams["PAGE_NAME"];?>" />
 	<input type="hidden" name="FID" value="<?=$arParams["FID"]?>" />
 	<input type="hidden" name="TID" value="<?=$arParams["TID"]?>" />
@@ -85,6 +46,7 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 	<input type="hidden" name="AUTHOR_ID" value="<?=$arResult["TOPIC"]["AUTHOR_ID"];?>" />
 	<input type="hidden" name="forum_post_action" value="save" />
 	<input type="hidden" name="MESSAGE_MODE" value="NORMAL" />
+	<input type="hidden" name="jsObjName" value="<?=$arParams["jsObjName"]?>" />
 	<?=bitrix_sessid_post()?>
 <?
 if ($arParams['AUTOSAVE'])
@@ -138,208 +100,155 @@ if (($arResult["SHOW_PANEL_NEW_TOPIC"] == "Y" || $arResult["SHOW_PANEL_GUEST"] =
 		</div>
 <?
 	};
-if ($arResult["SHOW_PANEL_NEW_TOPIC"] == "Y" && ($arParams["SHOW_TAGS"] == "Y" || (
-		$arResult["SHOW_PANEL_VOTE"] == "Y" && empty($arResult["QUESTIONS"])
-	) ) ) 
+$arSwitchers = array();
+if ($arResult["SHOW_PANEL_NEW_TOPIC"] == "Y" && $arParams["SHOW_TAGS"] == "Y")
 {
 	$iIndex = $tabIndex++;
-if ($arParams["SHOW_TAGS"] == "Y") {
 ?>
-	<div class="forum-reply-field forum-reply-field-tags" <?
-		if (!empty($arResult["TOPIC"]["TAGS"])){
-			?> style="display:block; "<?
-		};
-	?>>
+	<div class="forum-reply-field forum-reply-field-tags" <?if (!empty($arResult["TOPIC"]["TAGS"])){?> style="display:block; "<?};?>>
 		<label for="TAGS"><?=GetMessage("F_TOPIC_TAGS")?></label>
 <?
-		if ($arResult["SHOW_SEARCH"] == "Y"){
-		$APPLICATION->IncludeComponent(
-			"bitrix:search.tags.input", 
-			"", 
-			array(
-				"VALUE" => $arResult["TOPIC"]["~TAGS"], 
-				"NAME" => "TAGS",
-				"TEXT" => 'tabindex="'.$iIndex.'" size="70" onmouseover="CorrectTags(this)"', 
-				"TMPL_IFRAME" => "N"),
-			$component,
-			array("HIDE_ICONS" => "Y"));
+		if ($arResult["SHOW_SEARCH"] == "Y") {
+			$APPLICATION->IncludeComponent(
+				"bitrix:search.tags.input",
+				"",
+				array(
+					"VALUE" => $arResult["TOPIC"]["~TAGS"],
+					"NAME" => "TAGS",
+					"TEXT" => 'tabindex="'.$iIndex.'" size="70" onmouseover="CorrectTags(this)"',
+					"TMPL_IFRAME" => "N"),
+				$component,
+				array("HIDE_ICONS" => "Y"));
 		?><iframe id="TAGS_div_frame" name="TAGS_div_frame" src="javascript:void(0);" style="display:none;"/></iframe><?
 		}
 		else
 		{
-			?><input name="TAGS" type="text" value="<?=$arResult["TOPIC"]["TAGS"]?>" tabindex="<?=$iIndex?>" size="70" /><?
-		};
-?>
-	</div><?
-}
-	if (empty($arResult["TOPIC"]["TAGS"]))
-	{
-		if ($arParams["SHOW_TAGS"] == "Y")
-		{
-		?><div class="forum-reply-field forum-reply-field-addtags"><?
-			?><a href="#" onclick="return AddTags(this);" onfocus="AddTags(this);" tabindex="<?=$iIndex?>"><?
-				?><?=GetMessage("F_TOPIC_TAGS_DESCRIPTION")?><?
-			?></a>&nbsp;<?
-		?></div><?
+			?><input name="TAGS" id="TAGS" type="text" value="<?=$arResult["TOPIC"]["TAGS"]?>" tabindex="<?=$iIndex?>" size="70" /><?
 		}
-		if ($arResult["SHOW_PANEL_NEW_TOPIC"] == "Y" && $arResult["SHOW_PANEL_VOTE"] == "Y" && empty($arResult["QUESTIONS"]))
-		{
 		?>
-			<a href="#" onclick="return ShowVote(this);" name="from_tag"><?=GetMessage("F_ADD_VOTE")?></a><?
-		};
-	};
-};
-if ($arResult["SHOW_PANEL_NEW_TOPIC"] == "Y" && $arResult["SHOW_PANEL_VOTE"] == "Y" && empty($arResult["QUESTIONS"]))
-{
-		?><div class="forum-reply-field forum-reply-field-vote" id="vote_switcher" <?
-	if (empty($arResult["TOPIC"]["TAGS"]))
-	{
-		?>style="display:none;"<?
-	};
-		?>><a href="#" onclick="return ShowVote(this);"><?=GetMessage("F_ADD_VOTE")?></a>
-		</div><?	
-};
+		<div class="forum-clear-float"></div>
+	</div><?
+}	if (($arResult["SHOW_PANEL_NEW_TOPIC"] & ($arResult["SHOW_PANEL_VOTE"]|$arParams["SHOW_TAGS"])) == "Y" &&
+		(empty($arResult["TOPIC"]["TAGS"]) || empty($arResult["QUESTIONS"]))) {
+	?><div class="forum-reply-field forum-reply-field-switcher"><?
+		if (empty($arResult["TOPIC"]["TAGS"]) && $arParams["SHOW_TAGS"] == "Y") {
+			?><span class="forum-reply-field forum-reply-field-switcher-tag"><?
+				?><a href="javascript:void(0);" onclick="return AddTags(this);" <?
+					?>onfocus="AddTags(this);" tabindex="<?=$iIndex?>"><?=GetMessage("F_TOPIC_TAGS_DESCRIPTION")?></a><?
+		?>&nbsp;&nbsp;</span><?}
+		if (empty($arResult["QUESTIONS"]) && $arResult["SHOW_PANEL_VOTE"] == "Y") {
+		?><span class="forum-reply-field forum-reply-field-switcher-vote"><?
+			?><a href="javascript:void(0);" onclick="return ShowVote(this);" <?
+				?>onfocus="ShowVote(this);" tabindex="<?=$tabIndex++?>"><?=GetMessage("F_ADD_VOTE")?></a>
+		</span><? }
+	?></div><?}
 ?>
-	</div>
+</div>
 <?
 
-if ($arResult["SHOW_PANEL_NEW_TOPIC"] == "Y" && $arResult["SHOW_PANEL_VOTE"] == "Y")
-{
-$iCountQuestions = count($arResult["QUESTIONS"]);
-$iCountQuestions = ($iCountQuestions > 0 ? $iCountQuestions : 1);
+if ($arResult["SHOW_PANEL_NEW_TOPIC"] == "Y" && $arResult["SHOW_PANEL_VOTE"] == "Y") {
+	ob_start();
+	?><li id="ANS_#Q#__#A#_"><input type="text" name="ANSWER[#Q#][#A#]" value="#A_VALUE#" /><?
+		?><label>[<a onclick="return vote_remove_answer(this)" title="<?=GetMessage("F_VOTE_DROP_ANSWER")?>" href="#">X</a>]</label></li><?
+	$sAnswer = ob_get_clean();
+	ob_start();
+	?><div class="forum-reply-field-vote-question"><?
+		?><div id="QST_#Q#_" class="forum-reply-field-vote-question-title"><?
+			?><input type="text" name="QUESTION[#Q#]" id="QUESTION_#Q#" value="#Q_VALUE#" /><?
+			?><label for="QUESTION_#Q#">[<a onclick="return vote_remove_question(this)" title="<?=GetMessage("F_VOTE_DROP_QUESTION")?>" href="#">X</a>]</label><?
+		?></div><?
+		?><div class="forum-reply-field-vote-question-options"><?
+			?><input type="checkbox" value="Y" name="MULTI[#Q#]" id="MULTI_#Q#" #Q_MULTY# /><?
+			?><label for="MULTI_#Q#"><?=GetMessage("F_VOTE_MULTI")?></label><?
+		?></div><?
+		?><ol class="forum-reply-field-vote-answers">#Q_ANSWERS#<?
+			?><li>[<a onclick="return vote_add_answer(this)" name="addA#Q#" href="#"><?=GetMessage("F_VOTE_ADD_ANSWER")?></a>]</li><?
+		?></ol><?
+	?></div><?
+	$sQuestion = ob_get_clean();
 ?>
-<script>
-var arVoteParams = {
-	'count_q': <?=$iCountQuestions?>, 
-	'coun_max_q': <?=($arParams["VOTE_COUNT_QUESTIONS"])?>, 
-	'count_max_a': <?=($arParams["VOTE_COUNT_ANSWERS"])?>, 
-	'template_answer' : ('<input type="text" name="ANSWER[#Q#][#A#]" value="" />' + 
-				'<label>[<a onclick=\'return vote_remove_answer(this, "#Q#", "Y")\' title="<?=CUtil::JSEscape(GetMessage("F_VOTE_DROP_ANSWER"))?>" href="#">X</a>]</label>'), 
-	'template_question' : ('<div class="forum-reply-field-vote-question-title">' + 
-			'<input type="text" name="QUESTION[#Q#]" name="QUESTION_#Q#" value="" />' + 
-			'<label>[<a onclick=\'return vote_remove_question(this, "Y")\' title="<?=CUtil::JSEscape(GetMessage("F_VOTE_DROP_QUESTION"))?>" href="#">X</a>]</label>' + 
-		'</div>' + 
-		'<div class="forum-reply-field-vote-question-options">' + 
-			'<input type="checkbox" value="Y" name="MULTI[#Q#]" id="MULTI_#Q#" class="checkbox" />' + 
-			'<label for="MULTI_#Q#"><?=CUtil::JSEscape(GetMessage("F_VOTE_MULTI"))?></label>' + 
-		'</div>' + 
-		'<ol class="forum-reply-field-vote-answers">' + 
-			'<li><input type="text" name="ANSWER[#Q#][1]" value="" />' + 
-				'<label>[<a onclick=\'return vote_remove_answer(this, "#Q#", "Y")\' title="<?=CUtil::JSEscape(GetMessage("F_VOTE_DROP_ANSWER"))?>" href="#">X</a>]</label></li>' + 
-			'<li>[<a onclick=\'return vote_add_answer(this.parentNode, #Q#, 1)\' href="#"><?=CUtil::JSEscape(GetMessage("F_VOTE_ADD_ANSWER"))?></a>]</li>' + 
-		'</ol>')};
+<script type="text/javascript">
+	var arVoteParams = {
+		'template_answer' : '<?=CUtil::JSEscape(str_replace("#A_VALUE#", "", $sAnswer))?>',
+		'template_question' : '<?=CUtil::JSEscape(str_replace(
+			array("#Q_VALUE#", "#Q_MULTY#", "#Q_ANSWERS#", "#A#", "#A_VALUE#"),
+			array("", "", $sAnswer, 1, ""), $sQuestion
+		))?>'
+	}
 </script>
-	<div id="vote_params" <?
-		if (empty($arResult["QUESTIONS"]))
-		{
-	?>style="display:none;"<?
-		};?>>
+<div id="vote_params" <?if (empty($arResult["QUESTIONS"])) { ?>style="display:none;"<? }?>>
 	<div class="forum-reply-header"><?=GetMessage("F_VOTE")?></div>
 	<div class="forum-reply-fields">
-		<div class="forum-reply-field forum-reply-field-vote">
+		<div class="forum-reply-field forum-reply-field-vote-duration">
 			<label><?=GetMessage('VOTE_DURATION')?></label>
+			<?$APPLICATION->IncludeComponent(
+				"bitrix:main.calendar",
+				"",
+				array(
+					"SHOW_INPUT"=>"Y",
+					"SHOW_TIME"=>"N",
+					"INPUT_NAME"=>"DATE_END",
+					"INPUT_VALUE"=>$arResult['DATE_END'],
+					"FORM_NAME"=>$arParams["FORM_ID"],
+				),
+				$component,
+				array("HIDE_ICONS"=>true)
+			);?>
+		</div>
+		<div class="forum-reply-field forum-reply-field-vote">
 <?
-$APPLICATION->IncludeComponent(
-	"bitrix:main.calendar",
-	"",
-	array(
-		"SHOW_INPUT"=>"Y",
-		"SHOW_TIME"=>"N",
-		"INPUT_NAME"=>"DATE_END",
-		"INPUT_VALUE"=>$arResult['DATE_END'],
-		"FORM_NAME"=>"REPLIER".$arParams["form_index"],
-	),
-	$component,
-	array("HIDE_ICONS"=>true)
-);?>
-		<br /><br />
-<?
-		$qq = 0;
-		foreach ($arResult["QUESTIONS"] as $arQuestion)
+		foreach ($arResult["QUESTIONS"] as $qq => $arQuestion)
 		{
+			?><input type="hidden" name="QUESTION_ID[<?=$qq?>]" value="<?=$arQuestion["ID"]?>" /><?
+			?><input type="hidden" name="QUESTION_DEL[<?=$qq?>]" value="<?=$arQuestion["DEL"]?>" /><?
+
 			if ($arQuestion["DEL"] == "Y")
-			{
-				?><input type="hidden" name="QUESTION_ID[<?=$qq?>]" value="<?=$arQuestion["ID"]?>" /><?
-				?><input type="hidden" name="QUESTION[<?=$qq?>]" value="<?=$arQuestion["QUESTION"]?>" /><?
-				?><input type="hidden" name="QUESTION_DEL[<?=$qq?>]" value="Y" /><?
 				continue;
-			};
-			$qq++;
-?>
-			<div class="forum-reply-field-vote-question">
-				<div class="forum-reply-field-vote-question-title">
-					<input type="hidden" name="QUESTION_ID[<?=$qq?>]" value="<?=$arQuestion["ID"]?>" /><?
-					?><input type="text" name="QUESTION[<?=$qq?>]" value="<?=$arQuestion["QUESTION"]?>" /><?
-					?><input type="hidden" name="QUESTION_DEL[<?=$qq?>]" value="N" /><?
-					?><label>[<a onclick='return vote_remove_question(this);' title="<?=GetMessage("F_VOTE_DROP_QUESTION")?>" href="#">X</a>]</label>
-				</div>
-				<div class="forum-reply-field-vote-question-options">
-					<input type="checkbox" value="Y" name="MULTI[<?=$qq?>]" id="MULTI_<?=$qq?>" class="checkbox" <?
-						?><?=($arQuestion["MULTI"] == "Y" ? "checked='checked'" : "")?> />
-					<label for="MULTI_<?=$qq?>"><?=GetMessage("F_VOTE_MULTI")?></label>
-				</div><?
-				?><ol class="forum-reply-field-vote-answers"><?
-			$aa = 0;
+
+			$arAnswers = array();
 			foreach ($arQuestion["ANSWERS"] as $aa => $arAnswer)
 			{
+				?><input type="hidden" name="ANSWER_ID[<?=$qq?>][<?=$aa?>]" value="<?=$arAnswer["ID"]?>" /><?
+				?><input type="hidden" name="ANSWER_DEL[<?=$qq?>][<?=$aa?>]" value="<?=$arAnswer["DEL"]?>" /><?
 				if ($arAnswer["DEL"] == "Y")
-				{
-					?><input type="hidden" name="ANSWER_ID[<?=$qq?>][<?=$aa?>]" value="<?=$arAnswer["ID"]?>" /><?
-					?><input type="text" name="ANSWER[<?=$qq?>][<?=$aa?>]" value="<?=$arAnswer["MESSAGE"]?>" /><?
-					?><input type="hidden" name="ANSWER_DEL[<?=$qq?>][<?=$aa?>]" value="Y" /><?
 					continue;
-				};
-
-				$aa++;
-					?><li><input type="hidden" name="ANSWER_ID[<?=$qq?>][<?=$aa?>]" value="<?=$arAnswer["ID"]?>" /><?
-						?><input type="text" name="ANSWER[<?=$qq?>][<?=$aa?>]" value="<?=$arAnswer["MESSAGE"]?>" /><?
-						?><input type="hidden" name="ANSWER_DEL[<?=$qq?>][<?=$aa?>]" value="N" /><?
-						?><label>[<a onclick='return vote_remove_answer(this, "<?=$qq?>", "N");' title="<?=GetMessage("F_VOTE_DROP_ANSWER")?>" href="#">X</a>]</label></li><?
-			};
-					?><li <?=($aa >= $arParams["VOTE_COUNT_ANSWERS"] ? "style='display:none;'" : "")?>><?
-						?>[<a onclick='return vote_add_answer(this.parentNode, "<?=$qq?>", "<?=$aa?>");' href="#"><?=GetMessage("F_VOTE_ADD_ANSWER")?></a>]</li><?
-				?></ol>
-			</div><?
-		};
+				$arAnswers[] = str_replace(
+					array("#A#", "#A_VALUE#"),
+					array($aa, $arAnswer["MESSAGE"]),
+					$sAnswer);
+			}
+			?><?=str_replace(
+				array("#Q_VALUE#", "#Q_MULTY#", "#Q_ANSWERS#", "#Q#"),
+				array($arQuestion["QUESTION"], ($arQuestion["MULTI"] == "Y" ? "checked" : ""), implode("", $arAnswers), $qq),
+				$sQuestion
+			);?><?
+		}
 		if (empty($arResult["QUESTIONS"]))
 		{
-			$qq++;
-			?><div class="forum-reply-field-vote-question">
-				<div class="forum-reply-field-vote-question-title"><?
-					?><input type="text" name="QUESTION[1]" name="QUESTION_1" value="" /><?
-					?><label>[<a onclick='return vote_remove_question(this, "Y")' title="<?=GetMessage("F_VOTE_DROP_QUESTION")?>" href="#">X</a>]</label><?
-					?>
-				</div>
-				<div class="forum-reply-field-vote-question-options">
-					<input type="checkbox" value="Y" name="MULTI[1]" id="MULTI_1" class="checkbox" />
-					<label for="MULTI_1"><?=GetMessage("F_VOTE_MULTI")?></label>
-				</div><?
-				?><ol class="forum-reply-field-vote-answers"><?
-					?><li><input type="text" name="ANSWER[1][1]" value="" /><?
-					?><label>[<a onclick='return vote_remove_answer(this, "1", "Y")' title="<?=GetMessage("F_VOTE_DROP_ANSWER")?>" href="#">X</a>]</label></li><?
-					?><li>[<a onclick='return vote_add_answer(this.parentNode, 1, 1)' href="#"><?=GetMessage("F_VOTE_ADD_ANSWER")?></a>]</li><?
-				?></ol>
-			</div><?
-		};
-			?>
-			<div class="forum-reply-field-vote-question" id="vote_question_add" <?=($qq >= $arParams["VOTE_COUNT_QUESTIONS"] ? "style='display:none;'" : "")?>>
-				<a onclick="return vote_add_question('<?=$qq?>', this.parentNode);" href="#"><?=GetMessage("F_VOTE_ADD_QUESTION")?></a>
-			</div>
+			$qq = 1;
+			?><?=str_replace(
+			array("#Q_VALUE#", "#Q_MULTY#", "#Q_ANSWERS#", "#Q#", "#A#", "#A_VALUE#"),
+			array("", "", $sAnswer, 1, 1, ""),
+			$sQuestion
+			)?><?
+		}
+			?><div class="forum-reply-field-vote-question" id="vote_question_add"><?
+				?><a onclick="return vote_add_question(this.parentNode, '<?=$qq?>');" href="#"><?=GetMessage("F_VOTE_ADD_QUESTION")?></a><?
+			?></div>
 		</div>
 	</div>
-	</div>
+</div>
 <?
-};
-
-};
+	}
+}
 ?>
-
 	<div class="forum-reply-header"><span><?=GetMessage("F_MESSAGE_TEXT")?></span><span class="forum-required-field">*</span></div>
 	<div class="forum-reply-fields">
 		<div class="forum-reply-field forum-reply-field-text">
 			<?
+				$postMessageTabIndex = $tabIndex++;
 				$arSmiles = array();
-				if ($arResult["FORUM"]["ALLOW_SMILES"] == "Y") 
+				if ($arResult["FORUM"]["ALLOW_SMILES"] == "Y")
 				{
 					foreach($arResult["SMILES"] as $arSmile)
 					{
@@ -350,59 +259,65 @@ $APPLICATION->IncludeComponent(
 						);
 					}
 				}
+				if (LANGUAGE_ID == 'ru')
+					AddEventHandler("fileman", "OnIncludeLightEditorScript", "CustomizeLHEForForum");
+			$APPLICATION->IncludeComponent(
+				"bitrix:main.post.form",
+				"",
+				Array(
+					"FORM_ID" => $arParams["FORM_ID"],
+					"SHOW_MORE" => "Y",
+					"PARSER" => forumTextParser::GetEditorToolbar(array('forum' => $arResult['FORUM'])),
 
-				CModule::IncludeModule("fileman");
-				AddEventHandler("fileman", "OnIncludeLightEditorScript", "CustomizeLHEForForum");
+					"LHE" => array(
+						'id' => 'POST_MESSAGE',
+						'jsObjName' => $arParams["jsObjName"],
+						'bSetDefaultCodeView' => ($arParams['EDITOR_CODE_DEFAULT'] == 'Y'),
+						'bResizable' => true,
+						'bAutoResize' => true,
+						'bManualResize' => false,
+						"documentCSS" => "body {color:#434343; font-size: 14px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 20px;}",
+						"ctrlEnterHandler" => "__ctrl_enter_".$arParams["FORM_ID"]
+					),
 
-				$LHE = new CLightHTMLEditor();
+					"ADDITIONAL" => array(),
 
-				$arEditorParams = array(
-					'id' => "POST_MESSAGE",
-					'content' => isset($arResult['MESSAGE']["~POST_MESSAGE"]) ? $arResult['MESSAGE']["~POST_MESSAGE"] : "",
-					'inputName' => "POST_MESSAGE",
-					'inputId' => "",
-					'width' => "100%",
-					'height' => "200px",
-					'minHeight' => "200px",
-					'bUseFileDialogs' => false,
-					'bUseMedialib' => false,
-					'BBCode' => true,
-					'bBBParseImageSize' => true,
-					'jsObjName' => "oLHE",
-					'toolbarConfig' => array(),
-					'smileCountInToolbar' => 3,
-					'arSmiles' => $arSmiles,
-					'bQuoteFromSelection' => true,
-					'ctrlEnterHandler' => 'postformCtrlEnterHandler'.$arParams["form_index"],
-					'bSetDefaultCodeView' => ($arParams['EDITOR_CODE_DEFAULT'] == 'Y'),
-					'bResizable' => true,
-					'bAutoResize' => true
-				);
+					"TEXT" => Array(
+						"ID" => "POST_MESSAGE",
+						"NAME" => "POST_MESSAGE",
+						"VALUE" => isset($arResult['MESSAGE']["~POST_MESSAGE"]) ? $arResult['MESSAGE']["~POST_MESSAGE"] : "",
+						"SHOW" => "Y",
+						"HEIGHT" => "200px"),
 
-				$arEditorFeatures = array(
-					"ALLOW_BIU" => array('Bold', 'Italic', 'Underline', 'Strike'),
-					"ALLOW_FONT" => array('ForeColor','FontList', 'FontSizeList'),
-					"ALLOW_QUOTE" => array('Quote'),
-					"ALLOW_CODE" => array('Code'),
-					'ALLOW_ANCHOR' => array('CreateLink', 'DeleteLink'),
-					"ALLOW_IMG" => array('Image'),
-					"ALLOW_VIDEO" => array('ForumVideo'),
-					"ALLOW_TABLE" => array('Table'),
-					"ALLOW_LIST" => array('InsertOrderedList', 'InsertUnorderedList'),
-					"ALLOW_SMILES" => array('SmileList'),
-					"ALLOW_UPLOAD" => array(''),
-					"ALLOW_NL2BR" => array(''),
-				);
-				foreach ($arEditorFeatures as $featureName => $toolbarIcons)
-		{
-					if (isset($arResult['FORUM'][$featureName]) && ($arResult['FORUM'][$featureName] == 'Y'))
-						$arEditorParams['toolbarConfig'] = array_merge($arEditorParams['toolbarConfig'], $toolbarIcons);
-		}
-				$arEditorParams['toolbarConfig'] = array_merge($arEditorParams['toolbarConfig'], array('RemoveFormat', 'Translit', 'Source'));
-				$LHE->Show($arEditorParams);
-			?>
+					"UPLOAD_FILE" => array(
+						"INPUT_NAME" => 'FILES',
+						"INPUT_VALUE" => (!empty($arResult["MESSAGE"]["FILES"]) ? array_keys($arResult["MESSAGE"]["FILES"]) : false),
+						"MAX_FILE_SIZE" => COption::GetOptionString("forum", "file_max_size", 50000),
+						"MULTIPLE" => "Y",
+						"MODULE_ID" => "forum",
+						"ALLOW_UPLOAD" => ($arParams["FORUM"]["ALLOW_UPLOAD"] == "N" ? false :
+							($arResult["FORUM"]["ALLOW_UPLOAD"] == "Y" ? "I" : $arResult["FORUM"]["ALLOW_UPLOAD"])),
+						"ALLOW_UPLOAD_EXT" => $arResult["FORUM"]["ALLOW_UPLOAD_EXT"]
+					),
+					"UPLOAD_FILE_PARAMS" => array("width" => $arParams["IMAGE_SIZE"], "height" => $arParams["IMAGE_SIZE"]),
+
+//					"DESTINATION" => array(),
+
+//					"TAGS" => Array(),
+
+					"SMILES" => array("VALUE" => $arSmiles),
+					"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
+				)
+			);
+					?><a href="#" tabindex="<?=$postMessageTabIndex?>" id="post_message_hidden"></a>
 				</div>
 <?
+/* ATTACH FILES */
+if ($arResult["SHOW_PANEL_ATTACH_IMG"] == "Y" && empty($arResult["MESSAGE"]["FILES"])){
+?><div class="forum-reply-field forum-reply-field-upload" onclick="this.className+=' forum-reply-field-upload-hover';">
+	<a href="javascript:void(0);" id="bx-b-uploadfile"><?=($arResult["FORUM"]["ALLOW_UPLOAD"]=="Y") ? GetMessage("F_LOAD_IMAGE") : GetMessage("F_LOAD_FILE") ?></a>
+</div>
+<? };
 /* EDIT PANEL */
 if ($arResult["SHOW_PANEL_EDIT"] == "Y")
 {
@@ -422,7 +337,7 @@ if ($arResult["SHOW_PANEL_EDIT"] == "Y")
 		?><div class="forum-reply-field-lastedit-reason" <?
 		if (!$checked)
 		{
-			?> style="display:none;" <?	
+			?> style="display:none;" <?
 		};
 		?>  id=""><?
 			if ($arResult["SHOW_EDIT_PANEL_GUEST"] == "Y")
@@ -435,7 +350,7 @@ if ($arResult["SHOW_PANEL_EDIT"] == "Y")
 			};
 		?>
 			<label for="EDIT_REASON"><?=GetMessage("F_EDIT_REASON")?></label>
-			<input type="text" name="EDIT_REASON" id="" size="70" value="<?=$arResult["EDIT_REASON"]?>" /></div>
+			<input type="text" name="EDIT_REASON" id="EDIT_REASON" size="70" value="<?=$arResult["EDIT_REASON"]?>" /></div>
 		</div>
 <?
 };
@@ -446,7 +361,7 @@ if (!$USER->IsAuthorized() && $arParams["FORUM"]["USE_CAPTCHA"]=="Y") { ?>
 			<input type="hidden" name="captcha_code" value=""/>
 			<div class="forum-reply-field-captcha-label">
 				<label for="captcha_word"><?=GetMessage("F_CAPTCHA_PROMT")?><span class="forum-required-field">*</span></label>
-				<input type="text" size="30" name="captcha_word" tabindex="<?=$tabIndex++;?>" autocomplete="off" />
+				<input type="text" size="30" name="captcha_word" id="captcha_word" tabindex="<?=$tabIndex++;?>" autocomplete="off" />
 				<a href='javascript:void(0);' class='forum-ajax-link' id='forum-refresh-captcha'><?=GetMessage("F_REFRESH_CAPTCHA")?></a>
 			</div>
 			<div class="forum-reply-field-captcha-image">
@@ -454,69 +369,7 @@ if (!$USER->IsAuthorized() && $arParams["FORUM"]["USE_CAPTCHA"]=="Y") { ?>
 			</div>
 		</div>
 <?
-};
-/* ATTACH FILES */
-if ($arResult["SHOW_PANEL_ATTACH_IMG"] == "Y")
-{
-?>
-		<div class="forum-reply-field forum-reply-field-upload">
-<?
-$iCount = 0;
-if (!empty($arResult["MESSAGE"]["FILES"]))
-{
-	foreach ($arResult["MESSAGE"]["FILES"] as $key => $val) 
-	{ 
-	$iCount++;
-	$sFileSize = CFile::FormatSize(intVal($val["FILE_SIZE"]));
-?>
-			<div class="forum-uploaded-file">
-				<input type="hidden" name="FILES[<?=$key?>]" value="<?=$key?>" />
-				<input type="checkbox" name="FILES_TO_UPLOAD[<?=$key?>]" id="FILES_TO_UPLOAD_<?=$key?>" value="<?=$key?>" checked="checked" />
-				<label for="FILES_TO_UPLOAD_<?=$key?>"><?=$val["ORIGINAL_NAME"]?> (<?=$val["CONTENT_TYPE"]?>) <?=$sFileSize?>
-					( <a href="/bitrix/components/bitrix/forum.interface/show_file.php?action=download&amp;fid=<?=$key?>"><?=GetMessage("F_DOWNLOAD")?></a> )
-				</label>
-			</div>
-<?
-	};
-};
-
-if ($iCount < $arParams["FILES_COUNT"])
-{
-$sFileSize = CFile::FormatSize(intVal(COption::GetOptionString("forum", "file_max_size", 50000)));
-?>
-			<div class="forum-upload-info" style="display:none;" id="upload_files_info_<?=$arParams["form_index"]?>">
-<?
-if ($arParams["FORUM"]["ALLOW_UPLOAD"] == "F")
-{
-?>
-				<span><?=str_replace("#EXTENSION#", $arParams["FORUM"]["ALLOW_UPLOAD_EXT"], GetMessage("F_FILE_EXTENSION"))?></span>
-<?
-};
-?>
-				<span><?=str_replace("#SIZE#", $sFileSize, GetMessage("F_FILE_SIZE"))?></span>
-			</div>
-<?
-
-for ($ii = $iCount; $ii < $arParams["FILES_COUNT"]; $ii++)
-{
-?>
-
-			<div class="forum-upload-file" style="display:none;" id="upload_files_<?=$ii?>_<?=$arParams["form_index"]?>">
-				<input name="FILE_NEW_<?=$ii?>" type="file" value="" size="30" />
-			</div>
-<?
-};
-?>
-			<a class="forum-upload-file-attach" href="javascript:void(0);" onclick="AttachFile('<?=$iCount?>', '<?=($ii - $iCount)?>', '<?=$arParams["form_index"]?>', this); return false;">
-				<span><?=($arResult["FORUM"]["ALLOW_UPLOAD"]=="Y") ? GetMessage("F_LOAD_IMAGE") : GetMessage("F_LOAD_FILE") ?></span>
-			</a>
-<?
-};
-?>
-		</div>
-<?
-};
-
+}
 ?>
 		<div class="forum-reply-field forum-reply-field-settings">
 <?
@@ -561,76 +414,71 @@ if ($arResult["SHOW_SUBSCRIBE"] == "Y")
 </div>
 </form>
 <script type="text/javascript">
-
 var bSendForm = false;
 if (typeof oErrors != "object")
 	var oErrors = {};
-oErrors['no_topic_name'] = "<?=CUtil::addslashes(GetMessage("JERROR_NO_TOPIC_NAME"))?>";
-oErrors['no_message'] = "<?=CUtil::addslashes(GetMessage("JERROR_NO_MESSAGE"))?>";
-oErrors['max_len'] = "<?=CUtil::addslashes(GetMessage("JERROR_MAX_LEN"))?>";
-oErrors['no_url'] = "<?=CUtil::addslashes(GetMessage("FORUM_ERROR_NO_URL"))?>";
-oErrors['no_title'] = "<?=CUtil::addslashes(GetMessage("FORUM_ERROR_NO_TITLE"))?>";
-oErrors['no_path'] = "<?=CUtil::addslashes(GetMessage("FORUM_ERROR_NO_PATH_TO_VIDEO"))?>";
+oErrors['no_topic_name'] = "<?=GetMessageJS("JERROR_NO_TOPIC_NAME")?>";
+oErrors['no_message'] = "<?=GetMessageJS("JERROR_NO_MESSAGE")?>";
+oErrors['max_len'] = "<?=GetMessageJS("JERROR_MAX_LEN")?>";
 if (typeof oText != "object")
 	var oText = {};
-oText['author'] = " <?=CUtil::addslashes(GetMessage("JQOUTE_AUTHOR_WRITES"))?>:\n";
-oText['enter_url'] = "<?=CUtil::addslashes(GetMessage("FORUM_TEXT_ENTER_URL"))?>";
-oText['enter_url_name'] = "<?=CUtil::addslashes(GetMessage("FORUM_TEXT_ENTER_URL_NAME"))?>";
-oText['enter_image'] = "<?=CUtil::addslashes(GetMessage("FORUM_TEXT_ENTER_IMAGE"))?>";
-oText['list_prompt'] = "<?=CUtil::addslashes(GetMessage("FORUM_LIST_PROMPT"))?>";
-oText['video'] = "<?=CUtil::addslashes(GetMessage("FORUM_VIDEO"))?>";
-oText['path'] = "<?=CUtil::addslashes(GetMessage("FORUM_PATH"))?>:";
-oText['preview'] = "<?=CUtil::addslashes(GetMessage("FORUM_PREVIEW"))?>:";
-oText['width'] = "<?=CUtil::addslashes(GetMessage("FORUM_WIDTH"))?>:";
-oText['height'] = "<?=CUtil::addslashes(GetMessage("FORUM_HEIGHT"))?>:";
-oText['vote_drop_answer_confirm'] = "<?=CUtil::addslashes(GetMessage("F_VOTE_DROP_ANSWER_CONFIRM"))?>";
-oText['vote_drop_question_confirm'] = "<?=CUtil::addslashes(GetMessage("F_VOTE_DROP_QUESTION_CONFIRM"))?>";
+oText['author'] = " <?=GetMessageJS("JQOUTE_AUTHOR_WRITES")?>:\n";
+oText['vote_drop_answer_confirm'] = "<?=GetMessageJS("F_VOTE_DROP_ANSWER_CONFIRM")?>";
+oText['vote_drop_question_confirm'] = "<?=GetMessageJS("F_VOTE_DROP_QUESTION_CONFIRM")?>";
 
-oText['BUTTON_OK'] = "<?=CUtil::addslashes(GetMessage("FORUM_BUTTON_OK"))?>";
-oText['BUTTON_CANCEL'] = "<?=CUtil::addslashes(GetMessage("FORUM_BUTTON_CANCEL"))?>";
-oText['smile_hide'] = "<?=CUtil::addslashes(GetMessage("F_HIDE_SMILE"))?>";
-
-if (typeof oHelp != "object")
-	var oHelp = {};
-
-function postformCtrlEnterHandler<?=CUtil::JSEscape($arParams["form_index"]);?>()
+function __ctrl_enter_<?=$arParams["FORM_ID"]?>(e, bNeedSubmit)
 {
-	if (window.oLHE)
-		window.oLHE.SaveContent();
-	var formid = "REPLIER<?=CUtil::JSEscape($arParams["form_index"]);?>";
-	if (document.forms[formid].onsubmit()) {document.forms[formid].submit();}
+	if (!ValidateForm(document.forms['<?=$arParams["FORM_ID"]?>'], '<?=$arParams["AJAX_TYPE"]?>',  '<?=$arParams["AJAX_POST"]?>'))
+	{
+		if (e) BX.PreventDefault(e);
+		return false;
+	}
+	if (bNeedSubmit !== false)
+		BX.submit(document.forms['<?=$arParams["FORM_ID"]?>']);
+	return true;
 }
 
 BX( function() {
+	BX.bind(
+		document.forms['<?=$arParams["FORM_ID"]?>'],
+		"submit",
+		function(e){__ctrl_enter_<?=$arParams["FORM_ID"]?>(e, false);}
+	);
+
 	BX.addCustomEvent(window,  'LHE_OnInit', function(lightEditor)
 	{
+		if (document.forms['<?=$arParams["FORM_ID"]?>']['hidden_focus'])
+			BX.remove(document.forms['<?=$arParams["FORM_ID"]?>']['hidden_focus'].parentNode);
+		
 		BX.addCustomEvent(lightEditor, 'onShow', function() {
-			BX.style(BX('bxlhe_frame_POST_MESSAGE').parentNode, 'width', '100%');
-
-<? if (!$USER->IsAuthorized() && $arParams["FORUM"]["USE_CAPTCHA"]=="Y") { ?>
-			BX.loadScript('/bitrix/js/forum/captcha.js', function() {
-				var formid = "REPLIER<?=CUtil::JSEscape($arParams["form_index"]);?>";
-				var form = document.forms[formid];
-				var captchaParams = {
-					'image' : null,
-					'hidden' : BX.findChild(form, {attr : {'name': 'captcha_code'}}, true),
-					'input' : BX.findChild(form, {attr: {'name':'captcha_word'}}, true),
-					'div' : BX.findChild(form, {'className':'forum-reply-field-captcha'}, true)
-				};
-				if (captchaParams.div)
-					captchaParams.image = BX.findChild(captchaParams.div, {'tag':'img'}, true);
-				var oCaptcha = new ForumFormCaptcha(captchaParams);
-				setTimeout(function() {
-					BX.bind(BX('forum-refresh-captcha'), 'click', BX.proxy(oCaptcha.Update, oCaptcha));
-				}, 200);
-			});
-<? } ?>
+			BX.style(lightEditor.pFrame.parentNode, 'width', '100%');
+			BX.style(lightEditor.pFrameTable.rows[2], 'display', 'none');
+			lightEditor.pTextarea.setAttribute("tabindex", <?=$postMessageTabIndex?>);
+			BX.bind(BX('post_message_hidden'), "focus", function(){lightEditor.SetFocus();});
+		<?if (!$USER->IsAuthorized() && $arParams["FORUM"]["USE_CAPTCHA"]=="Y"){?>
+				BX.loadScript('/bitrix/js/forum/captcha.js', function() {
+					var formid = "<?=CUtil::JSEscape($arParams["FORM_ID"]);?>";
+					var form = document.forms[formid];
+					var captchaParams = {
+						'image' : null,
+						'hidden' : BX.findChild(form, {attr : {'name': 'captcha_code'}}, true),
+						'input' : BX.findChild(form, {attr: {'name':'captcha_word'}}, true),
+						'div' : BX.findChild(form, {'className':'forum-reply-field-captcha'}, true)
+					};
+					if (captchaParams.div)
+						captchaParams.image = BX.findChild(captchaParams.div, {'tag':'img'}, true);
+					var oCaptcha = new ForumFormCaptcha(captchaParams);
+					setTimeout(function() {
+						BX.bind(BX('forum-refresh-captcha'), 'click', BX.proxy(oCaptcha.Update, oCaptcha));
+					}, 200);
+				});
+			<? } ?>
 		});
 	});
 });
 </script>
 <?
 if ($arParams['AUTOSAVE'])
-	$arParams['AUTOSAVE']->LoadScript("REPLIER".CUtil::JSEscape($arParams["form_index"]));
+	$arParams['AUTOSAVE']->LoadScript(CUtil::JSEscape($arParams["FORM_ID"]));
 ?>
 <?=ForumAddDeferredScript($this->GetFolder().'/script_deferred.js');?>

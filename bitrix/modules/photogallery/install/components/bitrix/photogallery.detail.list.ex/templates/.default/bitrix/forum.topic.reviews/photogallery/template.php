@@ -10,6 +10,10 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 <!--Flag used for cut comments content on JS and put to correct node in DOM -->
 #COMMENTS_BEGIN#
 <?foreach ($arResult["MESSAGES_REV"] as $res):?>
+	<?if ($arParams['FETCH_USER_ALIAS'])
+		$res["AUTHOR_URL"] = CPGalleryInterface::GetPathWithUserAlias($res["AUTHOR_URL"], $res["AUTHOR_ID"], $arParams['IBLOCK_ID']);
+	?>
+
 	<div class="photo-comment" id="bxphoto_com_<?=$res["ID"]?>">
 		<div class="photo-comment-avatar <?if ($res['AUTHOR_PHOTO'] == ''){echo 'photo-comment-avatar-none';}?>" >
 			<?if ($res['AUTHOR_PHOTO'] != ''):?>
@@ -17,7 +21,7 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 			<?endif;?>
 		</div>
 		<div onmouseout="BX.removeClass(this, 'photo-comment-hover')" onmouseover="BX.addClass(this, 'photo-comment-hover')" class="photo-comment-info-text">
-		    <div class="photo-comment-info">
+			<div class="photo-comment-info">
 				<a name="message<?=$res["ID"]?>"></a>
 				<?if (intVal($res["AUTHOR_ID"]) > 0 && !empty($res["AUTHOR_URL"])):?>
 				<a class="photo-comment-name" href="<?=$res["AUTHOR_URL"]?>"><?=$res["AUTHOR_NAME"]?></a>
@@ -55,9 +59,9 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 				<a href="" class="photo-comment-remove"></a>
 				*/?>
 			</div>
-		    <div class="photo-comment-text"><?=$res["POST_MESSAGE_TEXT"]?></div>
+			<div class="photo-comment-text"><?=$res["POST_MESSAGE_TEXT"]?></div>
 		</div>
-    </div>
+	</div>
 <?endforeach;?>
 #COMMENTS_END#
 </div>
@@ -70,10 +74,12 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 <?endif;?>
 
 #ADD_COMMENT_BEGIN#
+<?if($arResult["USER"]["PERMISSION"] > "E"): /* USER CAN WRITE MESSAGES*/?>
 <form name="REPLIER<?=$arParams["form_index"]?>" id="REPLIER<?=$arParams["form_index"]?>" action="<?=$arParams['~ACTION_URL']?>" method="POST" enctype="multipart/form-data" class="reviews-form">
 	<input type="hidden" name="back_page" value="<?=$arResult["CURRENT_PAGE"]?>" />
 	<input type="hidden" name="photo_element_id" value="<?=$arParams["ELEMENT_ID"]?>" id="ELEMENT_ID<?=$arParams["form_index"]?>" />
 	<input type="hidden" name="SECTION_ID" value="<?=$arResult["ELEMENT_REAL"]["IBLOCK_SECTION_ID"]?>" />
+	<input type="hidden" name="REVIEW_USE_SMILES" id="REVIEW_USE_SMILES<?=$arParams["form_index"]?>" value="<?=(($arResult["REVIEW_USE_SMILES"]=="Y") ? "Y" : "N")?>" />
 	<input type="hidden" name="save_product_review" value="Y" />
 	<input type="hidden" name="preview_comment" value="N" />
 	<input type="hidden" name="save_photo_comment" value="Y" />
@@ -84,8 +90,8 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 	<div class="reviews-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "reviews-note-error");?></div>
 </div>
 <? endif;?>
-<? /* GUEST PANEL */
-if (!$arResult["IS_AUTHORIZED"]):?>
+
+<?if (!$arResult["IS_AUTHORIZED"]): /* GUEST PANEL */?>
 	<div class="reviews-reply-fields">
 		<div class="reviews-reply-field-user">
 			<div class="reviews-reply-field reviews-reply-field-author">
@@ -117,6 +123,7 @@ if (!$arResult["IS_AUTHORIZED"]):?>
 		<a href="javascript:void(0)" class="photo-comment-add" id="bxphoto_add_comment_but" title="<?= GetMessage("ADD_COMMENT_TITLE")?>"><span><?= GetMessage("ADD_COMMENT")?></span><i></i></a>
 	</div>
 </form>
+<?endif; /* if($arResult["USER"]["PERMISSION"] > "E") */?>
 #ADD_COMMENT_END#
 
 <script>

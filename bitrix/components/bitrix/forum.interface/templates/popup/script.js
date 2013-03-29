@@ -216,12 +216,12 @@ FJCFloatDiv.Show = function(div, left, top, dxShadow, bSubstrate, restrictDrag)
 		{
 			if(jsUtils.IsIE())
 			{
-	 			img = document.createElement("DIV");
-	 			img.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"+phpVars.templatePath+"images/shadow.png',sizingMethod='scale')";
+				img = document.createElement("DIV");
+				img.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"+phpVars.templatePath+"images/shadow.png',sizingMethod='scale')";
 			}
 			else
 			{
-	 			img = document.createElement("IMG");
+				img = document.createElement("IMG");
 				img.src = phpVars.templatePath + 'images/shadow.png';
 			}
 			img.id = div.id+'_shadow';
@@ -254,7 +254,7 @@ FJCFloatDiv.Show = function(div, left, top, dxShadow, bSubstrate, restrictDrag)
 				substrate.style.KhtmlOpacity = '0.5';
 			if (jsUtils.IsIE())
 			{
-		 		substrate.style.filter += "progid:DXImageTransform.Microsoft.Alpha(opacity=50)";
+				substrate.style.filter += "progid:DXImageTransform.Microsoft.Alpha(opacity=50)";
 			}
 			document.body.appendChild(substrate);
 		}

@@ -9,4 +9,4 @@ function movebox(id) {
 	else {
 		div.style.display = '0';
 	}
-}
+};   

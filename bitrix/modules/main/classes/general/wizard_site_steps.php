@@ -154,11 +154,11 @@ class CPackageSelectSite extends CWizardStep
 			$this->content .='</td>';
 
 			$this->content .= '<td valign="top" width="100%" style="padding-left:4px;">';
-			$this->content .= '<label for="'.htmlspecialchars($siteID).'">';
+			$this->content .= '<label for="'.htmlspecialcharsbx($siteID).'">';
 			$this->content .= '<b>'.htmlspecialcharsEx($arSite["NAME"]).'</b></label>';
 
 			if (isset($arSite["DESCRIPTION"]) && strlen($arSite["DESCRIPTION"]) > 0)
-				$this->content .= '<br /><div style="margin-left:20px;"><label for="'.htmlspecialchars($siteID).'">'.$arSite["DESCRIPTION"].'</label></div>';
+				$this->content .= '<br /><div style="margin-left:20px;"><label for="'.htmlspecialcharsbx($siteID).'">'.$arSite["DESCRIPTION"].'</label></div>';
 
 			$this->content .='</td>';
 
@@ -247,7 +247,7 @@ class CPackageSelectGroup extends CWizardStep
 			$this->content .= '<table><tr><td valign="top">';
 			$this->content .= $this->ShowRadioField("__groupID", $groupID, Array("id" => $groupID));
 			$this->content .= '</td><td>';
-			$this->content .= '<label for="'.htmlspecialchars($groupID).'">'.$arGroup["NAME"].'</label>';
+			$this->content .= '<label for="'.htmlspecialcharsbx($groupID).'">'.$arGroup["NAME"].'</label>';
 			$this->content .= '</td></tr></table>';
 
 			$this->content .= "</td>";
@@ -354,7 +354,7 @@ class CPackageSelectTemplate extends CWizardStep
 			$this->content .= '<table><tr><td valign="top">';
 			$this->content .= $this->ShowRadioField("__templateID", $arTemplate["ID"], Array("id" => $arTemplate["ID"]));
 			$this->content .= '</td><td>';
-			$this->content .= '<label for="'.htmlspecialchars($arTemplate["ID"]).'">'.$arTemplate["NAME"].'</label></td></tr>';
+			$this->content .= '<label for="'.htmlspecialcharsbx($arTemplate["ID"]).'">'.$arTemplate["NAME"].'</label></td></tr>';
 			$this->content .= '</table>';
 
 			$this->content .= (strlen($arTemplate["DESCRIPTION"]) > 0 ? "<br />".$arTemplate["DESCRIPTION"] : "").'';
@@ -816,7 +816,7 @@ class CPackageSelectStructure extends CWizardStep
 							if (li.parentNode != source || !li.previousSibling || li.previousSibling.childNodes[0].className == "locked" || li.getElementsByTagName("UL").length > 0)
 								rightButtonDisable = true;
 
-							 if (li.parentNode == source)
+							if (li.parentNode == source)
 								leftButtonDisable = true;
 						}
 					}

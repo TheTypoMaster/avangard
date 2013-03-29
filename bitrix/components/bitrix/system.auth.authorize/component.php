@@ -35,7 +35,7 @@ $arResult["BACKURL"] = $APPLICATION->GetCurPageParam("", $arParamsToDelete);
 $arRes = array();
 foreach($arResult as $key=>$value)
 {
-	$arRes[$key] = htmlspecialchars($value);
+	$arRes[$key] = htmlspecialcharsbx($value);
 	$arRes['~'.$key] = $value;
 }
 $arResult = $arRes;
@@ -45,17 +45,21 @@ $arResult["POST"] = array();
 foreach($_POST as $vname=>$vvalue)
 {
 	if(!array_key_exists($vname, $arVarExcl) && !is_array($vvalue))
-		$arResult["POST"][htmlspecialchars($vname)] = htmlspecialchars($vvalue);
+		$arResult["POST"][htmlspecialcharsbx($vname)] = htmlspecialcharsbx($vvalue);
 }
 
 $arResult["~LAST_LOGIN"] = $_COOKIE[COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"];
-$arResult["LAST_LOGIN"] = htmlspecialchars($arResult["~LAST_LOGIN"]);
+$arResult["LAST_LOGIN"] = htmlspecialcharsbx($arResult["~LAST_LOGIN"]);
 $arResult["STORE_PASSWORD"] = COption::GetOptionString("main", "store_password", "Y") == "Y" ? "Y" : "N";
 $arResult["NEW_USER_REGISTRATION"] = (COption::GetOptionString("main", "new_user_registration", "N") == "Y" ? "Y" : "N");
+$arResult["ALLOW_SOCSERV_AUTHORIZATION"] = (COption::GetOptionString("main", "allow_socserv_authorization", "Y") != "N" ? "Y" : "N");
 
 $arResult["AUTH_SERVICES"] = false;
 $arResult["CURRENT_SERVICE"] = false;
-if(!$USER->IsAuthorized() && $arResult["NEW_USER_REGISTRATION"] == "Y" && CModule::IncludeModule("socialservices"))
+$arResult["FOR_INTRANET"] = false;
+if(IsModuleInstalled("intranet"))
+	$arResult["FOR_INTRANET"] = true;
+if(!$USER->IsAuthorized() && CModule::IncludeModule("socialservices") && ($arResult["ALLOW_SOCSERV_AUTHORIZATION"] == 'Y'))
 {
 	$oAuthManager = new CSocServAuthManager();
 	$arServices = $oAuthManager->GetActiveAuthServices($arResult);

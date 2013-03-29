@@ -10,7 +10,8 @@ class CIBlockElement extends CAllIBlockElement
 		$err_mess = "FILE: ".__FILE__."<br> LINE:";
 		$ID = intval($ID);
 		$MAX_LOCK = intval(COption::GetOptionString("workflow","MAX_LOCK_TIME","60"));
-		$uid = intval($USER->GetID());
+		$uid = is_object($USER)? intval($USER->GetID()): 0;
+
 		$strSql = "
 			SELECT WF_LOCKED_BY,
 				".$DB->DateToCharFunction("WF_DATE_LOCK")." WF_DATE_LOCK,
@@ -34,6 +35,8 @@ class CIBlockElement extends CAllIBlockElement
 	{
 		global $DB, $USER;
 		$LAST_ID = intval($LAST_ID);
+		$USER_ID = is_object($USER)? intval($USER->GetID()): 0;
+
 		if ($bWorkFlow === true)
 		{
 			$strSql = "
@@ -53,7 +56,7 @@ class CIBlockElement extends CAllIBlockElement
 					UPDATE b_iblock_element
 					SET
 						WF_DATE_LOCK = ".$DB->GetNowFunction().",
-						WF_LOCKED_BY = ".$USER->GetID()."
+						WF_LOCKED_BY = ".$USER_ID."
 					WHERE
 						ID in (".$LAST_ID.", ".$PARENT_ID.")
 				", false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
@@ -65,7 +68,7 @@ class CIBlockElement extends CAllIBlockElement
 				UPDATE b_iblock_element
 				SET
 					WF_DATE_LOCK = ".$DB->GetNowFunction().",
-					WF_LOCKED_BY = ".$USER->GetID()."
+					WF_LOCKED_BY = ".$USER_ID."
 				WHERE
 					ID = ".$LAST_ID,
 			false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
@@ -79,6 +82,8 @@ class CIBlockElement extends CAllIBlockElement
 	{
 		global $DB, $USER;
 		$LAST_ID = intval($LAST_ID);
+		$USER_ID = is_object($USER)? intval($USER->GetID()): 0;
+
 		if ($bWorkFlow === true)
 		{
 			$strSql = "
@@ -95,7 +100,7 @@ class CIBlockElement extends CAllIBlockElement
 			if(
 				$zr
 				&& (
-					$zr["WF_LOCKED_BY"]==$USER->GetID()
+					$zr["WF_LOCKED_BY"]==$USER_ID
 					|| (CModule::IncludeModule('workflow') && CWorkflow::IsAdmin())
 				)
 			)
@@ -225,10 +230,7 @@ class CIBlockElement extends CAllIBlockElement
 		*/
 		global $DB, $USER, $APPLICATION;
 		$MAX_LOCK = intval(COption::GetOptionString("workflow","MAX_LOCK_TIME","60"));
-		if(is_object($USER))
-			$uid = intval(@$USER->GetID());
-		else
-			$uid = 0;
+		$uid = is_object($USER)? intval($USER->GetID()): 0;
 
 		$arIblockElementFields = Array(
 				"ID"=>"BE.ID",
@@ -454,6 +456,7 @@ class CIBlockElement extends CAllIBlockElement
 		foreach($arJoinProps["BE_FP"] as $propID => $db_prop)
 		{
 			$i = $db_prop["CNT"];
+			list($propID, $link) = explode("~", $propID, 2);
 
 			if($db_prop["bFullJoin"])
 				$sFrom .= "\t\t\tINNER JOIN b_iblock_property JFP".$i." ON JFP".$i.".IBLOCK_ID = BE".$db_prop["JOIN"].".IBLOCK_ID AND ".
@@ -477,6 +480,7 @@ class CIBlockElement extends CAllIBlockElement
 		foreach($arJoinProps["BE_FPV"] as $propID => $db_prop)
 		{
 			$i = $db_prop["CNT"];
+			list($propID, $link) = explode("~", $propID, 2);
 
 			if($db_prop["MULTIPLE"]=="Y")
 				$bDistinct = true;
@@ -498,6 +502,7 @@ class CIBlockElement extends CAllIBlockElement
 		foreach($arJoinProps["BE_FPEN"] as $propID => $db_prop)
 		{
 			$i = $db_prop["CNT"];
+			list($propID, $link) = explode("~", $propID, 2);
 
 			if($db_prop["VERSION"] == 2 && $db_prop["MULTIPLE"] == "N")
 			{
@@ -524,11 +529,11 @@ class CIBlockElement extends CAllIBlockElement
 		}
 
 		if($arJoinProps["RV"])
-			$sFrom .= "\t\t\tLEFT JOIN b_rating_voting rv ON rv.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND rv.ENTITY_ID = BE.ID\n";
+			$sFrom .= "\t\t\tLEFT JOIN b_rating_voting RV ON RV.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND RV.ENTITY_ID = BE.ID\n";
 		if($arJoinProps["RVU"])
-			$sFrom .= "\t\t\tLEFT JOIN b_rating_vote rvu ON rvu.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND rvu.ENTITY_ID = BE.ID AND rvu.USER_ID = ".intval($USER->GetID())."\n";
+			$sFrom .= "\t\t\tLEFT JOIN b_rating_vote RVU ON RVU.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND RVU.ENTITY_ID = BE.ID AND RVU.USER_ID = ".$uid."\n";
 		if($arJoinProps["RVV"])
-			$sFrom .= "\t\t\t".($arJoinProps["RVV"]["bFullJoin"]? "INNER": "LEFT")." JOIN b_rating_vote rvv ON rvv.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND rvv.ENTITY_ID = BE.ID\n";
+			$sFrom .= "\t\t\t".($arJoinProps["RVV"]["bFullJoin"]? "INNER": "LEFT")." JOIN b_rating_vote RVV ON RVV.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND RVV.ENTITY_ID = BE.ID\n";
 
 		//******************END OF FROM PART********************************************
 
@@ -702,9 +707,9 @@ class CIBlockElement extends CAllIBlockElement
 	///////////////////////////////////////////////////////////////////
 	// Update element function
 	///////////////////////////////////////////////////////////////////
-	function Update($ID, $arFields, $bWorkFlow=false, $bUpdateSearch=true, $bResizePictures=false)
+	function Update($ID, $arFields, $bWorkFlow=false, $bUpdateSearch=true, $bResizePictures=false, $bCheckDiskQuota=true)
 	{
-		global $DB;
+		global $DB, $USER;
 		$ID = intval($ID);
 
 		$db_element = CIBlockElement::GetList(array(), array("ID"=>$ID, "SHOW_HISTORY"=>"Y"), false, false,
@@ -887,8 +892,10 @@ class CIBlockElement extends CAllIBlockElement
 		$strWarning = "";
 		if($bResizePictures)
 		{
+			$arDef = $arIBlock["FIELDS"]["PREVIEW_PICTURE"]["DEFAULT_VALUE"];
+
 			if(
-				$arIBlock["FIELDS"]["PREVIEW_PICTURE"]["DEFAULT_VALUE"]["DELETE_WITH_DETAIL"] === "Y"
+				$arDef["DELETE_WITH_DETAIL"] === "Y"
 				&& $arFields["DETAIL_PICTURE"]["del"] === "Y"
 			)
 			{
@@ -896,17 +903,18 @@ class CIBlockElement extends CAllIBlockElement
 			}
 
 			if(
-				$arIBlock["FIELDS"]["PREVIEW_PICTURE"]["DEFAULT_VALUE"]["FROM_DETAIL"] === "Y"
+				$arDef["FROM_DETAIL"] === "Y"
 				&& (
 					$arFields["PREVIEW_PICTURE"]["size"] <= 0
-					|| $arIBlock["FIELDS"]["PREVIEW_PICTURE"]["DEFAULT_VALUE"]["UPDATE_WITH_DETAIL"] === "Y"
+					|| $arDef["UPDATE_WITH_DETAIL"] === "Y"
 				)
+				&& is_array($arFields["DETAIL_PICTURE"])
 				&& $arFields["DETAIL_PICTURE"]["size"] > 0
 			)
 			{
 				if(
 					$arFields["PREVIEW_PICTURE"]["del"] !== "Y"
-					&& $arIBlock["FIELDS"]["PREVIEW_PICTURE"]["DEFAULT_VALUE"]["UPDATE_WITH_DETAIL"] !== "Y"
+					&& $arDef["UPDATE_WITH_DETAIL"] !== "Y"
 				)
 				{
 					$rsElement = CIBlockElement::GetList(Array("ID" => "DESC"), Array("ID" => $ar_wf_element["ID"], "IBLOCK_ID" => $ar_wf_element["IBLOCK_ID"], "SHOW_HISTORY"=>"Y"), false, false, Array("ID", "PREVIEW_PICTURE"));
@@ -929,16 +937,17 @@ class CIBlockElement extends CAllIBlockElement
 			if(
 				array_key_exists("PREVIEW_PICTURE", $arFields)
 				&& is_array($arFields["PREVIEW_PICTURE"])
-				&& $arIBlock["FIELDS"]["PREVIEW_PICTURE"]["DEFAULT_VALUE"]["SCALE"] === "Y"
+				&& $arFields["PREVIEW_PICTURE"]["size"] > 0
+				&& $arDef["SCALE"] === "Y"
 			)
 			{
-				$arNewPicture = CIBlock::ResizePicture($arFields["PREVIEW_PICTURE"], $arIBlock["FIELDS"]["PREVIEW_PICTURE"]["DEFAULT_VALUE"]);
+				$arNewPicture = CIBlock::ResizePicture($arFields["PREVIEW_PICTURE"], $arDef);
 				if(is_array($arNewPicture))
 				{
 					$arNewPicture["description"] = $arFields["PREVIEW_PICTURE"]["description"];
 					$arFields["PREVIEW_PICTURE"] = $arNewPicture;
 				}
-				elseif($arIBlock["FIELDS"]["PREVIEW_PICTURE"]["DEFAULT_VALUE"]["IGNORE_ERRORS"] !== "Y")
+				elseif($arDef["IGNORE_ERRORS"] !== "Y")
 				{
 					unset($arFields["PREVIEW_PICTURE"]);
 					$strWarning .= GetMessage("IBLOCK_FIELD_PREVIEW_PICTURE").": ".$arNewPicture."<br>";
@@ -946,22 +955,130 @@ class CIBlockElement extends CAllIBlockElement
 			}
 
 			if(
-				array_key_exists("DETAIL_PICTURE", $arFields)
-				&& is_array($arFields["DETAIL_PICTURE"])
-				&& $arIBlock["FIELDS"]["DETAIL_PICTURE"]["DEFAULT_VALUE"]["SCALE"] === "Y"
+				array_key_exists("PREVIEW_PICTURE", $arFields)
+				&& is_array($arFields["PREVIEW_PICTURE"])
+				&& $arDef["USE_WATERMARK_FILE"] === "Y"
 			)
 			{
-				$arNewPicture = CIBlock::ResizePicture($arFields["DETAIL_PICTURE"], $arIBlock["FIELDS"]["DETAIL_PICTURE"]["DEFAULT_VALUE"]);
+				if(
+					strlen($arFields["PREVIEW_PICTURE"]["tmp_name"]) > 0
+					&& $arFields["PREVIEW_PICTURE"]["tmp_name"] === $arFields["DETAIL_PICTURE"]["tmp_name"]
+				)
+				{
+					$arFields["PREVIEW_PICTURE"]["tmp_name"] = CTempFile::GetFileName(basename($arFields["PREVIEW_PICTURE"]["tmp_name"]));
+					CheckDirPath($arFields["PREVIEW_PICTURE"]["tmp_name"]);
+					copy($arFields["DETAIL_PICTURE"]["tmp_name"], $arFields["PREVIEW_PICTURE"]["tmp_name"]);
+				}
+
+				CIBLock::FilterPicture($arFields["PREVIEW_PICTURE"]["tmp_name"], array(
+					"name" => "watermark",
+					"position" => $arDef["WATERMARK_FILE_POSITION"],
+					"type" => "file",
+					"size" => "real",
+					"alpha_level" => 100 - min(max($arDef["WATERMARK_FILE_ALPHA"], 0), 100),
+					"file" => $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arDef["WATERMARK_FILE"]),
+				));
+			}
+
+			if(
+				array_key_exists("PREVIEW_PICTURE", $arFields)
+				&& is_array($arFields["PREVIEW_PICTURE"])
+				&& $arDef["USE_WATERMARK_TEXT"] === "Y"
+			)
+			{
+				if(
+					strlen($arFields["PREVIEW_PICTURE"]["tmp_name"]) > 0
+					&& $arFields["PREVIEW_PICTURE"]["tmp_name"] === $arFields["DETAIL_PICTURE"]["tmp_name"]
+				)
+				{
+					$arFields["PREVIEW_PICTURE"]["tmp_name"] = CTempFile::GetFileName(basename($arFields["PREVIEW_PICTURE"]["tmp_name"]));
+					CheckDirPath($arFields["PREVIEW_PICTURE"]["tmp_name"]);
+					copy($arFields["DETAIL_PICTURE"]["tmp_name"], $arFields["PREVIEW_PICTURE"]["tmp_name"]);
+				}
+
+				CIBLock::FilterPicture($arFields["PREVIEW_PICTURE"]["tmp_name"], array(
+					"name" => "watermark",
+					"position" => $arDef["WATERMARK_TEXT_POSITION"],
+					"type" => "text",
+					"coefficient" => $arDef["WATERMARK_TEXT_SIZE"],
+					"text" => $arDef["WATERMARK_TEXT"],
+					"font" => $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arDef["WATERMARK_TEXT_FONT"]),
+					"color" => $arDef["WATERMARK_TEXT_COLOR"],
+				));
+			}
+
+			$arDef = $arIBlock["FIELDS"]["DETAIL_PICTURE"]["DEFAULT_VALUE"];
+
+			if(
+				array_key_exists("DETAIL_PICTURE", $arFields)
+				&& is_array($arFields["DETAIL_PICTURE"])
+				&& $arDef["SCALE"] === "Y"
+			)
+			{
+				$arNewPicture = CIBlock::ResizePicture($arFields["DETAIL_PICTURE"], $arDef);
 				if(is_array($arNewPicture))
 				{
 					$arNewPicture["description"] = $arFields["DETAIL_PICTURE"]["description"];
 					$arFields["DETAIL_PICTURE"] = $arNewPicture;
 				}
-				elseif($arIBlock["FIELDS"]["DETAIL_PICTURE"]["DEFAULT_VALUE"]["IGNORE_ERRORS"] !== "Y")
+				elseif($arDef["IGNORE_ERRORS"] !== "Y")
 				{
 					unset($arFields["DETAIL_PICTURE"]);
 					$strWarning .= GetMessage("IBLOCK_FIELD_DETAIL_PICTURE").": ".$arNewPicture."<br>";
 				}
+			}
+
+			if(
+				array_key_exists("DETAIL_PICTURE", $arFields)
+				&& is_array($arFields["DETAIL_PICTURE"])
+				&& $arDef["USE_WATERMARK_FILE"] === "Y"
+			)
+			{
+				if(
+					strlen($arFields["DETAIL_PICTURE"]["tmp_name"]) > 0
+					&& $arFields["DETAIL_PICTURE"]["tmp_name"] === $arFields["PREVIEW_PICTURE"]["tmp_name"]
+				)
+				{
+					$arFields["DETAIL_PICTURE"]["tmp_name"] = CTempFile::GetFileName(basename($arFields["DETAIL_PICTURE"]["tmp_name"]));
+					CheckDirPath($arFields["DETAIL_PICTURE"]["tmp_name"]);
+					copy($arFields["PREVIEW_PICTURE"]["tmp_name"], $arFields["DETAIL_PICTURE"]["tmp_name"]);
+				}
+
+				CIBLock::FilterPicture($arFields["DETAIL_PICTURE"]["tmp_name"], array(
+					"name" => "watermark",
+					"position" => $arDef["WATERMARK_FILE_POSITION"],
+					"type" => "file",
+					"size" => "real",
+					"alpha_level" => 100 - min(max($arDef["WATERMARK_FILE_ALPHA"], 0), 100),
+					"file" => $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arDef["WATERMARK_FILE"]),
+				));
+			}
+
+			if(
+				array_key_exists("DETAIL_PICTURE", $arFields)
+				&& is_array($arFields["DETAIL_PICTURE"])
+				&& $arDef["USE_WATERMARK_TEXT"] === "Y"
+			)
+			{
+				if(
+					strlen($arFields["DETAIL_PICTURE"]["tmp_name"]) > 0
+					&& $arFields["DETAIL_PICTURE"]["tmp_name"] === $arFields["PREVIEW_PICTURE"]["tmp_name"]
+				)
+				{
+					$arFields["DETAIL_PICTURE"]["tmp_name"] = CTempFile::GetFileName(basename($arFields["DETAIL_PICTURE"]["tmp_name"]));
+					CheckDirPath($arFields["DETAIL_PICTURE"]["tmp_name"]);
+					copy($arFields["PREVIEW_PICTURE"]["tmp_name"], $arFields["DETAIL_PICTURE"]["tmp_name"]);
+				}
+
+				CIBLock::FilterPicture($arFields["DETAIL_PICTURE"]["tmp_name"], array(
+					"name" => "watermark",
+					"position" => $arDef["WATERMARK_TEXT_POSITION"],
+					"type" => "text",
+					"coefficient" => $arDef["WATERMARK_TEXT_SIZE"],
+					"text" => $arDef["WATERMARK_TEXT"],
+					"font" => $_SERVER["DOCUMENT_ROOT"].Rel2Abs("/", $arDef["WATERMARK_TEXT_FONT"]),
+					"color" => $arDef["WATERMARK_TEXT_COLOR"],
+				));
 			}
 		}
 
@@ -1022,7 +1139,7 @@ class CIBlockElement extends CAllIBlockElement
 
 		$arFields["IBLOCK_ID"] = $ar_element["IBLOCK_ID"];
 
-		if(!$this->CheckFields($arFields, $ID) || strlen($strWarning))
+		if(!$this->CheckFields($arFields, $ID, $bCheckDiskQuota) || strlen($strWarning))
 		{
 			$this->LAST_ERROR .= $strWarning;
 			$Result = false;
@@ -1300,10 +1417,10 @@ class CIBlockElement extends CAllIBlockElement
 
 			if($arIBlock["FIELDS"]["LOG_ELEMENT_EDIT"]["IS_REQUIRED"] == "Y")
 			{
+				$USER_ID = is_object($USER)? intval($USER->GetID()) : 0;
 				$db_events = GetModuleEvents("main", "OnBeforeEventLog");
 				$arEvent = $db_events->Fetch();
-				global $USER;
-				if(!$arEvent || ExecuteModuleEventEx($arEvent,  array($USER->GetID()))===false)
+				if(!$arEvent || ExecuteModuleEventEx($arEvent, array($USER_ID))===false)
 				{
 					$rsElement = CIBlockElement::GetList(
 						array(),
@@ -1313,12 +1430,13 @@ class CIBlockElement extends CAllIBlockElement
 					);
 					$arElement = $rsElement->GetNext();
 					$res = array(
-							"ID" => $ID,
-							"CODE" => $arElement["CODE"],
-							"NAME" => $arElement["NAME"],
-							"ELEMENT_NAME" => $arIBlock["ELEMENT_NAME"],
-							"IBLOCK_PAGE_URL" => $arElement["LIST_PAGE_URL"],
-							);
+						"ID" => $ID,
+						"CODE" => $arElement["CODE"],
+						"NAME" => $arElement["NAME"],
+						"ELEMENT_NAME" => $arIBlock["ELEMENT_NAME"],
+						"USER_ID" => $USER_ID,
+						"IBLOCK_PAGE_URL" => $arElement["LIST_PAGE_URL"],
+					);
 					CEventLog::Log(
 						"IBLOCK",
 						"IBLOCK_ELEMENT_EDIT",

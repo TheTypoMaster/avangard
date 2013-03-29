@@ -16,8 +16,24 @@ class CEvent extends CAllEvent
 		if((defined("DisableEventsCheck") && DisableEventsCheck===true) || (defined("BX_CRONTAB_SUPPORT") && BX_CRONTAB_SUPPORT===true && BX_CRONTAB!==true))
 			return;
 
+		global $DB, $CACHE_MANAGER;
+
+		if(CACHED_b_event !== false && $CACHE_MANAGER->Read(CACHED_b_event, "events"))
+			return "";
+
+		return CEvent::ExecuteEvents();
+	}
+
+	function ExecuteEvents()
+	{
 		$err_mess = "<br>Class: CEvent<br>File: ".__FILE__."<br>Function: CheckEvents<br>Line: ";
 		global $DB, $CACHE_MANAGER;
+
+		if(defined("BX_FORK_AGENTS_AND_EVENTS_FUNCTION"))
+		{
+			if(CMain::ForkActions(array("CEvent", "ExecuteEvents")))
+				return "";
+		}
 
 		$uniq = COption::GetOptionString("main", "server_uniq_id", "");
 		if(strlen($uniq)<=0)
@@ -25,9 +41,6 @@ class CEvent extends CAllEvent
 			$uniq = md5(uniqid(rand(), true));
 			COption::SetOptionString("main", "server_uniq_id", $uniq);
 		}
-
-		if(CACHED_b_event !== false && $CACHE_MANAGER->Read(CACHED_b_event, $cache_id = "events"))
-			return "";
 
 		$bulk = intval(COption::GetOptionString("main", "mail_event_bulk", 5));
 		if($bulk <= 0)
@@ -50,7 +63,7 @@ class CEvent extends CAllEvent
 		else
 		{
 			if(CACHED_b_event!==false)
-				$CACHE_MANAGER->Set($cache_id, true);
+				$CACHE_MANAGER->Set("events", true);
 
 			return "";
 		}
@@ -81,7 +94,7 @@ class CEvent extends CAllEvent
 					ID = ".$arMail["ID"];
 			$DB->Query($strSql, false, $err_mess.__LINE__);
 		}
-		//$DB->UnLockTables();
+
 		$DB->Query("SELECT RELEASE_LOCK('".$uniq."_event')");
 	}
 

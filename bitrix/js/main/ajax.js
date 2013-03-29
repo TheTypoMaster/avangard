@@ -1428,3 +1428,4 @@ if (![].pop)
 }
 
 var jsAjax = new CAjax();
+;   

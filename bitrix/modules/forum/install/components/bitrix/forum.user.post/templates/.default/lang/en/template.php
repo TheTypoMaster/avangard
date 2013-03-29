@@ -1,6 +1,5 @@
 <?
 $MESS ['LU_USER_POSTS_ON_TOPIC'] = "Author's messages in topic";
-$MESS ['F_GOTO'] = "Go to";
 $MESS ['LU_FORUM'] = "Forum";
 $MESS ['LU_TOPIC'] = "Topic Title";
 $MESS ['F_AUTHOR_PROFILE'] = "Profile";

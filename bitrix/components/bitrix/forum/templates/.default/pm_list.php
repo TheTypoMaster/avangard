@@ -15,12 +15,15 @@
 		"PM_PER_PAGE" => $arParams["PM_PER_PAGE"],
 		"DATE_FORMAT" =>  $arParams["DATE_FORMAT"],
 		"DATE_TIME_FORMAT" =>  $arParams["DATE_TIME_FORMAT"],
+		"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 		"SET_NAVIGATION" => $arParams["SET_NAVIGATION"],
 		"DISPLAY_PANEL" => $arParams["DISPLAY_PANEL"],
 		
 		"CACHE_TIME" => $arResult["CACHE_TIME"],
 		"CACHE_TYPE" => $arResult["CACHE_TYPE"],
-		"SET_TITLE" => $arResult["SET_TITLE"]
+		"SET_TITLE" => $arResult["SET_TITLE"],
+
+		"SEO_USER" => $arParams["SEO_USER"],
 	),
 	$component
 );

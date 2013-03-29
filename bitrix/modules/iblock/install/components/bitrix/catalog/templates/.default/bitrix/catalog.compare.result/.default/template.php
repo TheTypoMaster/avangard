@@ -3,13 +3,13 @@
 <a name="compare_table"></a>
 	<noindex><p>
 	<?if($arResult["DIFFERENT"]):
-		?><a href="<?=htmlspecialchars($APPLICATION->GetCurPageParam("DIFFERENT=N",array("DIFFERENT")))?>" rel="nofollow"><?=GetMessage("CATALOG_ALL_CHARACTERISTICS")?></a><?
+		?><a href="<?=htmlspecialcharsbx($APPLICATION->GetCurPageParam("DIFFERENT=N",array("DIFFERENT")))?>" rel="nofollow"><?=GetMessage("CATALOG_ALL_CHARACTERISTICS")?></a><?
 	else:
 		?><?=GetMessage("CATALOG_ALL_CHARACTERISTICS")?><?
 	endif
 	?>&nbsp;|&nbsp;<?
 	if(!$arResult["DIFFERENT"]):
-		?><a href="<?=htmlspecialchars($APPLICATION->GetCurPageParam("DIFFERENT=Y",array("DIFFERENT")))?>" rel="nofollow"><?=GetMessage("CATALOG_ONLY_DIFFERENT")?></a><?
+		?><a href="<?=htmlspecialcharsbx($APPLICATION->GetCurPageParam("DIFFERENT=Y",array("DIFFERENT")))?>" rel="nofollow"><?=GetMessage("CATALOG_ONLY_DIFFERENT")?></a><?
 	else:
 		?><?=GetMessage("CATALOG_ONLY_DIFFERENT")?><?
 	endif?>
@@ -18,13 +18,13 @@
 		<noindex><p>
 		<?=GetMessage("CATALOG_REMOVED_FEATURES")?>:
 		<?foreach($arResult["DELETED_PROPERTIES"] as $arProperty):?>
-			<a href="<?=htmlspecialchars($APPLICATION->GetCurPageParam("action=ADD_FEATURE&pr_code=".$arProperty["CODE"],array("op_code","of_code","pr_code","action")))?>" rel="nofollow"><?=$arProperty["NAME"]?></a>
+			<a href="<?=htmlspecialcharsbx($APPLICATION->GetCurPageParam("action=ADD_FEATURE&pr_code=".$arProperty["CODE"],array("op_code","of_code","pr_code","action")))?>" rel="nofollow"><?=$arProperty["NAME"]?></a>
 		<?endforeach?>
 		<?foreach($arResult["DELETED_OFFER_FIELDS"] as $code):?>
-			<a href="<?=htmlspecialchars($APPLICATION->GetCurPageParam("action=ADD_FEATURE&of_code=".$code,array("op_code","of_code","pr_code","action")))?>" rel="nofollow"><?=GetMessage("IBLOCK_FIELD_".$code)?></a>
+			<a href="<?=htmlspecialcharsbx($APPLICATION->GetCurPageParam("action=ADD_FEATURE&of_code=".$code,array("op_code","of_code","pr_code","action")))?>" rel="nofollow"><?=GetMessage("IBLOCK_FIELD_".$code)?></a>
 		<?endforeach?>
 		<?foreach($arResult["DELETED_OFFER_PROPERTIES"] as $arProperty):?>
-			<a href="<?=htmlspecialchars($APPLICATION->GetCurPageParam("action=ADD_FEATURE&op_code=".$arProperty["CODE"],array("op_code","of_code","pr_code","action")))?>" rel="nofollow"><?=$arProperty["NAME"]?></a>
+			<a href="<?=htmlspecialcharsbx($APPLICATION->GetCurPageParam("action=ADD_FEATURE&op_code=".$arProperty["CODE"],array("op_code","of_code","pr_code","action")))?>" rel="nofollow"><?=$arProperty["NAME"]?></a>
 		<?endforeach?>
 		</p></noindex>
 	<?endif?>

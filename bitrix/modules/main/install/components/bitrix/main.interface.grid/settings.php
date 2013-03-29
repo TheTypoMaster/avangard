@@ -7,79 +7,48 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_befo
 if($USER->IsAuthorized() && check_bitrix_sessid())
 {
 	//get saved columns and sorting from user settings
-	$aOptions = CUserOptions::GetOption("main.interface.grid", $_REQUEST["GRID_ID"], array());
-	
-	if(!is_array($aOptions["views"]))
-		$aOptions["views"] = array();
-	if(!is_array($aOptions["filters"]))
-		$aOptions["filters"] = array();
-	if(!array_key_exists("default", $aOptions["views"]))
-		$aOptions["views"]["default"] = array("columns"=>"");
-	if($aOptions["current_view"] == '' || !array_key_exists($aOptions["current_view"], $aOptions["views"]))
-		$aOptions["current_view"] = "default";
+	$gridOptions = new CGridOptions($_REQUEST["GRID_ID"]);
 	
 	if($_REQUEST["action"] == "showcolumns")
 	{
-		$aColsTmp = explode(",", $_REQUEST["columns"]);
-		$aCols = array();
-		foreach($aColsTmp as $col)
-			if(($col = trim($col)) <> "")
-				$aCols[] = $col;
-		$aOptions["views"][$aOptions["current_view"]]["columns"] = implode(",", $aCols);
+		$gridOptions->SetColumns($_REQUEST["columns"]);
 	}
 	elseif($_REQUEST["action"] == "settheme")
 	{
-		$aOptions["theme"] = $_REQUEST["theme"];
+		$gridOptions->SetTheme($_REQUEST["theme"]);
 	}
 	elseif($_REQUEST["action"] == "savesettings")
 	{
 		CUtil::decodeURIComponent($_POST);
-		$aOptions["views"][$_POST['view_id']] = array(
-			"name"=>$_POST["name"],
-			"columns"=>$_POST["columns"],
-			"sort_by"=>$_POST["sort_by"],
-			"sort_order"=>$_POST["sort_order"],
-			"page_size"=>$_POST["page_size"],
-			"saved_filter"=>$_POST["saved_filter"],
-		);
+		$gridOptions->SetViewSettings($_POST['view_id'], $_POST);
 	}
 	elseif($_REQUEST["action"] == "delview")
 	{
-		unset($aOptions["views"][$_REQUEST['view_id']]);
+		$gridOptions->DeleteView($_REQUEST['view_id']);
 	}
 	elseif($_REQUEST["action"] == "setview")
 	{
-		if(!array_key_exists($_REQUEST["view_id"], $aOptions["views"]))
-			$_REQUEST["view_id"] = "default";
-		$aOptions["current_view"] = $_REQUEST["view_id"];
+		$gridOptions->SetView($_REQUEST["view_id"]);
 	}
 	elseif($_REQUEST["action"] == "filterrows")
 	{
-		$aColsTmp = explode(",", $_REQUEST["rows"]);
-		$aCols = array();
-		foreach($aColsTmp as $col)
-			if(($col = trim($col)) <> "")
-				$aCols[] = $col;
-		$aOptions["filter_rows"] = implode(",", $aCols);
+		$gridOptions->SetFilterRows($_REQUEST["rows"]);
 	}
 	elseif($_REQUEST["action"] == "savefilter")
 	{
 		CUtil::decodeURIComponent($_POST);
-		$aOptions["filters"][$_POST['filter_id']] = array(
-			"name"=>$_POST["name"],
-			"fields"=>$_POST['fields'],
-		);
+		$gridOptions->SetFilterSettings($_POST['filter_id'], $_POST);
 	}
 	elseif($_REQUEST["action"] == "delfilter")
 	{
-		unset($aOptions["filters"][$_REQUEST['filter_id']]);
+		$gridOptions->DeleteFilter($_REQUEST['filter_id']);
 	}
 	elseif($_REQUEST["action"] == "filterswitch")
 	{
-		$aOptions["filter_shown"] = ($_REQUEST["show"] == "Y"? "Y":"N");
+		$gridOptions->SetFilterSwitch($_REQUEST["show"]);
 	}
 
-	CUserOptions::SetOption("main.interface.grid", $_REQUEST["GRID_ID"], $aOptions);
+	$gridOptions->Save();
 }
 echo "OK";
 ?>

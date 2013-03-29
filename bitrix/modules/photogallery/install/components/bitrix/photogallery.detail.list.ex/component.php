@@ -1,5 +1,4 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
-
 if (!CModule::IncludeModule("photogallery")) // !important
 	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
 elseif (!IsModuleInstalled("iblock")) // !important
@@ -24,6 +23,9 @@ $arParams["IS_SOCNET"] = ($arParams["IS_SOCNET"] == "Y" ? "Y" : "N");
 $arParams["USE_RATING"] = ($arParams["USE_RATING"] == "Y" || $arParams["SHOW_RATING"] == "Y") ? "Y" : "N";
 $arParams["SHOW_TAGS"] = $arParams["SHOW_TAGS"] != "N" ? "Y" : "N";
 $arParams["MODERATION"] = $arParams["MODERATION"] == "Y" ? "Y" : "N";
+
+if (!isset($arParams["DISPLAY_AS_RATING"]) || !$arParams["DISPLAY_AS_RATING"])
+	$arParams["DISPLAY_AS_RATING"] = 'rating_main';
 
 //if ($arParams["SHOW_RATING"] == "Y")
 {
@@ -122,7 +124,7 @@ foreach($arParams["PROPERTY_CODE"] as $key => $val)
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 //***************** ADDITTIONAL ************************************/
 // User settings
@@ -131,6 +133,7 @@ $arParams["USER_SETTINGS"] = CUserOptions::GetOption('photogallery', $arParams["
 
 if (!isset($GLOBALS['bxph_list_id']))
 	$GLOBALS['bxph_list_id'] = 0;
+$GLOBALS['bxph_list_id'] = intVal($GLOBALS['bxph_list_id']);
 
 if (isset($_REQUEST["UCID"]) && substr($_REQUEST["UCID"], 0, strlen("bxfg_ucid_from_req_")) == "bxfg_ucid_from_req_")
 {
@@ -170,11 +173,41 @@ if ($arParams["USE_COMMENTS"] == "Y" && $arParams["COMMENTS_TYPE"] == "FORUM" &&
 	$arParams["SHOW_COMMENTS"] = "N";
 }
 
+if ($arParams["USE_COMMENTS"] == "Y")
+{
+	$arParams["COMMENTS_PERM_VIEW"] = "Y";
+	$arParams["COMMENTS_PERM_ADD"] = "Y";
+
+	if ($arParams["COMMENTS_TYPE"] == "FORUM" && CModule::IncludeModule("forum"))
+	{
+		$forumPerm = ForumCurrUserPermissions($arParams["FORUM_ID"]);
+		$arParams["COMMENTS_PERM_VIEW"] = $forumPerm >= "E" ? "Y" : "N";
+		$arParams["COMMENTS_PERM_ADD"] = $forumPerm >= "I" ? "Y" : "N";
+	}
+	elseif (CModule::IncludeModule("blog"))
+	{
+		$arBlog = CBlog::GetByUrl($arParams["BLOG_URL"]);
+		if(IntVal($arBlog["ID"]) > 0)
+		{
+			$blogComPerm = CBlog::GetBlogUserCommentPerms(IntVal($arBlog["ID"]), $USER->GetId());
+			$arParams["COMMENTS_PERM_VIEW"] = $blogComPerm >= "I" ? "Y" : "N";
+			$arParams["COMMENTS_PERM_ADD"] = $blogComPerm >= "P" ? "Y" : "N";
+		}
+	}
+
+	if ($arParams["COMMENTS_PERM_VIEW"] == "N")
+	{
+		$arParams["USE_COMMENTS"] = "N";
+		$arParams["SHOW_COMMENTS"] = "N";
+	}
+}
+
 $arParams["SHOW_LOGIN"] = $arParams["SHOW_LOGIN"] == "N" ? "N" : "Y";
 if (strlen($arParams["NAME_TEMPLATE"]) <= 0)
-	$arParams["NAME_TEMPLATE"] = '#NOBR##NAME# #LAST_NAME##/NOBR#';
-if (strlen($arParams["PATH_TO_USER"]) <= 0)
-	$arParams["PATH_TO_USER"] = '/company/personal/user/#USER_ID#/';
+	$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
+
+//if (strlen($arParams["PATH_TO_USER"]) <= 0)
+//	$arParams["PATH_TO_USER"] = '/company/personal/user/#USER_ID#/';
 
 if (!is_array($arParams["USER_SETTINGS"]))
 	$arParams["USER_SETTINGS"] = array();
@@ -218,11 +251,11 @@ if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption
 	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
 else
 	$arParams["CACHE_TIME"] = 0;
+
 $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y"); //Turn on by default
 /********************************************************************
 				/Input params
 ********************************************************************/
-$cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]."/");
 
 $oPhoto = new CPGalleryInterface(
 	array(
@@ -231,8 +264,6 @@ $oPhoto = new CPGalleryInterface(
 		"Permission" => $arParams["PERMISSION_EXTERNAL"]),
 	array(
 		"cache_time" => $arParams["CACHE_TIME"],
-		"cache_path" => $cache_path_main,
-		"show_error" => "Y",
 		"set_404" => $arParams["SET_STATUS_404"]
 		)
 	);
@@ -262,7 +293,8 @@ if ($arParams["SECTION_ID"] > 0)
 	}
 	elseif (!$oPhoto->CheckPermission($arParams["PERMISSION"], $arResult["SECTION"]))
 	{
-		return ShowError(GetMessage("ALBUM_NOT_FOUND_ERROR"));
+		if (!$oPhoto->IsPassFormDisplayed($arResult["SECTION"]["ID"]))
+			return ShowError(GetMessage("ALBUM_NOT_FOUND_ERROR"));
 	}
 }
 
@@ -555,7 +587,7 @@ $arParams["FILTER"] = $arFilter;
 $arParams["SORTING"] = $arSort;
 
 // EXECUTE
-$arCacheParams = array(
+$cache_id = "detail_list_ex_".serialize(array(
 	"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 	"SECTION_ID" => $arParams["SECTION_ID"],
 	"SELECT_SURROUNDING" => $arParams["SELECT_SURROUNDING"],
@@ -569,14 +601,12 @@ $arCacheParams = array(
 	"NAV2" => $arNavigation,
 	"BEHAVIOUR" => $arParams["BEHAVIOUR"],
 	"USER_ALIAS" => $arParams["USER_ALIAS"]
-);
+));
 
-$cache_id = "elements_list_".serialize($arCacheParams);
 if(($tzOffset = CTimeZone::GetOffset()) <> 0)
 	$cache_id .= "_".$tzOffset;
-$cache_path = $cache_path_main."detaillist/".$arParams["SECTION_ID"];
 
-//PClearComponentCache(array("photogallery.detail.list.ex"));
+$cache_path = "/".SITE_ID."/photogallery/".$arParams["IBLOCK_ID"]."/section".$arParams["SECTION_ID"];
 
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 	$arResult = array_merge($arResult, $cache->GetVars());
@@ -637,15 +667,18 @@ if (!is_array($arResult["ELEMENTS_LIST"]) || empty($arResult["ELEMENTS_LIST"]))
 				$db_res = CIBlockSection::GetList(array(), array("IBLOCK_ID" => $arElement["IBLOCK_ID"],	"ID" => $arElement["IBLOCK_SECTION_ID"]), false, array("ID", "LEFT_MARGIN", "RIGHT_MARGIN", "NAME", "UF_PASSWORD", "ACTIVE"));
 
 				$res = $oPhoto->GetSection($arElement["IBLOCK_SECTION_ID"], $arSections[$arElement["IBLOCK_SECTION_ID"]]);
-				// if ($db_res && $res = $db_res->Fetch())
-					// $arSections[$arElement["IBLOCK_SECTION_ID"]] = $res;
+				//if ($db_res && $res = $db_res->Fetch())
+				//	$arSections[$arElement["IBLOCK_SECTION_ID"]] = $res;
 			}
 
-			if (!isset($arSections[$arElement["IBLOCK_SECTION_ID"]]['~R']))
-				$arSections[$arElement["IBLOCK_SECTION_ID"]]['~R'] = $oPhoto->CheckPermission('R', $arSections[$arElement["IBLOCK_SECTION_ID"]], false);
-
-			if (!$arSections[$arElement["IBLOCK_SECTION_ID"]]['~R'])
+			if (!$oPhoto->CheckPermission($arParams["PERMISSION"], $arSections[$arElement["IBLOCK_SECTION_ID"]], false))
 				continue;
+
+			//if (!isset($arSections[$arElement["IBLOCK_SECTION_ID"]]['~R']))
+			//	$arSections[$arElement["IBLOCK_SECTION_ID"]]['~R'] = $oPhoto->CheckPermission('R', $arSections[$arElement["IBLOCK_SECTION_ID"]], false);
+
+			//if (!$arSections[$arElement["IBLOCK_SECTION_ID"]]['~R'])
+			//	continue;
 
 			// GALLERY INFO IF NEED
 			$arGallery = array();
@@ -700,7 +733,7 @@ if (!is_array($arResult["ELEMENTS_LIST"]) || empty($arResult["ELEMENTS_LIST"]))
 
 						$res["~URL"] = CComponentEngine::MakePathFromTemplate($arParams["~GALLERY_URL"],
 							array("USER_ALIAS" => $res["CODE"],"user_alias" => $res["CODE"], "USER_ID" => $res["CREATED_BY"], "user_id" => $res["CREATED_BY"], "GROUP_ID" => $res["SOCNET_GROUP_ID"], "group_id" => $res["SOCNET_GROUP_ID"]));
-						$res["URL"] = htmlspecialchars($res["~URL"]);
+						$res["URL"] = htmlspecialcharsbx($res["~URL"]);
 						$arGalleries[$arElement["IBLOCK_SECTION_ID"]] = $res;
 					}
 				}
@@ -731,15 +764,9 @@ if (!is_array($arResult["ELEMENTS_LIST"]) || empty($arResult["ELEMENTS_LIST"]))
 				$arPicturesIndex[$arElement["DETAIL_PICTURE"]] = $arElement["ID"];
 			}
 
-			if (!$arSections[$arElement["IBLOCK_SECTION_ID"]]['~R'])
-			{
-				//$arElement["PREVIEW_TEXT"] = '!#############################!';
-
-			}
-
 			//URL
 			$arElement["~URL"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_URL"], array("USER_ALIAS" => $arGallery["CODE"], "SECTION_ID" => $arElement["IBLOCK_SECTION_ID"], "ELEMENT_ID" => $arElement["ID"], "USER_ID" => $arGallery["CREATED_BY"], "GROUP_ID" => $arGallery["SOCNET_GROUP_ID"], "user_alias" => $arGallery["CODE"], "section_id" => $arElement["IBLOCK_SECTION_ID"], "element_id" => $arElement["ID"], "user_id" => $arGallery["CREATED_BY"], "group_id" => $arGallery["SOCNET_GROUP_ID"]));
-			$arElement["URL"] = htmlspecialchars($arElement["~URL"]);
+			$arElement["URL"] = htmlspecialcharsbx($arElement["~URL"]);
 
 			//TAGS
 			$arElement["TAGS_LIST"] = array();
@@ -764,7 +791,7 @@ if (!is_array($arResult["ELEMENTS_LIST"]) || empty($arResult["ELEMENTS_LIST"]))
 			{
 				$arElement["~NAME"] = preg_replace(array('/\.jpg/i','/\.jpeg/i','/\.gif/i','/\.png/i','/\.bmp/i'), '', $arElement["~NAME"]);
 				$arElement["~PREVIEW_TEXT"] = $arElement["~NAME"];
-				$arElement["PREVIEW_TEXT"] = htmlspecialchars($arElement["~PREVIEW_TEXT"]);
+				$arElement["PREVIEW_TEXT"] = htmlspecialcharsbx($arElement["~PREVIEW_TEXT"]);
 			}
 
 			unset($arElement["DETAIL_PICTURE"]);
@@ -836,7 +863,7 @@ if (!is_array($arResult["ELEMENTS_LIST"]) || empty($arResult["ELEMENTS_LIST"]))
 
 	$arResult["ELEMENTS_LIST"] = $arElements;
 	$arResult["ELEMENTS_LIST_JS"] = $arElementsJS;
-	$arResult["ELEMENTS_CNT"] = $arResult["ELEMENTS_CNT"];
+	$arResult["ELEMENTS_CNT"] = count($arElements);
 
 	$arResult["ALL_ELEMENTS_CNT"] = $arResult["SECTION"]["ELEMENTS_CNT"];
 
@@ -881,12 +908,18 @@ if (!is_array($arResult["ELEMENTS_LIST"]) || empty($arResult["ELEMENTS_LIST"]))
 		);
 	}
 }
+else
+{
+	$GLOBALS['NavNum'] = intVal($GLOBALS['NavNum']) + 1;
+}
+
+if ($arResult["ELEMENTS_CNT"] <= 1)
+	$arParams['DRAG_SORT'] = "N";
 
 /************** URL ************************************************/
 /********************************************************************
 				/Data
 ********************************************************************/
-
 if ($arParams["JUST_RETURN_DATA_JS"] == "Y")
 	return $arResult["ELEMENTS_LIST_JS"];
 
@@ -895,6 +928,28 @@ unset($arParams["PICTURES"]["standart"]);
 
 $arParams["DETAIL_ITEM_URL"] = CComponentEngine::MakePathFromTemplate($arParams["~DETAIL_URL"], array("USER_ID" => $arGallery["CREATED_BY"], "user_id" => $arGallery["CREATED_BY"], "GROUP_ID" => $arGallery["SOCNET_GROUP_ID"], "group_id" => $arGallery["SOCNET_GROUP_ID"]));
 $arParams["ALBUM_URL"] = CComponentEngine::MakePathFromTemplate($arParams["~SECTION_URL"], array("USER_ID" => $arGallery["CREATED_BY"], "user_id" => $arGallery["CREATED_BY"], "GROUP_ID" => $arGallery["SOCNET_GROUP_ID"], "group_id" => $arGallery["SOCNET_GROUP_ID"]));
+
+$arResult["CHECK_PARAMS"] = array(
+	"CUR_USER_ID" => $USER->GetId(),
+	"USE_COMMENTS" => $arParams["USE_COMMENTS"],
+	"PERMISSION" => $arParams["PERMISSION"],
+	"USE_RATING" => $arParams["USE_RATING"],
+	"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
+	"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+	"READ_ONLY" => $arParams["READ_ONLY"]
+);
+
+$arResult["REQ_PARAMS"] = array(
+	"DISPLAY_AS_RATING" => $arParams["DISPLAY_AS_RATING"],
+	"SECTION_ID" => $arParams["SECTION_ID"],
+	"PATH_TO_USER" => $arParams["PATH_TO_USER"],
+	"MAX_VOTE" => $arParams["MAX_VOTE"],
+	"VOTE_NAMES" => $arParams["VOTE_NAMES"],
+	"CACHE_TYPE" => $arParams["CACHE_TYPE"],
+	"CACHE_TIME" => $arParams["CACHE_TIME"]
+);
+
+$arResult["SIGN"] = CPGalleryInterface::GetSign($arResult["CHECK_PARAMS"]);
 
 $this->IncludeComponentTemplate();
 

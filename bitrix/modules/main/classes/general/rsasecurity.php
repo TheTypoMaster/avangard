@@ -16,7 +16,7 @@ abstract class CRsaProvider
 		$this->_D = $arKeys["D"];
 		$this->_chunk = $arKeys["chunk"];
 	}
-	
+
 	public function GetPublicKey()
 	{
 		return array("M"=>$this->_M, "E"=>$this->_E, "chunk"=>$this->_chunk);
@@ -86,7 +86,7 @@ class CRsaSecurity
 		if($this->provider)
 			$this->provider->SaveKeys($arKeys);
 	}
-	
+
 	public function Keygen($keylen=false)
 	{
 		if($this->provider)
@@ -98,9 +98,9 @@ class CRsaSecurity
 	{
 		if(!$this->provider)
 			return;
-		
+
 		$formid = preg_replace("/[^a-z0-9_]/is", "", $formid);
-	
+
 		if(!isset($_SESSION['__STORED_RSA_RAND']))
 			$_SESSION['__STORED_RSA_RAND'] = $this->GetNewRsaRand();
 
@@ -120,11 +120,11 @@ class CRsaSecurity
 
 		echo '
 <script type="text/javascript">
-rsasec_form_bind('.CUtil::PhpToJSObject($arData).');
+top.BX.defer(top.rsasec_form_bind)('.CUtil::PhpToJSObject($arData).');
 </script>
 ';
 	}
-	
+
 	public function AcceptFromForm($arParams)
 	{
 		if(!$this->provider)
@@ -135,30 +135,30 @@ rsasec_form_bind('.CUtil::PhpToJSObject($arData).');
 		unset($_POST['__RSA_DATA']);
 		unset($_REQUEST['__RSA_DATA']);
 		unset($GLOBALS['__RSA_DATA']);
-	
+
 		if($data == '')
 			return self::ERROR_EMPTY_DATA; //no encrypted data
-	
+
 		if(strlen($data) >= self::MAX_ENCRIPTED_DATA)
 			return self::ERROR_BIG_DATA; //too big encrypted data
-	
+
 		$data = $this->provider->Decrypt($data);
 		if($data == '')
 			return self::ERROR_DECODE; //decoding error
-	
+
 		$data1 = substr($data, 0, -47);
 		$sha1 = substr($data, -40);
-	
-		if($sha1 <> sha1($data1)) 
+
+		if($sha1 <> sha1($data1))
 	  		return self::ERROR_INTEGRITY; //integrity check error
-	
+
 		parse_str($data, $accepted_params);
 		if($accepted_params['__RSA_RAND'] == '')
 			return self::ERROR_SESS_VALUE; //no session control value
-	
+
 		if($accepted_params['__RSA_RAND'] <> $_SESSION['__STORED_RSA_RAND'])
 			return self::ERROR_SESS_CHECK; //session control value does not match
-	  
+
 		CUtil::decodeURIComponent($accepted_params);
 		foreach($arParams as $k)
 		{

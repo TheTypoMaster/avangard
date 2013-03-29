@@ -63,7 +63,7 @@ $arComponentParameters = array(
 	"PARAMETERS" => array(
 		"USE_LIGHT_VIEW" => array(
 			"PARENT" => "BASE",
-	        "NAME" => GetMessage("P_USE_LIGHT_VIEW"),
+			"NAME" => GetMessage("P_USE_LIGHT_VIEW"),
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "Y",
 			"REFRESH" => "Y"),
@@ -254,7 +254,7 @@ $arComponentParameters = array(
 			"DEFAULT" => array(),
 			"MULTIPLE" => "Y",
 			"HIDDEN" => $hidden
-		),		
+		),
 		"PHOTO_LIST_MODE" => array(
 			"PARENT" => "PHOTO_SETTINGS",
 			"NAME" => GetMessage("P_PHOTO_LIST_MODE"),
@@ -303,7 +303,7 @@ $arComponentParameters = array(
 			"DEFAULT" => Array(1),
 			"MULTIPLE" => "Y",
 			"HIDDEN" => $hidden),
-		
+
 */
 
 		"SET_TITLE" => Array(),
@@ -318,7 +318,7 @@ $arComponentParameters = array(
 		),
 		"SHOW_TAGS" => array(
 			"PARENT" => "TAGS_CLOUD",
-	        "NAME" => GetMessage("P_SHOW_TAGS"),
+			"NAME" => GetMessage("P_SHOW_TAGS"),
 			"TYPE" => "CHECKBOX",
 			"REFRESH" => (IsModuleInstalled("search") ? "Y" : "N"),
 			"DEFAULT" => "N"
@@ -378,7 +378,7 @@ if (!$arCurrentValues["UPLOADER_TYPE"] || $arCurrentValues["UPLOADER_TYPE"] == "
 if (!function_exists("_get_size"))
 {
 	function _get_size($v)
-	{ 
+	{
 		$l = substr($v, -1);
 		$ret = substr($v, 0, -1);
 		switch(strtoupper($l))
@@ -393,7 +393,7 @@ if (!function_exists("_get_size"))
 				$ret /= 1024;
 			break;
 		}
-	     return $ret;
+		return $ret;
 	}
 }
 
@@ -495,23 +495,31 @@ if ($arCurrentValues["USE_WATERMARK"] != "N")
 				"mr" => GetMessage("P_WATERMARK_POSITION_MR"),
 				"bl" => GetMessage("P_WATERMARK_POSITION_BL"),
 				"bc" => GetMessage("P_WATERMARK_POSITION_BC"),
-				"br" => GetMessage("P_WATERMARK_POSITION_BR")),
+				"br" => GetMessage("P_WATERMARK_POSITION_BR")
+			),
 			"DEFAULT" => "mc"
 		);
-		$arComponentParameters["PARAMETERS"]["WATERMARK_TRANSPARENCY"] = array(
-			"PARENT" => "UPLOADER",
-			"NAME" => GetMessage("P_WATERMARK_TRANSPARENCY"),
-			"TYPE" => "STRING",
-			"DEFAULT" => "20"
-		);
+
+		if ($arCurrentValues["WATERMARK_TYPE"] != "TEXT")
+		{
+			$arComponentParameters["PARAMETERS"]["WATERMARK_TRANSPARENCY"] = array(
+				"PARENT" => "UPLOADER",
+				"NAME" => GetMessage("P_WATERMARK_TRANSPARENCY"),
+				"TYPE" => "STRING",
+				"DEFAULT" => "50"
+			);
+		}
 	}
 
-	$arComponentParameters["PARAMETERS"]["PATH_TO_FONT"] = array(
-		"PARENT" => "UPLOADER",
-		"NAME" => GetMessage("P_PATH_TO_FONT"),
-		"TYPE" => "STRING",
-		"DEFAULT" => ""
-	);
+	if ($arCurrentValues["UPLOADER_TYPE"] != "applet")
+	{
+		$arComponentParameters["PARAMETERS"]["PATH_TO_FONT"] = array(
+			"PARENT" => "UPLOADER",
+			"NAME" => GetMessage("P_PATH_TO_FONT"),
+			"TYPE" => "STRING",
+			"DEFAULT" => "default.ttf"
+		);
+	}
 
 	$arComponentParameters["PARAMETERS"]["WATERMARK_MIN_PICTURE_SIZE"] = array(
 		"PARENT" => "UPLOADER",
@@ -729,7 +737,7 @@ if (IsModuleInstalled("blog") || IsModuleInstalled("forum"))
 			"VALUES" => CComponentUtil::GetDefaultNameTemplates(),
 			"MULTIPLE" => "N",
 			"ADDITIONAL_VALUES" => "Y",
-			"DEFAULT" => GetMessage("P_SONET_NAME_TEMPLATE_DEFAULT")
+			"DEFAULT" => ""
 		);
 	}
 }
@@ -771,7 +779,7 @@ if (IsModuleInstalled("search"))
 			"TYPE" => "STRING",
 			"DEFAULT" => "10");
 		$arComponentParameters["PARAMETERS"]["TAGS_COLOR_NEW"] = array(
-	    	"NAME" => GetMessage("SEARCH_COLOR_NEW"),
+			"NAME" => GetMessage("SEARCH_COLOR_NEW"),
 			"PARENT" => "TAGS_CLOUD",
 			"TYPE" => "STRING",
 			"DEFAULT" => "3E74E6");

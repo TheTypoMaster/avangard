@@ -11,8 +11,8 @@ function BXSnippetsTaskbar()
 
 	BXSnippetsTaskbar.prototype.OnTaskbarCreate = function ()
 	{
-		this.icon_class = 'tb_icon_snippets';
-		this.iconDiv.className = 'tb_icon ' + this.icon_class;
+		this.icon = 'snippets';
+		this.iconDiv.className = 'tb_icon bxed-taskbar-icon-' + this.icon;
 		this.pHeaderTable.setAttribute("__bxtagname", "_taskbar_cached");
 		this.oTaskbar = ar_BXTaskbarS["BXSnippetsTaskbar_" + this.pMainObj.name];
 		this.oTaskbar.pCellSnipp = this.oTaskbar.CreateScrollableArea(this.oTaskbar.pWnd);
@@ -92,28 +92,19 @@ function BXSnippetsTaskbar()
 		if (!oTaskbar)
 			oTaskbar = this;
 
-		var oDiv = BX("___add_snippet___"+this.oTaskbar.pMainObj.name);
+		var
+			id = "___add_snippet___"+this.oTaskbar.pMainObj.name,
+			oDiv = BX(id);
 		if (oDiv)
 			this.oTaskbar.pCellSnipp.removeChild(oDiv);
 
-		oDiv = document.createElement("DIV");
-		oDiv.id = "___add_snippet___"+this.oTaskbar.pMainObj.name;
-		oDiv.style.padding = "3px 0px 10px 10px";
-		var oLink = document.createElement("a");
-		oLink.href = "";
-		oLink.innerHTML = BX_MESS.AddSnippet;
-		oLink.onclick = function(e)
-		{
-			oTaskbar.addSnippet();
-			return false;
-		}
-		oLink.style.marginLeft = "2px";
-		oDiv.appendChild(oLink);
-		this.oTaskbar.pCellSnipp.appendChild(oDiv);
+		oDiv = this.oTaskbar.pCellSnipp.appendChild(BX.create("DIV", {props: {id: id, className: 'bxed-add-snip-cont'}}));
+		oDiv.appendChild(BX.create("A", {props: {href: 'javascript:void("")'}, text: BX_MESS.AddSnippet, events: {click: function(){oTaskbar.addSnippet();	return false;}}}));
 	};
 
 	BXSnippetsTaskbar.prototype.Remove__script__ = function (str)
 	{
+		str = str.toString();
 		str = str.replace(/&lt;script/ig, "<script");
 		str = str.replace(/&lt;\/script/ig, "</script");
 		str = str.replace(/\\n/ig, "\n");
@@ -123,11 +114,9 @@ function BXSnippetsTaskbar()
 	BXSnippetsTaskbar.prototype.OnElementClick = function (oEl, arEl)
 	{
 		_pTaskbar = this.pMainObj.oPropertiesTaskbar;
-	
+
 		if (!_pTaskbar.bActivated || !_pTaskbar.pTaskbarSet.bShowing)
 			return;
-
-		BX.cleanNode(_pTaskbar.pCellProps);
 
 		//****** DISPLAY TITLE *******
 		var
@@ -141,11 +130,11 @@ function BXSnippetsTaskbar()
 			snippetCode = arSnippets[key].code,
 			snippetDesc = arSnippets[key].description;
 
-		var 
+		var
 			tCompTitle = BX.create("TABLE", {props: {className: "componentTitle"}, style:{height: "96%"}}),
 			row = tCompTitle.insertRow(-1),
 			cell = row.insertCell(-1);
-		cell.innerHTML = "<table style='width:100%'><tr><td style='width:85%'><SPAN title='" + bxhtmlspecialchars(snippetTitle) + "' class='title'>" + bxhtmlspecialchars(snippetShortTitle) + "  (" + snippetName+")</SPAN><BR /><SPAN class='description'>" + bxhtmlspecialchars(snippetDesc) + "</SPAN></td><td style='width:15%; padding-right: 20px' align='right'><div style='width: 62px'><div id='__edit_snip_but' class= 'iconkit_c' style='width: 29px; height: 17px; background-position: -29px -62px; float:left;' title='"+BX_MESS.EditSnippet+"'></div><div id='__del_snip_but' class= 'iconkit_c' style='width: 29px; height: 17px; background-position: 0px -62px;' title='"+BX_MESS.DeleteSnippet+"'></div></td></tr></table>";
+		cell.innerHTML = "<table style='width:100%'><tr><td style='width:85%'><SPAN title='" + bxhtmlspecialchars(snippetTitle) + "' class='title'>" + bxhtmlspecialchars(snippetShortTitle) + "  (" + snippetName+")</SPAN><BR /><SPAN class='description'>" + bxhtmlspecialchars(snippetDesc) + "</SPAN></td><td style='width:15%; padding-right: 20px; text-align: right;' align='right'><div style='width: 62px; float: right;'><span id='__edit_snip_but' class= 'iconkit_c' style='width: 29px; display:inline-block; height: 17px; background-position: -29px -62px;' title='"+BX_MESS.EditSnippet+"'></span> <span id='__del_snip_but' class= 'iconkit_c' style='width: 29px; height: 17px; background-position: 0px -62px;  display:inline-block;' title='"+BX_MESS.DeleteSnippet+"'></span></td></tr></table>";
 
 		cell.className = "titlecell";
 		cell.width = "100%";
@@ -182,16 +171,22 @@ function BXSnippetsTaskbar()
 		};
 
 		var _d = _c.appendChild(BX.create('DIV', {props: {className: 'bx_snip_code_preview'}, html: "<pre>"+_repl_tags(snippetCode)+"</pre>"}));
+
+		BX.cleanNode(_pTaskbar.pCellProps);
+		var par_w = parseInt(_pTaskbar.pCellProps.offsetWidth);
+
+		setTimeout(function (){_pTaskbar.pCellProps.appendChild(tCompTitle);}, 10);
 		setTimeout(function ()
 		{
-			_pTaskbar.pCellProps.appendChild(tCompTitle);
-			BX("__edit_snip_but").onclick = function(e){_this.editSnippet(arSnippets[key],oEl);};
-			BX("__del_snip_but").onclick = function(e){_this.delSnippet(arSnippets[key],oEl);};
+			var editBut = BX("__edit_snip_but");
+			var delBut = BX("__del_snip_but");
+			if (!editBut || !delBut)
+				return;
 
-			var
-				par_w = parseInt(_pTaskbar.pCellProps.offsetWidth);
-				w = parseInt(tCompTitle.offsetWidth);
+			editBut.onclick = function(e){_this.editSnippet(arSnippets[key],oEl);};
+			delBut.onclick = function(e){_this.delSnippet(arSnippets[key],oEl);};
 
+			var w = parseInt(tCompTitle.offsetWidth);
 			if (!isNaN(par_w) && !isNaN(w) && par_w + 10 < w)
 			{
 				pr_w = prCell ? parseInt(prCell.offsetWidth) : 0;
@@ -223,8 +218,28 @@ function BXSnippetsTaskbar()
 		}
 		else
 		{
-			html = html.replace(/(<div[^>]*?>)(\s*?)(<\/div>)/ig, "$1$2<br _moz_editor_bogus_node='on' />$3"); // FF 3.x hack (killing empty divs)
-			this.pMainObj.insertHTML(html);
+			//html = html.replace(/(<div[^>]*?>)(\s*?)(<\/div>)/ig, "$1$2<br _moz_editor_bogus_node='on' />$3"); // FF 3.x hack (killing empty divs)
+			//this.pMainObj.insertHTML(html);
+			var id = 'bx_editor_snippet_tmp';
+			this.pMainObj.insertHTML('<a id="' + id + '" href="#" _moz_editor_bogus_node="on">+</a>');
+			var pDoc = this.pMainObj.pEditorDocument;
+			setTimeout(function(){
+				var pTmp = pDoc.getElementById(id);
+				if (pTmp)
+				{
+					pTmp.innerHTML = html;
+					setTimeout(function(){
+						var pTmp = pDoc.getElementById(id);
+						if (pTmp)
+						{
+							for (var i = pTmp.childNodes.length - 1; i >= 0; i--)
+								pTmp.parentNode.insertBefore(pTmp.childNodes[i], pTmp);
+							if (pTmp.parentNode)
+								pTmp.parentNode.removeChild(pTmp);
+						}
+					}, 50);
+				}
+			}, 50);
 			oEl.parentNode.removeChild(oEl);
 		}
 		this.pMainObj.oPropertiesTaskbar.OnSelectionChange('always');
@@ -279,3 +294,4 @@ function BXSnippetsTaskbar()
 }
 
 oBXEditorUtils.addTaskBar('BXSnippetsTaskbar', 2, BX_MESS.SnippetsTB, [], 20);
+  

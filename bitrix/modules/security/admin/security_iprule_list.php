@@ -75,7 +75,7 @@ if(($arID = $lAdmin->GroupAction()) && $RIGHT_W)
 	{
 		if(strlen($ID)<=0)
 			continue;
-	   	$ID = IntVal($ID);
+		$ID = IntVal($ID);
 		switch($_REQUEST['action'])
 		{
 		case "delete":
@@ -355,7 +355,7 @@ $oFilter = new CAdminFilter(
 <tr>
 	<td><b><?echo GetMessage("SEC_IP_LIST_FIND")?>:</b></td>
 	<td>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?echo GetMessage("SEC_IP_LIST_FIND")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?echo GetMessage("SEC_IP_LIST_FIND")?>">
 		<?
 		$arr = array(
 			"reference" => array(
@@ -392,11 +392,11 @@ $arYesNo = array(
 ?>
 <tr>
 	<td><?echo GetMessage("SEC_IP_LIST_ACTIVE")?></td>
-	<td><?echo SelectBoxFromArray("find_active", $arYesNo, htmlspecialchars($find_active), GetMessage("MAIN_ALL"));?></td>
+	<td><?echo SelectBoxFromArray("find_active", $arYesNo, htmlspecialcharsbx($find_active), GetMessage("MAIN_ALL"));?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("SEC_IP_LIST_ADMIN_SECTION")?></td>
-	<td><?echo SelectBoxFromArray("find_admin_section", $arYesNo, htmlspecialchars($find_admin_section), GetMessage("MAIN_ALL"));?></td>
+	<td><?echo SelectBoxFromArray("find_admin_section", $arYesNo, htmlspecialcharsbx($find_admin_section), GetMessage("MAIN_ALL"));?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("SEC_IP_LIST_SITE_ID")?></td>
@@ -404,15 +404,15 @@ $arYesNo = array(
 </tr>
 <tr>
 	<td><?echo GetMessage("SEC_IP_LIST_NAME")?></td>
-	<td><input type="text" name="find_name" size="47" value="<?echo htmlspecialchars($find_name)?>"></td>
+	<td><input type="text" name="find_name" size="47" value="<?echo htmlspecialcharsbx($find_name)?>"></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("SEC_IP_LIST_IP")?></td>
-	<td><input type="text" name="find_ip" size="47" value="<?echo htmlspecialchars($find_ip)?>"></td>
+	<td><input type="text" name="find_ip" size="47" value="<?echo htmlspecialcharsbx($find_ip)?>"></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("SEC_IP_LIST_PATH")?></td>
-	<td><input type="text" name="find_path" size="47" value="<?echo htmlspecialchars($find_path)?>"></td>
+	<td><input type="text" name="find_path" size="47" value="<?echo htmlspecialcharsbx($find_path)?>"></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage(), "form"=>"find_form"));

@@ -93,17 +93,72 @@ class CAllPerfomanceKeeper
 			global $DB, $APPLICATION;
 			$DB->ShowSqlStat = false;
 			$sql_log = COption::GetOptionString("perfmon", "sql_log") === "Y"? "Y": "N";
+			$slow_sql_log = COption::GetOptionString("perfmon", "slow_sql_log") === "Y"? "Y": "N";
+			$slow_sql_time = floatval(COption::GetOptionString("perfmon", "slow_sql_time"));
+			$bHasSQL2Write = false;
+
+			$cquery_count = 0;
+			$cquery_time  = 0;
+			if(($sql_log === "Y") && ($slow_sql_log === "Y") && is_array($DB->arQueryDebug))
+			{
+				foreach($DB->arQueryDebug as $i => $arQueryInfo)
+					if($arQueryInfo["TIME"] < $slow_sql_time)
+						unset($DB->arQueryDebug[$i]);
+					else
+					{
+						$bHasSQL2Write = true;
+						$cquery_count++;
+						$cquery_time  += $arQueryInfo["TIME"];
+					}
+			}
 
 			$comps_count = 0;
 			$comps_time = 0.0;
-			$query_count = intval($DB->cntQuery);
-			$query_time  = $DB->timeQuery;
+			if($cquery_count > 0)
+			{
+				$query_count = $cquery_count;
+				$query_time  = $cquery_time;
+			}
+			else
+			{
+				$query_count = intval($DB->cntQuery);
+				$query_time  = $DB->timeQuery;
+			}
 			foreach($APPLICATION->arIncludeDebug as $i => $ar)
 			{
-				$query_count += $ar["QUERY_COUNT"];
-				$query_time  += $ar["QUERY_TIME"];
-				$comps_count++;
-				$comps_time += $ar["TIME"];
+				if($slow_sql_log === "Y")
+				{
+					$cquery_count = 0;
+					$cquery_time  = 0;
+					foreach($ar["QUERIES"] as $N => $arQueryInfo)
+					{
+						if($arQueryInfo["TIME"] < $slow_sql_time)
+							unset($APPLICATION->arIncludeDebug[$i]["QUERIES"][$N]);
+						else
+						{
+							$bHasSQL2Write = true;
+							$cquery_count++;
+							$cquery_time  += $arQueryInfo["TIME"];
+						}
+					}
+
+					if($cquery_count == 0)
+						unset($APPLICATION->arIncludeDebug[$i]);
+					else
+					{
+						$query_count += $cquery_count;
+						$query_time  += $cquery_time;
+						$comps_count++;
+						$comps_time += $ar["TIME"];
+					}
+				}
+				else
+				{
+					$query_count += $ar["QUERY_COUNT"];
+					$query_time  += $ar["QUERY_TIME"];
+					$comps_count++;
+					$comps_time += $ar["TIME"];
+				}
 			}
 
 			if($_SERVER["SCRIPT_NAME"] == "/bitrix/urlrewrite.php" && isset($_SERVER["REAL_FILE_PATH"]))
@@ -134,10 +189,15 @@ class CAllPerfomanceKeeper
 			);
 			CPerfomanceKeeper::SetPageTimes($START_EXEC_CURRENT_TIME, $arFields);
 
-			$HIT_ID = $DB->Add("b_perf_hit", $arFields);
+			if($slow_sql_log !== "Y" || $bHasSQL2Write)
+				$HIT_ID = $DB->Add("b_perf_hit", $arFields);
+			else
+				$HIT_ID = false;
+
 			if($HIT_ID && ($sql_log === "Y") && is_array($DB->arQueryDebug))
 			{
-				foreach($DB->arQueryDebug as $NN => $arQueryInfo)
+				$NN = 0;
+				foreach($DB->arQueryDebug as $i => $arQueryInfo)
 				{
 					$module_id = false;
 					$comp_id = false;
@@ -161,15 +221,33 @@ class CAllPerfomanceKeeper
 								break;
 						}
 					}
+
 					$arFields = array(
 						"HIT_ID" => $HIT_ID,
-						"NN" => $NN,
+						"NN" => ++$NN,
 						"QUERY_TIME" => $arQueryInfo["TIME"],
 						"MODULE_NAME" => $module_id,
 						"COMPONENT_NAME" => $comp_id,
 						"SQL_TEXT" => $arQueryInfo["QUERY"],
 					);
 					$SQL_ID = $DB->Add("b_perf_sql", $arFields, array("SQL_TEXT"));
+
+					if($SQL_ID && COption::GetOptionString("perfmon", "sql_backtrace") === "Y")
+					{
+						$pl = strlen(rtrim($_SERVER["DOCUMENT_ROOT"], "/"));
+						foreach($arQueryInfo["TRACE"] as $i => $arCallInfo)
+						{
+							$DB->Add("b_perf_sql_backtrace", array(
+								"ID" => 1,
+								"SQL_ID" => $SQL_ID,
+								"NN" => $i,
+								"FILE_NAME" => substr($arCallInfo["file"], $pl),
+								"LINE_NO" => $arCallInfo["line"],
+								"CLASS_NAME" => $arCallInfo["class"],
+								"FUNCTION_NAME" => $arCallInfo["function"],
+							));
+						}
+					}
 				}
 
 				foreach($APPLICATION->arIncludeDebug as $ii => $ar)
@@ -209,6 +287,7 @@ class CAllPerfomanceKeeper
 									break;
 							}
 						}
+
 						$arFields = array(
 							"HIT_ID" => $HIT_ID,
 							"COMPONENT_ID" => $COMP_ID,
@@ -219,6 +298,23 @@ class CAllPerfomanceKeeper
 							"SQL_TEXT" => $arQueryInfo["QUERY"],
 						);
 						$SQL_ID = $DB->Add("b_perf_sql", $arFields, array("SQL_TEXT"));
+
+						$pl = strlen(rtrim($_SERVER["DOCUMENT_ROOT"], "/"));
+						if($SQL_ID && COption::GetOptionString("perfmon", "sql_backtrace") === "Y")
+						{
+							foreach($arQueryInfo["TRACE"] as $i => $arCallInfo)
+							{
+								$DB->Add("b_perf_sql_backtrace", array(
+									"ID" => 1,
+									"SQL_ID" => $SQL_ID,
+									"NN" => $i,
+									"FILE_NAME" => substr($arCallInfo["file"], $pl),
+									"LINE_NO" => $arCallInfo["line"],
+									"CLASS_NAME" => $arCallInfo["class"],
+									"FUNCTION_NAME" => $arCallInfo["function"],
+								));
+							}
+						}
 					}
 				}
 			}

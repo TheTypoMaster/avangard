@@ -1,5 +1,5 @@
 <?
-$MESS["IBLOCK_TITLES"] = "Custon field names";
+$MESS["IBLOCK_TITLES"] = "Custom field names";
 $MESS["IBLOCK_FIELDS"] = "Information block properties";
 $MESS["IBLOCK_ACCESS"] = "Access parameters";
 $MESS["IBLOCK_TYPE"] = "Information block type";

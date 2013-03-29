@@ -50,4 +50,10 @@ $MESS["CP_BCS_OFFERS_PROPERTY_CODE"] = "Eigenschaften der Produktvariante";
 $MESS["CP_BCS_OFFERS_SORT_FIELD"] = "Produktvariante nach Feld sortieren";
 $MESS["CP_BCS_OFFERS_SORT_ORDER"] = "Sortierungsordnung der Produktvariante";
 $MESS["CP_BCS_OFFERS_CART_PROPERTIES"] = "Eigenschaften der Produktvariante im Warenkorb";
+$MESS["CP_BCS_CONVERT_CURRENCY"] = "Preise in einer Währung anzeigen";
+$MESS["CP_BCS_CURRENCY_ID"] = "Währung in die die Preise konvertiert werden";
+$MESS["CP_BCS_OFFERS_LIMIT"] = "Maximale Anzahl anzuzeigender Produktvarianten (benutzen Sie 0, um alle anzuzeigen)";
+$MESS["CP_BCS_INCLUDE_SUBSECTIONS_ALL"] = "alle Unterbereiche";
+$MESS["CP_BCS_INCLUDE_SUBSECTIONS_ACTIVE"] = "aktive Unterbereiche";
+$MESS["CP_BCS_INCLUDE_SUBSECTIONS_NO"] = "nicht anzeigen";
 ?>

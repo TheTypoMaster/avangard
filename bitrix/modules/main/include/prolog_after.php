@@ -24,7 +24,7 @@ if(defined("DEMO") && DEMO=="Y")
 		if($bSaas)
 		{
 			if($daysToExpire > 0)
-			{ 
+			{
 				if($daysToExpire <= $bxProductConfig["saas"]["days_before_warning"])
 				{
 					$sWarn = $bxProductConfig["saas"]["public_warning"];
@@ -65,16 +65,35 @@ $sPreviewFile = $_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/tmp/templates/__bx_
 if($_GET['bx_template_preview_mode'] == 'Y' && $USER->CanDoOperation('edit_other_settings') && file_exists($sPreviewFile))
 	include_once($sPreviewFile);
 else
+{
 	include_once($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/templates/".SITE_TEMPLATE_ID."/header.php");
 
+	if($GLOBALS['APPLICATION']->IsCSSOptimized())
+	{
+		$arCSS = $APPLICATION->GetCSSArray();
+		$arCSSKeys = array_keys($arCSS);
+		$cntCSSKeys = count($arCSS);
+		$APPLICATION->SetHeaderLastCss($arCSSKeys[$cntCSSKeys-1]);
+		unset($arCSS, $arCSSKeys);
+	}
+
+	if($GLOBALS['APPLICATION']->IsJSOptimized())
+	{
+		$arScripts = array_unique($APPLICATION->arHeadScripts);
+		$arJsKeys = array_keys($arScripts);
+		$cntJsKeys = count($arScripts);
+		$APPLICATION->SetHeaderLastJs($arJsKeys[$cntJsKeys-1]);
+		unset($arScripts, $arJsKeys);
+	}
+}
 
 /* Draw edit menu for whole content */
 global $BX_GLOBAL_AREA_EDIT_ICON;
 $BX_GLOBAL_AREA_EDIT_ICON = false;
 if($GLOBALS['APPLICATION']->GetShowIncludeAreas())
 {
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/init_admin.php"); 
-	
+	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/init_admin.php");
+
 	$aUserOpt = CUserOptions::GetOption("global", "settings", array());
 	if ($aUserOpt["page_edit_control_enable"] != "N")
 	{

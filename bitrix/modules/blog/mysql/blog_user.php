@@ -108,7 +108,7 @@ class CBlogUser extends CAllBlogUser
 					"PARAM1" => "USER",
 					"PARAM2" => $arBlogUser["USER_ID"],
 					"PERMISSIONS" => array(2),
-					"TITLE" => CBlogUser::GetUserName($arBlogUser["ALIAS"], $arUser["NAME"], $arUser["LAST_NAME"], $arUser["LOGIN"]),
+					"TITLE" => CBlogUser::GetUserName($arBlogUser["ALIAS"], $arUser["NAME"], $arUser["LAST_NAME"], $arUser["LOGIN"], $arUser["SECOND_NAME"]),
 					"BODY" => blogTextParser::killAllTags($arBlogUser["INTERESTS"]." ".$arBlogUser["DESCRIPTION"])
 				);
 
@@ -231,7 +231,7 @@ class CBlogUser extends CAllBlogUser
 					"PARAM1" => "USER",
 					"PARAM2" => $arBlogUser["USER_ID"],
 					"PERMISSIONS" => array(2),
-					"TITLE" => CBlogUser::GetUserName($arBlogUser["ALIAS"], $arUser["NAME"], $arUser["LAST_NAME"], $arUser["LOGIN"]),
+					"TITLE" => CBlogUser::GetUserName($arBlogUser["ALIAS"], $arUser["NAME"], $arUser["LAST_NAME"], $arUser["LOGIN"], $arUser["SECOND_NAME"]),
 					"BODY" => blogTextParser::killAllTags($arBlogUser["INTERESTS"]." ".$arBlogUser["DESCRIPTION"])
 				);
 
@@ -265,8 +265,9 @@ class CBlogUser extends CAllBlogUser
 			"USER_LOGIN" => array("FIELD" => "U.LOGIN", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (B.USER_ID = U.ID)"),
 			"USER_NAME" => array("FIELD" => "U.NAME", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (B.USER_ID = U.ID)"),
 			"USER_LAST_NAME" => array("FIELD" => "U.LAST_NAME", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (B.USER_ID = U.ID)"),
+			"USER_SECOND_NAME" => array("FIELD" => "U.SECOND_NAME", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (B.USER_ID = U.ID)"),
 			"USER_EMAIL" => array("FIELD" => "U.EMAIL", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (B.USER_ID = U.ID)"),
-			"USER" => array("FIELD" => "U.LOGIN,U.NAME,U.LAST_NAME,U.EMAIL,U.ID", "WHERE_ONLY" => "Y", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (B.USER_ID = U.ID)"),
+			"USER" => array("FIELD" => "U.LOGIN,U.NAME,U.LAST_NAME,U.SECOND_NAME,U.EMAIL,U.ID", "WHERE_ONLY" => "Y", "TYPE" => "string", "FROM" => "INNER JOIN b_user U ON (B.USER_ID = U.ID)"),
 
 			"GROUP_GROUP_ID" => array("FIELD" => "U2UG.USER_GROUP_ID", "TYPE" => "int", "FROM" => "INNER JOIN b_blog_user2user_group U2UG ON (B.USER_ID = U2UG.USER_ID)"),
 			"GROUP_BLOG_ID" => array("FIELD" => "U2UG.BLOG_ID", "TYPE" => "int", "FROM" => "INNER JOIN b_blog_user2user_group U2UG ON (B.USER_ID = U2UG.USER_ID)"),
@@ -288,7 +289,7 @@ class CBlogUser extends CAllBlogUser
 			if (strlen($arSqls["GROUPBY"]) > 0)
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!1!=".htmlspecialchars($strSql)."<br>";
+			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($arRes = $dbRes->Fetch())
@@ -319,7 +320,7 @@ class CBlogUser extends CAllBlogUser
 			if (strlen($arSqls["GROUPBY"]) > 0)
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!2.1!=".htmlspecialchars($strSql_tmp)."<br>";
+			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
@@ -335,16 +336,16 @@ class CBlogUser extends CAllBlogUser
 
 			$dbRes = new CDBResult();
 
-			//echo "!2.2!=".htmlspecialchars($strSql)."<br>";
+			//echo "!2.2!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes->NavQuery($strSql, $cnt, $arNavStartParams);
 		}
 		else
 		{
 			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) > 0)
-				$strSql .= "LIMIT ".$arNavStartParams["nTopCount"];
+				$strSql .= "LIMIT ".IntVal($arNavStartParams["nTopCount"]);
 
-			//echo "!3!=".htmlspecialchars($strSql)."<br>";
+			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}
@@ -399,9 +400,13 @@ class CBlogUser extends CAllBlogUser
 		
 		if(!empty($arGroup))
 		{
-			foreach($arGroup as $k=>$v)
-			if(IntVal($v) <= 0)
-				unset($arGroup[$k]);
+			foreach($arGroup as $k => $v)
+			{
+				if(IntVal($v) <= 0)
+					unset($arGroup[$k]);
+				else
+					$arGroup[$k] = IntVal($v);
+			}
 			$strGroupID = implode(",", $arGroup);
 
 			$strSql .= "	AND B.GROUP_ID in (".$strGroupID.") ".
@@ -424,6 +429,5 @@ class CBlogUser extends CAllBlogUser
 
 		return $dbResult;
 	}
-
 }
 ?>

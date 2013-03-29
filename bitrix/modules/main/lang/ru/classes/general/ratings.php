@@ -10,4 +10,5 @@ $MESS["RATING_ALLOW_VOTE_SELF"] = "¬ы не можете голосовать за себ€";
 $MESS["RATING_ALLOW_VOTE_GUEST"] = "“олько авторизованные пользователи могут участвовать в голосовании";
 $MESS["RATING_ALLOW_VOTE_COUNT_VOTE"] = "¬ы исчерпали суточный лимит голосов";
 $MESS["RATING_ALLOW_VOTE_ACCESS"] = "” вас недостаточно прав дл€ голосовани€";
+$MESS["RATING_ALLOW_VOTE_LOW_WEIGHT"] = "¬аш авторитет слишком низок дл€ голосовани€";
 ?>

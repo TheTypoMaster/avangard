@@ -1,9 +1,9 @@
 <?
 ##############################################
-# Bitrix Site Manager Forum                  #
-# Copyright (c) 2002-2009 Bitrix             #
-# http://www.bitrixsoft.com                  #
-# mailto:admin@bitrixsoft.com                #
+# Bitrix Site Manager Forum					 #
+# Copyright (c) 2002-2009 Bitrix			 #
+# http://www.bitrixsoft.com					 #
+# mailto:admin@bitrixsoft.com				 #
 ##############################################
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/vote/prolog.php");
@@ -31,7 +31,7 @@ if (!($zr=$z->Fetch()))
 }
 if ($old_module_version=="Y")
 {
-	if ($REQUEST_METHOD=="GET" && strlen($save)>0 && $VOTE_RIGHT=="W")
+	if ($REQUEST_METHOD=="GET" && strlen($save)>0 && $VOTE_RIGHT=="W" && check_bitrix_sessid())
 	{
 		$DB->PrepareFields("b_vote");
 		$arFields = array(
@@ -56,7 +56,7 @@ require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_adm
 
 $aMenu = array(
 	array(
-		"TEXT"	=> GetMessage("VOTE_VOTE_LIST"), 
+		"TEXT"	=> GetMessage("VOTE_VOTE_LIST"),
 		"ICON"	=> "btn_list",
 		"LINK"	=> "/bitrix/admin/vote_list.php?lang=".LANGUAGE_ID
 	)
@@ -86,17 +86,18 @@ if ($old_module_version=="Y"):?>
 	<form name="form1" action="" method="get">
 	<input type="hidden" name="VOTE_ID" value="<?=intval($VOTE_ID)?>">
 	<input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
+	<?=bitrix_sessid_post();?>
 	<?=GetMessage("VOTE_TEMPLATE")?><?
-	echo SelectBoxFromArray("RESULT_TEMPLATE", GetTemplateList("RV"), htmlspecialchars($RESULT_TEMPLATE), "","",true);
+	echo SelectBoxFromArray("RESULT_TEMPLATE", GetTemplateList("RV"), htmlspecialcharsbx($RESULT_TEMPLATE), "","",true);
 	?>&nbsp;<input <?if ($VOTE_RIGHT<"W") echo "disabled"?> type="submit" name="save" value="<?=GetMessage("VOTE_SAVE")?>">
 	</form>
 	<?
-	ShowVoteResults($VOTE_ID,$RESULT_TEMPLATE); 
+	ShowVoteResults($VOTE_ID,$RESULT_TEMPLATE);
 else:
 	$APPLICATION->IncludeComponent("bitrix:voting.result", "with_description", array(
 		"VOTE_ID" => $VOTE_ID,
 		"CACHE_TYPE" => "N",
-        "VOTE_ALL_RESULTS" => 'Y'
+		"VOTE_ALL_RESULTS" => 'Y'
 		)
 	);
 endif;

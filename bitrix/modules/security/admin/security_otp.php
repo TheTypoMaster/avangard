@@ -50,12 +50,27 @@ if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="" || $otp_siteb!="") && $
 	LocalRedirect("/bitrix/admin/security_otp.php?lang=".LANGUAGE_ID.($return_url? "&return_url=".urlencode($_GET["return_url"]): "")."&".$tabControl->ActiveTabParam());
 }
 
+$messageDetails = "";
+if (CSecurityUser::IsActive())
+{
+	$messageType = "OK";
+	$messageText = GetMessage("SEC_OTP_ON");
+} else
+{
+	$messageType = "ERROR";
+	$messageText = GetMessage("SEC_OTP_OFF");
+}
+
 $APPLICATION->SetTitle(GetMessage("SEC_OTP_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-if($message)
-	echo $message->Show();
+CAdminMessage::ShowMessage(array(
+			"MESSAGE"=>$messageText,
+			"TYPE"=>$messageType,
+			"DETAILS"=>$messageDetails,
+			"HTML"=>true
+		));
 ?>
 
 <form method="POST" action="security_otp.php?lang=<?echo LANGUAGE_ID?><?echo $_GET["return_url"]? "&amp;return_url=".urlencode($_GET["return_url"]): ""?>" enctype="multipart/form-data" name="editform">
@@ -66,22 +81,13 @@ $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
 <tr>
-	<td valign="top" colspan="2" align="left">
-		<?if(CSecurityUser::IsActive()):?>
-			<span style="color:green;"><b><?echo GetMessage("SEC_OTP_ON")?>.</b></span>
-		<?else:?>
-			<span style="color:red;"><b><?echo GetMessage("SEC_OTP_OFF")?>.</b></span>
-		<?endif?>
-	</td>
-</tr>
-<tr>
-	<td valign="top" colspan="2" align="left">
+	<td colspan="2" align="left">
 		<?if(CSecurityUser::IsActive()):?>
 			<input type="hidden" name="otp_active" value="N">
 			<input type="submit" name="otp_siteb" value="<?echo GetMessage("SEC_OTP_BUTTON_OFF")?>"<?if(!$RIGHT_W) echo " disabled"?>>
 		<?else:?>
 			<input type="hidden" name="otp_active" value="Y">
-			<input type="submit" name="otp_siteb" value="<?echo GetMessage("SEC_OTP_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?>>
+			<input type="submit" name="otp_siteb" value="<?echo GetMessage("SEC_OTP_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?> class="adm-btn-save">
 		<?endif?>
 	</td>
 </tr>

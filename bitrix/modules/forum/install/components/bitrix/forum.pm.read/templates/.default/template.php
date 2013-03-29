@@ -25,6 +25,10 @@ if (is_array($arResult["UserFolder"]) && !empty($arResult["UserFolder"]))
 		$arResult["FOLDERS"][] = array("ID" => $res["ID"], "TITLE" => $res["TITLE"]);
 	}
 }
+$arParams["SEO_USER"] = (in_array($arParams["SEO_USER"], array("Y", "N", "TEXT")) ? $arParams["SEO_USER"] : "Y");
+$arParams["USER_TMPL"] = '<noindex><a rel="nofollow" href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a></noindex>';
+if ($arParams["SEO_USER"] == "N") $arParams["USER_TMPL"] = '<a href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a>';
+elseif ($arParams["SEO_USER"] == "TEXT") $arParams["USER_TMPL"] = '#NAME#';
 /********************************************************************
 				/Input params
 ********************************************************************/
@@ -62,13 +66,17 @@ endif;
 		<div class="forum-block-inner">
 			<table cellspacing="0" class="forum-table forum-pmessages">
 			<thead>
- 				<tr class="forum-row-first forum-row-odd">
-					<th class="forum-first-column"><?=GetMessage("PM_FROM")?>:</th>
-					<td class="forum-last-column"><a href="<?=$arResult["MESSAGE"]["AUTHOR_LINK"]?>"><?=$arResult["MESSAGE"]["AUTHOR_NAME"]?></a></td>
+				<tr class="forum-row-first forum-row-odd">
+					<th class="forum-first-column" width="10%"><?=GetMessage("PM_FROM")?>:</th>
+					<td class="forum-last-column" width="90%"><?
+						?><?=str_replace(array("#URL#", "#NAME#"), array($arResult["MESSAGE"]["AUTHOR_LINK"], $arResult["MESSAGE"]["AUTHOR_NAME"]), $arParams["USER_TMPL"])
+					?></td>
 				</tr>
 				<tr class="forum-row-even">
 					<th><?=GetMessage("PM_TO")?>:</th>
-					<td><a href="<?=$arResult["MESSAGE"]["RECIPIENT_LINK"]?>"><?=$arResult["MESSAGE"]["RECIPIENT_NAME"]?></a></td>
+					<td><?
+						?><?=str_replace(array("#URL#", "#NAME#"), array($arResult["MESSAGE"]["RECIPIENT_LINK"], $arResult["MESSAGE"]["RECIPIENT_NAME"]), $arParams["USER_TMPL"])
+					?></td>
 				</tr>
 				<tr class="forum-row-odd">
 					<th><?=GetMessage("PM_DATA")?>:</th>

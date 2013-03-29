@@ -168,7 +168,7 @@ elseif ((empty($_REQUEST["preview_comment"]) || $_REQUEST["preview_comment"] == 
 			endif;
 			if (!empty($res)):
 				$arUserStart = $res;
-				$sName = ($res["SHOW_NAME"] == "Y" ? trim($res["NAME"]." ".$res["LAST_NAME"]) : "");
+				$sName = ($res["SHOW_NAME"] == "Y" ? trim(CUser::FormatName($arParams["NAME_TEMPLATE"], $res)) : "");
 				$arUserStart["NAME"] = (empty($sName) ? trim($res["LOGIN"]) : $sName);
 			endif;
 		}
@@ -187,6 +187,7 @@ elseif ((empty($_REQUEST["preview_comment"]) || $_REQUEST["preview_comment"] == 
 			"PERMISSION_EXTERNAL" => $arResult['USER']["PERMISSION"],
 			"PERMISSION" 	=> $arResult['USER']["PERMISSION"],
 		);
+
 		$TID = CForumTopic::Add($arFields);
 		if (intVal($TID) <= 0)
 		{
@@ -265,7 +266,7 @@ elseif ((empty($_REQUEST["preview_comment"]) || $_REQUEST["preview_comment"] == 
 
 	$TOPIC_ID = ($arResult['FORUM_TOPIC_ID'] > 0 ? $arResult['FORUM_TOPIC_ID'] : $TID);
 	$MID = ForumAddMessage(($TOPIC_ID > 0 ? "REPLY" : "NEW"), $arParams["FORUM_ID"], $TOPIC_ID, 0, $arFieldsG, $strErrorMessage, $strOKMessage, false, 
-		$_POST["captcha_word"], 0, $_POST["captcha_code"]);
+		$_POST["captcha_word"], 0, $_POST["captcha_code"], $arParams["NAME_TEMPLATE"]);
 
 	if ($MID <= 0 || !empty($strErrorMessage))
 	{

@@ -69,13 +69,14 @@ if (!function_exists("ForumNumberRusEnding"))
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["FID_RANGE"] = (is_array($arParams["FID_RANGE"]) && !empty($arParams["FID_RANGE"]) ? $arParams["FID_RANGE"] : array());
 	$arParams["SHOW_FORUM_ANOTHER_SITE"] = ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "Y" ? "Y" : "N");
 	$arParams["DATE_TIME_FORMAT"] = trim($arParams["DATE_TIME_FORMAT"]);
 	$arParams["DATE_FORMAT"] = trim($arParams["DATE_FORMAT"]);
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : '#NAME# #LAST_NAME#');
 	if(strlen($arParams["DATE_TIME_FORMAT"])<=0)
 		$arParams["DATE_TIME_FORMAT"] = $GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("FULL"));
 	if(strlen($arParams["DATE_FORMAT"])<=0)
@@ -96,62 +97,47 @@ $parser->MaxStringLen = $arParams["WORD_LENGTH"];
 
 $arResult["USER"] = array();
 $arResult["FORUM_USER"] = array();
-$bUserFound = false;
+$bUserFound = $ar_res = false;
 if (!empty($arParams["UID"]))
 {
-	$ar_res = false;
+	false;
 	$db_res = CUser::GetByID(intVal($arParams["UID"]));
 	if (!($ar_res = $db_res->Fetch())):
 		$db_res = CUser::GetByLogin($arParams["UID"]);
 		$ar_res = $db_res->Fetch();
-		$arParams["UID"] = intVal($ar_res["ID"]);
+		$arParams["UID"] = $ar_res["ID"];
 	endif;
-	$arParams["UID"] = intval($arParams["UID"]);
-	if ($ar_res)
-	{
-		$bUserFound = True;
-		foreach ($ar_res as $key => $val):
-			$arResult["USER"]["~".$key] = $val;
-			if (is_string($val)):
-				$arResult["USER"][$key] = $parser->wrap_long_words(htmlspecialcharsex(trim($val)));
-			endif;
-			if ($key == "PERSONAL_BIRTHDAY" && strLen($val) > 0):
-				$arResult["USER"][$key."_FORMATED"] = CForumFormat::FormatDate($val, CLang::GetDateFormat("SHORT"), $arParams["DATE_FORMAT"]);
-			endif;
-		endforeach;
-	}
+	$bUserFound = !empty($ar_res) && is_array($ar_res);
 }
 if (!$bUserFound):
 	CHTTP::SetStatus("404 Not Found");
-	if (strLen($arParams["UID"]) <= 0):
-		ShowError(GetMessage("F_NO_UID"));
-	else:
-		ShowError(str_replace("#UID#", htmlspecialcharsEx($arParams["UID"]), GetMessage("F_NO_DUSER")));
-	endif;
+	ShowError(empty($arParams["UID"]) ? GetMessage("F_NO_UID") : GetMessage("F_NO_DUSER", array("#UID#" => htmlspecialcharsEx($arParams["UID"]))));
 	return false;
 endif;
 
-ForumSetLastVisit();
+foreach ($ar_res as $key => $val):
+	$arResult["USER"]["~".$key] = $val;
+	$arResult["USER"][$key] = (is_string($val) ? $parser->wrap_long_words(htmlspecialcharsex(trim($val))) : $val);
+endforeach;
 
+$arResult["USER"]["PERSONAL_BIRTHDAY_FORMATED"] = CForumFormat::FormatDate($arResult["USER"]["~PERSONAL_BIRTHDAY"],
+	CLang::GetDateFormat("SHORT"), $arParams["DATE_FORMAT"]);
 $arResult["FORUM_USER"] = CForumUser::GetByUSER_ID($arParams["UID"]);
 $arResult["FORUM_USER"] = (empty($arResult["FORUM_USER"]) ? array() : $arResult["FORUM_USER"]);
 foreach ($arResult["FORUM_USER"] as $key => $val):
 	$arResult["FORUM_USER"]["~".$key] = $val;
-	$arResult["FORUM_USER"][$key] = htmlspecialcharsEx($val);
-	if (!is_array($val))
-		$arResult["FORUM_USER"][$key] = $parser->wrap_long_words($arResult["FORUM_USER"][$key]);
+	$arResult["FORUM_USER"][$key] = (is_string($val) ? $parser->wrap_long_words(htmlspecialcharsEx($val)) : $val);
 endforeach;
-
 /********************************************************************
 				Default values
 ********************************************************************/
 $strErrorMessage = "";
 $strOKMessage = "";
 
-$arResult["UID"] = $arParams["UID"];
-$arResult["FID"] = intVal($_REQUEST["FID"]);
-$arResult["TID"] = intVal($_REQUEST["TID"]);
-$arResult["MID"] = intVal($_REQUEST["MID"]);
+$arParams["UID"] = intval($arParams["UID"]);
+$arResult["FID"] = intval($_REQUEST["FID"]);
+$arResult["TID"] = intval($_REQUEST["TID"]);
+$arResult["MID"] = intval($_REQUEST["MID"]);
 $arResult["IsAuthorized"] = $USER->IsAuthorized() ? "Y" : "N";
 $arResult["IsAdmin"] = $USER->IsAdmin() ? "Y" : "N";
 $arResult["ERROR_MESSAGE"] = "";
@@ -165,7 +151,7 @@ $arResult["SHOW_EDIT_PROFILE"] = ($USER->IsAuthorized() && ((intVal($USER->GetID
 $arResult["SHOW_VOTES"] = ((COption::GetOptionString("forum", "SHOW_VOTES", "Y") == "Y" && $USER->IsAuthorized()
 	&& ($GLOBALS["APPLICATION"]->GetGroupRight("forum") >= "W" || intVal($USER->GetParam("USER_ID"))!=$arParams["UID"])) ? "Y" : "N");
 $arResult["SHOW_RANK"] = 'Y';//(COption::GetOptionString("forum", "SHOW_VOTES", "Y") == "Y" ? "Y" : "N");
- /******************************************************************/
+/******************************************************************/
 $arResult["SHOW_ICQ"] = ((COption::GetOptionString("forum", "SHOW_ICQ_CONTACT", "N") != "Y") ? "N" : (($arParams["SEND_ICQ"] <= "A" || ($arParams["SEND_ICQ"] <= "E" && !$GLOBALS['USER']->IsAuthorized())) ? "N" : "Y"));
 $arResult["SHOW_MAIL"] = $arParams["SHOW_MAIL"] = (($arParams["SEND_MAIL"] <= "A" || ($arParams["SEND_MAIL"] <= "E" && !$GLOBALS['USER']->IsAuthorized())) ? "N" : "Y");;
 /******************************************************************/
@@ -267,16 +253,22 @@ if ($arResult["SHOW_VOTES"] == "Y"):
 	endif;
 endif;
 /*******************************************************************/
-if (strLen($arResult["FORUM_USER"]["DATE_REG"]) > 0)
+if (!empty($arResult["FORUM_USER"]["DATE_REG"]))
 	$arResult["FORUM_USER"]["DATE_REG_FORMATED"] = CForumFormat::DateFormat($arParams["DATE_FORMAT"],
 		MakeTimeStamp($arResult["FORUM_USER"]["DATE_REG"], CSite::GetDateFormat()));
-if (strLen($arResult["FORUM_USER"]["LAST_VISIT"]) > 0)
+if (!empty($arResult["FORUM_USER"]["LAST_VISIT"]))
 	$arResult["FORUM_USER"]["LAST_VISIT_FORMATED"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"],
 		MakeTimeStamp($arResult["FORUM_USER"]["LAST_VISIT"], CSite::GetDateFormat()));
-
-$arResult["~SHOW_NAME"] = trim($arResult["USER"]["~NAME"]." ".$arResult["USER"]["~LAST_NAME"]);
-if (!($arResult["FORUM_USER"]["SHOW_NAME"] == "Y" && !empty($arResult["~SHOW_NAME"])))
-	$arResult["~SHOW_NAME"] = $arResult["USER"]["~LOGIN"];
+$arResult["~SHOW_NAME"] = CForumUser::GetFormattedNameByUserID(
+	$arResult["USER"]["ID"],
+	$arParams["NAME_TEMPLATE"],
+	array(
+		"SHOW_NAME" => $arResult["FORUM_USER"]["SHOW_NAME"],
+		"LOGIN" => $arResult["USER"]["~LOGIN"],
+		"NAME" => $arResult["USER"]["~NAME"],
+		"SECOND_NAME" => $arResult["USER"]["~SECOND_NAME"],
+		"LAST_NAME" => $arResult["USER"]["~LAST_NAME"]
+	));
 $arResult["SHOW_NAME"] = htmlspecialcharsEx($arResult["~SHOW_NAME"]);
 
 $arResult["SHOW_EDIT_PROFILE_TITLE"] = (intVal($USER->GetID())!=$arParams["UID"]) ? GetMessage("F_EDIT_THIS_PROFILE") : GetMessage("F_EDIT_YOUR_PROFILE");
@@ -306,7 +298,7 @@ elseif ($arResult["USER"]["PERSONAL_GENDER"]=="F")
 	$arResult["USER"]["PERSONAL_GENDER"] = GetMessage("F_SEX_FEMALE");
 
 $arResult["USER"]["PERSONAL_LOCATION"] = GetCountryByID($arResult["USER"]["PERSONAL_COUNTRY"]);
-if (strlen($arResult["USER"]["PERSONAL_LOCATION"])>0 && strlen($arResult["USER"]["PERSONAL_CITY"])>0)
+if (!empty($arResult["USER"]["PERSONAL_LOCATION"]) && !empty($arResult["USER"]["PERSONAL_CITY"]))
 	$arResult["USER"]["PERSONAL_LOCATION"] .= ", ";
 $arResult["USER"]["PERSONAL_LOCATION"] .= $arResult["USER"]["PERSONAL_CITY"];
 
@@ -315,37 +307,41 @@ if (strlen($arResult["USER"]["WORK_LOCATION"])>0 && strlen($arResult["USER"]["WO
 	$arResult["USER"]["WORK_LOCATION"] .= ", ";
 $arResult["USER"]["WORK_LOCATION"] .= $arResult["USER"]["WORK_CITY"];
 
-$arAllow = array("HTML" => "N",
-	"ANCHOR" => "Y",
-	"BIU" => "Y",
-	"IMG" => "Y",
-	"VIDEO" => "Y",
-	"LIST" => "Y",
-	"QUOTE" => "Y",
-	"CODE" => "Y",
-	"FONT" => "Y",
-	"SMILES" => "N",
-	"NL2BR" => "Y",
-	"TABLE" => "N"
-);
-$arResult["FORUM_USER"]["INTERESTS"] = $parser->convert($arResult["FORUM_USER"]["INTERESTS"], $arAllow);
+
+$arResult["FORUM_USER"]["INTERESTS"] = $parser->convert(
+	$arResult["FORUM_USER"]["INTERESTS"],
+	array(
+		"HTML" => "N",
+		"ANCHOR" => "Y",
+		"BIU" => "Y",
+		"IMG" => "Y",
+		"VIDEO" => "Y",
+		"LIST" => "Y",
+		"QUOTE" => "Y",
+		"CODE" => "Y",
+		"FONT" => "Y",
+		"SMILES" => "N",
+		"NL2BR" => "Y",
+		"TABLE" => "N",
+		"ALIGN" => "N",
+	));
 
 $arResult["FORUM_USER"]["AVATAR"] = "";
-if (strlen($arResult["FORUM_USER"]["~AVATAR"]) > 0):
+if (!empty($arResult["FORUM_USER"]["~AVATAR"])):
 	$arResult["FORUM_USER"]["AVATAR_FILE"] = CFile::GetFileArray($arResult["FORUM_USER"]["~AVATAR"]);
 	if ($arResult["FORUM_USER"]["AVATAR_FILE"] !== false)
 		$arResult["FORUM_USER"]["AVATAR"] = CFile::ShowImage($arResult["FORUM_USER"]["AVATAR_FILE"],
-			COption::GetOptionString("forum", "avatar_max_width", 90), COption::GetOptionString("forum", "avatar_max_height", 90), "border=0", "", true);
+			COption::GetOptionString("forum", "avatar_max_width", 90),
+			COption::GetOptionString("forum", "avatar_max_height", 90), "border=0", "", true);
 endif;
 $arResult["USER"]["PERSONAL_PHOTO"] = "";
-if (strlen($arResult["USER"]["~PERSONAL_PHOTO"])>0):
+if (!empty($arResult["USER"]["~PERSONAL_PHOTO"])):
 	$arResult["USER"]["PERSONAL_PHOTO_FILE"] = CFile::GetFileArray($arResult["USER"]["~PERSONAL_PHOTO"]);
 	if ($arResult["USER"]["PERSONAL_PHOTO_FILE"] !== false)
 		$arResult["USER"]["PERSONAL_PHOTO"] = CFile::ShowImage($arResult["USER"]["PERSONAL_PHOTO_FILE"], 200, 200, "border=0 alt=\"\"", "", true);
 endif;
 /************** Getting User rank **********************************/
-$arResult["USER_RANK"] = "";
-$arResult["USER_RANK_CODE"] = "";
+$arResult["USER_RANK"] = ""; $arResult["USER_RANK_CODE"] = "";
 $arFilter = array();
 if ($arParams["SHOW_FORUM_ANOTHER_SITE"] == "N" || $GLOBALS["APPLICATION"]->GetGroupRight("forum") < "W")
 	$arFilter["LID"] = SITE_ID;
@@ -355,62 +351,53 @@ if ($GLOBALS["APPLICATION"]->GetGroupRight("forum") < "W"):
 	$arFilter["PERMS"] = array($USER->GetGroups(), 'A');
 	$arFilter["ACTIVE"] = "Y";
 endif;
+$arUserPerm = array();
 $db_res = CForumNew::GetList(array(), $arFilter);
 if ($db_res && ($res = $db_res->GetNext())):
 	$arUserGroup = CUser::GetUserGroup($arParams["UID"]);
-	$arUserPerm = array();
 	do
 	{
 		$arResult["FORUMS"][$res["ID"]] = $res;
 		$arUserPerm[] = CForumNew::GetUserPermission($res["ID"], $arUserGroup);
 	}while ($res = $db_res->GetNext());
-	rsort($arUserPerm);
+endif;
 
-	if ($arUserPerm[0] == "Q"):
-		$arResult["USER_RANK"] = $GLOBALS["FORUM_STATUS_NAME"]["moderator"];
-		$arResult["USER_RANK_CODE"] = 'moderator';
-	elseif ($arUserPerm[0] == "U"):
-		$arResult["USER_RANK"] = $GLOBALS["FORUM_STATUS_NAME"]["editor"];
-		$arResult["USER_RANK_CODE"] = 'editor';
-	elseif ($arUserPerm[0] == "Y"):
-		$arResult["USER_RANK"] = $GLOBALS["FORUM_STATUS_NAME"]["administrator"];
-		$arResult["USER_RANK_CODE"] = 'administrator';
-	endif;
-endif;
-if ($arResult["SHOW_RANK"] == "Y"):
-	$arRank = CForumUser::GetUserRank($arParams["UID"], LANGUAGE_ID);
-	if (empty($arResult["USER_RANK"])):
-		$arResult["USER_RANK"] = $arRank["NAME"];
-		$arResult["USER_RANK_CODE"] = $arRank["CODE"];
-	endif;
-	$arRank["NAME"] = $arResult["USER_RANK"];
-	$arResult["arRank"] = $arRank;
-	$arResult["SHOW_POINTS"] = "N";
-	if ($USER->IsAuthorized() && ($GLOBALS["APPLICATION"]->GetGroupRight("forum") >= "W" || intVal($USER->GetParam("USER_ID"))==$arParams["UID"]))
-	{
-		$arResult["SHOW_POINTS"] = "Y";
-		$arResult["USER_POINTS"] = (intVal($arRank["VOTES"])>0 ? intVal($arRank["VOTES"]) : GetMessage("F_NO_VOTES"));
-	}
-endif;
-if (empty($arResult["USER_RANK"])):
-	$arResult["USER_RANK"] = $GLOBALS["FORUM_STATUS_NAME"]["user"];
-	$arResult["USER_RANK_CODE"] = 'user';
-endif;
+rsort($arUserPerm);
+$arRank = CForumUser::GetUserRank($arParams["UID"], LANGUAGE_ID);
+list($arResult["USER_RANK_CODE"], $arResult["USER_RANK"]) = ForumGetUserForumStatus($arParams["UID"], $arUserPerm[0], array("Rank" => $arRank));
+$arResult["SHOW_POINTS"] = "N";
+$arResult["arRank"] = array_merge((is_array($arRank) ? $arRank : array()), array("NAME" => $arResult["USER_RANK"]));
+if ($USER->IsAuthorized() && ($GLOBALS["APPLICATION"]->GetGroupRight("forum") >= "W" || intval($USER->GetID()) == $arParams["UID"]))
+{
+	$arResult["SHOW_POINTS"] = "Y";
+	$arResult["USER_POINTS"] = (!empty($arRank["VOTES"]) ? intval($arRank["VOTES"]) : GetMessage("F_NO_VOTES"));
+}
 /*******************************************************************/
 $arResult["arTopic"] = "N";
-if (!empty($arResult["FORUMS"])):
-	$arFilter = array("AUTHOR_ID" => $arParams["UID"], "@FORUM_ID" => array_keys($arResult["FORUMS"]));
-	$db_res = CForumUser::UserAddInfo(array("LAST_POST"=>"DESC"), $arFilter, "topics");
+if (!empty($arResult["FORUMS"]))
+{
+	$db_res = CForumUser::UserAddInfo(
+		array("LAST_POST"=>"DESC"),
+		array("AUTHOR_ID" => $arParams["UID"], "@FORUM_ID" => array_keys($arResult["FORUMS"])),
+		"topics");
 	if ($db_res && $res = $db_res->GetNext())
 	{
 		$res["TITLE"] = $parser->wrap_long_words($res["TITLE"]);
 		$res["DESCRIPTION"] = $parser->wrap_long_words($res["DESCRIPTION"]);
 		$res["LAST_POST_DATE"] = CForumFormat::DateFormat($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($res["LAST_POST_DATE"], CSite::GetDateFormat()));
-		$arResult["arTopic"] = $res;
-		$arResult["arTopic"]["read"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
-				array("FID" => $res["FORUM_ID"], "TID" => $res["TOPIC_ID"], "MID" => intVal($res["LAST_POST"])))."#message".intVal($res["LAST_POST"]);
+		$arResult["arTopic"] = array_merge(
+			$res,
+			array(
+				"read" => CComponentEngine::MakePathFromTemplate(
+					$arParams["URL_TEMPLATES_MESSAGE"],
+					array(
+						"FID" => $res["FORUM_ID"],
+						"TID" => $res["TOPIC_ID"],
+						"MID" => intval($res["LAST_POST"])
+					)
+				)."#message".intval($res["LAST_POST"])));
 	}
-endif;
+}
 /************** User properties ************************************/
 $arResult["USER_PROPERTIES"] = array("SHOW" => "N");
 if (!empty($arParams["USER_PROPERTY"]))
@@ -422,9 +409,8 @@ if (!empty($arParams["USER_PROPERTY"]))
 		{
 			if (!in_array($FIELD_NAME, $arParams["USER_PROPERTY"]))
 				continue;
-			$arUserField["EDIT_FORM_LABEL"] = strLen($arUserField["EDIT_FORM_LABEL"]) > 0 ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"];
-			$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arUserField["EDIT_FORM_LABEL"]);
-			$arUserField["~EDIT_FORM_LABEL"] = $arUserField["EDIT_FORM_LABEL"];
+			$arUserField["~EDIT_FORM_LABEL"] = (!empty($arUserField["EDIT_FORM_LABEL"]) ? $arUserField["EDIT_FORM_LABEL"] : $arUserField["FIELD_NAME"]);
+			$arUserField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arUserField["~EDIT_FORM_LABEL"]);
 			$arResult["USER_PROPERTIES"]["DATA"][$FIELD_NAME] = $arUserField;
 		}
 	}
@@ -450,10 +436,10 @@ endforeach;
 /********************************************************************
 				Data
 ********************************************************************/
+$this->IncludeComponentTemplate();
+/*******************************************************************/
 if ($arParams["SET_NAVIGATION"] != "N")
 	$APPLICATION->AddChainItem($arResult["~SHOW_NAME"]);
 if ($arParams["SET_TITLE"] != "N")
 	$APPLICATION->SetTitle($arResult["SHOW_NAME"]);
-/*******************************************************************/
-	$this->IncludeComponentTemplate();
 ?>

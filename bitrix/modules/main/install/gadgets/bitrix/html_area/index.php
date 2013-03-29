@@ -1,8 +1,10 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
-$bEdit = ($_REQUEST['gdhtml']==$id) && ($_REQUEST['edit']=='true') && ($arParams["PERMISSION"]>"R");
-if($_SERVER['REQUEST_METHOD']=='POST' && $_REQUEST['gdhtmlform']=='Y' && $_REQUEST['gdhtml']==$id)
+$APPLICATION->SetAdditionalCSS('/bitrix/gadgets/bitrix/html_area/styles.css');
+
+$bEdit = ($_REQUEST['gdhtml'] == $id) && ($_REQUEST['edit']=='true') && ($arParams["PERMISSION"] > "R");
+if($_SERVER['REQUEST_METHOD'] == 'POST' && $_REQUEST['gdhtmlform'] == 'Y' && $_REQUEST['gdhtml'] == $id)
 {
 	$arGadget["USERDATA"] = Array("content"=>$_POST["html_content"]);
 	$arGadget["FORCE_REDIRECT"] = true;
@@ -17,12 +19,14 @@ $content = $arData["content"];
 	if($content)
 	{
 		$parser = new CTextParser();
-		$parser->allow = array("HTML"=>"N", "ANCHOR"=>"Y", "BIU"=>"Y", "IMG"=>"Y", "QUOTE"=>"Y", "CODE"=>"Y", "FONT"=>"Y", "LIST"=>"Y", "SMILES"=>"N", "NL2BR"=>"N", "VIDEO"=>"Y", "TABLE"=>"Y", "CUT_ANCHOR"=>"N", "ALIGN"=>"Y");
+		$parser->allow = array("HTML"=>"N", "ANCHOR"=>"Y", "BIU"=>"Y", "IMG"=>"Y", "QUOTE"=>"Y", "CODE"=>"Y", "FONT"=>"Y", "LIST"=>"Y", "SMILES"=>"N", "NL2BR"=>"N", "VIDEO"=>"N", "TABLE"=>"Y", "CUT_ANCHOR"=>"N", "ALIGN"=>"Y");
+		$parser->parser_nofollow = "Y";
 		echo $parser->convertText($content);
 	}
 	else
 	{
-		echo GetMessage("GD_HTML_AREA_NO_CONTENT");
+		if($arParams["PERMISSION"]>"R")
+			echo GetMessage("GD_HTML_AREA_NO_CONTENT");
 	}
 ?>
 
@@ -48,7 +52,7 @@ $LHE->Show(array(
 	'bUseMedialib' => false,
 	'toolbarConfig' => array(
 		'Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat',
-		'CreateLink', 'DeleteLink', 'Image', 'Video',
+		'CreateLink', 'DeleteLink', 'Image',
 		'ForeColor', 'InsertOrderedList', 'InsertUnorderedList',
 		'Outdent', 'Indent', 'FontList', 'FontSizeList',
 		'Source',

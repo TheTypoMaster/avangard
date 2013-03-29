@@ -1,9 +1,9 @@
 <?
 $MESS ['F_SEARCH_DESCR'] = "Normalerweise besteht eine Suchanfrage aus einem oder mehreren Wörtern, z.B.: <br/> <i>Kontakt Information</i><br/> Auf diese Suchanfrage werden Seiten gefunden, auf denen beide Wörter vorkommen. <br/><br/> Logische Operanden erlauben kompliziertere Suchanfragen, z.B.: <br/> <i>Kontakt Information oder Telefon</i><br/> Auf diese Suchanfrage werden Seiten gefunden, auf denen entweder beide Wörter &quot;Kontakt&quot; und &quot;Information&quot;, oder das Wort &quot;Telefon&quot; vorkommen.<br/><br/> <i>Kontakt Information nicht Telefon</i><br/> Auf diese Suchanfrage werden Seiten gefunden, auf denen entweder beide Wörter &quot;Kontakt&quot; und &quot;Information&quot; aber nicht &quot;Telefon&quot; vorkommen.<br/> Sie können auch Klammern benutzen, um noch kompliziertere Suchanfragen zu starten.<br/><br/> <b>Logische Operanden:</b> 
- <table class='forum-main'>
-  <tr><th>Operand</th><th>Synonyme</th><th>Beschreibung</th></tr>
-  <tr><td align=\"center\">und</td><td>and, &amp;, +</td><td>Der <i>logische &quot;und&quot;</i>Operand kann ausgelassen werden: die Suchanfrage &quot;Kontakt Information&quot; ist komplett equivalent zu &quot;Kontakt und Information&quot;.</td></tr>
-  <tr><td align=\"center\">oder</td><td>or, |</td><td>Der <i>logische &quot;oder&quot;</i> Operand erlaubt die Suche von mindestens einem Suchbegriff. </td></tr><tr><td align=\"center\">nicht</td><td>not, ~</td><td>Der <i>logische &quot;nicht&quot;</i> Operand erlaubt nur die Suche nach Seiten, die das Wort nach dem Operand nicht enthalten. </td></tr><tr><td align=\"center\">( )</td><td>&nbsp;</td><td><i>Runde Klammern</i> definieren die Reihenfolge der logischen Operanden. </td></tr></table>";
+<table class='forum-main'>
+<tr><th>Operand</th><th>Synonyme</th><th>Beschreibung</th></tr>
+<tr><td align=\"center\">und</td><td>and, &amp;, +</td><td>Der <i>logische &quot;und&quot;</i>Operand kann ausgelassen werden: die Suchanfrage &quot;Kontakt Information&quot; ist komplett equivalent zu &quot;Kontakt und Information&quot;.</td></tr>
+<tr><td align=\"center\">oder</td><td>or, |</td><td>Der <i>logische &quot;oder&quot;</i> Operand erlaubt die Suche von mindestens einem Suchbegriff. </td></tr><tr><td align=\"center\">nicht</td><td>not, ~</td><td>Der <i>logische &quot;nicht&quot;</i> Operand erlaubt nur die Suche nach Seiten, die das Wort nach dem Operand nicht enthalten. </td></tr><tr><td align=\"center\">( )</td><td>&nbsp;</td><td><i>Runde Klammern</i> definieren die Reihenfolge der logischen Operanden. </td></tr></table>";
 $MESS ['F_ALL_FORUMS'] = "Alle Foren";
 $MESS ['F_SORT'] = "Anordnen";
 $MESS ['F_DATE'] = "nach Datum";

@@ -1,0 +1,33 @@
+<?
+$MESS["rub_title"] = "Newsletter";
+$MESS["rub_del_err"] = "Kategorie kann nicht gelöscht werden.";
+$MESS["rub_nav"] = "Newsletter";
+$MESS["rub_name"] = "Überschrift";
+$MESS["rub_code"] = "Mnemonischer Code";
+$MESS["rub_sort"] = "Sort.";
+$MESS["rub_act"] = "Aktiv";
+$MESS["rub_edit"] = "Ändern";
+$MESS["rub_del"] = "Löschen";
+$MESS["rub_site"] = "Seite";
+$MESS["rub_auto"] = "Autom.";
+$MESS["rub_visible"] = "Öffentl.";
+$MESS["rub_last_exec"] = "Generiert";
+$MESS["rub_check"] = "Vorlage überprüfen";
+$MESS["rub_wrong_generation_from"] = "Geben Sie das Datum für die Generierung \"Von\" korrekt ein";
+$MESS["rub_wrong_generation_till"] = "Geben Sie das Datum für die Generierung \"Bis\" korrekt ein";
+$MESS["rub_wrong_generation_from_till"] = "Das Datum der Generierung \"Bis\" muss größer als das Datum \"Von\" sein";
+$MESS["rub_save_error"] = "Beim Ändern des Datensatzes ist ein Fehler aufgetreten:";
+$MESS["rub_no_rubric"] = "Kategorie wurde nicht gefunden";
+$MESS["POST_ADD_TITLE"] = "Klicken Sie hier, um eine neue Abonnementkategorie hinzuzufügen";
+$MESS["rub_f_site"] = "Seite";
+$MESS["rub_f_active"] = "Aktiv";
+$MESS["rub_f_public"] = "Öffentlich";
+$MESS["rub_f_auto"] = "Automatisch";
+$MESS["rub_f_find"] = "Suchen";
+$MESS["rub_f_find_title"] = "Geben Sie den Suchbegriff ein";
+$MESS["rub_del_conf"] = "Newsletter Löschen?";
+$MESS["rub_f_name"] = "Überschrift";
+$MESS["rub_f_code"] = "Mnemonischer Code";
+$MESS["POST_U_YES"] = "Ja";
+$MESS["POST_U_NO"] = "Nein";
+?>

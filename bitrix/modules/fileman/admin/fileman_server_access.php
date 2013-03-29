@@ -27,7 +27,7 @@ $abs_path = $documentRoot.$path;
 $arFiles = Array();
 
 $bSearch = isset($_REQUEST['search']) && $_REQUEST['search'] == 'Y';
-$searchSess = $_REQUEST['ssess'];
+$searchSess = preg_replace("/[^a-z0-9]/i", "", $_REQUEST['ssess']);
 
 if (CFileMan::IsWindows())
 	$strWarning .= GetMessage("FILEMAN_SA_WINDOWS_WARN")."\n";
@@ -93,7 +93,7 @@ for($i = 0; $i < $filesCount; $i++)
 	$arFilesEx[] = $arFile;
 }
 
-if ($REQUEST_METHOD == "POST" && check_bitrix_sessid() && $USER->CanDoOperation('fileman_admin_folders') && $_GET["fu_action"] == 'change_perms')
+if ($REQUEST_METHOD == "POST" && $USER->CanDoOperation('fileman_admin_folders') && $_GET["fu_action"] == 'change_perms' && check_bitrix_sessid())
 {
 	CUtil::JSPostUnescape();
 	$APPLICATION->RestartBuffer();
@@ -255,7 +255,7 @@ $tabControl->Begin();
 			}
 			?>
 			<tr id="bxsp_file_row_<?= $i?>">
-				<td class="bxsp-filename">"<?=  $APPLICATION->UnJSEscape(htmlspecialchars($arFilesEx[$i]["PATH"]))?>"</td>
+				<td class="bxsp-filename">"<?= htmlspecialcharsbx($APPLICATION->UnJSEscape($arFilesEx[$i]["PATH"]))?>"</td>
 				<td class="bxsp-separator"> - </td>
 				<td class="bxsp-value" title="<?= $title?>"><?= $html?></td>
 				<td class="bxsp-status"><?= GetMessage("FM_SA_IN_PROC")?>...</td>

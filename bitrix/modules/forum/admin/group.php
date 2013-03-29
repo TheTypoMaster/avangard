@@ -24,13 +24,10 @@ if ($lAdmin->EditAction() && $forumModulePermissions >= "W")
 {
 	foreach ($FIELDS as $ID => $arFields)
 	{
-		$DB->StartTransaction();
 		if ($ID <= 0)
 			continue;
-
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
-
 		if (CForumGroup::CanUserUpdateGroup($ID, $USER->GetUserGroupArray()))
 		{
 			if (CForumGroup::Update($ID, $arFields))
@@ -113,7 +110,7 @@ while ($arGroup = $dbResultList->NavNext(true, "f_"))
 	if (in_array("NAME", $arVisibleColumns))
 	{
 		$arGroupLang = CForumGroup::GetLangByID($f_ID, LANG);
-		$fieldShow = htmlspecialchars($arGroupLang["NAME"]);
+		$fieldShow = htmlspecialcharsbx($arGroupLang["NAME"]);
 		$row->AddViewField("NAME", '<a title="'.GetMessage("FORUM_EDIT_DESCR").'" href="'."forum_group_edit.php?ID=".$f_ID."&lang=".LANG."&".GetFilterParams("filter_").'">'.$fieldShow.'</a>');
 	}
 

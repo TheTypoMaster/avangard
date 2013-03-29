@@ -236,9 +236,10 @@ if($REQUEST_METHOD == "POST" && ($edit_php || $lpa) && check_bitrix_sessid())
 
 	checkError($strWaring);
 	?>
-	<script>
-	__status = true;
-	</script>
+<script type="text/javascript" bxrunfirst="true">
+BX.adminPanel.closeWait();
+__status = true;
+</script>
 	<?
 }
 
@@ -264,10 +265,11 @@ function checkError($strWaring)
 	echo 'ERROR';
 
 	?>
-	<script>
-	__status = false;
-	strWarning = '<?=CUtil::JSEscape($strWaring)?>';
-	</script>
+<script type="text/javascript" bxrunfirst="true">
+BX.adminPanel.closeWait();
+__status = false;
+strWarning = '<?=CUtil::JSEscape($strWaring)?>';
+</script>
 	<?
 	die();
 }

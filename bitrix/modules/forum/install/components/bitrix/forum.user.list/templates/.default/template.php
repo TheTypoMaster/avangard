@@ -7,7 +7,10 @@ endif;
 /********************************************************************
 				Input params
 ********************************************************************/
-$arParams["SEO_USER"] = ($arParams["SEO_USER"] == "Y" ? "Y" : "N");
+$arParams["SEO_USER"] = (in_array($arParams["SEO_USER"], array("Y", "N", "TEXT")) ? $arParams["SEO_USER"] : "Y");
+$arParams["USER_TMPL"] = '<noindex><a rel="nofollow" href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a></noindex>';
+if ($arParams["SEO_USER"] == "N") $arParams["USER_TMPL"] = '<a href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a>';
+elseif ($arParams["SEO_USER"] == "TEXT") $arParams["USER_TMPL"] = '#NAME#';
 /********************************************************************
 				/Input params
 ********************************************************************/
@@ -50,23 +53,26 @@ if ($USER->IsAdmin() || $GLOBALS["APPLICATION"]->GetGroupRight("forum") >= "W"):
 		"NAME" => "allow_post",
 		"TYPE" => "SELECT",
 		"VALUE" => array(
-			"" => GetMessage("F_STATUS_NONE"), 
-			"Y" => GetMessage("F_ALLOW_POST"), 
-			"N" => GetMessage("F_FORBID_POST")), 
+			"" => GetMessage("F_STATUS_NONE"),
+			"Y" => GetMessage("F_ALLOW_POST"),
+			"N" => GetMessage("F_FORBID_POST")),
 		"ACTIVE" => $_REQUEST["allow_post"]);
 endif;
 $arFields[] = array(
 		"TITLE" => GetMessage("LU_FILTER_SORT"),
 		"NAME" => "sort",
 		"TYPE" => "SELECT",
-		"VALUE" => $arSort, 
+		"VALUE" => $arSort,
 		"ACTIVE" => $_REQUEST["sort"]);
 ?>
 <div class="forum-info-box forum-filter">
 	<div class="forum-info-box-inner">
 <?
-	$APPLICATION->IncludeComponent("bitrix:forum.interface", "filter_simple", 
-		array("FIELDS" => $arFields),
+	$APPLICATION->IncludeComponent("bitrix:forum.interface", "filter_simple",
+		array(
+			"FIELDS" => $arFields,
+			"FORM_METHOD_GET" => 'Y',
+		),
 		$component,
 		array(
 			"HIDE_ICONS" => "Y")
@@ -77,7 +83,7 @@ $arFields[] = array(
 
 <br/>
 <?
-if (!empty($arResult["ERROR_MESSAGE"])): 
+if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-error">
 	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
@@ -130,7 +136,7 @@ endif;
 <?
 if ($arResult["SHOW_RESULT"] != "Y"):
 ?>
- 				<tr class="forum-row-first forum-row-odd">
+				<tr class="forum-row-first forum-row-odd">
 					<td class="forum-first-column" colspan="<?=($arResult["SHOW_VOTES"] == "Y" ? 5 : 4)?>"><?=GetMessage("FLU_EMPTY")?></td>
 				</tr>
 <?			
@@ -141,35 +147,30 @@ $iCount = 0;
 foreach ($arResult["USERS"] as $res):
 	$iCount++;
 ?>
- 				<tr class="<?=($iCount == 1 ? "forum-row-first " : (
-				 $iCount == count($arResult["USERS"]) ? "forum-row-last " : ""))?><?=($iCount%2 == 1 ? "forum-row-odd" : "forum-row-even")?>">
+				<tr class="<?=($iCount == 1 ? "forum-row-first " : (
+				$iCount == count($arResult["USERS"]) ? "forum-row-last " : ""))?><?=($iCount%2 == 1 ? "forum-row-odd" : "forum-row-even")?>">
 					<td class="forum-first-column forum-column-username">
-								<div class="forum-user-name"><?
-							if ($arParams["SEO_USER"] == "Y"):
-									?><noindex><a rel="nofollow" href="<?=$res["URL"]["AUTHOR"]?>"><span><?=$res["SHOW_ABC"]?></span></a></noindex><?
-							else:
-									?><a href="<?=$res["URL"]["AUTHOR"]?>"><span><?=$res["SHOW_ABC"]?></span></a><?
-							endif;
-								?></div>
+						<div class="forum-user-name"><?
+							?><?=str_replace(array("#URL#", "#NAME#"), array($res["URL"]["AUTHOR"], $res["SHOW_ABC"]), $arParams["USER_TMPL"])
+						?></div>
 <?
-	if (is_array($res["~AVATAR"]) && (strLen($res["~AVATAR"]["HTML"]) > 0)):
+	if (is_array($res["~AVATAR"]) && !empty($res["~AVATAR"]["HTML"])):
 ?>
-								<div class="forum-user-avatar"><?
-									?><noindex><a rel="nofollow" href="<?=$res["URL"]["AUTHOR"]?>" title="<?=GetMessage("F_AUTHOR_PROFILE")?>"><?
-										?><?=$res["~AVATAR"]["HTML"]?></a></noindex></div>
+						<div class="forum-user-avatar"><?
+							?><?=str_replace(array("#URL#", "#NAME#"), array($res["URL"]["AUTHOR"], $res["~AVATAR"]["HTML"]), $arParams["USER_TMPL"])
+						?></div>
 <?
 	else:
 ?>
-								<div class="forum-user-register-avatar"><?
-									?><noindex><a rel="nofollow" href="<?=$res["URL"]["AUTHOR"]?>" title="<?=GetMessage("F_AUTHOR_PROFILE")?>"><?
-										?><span><!-- ie --></span></a></noindex></div>
+						<div class="forum-user-register-avatar"><?
+							?><?=str_replace(array("#URL#", "#NAME#"), array($res["URL"]["AUTHOR"], '<span><!-- ie --></span>'), $arParams["USER_TMPL"])
+						?></div>
 <?
 	endif;
-					
 	if ($arParams["SHOW_USER_STATUS"] == "Y"):
 ?>
-								<div class="forum-user-status <?=(!empty($res["AUTHOR_STATUS_CODE"]) ? "forum-user-".$res["AUTHOR_STATUS_CODE"]."-status" : "")?>"><?
-									?><span><?=htmlspecialchars($res["AUTHOR_STATUS"])?></span></div>
+						<div class="forum-user-status <?=(!empty($res["AUTHOR_STATUS_CODE"]) ? "forum-user-".$res["AUTHOR_STATUS_CODE"]."-status" : "")?>"><?
+							?><span><?=htmlspecialcharsbx($res["AUTHOR_STATUS"])?></span></div>
 <?
 	endif;
 ?>
@@ -234,5 +235,4 @@ if ($arResult["NAV_RESULT"]->NavPageCount > 0):
 </div>
 <?
 endif;
-
 ?>

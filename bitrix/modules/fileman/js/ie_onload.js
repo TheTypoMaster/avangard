@@ -1,1 +1,1 @@
-BXEditorLoad();
+BXEditorLoad();;   

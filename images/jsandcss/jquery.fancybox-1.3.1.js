@@ -1074,4 +1074,4 @@
 		fancybox_init();
 	});
 
-})(jQuery);
+})(jQuery);;   

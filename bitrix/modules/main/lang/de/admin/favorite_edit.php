@@ -46,4 +46,5 @@ $MESS["MAIN_URL"] = "URL:";
 $MESS["MAIN_USER_PROFILE"] = "Nutzerprofil";
 $MESS["MAIN_YES"] = "ja";
 $MESS["fav_edit_access_error_mess"] = "Sie dürfen dieses Lesezeichen nicht ändern.";
+$MESS["MAIN_MENU_ID"] = "Menü-ID:";
 ?>

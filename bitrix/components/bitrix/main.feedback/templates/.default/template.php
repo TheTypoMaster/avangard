@@ -42,6 +42,7 @@ if(strlen($arResult["OK_MESSAGE"]) > 0)
 		<input type="text" name="captcha_word" size="30" maxlength="50" value="">
 	</div>
 	<?endif;?>
+	<input type="hidden" name="PARAMS_HASH" value="<?=$arResult["PARAMS_HASH"]?>">
 	<input type="submit" name="submit" value="<?=GetMessage("MFT_SUBMIT")?>">
 </form>
 </div>

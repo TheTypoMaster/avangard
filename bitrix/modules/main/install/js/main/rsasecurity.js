@@ -1,19 +1,19 @@
-// 
+//
 // JavaScript SHA1
 //
 
-function rl(n,s) 
+function rl(n,s)
 {
 	return ( n << s ) | (n >>> (32-s));
 }
 
-function cvt(val) 
+function cvt(val)
 {
 	var str="";
 	var i;
 	var v;
 
-	for( i=7; i>=0; i-- ) 
+	for( i=7; i>=0; i-- )
 	{
 		v = (val >>> (i*4))&0x0f;
 		str = str+ v.toString(16);
@@ -21,7 +21,7 @@ function cvt(val)
 	return str;
 }
 
-function SHA1(str) 
+function SHA1(str)
 {
 	var blk;
 	var i, j;
@@ -36,10 +36,10 @@ function SHA1(str)
 	var msg_length = str.length;
 	var words = new Array();
 
-	for( i=0; i<msg_length-3; i+=4 ) 
+	for( i=0; i<msg_length-3; i+=4 )
 		words.push(str.charCodeAt(i) << 24 | str.charCodeAt(i+1) << 16 |	str.charCodeAt(i+2) << 8 | str.charCodeAt(i+3));
- 
-	switch( msg_length % 4 ) 
+
+	switch( msg_length % 4 )
 	{
 		case 0:
 			i = 0x080000000;
@@ -54,28 +54,28 @@ function SHA1(str)
 			i = str.charCodeAt(msg_length-3) << 24 | str.charCodeAt(msg_length-2) << 16 | str.charCodeAt(msg_length-1) << 8	| 0x80;
 		break;
 	}
- 
+
 	words.push( i );
-	while( (words.length % 16) != 14 ) 
+	while( (words.length % 16) != 14 )
 		words.push( 0 );
 
 	words.push( msg_length >>> 29 );
 	words.push( (msg_length << 3) & 0x0ffffffff );
-	for ( blk=0; blk<words.length; blk+=16 ) 
+	for ( blk=0; blk<words.length; blk+=16 )
 	{
- 
+
 		for( i=0; i<16; i++ )
 			W[i] = words[blk+i];
 		for( i=16; i<=79; i++ )
 			W[i] = rl(W[i-3] ^ W[i-8] ^ W[i-14] ^ W[i-16], 1);
- 
+
 		a = h0;
 		b = h1;
 		c = h2;
 		d = h3;
 		e = h4;
- 
-		for( i= 0; i<=19; i++ ) 
+
+		for( i= 0; i<=19; i++ )
 		{
 			temp = (rl(a,5) + ((b&c) | (~b&d)) + e + W[i] + 0x5A827999) & 0x0ffffffff;
 			e = d;
@@ -84,8 +84,8 @@ function SHA1(str)
 			b = a;
 			a = temp;
 		}
- 
-		for( i=20; i<=39; i++ ) 
+
+		for( i=20; i<=39; i++ )
 		{
 			temp = (rl(a,5) + (b ^ c ^ d) + e + W[i] + 0x6ED9EBA1) & 0x0ffffffff;
 			e = d;
@@ -94,8 +94,8 @@ function SHA1(str)
 			b = a;
 			a = temp;
 		}
- 
-		for( i=40; i<=59; i++ ) 
+
+		for( i=40; i<=59; i++ )
 		{
 			temp = (rl(a,5) + ((b&c) | (b&d) | (c&d)) + e + W[i] + 0x8F1BBCDC) & 0x0ffffffff;
 			e = d;
@@ -104,8 +104,8 @@ function SHA1(str)
 			b = a;
 			a = temp;
 		}
- 
-		for( i=60; i<=79; i++ ) 
+
+		for( i=60; i<=79; i++ )
 		{
 			temp = (rl(a,5) + (b ^ c ^ d) + e + W[i] + 0xCA62C1D6) & 0x0ffffffff;
 			e = d;
@@ -114,7 +114,7 @@ function SHA1(str)
 			b = a;
 			a = temp;
 		}
- 
+
 		h0 = (h0 + a) & 0x0ffffffff;
 		h1 = (h1 + b) & 0x0ffffffff;
 		h2 = (h2 + c) & 0x0ffffffff;
@@ -189,7 +189,7 @@ function encode64(input) {
 
 		output.append(keyStr.charAt(enc1) + keyStr.charAt(enc2) + keyStr.charAt(enc3) + keyStr.charAt(enc4));
    }
-   
+
    return output.toString();
 }
 
@@ -313,7 +313,7 @@ var biRadix = 1 << 16; // = 2^16 = 65536
 var biHalfRadix = biRadix >>> 1;
 var biRadixSquared = biRadix * biRadix;
 var maxDigitVal = biRadix - 1;
-var maxInteger = 9999999999999998; 
+var maxInteger = 9999999999999998;
 
 // maxDigits:
 // Change this to accommodate your largest number size. Use setMaxDigits()
@@ -914,9 +914,9 @@ function biToRaw(x)
 // please keep this header.
 //
 // Thanks!
-// 
+//
 // Dave Shapiro
-// dave@ohdave.com 
+// dave@ohdave.com
 
 function BarrettMu(m)
 {
@@ -988,9 +988,9 @@ function BarrettMu_powMod(x, y)
 // please keep this header.
 //
 // Thanks!
-// 
+//
 // Dave Shapiro
-// dave@ohdave.com 
+// dave@ohdave.com
 // http://www.ohdave.com/rsa/
 
 function rsasec_key(E, M, chunk)
@@ -1004,7 +1004,7 @@ function rsasec_key(E, M, chunk)
 	this.barrett = new BarrettMu(this.m);
 }
 
-function rsasec_crypt(s, key) 
+function rsasec_crypt(s, key)
 {
 	var a = new Array();
 	var sl = s.length;
@@ -1014,7 +1014,7 @@ function rsasec_crypt(s, key)
 		i++;
 	}
 
-	while (a.length % key.chunkSize != 0) 
+	while (a.length % key.chunkSize != 0)
 	{
 		a[i++] = 0;
 	}
@@ -1022,11 +1022,11 @@ function rsasec_crypt(s, key)
 	var al = a.length;
 	var result = "";
 	var j, k, block;
-	for (i = 0; i < al; i += key.chunkSize) 
+	for (i = 0; i < al; i += key.chunkSize)
 	{
 		block = new BigInt();
 		j = 0;
-		for (k = i; k < i + key.chunkSize; ++j) 
+		for (k = i; k < i + key.chunkSize; ++j)
 		{
 			block.digits[j] = a[k++];
 			block.digits[j] += a[k++] << 8;
@@ -1080,12 +1080,19 @@ function rsasec_form(arData)
 			}
 		}
 		data = data + '&__SHA=' + SHA1(data);
-	
-		var inp = document.createElement('INPUT');
-		inp.type = 'hidden';
-		inp.name = '__RSA_DATA';
-		inp.value = rsasec_crypt(data, key);
 
-		form.appendChild(inp);
+		if (!form.__RSA_DATA)
+		{
+			var inp = document.createElement('INPUT');
+			inp.type = 'hidden';
+			inp.name = '__RSA_DATA';
+			inp.value = rsasec_crypt(data, key);
+
+			form.appendChild(inp);
+		}
+		else
+		{
+			form.__RSA_DATA.value = rsasec_crypt(data, key);
+		}
 	}
 }

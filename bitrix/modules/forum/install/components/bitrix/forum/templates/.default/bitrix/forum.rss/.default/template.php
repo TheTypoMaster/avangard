@@ -56,11 +56,7 @@ if ($arParams["TYPE"] == "rss1"):
 				?><?=$arFile["HTML"]?><br /><?
 			endforeach;
 			?><i><?=$message["POST_DATE_FORMATED"]?>, <?
-				if (intVal($message["AUTHOR_ID"]) > 0):
-				?><a href="<?=$message["AUTHOR_URL"]?>"><?=$message["AUTHOR_NAME"]?></a><?
-				else:
 				?><?=$message["AUTHOR_NAME"]?><?
-				endif;
 			?>.</i><?
 			endif;
 				?>]]></description>
@@ -104,11 +100,7 @@ elseif ($arParams["TYPE"] == "rss2"):
 				?><?=$arFile["HTML"]?><br /><?
 			endforeach;
 			?><i><?=$message["POST_DATE_FORMATED"]?>, <?
-				if (intVal($message["AUTHOR_ID"]) > 0):
-				?><a href="<?=$message["AUTHOR_URL"]?>"><?=$message["AUTHOR_NAME"]?></a><?
-				else:
 				?><?=$message["AUTHOR_NAME"]?><?
-				endif;
 			?>.</i><?
 			endif;
 				?>]]></description>
@@ -131,7 +123,7 @@ elseif  ($arParams["TYPE"] == "atom"):
 	<title type="text"><?=$arResult["TITLE"]?></title>
 	<subtitle type="text"><?=$arResult["DESCRIPTION"]?></subtitle>
 	<updated><?=$arResult["NOW"]?></updated>
-	<id>tag:<?=htmlspecialchars($arResult["SERVER_NAME"]).",".date("Y-m-d:H:i")?></id>
+	<id>tag:<?=htmlspecialcharsbx($arResult["SERVER_NAME"]).",".date("Y-m-d:H:i")?></id>
 	<link rel="alternate" type="text/html" href="<?=$arResult["URL"]["ALTERNATE"]?>" />
 	<link rel="self" type="application/atom+xml" href="<?=$arResult["URL"]["REAL"]?>" />
 	<rights>Copyright (c) http://<?=$arResult["SERVER_NAME"]?></rights>
@@ -165,19 +157,13 @@ elseif  ($arParams["TYPE"] == "atom"):
 			foreach ($message["FILES"] as $arFile): 
 				?><?=$arFile["HTML"]?><br /><?
 			endforeach;
-			?><i><?=$message["POST_DATE_FORMATED"]?>, <?
-				if (intVal($message["AUTHOR_ID"]) > 0):
-				?><a href="<?=$message["AUTHOR_URL"]?>"><?=$message["AUTHOR_NAME"]?></a><?
-				else:
-				?><?=$message["AUTHOR_NAME"]?><?
-				endif;
-			?>.</i><?
+			?><i><?=$message["POST_DATE_FORMATED"]?>, <?=$message["AUTHOR_NAME"]?>.</i><?
 			endif;
 			?>]]>
 		</content>
 		<author>
-		  <name><?=$message["AUTHOR_NAME"]?></name>
-		  <uri><?=$message["AUTHOR_URL"]?></uri>
+			<name><?=$message["AUTHOR_NAME"]?></name>
+			<uri><?=$message["AUTHOR_URL"]?></uri>
 		</author>
 	</entry>
 <?

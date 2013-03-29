@@ -12,43 +12,44 @@ if($SEARCH_RIGHT=="D")
 if(strlen($Rebuild)>0)
 {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
-	$NS=intval($NS)+1;
-	if(strlen($Next)<=0)
-	{
-		$cCustomRank = new CSearchCustomRank;
-		$res=$cCustomRank->StartUpdate();
-	}
-	else
+	$NS = intval($NS)+1;
 	$cCustomRank = new CSearchCustomRank;
-	$res=$cCustomRank->NextUpdate();
+
+	if(strlen($Next) <= 0)
+		$res = $cCustomRank->StartUpdate();
+
+	$res = $cCustomRank->NextUpdate();
+
 	if(is_array($res) && $res["TODO"]>0):
 		?><input type="hidden" name="NS" id="NS" value="<?=$NS?>"><?
 	else:
 		?><input type="hidden" name="NS" id="NSTOP" value="<?=$NS?>"><?
 	endif;
+
 	if(!is_array($res))
-		$res=array("TODO"=>0, "DONE"=>0);
-	?>
-<table border="0" cellpadding="3" width="300" cellspacing="1" class="message message-ok">
-<tr valign="top">
-	<td class="tablebody"><?=GetMessage("customrank_applied")?> <b><?echo $res["DONE"]?></b> <?=GetMessage("customrank_of")?> <b><?=($res["DONE"]+$res["TODO"])?></b> (<?echo (($res["DONE"]+$res["TODO"])>0? number_format($res["DONE"]/($res["DONE"]+$res["TODO"])*100, 2) : 100)?>%)<br>
-	<?if(($res["DONE"]+$res["TODO"])>0):?>
-		<table width="100%" border="0" cellspacing="0" cellpadding="0" style="border: 1px solid black;">
-		<tr>
-<?if($res["DONE"] > 0):?>
-			<td width="<?echo (($res["DONE"]+$res["TODO"])>0? $res["DONE"]/($res["DONE"]+$res["TODO"])*100 : 0)?>%" class="tablebodytext" style="background-color: green;">&nbsp;</td>
-<?endif;?>
-<?if($res["TODO"] > 0):?>
-			<td width="<?echo (($res["DONE"]+$res["TODO"])>0? 100 - $res["DONE"]/($res["DONE"]+$res["TODO"])*100 : 100)?>%" class="tablebodytext" style="background-color: white;">&nbsp;</td>
-<?endif;?>
-		</tr>
-		</table>
-	<?endif;?>
-	<?if($res["TODO"]==0) echo  GetMessage("customrank_saved");?>
-	</td>
-</tr>
-</table>
-<?
+	{
+		$res = array(
+			"TODO" => 0,
+			"DONE" => 0,
+		);
+	}
+
+	if($res["TODO"] == 0)
+		CAdminMessage::ShowMessage(array(
+			"TYPE" => "OK",
+			"HTML" => true,
+			"MESSAGE" => GetMessage("customrank_saved"),
+		));
+	else
+		CAdminMessage::ShowMessage(array(
+			"TYPE" => "PROGRESS",
+			"HTML" => true,
+			"MESSAGE" => GetMessage("customrank_progress"),
+			"DETAILS" => "#PROGRESS_BAR#",
+			"PROGRESS_TOTAL" => $res["DONE"]+$res["TODO"],
+			"PROGRESS_VALUE" => $res["DONE"],
+		));
+
 	require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin_js.php");
 }
 else
@@ -58,38 +59,40 @@ $sTableID = "tbl_search";
 $oSort = new CAdminSorting($sTableID, "ID", "desc");
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-$FilterArr = Array(
+$FilterArr = array(
 	"find",
 	"find_type",
 	"find_id",
 	"find_site_id",
 	"find_module_id",
 	"find_param1",
-	);
+);
 
 $lAdmin->InitFilter($FilterArr);
 
-$arFilter = Array(
-	"ID"		=> ($find!="" && $find_type == "id"? $find:$find_id),
-	"SITE_ID"	=> ($find_site_id=="NOT_REF"?"":($find!="" && $find_type == "site_id"? $find:$find_site_id)),
-	"MODULE_ID"	=> $find_module_id,
-	"PARAM1"	=> $find_param1,
+$arFilter = array(
+	"ID" => ($find != "" && $find_type == "id" ? $find : $find_id),
+	"SITE_ID" => ($find_site_id == "NOT_REF" ? "" : ($find != "" && $find_type == "site_id" ? $find : $find_site_id)),
+	"MODULE_ID" => $find_module_id,
+	"PARAM1" => $find_param1,
 );
 
-if($lAdmin->EditAction() && $SEARCH_RIGHT>="W")
+if ($lAdmin->EditAction() && $SEARCH_RIGHT >= "W" && is_array($FIELDS))
 {
-	foreach($FIELDS as $ID=>$arFields)
+	foreach ($FIELDS as $ID => $arFields)
 	{
-		if(!$lAdmin->IsUpdated($ID))
+		if (!$lAdmin->IsUpdated($ID))
 			continue;
+
 		$DB->StartTransaction();
 		$ID = IntVal($ID);
 		$cData = new CSearchCustomRank;
-		if(($rsData = $cData->GetByID($ID)) && ($arData = $rsData->Fetch()))
+		if (($rsData = $cData->GetByID($ID)) && ($arData = $rsData->Fetch()))
 		{
-			foreach($arFields as $key=>$value)
-				$arData[$key]=$value;
-			if(!$cData->Update($ID, $arData))
+			foreach ($arFields as $key => $value)
+				$arData[$key] = $value;
+
+			if (!$cData->Update($ID, $arData))
 			{
 				$lAdmin->AddGroupError(GetMessage("customrank_edit_error").$cData->LAST_ERROR, $ID);
 				$DB->Rollback();
@@ -104,27 +107,30 @@ if($lAdmin->EditAction() && $SEARCH_RIGHT>="W")
 	}
 }
 
-if(($arID = $lAdmin->GroupAction()) && $SEARCH_RIGHT=="W")
+
+if (($arID = $lAdmin->GroupAction()) && $SEARCH_RIGHT == "W")
 {
-	if($_REQUEST['action_target']=='selected')
+	if ($_REQUEST['action_target'] == 'selected')
 	{
 		$cData = new CSearchCustomRank;
-		$rsData = $cData->GetList(array($by=>$order), $arFilter);
-		while($arRes = $rsData->Fetch())
+		$rsData = $cData->GetList(array(
+			$by => $order,
+		), $arFilter);
+		while ($arRes = $rsData->Fetch())
 			$arID[] = $arRes['ID'];
 	}
-
-	foreach($arID as $ID)
+	foreach ($arID as $ID)
 	{
-		if(strlen($ID)<=0)
+		if (strlen($ID) <= 0)
 			continue;
-	   	$ID = IntVal($ID);
-		switch($_REQUEST['action'])
+
+		$ID = IntVal($ID);
+		switch ($_REQUEST['action'])
 		{
 		case "delete":
 			@set_time_limit(0);
 			$DB->StartTransaction();
-			if(!CSearchCustomRank::Delete($ID))
+			if (!CSearchCustomRank::Delete($ID))
 			{
 				$DB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("customrank_error_delete"), $ID);
@@ -132,7 +138,6 @@ if(($arID = $lAdmin->GroupAction()) && $SEARCH_RIGHT=="W")
 			$DB->Commit();
 			break;
 		}
-
 	}
 }
 
@@ -143,42 +148,49 @@ $rsData->NavStart();
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("customrank_rules")));
 
 $lAdmin->AddHeaders(array(
-	array(	"id"		=>"ID",
-		"content"	=>"ID",
-		"sort"		=>"id",
-		"align"		=>"right",
-		"default"	=>true,
+	array(
+		"id" => "ID",
+		"content" => "ID",
+		"sort" => "id",
+		"align" => "right",
+		"default" => true,
 	),
-	array(	"id"		=>"SITE_ID",
-		"content"	=>GetMessage("customrank_site"),
-		"sort"		=>"site_id",
-		"default"	=>true,
+	array(
+		"id" => "SITE_ID",
+		"content" => GetMessage("customrank_site"),
+		"sort" => "site_id",
+		"default" => true,
 	),
-	array(	"id"		=>"MODULE_ID",
-		"content"	=>GetMessage("customrank_module"),
-		"sort"		=>"module_id",
-		"default"	=>true,
+	array(
+		"id" => "MODULE_ID",
+		"content" => GetMessage("customrank_module"),
+		"sort" => "module_id",
+		"default" => true,
 	),
-	array(	"id"		=>"PARAM1",
-		"content"	=>GetMessage("customrank_param1"),
-		"sort"		=>"param1",
-		"default"	=>true,
+	array(
+		"id" => "PARAM1",
+		"content" => GetMessage("customrank_param1"),
+		"sort" => "param1",
+		"default" => true,
 	),
-	array(	"id"		=>"PARAM2",
-		"content"	=>GetMessage("customrank_param2"),
-		"sort"		=>"param2",
-		"default"	=>true,
+	array(
+		"id" => "PARAM2",
+		"content" => GetMessage("customrank_param2"),
+		"sort" => "param2",
+		"default" => true,
 	),
-	array(	"id"		=>"ITEM_ID",
-		"content"	=>GetMessage("customrank_param3"),
-		"sort"		=>"item_id",
-		"default"	=>true,
+	array(
+		"id" => "ITEM_ID",
+		"content" => GetMessage("customrank_param3"),
+		"sort" => "item_id",
+		"default" => true,
 	),
-	array(	"id"		=>"RANK",
-		"content"	=>GetMessage("customrank_sort"),
-		"sort"		=>"rank",
-		"align"		=>"right",
-		"default"	=>true,
+	array(
+		"id" => "RANK",
+		"content" => GetMessage("customrank_sort"),
+		"sort" => "rank",
+		"align" => "right",
+		"default" => true,
 	),
 ));
 
@@ -186,45 +198,61 @@ while($arRes = $rsData->NavNext(true, "f_")):
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
 
 	$row->AddEditField("SITE_ID", CLang::SelectBox("FIELDS[".$f_ID."][SITE_ID]", $f_SITE_ID, "" ,"BoxUpdateNew('param1',".$f_ID.")"));
-	$row->AddViewField("SITE_ID","[".$f_SITE_ID."] ".htmlspecialchars(CSearchCustomRank::__GetParam($lang, $f_SITE_ID)));
+	$row->AddViewField("SITE_ID","[".$f_SITE_ID."] ".htmlspecialcharsbx(CSearchCustomRank::__GetParam($lang, $f_SITE_ID)));
 
 	$row->AddSelectField("MODULE_ID",CSearchCustomRank::ModulesList(),array("OnChange"=>"BoxUpdateNew('param1',".$f_ID.")"));
 
 	$strPARAM1=
 		'<select name="FIELDS['.$f_ID.'][PARAM1]" OnChange="BoxUpdateNew(\'param1\', '.$f_ID.')">'.
 		'<option value="">'.GetMessage("customrank_no").'</option>';
-	if($f_MODULE_ID=="iblock" && CModule::IncludeModule("iblock")):
+
+	if($f_MODULE_ID=="iblock" && CModule::IncludeModule("iblock"))
+	{
 		$rs = CIBlockType::GetList(array("sort"=>"asc"), array("ACTIVE"=>"Y"));
 		while($ar=$rs->Fetch())
 			if($arIBType=CIBlockType::GetByIDLang($ar["ID"], LANG))
-				$strPARAM1.='<option value="'.htmlspecialchars($ar["ID"]).'" '.($ar["ID"]==$f_PARAM1?" selected":"").'>'.htmlspecialchars("[".$ar["ID"]."] ".$arIBType["~NAME"]).'</option>';
+				$strPARAM1.='<option value="'.htmlspecialcharsbx($ar["ID"]).'" '.($ar["ID"]==$f_PARAM1?" selected":"").'>'.htmlspecialcharsbx("[".$ar["ID"]."] ".$arIBType["~NAME"]).'</option>';
 		$strPARAM1.='</select>';
-	elseif($f_MODULE_ID=="forum" && CModule::IncludeModule("forum")):
+	}
+	elseif($f_MODULE_ID=="forum" && CModule::IncludeModule("forum"))
+	{
 		$rs = CForumNew::GetList(array("sort"=>"asc"), array("LID"=>$f_SITE_ID));
 		while($ar=$rs->Fetch())
-			$strPARAM1.='<option value="'.htmlspecialchars($ar["ID"]).'" '.($ar["ID"]==$f_PARAM1?" selected":"").'>'.htmlspecialchars("[".$ar["ID"]."] ".$ar["NAME"]).'</option>';
+			$strPARAM1.='<option value="'.htmlspecialcharsbx($ar["ID"]).'" '.($ar["ID"]==$f_PARAM1?" selected":"").'>'.htmlspecialcharsbx("[".$ar["ID"]."] ".$ar["NAME"]).'</option>';
 		$strPARAM1.='</select>';
-	else:
+	}
+	else
+	{
 		$strPARAM1='&nbsp;<input type="hidden" name="FIELDS['.$f_ID.'][PARAM1]" value="">';
-	endif;
+	}
+
 	$row->AddEditField("PARAM1", '<div id="PARAM1['.$f_ID.']_result_div">'.$strPARAM1.'</div>');
+
 	$f_PARAM1_NAME="[".$f_PARAM1."] ".CSearchCustomRank::__GetParam($lang, $f_SITE_ID, $f_MODULE_ID, $f_PARAM1);
 	$row->AddViewField("PARAM1",($f_PARAM1==""?"&nbsp;":$f_PARAM1_NAME));
 
 	$strPARAM2=
 		'<select name="FIELDS['.$f_ID.'][PARAM2]" OnChange="BoxUpdateNew(\'param2\', '.$f_ID.')">'.
 		'<option value="">'.GetMessage("customrank_no").'</option>';
-	if($f_MODULE_ID=="iblock" && CModule::IncludeModule("iblock")):
+
+	if($f_MODULE_ID=="iblock" && CModule::IncludeModule("iblock"))
+	{
 		$rs = CIBlock::GetList(array("SORT"=>"ASC"),array("TYPE"=>$f_PARAM1,"LID"=>$f_SITE_ID));
 		while($ar=$rs->Fetch())
-			$strPARAM2.='<option value="'.htmlspecialchars($ar["ID"]).'" '.($ar["ID"]==$f_PARAM2?" selected":"").'>'.htmlspecialchars("[".$ar["ID"]."] ".$ar["NAME"]).'</option>';
+			$strPARAM2.='<option value="'.htmlspecialcharsbx($ar["ID"]).'" '.($ar["ID"]==$f_PARAM2?" selected":"").'>'.htmlspecialcharsbx("[".$ar["ID"]."] ".$ar["NAME"]).'</option>';
 		$strPARAM2.='</select>';
-	elseif($f_MODULE_ID=="forum" && CModule::IncludeModule("forum")):
+	}
+	elseif($f_MODULE_ID=="forum" && CModule::IncludeModule("forum"))
+	{
 		$strPARAM2='<input type="text" size=5 name="FIELDS['.$f_ID.'][PARAM2]" value="">';
-	else:
+	}
+	else
+	{
 		$strPARAM2='&nbsp;<input type="hidden" name="FIELDS['.$f_ID.'][PARAM2]" value="">';
-	endif;
+	}
+
 	$row->AddEditField("PARAM2", '<div id="PARAM2['.$f_ID.']_result_div">'.$strPARAM2.'</div>');
+
 	$f_PARAM2_NAME="[".$f_PARAM2."] ".CSearchCustomRank::__GetParam($lang, $f_SITE_ID, $f_MODULE_ID, $f_PARAM1, $f_PARAM2);
 	$row->AddViewField("PARAM2",($f_PARAM2==""?"&nbsp;":$f_PARAM2_NAME));
 
@@ -234,41 +262,45 @@ while($arRes = $rsData->NavNext(true, "f_")):
 
 	$row->AddInputField("RANK", array("size"=>5));
 
-	$arActions = Array();
-
+	$arActions = array();
 	$arActions[] = array(
-		"ICON"=>"edit",
-		"DEFAULT"=>true,
-		"TEXT"=>GetMessage("customrank_edit"),
-		"ACTION"=>$lAdmin->ActionRedirect("search_customrank_edit.php?ID=".$f_ID)
+		"ICON" => "edit",
+		"DEFAULT" => true,
+		"TEXT" => GetMessage("customrank_edit"),
+		"ACTION" => $lAdmin->ActionRedirect("search_customrank_edit.php?ID=".$f_ID),
 	);
-	if ($SEARCH_RIGHT>="W")
+	if ($SEARCH_RIGHT >= "W")
 		$arActions[] = array(
-			"ICON"=>"delete",
-			"TEXT"=>GetMessage("customrank_delete"),
-			"ACTION"=>"if(confirm('".GetMessage('customrank_delete_confirm')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete")
+			"ICON" => "delete",
+			"TEXT" => GetMessage("customrank_delete"),
+			"ACTION" => "if(confirm('".GetMessage('customrank_delete_confirm')."')) ".$lAdmin->ActionDoGroup($f_ID, "delete"),
 		);
 
 	$row->AddActions($arActions);
 
 endwhile;
 
-$lAdmin->AddFooter(
-	array(
-		array("title"=>GetMessage("MAIN_ADMIN_LIST_SELECTED"), "value"=>$rsData->SelectedRowsCount()),
-		array("counter"=>true, "title"=>GetMessage("MAIN_ADMIN_LIST_CHECKED"), "value"=>"0"),
-	)
-);
-$lAdmin->AddGroupActionTable(Array(
-	"delete"=>GetMessage("MAIN_ADMIN_LIST_DELETE"),
-	));
 
+$lAdmin->AddFooter(array(
+	array(
+		"title" => GetMessage("MAIN_ADMIN_LIST_SELECTED"),
+		"value" => $rsData->SelectedRowsCount(),
+	),
+	array(
+		"counter" => true,
+		"title" => GetMessage("MAIN_ADMIN_LIST_CHECKED"),
+		"value" => "0",
+	),
+));
+$lAdmin->AddGroupActionTable(array(
+	"delete" => GetMessage("MAIN_ADMIN_LIST_DELETE"),
+));
 $aContext = array(
 	array(
-		"TEXT"=>GetMessage("customrank_add"),
-		"LINK"=>"search_customrank_edit.php?lang=".LANG,
-		"TITLE"=>GetMessage("customrank_add_title"),
-		"ICON"=>"btn_new",
+		"TEXT" => GetMessage("customrank_add"),
+		"LINK" => "search_customrank_edit.php?lang=".LANG,
+		"TITLE" => GetMessage("customrank_add_title"),
+		"ICON" => "btn_new",
 	),
 );
 $lAdmin->AddAdminContextMenu($aContext);
@@ -415,7 +447,7 @@ function BoxUpdateNew(step, id)
 <tr>
 	<td><b><?=GetMessage("customrank_find")?>:</b></td>
 	<td>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("customrank_find_title")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("customrank_find_title")?>">
 		<?
 		$arr = array(
 			"reference" => array(
@@ -433,7 +465,7 @@ function BoxUpdateNew(step, id)
 </tr>
 <tr>
 	<td><?=GetMessage("customrank_id")?></td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>"></td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"></td>
 </tr>
 <tr>
 	<td><?=GetMessage("customrank_site")?></td>
@@ -445,7 +477,7 @@ function BoxUpdateNew(step, id)
 </tr>
 <tr>
 	<td><?=GetMessage("customrank_param1")?></td>
-	<td><input type="text" name="find_param1" size="47" value="<?echo htmlspecialchars($find_param1)?>"></td>
+	<td><input type="text" name="find_param1" size="47" value="<?echo htmlspecialcharsbx($find_param1)?>"></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID,"url"=>$APPLICATION->GetCurPage(),"form"=>"find_form"));
@@ -461,7 +493,7 @@ $oFilter->End();
 	<table><tr>
 	<td><img src="/bitrix/images/search/warning.gif">&nbsp;</td>
 	<td><font class="legendtext">
-<?echo htmlspecialchars(GetMessage("customrank_save_note"))?>
+<?echo htmlspecialcharsbx(GetMessage("customrank_save_note"))?>
 	</font></td>
 	</tr></table>
 <?echo EndNote();?>

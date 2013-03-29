@@ -186,7 +186,7 @@ if($this->StartResultCache(false, array($currentMonth, $currentYear, $todayYear,
 		$navM = date("m", mktime(0,0,0,$currentMonth-1, 1, $currentYear));
 		$navY = date("Y", mktime(0,0,0,$currentMonth-1, 1, $currentYear));
 		$arResult["PREV_MONTH"] = date("n", mktime(0,0,0,$currentMonth-1, 1, $currentYear));
-		$arResult["PREV_MONTH_URL"] = htmlspecialchars(str_replace(
+		$arResult["PREV_MONTH_URL"] = htmlspecialcharsbx(str_replace(
 			array("#YEAR#","#MONTH#"),
 			array($navY, $navM),
 			$arParams["MONTH_URL"]
@@ -203,7 +203,7 @@ if($this->StartResultCache(false, array($currentMonth, $currentYear, $todayYear,
 		$navM = date("m", mktime(0,0,0,$currentMonth+1, 1, $currentYear));
 		$navY = date("Y", mktime(0,0,0,$currentMonth+1, 1, $currentYear));
 		$arResult["NEXT_MONTH"] = date("n", mktime(0,0,0,$currentMonth+1, 1, $currentYear));
-		$arResult["NEXT_MONTH_URL"] = htmlspecialchars(str_replace(
+		$arResult["NEXT_MONTH_URL"] = htmlspecialcharsbx(str_replace(
 			array("#YEAR#","#MONTH#"),
 			array($navY, $navM),
 			$arParams["MONTH_URL"]
@@ -220,7 +220,7 @@ if($this->StartResultCache(false, array($currentMonth, $currentYear, $todayYear,
 		$navM = date("m", mktime(0,0,0,$currentMonth, 1, $currentYear));
 		$navY = date("Y", mktime(0,0,0,$currentMonth, 1, $currentYear-1));
 		$arResult["PREV_YEAR"] = $navY;
-		$arResult["PREV_YEAR_URL"] = htmlspecialchars(str_replace(
+		$arResult["PREV_YEAR_URL"] = htmlspecialcharsbx(str_replace(
 			array("#YEAR#","#MONTH#"),
 			array($navY, $navM),
 			$arParams["MONTH_URL"]
@@ -237,7 +237,7 @@ if($this->StartResultCache(false, array($currentMonth, $currentYear, $todayYear,
 		$navM = date("m", mktime(0,0,0,$currentMonth, 1, $currentYear));
 		$navY = date("Y", mktime(0,0,0,$currentMonth, 1, $currentYear+1));
 		$arResult["NEXT_YEAR"] = $navY;
-		$arResult["NEXT_YEAR_URL"] = htmlspecialchars(str_replace(
+		$arResult["NEXT_YEAR_URL"] = htmlspecialcharsbx(str_replace(
 			array("#YEAR#","#MONTH#"),
 			array($navY, $navM),
 			$arParams["MONTH_URL"]
@@ -359,7 +359,7 @@ if($this->StartResultCache(false, array($currentMonth, $currentYear, $todayYear,
 				}
 			}
 			$arResult["SHOW_MONTH_LIST"][$i] = array(
-				"VALUE" => htmlspecialchars($url),
+				"VALUE" => htmlspecialcharsbx($url),
 				"DISPLAY" => GetMessage("IBL_NEWS_CAL_M_".$i),
 			);
 		}

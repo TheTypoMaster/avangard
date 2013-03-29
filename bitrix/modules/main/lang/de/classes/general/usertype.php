@@ -18,4 +18,6 @@ $MESS["USER_TYPE_FIELD_NAME_TOO_LONG"] = "Der Feldname ist zu lang (nicht mehr a
 $MESS["USER_TYPE_FIELD_NAME_TOO_SHORT"] = "Der Feldname ist zu kurz (nicht weniger als 4 Zeichen).";
 $MESS["USER_TYPE_FIELD_NAME_NOT_UF"] = "Der Feldname muss mit UF_ anfangen";
 $MESS["USER_TYPE_FIELD_VALUE_IS_MISSING"] = "Das benötigte Feld #FIELD_NAME# fehlt.";
+$MESS["USER_TYPE_UPDATE_ERROR"] = "Fehler beim Bearbeiten von #FIELD_NAME# für Objekt #ENTITY_ID#.";
+$MESS["USER_TYPE_DELETE_ERROR"] = "Fehler beim Löschen von #FIELD_NAME# für Objekt #ENTITY_ID#.";
 ?>

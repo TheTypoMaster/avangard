@@ -61,7 +61,7 @@ if (isset($_REQUEST["public"]))
 	$suri = CBXShortUri::GetList(array(), array("URI_EXACT" => $str_URI));
 	if ($a = $suri->Fetch())
 		$ID = $a["ID"];
-	$str_URI = htmlspecialchars($str_URI);
+	$str_URI = htmlspecialcharsbx($str_URI);
 }
 
 if($ID>0)
@@ -129,12 +129,12 @@ $tabControl->BeginNextTab();
 			<td width="60%"><?echo $str_MODIFIED;?></td>
 		</tr>
 	<?endif?>
-	<tr>
-		<td width="40%"><span class="required">*</span><?echo GetMessage("SU_EF_URI")?></td>
+	<tr class="adm-detail-required-field">
+		<td width="40%"><?echo GetMessage("SU_EF_URI")?></td>
 		<td width="60%"><input type="text" name="URI" value="<?= $str_URI ?>" size="70"></td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span><?echo GetMessage("SU_EF_SHORT_URI")?></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("SU_EF_SHORT_URI")?></td>
 		<td><input type="text" name="SHORT_URI" value="<?= $str_SHORT_URI ?>" size="70" onkeyup="ShortUriChangeHandler(this.value)"></td>
 	</tr>
 	<tr>
@@ -152,8 +152,8 @@ $tabControl->BeginNextTab();
 			</script>
 		</td>
 	</tr>
-	<tr>
-		<td><span class="required">*</span><?echo GetMessage("SU_EF_STATUS")?></td>
+	<tr class="adm-detail-required-field">
+		<td><?echo GetMessage("SU_EF_STATUS")?></td>
 		<td><?= CBXShortUri::SelectBox("STATUS", $str_STATUS) ?></td>
 	</tr>
 	<?if ($ID > 0):?>
@@ -190,9 +190,6 @@ $tabControl->End();
 $tabControl->ShowWarnings("short_uri_form", $message);
 ?>
 
-<?echo BeginNote();?>
-<span class="required">*</span><?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote();?>
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 ?>

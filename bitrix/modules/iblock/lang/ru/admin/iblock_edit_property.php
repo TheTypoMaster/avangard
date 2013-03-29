@@ -1,4 +1,6 @@
 <?
+$MESS["BT_ADM_IEP_PROPERTY_NEW"] = "Добавление свойства";
+$MESS["BT_ADM_IEP_PROPERTY_EDIT"] = "Редактирование свойства: \"#NAME#\"";
 $MESS["BT_ADM_IEP_PROPERTY_ID_IS_ABSENT"] = "Не указан ID свойства";
 $MESS["BT_ADM_IEP_IBLOCK_ID_IS_ABSENT"] = "Не указан ID инфоблока";
 $MESS["BT_ADM_IEP_IBLOCK_ID_IS_INVALID"] = "Неверный ID инфоблока";
@@ -21,6 +23,7 @@ $MESS["BT_ADM_IEP_PROP_MULTIPLE"] = "Множественное:";
 $MESS["BT_ADM_IEP_PROP_IS_REQUIRED"] = "Обязательное:";
 $MESS["BT_ADM_IEP_PROP_SEARCHABLE"] = "Значения свойства участвуют в поиске:";
 $MESS["BT_ADM_IEP_PROP_FILTRABLE"] = "Выводить на странице списка элементов поле для фильтрации по этому свойству:";
+$MESS["BT_ADM_IEP_PROP_SECTION_PROPERTY"] = "Показывать на странице редактирования элемента:";
 $MESS["BT_ADM_IEP_PROP_WITH_DESC"] = "Выводить поле для описания значения:";
 $MESS["BT_ADM_IEP_PROP_MULTIPLE_CNT"] = "Количество полей для ввода новых множественных значений:";
 $MESS["BT_ADM_IEP_PROP_APPEARANCE"] = "Внешний вид:";
@@ -46,4 +49,11 @@ $MESS["BT_ADM_IEP_PROP_LINK_IBLOCK"] = "Информационный блок:";
 $MESS["BT_ADM_IEP_PROP_SIZE"] = "Размер поля для ввода значения (Строк х Столбцов):";
 $MESS["BT_ADM_IEP_PROP_DEFAULT"] = "Значение по умолчанию:";
 $MESS["BT_ADM_IEP_PROP_USER_TYPE_SETTINGS"] = "Дополнительные настройки";
+$MESS["BT_ADM_IEP_PROP_HINT_DET"] = "Подсказка:";
+$MESS["BT_ADM_IEP_LIST"] = "Список свойств";
+$MESS["BT_ADM_IEP_DELETE"] = "Удалить";
+$MESS["BT_ADM_IEP_CONFIRM_DEL_MESSAGE"] = "Будут удалены все значения этого свойства. Продолжить?";
+$MESS["BT_ADM_IEP_PROP_SMART_FILTER"] = "Показывать в умном фильтре:";
+$MESS["BT_ADM_IEP_TAB"] = "Свойство";
+$MESS["BT_ADM_IEP_TAB_TITLE"] = "Настройки свойства";
 ?>

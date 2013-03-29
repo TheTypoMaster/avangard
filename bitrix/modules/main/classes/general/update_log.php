@@ -6,6 +6,15 @@
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 define("HELP_FILE", "updates/update_system.php");
 
+if (!function_exists('htmlspecialcharsbx'))
+{
+	function htmlspecialcharsbx($string, $flags=ENT_COMPAT)
+	{
+		//shitty function for php 5.4 where default encoding is UTF-8
+		return htmlspecialchars($string, $flags, (defined("BX_UTF")? "UTF-8" : "ISO-8859-1"));
+	}
+}
+
 if(!$USER->CanDoOperation('view_other_settings') && !$USER->CanDoOperation('install_updates'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
@@ -94,10 +103,10 @@ while($rec = $rsData->Fetch())
 {
 	$row = &$lAdmin->AddRow(0, null);
 
-	$aDate = explode(" ", htmlspecialchars($rec[1]));
+	$aDate = explode(" ", htmlspecialcharsbx($rec[1]));
 	$row->AddField("DATE", '<span style="white-space:nowrap">'.$aDate[0].'</span> '.$aDate[1]);
 
-	$row->AddField("DESCRIPTION", ($rec[3]<>""? '<a href="javascript:void(0)" onClick="jsUtils.ToggleDiv(\'descr_'.$n.'\')" title="'.GetMessage("HINT_WIND_EXEC_ALT").'">'.htmlspecialchars($rec[2]).'</a>' : htmlspecialchars($rec[2])).'<div id="descr_'.$n.'" style="display:none;">'.$rec[3].'</div>');
+	$row->AddField("DESCRIPTION", ($rec[3]<>""? '<a href="javascript:void(0)" onClick="jsUtils.ToggleDiv(\'descr_'.$n.'\')" title="'.GetMessage("HINT_WIND_EXEC_ALT").'">'.htmlspecialcharsbx($rec[2]).'</a>' : htmlspecialcharsbx($rec[2])).'<div id="descr_'.$n.'" style="display:none;">'.$rec[3].'</div>');
 
 	$s = "";
 	if($rec[0]=="S")

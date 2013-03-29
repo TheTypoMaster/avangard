@@ -1,7 +1,7 @@
 <?
 $MESS["IBLOCK_PRICES"] = "Цены";
-$MESS["IBLOCK_TYPE"] = "Тип инфо-блока";
-$MESS["IBLOCK_IBLOCK"] = "Инфо-блок";
+$MESS["IBLOCK_TYPE"] = "Тип инфоблока";
+$MESS["IBLOCK_IBLOCK"] = "Инфоблок";
 $MESS["IBLOCK_PROPERTY"] = "Свойства";
 $MESS["IBLOCK_SORT_SHOWS"] = "количество просмотров в среднем";
 $MESS["IBLOCK_SORT_SORT"] = "индекс сортировки";
@@ -19,7 +19,7 @@ $MESS["IBLOCK_ELEMENT_SORT_ORDER"] = "Порядок сортировки элементов";
 $MESS["IBLOCK_PRICE_CODE"] = "Тип цены";
 $MESS["IBLOCK_BASKET_URL"] = "URL, ведущий на страницу с корзиной покупателя";
 $MESS["IBLOCK_FILTER_NAME_IN"] = "Имя массива со значениями фильтра для фильтрации элементов";
-$MESS["IBLOCK_CACHE_FILTER"] = "Кэшировать при установленном фильтре";
+$MESS["IBLOCK_CACHE_FILTER"] = "Кешировать при установленном фильтре";
 $MESS["IBLOCK_SECTION_ID"] = "ID раздела";
 $MESS["IBLOCK_SECTION_CODE"] = "Код раздела";
 $MESS["IBLOCK_PAGE_ELEMENT_COUNT"] = "Количество элементов на странице";
@@ -49,5 +49,11 @@ $MESS["CP_BCS_OFFERS_FIELD_CODE"] = "Поля предложений";
 $MESS["CP_BCS_OFFERS_PROPERTY_CODE"] = "Свойства предложений";
 $MESS["CP_BCS_OFFERS_SORT_FIELD"] = "По какому полю сортируем предложения товара";
 $MESS["CP_BCS_OFFERS_SORT_ORDER"] = "Порядок сортировки предложений товара";
-$MESS["CP_BCS_OFFERS_CART_PROPERTIES"] = "Свойства предложений добавляемые в корзину";
+$MESS["CP_BCS_OFFERS_CART_PROPERTIES"] = "Свойства предложений, добавляемые в корзину";
+$MESS["CP_BCS_CONVERT_CURRENCY"] = "Показывать цены в одной валюте";
+$MESS["CP_BCS_CURRENCY_ID"] = "Валюта, в которую будут сконвертированы цены";
+$MESS["CP_BCS_OFFERS_LIMIT"] = "Максимальное количество предложений для показа (0 - все)";
+$MESS["CP_BCS_INCLUDE_SUBSECTIONS_ALL"] = "всех подразделов";
+$MESS["CP_BCS_INCLUDE_SUBSECTIONS_ACTIVE"] = "активных подразделов";
+$MESS["CP_BCS_INCLUDE_SUBSECTIONS_NO"] = "не показывать";
 ?>

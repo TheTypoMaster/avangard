@@ -20,7 +20,7 @@ ShowMessage($arAuthResult);
 	<?
 	foreach($GLOBALS["HTTP_POST_VARS"] as $vname=>$vvalue):
 		if($vname=="USER_LOGIN")continue;
-		?><input type="hidden" name="<?echo htmlspecialchars($vname)?>" value="<?echo htmlspecialchars($vvalue)?>"><?
+		?><input type="hidden" name="<?echo htmlspecialcharsbx($vname)?>" value="<?echo htmlspecialcharsbx($vvalue)?>"><?
 	endforeach;
 	?>
 <p><font class="text"><?=GetMessage("AUTH_PLEASE_AUTH")?></font></p>
@@ -39,7 +39,7 @@ ShowMessage($arAuthResult);
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" class="tablebody"><font class="tablebodytext"><?=GetMessage("AUTH_LOGIN")?></font></td>
-					<td align="left"  class="tablebody"><input type="text" name="USER_LOGIN" maxlength="50" size="20" value="<?echo htmlspecialchars($last_login)?>" class="inputtext"></td>
+					<td align="left"  class="tablebody"><input type="text" name="USER_LOGIN" maxlength="50" size="20" value="<?echo htmlspecialcharsbx($last_login)?>" class="inputtext"></td>
 				</tr>
 				<tr> 
 					<td align="right" class="tablebody"><font class="tablebodytext"><?=GetMessage("AUTH_PASSWORD")?></font></td>
@@ -96,27 +96,27 @@ try{document.form_auth.USER_LOGIN.focus();}catch(e){}
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap width="1%" class="tablebody"><font class="tablebodytext"><?=GetMessage("AUTH_NAME")?></font></td>
-					<td align="left" width="99%" class="tablebody"><input type="text" name="USER_NAME" size="30" maxlength="50" value="<?echo ($TYPE=="REGISTRATION") ? htmlspecialchars($USER_NAME) : ""?>"></td>
+					<td align="left" width="99%" class="tablebody"><input type="text" name="USER_NAME" size="30" maxlength="50" value="<?echo ($TYPE=="REGISTRATION") ? htmlspecialcharsbx($USER_NAME) : ""?>"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap class="tablebody"><font class="tablebodytext"><?=GetMessage("AUTH_LAST_NAME")?></font></td>
-					<td align="left" class="tablebody"><input type="text" name="USER_LAST_NAME" maxlength="50" size="30" value="<?echo ($TYPE=="REGISTRATION") ? htmlspecialchars($USER_LAST_NAME) : ""?>"></td>
+					<td align="left" class="tablebody"><input type="text" name="USER_LAST_NAME" maxlength="50" size="30" value="<?echo ($TYPE=="REGISTRATION") ? htmlspecialcharsbx($USER_LAST_NAME) : ""?>"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap class="tablebody"><font class="starrequired">*</font><font class="tablebodytext"><?=GetMessage("AUTH_LOGIN_MIN")?></font></td>
-					<td align="left" class="tablebody"><input type="text" name="USER_LOGIN" size="30" maxlength="50" value="<?echo ($TYPE=="REGISTRATION") ? htmlspecialchars($USER_LOGIN) : ""?>"></td>
+					<td align="left" class="tablebody"><input type="text" name="USER_LOGIN" size="30" maxlength="50" value="<?echo ($TYPE=="REGISTRATION") ? htmlspecialcharsbx($USER_LOGIN) : ""?>"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap class="tablebody"><font class="starrequired">*</font><font class="tablebodytext"><?=GetMessage("AUTH_PASSWORD_MIN")?></font></td>
-					<td align="left" class="tablebody"><input type="password" name="USER_PASSWORD" size="30" maxlength="50" value="<?echo ($TYPE=="REGISTRATION") ? htmlspecialchars($USER_PASSWORD) : ""?>"></td>
+					<td align="left" class="tablebody"><input type="password" name="USER_PASSWORD" size="30" maxlength="50" value="<?echo ($TYPE=="REGISTRATION") ? htmlspecialcharsbx($USER_PASSWORD) : ""?>"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap class="tablebody"><font class="starrequired">*</font><font  class="tablebodytext"><?=GetMessage("AUTH_CONFIRM")?></font></td>
-					<td align="left" class="tablebody"><input type="password" name="USER_CONFIRM_PASSWORD" size="30" maxlength="50" value="<?echo ($TYPE=="REGISTRATION") ? htmlspecialchars($USER_CONFIRM_PASSWORD) : ""?>"></td>
+					<td align="left" class="tablebody"><input type="password" name="USER_CONFIRM_PASSWORD" size="30" maxlength="50" value="<?echo ($TYPE=="REGISTRATION") ? htmlspecialcharsbx($USER_CONFIRM_PASSWORD) : ""?>"></td>
 				</tr>
 				<tr valign="middle"> 
 					<td align="right" nowrap class="tablebody"><font class="starrequired">*</font><font  class="tablebodytext">E-Mail:</font></td>
-					<td align="left" class="tablebody"><input type="text" name="USER_EMAIL" size="30" maxlength="255" value="<?echo htmlspecialchars((strlen($sf_EMAIL)>0 && $TYPE=="REGISTRATION")? $sf_EMAIL:$USER_EMAIL)?>"></td>
+					<td align="left" class="tablebody"><input type="text" name="USER_EMAIL" size="30" maxlength="255" value="<?echo htmlspecialcharsbx((strlen($sf_EMAIL)>0 && $TYPE=="REGISTRATION")? $sf_EMAIL:$USER_EMAIL)?>"></td>
 				</tr>
 				<tr> 
 					<td nowrap align="right" class="tablebody"><font  class="tablebodytext">&nbsp;</font></td>

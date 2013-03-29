@@ -21,21 +21,29 @@ class CBlogImage extends CAllBlogImage
 		if (!CBlogImage::CheckFields("ADD", $arFields))
 			return false;
 
-		if (
-			array_key_exists("FILE_ID", $arFields)
-			&& is_array($arFields["FILE_ID"])
-			&& (
-				!array_key_exists("MODULE_ID", $arFields["FILE_ID"])
-				|| strlen($arFields["FILE_ID"]["MODULE_ID"]) <= 0
+		if (is_array($arFields['FILE_ID']))
+		{
+			if (
+				array_key_exists("FILE_ID", $arFields)
+				&& is_array($arFields["FILE_ID"])
+				&& (
+					!array_key_exists("MODULE_ID", $arFields["FILE_ID"])
+					|| strlen($arFields["FILE_ID"]["MODULE_ID"]) <= 0
+				)
 			)
-		)
-			$arFields["FILE_ID"]["MODULE_ID"] = "blog";
+				$arFields["FILE_ID"]["MODULE_ID"] = "blog";
 
-		$prefix = "blog";
-		if(strlen($arFields["URL"]) > 0)
-			$prefix .= "/".$arFields["URL"];
-			
-		if(CFile::SaveForDB($arFields, "FILE_ID", $prefix))
+			$prefix = "blog";
+			if(strlen($arFields["URL"]) > 0)
+				$prefix .= "/".$arFields["URL"];
+
+			CFile::SaveForDB($arFields, "FILE_ID", $prefix);
+		}
+
+		if (
+			isset($arFields['FILE_ID']) &&
+			( intval($arFields['FILE_ID']) == $arFields['FILE_ID'] )
+		)
 		{
 			$arInsert = $DB->PrepareInsert("b_blog_image", $arFields);
 
@@ -148,7 +156,7 @@ class CBlogImage extends CAllBlogImage
 			if (strlen($arSqls["GROUPBY"]) > 0)
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!1!=".htmlspecialchars($strSql)."<br>";
+			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($arRes = $dbRes->Fetch())
@@ -179,7 +187,7 @@ class CBlogImage extends CAllBlogImage
 			if (strlen($arSqls["GROUPBY"]) > 0)
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!2.1!=".htmlspecialchars($strSql_tmp)."<br>";
+			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
@@ -195,16 +203,16 @@ class CBlogImage extends CAllBlogImage
 
 			$dbRes = new CDBResult();
 
-			//echo "!2.2!=".htmlspecialchars($strSql)."<br>";
+			//echo "!2.2!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes->NavQuery($strSql, $cnt, $arNavStartParams);
 		}
 		else
 		{
 			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) > 0)
-				$strSql .= "LIMIT ".$arNavStartParams["nTopCount"];
+				$strSql .= "LIMIT ".IntVal($arNavStartParams["nTopCount"]);
 
-			//echo "!3!=".htmlspecialchars($strSql)."<br>";
+			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}

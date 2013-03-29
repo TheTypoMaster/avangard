@@ -29,7 +29,7 @@ if (!in_array($queryType, array("licence", "activate", "key", "register", "sourc
 /************************************/
 if ($queryType == "licence")
 {
-	COption::SetOptionString("main", "~new_license11_sign", "Y");
+	COption::SetOptionString("main", "~new_license12_sign", "Y");
 	echo "Y";
 }
 elseif ($queryType == "activate")

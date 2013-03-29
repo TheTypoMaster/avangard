@@ -167,7 +167,7 @@ if(strlen($_REQUEST["sf_EMAIL"]) > 0 || $ID > 0 || $USER->IsAuthorized())
 	if($ID > 0)
 		$rsSubscription = CSubscription::GetByID($ID);
 	elseif(strlen($_REQUEST["sf_EMAIL"]) > 0)
-		$rsSubscription = CSubscription::GetByEmail($_REQUEST["sf_EMAIL"]);
+		$rsSubscription = CSubscription::GetByEmail($_REQUEST["sf_EMAIL"], intval($USER->GetID()));
 	else
 		$rsSubscription = CSubscription::GetList(array(), array("USER_ID" => $USER->GetID()));
 
@@ -269,7 +269,7 @@ if($ID == 0 && !empty($_REQUEST["action"]))
 if($bVarsFromForm)
 {
 	$arSubscription["FORMAT"] = $_REQUEST["FORMAT"]=="html"?"html":"text";
-	$arSubscription["EMAIL"] = htmlspecialchars($_REQUEST["EMAIL"]);
+	$arSubscription["EMAIL"] = htmlspecialcharsbx($_REQUEST["EMAIL"]);
 }
 
 //page title
@@ -362,16 +362,16 @@ $sRub = "";
 if(is_array($_REQUEST["sf_RUB_ID"]))
 	foreach($_REQUEST["sf_RUB_ID"] as $strRub)
 		$sRub .= "&sf_RUB_ID[]=".urlencode($strRub);
-$arResult["REQUEST"]["RUBRICS_PARAM"] = htmlspecialchars($sRub);
-$arResult["REQUEST"]["CONFIRM_CODE"] = htmlspecialchars($_REQUEST["CONFIRM_CODE"]);
-$arResult["REQUEST"]["EMAIL"] = htmlspecialchars($_REQUEST["sf_EMAIL"]);
+$arResult["REQUEST"]["RUBRICS_PARAM"] = htmlspecialcharsbx($sRub);
+$arResult["REQUEST"]["CONFIRM_CODE"] = htmlspecialcharsbx($_REQUEST["CONFIRM_CODE"]);
+$arResult["REQUEST"]["EMAIL"] = htmlspecialcharsbx($_REQUEST["sf_EMAIL"]);
 if(strlen($arResult["REQUEST"]["EMAIL"])<=0 && $USER->IsAuthorized())
-	$arResult["REQUEST"]["EMAIL"] = htmlspecialchars($USER->GetEmail());
-$arResult["REQUEST"]["PASSWORD"] = htmlspecialchars($_REQUEST["PASSWORD"]);
-$arResult["REQUEST"]["LOGIN"] = htmlspecialchars((isset($_REQUEST["LOGIN"])? $_REQUEST["LOGIN"]:$sLastLogin));
-$arResult["REQUEST"]["NEW_LOGIN"] = htmlspecialchars($_REQUEST["NEW_LOGIN"]);
-$arResult["REQUEST"]["NEW_PASSWORD"] = htmlspecialchars($_REQUEST["NEW_PASSWORD"]);
-$arResult["REQUEST"]["CONFIRM_PASSWORD"] = htmlspecialchars($_REQUEST["CONFIRM_PASSWORD"]);
+	$arResult["REQUEST"]["EMAIL"] = htmlspecialcharsbx($USER->GetEmail());
+$arResult["REQUEST"]["PASSWORD"] = htmlspecialcharsbx($_REQUEST["PASSWORD"]);
+$arResult["REQUEST"]["LOGIN"] = htmlspecialcharsbx((isset($_REQUEST["LOGIN"])? $_REQUEST["LOGIN"]:$sLastLogin));
+$arResult["REQUEST"]["NEW_LOGIN"] = htmlspecialcharsbx($_REQUEST["NEW_LOGIN"]);
+$arResult["REQUEST"]["NEW_PASSWORD"] = htmlspecialcharsbx($_REQUEST["NEW_PASSWORD"]);
+$arResult["REQUEST"]["CONFIRM_PASSWORD"] = htmlspecialcharsbx($_REQUEST["CONFIRM_PASSWORD"]);
 
 $this->IncludeComponentTemplate();
 ?>

@@ -45,8 +45,7 @@ $MESS ['F_PRIV_MAIL'] = "Информационное сообщение сайта #SITE_NAME#
 
 Вы получили персональное сообщение с форума на сайте #SERVER_NAME#.
 
-Тема:
-#SUBJECT#
+Тема: #SUBJECT#
 
 Автор: #FROM_NAME# #FROM_EMAIL#
 Дата : #MESSAGE_DATE#
@@ -72,8 +71,7 @@ $MESS ['F_PRIVATE_TEXT'] = "Информационное сообщение сайта #SITE_NAME#
 
 Вы получили персональное сообщение с форума на сайте #SERVER_NAME#.
 
-Тема:
-#SUBJECT#
+Тема: #SUBJECT#
 
 Автор: #FROM_NAME#
 Дата: #MESSAGE_DATE#

@@ -32,7 +32,7 @@ foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 	if (empty($arParams[strToUpper($URL)."_URL"]))
 		$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 	$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-	$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+	$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 }
 /***************** ADDITIONAL **************************************/
 	$arParams["ONLY_ONE_GALLERY"] = ($arParams["ONLY_ONE_GALLERY"] == "N" ? "N" : "Y");
@@ -64,20 +64,22 @@ if ((empty($arParams["USER_ALIAS"]) || $arParams["USER_ALIAS"] == "empty") && $a
 			"Permission" => $arParams["PERMISSION_EXTERNAL"]),
 		array(
 			"cache_time" => $arParams["CACHE_TIME"],
-			"cache_path" => $cache_path_main,
-			"show_error" => "Y",
 			"set_404" => $arParams["SET_STATUS_404"]
 			)
 		);
 	$oPhoto->Gallery = ($oPhoto->Gallery ? $oPhoto->Gallery : array("CODE" => "empty"));
 	$res = $oPhoto->GetSection($arParams["SECTION_ID"], $arResult["SECTION"]);
+
 	if (intval($res) < 400 && intval($res) > 300)
 	{
 		$arGallery = $oPhoto->GetSectionGallery($arResult["SECTION"]);
-		$arParams["USER_ALIAS"] = $arGallery["CODE"];
+		if ($arGallery)
+		{
+			$arParams["USER_ALIAS"] = $arGallery["CODE"];
+			$oPhoto->Gallery = $arGallery;
+		}
 	}
 }
-
 /********************************************************************
 				Main Data
 ********************************************************************/
@@ -87,21 +89,20 @@ $arResult["MY_GALLERY"] = array();
 $arResult["MY_GALLERIES"] = array();
 $arResult["USERS"] = array();
 $cache = new CPHPCache;
-$cache_path_main = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]."/");
+$cache_path_main = "/".SITE_ID."/photogallery/".$arParams["IBLOCK_ID"];
 
 /************** MY GALLERIES ***************************************/
 if ($GLOBALS["USER"]->IsAuthorized())
 {
-	$cache_id = array(
+	$cache_id = "gallerylist_".serialize(array(
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"USER_ID" => $GLOBALS["USER"]->GetId()
-	);
+	));
 
 	if (!empty($arParams["USER_ALIAS"]))
-		$cache_id["USER_ALIAS"] = $arParams["USER_ALIAS"];
+		$cache_id .= '_'.$arParams["USER_ALIAS"];
 
-	$cache_id = serialize($cache_id);
-	$cache_path = $cache_path_main."gallerylist".$GLOBALS["USER"]->GetId();
+	$cache_path = $cache_path_main."/user".$GLOBALS["USER"]->GetId();
 	if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 	{
 		$res = $cache->GetVars();
@@ -162,7 +163,7 @@ if ($GLOBALS["USER"]->IsAuthorized())
 						array("USER_ALIAS" => $res["~CODE"], "SECTION_ID" => "0", "USER_ID" => $res["CREATED_BY"], "GROUP_ID" => $res["SOCNET_GROUP_ID"])),
 						);
 				foreach ($url as $key => $val):
-					$res["LINK"][$key] = htmlspecialchars($val);
+					$res["LINK"][$key] = htmlspecialcharsbx($val);
 					$res["LINK"]["~".$key] = $val;
 				endforeach;
 
@@ -191,12 +192,12 @@ if ($GLOBALS["USER"]->IsAuthorized())
 /************** GALLERY ********************************************/
 if (!empty($arParams["USER_ALIAS"]))
 {
-	$cache_id = serialize(array(
+	$cache_id = 'gallery_user_alias_'.serialize(array(
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 		"USER_ALIAS" => $arParams["USER_ALIAS"]
 	));
 
-	$cache_path = $cache_path_main."gallery".$arParams["USER_ALIAS"];
+	$cache_path = $cache_path_main."/gallery".$arParams["USER_ALIAS"];
 	if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 	{
 		$res = $cache->GetVars();
@@ -283,7 +284,7 @@ if (!empty($arParams["USER_ALIAS"]))
 					array("USER_ALIAS" => $res["~CODE"], "SECTION_ID" => "0", "USER_ID" => $res["CREATED_BY"], "GROUP_ID" => $res["SOCNET_GROUP_ID"])));
 			$res["LINK"] = array();
 			foreach ($url as $key => $val):
-				$res["LINK"][$key] = htmlspecialchars($val);
+				$res["LINK"][$key] = htmlspecialcharsbx($val);
 				$res["LINK"]["~".$key] = $val;
 			endforeach;
 			$arResult["GALLERY"] = $res;
@@ -302,7 +303,7 @@ $cache_id = serialize(array(
 	"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 	"USER_GROUPS" => $GLOBALS["USER"]->GetGroups()
 ));
-$cache_path = $cache_path_main."permission";
+$cache_path = $cache_path_main."/permission";
 if ($arParams["CACHE_TIME"] > 0 && $cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 {
 	$arParams["PERMISSION"] = $cache->GetVars();

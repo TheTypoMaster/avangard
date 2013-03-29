@@ -31,7 +31,7 @@ $arParams["~TAGS"] = trim($arParams["~TAGS"]);
 $arParams["TAGS"] = htmlspecialcharsex($arParams["~TAGS"]);
 $arParams["SEARCH"] = (empty($arParams["SEARCH"]) ? $_REQUEST["q"] : $arParams["~SEARCH"]);
 $arParams["~SEARCH"] = trim($arParams["SEARCH"]);
-$arParams["SEARCH"] = htmlspecialchars($arParams["~SEARCH"]);
+$arParams["SEARCH"] = htmlspecialcharsbx($arParams["~SEARCH"]);
 
 if (!empty($arParams["URL_SEARCH"]))
 {
@@ -49,7 +49,7 @@ else
 {
 	$arResult["~URL"] = $APPLICATION->GetCurPageParam("tags=#TAGS#", array("tags"));
 }
-$arResult["URL"] = htmlspecialchars($arResult["~URL"]);
+$arResult["URL"] = htmlspecialcharsbx($arResult["~URL"]);
 
 if (!empty($arParams["~TAGS"]) || !empty($arParams["~SEARCH"]))
 {

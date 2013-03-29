@@ -20,7 +20,7 @@ function BXDeleteFromSystem($absoluteFilePath, $path, $site)
 
 	if (!$sucess)
 		return false;
-		
+
 	if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 	{
 		$res_log['path'] = substr($path, 1);
@@ -39,6 +39,13 @@ function BXDeleteFromSystem($absoluteFilePath, $path, $site)
 
 	//Delete from rewrite rule
 	CUrlRewriter::Delete(Array("SITE_ID" => $site, "PATH" => $path));
+
+	if (class_exists("\\Bitrix\\Main\\Application", false))
+	{
+		\Bitrix\Main\Component\ParametersTable::deleteByFilter(
+			array("SITE_ID" => $site, "REAL_PATH" => $path)
+		);
+	}
 
 	return true;
 }
@@ -137,7 +144,7 @@ function BXDeleteFromMenuFile($menuFile, $documentRoot, $site, $path)
 	if ($arFound)
 	{
 		CFileMan::SaveMenu(Array($site, $menuFile), $arMenu["aMenuLinks"], $arMenu["sMenuTemplate"]);
-		
+
 		if(COption::GetOptionString($module_id, "log_page", "Y")=="Y")
 		{
 			$res_log = array();
@@ -197,12 +204,13 @@ $absoluteFilePath = $documentRoot.$path;
 
 //Check permissions
 if (!$io->FileExists($absoluteFilePath) || preg_match("~\/\.access\.php$~i", $path))
-	$popupWindow->ShowError(GetMessage("PAGE_DELETE_FILE_NOT_FOUND")." (".htmlspecialchars($path).")");
+	$popupWindow->ShowError(GetMessage("PAGE_DELETE_FILE_NOT_FOUND")." (".htmlspecialcharsbx($path).")");
 elseif (!$USER->CanDoFileOperation('fm_delete_file',Array($site, $path)))
 	$popupWindow->ShowError(GetMessage("PAGE_DELETE_ACCESS_DENIED"));
 
 //Check post values
 $strWarning = "";
+$strNotice = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST")
 {
 	$deleteFromMenu = (isset($_REQUEST["delete_from_menu"]) && $_REQUEST["delete_from_menu"] == "Y");
@@ -212,7 +220,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 else
 {
 	if ($io->ExtractNameFromPath($path) == "index.php")
-		$strWarning = GetMessage("PAGE_DELETE_INDEX_WARNING");
+		$strNotice = GetMessage("PAGE_DELETE_INDEX_WARNING");
 	$deleteFromMenu = true;
 }
 
@@ -264,7 +272,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarn
 $popupWindow->ShowTitlebar(GetMessage("PAGE_DELETE_WINDOW_TITLE"));
 $popupWindow->StartDescription("bx-delete-page");
 ?>
-<p><?=str_replace("#FILENAME#", htmlspecialchars($path), GetMessage("PAGE_DELETE_CONFIRM_TEXT"))?></p>
+<p><?=str_replace("#FILENAME#", htmlspecialcharsbx($path), GetMessage("PAGE_DELETE_CONFIRM_TEXT"))?></p>
 <?
 $popupWindow->EndDescription("bx-delete-page");
 $popupWindow->StartContent();
@@ -273,6 +281,10 @@ if (isset($strWarning) && $strWarning != "")
 ?>
 <?if (IsModuleInstalled("fileman")):?>
 	<input type="checkbox" name="delete_from_menu" value="Y" id="bx_delete_from_menu" <?=($deleteFromMenu ? "checked" : "")?>> <label for="bx_delete_from_menu"><?=GetMessage("PAGE_DELETE_FROM_MENU")?></label>
+<?
+if (isset($strNotice) && $strNotice != '')
+	CAdminMessage::ShowMessage(array("MESSAGE" => $strNotice, "TYPE" => "ERROR"))
+?>
 <?endif?>
 
 

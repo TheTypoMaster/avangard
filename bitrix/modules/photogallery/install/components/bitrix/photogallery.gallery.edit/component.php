@@ -1,16 +1,14 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 // To remember: only active user $USER can create new photogallery
-if (!CModule::IncludeModule("photogallery")):
-	ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
-	return 0;
-elseif (!CModule::IncludeModule("iblock")):
-	ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
-	return 0;
-elseif (!$GLOBALS["USER"]->IsAuthorized()):
+if (!CModule::IncludeModule("photogallery"))
+	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+if (!CModule::IncludeModule("iblock"))
+	return ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+if (!$GLOBALS["USER"]->IsAuthorized())
+{
 	CModule::IncludeModule("photogallery");
-	ShowError(PhotoShowError(array("code" => 110)));
-	return 0;
-endif;
+	return ShowError(PhotoShowError(array("code" => 110)));
+}
 /********************************************************************
 				Input params
 ********************************************************************/
@@ -40,7 +38,7 @@ endif;
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $GLOBALS["APPLICATION"]->GetCurPageParam($URL_VALUE, array("PAGE_NAME", "SECTION_ID", "USER_ALIAS", "ACTION", "AJAX_CALL", "sessid", "login"));
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 /***************** ADDITIONAL **************************************/
 	$arParams["ONLY_ONE_GALLERY"] = ($arParams["ONLY_ONE_GALLERY"] == "N" ? "N" : "Y");
@@ -48,19 +46,14 @@ endif;
 
 	$arParams["GALLERY_AVATAR_SIZE"] = (intVal($arParams["GALLERY_AVATAR_SIZE"]) > 0 ? intVal($arParams["GALLERY_AVATAR_SIZE"]) : 50);
 	$arParams["GALLERY_AVATAR"] = array(
-		"WIDTH" => $arParams["GALLERY_AVATAR_SIZE"] ,
-		"HEIGHT" => $arParams["GALLERY_AVATAR_SIZE"] );
+		"WIDTH" => $arParams["GALLERY_AVATAR_SIZE"],
+		"HEIGHT" => $arParams["GALLERY_AVATAR_SIZE"]
+	);
 	$arParams["GALLERY_AVATAR_THUMBS_SIZE"] = (intVal($arParams["GALLERY_AVATAR_THUMBS_SIZE"]) > 0 ? intVal($arParams["GALLERY_AVATAR_THUMBS_SIZE"]) : $arParams["GALLERY_AVATAR_SIZE"]);
 	$arParams["GALLERY_AVATAR_THUMBS"] = array(
 		"WIDTH" => $arParams["GALLERY_AVATAR_THUMBS_SIZE"],
 		"HEIGHT" => $arParams["GALLERY_AVATAR_THUMBS_SIZE"]);
 /***************** STANDART ****************************************/
-	if(!isset($arParams["CACHE_TIME"]))
-		$arParams["CACHE_TIME"] = 3600;
-	if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
-		$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
-	else
-		$arParams["CACHE_TIME"] = 0;
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y"); //Turn on by default
 	$arParams["SET_NAV_CHAIN"] = ($arParams["SET_NAV_CHAIN"] == "N" ? "N" : "Y"); //Turn on by default
 	$arParams["DISPLAY_PANEL"] = ($arParams["DISPLAY_PANEL"] == "Y" ? "Y" : "N"); //Turn off by default
@@ -77,7 +70,7 @@ endif;
 $arResult["FORM"] = array();
 $arResult["GALLERY"] = array();
 $arResult["GALLERIES"] = array();
-$arResult["USER"] = array("SHOW_NAME" => trim($GLOBALS["USER"]->GetFullName()));
+$arResult["USER"] = array("SHOW_NAME" => trim($GLOBALS["USER"]->GetFormattedName(false)));
 if (empty($arResult["USER"]["SHOW_NAME"]))
 	$arResult["USER"]["SHOW_NAME"] = $GLOBALS["USER"]->GetLogin();
 $arError = array();
@@ -180,23 +173,8 @@ if ($arParams["ACTION"] == "DROP" && check_bitrix_sessid())
 	}
 	else
 	{
+		PClearComponentCacheEx($arParams["IBLOCK_ID"], array($arResult['GALLERY']['ID']), array($arResult["GALLERY"]["CODE"]), array(($arParams["USER_ID"] > 0 ? $arParams["USER_ID"] : 0)));
 
-		PClearComponentCache(array(
-			"search.page",
-			"search.tags.cloud",
-			"photogallery.detail",
-			"photogallery.detail.comment",
-			"photogallery.detail.edit",
-			"photogallery.detail.list",
-			"photogallery.detail.list.ex",
-			"photogallery.gallery.edit",
-			"photogallery.gallery.list",
-			"photogallery.section",
-			"photogallery.section.edit",
-			"photogallery.section.edit.icon",
-			"photogallery.section.list",
-			"photogallery.upload",
-			"photogallery.user"));
 		$url = CComponentEngine::MakePathFromTemplate($arParams["~INDEX_URL"], array());
 		if (count($arResult["GALLERIES"]) > 1)
 			$url = CComponentEngine::MakePathFromTemplate($arParams["~GALLERIES_URL"],
@@ -210,7 +188,7 @@ elseif (!empty($_REQUEST["save"]))
 	$_REQUEST["CODE"] = trim($_REQUEST["CODE"]);
 	if (!check_bitrix_sessid())
 		$arError = array("code" => 100);
-	elseif (empty($_REQUEST["CODE"]))
+	elseif(empty($_REQUEST["CODE"]))
 		$arError = array("code" => 201);
 	elseif (preg_match("/[^a-z0-9_]/is", $_REQUEST["CODE"]) || strtolower($_REQUEST["CODE"]) == "empty")
 	{
@@ -283,12 +261,13 @@ elseif (!empty($_REQUEST["save"]))
 						"MANDATORY" => "N");
 					$arFieldName = array();
 					$rsLanguage = CLanguage::GetList($by, $order, array());
-					while($arLanguage = $rsLanguage->Fetch()):
+					while($arLanguage = $rsLanguage->Fetch())
+					{
 						if (LANGUAGE_ID == $arLanguage["LID"])
 							$arFieldName[$arLanguage["LID"]] = GetMessage("IBLOCK_DEFAULT");
 						if (empty($arFieldName[$arLanguage["LID"]]))
 							$arFieldName[$arLanguage["LID"]] = "Default gallery";
-					endwhile;
+					}
 					$arFields["EDIT_FORM_LABEL"] = $arFieldName;
 					$obUserField  = new CUserTypeEntity;
 					$obUserField->Add($arFields);
@@ -309,12 +288,13 @@ elseif (!empty($_REQUEST["save"]))
 						"MANDATORY" => "N");
 					$arFieldName = array();
 					$rsLanguage = CLanguage::GetList($by, $order, array());
-					while($arLanguage = $rsLanguage->Fetch()):
+					while($arLanguage = $rsLanguage->Fetch())
+					{
 						if (LANGUAGE_ID == $arLanguage["LID"])
 							$arFieldName[$arLanguage["LID"]] = GetMessage("IBLOCK_GALLERY_SIZE");
 						if (empty($arFieldName[$arLanguage["LID"]]))
 							$arFieldName[$arLanguage["LID"]] = "Gallery size";
-					endwhile;
+					}
 					$arFields["EDIT_FORM_LABEL"] = $arFieldName;
 					$obUserField  = new CUserTypeEntity;
 					$obUserField->Add($arFields);
@@ -470,22 +450,8 @@ elseif (!empty($_REQUEST["save"]))
 	}
 	else
 	{
-		PClearComponentCache(array(
-			"search.page",
-			"search.tags.cloud",
-			"photogallery.detail",
-			"photogallery.detail.comment",
-			"photogallery.detail.edit",
-			"photogallery.detail.list",
-			"photogallery.detail.list.ex",
-			"photogallery.gallery.edit",
-			"photogallery.gallery.list",
-			"photogallery.section",
-			"photogallery.section.edit",
-			"photogallery.section.edit.icon",
-			"photogallery.section.list",
-			"photogallery.upload",
-			"photogallery.user"));
+		PClearComponentCacheEx($arParams["IBLOCK_ID"], array(($ID > 0 ? $ID : 0)), array($_REQUEST["CODE"]), array($arResult["GALLERY"]["CREATED_BY"]));
+
 		if (!empty($_REQUEST["back_url"]))
 			LocalRedirect($_REQUEST["back_url"]);
 		else

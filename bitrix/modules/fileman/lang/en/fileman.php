@@ -52,7 +52,6 @@ $MESS["FILEMAN_EDIT_TAB"] = "File edit";
 $MESS["FILEMAN_EDIT_TAB1"] = "File create";
 $MESS["FILEMAN_EDIT_TAB_ALT"] = "File edit";
 $MESS["FILEMAN_EDIT_TAB_ALT1"] = "Create a new file";
-$MESS["BYTE"] = "b";
 $MESS["FILEMAN_UNALLOWED_COMPONENTS"] = "The page contains an unallowed component #BAD_COMPONENT# and cannot be saved.";
 $MESS["FILEMAN_NAME_ERROR"] = "A file name can contain only Latin letters, digits, spaces and the following characters: !\$()[]{}-.;=@^_~";
 $MESS["FILEMAN_OPTION_PROPS_DESCR"] = "Description";
@@ -69,4 +68,6 @@ $MESS["fileman_panel_admin"] = "In Control Panel";
 $MESS["FILEMAN_COPY_ERROR"] = "Failed to copy file \"#PATH_FROM#\" to \"#PATH_TO#\"";
 $MESS["FILEMAN_CREATE_FOLDER_ERROR"] = "Failed to create folder \"#PATH#\"";
 $MESS["FILEMAN_LHE_WAIT"] = "Loading Editor";
+$MESS["MAIN_BFSD_FTYPE_ARC"] = "Archive";
+$MESS["FILEMAN_FILEMAN_SYMLINK_DEL_ERROR"] = "Error deleting symbolic link";
 ?>

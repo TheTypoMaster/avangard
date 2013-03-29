@@ -26,7 +26,11 @@ if(!phpVars)
 		messPanelFixOn: '',
 		messPanelFixOff: '',
 		messPanelCollapse: '',
-		messPanelExpand: ''
+		messPanelExpand: '',
+		messFavAddSucc: '',
+		messFavAddErr: '',
+		messFavDelSucc: '',
+		messFavDelErr: ''
 	};
 }
 
@@ -233,338 +237,9 @@ function JCAdminMenu(sOpenedSections)
 	}
 }
 
-/************************************************/
 
-function JCAdminFilter(filter_id, aRows)
-{
-	var _this = this;
-	this.filter_id = filter_id;
-	this.aRows = aRows;
-	this.oVisRows = null;
 
-	this.ToggleFilterRow = function(row_id, on, bSave)
-	{
-		var row = document.getElementById(row_id);
-		var delimiter = document.getElementById(row_id+'_delim');
-		if(!row)
-			return;
-
-		var short_id = row_id.substr((this.filter_id+'_row_').length);
-
-		if(on != true && on != false)
-			on = (row.style.display == 'none');
-
-		//filter popup menu
-		var filterMenu = window[this.filter_id+"_menu"];
-		if(on == true)
-		{
-			try{
-				row.style.display = 'table-row';
-				delimiter.style.display = 'table-row';
-			}
-			catch(e){
-				row.style.display = 'block';
-				delimiter.style.display = 'block';
-			}
-			if(filterMenu)
-				filterMenu.SetItemIcon('gutter_'+row_id, "checked");
-			this.oVisRows[short_id] = true;
-		}
-		else
-		{
-			row.style.display = 'none';
-			delimiter.style.display = 'none';
-			if(filterMenu)
-				filterMenu.SetItemIcon('gutter_'+row_id, "");
-			this.oVisRows[short_id] = false;
-		}
-
-		if(bSave != false)
-			this.SaveRowsOption();
-	}
-
-	this.SaveRowsOption = function()
-	{
-		var sRows = '';
-		for(var key in this.oVisRows)
-			if(this.oVisRows[key] == true)
-				sRows += (sRows != ''? ',':'')+key;
-		jsUserOptions.SaveOption('filter', this.filter_id, 'rows', sRows);
-	}
-
-	this.ToggleAllFilterRows = function(on)
-	{
-		var tbl = document.getElementById(this.filter_id);
-		if(!tbl)
-			return;
-
-		var n = tbl.rows.length;
-		for(var i=0; i<n; i++)
-		{
-			var row = tbl.rows[i];
-			if(row.id && row.cells[0].className != 'delimiter')
-				this.ToggleFilterRow(row.id, on, false);
-		}
-		this.SaveRowsOption();
-	}
-
-	this.InitFilter = function(oVisRows)
-	{
-		this.oVisRows = oVisRows;
-
-		var i;
-		var tbl = document.getElementById(this.filter_id);
-		if(!tbl)
-			return;
-
-		//filter popup menu
-		var filterMenu = window[this.filter_id+"_menu"];
-
-		var n=tbl.rows.length;
-		for(i=0; i<n; i++)
-		{
-			var row = tbl.rows[i];
-			var td = row.insertCell(-1);
-			td.className = 'filterless';
-			if(i>0)
-			{
-				row.id = this.filter_id+'_row_'+this.aRows[i-1];
-				if(this.oVisRows[this.aRows[i-1]] == true)
-				{
-					if(filterMenu)
-						filterMenu.SetItemIcon('gutter_'+row.id, "checked");
-				}
-				else
-					row.style.display = 'none';
-
-				td.innerHTML = '<a href="javascript:void(0)" onclick="this.blur();'+this.filter_id+'.ToggleFilterRow(\''+row.id+'\');" hidefocus="true" title="'+phpVars.messFilterLess+'" class="context-button icon" id="filterless"></a>';
-			}
-		}
-
-		for(i=0; i<n; i++)
-		{
-			var tr = tbl.insertRow(i*2+1);
-			if(i > 0)
-			{
-				if(this.oVisRows[this.aRows[i-1]] != true)
-					tr.style.display = 'none';
-				tr.id = this.filter_id+'_row_'+this.aRows[i-1]+'_delim';
-			}
-			var td = tr.insertCell(-1);
-			td.colSpan = 3;
-			td.className = 'delimiter';
-			td.innerHTML = '<div class="empty"></div>';
-		}
-
-		try{
-			tbl.style.display = 'table';}
-		catch(e){
-			tbl.style.display = 'block';}
-
-		this.DisplayVisibleRows();
-		this.SetActive(this.CheckActive());
-	}
-
-	this.GetParameters = function()
-	{
-		var form = jsUtils.FindParentObject(document.getElementById(this.filter_id), "form");
-		if(!form)
-			return;
-
-		var i, s = "";
-		var n = form.elements.length;
-		for(i=0; i<n; i++)
-		{
-			var el = form.elements[i];
-			if(el.disabled)
-				continue;
-			var tr = jsUtils.FindParentObject(el, 'tr');
-			if(tr && tr.style && tr.style.display == 'none')
-				continue;
-
-			var val = "";
-			switch(el.type.toLowerCase())
-			{
-				case 'select-one':
-				case 'text':
-				case 'textarea':
-				case 'hidden':
-					val = el.value;
-					break;
-				case 'radio':
-				case 'checkbox':
-					if(el.checked)
-						val = el.value;
-					break;
-				case 'select-multiple':
-					var j;
-					var l = el.options.length;
-					for(j=0; j<l; j++)
-						if(el.options[j].selected)
-							s += '&' + el.name + '=' + encodeURIComponent(el.options[j].value);
-					break;
-				default:
-					break;
-			}
-			if(val != "")
-				s += '&' + el.name + '=' + encodeURIComponent(val);
-		}
-		return s;
-	}
-
-	this.ClearParameters = function()
-	{
-		var form = jsUtils.FindParentObject(document.getElementById(this.filter_id), "form");
-		if(!form)
-			return;
-
-		var i;
-		var n = form.elements.length;
-		for(i=0; i<n; i++)
-		{
-			var el = form.elements[i];
-			switch(el.type.toLowerCase())
-			{
-				case 'text':
-				case 'textarea':
-					el.value = '';
-					break;
-				case 'select-one':
-					el.selectedIndex = 0;
-					if(el.onchange)
-						el.onchange();
-					break;
-				case 'select-multiple':
-					var j;
-					var l = el.options.length;
-					for(j=0; j<l; j++)
-						el.options[j].selected = false;
-					break;
-				default:
-					break;
-			}
-		}
-	}
-
-	this.OnSet = function(table_id, url)
-	{
-		this.SetActive(this.CheckActive());
-		window[table_id].GetAdminList(url+'set_filter=Y'+this.GetParameters());
-	}
-
-	this.OnClear = function(table_id, url)
-	{
-		this.ClearParameters();
-		this.SetActive(false);
-		window[table_id].GetAdminList(url+'del_filter=Y'+this.GetParameters());
-	}
-
-	this.SetActive = function(on)
-	{
-		var div = document.getElementById(this.filter_id+'_active_lamp');
-		div.className = (on? 'active':'inactive');
-		div.title = (on? phpVars.messFilterActive:phpVars.messFilterInactive);
-	}
-
-	this.CheckActive = function()
-	{
-		var form = jsUtils.FindParentObject(document.getElementById(this.filter_id), "form");
-		if(!form)
-			return;
-
-		var i;
-		var n = form.elements.length;
-		for(i=0; i<n; i++)
-		{
-			var el = form.elements[i];
-			if(el.disabled)
-				continue;
-			var tr = jsUtils.FindParentObject(el, 'tr');
-			if(tr && tr.style && tr.style.display == 'none')
-				continue;
-
-			switch(el.type.toLowerCase())
-			{
-				case 'select-one':
-					if(el.options[0].value.length != 0 && (el.options[0].value.toUpperCase() != 'NOT_REF' || el.value.toUpperCase() == 'NOT_REF'))
-						break;
-				case 'text':
-				case 'textarea':
-					if(el.value.length > 0)
-						return true;
-					break;
-				case 'checkbox':
-					if(el.checked)
-						return true;
-					break;
-				case 'select-multiple':
-					var j;
-					var l = el.options.length;
-					for(j=0; j<l; j++)
-						if(el.options[j].selected && el.options[j].value != '')
-							return true;
-					break;
-				default:
-					break;
-			}
-		}
-		return false;
-	}
-
-	this.DisplayVisibleRows = function()
-	{
-		var form = jsUtils.FindParentObject(document.getElementById(this.filter_id), "form");
-		if(!form)
-			return;
-
-		var i;
-		var n = form.elements.length;
-		for(i=0; i<n; i++)
-		{
-			var el = form.elements[i];
-			if(el.disabled)
-				continue;
-
-			var bVisible = false;
-			switch(el.type.toLowerCase())
-			{
-				case 'select-one':
-					if(el.value.length>0 && (el.options[0].value.length == 0 || (el.options[0].value != el.value)))
-						bVisible = true;
-					break;
-				case 'text':
-				case 'textarea':
-					if(el.value.length>0)
-						bVisible = true;
-					break;
-				case 'checkbox':
-					if(el.checked)
-						bVisible = true;
-					break;
-				case 'select-multiple':
-					var j;
-					var l = el.options.length;
-					for(j=0; j<l; j++)
-						if(el.options[j].selected && el.options[j].value != '')
-						{
-							bVisible = true;
-							break;
-						}
-					break;
-				default:
-					break;
-			}
-			if(bVisible)
-			{
-				var tr = jsUtils.FindParentObject(el, 'tr');
-				if(tr.id)
-					this.ToggleFilterRow(tr.id, true);
-			}
-		}
-	}
-}
-
-/************************************************/
+/***************************************/
 
 function JCAdminList(table_id)
 {
@@ -1034,6 +709,37 @@ function TabControl(name, unique_name, aTabs)
 			auto_lnk.className = 'context-button bx-core-autosave bx-core-autosave-edited';
 		});
 	}
+
+
+	this.NextTab = function()
+	{
+		var SelectedTab = BX.findChild(document, {'className': 'tab-selected'}, true );
+		//let's cut "tab_" and take tab name or tab_cont_
+		if(SelectedTab)
+			var CurrentTab=SelectedTab.id.substr(4);
+		else
+		{
+			var SelectedTab = BX.findChild(document, {'className': 'tab-container-selected'}, true );
+			var CurrentTab=SelectedTab.id.substr(9);
+		}
+
+		var NextTab="";
+
+		for(var i=0; i<this.aTabs.length; i++)
+			{
+				if(CurrentTab==this.aTabs[i]["DIV"])
+				{
+					if(i>=(this.aTabs.length-1))
+						NextTab=this.aTabs[0];
+					else
+						NextTab=this.aTabs[i+1];
+				}
+			}
+
+		if(NextTab["DIV"])
+			this.SelectTab(NextTab["DIV"]);
+	}
+
 
 	this.SelectTab = function(tab_id)
 	{
@@ -1544,7 +1250,7 @@ var jsAdminChain =
 		if(!div)
 			return;
 
-		main_chain.innerHTML += '<img src="/bitrix/themes/'+phpVars.ADMIN_THEME_ID+'/images/chain_arrow.gif" alt="" border="0" class="arrow">';
+		main_chain.innerHTML += '<span class="adm-navchain-delimiter"></span>';
 		main_chain.innerHTML += div.innerHTML;
 	}
 }
@@ -1643,6 +1349,7 @@ var CHttpRequest = new JCHttpRequest();
 
 /************************************************/
 
+/***** DEPRECATED! Use BX.userOptions from core_ajax.js **********/
 function JCUserOptions()
 {
 	var _this = this;
@@ -1652,6 +1359,12 @@ function JCUserOptions()
 
 	this.GetParams = function()
 	{
+		if (BX && BX.userOptions)
+		{
+			_this.GetParams = BX.userOptions.__get;
+			return _this.GetParams.apply(BX.userOptions, arguments);
+		}
+
 		var sParam = '';
 		var n = -1;
 		var prevParam = '';
@@ -1675,6 +1388,12 @@ function JCUserOptions()
 
 	this.SaveOption = function(sCategory, sName, sValName, sVal, bCommon)
 	{
+		if (BX && BX.userOptions)
+		{
+			_this.SaveOption = BX.userOptions.save;
+			return _this.SaveOption.apply(BX.userOptions, arguments);
+		}
+
 		if(!this.options)
 			this.options = new Object();
 
@@ -1695,6 +1414,12 @@ function JCUserOptions()
 
 	this.SendData = function(callback)
 	{
+		if (BX && BX.userOptions)
+		{
+			_this.SendData = BX.userOptions.send;
+			return _this.SendData.apply(BX.userOptions, arguments);
+		}
+
 		var sParam = _this.GetParams();
 		_this.options = null;
 		_this.bSend = false;
@@ -1708,6 +1433,12 @@ function JCUserOptions()
 
 	this.DeleteOption = function(sCategory, sName, bCommon, callback)
 	{
+		if (BX && BX.userOptions)
+		{
+			_this.DeleteOption = BX.userOptions.del;
+			return _this.DeleteOption.apply(BX.userOptions, arguments);
+		}
+
 		_this.request.Action = callback;
 		_this.request.Send('/bitrix/admin/user_options.php?action=delete&c='+sCategory+'&n='+sName+(bCommon == true? '&common=Y':'')+'&sessid='+phpVars.bitrix_sessid);
 	}
@@ -2087,7 +1818,13 @@ function JCStartMenu()
 			return;
 
 		var menuItems;
-		eval(result); // menuItems={'styles':[], 'items':[]}
+        try
+        {
+		    eval(result); // menuItems={'styles':[], 'items':[]}
+        }
+        catch(e)
+        {
+        }
 
 		if(!menuItems)
 			return false;
@@ -2194,3 +1931,511 @@ function JCStartMenu()
 	}
 }
 var jsStartMenu = new JCStartMenu();
+
+//************************************************************
+//Admin edit form functions
+
+function OnAdd(id)
+{
+	var frm=document.form_settings;
+	if(id == 'tabs_add')
+	{
+		var oSelect = document.getElementById('selected_tabs');
+		if(oSelect)
+		{
+			var name = prompt(arFormEditMess.admin_lib_sett_tab_prompt, arFormEditMess.admin_lib_sett_tab_default_name);
+			if(name && name.length > 0)
+			{
+				var n = oSelect.length;
+				var c = 0;
+				var found = true;
+				while(found)
+				{
+					c++;
+					found = false;
+					for(var i=0; i<n; i++)
+						if(oSelect[i].value == 'cedit'+c)
+							found = true;
+				}
+				jsSelectUtils.addNewOption('selected_tabs', 'cedit'+c, name, false);
+				var td = document.getElementById('selected_fields');
+				var newSelect = document.createElement('SPAN');
+				td.appendChild(newSelect);
+				newSelect.innerHTML = '<select style="display:none" class="select" name="selected_fields[cedit' + c + ']" id="selected_fields[cedit' + c + ']" size="12" multiple onchange="Sync();"></select>';
+				jsSelectUtils.selectOption('selected_tabs', 'cedit'+c);
+			}
+		}
+	}
+	if(id == 'tabs_copy')
+	{
+		var oSelectFrom = document.getElementById('available_tabs');
+		var oSelectTo = document.getElementById('selected_tabs');
+		if(oSelectFrom && oSelectTo)
+		{
+			var n = oSelectFrom.length;
+			var k = oSelectTo.length;
+			var c = 0;
+			for(var i=0; i<n; i++)
+				if(oSelectFrom[i].selected)
+				{
+					var found = false;
+					for(var j=0; j<k; j++)
+						if(oSelectTo[j].value == oSelectFrom[i].value)
+							found = true;
+					if(!found)
+					{
+						var td = document.getElementById('selected_fields');
+						var newSelect = document.createElement('SPAN');
+						var newID = 'selected_fields[' + oSelectFrom[i].value + ']';
+						td.appendChild(newSelect);
+						newSelect.innerHTML = '<select style="display:none" class="select" name="' + newID + '" id="' + newID + '" size="12" multiple onchange="Sync();"></select>';
+
+						jsSelectUtils.addNewOption('selected_tabs', oSelectFrom[i].value, oSelectFrom[i].text, false);
+						jsSelectUtils.selectAllOptions('available_fields');
+						jsSelectUtils.addSelectedOptions(document.getElementById('available_fields'), newID);
+
+						jsSelectUtils.selectOption('selected_tabs', oSelectFrom[i].value);
+
+					}
+				}
+		}
+	}
+	if(id == 'fields_add')
+	{
+		var oSelect = document.getElementById('selected_tabs');
+		var prefix = '';
+		if(oSelect)
+		{
+			for(var i = 0; i < oSelect.length; i++)
+				if(oSelect[i].selected)
+					prefix = oSelect[i].value;
+		}
+
+		oSelect = GetFieldsActiveSelect();
+		if(oSelect)
+		{
+			var name = prompt(arFormEditMess.admin_lib_sett_sec_prompt, arFormEditMess.admin_lib_sett_sec_default_name);
+			if(name && name.length > 0)
+			{
+				var n = oSelect.length;
+				var c = 0;
+				var found = true;
+				while(found)
+				{
+					c++;
+					found = false;
+					for(var i=0; i<n; i++)
+						if(oSelect[i].value == prefix+'_csection'+c)
+							found = true;
+				}
+				jsSelectUtils.addNewOption(oSelect.id, prefix+'_csection'+c, '--'+name, false);
+				jsSelectUtils.selectOption(oSelect.id, prefix+'_csection'+c);
+			}
+		}
+	}
+	if(id == 'fields_copy')
+	{
+		var oSelectFrom = document.getElementById('available_fields');
+		var oSelectTo = GetFieldsActiveSelect();
+		if(oSelectFrom && oSelectTo && !oSelectTo.disabled)
+		{
+			//find last selected item in selected_fields
+			var i, last = oSelectTo.length - 1;
+			for(i = 0; i < oSelectTo.length; i++)
+			{
+				if(oSelectTo[i].selected)
+					last = i;
+			}
+			//Delete all after last selected
+			var tail = new Array;
+			for(i = oSelectTo.length - 1; i > last; i--)
+			{
+				var newoption = new Option(oSelectTo[i].text, oSelectTo[i].value, false, false);
+				newoption.innerHTML = oSelectTo[i].innerHTML;
+				tail[tail.length] = newoption;
+				oSelectTo.remove(i);
+			}
+			//Deselect all selected_fields
+			for(i = 0; i < oSelectTo.length; i++)
+				if(oSelectTo[i].selected)
+					oSelectTo[i].selected = false;
+			//Add new options
+			var sel_count = 0, sel_value = '';
+			for(i = 0; i < oSelectFrom.length; i++)
+			{
+				if(oSelectFrom[i].selected)
+				{
+					jsSelectUtils.addNewOption(oSelectTo.id, oSelectFrom[i].value, oSelectFrom[i].text, false);
+					oSelectTo[oSelectTo.length - 1].selected = true;
+					sel_count++;
+					if(i < (oSelectFrom.length - 1))
+						sel_value = oSelectFrom[i+1].value;
+					else
+						sel_value = '';
+//					else if(i > 0)
+//							sel_value = oSelectFrom[i-1].value;
+				}
+			}
+			//Append selected_fields tail
+			var n = oSelectTo.length;
+			for(i = tail.length - 1; i >= 0; i--)
+			{
+				oSelectTo[n] = tail[i];
+				n++;
+			}
+			if((sel_count == 1) && sel_value)
+				jsSelectUtils.selectOption(oSelectFrom.id, sel_value);
+		}
+	}
+	Sync();
+}
+function OnDelete(id)
+{
+	if(id == 'tabs_delete')
+	{
+		var selected_tabs = document.getElementById('selected_tabs');
+		for(var i = 0; i < selected_tabs.length; i++)
+		{
+			if(selected_tabs[i].selected)
+			{
+				var selected_fields = document.getElementById('selected_fields[' + selected_tabs[i].value + ']');
+				var p = selected_fields.parentNode;
+				p.removeChild(selected_fields);
+			}
+		}
+
+		jsSelectUtils.deleteSelectedOptions(selected_tabs.id);
+		//For Opera deselect options
+		jsSelectUtils.selectOption(selected_tabs.id, '');
+	}
+	if(id == 'fields_delete')
+	{
+		var selected_fields = GetFieldsActiveSelect();
+		if(selected_fields)
+		{
+			jsSelectUtils.deleteSelectedOptions(selected_fields.id);
+			//For Opera deselect options
+			jsSelectUtils.selectOption(selected_fields.id, '');
+		}
+	}
+	Sync();
+}
+
+
+function Sync()
+{
+	var i,j,n,found;
+	var available_tabs = document.getElementById('available_tabs');
+	var available_fields = document.getElementById('available_fields');
+	var selected_tabs = document.getElementById('selected_tabs');
+
+	//1 available_tabs
+	//1.1 Save selection
+	var available_tabs_selection = '';
+	for(i = 0; i < available_tabs.length; i++)
+		if(available_tabs[i].selected)
+			available_tabs_selection = available_tabs[i].value;
+	//2 available_fields
+	//2.1 Save selection
+	var available_fields_selection = new Object;
+	for(i = 0; i < available_fields.length; i++)
+	{
+		if(available_fields[i].selected)
+			available_fields_selection[available_fields[i].value] = available_fields[i].value;
+	}
+	//2.2 Clear list
+	jsSelectUtils.selectAllOptions(available_fields.id);
+	jsSelectUtils.deleteSelectedOptions(available_fields.id);
+	//2.3 Fill list with fields missed
+	if(available_tabs_selection)
+	{
+		var all_selected_fields = new Object;
+		for(i = 0; i < selected_tabs.length; i++)
+		{
+			var selected_fields = document.getElementById('selected_fields[' + selected_tabs[i].value + ']');
+			for(j = 0; j < selected_fields.length; j++)
+				all_selected_fields[selected_fields[j].value] = selected_fields[j].value;
+		}
+		n = 0;
+		for(available_field in arSystemTabsFields[available_tabs_selection])
+		{
+			if(!all_selected_fields[available_field])
+			{
+				var newoption = new Option(arSystemFields[available_field], available_field, false, false);
+				available_fields.options[n] = newoption;
+				available_fields.options[n].innerHTML = arSystemFields[available_field];
+				n++;
+			}
+		}
+		//2.4 Set selection
+		for(i = 0; i < available_fields.length; i++)
+			if(available_fields_selection[available_fields[i].value])
+				available_fields[i].selected = true;
+	}
+
+	//3 selected_tabs
+
+	//4 selected_fields
+	found = false;
+	for(i = 0; i < selected_tabs.length; i++)
+	{
+		var selected_fields = document.getElementById('selected_fields[' + selected_tabs[i].value + ']');
+		if(selected_tabs[i].selected)
+		{
+			selected_fields.style.display = 'block';
+			found = true;
+		}
+		else
+		{
+			selected_fields.style.display = 'none';
+		}
+	}
+	if(found)
+		document.getElementById('selected_fields[undef]').style.display = 'none';
+	else
+		document.getElementById('selected_fields[undef]').style.display = 'block';
+
+	//5 disable and enable buttons
+	//5.0 calculate selections counters
+	var selected_tabs_count = 0;
+	for(i = 0; i < selected_tabs.length; i++)
+		if(selected_tabs[i].selected)
+			selected_tabs_count++;
+	var available_tabs_count = 0;
+	for(i = 0; i < available_tabs.length; i++)
+		if(available_tabs[i].selected)
+			available_tabs_count++;
+	//tabs_delete enabled if selected_tabs have selection
+	document.getElementById('tabs_delete').disabled = selected_tabs_count <= 0;
+	//tabs_copy enabled if available_tabs have selection and this selection does not exists in
+	//		selected fields
+	if(available_tabs_count <= 0)
+	{
+		document.getElementById('tabs_copy').disabled = true;
+	}
+	else
+	{
+		found = false;
+		for(i = 0; i < selected_tabs.length; i++)
+			if(selected_tabs[i].value == available_tabs_selection)
+				found = true;
+		document.getElementById('tabs_copy').disabled = found;
+	}
+	//tabs_up enabled if selected_tabs have selection
+	document.getElementById('tabs_up').disabled = selected_tabs_count <= 0;
+	//tabs_down enabled if selected_tabs have selection
+	document.getElementById('tabs_down').disabled = selected_tabs_count <= 0;
+	//tabs_rename enabled if selected_tabs have one item selected
+	document.getElementById('tabs_rename').disabled = selected_tabs_count != 1;
+	//tabs_add always selected
+	document.getElementById('tabs_add').disabled = false;
+
+	var selected_fields_count = 0;
+	for(i = 0; i < selected_tabs.length; i++)
+	{
+		if(selected_tabs[i].selected)
+		{
+			var selected_fields = document.getElementById('selected_fields[' + selected_tabs[i].value + ']');
+			for(j = 0; j < selected_fields.length; j++)
+				if(selected_fields[j].selected)
+					selected_fields_count++;
+		}
+	}
+	var available_fields_count = 0;
+	for(i = 0; i < available_fields.length; i++)
+		if(available_fields[i].selected)
+			available_fields_count++;
+	//fields_delete enabled if selected_fields have selection
+	document.getElementById('fields_delete').disabled = selected_fields_count <= 0;
+	//fields_copy enabled if available_fields have selection and at least one tab selected
+	document.getElementById('fields_copy').disabled = available_fields_count <= 0 || selected_tabs_count <= 0;
+	//fields_up enabled if selected_fields have selection
+	document.getElementById('fields_up').disabled = selected_fields_count <= 0;
+	//fields_down enabled if selected_fields have selection
+	document.getElementById('fields_down').disabled = selected_fields_count <= 0;
+	//fields_rename enabled if selected_fields have one item selected
+	document.getElementById('fields_rename').disabled = selected_fields_count != 1;
+	//fields_add enabled if selected_tabs have one item selected
+	document.getElementById('fields_add').disabled = selected_tabs_count != 1;
+
+	var arFields = new Object;
+	for(var name in arSystemFields)
+		arFields[name] = arSystemFields[name];
+	for(i = 0; i < selected_tabs.length; i++)
+	{
+		selected_fields = document.getElementById('selected_fields[' + selected_tabs[i].value + ']');
+		for(j = 0; j < selected_fields.length; j++)
+			delete arFields[selected_fields[j].value];
+	}
+	var save_button = document.getElementById('save_settings');
+	save_button.disabled = false;
+	for(var name in arFields)
+	{
+		if(arFields[name].substring(0,1) == "*")
+			save_button.disabled = true;
+	}
+}
+
+function SyncAvailableFields()
+{
+	var oSelect = document.getElementById('available_tabs');
+	if(oSelect)
+	{
+		var k = oSelect.length;
+		for(var i=0; i<k; i++)
+		{
+			oFieldsSelect = document.getElementById('available_fields');
+			if(oFieldsSelect)
+			{
+				jsSelectUtils.selectAllOptions(oFieldsSelect.id);
+				jsSelectUtils.deleteSelectedOptions(oFieldsSelect.id);
+				if(oSelect[i].selected)
+				{
+					var n = 0;
+					for(var field_id in arSystemTabsFields[oSelect[i].value])
+					{
+						var newoption = new Option(arSystemFields[field_id], field_id, false, false);
+						oFieldsSelect.options[n]=newoption;
+						oFieldsSelect.options[n].innerHTML = arSystemFields[field_id];
+						n++;
+					}
+				}
+			}
+		}
+	}
+}
+
+function GetFieldsActiveSelect()
+{
+	var oFieldsSelect;
+	var oSelect = document.getElementById('selected_tabs');
+	if(oSelect)
+	{
+		var k = oSelect.length;
+		for(var i=0; i<k; i++)
+		{
+			oFieldsSelect = document.getElementById('selected_fields[' + oSelect[i].value + ']');
+			if(oFieldsSelect && oFieldsSelect.style.display == 'block')
+				return oFieldsSelect;
+		}
+	}
+	return false;
+}
+
+function OnRename(id)
+{
+	var frm=document.form_settings;
+	if(id == 'tabs_rename')
+	{
+		var oSelect = document.getElementById('selected_tabs');
+		if(oSelect)
+		{
+			var n = oSelect.length;
+			var c = 0;
+			var choice = '';
+			for(var i=0; i<n; i++)
+			{
+				if(oSelect[i].selected)
+				{
+					c++;
+					if(!choice)
+						choice = oSelect[i].text;
+				}
+			}
+			if(c == 1)
+			{
+				var name = prompt(arFormEditMess.admin_lib_sett_tab_rename, choice);
+				if(name && name.length > 0)
+				{
+					for(var i=0; i<n; i++)
+						if(oSelect[i].selected)
+						{
+							oSelect[i].text = name;
+							break;
+						}
+				}
+			}
+		}
+	}
+	if(id == 'fields_rename')
+	{
+		var oSelect = GetFieldsActiveSelect();
+		if(oSelect)
+		{
+			var n = oSelect.length;
+			var c = 0;
+			var choice = '';
+			for(var i=0; i<n; i++)
+			{
+				if(oSelect[i].selected)
+				{
+					c++;
+					if(!choice)
+						choice = oSelect[i].innerHTML;
+				}
+			}
+			if(c == 1)
+			{
+				var prefix = '';
+				if(choice.substring(0, 2) == '--')
+				{
+					choice = choice.substring(2);
+					prefix = '--';
+				}
+				else
+				{
+					if(choice.substring(0, 1) == '*')
+					{
+						choice = choice.substring(1);
+						prefix = '*';
+					}
+					else
+					{
+						if(choice.substring(0, 12) == '&nbsp;&nbsp;')
+						{
+							choice = choice.substring(12);
+							prefix = '&nbsp;&nbsp;';
+						}
+						else
+						{
+							while(choice.substring(0, 2) == '\xA0\xA0' || choice.substring(0, 2) == '\xC2\xA0')
+							{
+								choice = choice.substring(2);
+								prefix = '&nbsp;&nbsp;';
+							}
+						}
+					}
+				}
+				var name = prompt(arFormEditMess.admin_lib_sett_sec_rename, choice);
+				if(name && name.length > 0)
+				{
+					for(var i=0; i<n; i++)
+						if(oSelect[i].selected)
+						{
+							if(prefix == '&nbsp;&nbsp;')
+							{
+								oSelect[i].text = name;
+								oSelect[i].innerHTML = '&nbsp;&nbsp;' + oSelect[i].innerHTML;
+							}
+							else
+							{
+								oSelect[i].text = prefix + name;
+							}
+							break;
+						}
+				}
+			}
+		}
+	}
+}
+function FieldsUpAndDown(direction)
+{
+	var oSelect = GetFieldsActiveSelect();
+	if(oSelect)
+	{
+		if(direction == 'up')
+			jsSelectUtils.moveOptionsUp(oSelect);
+		else
+			jsSelectUtils.moveOptionsDown(oSelect);
+	}
+}

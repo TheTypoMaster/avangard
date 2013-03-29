@@ -124,18 +124,41 @@ if(count($arResult["POSTS"])>0)
 						?><p><a class="blog-postmore-link" href="<?=$CurPost["urlToPost"]?>"><?=GetMessage("BLOG_BLOG_BLOG_MORE")?></a></p><?
 					}
 					?>
-					<?if($CurPost["POST_PROPERTIES"]["SHOW"] == "Y"):?>
-						<p>
+					<?if(!empty($CurPost["arImages"]))
+					{
+						?>
+						<div class="feed-com-files">
+							<div class="feed-com-files-title"><?=GetMessage("BLOG_PHOTO")?></div>
+							<div class="feed-com-files-cont">
+								<?
+								foreach($CurPost["arImages"] as $val)
+								{
+									?><span class="feed-com-files-photo"><a href="<?=$val["full"]?>"<?/* onclick="ImgShw('<?=CUtil::JSEscape($val["full"])?>', 800, 800); return false;"*/?> target="_blank"><img src="<?=$val["small"]?>" alt="" border="0"></a></span><?
+								}
+								?>
+							</div>
+						</div>
+						<?
+					}?>
+					<?if($CurPost["POST_PROPERTIES"]["SHOW"] == "Y"):
+						$eventHandlerID = false;
+						$eventHandlerID = AddEventHandler('main', 'system.field.view.file', Array('CBlogTools', 'blogUFfileShow'));
+						?>
 						<?foreach ($CurPost["POST_PROPERTIES"]["DATA"] as $FIELD_NAME => $arPostField):?>
-						<?if(strlen($arPostField["VALUE"])>0):?>
-						<b><?=$arPostField["EDIT_FORM_LABEL"]?>:</b>&nbsp;<?$APPLICATION->IncludeComponent(
-										"bitrix:system.field.view", 
-										$arPostField["USER_TYPE"]["USER_TYPE_ID"], 
-										array("arUserField" => $arPostField), null, array("HIDE_ICONS"=>"Y"));?><br />
+						<?if(!empty($arPostField["VALUE"])):?>
+						<div>
+						<?=($FIELD_NAME=='UF_BLOG_POST_DOC' ? "" : "<b>".$arPostField["EDIT_FORM_LABEL"].":</b>&nbsp;")?>
+							<?$APPLICATION->IncludeComponent(
+								"bitrix:system.field.view", 
+								$arPostField["USER_TYPE"]["USER_TYPE_ID"], 
+								array("arUserField" => $arPostField), null, array("HIDE_ICONS"=>"Y"));?>
+						</div>
 						<?endif;?>
 						<?endforeach;?>
-						</p>
-					<?endif;?>
+						<?
+						if ($eventHandlerID !== false && ( intval($eventHandlerID) > 0 ))
+							RemoveEventHandler('main', 'system.field.view.file', $eventHandlerID);
+					endif;?>
 				</div>
 				
 				<div class="blog-post-meta">

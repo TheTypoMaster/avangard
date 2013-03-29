@@ -1,8 +1,8 @@
 <?
 $MESS["IBLOCK_DETAIL_URL"] = "URL of the page with the detail contents";
 $MESS["IBLOCK_PRICES"] = "Prices";
-$MESS["IBLOCK_TYPE"] = "Info-block type";
-$MESS["IBLOCK_IBLOCK"] = "Info-block";
+$MESS["IBLOCK_TYPE"] = "Infoblock type";
+$MESS["IBLOCK_IBLOCK"] = "Infoblock";
 $MESS["IBLOCK_PROPERTY"] = "Properties";
 $MESS["IBLOCK_SORT_SHOWS"] = "average shows";
 $MESS["IBLOCK_SORT_SORT"] = "sorting index";
@@ -37,4 +37,7 @@ $MESS["CP_BCT_OFFERS_PROPERTY_CODE"] = "SKU Properties";
 $MESS["CP_BCT_OFFERS_SORT_FIELD"] = "Sort SKU By Field";
 $MESS["CP_BCT_OFFERS_SORT_ORDER"] = "SKU Sort Order";
 $MESS["CP_BCT_OFFERS_CART_PROPERTIES"] = "SKU Properties In Shopping Cart";
+$MESS["CP_BCT_CONVERT_CURRENCY"] = "Use only one currency to show prices";
+$MESS["CP_BCT_CURRENCY_ID"] = "Convert all prices to currency";
+$MESS["CP_BCT_OFFERS_LIMIT"] = "Maximum SKU's to Show (use 0 to show all)";
 ?>

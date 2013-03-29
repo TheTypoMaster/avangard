@@ -13,4 +13,4 @@ function shiftSubDiv(n)
 		el.style.display = 'none';
 		plusminus.innerHTML = '+';
 	}
-};
+};;   

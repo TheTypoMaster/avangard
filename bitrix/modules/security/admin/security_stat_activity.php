@@ -59,12 +59,27 @@ $DEFENCE_MAX_STACK_HITS = COption::GetOptionString($module_id, "DEFENCE_MAX_STAC
 $DEFENCE_DELAY = COption::GetOptionString($module_id, "DEFENCE_DELAY");
 $DEFENCE_LOG = COption::GetOptionString($module_id, "DEFENCE_LOG");
 
+$messageDetails = "";
+if(COption::GetOptionString($module_id, "DEFENCE_ON")==="Y")
+{
+	$messageType = "OK";
+	$messageText = GetMessage("SEC_STATACT_ON");
+} else
+{
+	$messageType = "ERROR";
+	$messageText = GetMessage("SEC_STATACT_OFF");
+}
+
 $APPLICATION->SetTitle(GetMessage("SEC_STATACT_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-if($message)
-	echo $message->Show();
+CAdminMessage::ShowMessage(array(
+			"MESSAGE"=>$messageText,
+			"TYPE"=>$messageType,
+			"DETAILS"=>$messageDetails,
+			"HTML"=>true
+		));
 ?>
 
 <form method="POST" action="security_stat_activity.php?lang=<?echo LANGUAGE_ID?><?echo $_GET["return_url"]? "&amp;return_url=".urlencode($_GET["return_url"]): ""?>"  enctype="multipart/form-data" name="editform">
@@ -73,20 +88,11 @@ $tabControl->Begin();
 $tabControl->BeginNextTab();
 ?>
 <tr>
-	<td valign="top" colspan="2" align="left">
-		<?if(COption::GetOptionString($module_id, "DEFENCE_ON")==="Y"):?>
-			<span style="color:green;"><b><?echo GetMessage("SEC_STATACT_ON")?>.</b></span>
-		<?else:?>
-			<span style="color:red;"><b><?echo GetMessage("SEC_STATACT_OFF")?>.</b></span>
-		<?endif?>
-	</td>
-</tr>
-<tr>
-	<td valign="top" colspan="2" align="left">
+	<td colspan="2" align="left">
 		<?if(COption::GetOptionString($module_id, "DEFENCE_ON")==="Y"):?>
 			<input type="submit" name="DEFENCE_OFF" value="<?echo GetMessage("SEC_STATACT_BUTTON_OFF")?>"<?if(!$RIGHT_W) echo " disabled"?>>
 		<?else:?>
-			<input type="submit" name="DEFENCE_ON" value="<?echo GetMessage("SEC_STATACT_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?>>
+			<input type="submit" name="DEFENCE_ON" value="<?echo GetMessage("SEC_STATACT_BUTTON_ON")?>"<?if(!$RIGHT_W) echo " disabled"?> class="adm-btn-save">
 		<?endif?>
 	</td>
 </tr>
@@ -101,21 +107,21 @@ $tabControl->BeginNextTab();
 ?>
 <?if (CModule::IncludeModule("fileman")):?>
 	<tr>
-		<td width="40%"><?echo GetMessage("SEC_STATACT_503_TEMPLATE")?>:</td>
-		<td width="60%"><a href="/bitrix/admin/fileman_file_edit.php?lang=<?=LANGUAGE_ID?>&amp;full_src=Y&amp;path=%2Fbitrix%2Factivity_limit.php"><?echo GetMessage("SEC_STATACT_GRABBER_EDIT_503_TEMPLATE_LINK")?></a></td>
+		<td><?echo GetMessage("SEC_STATACT_503_TEMPLATE")?>:</td>
+		<td><a href="/bitrix/admin/fileman_file_edit.php?lang=<?=LANGUAGE_ID?>&amp;full_src=Y&amp;path=%2Fbitrix%2Factivity_limit.php"><?echo GetMessage("SEC_STATACT_GRABBER_EDIT_503_TEMPLATE_LINK")?></a></td>
 	</tr>
 <?endif;?>
 	<tr>
 		<td width="40%"><?echo GetMessage("SEC_STATACT_DEFENCE_DELAY")?>:</td>
-		<td width="60%"><input size="3" type="text" name="DEFENCE_DELAY" id="DEFENCE_DELAY" value="<?=htmlspecialchars($DEFENCE_DELAY)?>">&nbsp;<?echo GetMessage("SEC_STATACT_DEFENCE_DELAY_MEAS")?></td>
+		<td width="60%"><input size="3" type="text" name="DEFENCE_DELAY" id="DEFENCE_DELAY" value="<?=htmlspecialcharsbx($DEFENCE_DELAY)?>">&nbsp;<?echo GetMessage("SEC_STATACT_DEFENCE_DELAY_MEAS")?></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("SEC_STATACT_DEFENCE_STACK_TIME")?></td>
-		<td><input size="3" type="text" name="DEFENCE_STACK_TIME" id="DEFENCE_STACK_TIME" value="<?=htmlspecialchars($DEFENCE_STACK_TIME)?>">&nbsp;<?echo GetMessage("SEC_STATACT_DEFENCE_STACK_TIME_MEAS")?></td>
+		<td><input size="3" type="text" name="DEFENCE_STACK_TIME" id="DEFENCE_STACK_TIME" value="<?=htmlspecialcharsbx($DEFENCE_STACK_TIME)?>">&nbsp;<?echo GetMessage("SEC_STATACT_DEFENCE_STACK_TIME_MEAS")?></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("SEC_STATACT_DEFENCE_MAX_HITS")?></td>
-		<td><input size="3" type="text" name="DEFENCE_MAX_STACK_HITS" id="DEFENCE_MAX_STACK_HITS" value="<?=htmlspecialchars($DEFENCE_MAX_STACK_HITS)?>">&nbsp;<?echo GetMessage("SEC_STATACT_DEFENCE_MAX_HITS_MEAS")?></td>
+		<td><input size="3" type="text" name="DEFENCE_MAX_STACK_HITS" id="DEFENCE_MAX_STACK_HITS" value="<?=htmlspecialcharsbx($DEFENCE_MAX_STACK_HITS)?>">&nbsp;<?echo GetMessage("SEC_STATACT_DEFENCE_MAX_HITS_MEAS")?></td>
 	</tr>
 	<tr>
 		<td nowrap><label for="DEFENCE_LOG"><?echo GetMessage("SEC_STATACT_DEFENCE_LOG", array("#HREF#"=>"/bitrix/admin/event_log.php?lang=".LANGUAGE_ID."&set_filter=Y&find_type=audit_type_id&find_audit_type[]=STAT_ACTIVITY_LIMIT"))?></label></td>
@@ -135,14 +141,6 @@ $tabControl->Buttons(
 $tabControl->End();
 ?>
 </form>
-
-<?
-$tabControl->ShowWarnings("editform", $message);
-?>
-
-<?/*echo BeginNote();?>
-<span class="required">*</span><?echo GetMessage("REQUIRED_FIELDS")?>
-<?echo EndNote();*/?>
 <?
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 ?>

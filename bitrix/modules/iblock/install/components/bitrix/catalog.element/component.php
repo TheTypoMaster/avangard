@@ -1,11 +1,7 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+CUtil::InitJSCore(array('popup'));
 
-if(!CModule::IncludeModule("iblock"))
-{
-	ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
-	return 0;
-}
 /*************************************************************************
 	Processing of received parameters
 *************************************************************************/
@@ -92,10 +88,29 @@ if($arParams["SHOW_WORKFLOW"])
 
 $arParams["PRICE_VAT_INCLUDE"] = $arParams["PRICE_VAT_INCLUDE"] !== "N";
 $arParams["PRICE_VAT_SHOW_VALUE"] = $arParams["PRICE_VAT_SHOW_VALUE"] === "Y";
+
+$arParams['CONVERT_CURRENCY'] = (isset($arParams['CONVERT_CURRENCY']) && 'Y' == $arParams['CONVERT_CURRENCY'] ? 'Y' : 'N');
+$arParams['CURRENCY_ID'] = trim(strval($arParams['CURRENCY_ID']));
+if ('' == $arParams['CURRENCY_ID'])
+{
+	$arParams['CONVERT_CURRENCY'] = 'N';
+}
+elseif ('N' == $arParams['CONVERT_CURRENCY'])
+{
+	$arParams['CURRENCY_ID'] = '';
+}
+
+$arParams["OFFERS_LIMIT"] = intval($arParams["OFFERS_LIMIT"]);
+if (0 > $arParams["OFFERS_LIMIT"])
+	$arParams["OFFERS_LIMIT"] = 0;
+
+$arParams['USE_ELEMENT_COUNTER'] = (isset($arParams['USE_ELEMENT_COUNTER']) && 'N' == $arParams['USE_ELEMENT_COUNTER'] ? 'N' : 'Y');
+
 /*************************************************************************
 			Processing of the Buy link
 *************************************************************************/
 $strError = "";
+
 if (array_key_exists($arParams["ACTION_VARIABLE"], $_REQUEST) && array_key_exists($arParams["PRODUCT_ID_VARIABLE"], $_REQUEST))
 {
 	if(array_key_exists($arParams["ACTION_VARIABLE"]."BUY", $_REQUEST))
@@ -106,25 +121,25 @@ if (array_key_exists($arParams["ACTION_VARIABLE"], $_REQUEST) && array_key_exist
 		$action = strtoupper($_REQUEST[$arParams["ACTION_VARIABLE"]]);
 
 	$productID = intval($_REQUEST[$arParams["PRODUCT_ID_VARIABLE"]]);
-	if (($action == "ADD2BASKET" || $action == "BUY") && $productID > 0)
+	if (($action == "ADD2BASKET" || $action == "BUY" || $action == "SUBSCRIBE_PRODUCT") && $productID > 0)
 	{
-		if (CModule::IncludeModule("sale") && CModule::IncludeModule("catalog"))
+		if (CModule::IncludeModule("sale") && CModule::IncludeModule("catalog") && CModule::IncludeModule('iblock'))
 		{
 			if($arParams["USE_PRODUCT_QUANTITY"])
-				$QUANTITY = intval($_POST[$arParams["PRODUCT_QUANTITY_VARIABLE"]]);
+				$QUANTITY = intval($_REQUEST[$arParams["PRODUCT_QUANTITY_VARIABLE"]]);
 			if($QUANTITY <= 1)
 				$QUANTITY = 1;
 
 			$product_properties = array();
 			if(count($arParams["PRODUCT_PROPERTIES"]))
 			{
-				if(is_array($_POST[$arParams["PRODUCT_PROPS_VARIABLE"]]))
+				if(is_array($_REQUEST[$arParams["PRODUCT_PROPS_VARIABLE"]]))
 				{
 					$product_properties = CIBlockPriceTools::CheckProductProperties(
 						$arParams["IBLOCK_ID"],
 						$productID,
 						$arParams["PRODUCT_PROPERTIES"],
-						$_POST[$arParams["PRODUCT_PROPS_VARIABLE"]]
+						$_REQUEST[$arParams["PRODUCT_PROPS_VARIABLE"]]
 					);
 					if(!is_array($product_properties))
 						$strError = GetMessage("CATALOG_ERROR2BASKET").".";
@@ -150,8 +165,17 @@ if (array_key_exists($arParams["ACTION_VARIABLE"], $_REQUEST) && array_key_exist
 					);
 				}
 			}
+			
+			$notifyOption = COption::GetOptionString("sale", "subscribe_prod", "");
+			$arNotify = unserialize($notifyOption);
 
-			if(!$strError && Add2BasketByProductID($productID, $QUANTITY, $product_properties))
+			if ($action == "SUBSCRIBE_PRODUCT" && $arNotify[SITE_ID]['use'] == 'Y')
+			{
+				$arRewriteFields["SUBSCRIBE"] = "Y";
+				$arRewriteFields["CAN_BUY"] = "N";
+			}
+
+			if(!$strError && Add2BasketByProductID($productID, $QUANTITY, $arRewriteFields, $product_properties))
 			{
 				if ($action == "BUY")
 					LocalRedirect($arParams["BASKET_URL"]);
@@ -168,6 +192,7 @@ if (array_key_exists($arParams["ACTION_VARIABLE"], $_REQUEST) && array_key_exist
 		}
 	}
 }
+
 if(strlen($strError)>0)
 {
 	ShowError($strError);
@@ -179,6 +204,37 @@ if(strlen($strError)>0)
 *************************************************************************/
 if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER->GetGroups())))
 {
+	if (!CModule::IncludeModule("iblock"))
+	{
+		$this->AbortResultCache();
+		ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+		return 0;
+	}
+
+	global $CACHE_MANAGER;
+	$arConvertParams = array();
+	if ('Y' == $arParams['CONVERT_CURRENCY'])
+	{
+		if (!CModule::IncludeModule('currency'))
+		{
+			$arParams['CONVERT_CURRENCY'] = 'N';
+			$arParams['CURRENCY_ID'] = '';
+		}
+		else
+		{
+			$arCurrencyInfo = CCurrency::GetByID($arParams['CURRENCY_ID']);
+			if (!(is_array($arCurrencyInfo) && !empty($arCurrencyInfo)))
+			{
+				$arParams['CONVERT_CURRENCY'] = 'N';
+				$arParams['CURRENCY_ID'] = '';
+			}
+			else
+			{
+				$arParams['CURRENCY_ID'] = $arCurrencyInfo['CURRENCY'];
+				$arConvertParams['CURRENCY_ID'] = $arCurrencyInfo['CURRENCY'];
+			}
+		}
+	}
 
 	//Handle case when ELEMENT_CODE used
 	if($arParams["ELEMENT_ID"] <= 0)
@@ -224,6 +280,7 @@ if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 			"NAME",
 			"CODE",
 			"ACTIVE_FROM",
+			"ACTIVE_TO",
 			"DATE_CREATE",
 			"CREATED_BY",
 			"IBLOCK_ID",
@@ -236,6 +293,7 @@ if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 			"PREVIEW_TEXT",
 			"PREVIEW_TEXT_TYPE",
 			"PREVIEW_PICTURE",
+			"TAGS",
 			"PROPERTY_*",
 		);
 		//WHERE
@@ -247,19 +305,32 @@ if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 			"ACTIVE_DATE" => "Y",
 			"ACTIVE" => "Y",
 			"CHECK_PERMISSIONS" => "Y",
+			"MIN_PERMISSION" => 'R',
 			"SHOW_HISTORY" => $WF_SHOW_HISTORY,
 		);
 		//ORDER BY
 		$arSort = array(
 		);
 		//PRICES
+		$arPriceTypeID = array();
 		if(!$arParams["USE_PRICE_COUNT"])
 		{
-			foreach($arResultPrices as $key => $value)
+			foreach($arResultPrices as &$value)
 			{
 				$arSelect[] = $value["SELECT"];
 				$arFilter["CATALOG_SHOP_QUANTITY_".$value["ID"]] = $arParams["SHOW_PRICE_COUNT"];
 			}
+			if (isset($value))
+				unset($value);
+		}
+		else
+		{
+			foreach ($arResultPrices as &$value)
+			{
+				$arPriceTypeID[] = $value["ID"];
+			}
+			if (isset($value))
+				unset($value);
 		}
 
 		$arSection = false;
@@ -285,6 +356,8 @@ if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 		if($obElement = $rsElement->GetNextElement())
 		{
 			$arResult=$obElement->GetFields();
+
+			$arResult['CONVERT_CURRENCY'] = $arConvertParams;
 
 			$arResult["CAT_PRICES"] = $arResultPrices;
 
@@ -372,9 +445,9 @@ if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 			{
 				if(CModule::IncludeModule("catalog"))
 				{
-					$arResult["PRICE_MATRIX"] = CatalogGetPriceTableEx($arResult["ID"]);
+					$arResult["PRICE_MATRIX"] = CatalogGetPriceTableEx($arResult["ID"], 0, $arPriceTypeID, 'Y', $arConvertParams);
 					foreach($arResult["PRICE_MATRIX"]["COLS"] as $keyColumn=>$arColumn)
-						$arResult["PRICE_MATRIX"]["COLS"][$keyColumn]["NAME_LANG"] = htmlspecialchars($arColumn["NAME_LANG"]);
+						$arResult["PRICE_MATRIX"]["COLS"][$keyColumn]["NAME_LANG"] = htmlspecialcharsbx($arColumn["NAME_LANG"]);
 				}
 				else
 				{
@@ -385,26 +458,33 @@ if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 			else
 			{
 				$arResult["PRICE_MATRIX"] = false;
-				$arResult["PRICES"] = CIBlockPriceTools::GetItemPrices($arParams["IBLOCK_ID"], $arResult["CAT_PRICES"], $arResult, $arParams['PRICE_VAT_INCLUDE']);
+				$arResult["PRICES"] = CIBlockPriceTools::GetItemPrices($arParams["IBLOCK_ID"], $arResult["CAT_PRICES"], $arResult, $arParams['PRICE_VAT_INCLUDE'], $arConvertParams);
 			}
+
 			$arResult["CAN_BUY"] = CIBlockPriceTools::CanBuy($arParams["IBLOCK_ID"], $arResult["CAT_PRICES"], $arResult);
 
-			$arResult["BUY_URL"] = htmlspecialchars($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=BUY&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arResult["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
-			$arResult["ADD_URL"] = htmlspecialchars($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=ADD2BASKET&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arResult["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
+			$arResult["BUY_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=BUY&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arResult["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
+			$arResult["ADD_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=ADD2BASKET&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arResult["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
 			$arResult["LINK_URL"] = str_replace(
 						array("#ELEMENT_ID#","#SECTION_ID#"),
 						array($arResult["ID"],$arResult["SECTION"]["ID"]),
 						$arParams["LINK_ELEMENTS_URL"]
 					);
 
+			$arResult["SUBSCRIBE_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=SUBSCRIBE_PRODUCT&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arResult["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
+
 			if(!isset($arParams["OFFERS_FIELD_CODE"]))
 				$arParams["OFFERS_FIELD_CODE"] = array();
+			elseif (!is_array($arParams["OFFERS_FIELD_CODE"]))
+				$arParams["OFFERS_FIELD_CODE"] = array($arParams["OFFERS_FIELD_CODE"]);
 			foreach($arParams["OFFERS_FIELD_CODE"] as $key => $value)
 				if($value === "")
 					unset($arParams["OFFERS_FIELD_CODE"][$key]);
 
 			if(!isset($arParams["OFFERS_PROPERTY_CODE"]))
 				$arParams["OFFERS_PROPERTY_CODE"] = array();
+			elseif (!is_array($arParams["OFFERS_PROPERTY_CODE"]))
+				$arParams["OFFERS_PROPERTY_CODE"] = array($arParams["OFFERS_PROPERTY_CODE"]);
 			foreach($arParams["OFFERS_PROPERTY_CODE"] as $key => $value)
 				if($value === "")
 					unset($arParams["OFFERS_PROPERTY_CODE"][$key]);
@@ -427,14 +507,76 @@ if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 					,$arParams["OFFERS_LIMIT"]
 					,$arResult["CAT_PRICES"]
 					,$arParams['PRICE_VAT_INCLUDE']
+					,$arConvertParams
 				);
 				foreach($arOffers as $arOffer)
 				{
-					$arOffer["BUY_URL"] = htmlspecialchars($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=BUY&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arOffer["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
-					$arOffer["ADD_URL"] = htmlspecialchars($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=ADD2BASKET&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arOffer["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
-					$arOffer["COMPARE_URL"] = htmlspecialchars($APPLICATION->GetCurPageParam("action=ADD_TO_COMPARE_LIST&id=".$arOffer["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
+					$arOffer["BUY_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=BUY&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arOffer["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
+					$arOffer["ADD_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=ADD2BASKET&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arOffer["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
+					$arOffer["COMPARE_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam("action=ADD_TO_COMPARE_LIST&id=".$arOffer["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
+					$arOffer["SUBSCRIBE_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam($arParams["ACTION_VARIABLE"]."=SUBSCRIBE_PRODUCT&".$arParams["PRODUCT_ID_VARIABLE"]."=".$arOffer["ID"], array($arParams["PRODUCT_ID_VARIABLE"], $arParams["ACTION_VARIABLE"])));
 
 					$arResult["OFFERS"][] = $arOffer;
+				}
+			}
+
+			if ('Y' == $arParams['CONVERT_CURRENCY'])
+			{
+				$arCurrencyList = array();
+				if ($arParams["USE_PRICE_COUNT"])
+				{
+					if (is_array($arResult["PRICE_MATRIX"]) && !empty($arResult["PRICE_MATRIX"]))
+					{
+						if (isset($arResult["PRICE_MATRIX"]['CURRENCY_LIST']) && is_array($arResult["PRICE_MATRIX"]['CURRENCY_LIST']))
+							$arCurrencyList = $arResult["PRICE_MATRIX"]['CURRENCY_LIST'];
+					}
+				}
+				else
+				{
+					if (!empty($arResult["PRICES"]))
+					{
+						foreach ($arResult["PRICES"] as &$arOnePrices)
+						{
+							if (isset($arOnePrices['ORIG_CURRENCY']))
+								$arCurrencyList[] = $arOnePrices['ORIG_CURRENCY'];
+						}
+						if (isset($arOnePrices))
+							unset($arOnePrices);
+					}
+				}
+				if (!empty($arResult["OFFERS"]))
+				{
+					foreach ($arResult["OFFERS"] as &$arOneOffer)
+					{
+						if (!empty($arOneOffer['PRICES']))
+						{
+							foreach ($arOneOffer['PRICES'] as &$arOnePrices)
+							{
+								if (isset($arOnePrices['ORIG_CURRENCY']))
+									$arCurrencyList[] = $arOnePrices['ORIG_CURRENCY'];
+							}
+							if (isset($arOnePrices))
+								unset($arOnePrices);
+						}
+					}
+					if (isset($arOneOffer))
+						unset($arOneOffer);
+				}
+				if (!empty($arCurrencyList))
+				{
+					if (defined("BX_COMP_MANAGED_CACHE"))
+					{
+						$arCurrencyList[] = $arConvertParams['CURRENCY_ID'];
+						$arCurrencyList = array_unique($arCurrencyList);
+						$CACHE_MANAGER->StartTagCache($this->GetCachePath());
+						foreach ($arCurrencyList as &$strOneCurrency)
+						{
+							$CACHE_MANAGER->RegisterTag("currency_id_".$strOneCurrency);
+						}
+						if (isset($strOneCurrency))
+							unset($strOneCurrency);
+						$CACHE_MANAGER->EndTagCache();
+					}
 				}
 			}
 
@@ -471,7 +613,40 @@ if($this->StartResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 
 if(isset($arResult["ID"]))
 {
-	CIBlockElement::CounterInc($arResult["ID"]);
+	if ('N' != $arParams['USE_ELEMENT_COUNTER'])
+	{
+		if (CModule::IncludeModule('iblock'))
+		{
+			CIBlockElement::CounterInc($arResult["ID"]);
+		}
+	}
+
+	if (CModule::IncludeModule('sale'))
+	{
+		if (!isset($_SESSION["VIEWED_ENABLE"]) && isset($_SESSION["VIEWED_PRODUCT"]) && $_SESSION["VIEWED_PRODUCT"] != $arResult["ID"])
+		{
+			$_SESSION["VIEWED_ENABLE"] = "Y";
+			$arFields = array(
+				"PRODUCT_ID" => IntVal($_SESSION["VIEWED_PRODUCT"]),
+				"MODULE" => "catalog",
+				"LID" => SITE_ID,
+			);
+			CSaleViewedProduct::Add($arFields);
+		}
+
+		if (isset($_SESSION["VIEWED_ENABLE"]) && $_SESSION["VIEWED_ENABLE"] == "Y" && $_SESSION["VIEWED_PRODUCT"] != $arResult["ID"])
+		{
+			$arFields = array(
+				"PRODUCT_ID" => $arResult["ID"],
+				"MODULE" => "catalog",
+				"LID" => SITE_ID,
+				"IBLOCK_ID" => $arResult["IBLOCK_ID"]
+			);
+			CSaleViewedProduct::Add($arFields);
+		}
+
+		$_SESSION["VIEWED_PRODUCT"] = $arResult["ID"];
+	}
 
 	$arTitleOptions = null;
 	if($USER->IsAuthorized())
@@ -482,26 +657,29 @@ if(isset($arResult["ID"]))
 			|| isset($arResult[$arParams["BROWSER_TITLE"]])
 		)
 		{
-			$arReturnUrl = array(
-				"add_element" => CIBlock::GetArrayByID($arParams["IBLOCK_ID"], "DETAIL_PAGE_URL"),
-				"delete_element" => (
-					isset($arResult["SECTION"])?
-					$arResult["SECTION"]["SECTION_PAGE_URL"]:
-					$arResult["LIST_PAGE_URL"]
-				),
-			);
-			$arButtons = CIBlock::GetPanelButtons($arResult["IBLOCK_ID"], $arResult["ID"], $arResult["IBLOCK_SECTION_ID"], Array("RETURN_URL" =>  $arReturnUrl));
-
-			if($APPLICATION->GetShowIncludeAreas())
-				$this->AddIncludeAreaIcons(CIBlock::GetComponentMenu($APPLICATION->GetPublicShowMode(), $arButtons));
-
-			if($arParams["SET_TITLE"] || isset($arResult[$arParams["BROWSER_TITLE"]]))
+			if (CModule::IncludeModule('iblock'))
 			{
-				$arTitleOptions = array(
-					'ADMIN_EDIT_LINK' => $arButtons["submenu"]["edit_element"]["ACTION"],
-					'PUBLIC_EDIT_LINK' => $arButtons["edit"]["edit_element"]["ACTION"],
-					'COMPONENT_NAME' => $this->GetName(),
+				$arReturnUrl = array(
+					"add_element" => CIBlock::GetArrayByID($arParams["IBLOCK_ID"], "DETAIL_PAGE_URL"),
+					"delete_element" => (
+						isset($arResult["SECTION"])?
+						$arResult["SECTION"]["SECTION_PAGE_URL"]:
+						$arResult["LIST_PAGE_URL"]
+					),
 				);
+				$arButtons = CIBlock::GetPanelButtons($arResult["IBLOCK_ID"], $arResult["ID"], $arResult["IBLOCK_SECTION_ID"], Array("RETURN_URL" =>  $arReturnUrl, "CATALOG"=>true));
+
+				if($APPLICATION->GetShowIncludeAreas())
+					$this->AddIncludeAreaIcons(CIBlock::GetComponentMenu($APPLICATION->GetPublicShowMode(), $arButtons));
+
+				if($arParams["SET_TITLE"] || isset($arResult[$arParams["BROWSER_TITLE"]]))
+				{
+					$arTitleOptions = array(
+						'ADMIN_EDIT_LINK' => $arButtons["submenu"]["edit_element"]["ACTION"],
+						'PUBLIC_EDIT_LINK' => $arButtons["edit"]["edit_element"]["ACTION"],
+						'COMPONENT_NAME' => $this->GetName(),
+					);
+				}
 			}
 		}
 	}

@@ -50,13 +50,13 @@ if(count($arRubrics)<=0)
 	return;
 }
 
-$arResult["FORM_ACTION"] = htmlspecialchars(str_replace("#SITE_DIR#", LANG_DIR, $arParams["PAGE"]));
+$arResult["FORM_ACTION"] = htmlspecialcharsbx(str_replace("#SITE_DIR#", LANG_DIR, $arParams["PAGE"]));
 $arResult["SHOW_COUNT"] = $arParams["SHOW_COUNT"];
 
 if(strlen($arSubscription["EMAIL"])>0)
-	$arResult["EMAIL"] = htmlspecialchars($arSubscription["EMAIL"]);
+	$arResult["EMAIL"] = htmlspecialcharsbx($arSubscription["EMAIL"]);
 else
-	$arResult["EMAIL"] = htmlspecialchars($USER->GetParam("EMAIL"));
+	$arResult["EMAIL"] = htmlspecialcharsbx($USER->GetParam("EMAIL"));
 
 //check whether already authorized
 $arResult["SHOW_PASS"] = true;

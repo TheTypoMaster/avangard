@@ -426,6 +426,23 @@ $data['high']['ITEMS'][] = array(
 	),
 );
 
+$bSecurityFrame = CSecurityFrame::IsActive();
+
+$data['high']['ITEMS'][] = array(
+	"IS_OK" => $bSecurityFrame,
+	"KPI_NAME" => GetMessage("SEC_PANEL_FRAME_NAME"),
+	"KPI_VALUE" => ($bSecurityFrame? GetMessage("SEC_PANEL_FRAME_VALUE_ON"): GetMessage("SEC_PANEL_FRAME_VALUE_OFF")),
+	"KPI_RECOMMENDATION" => (
+		$bSecurityFrame?
+		'&nbsp;':
+		(
+			$USER->CanDoOperation('security_frame_settings_write')?
+			'<a href="security_frame.php?lang='.LANGUAGE_ID.'&amp;return_url='.urlencode('security_panel.php?lang='.LANGUAGE_ID).'">'.GetMessage("SEC_PANEL_FRAME_RECOMMENDATION").'</a>'
+			:GetMessage("SEC_PANEL_FRAME_RECOMMENDATION")
+		)
+	),
+);
+
 $rsIPRule = CSecurityIPRule::GetList(array(), array(
 	"=RULE_TYPE" => "A",
 	"=ADMIN_SECTION" => "Y",
@@ -640,7 +657,7 @@ function CheckLevel($arItems)
 }
 
 
-
+$messageType = "OK";
 if(CheckLevel($data["std"]["ITEMS"]))
 {
 	if(CheckLevel($data["high"]["ITEMS"]))
@@ -662,6 +679,7 @@ if(CheckLevel($data["std"]["ITEMS"]))
 else
 {
 	$SECURITY_LEVEL = GetMessage("SEC_PANEL_NORMAL_NAME");
+	$messageType = "ERROR";
 }
 
 $sTableID = "tbl_security_panel";
@@ -670,9 +688,12 @@ $APPLICATION->SetTitle(GetMessage("SEC_PANEL_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-ShowError($strError);
+CAdminMessage::ShowMessage($strError);		
 
-echo "<h3>".GetMessage("SEC_PANEL_CURRENT_LEVEL", array("#LEVEL_NAME#" => $SECURITY_LEVEL))."</h3>\n";
+CAdminMessage::ShowMessage(array(
+			"MESSAGE"=>GetMessage("SEC_PANEL_CURRENT_LEVEL", array("#LEVEL_NAME#" => $SECURITY_LEVEL)),
+			"TYPE"=>$messageType,
+		));
 
 if(count($data))
 {

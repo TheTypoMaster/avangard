@@ -46,4 +46,5 @@ $MESS["IBLOCK_CML2_UPDATED"] = "Aktualisiert: #COUNT#";
 $MESS["IBLOCK_CML2_IMAGE_RESIZE"] = "Informationsblock-Einstellungen für Bildbearbeitung benutzen";
 $MESS["IBLOCK_CML2_TITLE"] = "XML importieren";
 $MESS["IBLOCK_CML2_WRONG_FILE_ERROR"] = "Diese Datei ist nicht eine XML CommerceML 2.0-Datei.";
+$MESS["IBLOCK_CML2_FILE_PROGRESS2"] = "Importdatei in den temporären Tabellen lesen";
 ?>

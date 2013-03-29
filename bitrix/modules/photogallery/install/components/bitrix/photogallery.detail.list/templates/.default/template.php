@@ -9,15 +9,15 @@ elseif (!$this->__component->__parent || strpos($this->__component->__parent->__
 endif;
 $GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/main/utils.js');
 $GLOBALS['APPLICATION']->AddHeadScript("/bitrix/components/bitrix/photogallery.detail.list/templates/slider_big/script_cursor.js");
-if ($GLOBALS['USER']->IsAuthorized()): 
+if ($GLOBALS['USER']->IsAuthorized()):
 	$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/main/admin_tools.js');
 endif;
 CAjax::Init();
 $arTemplates = array(
-	"default" => GetMessage("P_DEFAULT_TEMPLATE"), 
-	"square" => GetMessage("P_SQUARE_TEMPLATE"), 
-	"rectangle" => GetMessage("P_RECTANGLE_TEMPLATE"), 
-	"table" => "table", 
+	"default" => GetMessage("P_DEFAULT_TEMPLATE"),
+	"square" => GetMessage("P_SQUARE_TEMPLATE"),
+	"rectangle" => GetMessage("P_RECTANGLE_TEMPLATE"),
+	"table" => "table",
 	"ascetic" => "ascetic");
 /********************************************************************
 				Input params
@@ -29,26 +29,26 @@ $arParams["THUMBNAIL_SIZE"] = (intVal($temp["WIDTH"]) > 0 ? intVal($temp["WIDTH"
 if ($arParams["PICTURES_SIGHT"] != "standart" && intVal($arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"]) > 0)
 	$arParams["THUMBNAIL_SIZE"] = $arParams["PICTURES"][$arParams["PICTURES_SIGHT"]]["size"];
 $arParams["PERCENT"] = (intVal($arParams["PERCENT"]) > 0 ? intVal($arParams["PERCENT"]) : 60);
-$arParams["percent_width"] = $arParams["percent_height"] = 100; 
+$arParams["percent_width"] = $arParams["percent_height"] = 100;
 $arParams["ID"] = md5(serialize(array("default", $arParams["FILTER"], $arParams["SORTING"])));
 
 $arParams["~TEMPLATE"] = trim(strtolower($arParams["TEMPLATE"]));
-$arParams["~TEMPLATE"] = ($arParams["~TEMPLATE"] == ".default" ? "default" : $arParams["~TEMPLATE"]); 
-$arParams["~TEMPLATE"] = (array_key_exists($arParams["~TEMPLATE"], $arTemplates) ? $arParams["~TEMPLATE"] : ""); 
+$arParams["~TEMPLATE"] = ($arParams["~TEMPLATE"] == ".default" ? "default" : $arParams["~TEMPLATE"]);
+$arParams["~TEMPLATE"] = (array_key_exists($arParams["~TEMPLATE"], $arTemplates) ? $arParams["~TEMPLATE"] : "");
 if ($arParams["~SQUARE"] == "Y")
 {
-	$arParams["~TEMPLATE"] = "ascetic"; 
+	$arParams["~TEMPLATE"] = "ascetic";
 }
 if (!empty($arParams["~TEMPLATE"]))
 {
-	$arParams["TEMPLATE"] = $arParams["~TEMPLATE"]; 
+	$arParams["TEMPLATE"] = $arParams["~TEMPLATE"];
 }
 else
 {
-	$arParams["TEMPLATE_DEFAULT"] = (empty($arParams["TEMPLATE_DEFAULT"]) ? "square" : $arParams["TEMPLATE_DEFAULT"]); 
-	$arParams["TEMPLATE_DEFAULT"] = ($arParams["TEMPLATE_DEFAULT"] == ".default" ? "default" : $arParams["TEMPLATE_DEFAULT"]); 
-	$arParams["TEMPLATE_DEFAULT"] = (array_key_exists($arParams["TEMPLATE_DEFAULT"], $arTemplates) ? $arParams["TEMPLATE_DEFAULT"] : "square"); 
-	
+	$arParams["TEMPLATE_DEFAULT"] = (empty($arParams["TEMPLATE_DEFAULT"]) ? "square" : $arParams["TEMPLATE_DEFAULT"]);
+	$arParams["TEMPLATE_DEFAULT"] = ($arParams["TEMPLATE_DEFAULT"] == ".default" ? "default" : $arParams["TEMPLATE_DEFAULT"]);
+	$arParams["TEMPLATE_DEFAULT"] = (array_key_exists($arParams["TEMPLATE_DEFAULT"], $arTemplates) ? $arParams["TEMPLATE_DEFAULT"] : "square");
+
 	if ($GLOBALS['USER']->IsAuthorized())
 	{
 		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".strToLower($GLOBALS["DB"]->type)."/favorites.php");
@@ -57,34 +57,34 @@ else
 		$arParams["TEMPLATE"] = $arTemplateParams['template'];
 		if ($_REQUEST["template"] && check_bitrix_sessid() && $arTemplateParams["template"] != $_REQUEST["template"])
 		{
-			$arTemplateParams['template'] = $arParams["TEMPLATE"] = $_REQUEST["template"]; 
+			$arTemplateParams['template'] = $arParams["TEMPLATE"] = $_REQUEST["template"];
 			CUserOptions::SetOption('photogallery', 'template', $arTemplateParams);
 		}
 	}
 	else
 	{
 		if (!empty($_SESSION['photogallery']['template']))
-			$arParams["TEMPLATE"] = $_SESSION['photogallery']['template']; 
+			$arParams["TEMPLATE"] = $_SESSION['photogallery']['template'];
 		if (!empty($_REQUEST["template"]))
 			$_SESSION['photogallery']['template'] = $arParams["TEMPLATE"] = $_REQUEST["template"];
 	}
-	$arParams["TEMPLATE"] = (array_key_exists($arParams["TEMPLATE"], $arTemplates) ? $arParams["TEMPLATE"] : $arParams["TEMPLATE_DEFAULT"]); 
+	$arParams["TEMPLATE"] = (array_key_exists($arParams["TEMPLATE"], $arTemplates) ? $arParams["TEMPLATE"] : $arParams["TEMPLATE_DEFAULT"]);
 }
 
-$sTemplateName = "default"; 
+$sTemplateName = "default";
 if ($arParams["TEMPLATE"] == "square" || $arParams["TEMPLATE"] == "ascetic"):
-	$arParams["percent_width"] = $arParams["percent_height"] = $arParams["PERCENT"]; 
-	$sTemplateName = "ascetic"; 
+	$arParams["percent_width"] = $arParams["percent_height"] = $arParams["PERCENT"];
+	$sTemplateName = "ascetic";
 elseif ($arParams["TEMPLATE"] == "rectangle"):
 	$arParams["percent_width"] = 0;
-	$arParams["percent_height"] = $arParams["PERCENT"]; 
-	$sTemplateName = "ascetic"; 
+	$arParams["percent_height"] = $arParams["PERCENT"];
+	$sTemplateName = "ascetic";
 elseif ($arParams["TEMPLATE"] == "table"):
-	$sTemplateName = "table"; 
+	$sTemplateName = "table";
 endif;
 if ($sTemplateName != "default"):
 	$arParams["MAX_WIDTH"] = $arParams["MAX_HEIGHT"] = $arParams["THUMBNAIL_SIZE"];
-else: 
+else:
 	$arParams["MAX_WIDTH"] = ($arResult["ELEMENTS"]["MAX_WIDTH"] < $arParams["THUMBNAIL_SIZE"] ? $arResult["ELEMENTS"]["MAX_WIDTH"] : $arParams["THUMBNAIL_SIZE"]);
 	$arParams["MAX_HEIGHT"] = ($arResult["ELEMENTS"]["MAX_HEIGHT"] < $arParams["THUMBNAIL_SIZE"] ? $arResult["ELEMENTS"]["MAX_HEIGHT"] : $arParams["THUMBNAIL_SIZE"]);
 endif;
@@ -97,13 +97,13 @@ $arParams["SHOW_DATETIME"] = ($arParams["SHOW_DATETIME"] == "Y" ? "Y" : "N");
 $arParams["SHOW_ANCHOR"] = $arResult["USER_HAVE_ACCESS"];
 $arParams["SHOW_DESCRIPTION"] = ($arParams["SHOW_DESCRIPTION"] == "Y" ? "Y" : "N");
 
-// PAGE	
-$arParams["SHOW_PAGE_NAVIGATION"] = (in_array($arParams["SHOW_PAGE_NAVIGATION"], array("none", "top", "bottom", "both")) ? 
+// PAGE
+$arParams["SHOW_PAGE_NAVIGATION"] = (in_array($arParams["SHOW_PAGE_NAVIGATION"], array("none", "top", "bottom", "both")) ?
 		$arParams["SHOW_PAGE_NAVIGATION"] : "bottom");
-$arParams["NEW_DATE_TIME_FORMAT"] = trim(!empty($arParams["NEW_DATE_TIME_FORMAT"]) ? $arParams["NEW_DATE_TIME_FORMAT"] : 
+$arParams["NEW_DATE_TIME_FORMAT"] = trim(!empty($arParams["NEW_DATE_TIME_FORMAT"]) ? $arParams["NEW_DATE_TIME_FORMAT"] :
 	$DB->DateFormatToPHP(CSite::GetDateFormat("SHORT")));
 // FORM & CONTROLS
-$arParams["SHOW_FORM"] = (($arParams["SHOW_INPUTS"] == "Y" || $arParams["SHOW_CONTROLS"] == "Y" || $arParams["SHOW_FORM"] == "Y") && 
+$arParams["SHOW_FORM"] = (($arParams["SHOW_INPUTS"] == "Y" || $arParams["SHOW_CONTROLS"] == "Y" || $arParams["SHOW_FORM"] == "Y") &&
 	$arParams["PERMISSION"] >= "U" ? "Y" : "N");
 $arParams["GROUP_DATE"] = ($arParams["GROUP_DATE"] == "Y" ? "Y" : "N");
 /********************************************************************
@@ -134,7 +134,7 @@ if (in_array($arParams["SHOW_PAGE_NAVIGATION"], array("top", "both")) && !empty(
 <?
 endif;
 
-// Pictures Sights 
+// Pictures Sights
 if (empty($arParams["~TEMPLATE"]) || !empty($arParams["PICTURES"]))
 {
 ?>
@@ -157,21 +157,21 @@ phpVars.bitrix_sessid = '<?=bitrix_sessid()?>';
 				<ul class="photo-controls photo-control-photo-templates">
 					<li class="photo-control-photo-template-square<?=($arParams["TEMPLATE"] == "square" ? " photo-control-photo-template-square-active" : "")?>">
 						<a rel="nofollow" href="<?=$APPLICATION->GetCurPageParam(
-							"template=square".($GLOBALS["USER"]->IsAuthorized() ? "&".bitrix_sessid_get() : ""), 
+							"template=square".($GLOBALS["USER"]->IsAuthorized() ? "&".bitrix_sessid_get() : ""),
 							array("template", "sessid"))?>" <?
 							?>title="<?=GetMessage("P_SQUARE_TEMPLATE_TITLE")?>" <?
 							?>onclick="try {__photo_change_template(this, '<?=$arParams["ID"]?>');return false;} catch (e) {return true;}"><i><span><?=GetMessage("P_SQUARE_TEMPLATE")?></span></i></a>
 					</li>
 					<li class="photo-control-photo-template-rectangle<?=($arParams["TEMPLATE"] == "rectangle" ? " photo-control-photo-template-rectangle-active" : "")?>">
 						<a rel="nofollow" href="<?=$APPLICATION->GetCurPageParam(
-							"template=rectangle".($GLOBALS["USER"]->IsAuthorized() ? "&".bitrix_sessid_get() : ""), 
+							"template=rectangle".($GLOBALS["USER"]->IsAuthorized() ? "&".bitrix_sessid_get() : ""),
 							array("template", "sessid"))?>" <?
 							?>title="<?=GetMessage("P_RECTANGLE_TEMPLATE_TITLE")?>" <?
 							?>onclick="try {__photo_change_template(this, '<?=$arParams["ID"]?>');return false;} catch (e) {return true;}"><i><span><?=GetMessage("P_RECTANGLE_TEMPLATE")?></span></i></a>
 					</li>
 					<li class="photo-control-photo-template-default<?=($arParams["TEMPLATE"] == "default" ? " photo-control-photo-template-default-active" : "")?>">
 						<a rel="nofollow" href="<?=$APPLICATION->GetCurPageParam(
-							"template=default".($GLOBALS["USER"]->IsAuthorized() ? "&".bitrix_sessid_get() : ""), 
+							"template=default".($GLOBALS["USER"]->IsAuthorized() ? "&".bitrix_sessid_get() : ""),
 							array("template", "sessid"))?>" <?
 							?>title="<?=GetMessage("P_DEFAULT_TEMPLATE_TITLE")?>" <?
 							?>onclick="try {__photo_change_template(this, '<?=$arParams["ID"]?>');return false;} catch (e) {return true;}"><i><span><?=GetMessage("P_DEFAULT_TEMPLATE")?></span></i></a>
@@ -184,7 +184,7 @@ phpVars.bitrix_sessid = '<?=bitrix_sessid()?>';
 ?>
 	</ul>
 	<div class="empty-clear"></div>
-</div> 
+</div>
 </noindex>
 <?
 }
@@ -196,8 +196,8 @@ if ($arParams["SHOW_FORM"] == "Y"):
 	<input type="hidden" name="ACTION" id="ACTION" value="Y" />
 	<input type="hidden" name="SECTION_ID" value="<?=$arParams["SECTION_ID"]?>" />
 	<input type="hidden" name="IBLOCK_ID" value="<?=$arParams["IBLOCK_ID"]?>" />
-	<input type="hidden" name="REDIRECT_URL" value="<?=htmlspecialchars($APPLICATION->GetCurPageParam("", array(), false))?>" />
-<?	
+	<input type="hidden" name="REDIRECT_URL" value="<?=htmlspecialcharsbx($APPLICATION->GetCurPageParam("", array(), false))?>" />
+<?
 endif;
 
 $current_date = "";
@@ -213,7 +213,7 @@ endif;
 	<div class="empty-clear"></div>
 <?
 foreach ($arResult["ELEMENTS_LIST"]	as $key => $arItem):
-	if (!is_array($arItem)): 
+	if (!is_array($arItem)):
 		continue;
 	elseif ($arParams["SHOW_DATE"] == "Y"):
 		$this_date = PhotoFormatDate($arItem["~DATE_CREATE"], "DD.MM.YYYY HH:MI:SS", "d.m.Y");
@@ -223,12 +223,12 @@ foreach ($arResult["ELEMENTS_LIST"]	as $key => $arItem):
 			?><div class="group-by-days photo-date"><?=PhotoDateFormat($arParams["NEW_DATE_TIME_FORMAT"], MakeTimeStamp($this_date, "DD.MM.YYYY"))?></div><?
 		}
 	endif;
-	
+
 	$title = (isset($arItem["PREVIEW_TEXT"]) && $arItem["PREVIEW_TEXT"] != '') ? $arItem["PREVIEW_TEXT"] : $arItem["NAME"];
 	$arItem["TITLE"] = $title.($arItem["ACTIVE"] != "Y" ? GetMessage("P_PHOTO_NOT_APPROVED") : "");
 
 	if ($arParams["SHOW_COMMENTS"] != "N")
-		$arItem["COMMENTS"] = intVal($arParams["COMMENTS_TYPE"] != "blog" ? 
+		$arItem["COMMENTS"] = intVal($arParams["COMMENTS_TYPE"] != "blog" ?
 			$arItem["PROPERTIES"]["FORUM_MESSAGE_CNT"]["VALUE"] : $arItem["PROPERTIES"]["BLOG_COMMENTS_CNT"]["VALUE"]);
 	call_user_func("__photo_template_".$sTemplateName, $arItem, $arParams, $this);
 endforeach;
@@ -276,7 +276,7 @@ if ($arParams["SHOW_FORM"] == "Y"):
 			</li>
 		</ul>
 		<div class="empty-clear"></div>
-	</div> 
+	</div>
 	</noindex>
 </form>
 <script type="text/javascript">
@@ -285,13 +285,13 @@ function Delete(form)
 	if (!form || !__check_form(form, 'items[]')){
 		return false;}
 	else if (confirm('<?=CUtil::JSEscape(GetMessage("P_DELETE_CONFIRM"))?>')) {
-		form.elements['ACTION'].value = 'drop'; 
+		form.elements['ACTION'].value = 'drop';
 		form.submit();}
 	return false;}
 function Move(form) {
 	if (!form || !__check_form(form, 'items[]'))
 		return false;
-	form.elements['ACTION'].value = 'move'; 
+	form.elements['ACTION'].value = 'move';
 	form.submit();
 	return false;}
 function __check_form(form, name) {

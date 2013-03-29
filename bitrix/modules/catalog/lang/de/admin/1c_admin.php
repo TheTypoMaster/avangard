@@ -1,0 +1,29 @@
+<?
+$MESS["CAT_1C_CREATE"] = "Bei Bedarf erstellen";
+$MESS["CAT_1C_CURRENT"] = "Aktuell";
+$MESS["CAT_1C_NONE"] = "keine";
+$MESS["CAT_1C_DEACTIVATE"] = "deaktivieren";
+$MESS["CAT_1C_DELETE"] = "löschen";
+$MESS["CAT_1C_IBLOCK_TYPE"] = "Informationsblocktyp";
+$MESS["CAT_1C_ELEMENT_ACTION"] = "Was soll mit den fehlenden Elementen der Importdatei gemacht werden?";
+$MESS["CAT_1C_SECTION_ACTION"] = "Was soll mit den fehlenden Bereichen der Importdatei gemacht werden?";
+$MESS["CAT_1C_GROUP_PERMISSIONS"] = "Import für die Benutzergruppen erlauben";
+$MESS["CAT_1C_SITE_LIST"] = "Neu erstellte Informationsblöcke den Webseiten zuordnen";
+$MESS["CAT_1C_INTERVAL"] = "Schrittdauer in Sekunden (0 - alles in einem Schritt importieren)";
+$MESS["CAT_1C_FILE_SIZE_LIMIT"] = "Größe des einmal hochzuladenden Teils der Datei (in Byte)";
+$MESS["CAT_1C_USE_CRC"] = "Kontrollsummen zur Optimierung der Katalogaktualisierung benutzen";
+$MESS["CAT_1C_PICTURE"] = "Vorschaubild";
+$MESS["CAT_1C_GENERATE_PREVIEW"] = "Vorschaubild automatisch erstellen";
+$MESS["CAT_1C_PREVIEW_WIDTH"] = "Maximale Breite des Vorschaubildes";
+$MESS["CAT_1C_PREVIEW_HEIGHT"] = "Maximale Höhe des Vorschaubildes";
+$MESS["CAT_1C_USE_ZIP"] = "Wenn möglich, Zip-Komprimierung benutzen";
+$MESS["CAT_1C_DETAIL_RESIZE"] = "Detailbild bearbeiten";
+$MESS["CAT_1C_DETAIL_WIDTH"] = "Maximal zulässige Breite des Detailbildes";
+$MESS["CAT_1C_DETAIL_HEIGHT"] = "Maximal zulässige Höhe des Detailbildes";
+$MESS["CAT_1C_USE_OFFERS"] = "Angebote (Eigenschaften) in einen separaten Informationsblock exportieren ";
+$MESS["CAT_1C_USE_IBLOCK_TYPE_ID"] = "Beim Export den Typ des Informationsblocks berücksichtigen ";
+$MESS["CAT_1C_USE_IBLOCK_PICTURE_SETTINGS"] = "Zur Bearbeitung der Bilder die Einstellungen des Informationsblocks benutzen";
+$MESS["CAT_1C_TRANSLIT_ON_ADD"] = "Beim Hinzufügen eines Elementes oder eines Bereichs den Zeichencode vom Titel ableiten";
+$MESS["CAT_1C_TRANSLIT_ON_UPDATE"] = "Beim Update eines Elementes oder eines Bereichs den Zeichencode vom Titel ableiten";
+$MESS["CAT_1C_SKIP_ROOT_SECTION"] = "Informationsblock nicht importieren, falls er keine Unterbereiche hat";
+?>

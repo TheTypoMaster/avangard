@@ -53,7 +53,7 @@ if (false === $arForm)
 	die();
 }
 
-$txt = "(".htmlspecialchars($arForm['SID']).")&nbsp;".htmlspecialchars($arForm['NAME']);
+$txt = "(".htmlspecialcharsbx($arForm['SID']).")&nbsp;".htmlspecialcharsbx($arForm['NAME']);
 $link = "form_edit.php?lang=".LANGUAGE_ID."&ID=".$WEB_FORM_ID;
 $adminChain->AddItem(array("TEXT"=>$txt, "LINK"=>$link));
 
@@ -157,7 +157,7 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $F_RIGHT
 	}
 
 	if ($FIELD_TYPE=='hidden')
-		$arFields["arFILTER_FIELD"] = array(htmlspecialchars($FIELD_HIDDEN_TYPE));
+		$arFields["arFILTER_FIELD"] = array(htmlspecialcharsbx($FIELD_HIDDEN_TYPE));
 	else
 	{
 		$arFields["arFILTER_USER"] = '';
@@ -173,8 +173,6 @@ if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=="POST" && $F_RIGHT
 	}
 	if (intval($ID)==0)
 	{
-		list($usec, $sec) = explode(" ", microtime());
-		srand((float)$usec + (float)$sec);
 		$arFields["SID"]="SIMPLE_QUESTION_".rand(100,999);
 	}
 
@@ -236,7 +234,7 @@ $context = new CAdminContextMenu($arForm['ADMIN_MENU']);
 $context->Show();
 
 echo BeginNote('width="100%"');?>
-<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialchars($arForm["SID"])?>)&nbsp;<?=htmlspecialchars($arForm["NAME"])?>
+<b><?=GetMessage("FORM_FORM_NAME")?></b> [<a title='<?=GetMessage("FORM_EDIT_FORM")?>' href='form_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$WEB_FORM_ID?>'><?=$WEB_FORM_ID?></a>]&nbsp;(<?=htmlspecialcharsbx($arForm["SID"])?>)&nbsp;<?=htmlspecialcharsbx($arForm["NAME"])?>
 <?echo EndNote();
 
 $aMenu = array();
@@ -686,8 +684,6 @@ $rsValidators = CFormValidator::GetAllList();
 if ($rsValidators->SelectedRowsCount() > 0)
 {
 ?>
-	<script language="javascript" src="/bitrix/js/main/calendar.js"></script>
-
 	<script language="javascript">
 	var arValidatorsType = [];
 	var arValidators = [];

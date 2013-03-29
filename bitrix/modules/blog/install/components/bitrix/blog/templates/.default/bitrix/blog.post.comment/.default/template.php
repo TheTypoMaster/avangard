@@ -5,7 +5,15 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/blog/templates/.default/themes/blue/style.css');
 endif;
 ?>
-<div class="blog-comments">
+<?CUtil::InitJSCore(array("image"));?>
+<script>
+BX.viewImageBind(
+	'blg-comment-<?=$arParams["ID"]?>',
+	false, 
+	{tag:'IMG', attr: 'data-bx-image'}
+);
+</script>
+<div class="blog-comments" id="blg-comment-<?=$arParams["ID"]?>">
 <a name="comments"></a>
 <?
 if($arResult["is_ajax_post"] != "Y")
@@ -28,7 +36,20 @@ else
 				BX('captcha_word').value = "";
 			<?
 		}
+	?>
+	if(!top.arImages)
+		top.arImages = [];	
+	if(!top.arImagesId)
+		top.arImagesId = [];
+	<?
+	foreach($arResult["Images"] as $aImg)
+	{
 		?>
+		top.arImages.push('<?=CUtil::JSEscape($aImg["SRC"])?>');
+		top.arImagesId.push('<?=$aImg["ID"]?>');
+		<?
+	}
+	?>
 	</script><?
 	if(strlen($arResult["COMMENT_ERROR"])>0)
 	{
@@ -134,7 +155,30 @@ else
 					}
 
 					include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/lhe.php");
-					
+
+					if($arResult["COMMENT_PROPERTIES"]["SHOW"] == "Y")
+					{
+						?><Br /><?
+						$eventHandlerID = false;
+						$eventHandlerID = AddEventHandler('main', 'system.field.edit.file', array('CBlogTools', 'blogUFfileEdit'));
+						foreach($arResult["COMMENT_PROPERTIES"]["DATA"] as $FIELD_NAME => $arPostField)
+						{
+							if($FIELD_NAME=='UF_BLOG_COMMENT_DOC')
+							{
+								?><a id="blog-upload-file" href="javascript:blogShowFile()"><?=GetMessage("BLOG_ADD_FILES")?></a><?
+							}
+							?>
+							<div id="blog-comment-user-fields-<?=$FIELD_NAME?>"><?=($FIELD_NAME=='UF_BLOG_COMMENT_DOC' ? "" : $arPostField["EDIT_FORM_LABEL"].":")?>
+								<?$APPLICATION->IncludeComponent(
+										"bitrix:system.field.edit",
+										$arPostField["USER_TYPE"]["USER_TYPE_ID"],
+										array("arUserField" => $arPostField), null, array("HIDE_ICONS"=>"Y"));?>
+							</div><?
+						}
+						if ($eventHandlerID !== false && ( intval($eventHandlerID) > 0 ))
+							RemoveEventHandler('main', 'system.field.edit.file', $eventHandlerID);
+					}
+
 					if(strlen($arResult["NoCommentReason"]) > 0)
 					{
 						?>
@@ -160,6 +204,7 @@ else
 						<input tabindex="10" value="<?=GetMessage("B_B_MS_SEND")?>" type="button" name="sub-post" id="post-button" onclick="submitComment()">
 					</div>
 				</div>
+				<input type="hidden" name="blog_upload_cid" id="upload-cid" value="">
 				</form>
 				</div>
 			</div>
@@ -397,7 +442,44 @@ else
 						}
 						?>
 						<?=$comment["TextFormated"]?>
-
+						<?
+						if(!empty($arParams["arImages"][$comment["ID"]]))
+						{
+							?>
+							<div class="feed-com-files">
+								<div class="feed-com-files-title"><?=GetMessage("BLOG_PHOTO")?></div>
+								<div class="feed-com-files-cont">
+									<?
+									foreach($arParams["arImages"][$comment["ID"]] as $val)
+									{
+										?><span class="feed-com-files-photo"><img src="<?=$val["small"]?>" alt="" border="0" data-bx-image="<?=$val["full"]?>"></span><?
+									}
+									?>
+								</div>
+							</div>
+							<?
+						}
+						
+						if($comment["COMMENT_PROPERTIES"]["SHOW"] == "Y")
+						{
+							$eventHandlerID = false;
+							$eventHandlerID = AddEventHandler('main', 'system.field.view.file', Array('CBlogTools', 'blogUFfileShow'));
+							?><div><?
+							foreach ($comment["COMMENT_PROPERTIES"]["DATA"] as $FIELD_NAME => $arPostField)
+							{
+								if(!empty($arPostField["VALUE"]))
+								{
+									$GLOBALS["APPLICATION"]->IncludeComponent(
+										"bitrix:system.field.view", 
+										$arPostField["USER_TYPE"]["USER_TYPE_ID"], 
+										array("arUserField" => $arPostField), null, array("HIDE_ICONS"=>"Y"));
+								}
+							}
+							?></div><?
+							if ($eventHandlerID !== false && ( intval($eventHandlerID) > 0 ))
+								RemoveEventHandler('main', 'system.field.view.file', $eventHandlerID);
+						}
+						?>
 						<div class="blog-comment-meta">
 						<?
 						if($bCanUserComment===true)
@@ -677,6 +759,7 @@ else
 
 		$arParams["RATING"] = $arResult["RATING"];
 		$arParams["component"] = $component;
+		$arParams["arImages"] = $arResult["arImages"];
 		if($arResult["is_ajax_post"] == "Y")
 			$arParams["is_ajax_post"] = "Y";
 

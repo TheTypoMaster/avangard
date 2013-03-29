@@ -108,7 +108,6 @@ class CBlogUserGroup extends CAllBlogUserGroup
 			"ID" => array("FIELD" => "G.ID", "TYPE" => "int"),
 			"BLOG_ID" => array("FIELD" => "G.BLOG_ID", "TYPE" => "int"),
 			"NAME" => array("FIELD" => "G.NAME", "TYPE" => "string"),
-
 			"USER2GROUP_ID" => array("FIELD" => "U2UG.ID", "TYPE" => "int", "FROM" => "INNER JOIN b_blog_user2user_group U2UG ON (G.ID = U2UG.USER_GROUP_ID AND G.BLOG_ID = U2UG.BLOG_ID)"),
 			"USER2GROUP_USER_ID" => array("FIELD" => "U2UG.USER_ID", "TYPE" => "int", "FROM" => "INNER JOIN b_blog_user2user_group U2UG ON (G.ID = U2UG.USER_GROUP_ID AND G.BLOG_ID = U2UG.BLOG_ID)"),
 		);
@@ -129,7 +128,7 @@ class CBlogUserGroup extends CAllBlogUserGroup
 			if (strlen($arSqls["GROUPBY"]) > 0)
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!1!=".htmlspecialchars($strSql)."<br>";
+			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($arRes = $dbRes->Fetch())
@@ -160,7 +159,7 @@ class CBlogUserGroup extends CAllBlogUserGroup
 			if (strlen($arSqls["GROUPBY"]) > 0)
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			//echo "!2.1!=".htmlspecialchars($strSql_tmp)."<br>";
+			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
 			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$cnt = 0;
@@ -177,16 +176,16 @@ class CBlogUserGroup extends CAllBlogUserGroup
 
 			$dbRes = new CDBResult();
 
-			//echo "!2.2!=".htmlspecialchars($strSql)."<br>";
+			//echo "!2.2!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes->NavQuery($strSql, $cnt, $arNavStartParams);
 		}
 		else
 		{
 			if (is_array($arNavStartParams) && IntVal($arNavStartParams["nTopCount"]) > 0)
-				$strSql .= "LIMIT ".$arNavStartParams["nTopCount"];
+				$strSql .= "LIMIT ".IntVal($arNavStartParams["nTopCount"]);
 
-			//echo "!3!=".htmlspecialchars($strSql)."<br>";
+			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 		}

@@ -7,7 +7,7 @@ function MedialibTabControl(uniq_id, aTabs, mtime)
 	/* Applying styles */
 	if(!window.fileman_css)
 	{
-		BX.loadCSS('/bitrix/js/fileman/medialib/tabs.css'+(top.jsUtils.IsOpera()? '':'?'+mtime));
+		BX.loadCSS('/bitrix/js/fileman/medialib/tabs.css');
 		window.fileman_css = true;
 	}
 
@@ -27,14 +27,8 @@ function MedialibTabControl(uniq_id, aTabs, mtime)
 			if(this.aTabs[i]["TD_ID"] == tab_td.id)
 			{
 				tabs_tr.cells[1+i*2].className = 'imgtab-sel';
-				if(i == (cnt-1))
-				{
-					tabs_tr.cells[2+i*2].className = 'imgtab-sel-none';
-				}
-				else
-				{
-					tabs_tr.cells[2+i*2].className = 'imgtab-sel-some';
-				}
+				tabs_tr.cells[2+i*2].className = i == (cnt-1) ? 'imgtab-sel-none' : 'imgtab-sel-some';
+
 				var div = BX(this.aTabs[i]["DIV_ID"]);
 				div.style.display='block';
 				this.SetState(div, false);
@@ -103,3 +97,4 @@ function MedialibTabControl(uniq_id, aTabs, mtime)
 		_this = null;
 	}
 }
+;   

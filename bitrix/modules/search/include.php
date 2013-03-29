@@ -28,6 +28,10 @@ CModule::AddAutoloadClasses(
 	)
 );
 
+CJSCore::RegisterExt('search_tags', array(
+	'js' => '/bitrix/js/search/tags.js',
+));
+
 function GenerateUniqId($sName)
 {
 	static $arPostfix = array();

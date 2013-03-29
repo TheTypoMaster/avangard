@@ -66,6 +66,7 @@ if (isset($arResult['SELECTED_ELEMENT']) && isset($arResult['SELECTED_ELEMENT'][
 			Array(
 				"PLAYER_TYPE" => "wmv",
 				"USE_PLAYLIST" => "N",
+				"INIT_PLAYER"=>"N",
 				"PATH" => $firstItemType == 'wmv' ? $arResult['SELECTED_ELEMENT']['FILE'] : $arResult['FIRST_WMV_ITEM'],
 				"WIDTH" => $arParams['WIDTH'],
 				"HEIGHT" => $arParams['HEIGHT'] + $arResult['CORRECTION']['FLV'],
@@ -118,14 +119,14 @@ if (isset($arResult['SELECTED_ELEMENT']) && isset($arResult['SELECTED_ELEMENT'][
 
 	jsPublicTVCollector.tv[<?=$arResult['PREFIX']?>] = new jsPublicTV();
 	jsPublicTVCollector.tv[<?=$arResult['PREFIX']?>].LanguagePhrases = {
-		'duration':'<?=GetMessage("BITRIXTV_TEMPLATE_DURATION")?>',
-		'title':'<?=GetMessage("BITRIXTV_TEMPLATE_TITLE")?>',
-		'description':'<?=GetMessage("BITRIXTV_TEMPLATE_DESCRIPTION")?>',
-		'file':'<?=GetMessage("BITRIXTV_TEMPLATE_FILE")?>',
-		'download':'<?=GetMessage("BITRIXTV_TEMPLATE_DOWNLOAD")?>',
-		'size_mb':'<?=GetMessage("BITRIXTV_TEMPLATE_BXTV_SIZE_MB")?>',
-		'play':'<?=GetMessage("BITRIXTV_TEMPLATE_BXTV_PLAY")?>',
-		'edit':'<?=GetMessage("BITRIXTV_TEMPLATE_BXTV_EDIT")?>'
+		'duration':'<?=GetMessageJS("BITRIXTV_TEMPLATE_DURATION")?>',
+		'title':'<?=GetMessageJS("BITRIXTV_TEMPLATE_TITLE")?>',
+		'description':'<?=GetMessageJS("BITRIXTV_TEMPLATE_DESCRIPTION")?>',
+		'file':'<?=GetMessageJS("BITRIXTV_TEMPLATE_FILE")?>',
+		'download':'<?=GetMessageJS("BITRIXTV_TEMPLATE_DOWNLOAD")?>',
+		'size_mb':'<?=GetMessageJS("BITRIXTV_TEMPLATE_BXTV_SIZE_MB")?>',
+		'play':'<?=GetMessageJS("BITRIXTV_TEMPLATE_BXTV_PLAY")?>',
+		'edit':'<?=GetMessageJS("BITRIXTV_TEMPLATE_BXTV_EDIT")?>'
 	};
 
 	//set uniq prefix

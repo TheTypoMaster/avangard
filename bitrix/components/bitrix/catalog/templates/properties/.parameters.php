@@ -22,12 +22,6 @@ while ($arr=$rsProp->Fetch())
 }
 
 $arTemplateParameters = array(
-	"PRODUCT_QUANTITY_VARIABLE" => array(
-		"PARENT" => "URL_TEMPLATES",
-		"NAME" => GetMessage("TP_BC_PRODUCT_QUANTITY_VARIABLE"),
-		"TYPE" => "STRING",
-		"DEFAULT" => "quantity",
-	),
 	"PRODUCT_PROPS_VARIABLE" => array(
 		"PARENT" => "URL_TEMPLATES",
 		"NAME" => GetMessage("TP_BC_PRODUCT_PROPS_VARIABLE"),
@@ -40,12 +34,6 @@ $arTemplateParameters = array(
 		"TYPE" => "LIST",
 		"MULTIPLE" => "Y",
 		"VALUES" => $arProperty_X,
-	),
-	"USE_PRODUCT_QUANTITY" => array(
-		"PARENT" => "PRICES",
-		"NAME" => GetMessage("TP_BC_USE_PRODUCT_QUANTITY"),
-		"TYPE" => "CHECKBOX",
-		"DEFAULT" => "N",
 	),
 );
 ?>

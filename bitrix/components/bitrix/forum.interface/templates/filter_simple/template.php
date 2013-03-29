@@ -1,7 +1,8 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 IncludeAJAX();
-$GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/js/main/utils.js"></script>', true);
-$GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/components/bitrix/forum.interface/templates/popup/script.js"></script>', true);
+$GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/main/utils.js");
+$GLOBALS['APPLICATION']->AddHeadScript("/bitrix/components/bitrix/forum.interface/templates/popup/script.js");
+$arParams['FORM_METHOD_GET'] = (isset($arParams['FORM_METHOD_GET']) && ($arParams['FORM_METHOD_GET'] == 'Y')) ? 'Y' : 'N';
 $iIndex = rand();
 ?>
 <script>
@@ -12,9 +13,15 @@ if (phpVars == null || typeof(phpVars) != "object")
 		'titlePrefix': '<?=CUtil::JSEscape(COption::GetOptionString("main", "site_name", $_SERVER["SERVER_NAME"]))?> - '};
 }
 </script>
-<form name="forum_form" id="forum_form_<?=$arResult["id"]?>" action="<?=POST_FORM_ACTION_URI?>" method="post" class="forum-form">
-	<?=bitrix_sessid_post()?>
 <?
+$method = ($arParams['FORM_METHOD_GET'] == 'Y' ? 'get' : 'post');
+$action = ($method === 'get' ? htmlspecialcharsbx($APPLICATION->GetCurPage()) : POST_FORM_ACTION_URI );
+?>
+	<form name="forum_form" id="forum_form_<?=$arResult["id"]?>" action="<?=$action?>" method="<?=$method?>" class="forum-form">
+<?
+	if ($arParams['FORM_METHOD_GET'] != 'Y') {
+		echo bitrix_sessid_post();
+	}
 	foreach ($arResult["FIELDS"] as $key => $res):
 		if ($res["TYPE"] == "HIDDEN"):
 ?>
@@ -29,17 +36,17 @@ if (phpVars == null || typeof(phpVars) != "object")
 		$res["ID"] = (empty($res["ID"]) ? $res["NAME"]."_".$iIndex : $res["ID"]);
 ?>
 	<div class="forum-filter-field <?=$res["CLASS"]?>">
-		<label for="<?=$res["ID"]?>"><?=$res["TITLE"]?>:</label>
-		<span>
+		<label class="forum-filter-field-title" for="<?=$res["ID"]?>"><?=$res["TITLE"]?>:</label>
+		<span class="forum-filter-field-item">
 <?
-		
+
 		if ($res["TYPE"] == "SELECT"):
 			if (!empty($_REQUEST["del_filter"]))
 				$res["ACTIVE"] = "";
 ?>
 			<select name="<?=$res["NAME"]?>" class="<?=$res["CLASS"]?>" id="<?=$res["ID"]?>" <?=($res["MULTIPLE"] == "Y" ? "multiple='multiple' size='5'" : "")?>>
 <?
-			foreach ($res["VALUE"] as $key => $val) 
+			foreach ($res["VALUE"] as $key => $val)
 			{
 				if ($val["TYPE"] == "OPTGROUP"):
 ?>

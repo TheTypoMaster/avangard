@@ -69,7 +69,7 @@ if ($arParams["SHOW_CONTROLS"] == "Y"):
 	<input type="hidden" name="ACTION" id="ACTION" value="Y" />
 	<input type="hidden" name="SECTION_ID" value="<?=$arParams["SECTION_ID"]?>" />
 	<input type="hidden" name="IBLOCK_ID" value="<?=$arParams["IBLOCK_ID"]?>" />
-	<input type="hidden" name="REDIRECT_URL" value="<?=htmlspecialchars($APPLICATION->GetCurPageParam("", array(), false))?>" />
+	<input type="hidden" name="REDIRECT_URL" value="<?=htmlspecialcharsbx($APPLICATION->GetCurPageParam("", array(), false))?>" />
 <?
 		if ($arParams["DetailListViewMode"] == "edit"):
 ?>

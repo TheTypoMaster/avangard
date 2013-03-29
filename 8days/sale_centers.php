@@ -3,36 +3,6 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 $APPLICATION->SetTitle("Распродажа диванов, мягкой мебели");
 ?> 
 <div class="gray_td"> 
-  <h1>РАСПРОДАЖА ДИВАНОВ</h1>
- </div>
- 
-<table height="20" width="100%" cellspacing="1" cellpadding="1" border="0" align="center"> 
-  <tbody> 
-    <tr><td></td> <td></td> <td></td> </tr>
-   
-    <tr> <td></td> <td></td> <td></td> </tr>
-   
-    <tr><td><a href="/catalog/divan165.htm" ><img height="115" width="230" src="/upload/iblock/015/illinois.jpg"  /></a></td> <td><a href="/catalog/divan163.htm" ><img height="115" width="230" src="/8days/image/utah_230x115.jpg"  /></a></td> <td><a href="/catalog/divan166.htm" ><img height="115" width="230" src="/upload/iblock/5ed/denver.jpg"  /></a></td></tr>
-   
-    <tr><td>Иллинойс</td> <td>Юта</td> <td>Денвер</td></tr>
-   
-    <tr> <td></td> <td></td> <td></td></tr>
-   
-    <tr> <td></td> <td></td> <td></td></tr>
-   </tbody>
- </table>
- <font size="3"><a href="/sale/sale_mebel.php" target="_blank" ><strong>Распродажа диванов</strong></a>: Иллинойс, Юта, Денвер. Скидки от <font color="#ee1d24"><strong>8%</strong></font> до <font color="#ee1d24"><strong>48%</strong></font> !</font> 
-<br />
- 
-<br />
- 
-<br />
- 
-<br />
- 
-<br />
- 
-<div class="gray_td"> 
   <h1>ЦЕНТРЫ РАСПРОДАЖ</h1>
  </div>
  
@@ -46,7 +16,7 @@ $APPLICATION->SetTitle("Распродажа диванов, мягкой мебели");
 
 <table height="20" width="100%" cellspacing="1" cellpadding="1" border="0" align="center"> 
   <tbody> 
-    <tr><td><a href="/redesign/where_buy/detail.php?id=566" target="_blank" ><img height="115" width="230" src="/8days/image/pulmart_230x115.jpg"  /></a></td> <td><a href="/redesign/where_buy/detail.php?id=566" target="_blank" ><strong>Центр распродаж</strong></a> 
+    <tr><td><a href="/redesign/where_buy/detail.php?id=566" target="_blank" ><img height="115" width="230" border="0" src="/8days/image/pulmart_230x115.jpg"  /></a></td> <td><a href="/redesign/where_buy/detail.php?id=566" target="_blank" ><strong>Центр распродаж</strong></a> 
         <br />
        
         <br />
@@ -66,29 +36,31 @@ $APPLICATION->SetTitle("Распродажа диванов, мягкой мебели");
    
     <tr> <td></td> <td></td> <td></td></tr>
    
-    <tr> <td><a href="/redesign/where_buy/detail.php?id=2635" target="_blank" ><img height="115" width="230" src="/8days/image/stroim_dom_230x115.jpg"  /></a></td> <td> 
+    <tr> <td><a href="/redesign/where_buy/detail.php?id=2635" target="_blank" ><img height="115" width="230" border="0" src="/8days/image/stroim_dom_230x115.jpg"  /></a></td> <td> 
         <br />
        
-        <br />
+        <h3 style="color:red;">ЗАКРЫТИЕ ЦЕНТРА РАСПРОДАЖ<br />с 15 марта<br />Спешите! скидки увеличены до 90%</h3><br />
        <a href="/redesign/where_buy/detail.php?id=2635" target="_blank" ><strong>ТК &quot;Строим Дом&quot; - Центр распродаж</strong></a> 
         <br />
        
         <br />
        Ярославское шоссе, дом 118, корп. Д</td> <td></td></tr>
    
-    <tr> <td></td> <td></td> <td></td></tr>
-   
-    <tr> <td><a href="/redesign/where_buy/detail.php?id=5059" > 
-          <br />
-         
-          <br />
-         
-          <br />
-         
-          <br />
-        </a>
+    <tr> <td></td> <td></td> <td></td></tr><tr><td> 
         <br />
-      </td> <td><br /><br /><br /><br /><a href="http://www.avangard.biz/redesign/where_buy/detail.php?id=5059" target="_blank" style="font-family: Arial, Helvetica, sans-serif; "><strong>ТЦ &quot;Океан Мебели&quot; - Центр распродаж</strong></a><span style="font-family: Arial, Helvetica, sans-serif; "> </span>
+       
+        <br />
+       
+        <br />
+       
+        <br />
+       
+        <br />
+       </td> <td></td> <td></td></tr>
+   
+    <tr> <td><a href="/redesign/where_buy/detail.php?id=5059" target="_blank" ><img height="115" width="230" border="0" src="/8days/image/okean_230x115.jpg"  /></a></td> <td>
+        <br /><br />
+        <a href="/redesign/where_buy/detail.php?id=5059" target="_blank" ><strong>ТЦ &quot;Океан Мебели&quot; - Центр распродаж</strong></a>
         <br />
       
         <br />

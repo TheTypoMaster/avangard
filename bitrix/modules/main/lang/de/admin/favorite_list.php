@@ -57,4 +57,5 @@ $MESS["MAIN_FROM_TILL_DATE"] = "Das Datum \"Von\" muss größer sein als das Datum
 $MESS["MAIN_TITLE"] = "Überschrift";
 $MESS["MAIN_USER_PROFILE"] = "Nutzerprofil";
 $MESS["fav_list_yes"] = "Ja";
+$MESS["fav_list_flt_menu_id"] = "Menü-ID";
 ?>

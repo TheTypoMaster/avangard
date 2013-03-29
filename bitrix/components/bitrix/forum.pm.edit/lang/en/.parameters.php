@@ -12,4 +12,5 @@ $MESS["F_DEFAULT_FID"] = "User's Folder Id";
 $MESS["F_DEFAULT_UID"] = "User ID";
 $MESS["F_DEFAULT_MODE"] = "Message type";
 $MESS["F_EDITOR_CODE_DEFAULT"] = "Default to plain text editor mode";
+$MESS["F_NAME_TEMPLATE"] = "Name format";
 ?>

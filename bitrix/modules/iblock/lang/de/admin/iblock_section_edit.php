@@ -26,4 +26,18 @@ $MESS["IBSEC_E_RIGHTS_SECTION_TITLE"] = "Zugriffsberechtigungen für Bereich";
 $MESS["IBSEC_E_RIGHTS_FIELD"] = "Zugriffsberechtigungen für Bereich";
 $MESS["IBSEC_E_WARNING"] = "Warnung.";
 $MESS["IBSEC_E_TRANSLATION_SERVICE_NOT_CONFIGURED"] = "Der externe Übersetzungsdienst ist nicht angegeben. Geben Sie den Übersetzungsdienst in den <a href=\"settings.php?mid=main\">Einstellungen des Hauptmoduls</a> an.";
+$MESS["IBSEC_E_PROPERTY_TAB"] = "Elementeigenschaften";
+$MESS["IBSEC_E_PROPERTY_TAB_TITLE"] = "Parameter der Ansicht von Elementeigenschaften";
+$MESS["IBSEC_E_SECTION_PROPERTY_FIELD"] = "Elementeigenschaften";
+$MESS["IBSEC_E_PROP_TABLE_NAME"] = "Name";
+$MESS["IBSEC_E_PROP_TABLE_TYPE"] = "Typ";
+$MESS["IBSEC_E_PROP_TABLE_SMART_FILTER"] = "Im Smart-Filter anzeigen";
+$MESS["IBSEC_E_PROP_TABLE_ACTION"] = "Aktionen";
+$MESS["IBSEC_E_PROP_SELECT_CHOOSE"] = "<Auswählen>";
+$MESS["IBSEC_E_PROP_SELECT_CREATE"] = "[Erstellen]";
+$MESS["IBSEC_E_PROP_TABLE_ACTION_DELETE"] = "Löschen";
+$MESS["IBSEC_E_PROP_TABLE_ACTION_ADD"] = "Hinzufügen";
+$MESS["IBSEC_E_PROP_TABLE_EMPTY"] = "-keine Daten-";
+$MESS["IBSEC_E_PROP_SKU_SECTION"] = "Eigenschaften der Produktvariante";
+$MESS["IBSEC_E_SAVE_AND_ADD"] = "Speichern und hinzufügen";
 ?>

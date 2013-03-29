@@ -9,18 +9,18 @@ function repair_db()
 	{
 		function microtime_float()
 		{
-			   list($usec, $sec) = explode(" ", microtime());
-			   return ((float)$usec + (float)$sec);
+			list($usec, $sec) = explode(" ", microtime());
+			return ((float)$usec + (float)$sec);
 		}
 
 		$start = microtime_float();
-		 if(DBPersistent)
+		if(DBPersistent)
 			$link_rdb = mysql_pconnect($DBHost, $DBLogin, $DBPassword);
 		else
 			$link_rdb = mysql_connect($DBHost, $DBLogin, $DBPassword);
 
 		if (!$link_rdb)
-		   die('<span style="color:red;">'.GetMessage("RDB_CONNECT_ERROR").': '. mysql_error().'</span>');
+			die('<span style="color:red;">'.GetMessage("RDB_CONNECT_ERROR").': '. mysql_error().'</span>');
 
 		$db_selected = mysql_select_db($DBName, $link_rdb);
 
@@ -39,7 +39,7 @@ function repair_db()
 		while($arResult = mysql_fetch_array($result))
 		{
 			echo "<tr>";
-			echo "<td>".htmlspecialchars($arResult["Name"])."</td>";
+			echo "<td>".htmlspecialcharsbx($arResult["Name"])."</td>";
 			echo "<td align='right'>".$arResult["Rows"]."</td>";
 			echo "<td align='right'>".number_format($arResult["Data_length"], 0, ',', ' ')."</td>";
 
@@ -65,7 +65,7 @@ function repair_db()
 						echo "<span style='color:green;'>";
 					else
 						echo "<span style='color:red;'>";
-					echo htmlspecialchars($arStatus["Msg_text"])."</span>";
+					echo htmlspecialcharsbx($arStatus["Msg_text"])."</span>";
 					flush();
 
 					if($arStatus["Msg_type"]=="error" || $arStatus["Msg_type"]=="warning")
@@ -88,7 +88,7 @@ function repair_db()
 							echo "<span style='color:green;'>";
 						else
 							echo "<span style='color:red;'>";
-						echo htmlspecialchars($arRepair["Msg_text"])."</span>";
+						echo htmlspecialcharsbx($arRepair["Msg_text"])."</span>";
 						$j++;
 						flush();
 						$toCheck = $toRepair;
@@ -105,7 +105,7 @@ function repair_db()
 								echo "<span style='color:green;'>";
 							else
 								echo "<span style='color:red;'>";
-							echo htmlspecialchars($arStatusC["Msg_text"])."</span>";
+							echo htmlspecialcharsbx($arStatusC["Msg_text"])."</span>";
 							flush();
 						}
 					}
@@ -139,16 +139,16 @@ function show_tip()
 {
 	?>
 	<form name="check" action="">
-	<input type="submit" value="<?=GetMessage("RDB_CHECK_TABLES")?>">
+	<input type="submit" value="<?=GetMessage("RDB_CHECK_TABLES")?>" class="adm-btn-save">
 	<input type="hidden" value="Y" name="check_tables">
 	<?echo bitrix_sessid_post();?>
 	<?
 	if(isset($_REQUEST["login"]))
-		echo '<input type="hidden" value="'.htmlspecialchars($_REQUEST["login"]).'" name="login">';
+		echo '<input type="hidden" value="'.htmlspecialcharsbx($_REQUEST["login"]).'" name="login">';
 	if(isset($_REQUEST["password"]))
-		echo '<input type="hidden" value="'.htmlspecialchars($_REQUEST["password"]).'" name="password">';
+		echo '<input type="hidden" value="'.htmlspecialcharsbx($_REQUEST["password"]).'" name="password">';
 	if(isset($_REQUEST["lang"]))
-		echo '<input type="hidden" value="'.htmlspecialchars($_REQUEST["lang"]).'" name="lang">';
+		echo '<input type="hidden" value="'.htmlspecialcharsbx($_REQUEST["lang"]).'" name="lang">';
 	echo '</form>';
 }
 
@@ -226,7 +226,7 @@ else
 			if($table_name=="start|")
 			{
 				$arTable = array_shift($arTables);
-				echo CAdminMessage::ShowMessage(Array("MESSAGE"=>htmlspecialchars($arTable["Name"]), "TYPE"=>"OK", "HTML"=>true, "DETAILS"=>GetMessage("RDB_OPTIMIZE_PROGRESS", array("#done#" => 1, "#todo#" => $tables_count))));
+				echo CAdminMessage::ShowMessage(Array("MESSAGE"=>htmlspecialcharsbx($arTable["Name"]), "TYPE"=>"OK", "HTML"=>true, "DETAILS"=>GetMessage("RDB_OPTIMIZE_PROGRESS", array("#done#" => 1, "#todo#" => $tables_count))));
 				?>
 				<script>setTimeout("Optimize('<?echo CUtil::JSEscape($arTable["Name"])?>')", 100);</script>
 				<?
@@ -284,30 +284,30 @@ else
 
 					if(!$bCheckOK)
 					{
-						echo CAdminMessage::ShowMessage(Array("MESSAGE"=>GetMessage("RDB_OPTIMIZE_ERROR"), "TYPE"=>"ERROR", "HTML"=>true, "DETAILS"=>GetMessage("RDB_OPTIMIZE_CHECK_FIRST", array("#table_name#" => htmlspecialchars($arTable["Name"])))));
+						echo CAdminMessage::ShowMessage(Array("MESSAGE"=>GetMessage("RDB_OPTIMIZE_ERROR"), "TYPE"=>"ERROR", "HTML"=>true, "DETAILS"=>GetMessage("RDB_OPTIMIZE_CHECK_FIRST", array("#table_name#" => htmlspecialcharsbx($arTable["Name"])))));
 					}
 					elseif(count($arTables) > 0)
 					{
 						if($check_time < 5)
 						{
 							$arTable = array_shift($arTables);
-							echo CAdminMessage::ShowMessage(Array("MESSAGE"=>htmlspecialchars($arTable["Name"]), "TYPE"=>"OK", "HTML"=>true, "DETAILS"=>GetMessage("RDB_OPTIMIZE_PROGRESS", array("#done#" => $tables_count-count($arTables), "#todo#" => $tables_count))));
+							echo CAdminMessage::ShowMessage(Array("MESSAGE"=>htmlspecialcharsbx($arTable["Name"]), "TYPE"=>"OK", "HTML"=>true, "DETAILS"=>GetMessage("RDB_OPTIMIZE_PROGRESS", array("#done#" => $tables_count-count($arTables), "#todo#" => $tables_count))));
 							?><script>setTimeout("Optimize('<?echo CUtil::JSEscape($arTable["Name"])?>')", 100);</script><?
 						}
 						elseif($op == "check") //otherwise step optimize
 						{
-							echo CAdminMessage::ShowMessage(Array("MESSAGE"=>htmlspecialchars($arTable["Name"])." - ".GetMessage("RDB_OPTIMIZE_OPTIMIZE"), "TYPE"=>"OK", "HTML"=>true, "DETAILS"=>GetMessage("RDB_OPTIMIZE_PROGRESS", array("#done#" => $tables_count-count($arTables), "#todo#" => $tables_count))));
+							echo CAdminMessage::ShowMessage(Array("MESSAGE"=>htmlspecialcharsbx($arTable["Name"])." - ".GetMessage("RDB_OPTIMIZE_OPTIMIZE"), "TYPE"=>"OK", "HTML"=>true, "DETAILS"=>GetMessage("RDB_OPTIMIZE_PROGRESS", array("#done#" => $tables_count-count($arTables), "#todo#" => $tables_count))));
 							?><script>setTimeout("Optimize('o|<?echo CUtil::JSEscape($arTable["Name"])?>')", 100);</script><?
 						}
 						elseif($op == "optimize") //and step analyze
 						{
-							echo CAdminMessage::ShowMessage(Array("MESSAGE"=>htmlspecialchars($arTable["Name"])." - ".GetMessage("RDB_OPTIMIZE_ANALYZE"), "TYPE"=>"OK", "HTML"=>true, "DETAILS"=>GetMessage("RDB_OPTIMIZE_PROGRESS", array("#done#" => $tables_count-count($arTables), "#todo#" => $tables_count))));
+							echo CAdminMessage::ShowMessage(Array("MESSAGE"=>htmlspecialcharsbx($arTable["Name"])." - ".GetMessage("RDB_OPTIMIZE_ANALYZE"), "TYPE"=>"OK", "HTML"=>true, "DETAILS"=>GetMessage("RDB_OPTIMIZE_PROGRESS", array("#done#" => $tables_count-count($arTables), "#todo#" => $tables_count))));
 							?><script>setTimeout("Optimize('a|<?echo CUtil::JSEscape($arTable["Name"])?>')", 100);</script><?
 						}
 						else
 						{
 							$arTable = array_shift($arTables);
-							echo CAdminMessage::ShowMessage(Array("MESSAGE"=>htmlspecialchars($arTable["Name"]), "TYPE"=>"OK", "HTML"=>true, "DETAILS"=>GetMessage("RDB_OPTIMIZE_PROGRESS", array("#done#" => $tables_count-count($arTables), "#todo#" => $tables_count))));
+							echo CAdminMessage::ShowMessage(Array("MESSAGE"=>htmlspecialcharsbx($arTable["Name"]), "TYPE"=>"OK", "HTML"=>true, "DETAILS"=>GetMessage("RDB_OPTIMIZE_PROGRESS", array("#done#" => $tables_count-count($arTables), "#todo#" => $tables_count))));
 							?><script>setTimeout("Optimize('<?echo CUtil::JSEscape($arTable["Name"])?>')", 100);</script><?
 						}
 					}

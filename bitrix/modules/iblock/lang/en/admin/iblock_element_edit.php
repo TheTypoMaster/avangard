@@ -22,6 +22,7 @@ $MESS["IBEL_E_IBLOCK_SECTIONS"] = "Sections";
 $MESS["IBEL_E_COPY_ELEMENT"] = "Copy";
 $MESS["IBEL_E_COPY_ELEMENT_TITLE"] = "Copy element";
 $MESS["IBLOCK_ACCESS_DENIED_STATUS"] = "You do not have enough permissions to edit this record in its current state";
+$MESS["IBLOCK_ACCESS_DENIED_SECTION"] = "You do not have permission to link elements to the specified sections.";
 $MESS["IBLOCK_TCATALOG"] = "Commercial catalog";
 $MESS["IBLOCK_WRONG_WF_STATUS"] = "Invalid status";
 $MESS["IBLOCK_SECTION"] = "Link (multiple):";
@@ -61,4 +62,6 @@ $MESS["IBEL_E_RIGHTS_SECTION_TITLE"] = "Element access permissions";
 $MESS["IBEL_E_RIGHTS_FIELD"] = "Element access permissions";
 $MESS["IBEL_E_WARNING"] = "Warning.";
 $MESS["IBEL_E_TRANSLATION_SERVICE_NOT_CONFIGURED"] = "No external translation engine exist. Add a translation engine in the <a href=\"settings.php?mid=main\">Kernel module settings</a>.";
+$MESS["IBLOCK_EL_SAVE_AND_ADD"] = "Save and add";
+$MESS["IBEL_HIST"] = "Update history";
 ?>

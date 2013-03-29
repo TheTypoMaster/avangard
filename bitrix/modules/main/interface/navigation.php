@@ -7,78 +7,140 @@ if($this->bPostNavigation)
 else
 	$nav_func_name = 'GetAdminList';
 
-$sQueryString = CUtil::JSUrlEscape($strNavQueryString);
-$sJSUrlPath = CUtil::JSUrlEscape($sUrlPath);
+$sQueryString = CUtil::JSEscape($strNavQueryString);
+$sJSUrlPath = CUtil::JSEscape($sUrlPath);
+
+$showWait = "BX.addClass(this,'adm-nav-page-active');setTimeout(BX.delegate(function(){BX.addClass(this,'adm-nav-page-loading');this.innerHTML='';},this),500);";
+
+if($this->NavRecordCount>0)
+{
 ?>
-<div class="navigation">
-<table cellpadding="0" cellspacing="0" border="0" class="navigation">
-	<tr>
-<?if($this->NavRecordCount>0):?>
-<?if($this->NavPageNomer > 1):?>
-		<td><a href="javascript:<?echo $this->table_id?>.<?=$nav_func_name?>('<?echo $sJSUrlPath.'?PAGEN_'.$this->NavNum.'=1'.'&amp;SIZEN_'.$this->NavNum.'='.$this->NavPageSize.$sQueryString;?>');"><img src="/bitrix/themes/<?echo ADMIN_THEME_ID?>/images/nav/first.gif" class="navfirst" alt="<?echo GetMessage("navigation_first")?>" title="<?echo GetMessage("navigation_first")?>" border="0"></a></td>
-		<td><a href="javascript:<?echo $this->table_id?>.<?=$nav_func_name?>('<?echo $sJSUrlPath.'?PAGEN_'.$this->NavNum.'='.($this->NavPageNomer-1).'&amp;SIZEN_'.$this->NavNum.'='.$this->NavPageSize.$sQueryString;?>');"><img src="/bitrix/themes/<?echo ADMIN_THEME_ID?>/images/nav/prev.gif" class="navprev" alt="<?echo GetMessage("navigation_prev")?>" title="<?echo GetMessage("navigation_prev")?>" border="0"></a></td>
-<?else:?>
-		<td><img src="/bitrix/themes/<?echo ADMIN_THEME_ID?>/images/nav/first_dis.gif" class="navfirst" alt="" border="0"></td>
-		<td><img src="/bitrix/themes/<?echo ADMIN_THEME_ID?>/images/nav/prev_dis.gif" class="navprev" alt="" border="0"></td>
-<?endif;?>
-		<td><?
-$NavRecordGroup = $this->nStartPage;
-while($NavRecordGroup <= $this->nEndPage):
-	if($NavRecordGroup == $this->NavPageNomer)
-		echo '<span class="current">&nbsp;'.$NavRecordGroup.'&nbsp;</span>';
+<div class="adm-navigation">
+	<div class="adm-nav-pages-block">
+<?
+	if($this->NavPageNomer > 1)
+	{
+?>
+		<a class="adm-nav-page adm-nav-page-prev" href="javascript:void(0)" onclick="<?echo $this->table_id?>.<?=$nav_func_name?>('<?echo $sJSUrlPath.'?PAGEN_'.$this->NavNum.'='.($this->NavPageNomer-1).'&amp;SIZEN_'.$this->NavNum.'='.$this->NavPageSize.$sQueryString;?>');<?=$showWait?>"></a>
+<?
+	}
+	else //$this->NavPageNomer > 1
+	{
+?>
+		<span class="adm-nav-page adm-nav-page-prev"></span>
+<?
+	} //$this->NavPageNomer > 1
+
+	//$NavRecordGroup = $this->nStartPage;
+	$NavRecordGroup = 1;
+	while($NavRecordGroup <= $this->NavPageCount)
+	{
+		if($NavRecordGroup == $this->NavPageNomer)
+		{
+?>
+		<span class="adm-nav-page-active adm-nav-page"><?=$NavRecordGroup?></span>
+<?
+		}
+		else // ($NavRecordGroup == $this->NavPageNomer):
+		{
+?>
+		<a href="javascript:void(0)" onclick="<?=$this->table_id?>.<?=$nav_func_name?>('<?=$sJSUrlPath.'?PAGEN_'.$this->NavNum.'='.$NavRecordGroup.'&amp;SIZEN_'.$this->NavNum.'='.$this->NavPageSize.$sQueryString?>');<?=$showWait?>" class="adm-nav-page"><?=$NavRecordGroup?></a>
+<?
+		} //endif($NavRecordGroup == $this->NavPageNomer):
+
+		if($NavRecordGroup == 2 && $this->nStartPage > 3)
+		{
+			if($this->nStartPage - $NavRecordGroup > 1)
+			{
+				$middlePage = ceil(($this->nStartPage + $NavRecordGroup)/2);
+?>
+		<a href="javascript:void(0)" onclick="<?=$this->table_id?>.<?=$nav_func_name?>('<?=$sJSUrlPath.'?PAGEN_'.$this->NavNum.'='.$middlePage.'&amp;SIZEN_'.$this->NavNum.'='.$this->NavPageSize.$sQueryString?>');<?=$showWait?>" class="adm-nav-page-separator"><?=$middlePage?></a>
+<?
+			}
+			$NavRecordGroup = $this->nStartPage;
+		}
+		elseif($NavRecordGroup == $this->nEndPage && $this->nEndPage < $this->NavPageCount - 2)
+		{
+			if( $this->NavPageCount-1 - $NavRecordGroup > 1)
+			{
+				$middlePage = floor(($this->NavPageCount + $this->nEndPage - 1)/2);
+?>
+		<a href="javascript:void(0)" onclick="<?=$this->table_id?>.<?=$nav_func_name?>('<?=$sJSUrlPath.'?PAGEN_'.$this->NavNum.'='.$middlePage.'&amp;SIZEN_'.$this->NavNum.'='.$this->NavPageSize.$sQueryString?>');<?=$showWait?>" class="adm-nav-page-separator"><?=$middlePage?></a>
+<?
+			}
+
+			$NavRecordGroup = $this->NavPageCount-1;
+		}
+		else
+		{
+			$NavRecordGroup++;
+		}
+
+	} // endwhile;//($NavRecordGroup <= $this->nEndPage):
+
+	if($this->NavPageNomer < $this->NavPageCount)
+	{
+?>
+		<a class="adm-nav-page adm-nav-page-next" href="javascript:void(0)" onclick="<?echo $this->table_id?>.<?=$nav_func_name?>('<?echo $sJSUrlPath.'?PAGEN_'.$this->NavNum.'='.($this->NavPageNomer+1).'&amp;SIZEN_'.$this->NavNum.'='.$this->NavPageSize.$sQueryString;?>');<?=$showWait?>"></a>
+<?
+	}
+	else //($this->NavPageNomer < $this->NavPageCount):
+	{
+?>
+		<span class="adm-nav-page adm-nav-page-next"></span>
+<?
+	} //endif; //($this->NavPageNomer < $this->NavPageCount):
+?>
+	</div>
+<?
+	if($this->NavRecordCount>0)
+	{
+?>
+	<div class="adm-nav-pages-total-block"><?
+	echo $title." ".(($this->NavPageNomer-1)*$this->NavPageSize+1)." &ndash; ";
+	if($this->NavPageNomer <> $this->NavPageCount)
+		echo($this->NavPageNomer * $this->NavPageSize);
 	else
-		echo('&nbsp;<a href="javascript:'.$this->table_id.'.'.$nav_func_name.'(\''.$sJSUrlPath.'?PAGEN_'.$this->NavNum.'='.$NavRecordGroup.'&amp;SIZEN_'.$this->NavNum.'='.$this->NavPageSize.$sQueryString.'\');">'.$NavRecordGroup.'</a>&nbsp;');
-	$NavRecordGroup++;
-endwhile;
-?></td>
-<?if($this->NavPageNomer < $this->NavPageCount):?>
-		<td><a href="javascript:<?echo $this->table_id?>.<?=$nav_func_name?>('<?echo $sJSUrlPath.'?PAGEN_'.$this->NavNum.'='.($this->NavPageNomer+1).'&amp;SIZEN_'.$this->NavNum.'='.$this->NavPageSize.$sQueryString;?>');"><img src="/bitrix/themes/<?echo ADMIN_THEME_ID?>/images/nav/next.gif" class="navnext" alt="<?echo GetMessage("navigation_next")?>" title="<?echo GetMessage("navigation_next")?>" border="0"></a></td>
-		<td><a href="javascript:<?echo $this->table_id?>.<?=$nav_func_name?>('<?echo $sJSUrlPath.'?PAGEN_'.$this->NavNum.'='.$this->NavPageCount.'&amp;SIZEN_'.$this->NavNum.'='.$this->NavPageSize.$sQueryString;?>');"><img src="/bitrix/themes/<?echo ADMIN_THEME_ID?>/images/nav/last.gif" class="navlast" alt="<?echo GetMessage("navigation_last")?>" title="<?echo GetMessage("navigation_last")?>" border="0"></a></td>
-<?else:?>
-		<td><img src="/bitrix/themes/<?echo ADMIN_THEME_ID?>/images/nav/next_dis.gif" class="navnext" alt="" border="0"></td>
-		<td><img src="/bitrix/themes/<?echo ADMIN_THEME_ID?>/images/nav/last_dis.gif" class="navlast" alt="" border="0"></td>
-<?endif;?>
-		<td>&nbsp;|&nbsp;</td>
+		echo($this->NavRecordCount);
+	echo " ".GetMessage("navigation_records_of")." ".$this->NavRecordCount;
+	?></div>
 <?
-endif; //$this->NavRecordCount>0
+	} // endif($this->NavRecordCount>0);
 ?>
-		<td><?echo GetMessage("navigation_records")?></td>
-		<td>
-		<select name="" onchange="
-			var val = this[selectedIndex].value;
-			if(val == '0')
-				<?echo $this->table_id?>.<?=$nav_func_name?>('<?echo $sJSUrlPath."?PAGEN_".$this->NavNum."=1&amp;SHOWALL_".$this->NavNum."=1".CUtil::addslashes($strNavQueryString);?>');
-			else
-				<?echo $this->table_id?>.<?=$nav_func_name?>('<?echo $sJSUrlPath."?PAGEN_".$this->NavNum."=1&amp;SHOWALL_".$this->NavNum."=0"."&amp;SIZEN_".$this->NavNum."="?>'+val+'<?echo CUtil::addslashes($strNavQueryString);?>');
-		">
+	<div class="adm-nav-pages-number-block"><span class="adm-nav-pages-number">
+		<?if(!$this->NavRecordCountChangeDisable)
+		{
+			?><span class="adm-nav-pages-number-text"><?echo GetMessage("navigation_records")?></span><span class="adm-select-wrap"><select name="" class="adm-select" onchange="if(this[selectedIndex].value=='0'){<?echo $this->table_id?>.<?=$nav_func_name?>('<?echo $sJSUrlPath."?PAGEN_".$this->NavNum."=1&amp;SHOWALL_".$this->NavNum."=1".CUtil::addslashes($strNavQueryString);?>');}else{<?echo $this->table_id?>.<?=$nav_func_name?>('<?echo $sJSUrlPath."?PAGEN_".$this->NavNum."=1&amp;SHOWALL_".$this->NavNum."=0"."&amp;SIZEN_".$this->NavNum."="?>'+this[selectedIndex].value+'<?echo CUtil::addslashes($strNavQueryString);?>');}">
 <?
-$aSizes = array(10, 20, 50, 100, 200, 500);
-if($this->nInitialSize > 0 && !in_array($this->nInitialSize, $aSizes))
-	array_unshift($aSizes, $this->nInitialSize);
-$reqSize = intval($_REQUEST["SIZEN_".$this->NavNum]);
-if($reqSize > 0 && !in_array($reqSize, $aSizes))
-	array_unshift($aSizes, $reqSize);
-foreach($aSizes as $size):
+	$aSizes = array(10, 20, 50, 100, 200, 500);
+	if($this->nInitialSize > 0 && !in_array($this->nInitialSize, $aSizes))
+		array_unshift($aSizes, $this->nInitialSize);
+	$reqSize = intval($_REQUEST["SIZEN_".$this->NavNum]);
+	if($reqSize > 0 && !in_array($reqSize, $aSizes))
+		array_unshift($aSizes, $reqSize);
+	foreach($aSizes as $size)
+	{
 ?>
-			<option value="<?echo $size?>"<?if($this->NavPageSize == $size)echo " selected"?>><?echo $size?></option>
+		<option value="<?echo $size?>"<?if($this->NavPageSize == $size)echo ' selected="selected"'?>><?echo $size?></option>
 <?
-endforeach;
-if($this->bShowAll):
+	} //endforeach;
+
+	if($this->bShowAll)
+	{
 ?>
-			<option value="0"<?if($this->NavShowAll) echo " selected"?>><?echo GetMessage("navigation_records_all")?></option>
-<?endif;?>
-		</select></td>
-<?if($this->NavRecordCount>0):?>
-			<td class="navtext">
+			<option value="0"<?if($this->NavShowAll) echo ' selected="selected"'?>><?echo GetMessage("navigation_records_all")?></option>
 <?
-echo $title." ".(($this->NavPageNomer-1)*$this->NavPageSize+1)." &ndash; ";
-if($this->NavPageNomer <> $this->NavPageCount)
-	echo($this->NavPageNomer * $this->NavPageSize);
-else
-	echo($this->NavRecordCount);
-echo " ".GetMessage("navigation_records_of")." ".$this->NavRecordCount;
-?></td>
-<?endif?>
-</tr>
-</table>
+	} //endif;
+?>
+	</select><?}?></span></span></div>
 </div>
+<?
+} //endif; //$this->NavRecordCount>0;
+
+if (!isset($_REQUEST['admin_history']))
+{
+?>
+<script type="text/javascript">top.BX.adminHistory.put('<?=CUtil::JSEscape($sUrlPath.'?PAGEN_'.$this->NavNum.'='.$this->NavPageNomer.'&amp;SIZEN_'.$this->NavNum.'='.$this->NavPageSize.$strNavQueryString)?>', top.BX.proxy(top.<?=$this->table_id?>.<?=$nav_func_name?>, parent.<?=$this->table_id?>), ['mode', 'table_id']);</script>
+<?
+} //endif;
+?>

@@ -364,7 +364,7 @@ while($db_res = $rsData->NavNext(true, "a_"))
 			else
 			{
 				if(CModule::IncludeModule('iblock'))
-					$a_ITEM_ID = '<a href="'.htmlspecialchars($elementLink).'">'.$a_ITEM_ID.'</a>';
+					$a_ITEM_ID = '<a href="'.htmlspecialcharsbx($elementLink).'">'.$a_ITEM_ID.'</a>';
 			} 
 
 			$row->AddViewField("ITEM_ID", '['.$a_ITEM_ID.'] '.GetMessage("MAIN_EVENTLOG_IBLOCK"));
@@ -373,12 +373,12 @@ while($db_res = $rsData->NavNext(true, "a_"))
 	}
 	if(strlen($a_REQUEST_URI))
 	{
-		$row->AddViewField("REQUEST_URI", htmlspecialchars($a_REQUEST_URI));
+		$row->AddViewField("REQUEST_URI", htmlspecialcharsbx($a_REQUEST_URI));
 	}
 	if(strlen($a_DESCRIPTION))
 	{
 		if(strncmp("==", $a_DESCRIPTION, 2)===0)
-			$DESCRIPTION = htmlspecialchars(base64_decode(substr($a_DESCRIPTION, 2)));
+			$DESCRIPTION = htmlspecialcharsbx(base64_decode(substr($a_DESCRIPTION, 2)));
 		else
 			$DESCRIPTION = $a_DESCRIPTION;
 		//htmlspecialcharsback for <br> <BR> <br/>
@@ -436,7 +436,7 @@ $oFilter->Begin();
 <tr>
 	<td><b><?echo GetMessage("MAIN_EVENTLOG_SEARCH")?>:</b></td>
 	<td nowrap>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>">
 		<select name="find_type">
 			<option value="audit_type_id"<?if($find_type=="audit_type_id") echo " selected"?>><?echo GetMessage("MAIN_EVENTLOG_AUDIT_TYPE_ID")?></option>
 			<option value="user_id"<?if($find_type=="user_id") echo " selected"?>><?echo GetMessage("MAIN_EVENTLOG_USER_ID")?></option>
@@ -447,7 +447,7 @@ $oFilter->Begin();
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_EVENTLOG_ID")?>:</td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>"></td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>"></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_EVENTLOG_TIMESTAMP_X")?>:</td>
@@ -463,17 +463,17 @@ $oFilter->Begin();
 <tr>
 	<td><?echo GetMessage("MAIN_EVENTLOG_AUDIT_TYPE_ID")?>:</td>
 	<td>
-		<input type="text" name="find_audit_type_id" size="47" value="<?echo htmlspecialchars($find_audit_type_id)?>">&nbsp;<?=ShowFilterLogicHelp()?><br>
+		<input type="text" name="find_audit_type_id" size="47" value="<?echo htmlspecialcharsbx($find_audit_type_id)?>">&nbsp;<?=ShowFilterLogicHelp()?><br>
 		<?echo SelectBoxMFromArray("find_audit_type[]", array("reference"=>array_values($arAuditTypes),"reference_id"=>array_keys($arAuditTypes)), $find_audit_type, GetMessage("MAIN_ALL"), "");?>
 	</td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_EVENTLOG_MODULE_ID")?>:</td>
-	<td><input type="text" name="find_module_id" size="47" value="<?echo htmlspecialchars($find_module_id)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_module_id" size="47" value="<?echo htmlspecialcharsbx($find_module_id)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_EVENTLOG_ITEM_ID")?>:</td>
-	<td><input type="text" name="find_item_id" size="47" value="<?echo htmlspecialchars($find_item_id)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_item_id" size="47" value="<?echo htmlspecialcharsbx($find_item_id)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <?
 $arSiteDropdown = array("reference" => array(), "reference_id" => array());
@@ -490,25 +490,25 @@ while ($ar = $rs->Fetch())
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_EVENTLOG_USER_ID")?>:</td>
-	<td><input type="text" name="find_user_id" size="47" value="<?echo htmlspecialchars($find_user_id)?>"></td>
+	<td><input type="text" name="find_user_id" size="47" value="<?echo htmlspecialcharsbx($find_user_id)?>"></td>
 </tr>
 <?if($bStatistic):?>
 <tr>
 	<td><?echo GetMessage("MAIN_EVENTLOG_GUEST_ID")?>:</td>
-	<td><input type="text" name="find_guest_id" size="47" value="<?echo htmlspecialchars($find_guest_id)?>"></td>
+	<td><input type="text" name="find_guest_id" size="47" value="<?echo htmlspecialcharsbx($find_guest_id)?>"></td>
 </tr>
 <?endif?>
 <tr>
 	<td><?echo GetMessage("MAIN_EVENTLOG_REMOTE_ADDR")?>:</td>
-	<td><input type="text" name="find_remote_addr" size="47" value="<?echo htmlspecialchars($find_remote_addr)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_remote_addr" size="47" value="<?echo htmlspecialcharsbx($find_remote_addr)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_EVENTLOG_USER_AGENT")?>:</td>
-	<td><input type="text" name="find_user_agent" size="47" value="<?echo htmlspecialchars($find_user_agent)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_user_agent" size="47" value="<?echo htmlspecialcharsbx($find_user_agent)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_EVENTLOG_REQUEST_URI")?>:</td>
-	<td><input type="text" name="find_request_uri" size="47" value="<?echo htmlspecialchars($find_request_uri)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_request_uri" size="47" value="<?echo htmlspecialcharsbx($find_request_uri)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <?
 $oFilter->Buttons(array("table_id"=>$sTableID, "url"=>$APPLICATION->GetCurPage(), "form"=>"find_form"));

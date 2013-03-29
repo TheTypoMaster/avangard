@@ -173,6 +173,15 @@ class CBXVirtualIo
 	}
 
 	/**
+	 * @param string $filename
+	 * @return string
+	 */
+	public function RandomizeInvalidFilename($filename)
+	{
+		return $this->io->RandomizeInvalidFilename($filename);
+	}
+
+	/**
 	 * Gets a value that indicates whether a directory exists in the file system
 	 *
 	 * @param string $path - Complete path to the directory

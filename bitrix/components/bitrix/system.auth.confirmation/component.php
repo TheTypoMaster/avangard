@@ -21,10 +21,10 @@ $arResult["~USER_ID"] = $_REQUEST[$arParams["USER_ID"]];
 $arResult["USER_ID"] = intval($arResult["~USER_ID"]);
 
 $arResult["~CONFIRM_CODE"] = trim($_REQUEST[$arParams["CONFIRM_CODE"]]);
-$arResult["CONFIRM_CODE"] = htmlspecialchars($arResult["~CONFIRM_CODE"]);
+$arResult["CONFIRM_CODE"] = htmlspecialcharsbx($arResult["~CONFIRM_CODE"]);
 
 $arResult["~LOGIN"] = trim($_REQUEST[$arParams["LOGIN"]]);
-$arResult["LOGIN"] = htmlspecialchars($arResult["~LOGIN"]);
+$arResult["LOGIN"] = htmlspecialcharsbx($arResult["~LOGIN"]);
 
 if($USER->IsAuthorized())
 {
@@ -95,8 +95,8 @@ else
 }
 
 $arResult["~FORM_ACTION"] = $APPLICATION->GetCurPageParam();
-$arResult["FORM_ACTION"] = htmlspecialchars($arResult["~FORM_ACTION"]);
+$arResult["FORM_ACTION"] = htmlspecialcharsbx($arResult["~FORM_ACTION"]);
 
-//echo "<pre>",htmlspecialchars(print_r($arResult, true)),"</pre>";
+//echo "<pre>",htmlspecialcharsbx(print_r($arResult, true)),"</pre>";
 $this->IncludeComponentTemplate();
 ?>

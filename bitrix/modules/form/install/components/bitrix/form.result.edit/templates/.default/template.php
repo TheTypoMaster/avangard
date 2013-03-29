@@ -2,7 +2,7 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 ?>
 <?
-if ($arParams["VIEW_URL"]) 
+if ($arParams["VIEW_URL"])
 {
 	$href = $arParams["SEF_MODE"] == "Y" ? str_replace("#RESULT_ID#", $arParams["RESULT_ID"], $arParams["VIEW_URL"]) : $arParams["VIEW_URL"].(strpos($arParams["VIEW_URL"], "?") === false ? "?" : "&")."RESULT_ID=".$arParams["RESULT_ID"]."&WEB_FORM_ID=".$arParams["WEB_FORM_ID"];
 ?>
@@ -33,15 +33,16 @@ if ($arParams["VIEW_URL"])
 		?>
 		<tr>
 			<td><b><?=GetMessage("FORM_DATE_CREATE")?></b></td>
-			<td><?=$arResult["RESULT_DATE_CREATE"]?>
+			<td><?=FormatDateFromDB($arResult["RESULT_DATE_CREATE"])?>
 				<?
 		if ($arResult["isAccessFormParams"] == "Y")
 		{
 			?>&nbsp;&nbsp;&nbsp;<?
-			if (intval($arResult["RESULT_USER_ID"])>0) 
+			if (intval($arResult["RESULT_USER_ID"])>0)
 			{
+				$userName = array("NAME" => $arResult["RESULT_USER_FIRST_NAME"], "LAST_NAME" => $arResult["RESULT_USER_LAST_NAME"], "SECOND_NAME" => $arResult["RESULT_USER_SECOND_NAME"], "LOGIN" => $arResult["RESULT_USER_LOGIN"]);
 			?>
-				[<a title='<?=GetMessage("FORM_EDIT_USER")?>' href='/bitrix/admin/user_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$arResult["RESULT_USER_ID"]?>'><?=$arResult["RESULT_USER_ID"]?></a>] (<?=$arResult["RESULT_USER_LOGIN"]?>) <?=$arResult["RESULT_USER_FIRST_NAME"]?> <?=$arResult["RESULT_USER_LAST_NAME"]?>
+				[<a title='<?=GetMessage("FORM_EDIT_USER")?>' href='/bitrix/admin/user_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$arResult["RESULT_USER_ID"]?>'><?=$arResult["RESULT_USER_ID"]?></a>] (<?=$arResult["RESULT_USER_LOGIN"]?>) <?=CUser::FormatName($arParams["NAME_TEMPLATE"], $userName)?>
 				<?if($arResult["RESULT_USER_AUTH"] == "N"): ?> <?=GetMessage("FORM_NOT_AUTH")?><?endif;?>
 			<?
 			}
@@ -58,7 +59,7 @@ if ($arParams["VIEW_URL"])
 		</tr>
 		<tr>
 			<td><b><?=GetMessage("FORM_TIMESTAMP")?></b></td>
-			<td><?=$arResult["RESULT_TIMESTAMP_X"]?></td>
+			<td><?=FormatDateFromDB($arResult["RESULT_TIMESTAMP_X"])?></td>
 		</tr>
 		<?
 		if ($arResult["isAccessFormParams"] == "Y")
@@ -81,7 +82,7 @@ if ($arParams["VIEW_URL"])
 		}
 		?>
 	</tbody>
-</table>				
+</table>
 <?=$arResult["FORM_HEADER"]?>
 <?=bitrix_sessid_post()?>
 
@@ -99,15 +100,15 @@ if ($arParams["VIEW_URL"])
 ?>
 <table>
 <?
-if ($arResult["isFormDescription"] == "Y" || $arResult["isFormTitle"] == "Y" || $arResult["isFormImage"] == "Y") 
-{ 
+if ($arResult["isFormDescription"] == "Y" || $arResult["isFormTitle"] == "Y" || $arResult["isFormImage"] == "Y")
+{
 ?>
 	<tr>
 		<td><?
 /***********************************************************************************
 					form header
 ***********************************************************************************/
-if ($arResult["isFormTitle"]) 
+if ($arResult["isFormTitle"])
 {
 ?>
 			<h3><?=$arResult["FORM_TITLE"]?></h3>
@@ -126,8 +127,8 @@ if ($arResult["isFormImage"] == "Y")
 			<p><?=$arResult["FORM_DESCRIPTION"]?></p>
 		</td>
 	</tr>
-	<? 
-} // endif 
+	<?
+} // endif
 	?>
 </table>
 <br />
@@ -135,7 +136,7 @@ if ($arResult["isFormImage"] == "Y")
 
 /***********************************************************************************
 					Form questions
-***********************************************************************************/ 
+***********************************************************************************/
 		?>
 <?if ($arResult["FORM_NOTE"]):?><?=$arResult["FORM_NOTE"]?><?endif?>
 <?if ($arResult["isFormErrors"] == "Y"):?><?=$arResult["FORM_ERRORS_TEXT"];?><?endif;?>
@@ -160,14 +161,14 @@ if ($arResult["isFormImage"] == "Y")
 		</td>
 		<td><?=$arQuestion["HTML_CODE"]?></td>
 	</tr>
-	<? 
-	} //endwhile 
+	<?
+	} //endwhile
 	?>
 	</tbody>
 	<tfoot>
 	<tr>
 		<th colspan="2">
-			<input type="submit" name="web_form_submit" value="<?=strlen(trim($arResult["arForm"]["BUTTON"])) <= 0 ? GetMessage("FORM_ADD") : $arResult["arForm"]["BUTTON"];?>" />
+			<input type="submit" name="web_form_submit" value="<?=htmlspecialcharsbx(strlen(trim($arResult["arForm"]["BUTTON"])) <= 0 ? GetMessage("FORM_ADD") : $arResult["arForm"]["BUTTON"]);?>" />
 			&nbsp;<input type="hidden" name="web_form_apply" value="Y" /><input type="submit" name="web_form_apply" value="<?=GetMessage("FORM_APPLY")?>" />
 			&nbsp;<input type="reset" value="<?=GetMessage("FORM_RESET");?>" />
 		</th>

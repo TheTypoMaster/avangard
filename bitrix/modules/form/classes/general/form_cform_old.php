@@ -53,21 +53,21 @@ class CForm_old
 					if (CModule::IncludeModule("fileman"))
 					{
 						$arIcons[] =
-								Array(						
+								Array(
 									"URL" => "/bitrix/admin/fileman_file_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&full_src=Y&path=". urlencode($path.$template),
 									"SRC" => "/bitrix/images/form/panel/edit_template.gif",
 									"ALT" => GetMessage("FORM_PUBLIC_ICON_TEMPLATE")
 								);
 						$arrUrl = parse_url($_SERVER["REQUEST_URI"]);
 						$arIcons[] =
-								Array(						
+								Array(
 									"URL" => "/bitrix/admin/fileman_file_edit.php?lang=".LANGUAGE_ID."&site=".SITE_ID."&full_src=Y&path=". urlencode($arrUrl["path"]),
 									"SRC" => "/bitrix/images/form/panel/edit_file.gif",
 									"ALT" => GetMessage("FORM_PUBLIC_ICON_HANDLER")
 								);
 					}
 					$arIcons[] =
-							Array(						
+							Array(
 								"URL" => "/bitrix/admin/form_edit.php?lang=".LANGUAGE_ID."&ID=".$WEB_FORM_ID,
 								"SRC" => "/bitrix/images/form/panel/edit_form.gif",
 								"ALT" => GetMessage("FORM_PUBLIC_ICON_SETTINGS")
@@ -86,7 +86,7 @@ class CForm_old
 	function IsOldVersion()
 	{
 		return 'N';
-		
+
 		/*
 		$res = "N";
 		$arr = CForm::GetTemplateList("EDIT_RESULT");
@@ -110,7 +110,7 @@ class CForm_old
 		*/
 	}
 
-	// возвращает hidden поля для формирования массива 
+	// возвращает hidden поля для формирования массива
 	// вопросов формы значения которых не нужно менять в момент редактирования результата
 	function GetClosedFields($WEB_FORM_ID, $arrFields)
 	{
@@ -122,7 +122,7 @@ class CForm_old
 			$q = CFormField::GetList($WEB_FORM_ID, "N", $by, $order, array("VARNAME" => implode("|",$arrFields)), $is_filtered);
 			while ($qr=$q->Fetch())
 			{
-				$str .= "<input type=\"hidden\" name=\"ARR_CLS[]\" value=\"".htmlspecialchars($qr["ID"])."\">\n";
+				$str .= "<input type=\"hidden\" name=\"ARR_CLS[]\" value=\"".htmlspecialcharsbx($qr["ID"])."\">\n";
 			}
 		}
 		return $str;

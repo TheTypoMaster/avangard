@@ -1,29 +1,26 @@
-<p>Man sollte wissen, wie die Einstellungen an selbsterstellten 2.0 Komponenten vorgenommen werden müssen, ohne dass dazu Programmierer konsultiert 
-werden müssen. Die Parameter jeder einzelnen Komponente hängen davon ab, wozu diese Komponente auf der Website dient. Wenn beispielsweise eine 
-Komponente 2.0 mit dem Namen "Liste der registrierter Mitglieder" im Namensraum "myproject:members.list" erstellt wurde, können folgende Parameter 
-(Einstellungen) erforderlich sein: </p>
-
+<p>Es muss verständlich sein, wie die speziell für ein Projekt erstellten Komponenten 2.0 eingestellt werden, ohne dafür Programmierer extra heranziehen zu müssen.
+Ein Beispiel: Für das Projekt "myproject" wurden 30 Komponenten 2.0 erstellt, eine davon - "Liste der registrierten Teilnehmer" befindet sich im Namenraum
+"myproject:members.list". Welche Einstellungen können für eine solche Komponente 2.0 erforderlich sein? Dies hängt vom Projekt sowie von den Nutzungsszenarien ab.
+Es können beispielsweise folgende Einstellungen sein:</p>
 <ul>
-<li>Anzahl Mitglieder pro Seite</li>
-<li>Format der Namensangaben: Vollständig/abgekürzt</li> 
-<li>Anzahl Wörter in der Beschreibung </li> 
-<li>Kodierte E-Mail anzeigen</li>
-<li>Spalte für Sortierung der Liste</li> 
-<li>und andere</li>
- </ul>
-
-<p>Solche Parameter können für die Arbeit eines Administrators erforderlich sein, so dass er sie im Laufe der Websitenutzung auch ändern kann.
-Manche Parameterbezeichnungen können aber sogar dem Administrator schleierhaft bleiben und nur Programmierer werden verstehen, was damit gemeint ist. 
-Zum Beispiel: Format der JSON-Anfrage.</p>
-
-<p>Solche Parameterbezeichnungen sollten grundsätzlich vermieden werden. Sind solche Sonderbezeichnungen bzw. -parameter jedoch unbedingt 
-erforderlich, kann man sie in einem gesonderten Bereich innerhalb der Komponenteneinstellungen platzieren. </p>
-
-<p>Wenn eine universale Komponente benutzt wird, welche auf mehreren verschiedenen Websites eingesetzt werden kann, ist es sinnvoll, alle 
-Einstellungen dieser Komponente ausführlich zu beschreiben und sie sowohl für Programmierer als auch für Administratoren verfügbar zu machen. 
-Und umgekehrt: Wird eine sehr spezifische Komponente erstellt, können die Einstellungen dieser Komponente bspw. nur für Entwickler verfügbar gemacht werden. </p> 
-
-<p>Auch im Ansichtsbereich der Website sollte überprüft werden, ob die Parameter der selbsterstellten Komponenten 2.0 ausführlich beschrieben 
-sind und verständliche Bezeichnungen haben. Für einen Administrator muss es ersichtlich sein, ob die Parameter einer konkreten Komponente geändert 
-werden können, welche Daten und Formate dabei benutzt werden können oder ob diese Komponente nur für Entwickler gedacht ist. Jeder Parameter, der
- für den Administrator verfügbar ist, soll auf sein korrektes Funktionieren hin geprüft werden.</p>
+<li>Anzahl der Teilnehmer pro Seite</li>
+<li>Namenformat des Teilnehmers: Voller Name/Nur Nachname</li>
+<li>Anzahl der Wörter in der Beschreibung (nach welcher Auslassungspunkte angezeigt werden)</li>
+<li>Verschlüsselte E-Mail anzeigen</li>
+<li>Spalte zur Sortierung der Liste usw.</li>
+</ul>
+<p>Der Systemadministrator kann solche Einstellungen benötigen, aber sie können im Laufe der Projektnutzung geändert werden.</p>
+<p>Hier ein Beispiel von anderen Einstellungen, welche einen Systemadministrator nur verwirren würden, da sie lediglich für Programmierer verständlich sind:</p>
+<ul>
+<li>Algorithmus des Daten-Caches</li>
+<li>Format der JSON-Anfrage</li>
+<li>Nutzergruppen, die berechtigt sind, Liste anzuzeigen usw.</li>
+</ul>
+<p>Sind solche Einstellungen jedoch erforderlich, sollten sie in einer Extragruppe platziert und mit notwendiger Dokumentation inkl. zulässiger Werte versehen werden.</p>
+<p>Wenn eine Standardkomponente eingesetzt wird, welche auch in mehreren Web-Projekten genutzt werden kann, sollte sie konfigurierbar sein und die Einstellungen
+ für diese Komponente sollten sowohl für Programmierer als auch für den Systemadministrator verfügbar sein. Ist die Komponente eher spezifisch, hat es keinen
+ Sinn, sie auch konfigurierbar zu machen bzw. Zugriff auf Einstellungen für diese Komponente allen zu gewähren.</p>
+<p>Einstellungen für jede anpassbare Komponente 2.0 sollten im Ansichtsbereich überprüft werden: Jede Einstellung muss eine klare Bezeichnung haben und
+detailliert beschrieben sein. Ein Projektadministrator muss ganz klar verstehen, ober die Einstellungen ändern kann, und wenn ja innerhalb von welchen Werten
+ und in welchem Dateiformat. Es wird empfohlen, jede einzelne Einstellung, die einem Administrator verfügbar sein soll, auf eine korrekte Arbeitsweise hin zu
+ überprüfen.</p>

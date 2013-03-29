@@ -25,30 +25,35 @@ if(strLen($arParams["USER_VAR"])<=0)
 	$arParams["USER_VAR"] = "id";
 if(strLen($arParams["POST_VAR"])<=0)
 	$arParams["POST_VAR"] = "id";
-	
+
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
 if(strlen($arParams["PATH_TO_BLOG"])<=0)
-	$arParams["PATH_TO_BLOG"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 
 $arParams["PATH_TO_BLOG_CATEGORY"] = trim($arParams["PATH_TO_BLOG_CATEGORY"]);
 if(strlen($arParams["PATH_TO_BLOG_CATEGORY"])<=0)
-	$arParams["PATH_TO_BLOG_CATEGORY"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#"."&calegory=#category#");
-	
+	$arParams["PATH_TO_BLOG_CATEGORY"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#"."&calegory=#category#");
+
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
 if(strlen($arParams["PATH_TO_POST"])<=0)
-	$arParams["PATH_TO_POST"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
+	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if(strlen($arParams["PATH_TO_USER"])<=0)
-	$arParams["PATH_TO_USER"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $arParams["PATH_TO_SMILE"] = strlen(trim($arParams["PATH_TO_SMILE"]))<=0 ? false : trim($arParams["PATH_TO_SMILE"]);
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 $arParams["IMAGE_MAX_WIDTH"] = IntVal($arParams["IMAGE_MAX_WIDTH"]);
 $arParams["IMAGE_MAX_HEIGHT"] = IntVal($arParams["IMAGE_MAX_HEIGHT"]);
 $arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
+if(!is_array($arParams["POST_PROPERTY_LIST"]))
+	$arParams["POST_PROPERTY_LIST"] = Array("UF_BLOG_POST_DOC");
+else
+	$arParams["POST_PROPERTY_LIST"][] = "UF_BLOG_POST_DOC";
+
 // activation rating
-CRatingsComponentsMain::GetShowRating(&$arParams);
+CRatingsComponentsMain::GetShowRating($arParams);
 
 if(IntVal($arParams["ID"])>0)
 {
@@ -100,12 +105,18 @@ if(IntVal($arParams["ID"])>0)
 				if($arOwnerBlog = CBlog::GetByOwnerID($arPost["AUTHOR_ID"], $arParams["GROUP_ID"]))
 					$arPost["urlToBlog"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_BLOG"], array("blog" => $arOwnerBlog["URL"]));
 			}
-			
+
 			$arImages = array();
 			$dbImage = CBlogImage::GetList(array("ID"=>"ASC"),array("POST_ID"=>$arPost["ID"], "BLOG_ID"=>$arBlog["ID"], "IS_COMMENT" => "N"));
 			while ($arImage = $dbImage->Fetch())
-				$arImages[$arImage["ID"]] = $arImage["FILE_ID"];
-				
+			{
+				$arImages[$arImage['ID']] = $arImage['FILE_ID'];
+				$arPost["arImages"][$arImage['ID']] = Array(
+									"small" => "/bitrix/components/bitrix/blog/show_file.php?fid=".$arImage['ID']."&width=70&height=70&type=square",
+									"full" => "/bitrix/components/bitrix/blog/show_file.php?fid=".$arImage['ID']."&width=1000&height=1000"
+								);
+			}
+
 			if($arPost["DETAIL_TEXT_TYPE"] == "html" && COption::GetOptionString("blog","allow_html", "N") == "Y")
 			{
 				$arAllow = array("HTML" => "Y", "ANCHOR" => "Y", "IMG" => "Y", "SMILES" => "Y", "NL2BR" => "N", "VIDEO" => "Y", "QUOTE" => "Y", "CODE" => "Y");
@@ -122,13 +133,42 @@ if(IntVal($arParams["ID"])>0)
 			}
 
 			$arPost["IMAGES"] = $arImages;
-			
-			$arPost["BlogUser"] = CBlogUser::GetByID($arPost["AUTHOR_ID"], BLOG_BY_USER_ID); 
+			if(!empty($p->showedImages))
+			{
+				foreach($p->showedImages as $val)
+				{
+					if(!empty($arPost["arImages"][$val]))
+						unset($arPost["arImages"][$val]);
+				}
+			}
+
+			$arPost["POST_PROPERTIES"] = array("SHOW" => "N");
+			if (!empty($arParams["POST_PROPERTY_LIST"]))
+			{
+				$arPostFields = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("BLOG_POST", $arPost["ID"], LANGUAGE_ID);
+
+				if (count($arParams["POST_PROPERTY_LIST"]) > 0)
+				{
+					foreach ($arPostFields as $FIELD_NAME => $arPostField)
+					{
+						if (!in_array($FIELD_NAME, $arParams["POST_PROPERTY_LIST"]))
+							continue;
+						$arPostField["EDIT_FORM_LABEL"] = strLen($arPostField["EDIT_FORM_LABEL"]) > 0 ? $arPostField["EDIT_FORM_LABEL"] : $arPostField["FIELD_NAME"];
+						$arPostField["EDIT_FORM_LABEL"] = htmlspecialcharsEx($arPostField["EDIT_FORM_LABEL"]);
+						$arPostField["~EDIT_FORM_LABEL"] = $arPostField["EDIT_FORM_LABEL"];
+						$arPost["POST_PROPERTIES"]["DATA"][$FIELD_NAME] = $arPostField;
+					}
+				}
+				if (!empty($arPost["POST_PROPERTIES"]["DATA"]))
+					$arPost["POST_PROPERTIES"]["SHOW"] = "Y";
+			}
+
+			$arPost["BlogUser"] = CBlogUser::GetByID($arPost["AUTHOR_ID"], BLOG_BY_USER_ID);
 			$arPost["BlogUser"] = CBlogTools::htmlspecialcharsExArray($arPost["BlogUser"]);
 			$dbUser = CUser::GetByID($arPost["AUTHOR_ID"]);
 			$arPost["arUser"] = $dbUser->GetNext();
 			$arPost["AuthorName"] = CBlogUser::GetUserName($arPost["BlogUser"]["ALIAS"], $arPost["arUser"]["NAME"], $arPost["arUser"]["LAST_NAME"], $arPost["arUser"]["LOGIN"]);
-			
+
 			if (preg_match("/(\[CUT\])/i",$arPost["DETAIL_TEXT"]) || preg_match("/(<CUT>)/i",$arPost["DETAIL_TEXT"]))
 				$arPost["CUT"] = "Y";
 
@@ -145,7 +185,7 @@ if(IntVal($arParams["ID"])>0)
 					}
 				}
 			}
-			
+
 			$arPost["DATE_PUBLISH_FORMATED"] = FormatDate($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($arPost["DATE_PUBLISH"], CSite::GetDateFormat("FULL")));
 			$arResult["FRIENDS_POSTS"][] = array("POST" => $arPost, "BLOG" => $arBlog);
 		}

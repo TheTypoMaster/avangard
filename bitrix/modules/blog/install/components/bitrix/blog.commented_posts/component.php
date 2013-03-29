@@ -19,7 +19,7 @@ $arParams["MESSAGE_LENGTH"] = (IntVal($arParams["MESSAGE_LENGTH"])>0)?$arParams[
 $arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/is", "", Trim($arParams["BLOG_URL"]));
 $arParams["USE_SOCNET"] = ($arParams["USE_SOCNET"] == "Y") ? "Y" : "N";
 // activation rating
-CRatingsComponentsMain::GetShowRating(&$arParams);
+CRatingsComponentsMain::GetShowRating($arParams);
 
 if(!is_array($arParams["GROUP_ID"]))
 	$arParams["GROUP_ID"] = array($arParams["GROUP_ID"]);
@@ -44,27 +44,31 @@ if(strLen($arParams["POST_VAR"])<=0)
 
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
 if(strlen($arParams["PATH_TO_BLOG"])<=0)
-	$arParams["PATH_TO_BLOG"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 
 $arParams["PATH_TO_SMILE"] = strlen(trim($arParams["PATH_TO_SMILE"]))<=0 ? false : trim($arParams["PATH_TO_SMILE"]);
 
 $arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
 if(strlen($arParams["PATH_TO_POST"])<=0)
-	$arParams["PATH_TO_POST"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
+	$arParams["PATH_TO_POST"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=post&".$arParams["BLOG_VAR"]."=#blog#&".$arParams["POST_VAR"]."=#post_id#");
 
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if(strlen($arParams["PATH_TO_USER"])<=0)
-	$arParams["PATH_TO_USER"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 $arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
 
 $UserGroupID = Array(1);
 if($USER->IsAuthorized())
 	$UserGroupID[] = 2;
 
+$user_id = IntVal($USER->GetID());
 $cache = new CPHPCache;
 $cache_id = "blog_last_messages_".serialize($arParams)."_".serialize($UserGroupID)."_".$USER->IsAdmin();
 if(($tzOffset = CTimeZone::GetOffset()) <> 0)
 	$cache_id .= "_".$tzOffset;
+if($arParams["USE_SOCNET"] == "Y")
+	$cache_id .= "_".$user_id;
 $cache_path = "/".SITE_ID."/blog/commented_posts/";
 
 $arResult = Array();
@@ -91,42 +95,35 @@ else
 			">PERMS" => BLOG_PERMS_DENY,
 			">NUM_COMMENTS" => 0
 		);
+
 	if(strlen($arParams["BLOG_URL"]) > 0)
 		$arFilter["BLOG_URL"] = $arParams["BLOG_URL"];
 	if(!empty($arParams["GROUP_ID"]))
 		$arFilter["BLOG_GROUP_ID"] = $arParams["GROUP_ID"];
-
 	if($USER->IsAdmin())
 		unset($arFilter[">PERMS"]);
-	$arFilter["MICRO"] = "N";
 
-	$arSelectedFields = array("ID", "BLOG_ID", "TITLE", "DATE_PUBLISH", "AUTHOR_ID", "DETAIL_TEXT", "BLOG_ACTIVE", "BLOG_URL", "BLOG_GROUP_ID", "BLOG_GROUP_SITE_ID", "AUTHOR_LOGIN", "AUTHOR_NAME", "AUTHOR_LAST_NAME", "AUTHOR_SECOND_NAME", "BLOG_USER_ALIAS", "BLOG_OWNER_ID", "VIEWS", "NUM_COMMENTS", "ATTACH_IMG", "BLOG_SOCNET_GROUP_ID", "CODE");
+	$arSelectedFields = array("ID", "BLOG_ID", "TITLE", "DATE_PUBLISH", "AUTHOR_ID", "DETAIL_TEXT", "BLOG_ACTIVE", "BLOG_URL", "BLOG_GROUP_ID", "BLOG_GROUP_SITE_ID", "AUTHOR_LOGIN", "AUTHOR_NAME", "AUTHOR_LAST_NAME", "AUTHOR_SECOND_NAME", "BLOG_USER_ALIAS", "BLOG_OWNER_ID", "VIEWS", "NUM_COMMENTS", "ATTACH_IMG", "BLOG_SOCNET_GROUP_ID", "CODE", "MICRO");
 
-	if(CModule::IncludeModule("socialnetwork") && IntVal($arParams["SOCNET_GROUP_ID"]) <= 0 && IntVal($arParams["USER_ID"]) <= 0 && $arParams["USE_SOCNET"] == "Y")
+	if(CModule::IncludeModule("socialnetwork") && $arParams["USE_SOCNET"] == "Y")
 	{
 		unset($arFilter[">PERMS"]);
-		$arSelectedFields[] = "SOCNET_BLOG_READ";
 		$arFilter["BLOG_USE_SOCNET"] = "Y";
-	}
-	elseif((IntVal($arParams["SOCNET_GROUP_ID"]) > 0 || IntVal($arParams["USER_ID"]) > 0) && $arParams["USE_SOCNET"] == "Y")
-	{
-		$user_id = $USER->GetID();
-		$arFilterTmp = Array("ACTIVE" => "Y", "GROUP_SITE_ID" => SITE_ID, "USE_SOCNET" => "Y");
-
-		if(IntVal($arParams["SOCNET_GROUP_ID"]) > 0)
-			$arFilterTmp["SOCNET_GROUP_ID"] = $arParams["SOCNET_GROUP_ID"];
-		if(IntVal($arParams["USER_ID"]) > 0)
-			$arFilterTmp["OWNER_ID"] = $arParams["USER_ID"];
-		if(!empty($arParams["GROUP_ID"]))
-			$arFilterTmp["GROUP_ID"] = $arParams["GROUP_ID"];
-		$arFilter["BLOG_USE_SOCNET"] = "Y";
-
-		$perms = BLOG_PERMS_DENY;
-		$dbBlog = CBlog::GetList(Array(), $arFilterTmp, false, Array("nTopCount" => 1), Array("ID"));
-		if($arBlog = $dbBlog->Fetch())
+		$SORT = Array("RATING_TOTAL_VALUE" => "DESC", "VIEWS" => "DESC");
+		if(IntVal($arParams["SOCNET_GROUP_ID"]) <= 0 && IntVal($arParams["USER_ID"]) <= 0)
 		{
-			if(IntVal($arParams["SOCNET_GROUP_ID"]) > 0)
+			$arFilter["FOR_USER"] = $user_id;
+		}
+		else
+		{
+			if(IntVal($arParams["USER_ID"]) > 0)
 			{
+				$arFilter["AUTHOR_ID"] = $arParams["USER_ID"];
+				$arFilter["FOR_USER"] = $user_id;
+			}
+			elseif(IntVal($arParams["SOCNET_GROUP_ID"]) > 0)
+			{
+				$arFilter["SOCNET_GROUP_ID"] = $arParams["SOCNET_GROUP_ID"];
 				$perms = BLOG_PERMS_DENY;
 				if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "blog", "full_post", CSocNetUser::IsCurrentUserModuleAdmin()) || $APPLICATION->GetGroupRight("blog") >= "W")
 					$perms = BLOG_PERMS_FULL;
@@ -135,22 +132,10 @@ else
 				elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_GROUP, $arParams["SOCNET_GROUP_ID"], "blog", "view_post"))
 					$perms = BLOG_PERMS_READ;
 			}
-			else
-			{
-				$perms = BLOG_PERMS_DENY;
-				if (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "blog", "full_post", CSocNetUser::IsCurrentUserModuleAdmin()) || $APPLICATION->GetGroupRight("blog") >= "W" || $arParams["USER_ID"] == $user_id)
-					$perms = BLOG_PERMS_FULL;
-				elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "blog", "write_post"))
-					$perms = BLOG_PERMS_WRITE;
-				elseif (CSocNetFeaturesPerms::CanPerformOperation($user_id, SONET_ENTITY_USER, $arParams["USER_ID"], "blog", "view_post"))
-					$perms = BLOG_PERMS_READ;
-			}
-			$arFilter["BLOG_ID"] = $arBlog["ID"];
-			unset($arFilter[">PERMS"]);
 		}
 	}
 
-	if(strlen($perms) <= 0 || (!empty($arFilter["BLOG_ID"]) && $perms >= BLOG_PERMS_READ))
+	if($perms != BLOG_PERMS_DENY)
 	{
 		$SORT = Array($arParams["SORT_BY1"]=>$arParams["SORT_ORDER1"], $arParams["SORT_BY2"]=>$arParams["SORT_ORDER2"]);
 		if($arParams["MESSAGE_COUNT"]>0)
@@ -216,7 +201,6 @@ else
 			if($itemCnt==0)
 				$arTmp["FIRST"] = "Y";
 
-
 			$text = preg_replace("#\[img\](.+?)\[/img\]#ie", "", $arPost["~DETAIL_TEXT"]);
 			$text = preg_replace("#\[url(.+?)\](.*?)\[/url\]#is", "\\2", $text);
 			$text = preg_replace("#\[video(.+?)\](.+?)\[/video\]#ie", "", $text);
@@ -229,20 +213,23 @@ else
 
 			$arTmp["TEXT_FORMATED"] = $text;
 			$arTmp["DATE_PUBLISH_FORMATED"] = FormatDate($arParams["DATE_TIME_FORMAT"], MakeTimeStamp($arTmp["DATE_PUBLISH"], CSite::GetDateFormat("FULL")));
-			
+			if($arTmp["MICRO"] == "Y")
+			{
+				$arTmp["TITLE"] = TruncateText(str_replace(array("<br />", "<br>"), "", $text), 60);
+				$arTmp["~TITLE"] = htmlspecialcharsback($arTmp["TITLE"]);
+			}
+
 			$itemCnt++;
 			$arResult[] = $arTmp;
 			$ids[] = $arTmp["ID"];
 		}
 		$arResult["IDS"] = $ids;
 	}
-
 	if ($arParams["CACHE_TIME"] > 0)
 		$cache->EndDataCache(array("templateCachedData" => $this->GetTemplateCachedData(), "arResult" => $arResult));
 }
 if($arParams["SHOW_RATING"] == "Y" && !empty($arResult["IDS"]))
 	$arResult[0]['RATING'] = CRatings::GetRatingVoteResult('BLOG_POST', $arResult["IDS"]);
 unset($arResult["IDS"]);
-
 $this->IncludeComponentTemplate();
 ?>

@@ -1,4 +1,4 @@
-﻿(function(window) {
+(function(window) {
 	window.BXUploader = function(Params)
 	{
 		this.type = Params.type == 'flash' ? 'flash' : 'applet';
@@ -64,7 +64,7 @@
 			else if (fileCount > _this.uploadPaneCount)
 			{
 				// Files are being added
-				for (var i = _this.uploadPaneCount; i < fileCount; i++)
+				for (i = _this.uploadPaneCount; i < fileCount; i++)
 					_this.addItemToUploadPane(this, i);
 			}
 			_this.uploadPaneCount = fileCount;
@@ -73,7 +73,7 @@
 		exUploaderOnBeforeUpload: function()
 		{
 			var
-				i, l, thumbId, title, desc, tags,
+				i, l, thumbId, title, div,
 				_this = window['oBXUploaderHandler_' + this.id()];
 
 			for (i = 0, l = _this.uploadPane.childNodes.length; i < l; i++)
@@ -137,7 +137,7 @@
 			{
 				c.appendChild(BX.create("label", {attrs: {'for': thumbId + '_title'}, text: 'Title:'}));
 				pCntrl = c.appendChild(BX.create("input", {props: {type: 'text', id: thumbId + '_title', value: file.name()}}));
-				pCntrl.onfocus = function(e){this.select();};
+				pCntrl.onfocus = function(){this.select();};
 				rowSpan++;
 				c = pTable.insertRow(-1).insertCell(-1);
 			}
@@ -145,7 +145,7 @@
 			if (this.extendedUploadPaneConfig.showDesc)
 			{
 				c.appendChild(BX.create("label", {attrs: {'for': thumbId + '_desc'}, text: 'Description: '}));
-				pCntrl = c.appendChild(BX.create("textarea", {props: {id: thumbId + '_desc', rows: 2}, text: file.description()}));
+				c.appendChild(BX.create("textarea", {props: {id: thumbId + '_desc', rows: 2}, text: file.description()}));
 				rowSpan++;
 				c = pTable.insertRow(-1).insertCell(-1);
 			}
@@ -153,7 +153,7 @@
 			if (this.extendedUploadPaneConfig.showTags)
 			{
 				c.appendChild(BX.create("label", {attrs: {'for': thumbId + '_tags'}, text: 'Tags:'}));
-				pCntrl = c.appendChild(BX.create("input", {props: {type: 'text', id: thumbId + '_tags', value: file.tag()}}));
+				c.appendChild(BX.create("input", {props: {type: 'text', id: thumbId + '_tags', value: file.tag()}}));
 				rowSpan++;
 			}
 
@@ -201,7 +201,7 @@
 		{
 			var
 				length = this.converters().count(),
-				i, l, thumbId, title, desc, tags,
+				i,
 				_this = window['oBXUploaderHandler_' + this.id()];
 
 			if (_this.Watermark.Using() != 'Y')
@@ -230,7 +230,7 @@
 				thumbWidth = this.converters().get(i).thumbnailWidth();
 				thumbHeight = this.converters().get(i).thumbnailHeight();
 
-				if (_this.Watermark.Type() == 'image')
+				if (_this.Watermark.Type() == 'image' || _this.Watermark.Type() == 'picture')
 				{
 					path = _this.Watermark.File();
 					if (!path)
@@ -264,7 +264,7 @@
 				}
 				else
 				{
-					var text = _this.Watermark.Text();
+					text = _this.Watermark.Text();
 					if (!text)
 						return;
 					if (_this.Watermark.Copyright())
@@ -419,8 +419,8 @@
 		},
 		FileWidth: function(value)
 		{
-			if (this.watermarkConfig && this.watermarkConfig.rules == 'ALL' && this.watermarkConfig.size)
-				return this.watermarkConfig.size;
+			if (this.watermarkConfig && this.watermarkConfig.rules == 'ALL' && this.watermarkConfig.fileWidth)
+				return this.watermarkConfig.fileWidth;
 
 			if (typeof value == 'undefined')
 				return this.fileWidth;
@@ -429,8 +429,8 @@
 		},
 		FileHeight: function(value)
 		{
-			if (this.watermarkConfig && this.watermarkConfig.rules == 'ALL' && this.watermarkConfig.size)
-				return this.watermarkConfig.size;
+			if (this.watermarkConfig && this.watermarkConfig.rules == 'ALL' && this.watermarkConfig.fileHeight)
+				return this.watermarkConfig.fileHeight;
 
 			if (typeof value == 'undefined')
 				return this.fileHeight;

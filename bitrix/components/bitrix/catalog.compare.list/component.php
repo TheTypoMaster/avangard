@@ -112,7 +112,7 @@ if($_REQUEST["action"]=="DELETE_FROM_COMPARE_LIST" && $id > 0)
 $arResult = $_SESSION[$arParams["NAME"]][$arParams["IBLOCK_ID"]]["ITEMS"];
 foreach($arResult as $id=>$arItem)
 {
-	$arResult[$id]["DELETE_URL"] = htmlspecialchars($APPLICATION->GetCurPageParam("action=DELETE_FROM_COMPARE_LIST&id=".$arItem["ID"], array("action", "id")));
+	$arResult[$id]["DELETE_URL"] = htmlspecialcharsbx($APPLICATION->GetCurPageParam("action=DELETE_FROM_COMPARE_LIST&id=".$arItem["ID"], array("action", "id")));
 }
 
 $this->IncludeComponentTemplate();

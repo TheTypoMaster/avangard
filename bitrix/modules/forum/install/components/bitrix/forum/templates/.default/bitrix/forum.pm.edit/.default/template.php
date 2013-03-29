@@ -15,6 +15,11 @@ if (LANGUAGE_ID == 'ru')
 	@include_once($path);
 }
 $tabIndex = 1;
+
+$arParams["SEO_USER"] = (in_array($arParams["SEO_USER"], array("Y", "N", "TEXT")) ? $arParams["SEO_USER"] : "Y");
+$arParams["USER_TMPL"] = '<noindex><a rel="nofollow" href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a></noindex>';
+if ($arParams["SEO_USER"] == "N") $arParams["USER_TMPL"] = '<a href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a>';
+elseif ($arParams["SEO_USER"] == "TEXT") $arParams["USER_TMPL"] = '#NAME#';
 /********************************************************************
 				/Input params
 ********************************************************************/
@@ -32,7 +37,6 @@ $tabIndex = 1;
 if ($arResult["mode"] != "new"):
 ?>
 	<span class="forum-option-folder"><a href="<?=$arResult["URL"]["HELP"]?>"><?=$arResult["FolderName"]?></a></span>
-
 <?
 endif;
 ?>
@@ -107,7 +111,10 @@ endif;
 ?>
 				<span id="div_USER_ID" name="div_USER_ID"><?
 				if (!empty($arResult["POST_VALUES"]["SHOW_NAME"])):
-					?>[<a href="<?=$arResult["POST_VALUES"]["SHOW_NAME"]["link"]?>"><?=$arResult["POST_VALUES"]["SHOW_NAME"]["text"]?></a>]<?
+					?>[<?=str_replace(
+						array("#URL#", "#NAME#"),
+						array($arResult["POST_VALUES"]["SHOW_NAME"]["link"], $arResult["POST_VALUES"]["SHOW_NAME"]["text"]),
+						$arParams["USER_TMPL"])?>]<?
 				elseif (!empty($arResult["POST_VALUES"]["USER_ID"])):
 					?><i><?=GetMessage("PM_NOT_FINED");?></i><?
 				endif;
@@ -161,24 +168,7 @@ endif;
 					'bAutoResize' => true
 				);
 
-				$arEditorFeatures = array(
-					"ALLOW_BIU" => array('Bold', 'Italic', 'Underline', 'Strike'),
-					"ALLOW_FONT" => array('ForeColor','FontList', 'FontSizeList'),
-					"ALLOW_QUOTE" => array('Quote'),
-					"ALLOW_CODE" => array('Code'),
-					'ALLOW_ANCHOR' => array('CreateLink', 'DeleteLink'),
-					"ALLOW_IMG" => array('Image'),
-					"ALLOW_VIDEO" => array('ForumVideo'),
-					"ALLOW_TABLE" => array('Table'),
-					"ALLOW_LIST" => array('InsertOrderedList', 'InsertUnorderedList'),
-					"ALLOW_SMILES" => array('SmileList'),
-					"ALLOW_UPLOAD" => array(''),
-					"ALLOW_NL2BR" => array(''),
-				);
-
-				foreach ($arEditorFeatures as $featureName => $toolbarIcons)
-					$arEditorParams['toolbarConfig'] = array_merge($arEditorParams['toolbarConfig'], $toolbarIcons);
-				$arEditorParams['toolbarConfig'] = array_merge($arEditorParams['toolbarConfig'], array('RemoveFormat', 'Translit', 'Source'));
+				$arEditorParams['toolbarConfig'] = forumTextParser::GetEditorToolbar(array('mode'=>'full'));
 				$LHE->Show($arEditorParams);
 			?>
 		</div>
@@ -212,23 +202,18 @@ endif;
 </form>
 
 <script language="Javascript">
-<?if (!empty($arResult["POST_VALUES"]["SHOW_NAME"]["text"])):?>
-window.switcher = '<?=CUtil::JSEscape($arResult["POST_VALUES"]["SHOW_NAME"]["text"])?>';
-<?elseif (!empty($arResult["POST_VALUES"]["USER_ID"])):?>
-window.switcher = '<?=CUtil::JSEscape($arResult["POST_VALUES"]["USER_ID"])?>';
-<?else:?>
-window.switcher = '';
-<?endif;?>
+window.switcher = '<?=CUtil::JSEscape( !empty($arResult["POST_VALUES"]["SHOW_NAME"]["text"]) ?
+	$arResult["POST_VALUES"]["SHOW_NAME"]["text"] : (!empty($arResult["POST_VALUES"]["USER_ID"]) ?
+		$arResult["POST_VALUES"]["USER_ID"] : ''))?>';
 function fSearchUser()
 {
-	var name = 'USER_ID';
-	var template_path = '<?=CUtil::JSEscape($arResult["pm_search_for_js"])?>';
-	var handler = document.getElementById('input_'+name);
-	var div_ = document.getElementById('div_'+name);
+	var
+			name = 'USER_ID',
+			template_path = '<?=CUtil::JSEscape($arResult["pm_search_for_js"])?>',
+			handler = document.getElementById('input_'+name),
+			div_ = document.getElementById('div_'+name);
 	if (typeof handler != "object" || null == handler || typeof div_ != "object")
 		return false;
-	
-	
 	if (window.switcher != handler.value)
 	{
 		window.switcher = handler.value;
@@ -249,32 +234,10 @@ fSearchUser();
 var bSendForm = false;
 if (typeof oErrors != "object")
 	var oErrors = {};
-oErrors['no_topic_name'] = "<?=CUtil::JSEscape(GetMessage("JERROR_NO_TOPIC_NAME"))?>";
-oErrors['no_message'] = "<?=CUtil::JSEscape(GetMessage("JERROR_NO_MESSAGE"))?>";
-oErrors['max_len'] = "<?=CUtil::JSEscape(GetMessage("JERROR_MAX_LEN"))?>";
-oErrors['no_url'] = "<?=CUtil::JSEscape(GetMessage("FORUM_ERROR_NO_URL"))?>";
-oErrors['no_title'] = "<?=CUtil::JSEscape(GetMessage("FORUM_ERROR_NO_TITLE"))?>";
-oErrors['no_path'] = "<?=CUtil::JSEscape(GetMessage("FORUM_ERROR_NO_PATH_TO_VIDEO"))?>";
-if (typeof oText != "object")
-	var oText = {};
-oText['author'] = " <?=CUtil::JSEscape(GetMessage("JQOUTE_AUTHOR_WRITES"))?>:\n";
-oText['enter_url'] = "<?=CUtil::JSEscape(GetMessage("FORUM_TEXT_ENTER_URL"))?>";
-oText['enter_url_name'] = "<?=CUtil::JSEscape(GetMessage("FORUM_TEXT_ENTER_URL_NAME"))?>";
-oText['enter_image'] = "<?=CUtil::JSEscape(GetMessage("FORUM_TEXT_ENTER_IMAGE"))?>";
-oText['list_prompt'] = "<?=CUtil::JSEscape(GetMessage("FORUM_LIST_PROMPT"))?>";
-oText['video'] = "<?=CUtil::JSEscape(GetMessage("FORUM_VIDEO"))?>";
-oText['path'] = "<?=CUtil::JSEscape(GetMessage("FORUM_PATH"))?>:";
-oText['width'] = "<?=CUtil::JSEscape(GetMessage("FORUM_WIDTH"))?>:";
-oText['height'] = "<?=CUtil::JSEscape(GetMessage("FORUM_HEIGHT"))?>:";
-
-oText['BUTTON_OK'] = "<?=CUtil::JSEscape(GetMessage("FORUM_BUTTON_OK"))?>";
-oText['BUTTON_CANCEL'] = "<?=CUtil::JSEscape(GetMessage("FORUM_BUTTON_CANCEL"))?>";
-
-if (typeof oHelp != "object")
-	var oHelp = {};
-
+oErrors['no_topic_name'] = "<?=GetMessageJS("JERROR_NO_TOPIC_NAME")?>";
+oErrors['no_message'] = "<?=GetMessageJS("JERROR_NO_MESSAGE")?>";
+oErrors['max_len'] = "<?=GetMessageJS("JERROR_MAX_LEN")?>";
 </script>
-
 <?
 if ($arParams['AUTOSAVE'])
 	$arParams['AUTOSAVE']->LoadScript("REPLIER".CUtil::JSEscape($arParams["form_index"]));

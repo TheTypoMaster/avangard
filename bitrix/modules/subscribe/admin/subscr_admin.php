@@ -119,7 +119,7 @@ if(($arID = $lAdmin->GroupAction()) && $POST_RIGHT=="W")
 	{
 		if(strlen($ID)<=0)
 			continue;
-	   	$ID = IntVal($ID);
+		$ID = IntVal($ID);
 		switch($_REQUEST['action'])
 		{
 		case "delete":
@@ -292,7 +292,7 @@ $oFilter = new CAdminFilter(
 <tr>
 	<td><b><?=GetMessage("POST_F_FIND")?>:</b></td>
 	<td>
-		<input type="text" size="25" name="find" value="<?echo htmlspecialchars($find)?>" title="<?=GetMessage("POST_F_FIND_TITLE")?>">
+		<input type="text" size="25" name="find" value="<?echo htmlspecialcharsbx($find)?>" title="<?=GetMessage("POST_F_FIND_TITLE")?>">
 		<?
 		$arr = array(
 			"reference" => array(
@@ -312,54 +312,54 @@ $oFilter = new CAdminFilter(
 </tr>
 <tr>
 	<td><?echo GetMessage("POST_F_ID")?>:</td>
-	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialchars($find_id)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_id" size="47" value="<?echo htmlspecialcharsbx($find_id)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("POST_F_INSERT")." (".FORMAT_DATE."):"?></td>
-	<td><?echo CalendarPeriod("find_insert_1", htmlspecialchars($find_insert_1), "find_insert_2", htmlspecialchars($find_insert_2), "find_form","Y")?></td>
+	<td><?echo CalendarPeriod("find_insert_1", htmlspecialcharsbx($find_insert_1), "find_insert_2", htmlspecialcharsbx($find_insert_2), "find_form","Y")?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("POST_F_UPDATE")." (".FORMAT_DATE."):"?></td>
-	<td><?echo CalendarPeriod("find_update_1", htmlspecialchars($find_update_1), "find_update_2", htmlspecialchars($find_update_2), "find_form","Y")?></td>
+	<td><?echo CalendarPeriod("find_update_1", htmlspecialcharsbx($find_update_1), "find_update_2", htmlspecialcharsbx($find_update_2), "find_form","Y")?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("POST_F_EMAIL")?>:</td>
-	<td><input type="text" name="find_email" size="47" value="<?echo htmlspecialchars($find_email)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_email" size="47" value="<?echo htmlspecialcharsbx($find_email)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?=GetMessage("POST_F_ANONYMOUS")?>:</td>
 	<td><?
 		$arr = array("reference"=>array(GetMessage("MAIN_YES"), GetMessage("MAIN_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_anonymous", $arr, htmlspecialchars($find_anonymous), GetMessage("MAIN_ALL"));
+		echo SelectBoxFromArray("find_anonymous", $arr, htmlspecialcharsbx($find_anonymous), GetMessage("MAIN_ALL"));
 	?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("POST_F_USER_ID")?>:</td>
-	<td><input type="text" name="find_user_id" size="47" value="<?echo htmlspecialchars($find_user_id)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_user_id" size="47" value="<?echo htmlspecialcharsbx($find_user_id)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?echo GetMessage("POST_F_USER")?>:</td>
-	<td><input type="text" name="find_user" size="47" value="<?echo htmlspecialchars($find_user)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
+	<td><input type="text" name="find_user" size="47" value="<?echo htmlspecialcharsbx($find_user)?>">&nbsp;<?=ShowFilterLogicHelp()?></td>
 </tr>
 <tr>
 	<td><?=GetMessage("POST_F_CONFIRMED")?>:</td>
 	<td><?
 		$arr = array("reference"=>array(GetMessage("MAIN_YES"), GetMessage("MAIN_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_confirmed", $arr, htmlspecialchars($find_confirmed), GetMessage("MAIN_ALL"));
+		echo SelectBoxFromArray("find_confirmed", $arr, htmlspecialcharsbx($find_confirmed), GetMessage("MAIN_ALL"));
 	?></td>
 </tr>
 <tr>
 	<td><?=GetMessage("POST_F_ACTIVE")?>:</td>
 	<td><?
 		$arr = array("reference"=>array(GetMessage("MAIN_YES"), GetMessage("MAIN_NO")), "reference_id"=>array("Y","N"));
-		echo SelectBoxFromArray("find_active", $arr, htmlspecialchars($find_active), GetMessage("MAIN_ALL"));
+		echo SelectBoxFromArray("find_active", $arr, htmlspecialcharsbx($find_active), GetMessage("MAIN_ALL"));
 	?></td>
 </tr>
 <tr>
 	<td><?=GetMessage("POST_F_FORMAT")?>:</td>
 	<td><?
 		$arr = array("reference"=>array(GetMessage("POST_TEXT"), GetMessage("POST_HTML")), "reference_id"=>array("text","html"));
-		echo SelectBoxFromArray("find_format", $arr, htmlspecialchars($find_format), GetMessage("MAIN_ALL"));
+		echo SelectBoxFromArray("find_format", $arr, htmlspecialcharsbx($find_format), GetMessage("MAIN_ALL"));
 	?></td>
 </tr>
 <tr valign="top">

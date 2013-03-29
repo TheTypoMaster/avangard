@@ -120,7 +120,7 @@ if ($_POST["type"] == "desktop")
 		{
 			?>
 			top.BX.closeWait(); top.BX.WindowManager.Get().AllowClose(); top.BX.WindowManager.Get().Close();
-			top.location.href = '<?=htmlspecialchars(CUtil::JSEscape($desktop_backurl)).(strpos($desktop_backurl, "?") === false ? "?" : "&")."dt_page=".$desktop_page?>';
+			top.location.href = '<?=htmlspecialcharsbx(CUtil::JSEscape($desktop_backurl)).(strpos($desktop_backurl, "?") === false ? "?" : "&")."dt_page=".$desktop_page?>';
 			<?
 		}
 		else
@@ -144,10 +144,10 @@ if ($_POST["type"] == "desktop")
 				{
 					if (BX('SETTINGS_COLUMNS'))
 					{
-						BX.bind(BX('SETTINGS_COLUMNS'), 'keyup', __RecalcDesktopSettingsDialog);
-						BX.bind(BX('SETTINGS_COLUMNS'), 'blur', __RecalcDesktopSettingsDialog);
+						BX.bind(BX('SETTINGS_COLUMNS'), 'keyup', BX.adminPanel.recalcDesktopSettingsDialog);
+						BX.bind(BX('SETTINGS_COLUMNS'), 'blur', BX.adminPanel.recalcDesktopSettingsDialog);
 					}
-					current_col_count = <?=htmlspecialchars($cols_count)?>;
+					current_col_count = <?=htmlspecialcharsbx($cols_count)?>;
 				}
 			);
 		</script>
@@ -156,17 +156,17 @@ if ($_POST["type"] == "desktop")
 		<? echo bitrix_sessid_post(); ?>
 		<input type="hidden" name="type" value="desktop">
 		<input type="hidden" name="desktop_page" value="<?=$desktop_page?>">
-		<input type="hidden" name="action" value="<?=htmlspecialchars($action)?>">
-		<input type="hidden" name="desktop_backurl" value="<?=htmlspecialchars(CUtil::JSEscape($desktop_backurl))?>">
+		<input type="hidden" name="action" value="<?=htmlspecialcharsbx($action)?>">
+		<input type="hidden" name="desktop_backurl" value="<?=htmlspecialcharsbx(CUtil::JSEscape($desktop_backurl))?>">
 		<input type="hidden" name="save_desktop" value="Y">
 		<table class="edit-table" width="100%"><tbody>
 		<tr>
 			<td width="40%"><?=GetMessage('CMDESKTOP_ADMIN_DESKTOP_NAME')?></td>
-			<td width="60%"><input type="text" size="40" maxlength="100" id="SETTINGS_NAME" name="SETTINGS_NAME" value="<?=htmlspecialchars($desktop_name)?>"></td>
+			<td width="60%"><input type="text" size="40" maxlength="100" id="SETTINGS_NAME" name="SETTINGS_NAME" value="<?=htmlspecialcharsbx($desktop_name)?>"></td>
 		</tr>
 		<tr>
 			<td width="40%"><?=GetMessage('CMDESKTOP_ADMIN_COLUMNS')?></td>
-			<td width="60%"><input type="text" size="2" maxlength="1" id="SETTINGS_COLUMNS" name="SETTINGS_COLUMNS" value="<?=htmlspecialchars($cols_count)?>"></td>
+			<td width="60%"><input type="text" size="2" maxlength="1" id="SETTINGS_COLUMNS" name="SETTINGS_COLUMNS" value="<?=htmlspecialcharsbx($cols_count)?>"></td>
 		</tr>
 		<?
 		for($i=0;$i<$cols_count;$i++)
@@ -174,7 +174,7 @@ if ($_POST["type"] == "desktop")
 			?>
 			<tr class="bx-gd-admin-settings-col">
 				<td width="40%"><?=GetMessage("CMDESKTOP_ADMIN_COLUMN_WIDTH").($i+1)?></td>
-				<td width="60%"><input type="text" size="5" maxlength="6" id="SETTINGS_COLUMN_WIDTH_<?=$i?>" name="SETTINGS_COLUMN_WIDTH_<?=$i?>" value="<?=htmlspecialchars($arCOLUMN_WIDTH[$i])?>"></td>
+				<td width="60%"><input type="text" size="5" maxlength="6" id="SETTINGS_COLUMN_WIDTH_<?=$i?>" name="SETTINGS_COLUMN_WIDTH_<?=$i?>" value="<?=htmlspecialcharsbx($arCOLUMN_WIDTH[$i])?>"></td>
 			</tr>
 			<?
 		}
@@ -292,7 +292,7 @@ elseif ($_POST["type"] == "gadget")
 							else
 								$val_tmp = $arGadgetParam["DEFAULT"];
 
-							?><input type="text" name="GP_<?=$input_id?>" size="40" value="<?=htmlspecialchars($val_tmp)?>"><?
+							?><input type="text" name="GP_<?=$input_id?>" size="40" value="<?=htmlspecialcharsbx($val_tmp)?>"><?
 						}
 						elseif($arGadgetParam["TYPE"] == "LIST")
 						{

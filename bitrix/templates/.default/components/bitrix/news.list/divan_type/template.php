@@ -34,6 +34,7 @@
            $arElementFilter = Array("IBLOCK_ID"=>IntVal(5), "ACTIVE_DATE"=>"Y", "ACTIVE"=>"Y", "PROPERTY_COLLECTION"=>IntVal($category[id]), "PROPERTY_INET_SHOP" => 178);
            if (isset($_REQUEST["type"]) && intval($_REQUEST["type"]) > 0) {
 				$arElementFilter["PROPERTY_W_SEARCH_PARAM"] = intval($_REQUEST["type"]);
+				//$arElementFilter["PROPERTY_W_SEARCH_PARAM"] = Array(intval($_REQUEST["type"]),197);
 			}
 	
 	   $resElement = CIBlockElement::GetList(Array("SORT"=>"ASC", "PROPERTY_PRIORITY"=>"ASC"), $arElementFilter, false, Array("nPageSize"=>50), $arElementSelect);

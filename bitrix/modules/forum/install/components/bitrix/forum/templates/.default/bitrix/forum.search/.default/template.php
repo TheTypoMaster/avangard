@@ -44,6 +44,7 @@ endif;
 <?
 	$APPLICATION->IncludeComponent("bitrix:forum.interface", "filter_simple", 
 		array(
+			"FORM_METHOD_GET" => 'Y',
 			"FIELDS" => array(
 				array(
 					"NAME" => "PAGE_NAME",
@@ -151,15 +152,16 @@ elseif ($arResult["EMPTY"] == "Y"):
 <?
 elseif ($arResult["SHOW_RESULT"] != "N"):
 ?>
-<div class="forum-block-container">
+<div class="forum-block-container forum-search-block-container">
 	<div class="forum-block-outer">
-		<div class="forum-block-inner">
-<?
-	$iCount = 0;
+		<div class="forum-block-inner"><?
+	$iNumber = 0; $iCount = count($arResult["TOPICS"]);
 	foreach ($arResult["TOPICS"] as $res):
-		$iCount++;
-?>
-			<div class="forum-info-box forum-filter">
+	$iNumber++;
+			?><div class="forum-info-box <?
+				?><?=($iNumber%2 == 1 ? "forum-info-box-odd " : "forum-info-box-even ")?><?
+				?><?=($iNumber == 1 ? "forum-info-box-first " : "")?><?
+				?><?=($iNumber == $iCount ? "forum-info-box-last" : "")?>">
 				<div class="forum-info-box-inner">
 					<noindex><a href="<?=$res["URL"]?>" class="forum-name" rel="nofollow"><?=$res["TITLE_FORMATED"]?></a></noindex>
 					<div class="forum-text"><?=$res["BODY_FORMATED"]?></div>
@@ -192,11 +194,9 @@ elseif ($arResult["SHOW_RESULT"] != "N"):
 		endif;
 ?>
 				</div>
-			</div>
-<?
+			</div><?
 	endforeach;
-?>
-		</div>
+		?></div>
 	</div>
 </div>
 <?

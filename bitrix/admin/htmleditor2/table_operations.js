@@ -1,18 +1,18 @@
-BXHTMLEditor.prototype.TableOperation = function (obType, operType)
+BXHTMLEditor.prototype.TableOperation = function (obType, operType, arParams)
 {
 	try{
 		this._OnChange("tableOperation", "");
-		
+
 		switch (obType)
 		{
 			case 'cell': // CELL
-				this.TableOperation_cell(operType);
+				this.TableOperation_cell(operType, arParams);
 				break;
 			case 'row': // ROW
-				this.TableOperation_row(operType);
+				this.TableOperation_row(operType, arParams);
 				break;
 			case 'column': // COLUMN
-				this.TableOperation_column(operType);
+				this.TableOperation_column(operType, arParams);
 				break;
 		}
 		if(this.bTableBorder)
@@ -27,13 +27,14 @@ BXHTMLEditor.prototype.TableOperation = function (obType, operType)
 };
 
 
-BXHTMLEditor.prototype.TableOperation_cell = function (operType)
+BXHTMLEditor.prototype.TableOperation_cell = function (operType, arParams)
 {
+	var pElement = arParams.pElement || this.GetSelectionObject();
 	switch (operType)
 	{
 		case 'insert_before':
 		case 'insert_after':
-			var oTD = BXFindParentByTagName(this.GetSelectionObject(), 'TD');
+			var oTD = BXFindParentByTagName(pElement, 'TD');
 			if (!oTD) return;
 			var oTR = oTD.parentNode;
 			var oTable = oTR.parentNode;
@@ -76,7 +77,7 @@ BXHTMLEditor.prototype.TableOperation_cell = function (operType)
 			var arColSpan = {};
 			var bVert = false;
 			var bHor = false;
-			
+
 			for(var i = cellLen - 1; i >= 0; i--)
 			{
 				newCellContent += arrCells[i].innerHTML;
@@ -88,7 +89,7 @@ BXHTMLEditor.prototype.TableOperation_cell = function (operType)
 					else
 						var bHor = true;
 				}
-				
+
 				arRowSpan[oTR.rowIndex] = arrCells[i].rowSpan;
 				arColSpan[arrCells[i].cellIndex] = arrCells[i].colSpan;
 				oTR.removeChild(arrCells[i]);
@@ -134,7 +135,7 @@ BXHTMLEditor.prototype.TableOperation_cell = function (operType)
 			for(var i = 0; i <= arrCells[0].cellIndex; i++)
 				realInd += oTR.cells[i].colSpan;
 
-			var 
+			var
 				newRealInd = 0,
 				newTRInd = oTR.rowIndex + arrCells[0].rowSpan,
 				newTR = oTR.parentNode.rows[newTRInd];
@@ -157,7 +158,7 @@ BXHTMLEditor.prototype.TableOperation_cell = function (operType)
 			var realInd = 0;
 			for(var i = 0; i <= arrCells[0].cellIndex; i++)
 				realInd += oTR.cells[i].colSpan;
-				
+
 			var colSpan = arrCells[0].colSpan;
 			if (colSpan > 1)
 			{
@@ -272,23 +273,25 @@ BXHTMLEditor.prototype.TableOperation_cell = function (operType)
 	}
 };
 
-BXHTMLEditor.prototype.TableOperation_row = function(operType)
+BXHTMLEditor.prototype.TableOperation_row = function(operType, arParams)
 {
+	var pElement = arParams.pElement || this.GetSelectionObject();
 	switch (operType)
 	{
 		case 'insertbefore':
 		case 'insertafter':
-			var oTD = BXFindParentByTagName(this.GetSelectionObject(), 'TD');
-			if (!oTD) return;
+			var oTD = BXFindParentByTagName(pElement, 'TD');
+			if (!oTD)
+				return;
 			var oTR = oTD.parentNode;
 			var oTable = oTR.parentNode;
 			var rowInd = oTR.rowIndex;
 			if (operType == 'insertafter')
 				rowInd++;
-			
+
 			var newRow = oTable.insertRow(rowInd);
 			var cellsCount = oTR.cells.length;
-			
+
 			for(var i = 0; i < cellsCount; i++)
 			{
 				var newCell = newRow.insertCell(i);
@@ -297,8 +300,9 @@ BXHTMLEditor.prototype.TableOperation_row = function(operType)
 			}
 			return;
 		case 'mergecells':
-			var oTD = BXFindParentByTagName(this.GetSelectionObject(), 'TD');
-			if (!oTD) return;
+			var oTD = BXFindParentByTagName(pElement, 'TD');
+			if (!oTD)
+				return;
 			var oTR = oTD.parentNode;
 			var cellsCount = oTR.cells.length;
 			if (cellsCount < 2)
@@ -315,8 +319,9 @@ BXHTMLEditor.prototype.TableOperation_row = function(operType)
 			oTR.cells[0].colSpan = zeroColSpan;
 			return;
 		case 'delete':
-			var oTD = BXFindParentByTagName(this.GetSelectionObject(), 'TD');
-			if (!oTD) return;
+			var oTD = BXFindParentByTagName(pElement, 'TD');
+			if (!oTD)
+				return;
 			var oTR = oTD.parentNode;
 			var oTable = oTR.parentNode;
 			oTable.removeChild(oTR);
@@ -326,35 +331,36 @@ BXHTMLEditor.prototype.TableOperation_row = function(operType)
 	}
 };
 
-BXHTMLEditor.prototype.TableOperation_column = function(operType)
+BXHTMLEditor.prototype.TableOperation_column = function(operType, arParams)
 {
+	var pElement = arParams.pElement || this.GetSelectionObject();
 	switch (operType)
 	{
 		case 'insertleft':
-			var oTD = BXFindParentByTagName(this.GetSelectionObject(), 'TD');
+			var oTD = BXFindParentByTagName(pElement, 'TD');
 			if (!oTD) return;
 			var oTR = oTD.parentNode;
 			var oTable = oTR.parentNode;
 			var cellInd = oTD.cellIndex;
 			var rowInd = oTR.rowIndex;
-			
+
 			var arTMX = this.CreateTableMatrix(oTable);
 			var arInd = this.GetIndexes(oTD, arTMX);
-			
+
 			var newCell = oTR.insertCell(cellInd);
 			newCell.innerHTML = '<br _moz_editor_bogus_node="on">';
-			
+
 			var curCellIndex = oTD.cellIndex;
 			var arIndLen = arInd.length;
 			var curFullCellInd = arInd[0].c;
-			
+
 			var r, ind, i, c;
 			for (var j = 0, l1 = oTable.rows.length; j < l1; j++)
 			{
 				r = oTable.rows[j];
 				if (r.rowIndex == rowInd)
 					continue;
-				
+
 				ind = 0;
 				if (curFullCellInd != 0)
 				{
@@ -371,19 +377,20 @@ BXHTMLEditor.prototype.TableOperation_column = function(operType)
 						ind = i + 1;
 					}
 				}
-				
+
 				var newCell = r.insertCell(ind);
 				newCell.innerHTML = '<br _moz_editor_bogus_node="on">';
 			}
 			return;
 		case 'insertright':
-			var oTD = BXFindParentByTagName(this.GetSelectionObject(), 'TD');
-			if (!oTD) return;
+			var oTD = BXFindParentByTagName(pElement, 'TD');
+			if (!oTD)
+				return;
 			var oTR = oTD.parentNode;
 			var oTable = oTR.parentNode;
 			var cellInd = oTD.cellIndex;
 			var rowInd = oTR.rowIndex;
-			
+
 			var arTMX = this.CreateTableMatrix(oTable);
 			var arInd = this.GetIndexes(oTD, arTMX);
 			var newCell = oTR.insertCell(cellInd + 1);
@@ -392,14 +399,14 @@ BXHTMLEditor.prototype.TableOperation_column = function(operType)
 			var curCellIndex = oTD.cellIndex;
 			var arIndLen = arInd.length;
 			var curFullCellInd = arInd[0].c;
-			
+
 			var r, ind, i, c;
 			for (var j = 0, l1 = oTable.rows.length; j < l1; j++)
 			{
 				r = oTable.rows[j];
 				if (r.rowIndex == rowInd)
 					continue;
-				
+
 				ind = 0;
 				i = 0;
 				for(var i=0, l2 = r.cells.length; i < l2; i++)
@@ -418,14 +425,15 @@ BXHTMLEditor.prototype.TableOperation_column = function(operType)
 			}
 			return;
 		case 'mergecells':
-			var oTD = BXFindParentByTagName(this.GetSelectionObject(), 'TD');
-			if (!oTD) return;
+			var oTD = BXFindParentByTagName(pElement, 'TD');
+			if (!oTD)
+				return;
 			var oTR = oTD.parentNode;
 			var oTable = oTR.parentNode;
-			
+
 			var arTMX = this.CreateTableMatrix(oTable);
 			var arInd = this.GetIndexes(oTD, arTMX);
-			
+
 			var zeroCell = arTMX[0][arInd[0].c];
 			var _innerHTML = zeroCell.innerHTML;
 			var c;
@@ -439,14 +447,14 @@ BXHTMLEditor.prototype.TableOperation_column = function(operType)
 			zeroCell.innerHTML = _innerHTML;
 			return;
 		case 'delete':
-			var oTD = BXFindParentByTagName(this.GetSelectionObject(), 'TD');
-			if (!oTD) return;
+			var oTD = BXFindParentByTagName(pElement, 'TD');
+			if (!oTD)
+				return;
 			var oTR = oTD.parentNode;
 			var oTable = oTR.parentNode;
-			
 			var arTMX = this.CreateTableMatrix(oTable);
 			var arInd = this.GetIndexes(oTD, arTMX);
-			
+
 			var c, r;
 			for (var j = 0, l = arTMX.length; j < l; j++)
 			{
@@ -459,7 +467,7 @@ BXHTMLEditor.prototype.TableOperation_column = function(operType)
 				if (r.cells.length == 0)
 					oTable.removeChild(r);
 			}
-			
+
 			if (oTable.rows.length == 0)
 				oTable.parentNode.removeChild(oTable);
 			return;
@@ -467,7 +475,6 @@ BXHTMLEditor.prototype.TableOperation_column = function(operType)
 };
 
 //r- row; i-index;
-
 BXHTMLEditor.prototype.CreateTableMatrix = function(oTable)
 {
 	var aRows = oTable.rows;
@@ -566,4 +573,4 @@ BXHTMLEditor.prototype.getSelectedCells = function()
 		}
 	}
 	return arrCells;
-};
+};  

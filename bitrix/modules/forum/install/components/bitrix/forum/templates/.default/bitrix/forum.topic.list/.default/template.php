@@ -5,9 +5,9 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/styles/additional.css');
 endif;
 IncludeAJAX();
-$GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/js/main/utils.js"></script>', true);
-$GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/components/bitrix/forum.interface/templates/.default/script.js"></script>', true);
-$GLOBALS['APPLICATION']->AddHeadString('<script src="/bitrix/components/bitrix/forum.interface/templates/popup/script.js"></script>', true);
+$GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/main/utils.js");
+$GLOBALS['APPLICATION']->AddHeadScript("/bitrix/components/bitrix/forum.interface/templates/.default/script.js");
+$GLOBALS['APPLICATION']->AddHeadScript("/bitrix/components/bitrix/forum.interface/templates/popup/script.js");
 /********************************************************************
 				Input params
 ********************************************************************/
@@ -23,7 +23,10 @@ if ($arParams["SHOW_RSS"] == "Y"):
 	endif;
 endif;
 $arParams["~TMPLT_SHOW_ADDITIONAL_MARKER"] = trim($arParams["~TMPLT_SHOW_ADDITIONAL_MARKER"]);
-$arParams["SEO_USER"] = ($arParams["SEO_USER"] == "Y" ? "Y" : "N");
+$arParams["SEO_USER"] = (in_array($arParams["SEO_USER"], array("Y", "N", "TEXT")) ? $arParams["SEO_USER"] : "Y");
+$arParams["USER_TMPL"] = '<noindex><a rel="nofollow" href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a></noindex>';
+if ($arParams["SEO_USER"] == "N") $arParams["USER_TMPL"] = '<a href="#URL#" title="'.GetMessage("F_USER_PROFILE").'">#NAME#</a>';
+elseif ($arParams["SEO_USER"] == "TEXT") $arParams["USER_TMPL"] = '#NAME#';
 $iIndex = rand();
 /********************************************************************
 				/Input params
@@ -65,7 +68,7 @@ endif;
 	<div class="forum-header-options"><?
 if ($arParams["SHOW_RSS"] == "Y"):
 ?>
-		<span class="forum-option-feed"><a href="<?=$arResult["URL"]["RSS_DEFAULT"]?>" onclick="window.location='<?=addslashes(htmlspecialchars($arResult["URL"]["~RSS"]))?>'; return false;">RSS</a></span>
+		<span class="forum-option-feed"><a href="<?=$arResult["URL"]["RSS_DEFAULT"]?>" onclick="window.location='<?=addslashes(htmlspecialcharsbx($arResult["URL"]["~RSS"]))?>'; return false;">RSS</a></span>
 <?
 endif;
 if ($USER->IsAuthorized() && empty($arResult["USER"]["SUBSCRIBE"])):
@@ -90,7 +93,7 @@ if ($arResult["PERMISSION"] >= "Q"):
 <form class="forum-form" action="<?=POST_FORM_ACTION_URI?>" method="POST" onsubmit="return Validate(this)" name="TOPICS_<?=$iIndex?>" id="TOPICS_<?=$iIndex?>">
 	<?=bitrix_sessid_post()?>
 	<input type="hidden" name="PAGE_NAME" value="list" />
-    <input type="hidden" name="NAV_PAGE" value="<?=$arResult['NAV_PAGE']?>" />
+	<input type="hidden" name="NAV_PAGE" value="<?=$arResult['NAV_PAGE']?>" />
 	<input type="hidden" name="FID" value="<?=$arParams["FID"]?>" />
 <?
 endif;
@@ -104,7 +107,7 @@ endif;
 if (empty($arResult["TOPICS"])):
 ?>
 			<tbody>
- 				<tr class="forum-row-first forum-row-last forum-row-odd">
+				<tr class="forum-row-first forum-row-last forum-row-odd">
 					<td class="forum-column-alone">
 						<div class="forum-empty-message"><?=GetMessage("F_NO_TOPICS_HERE")?><br />
 <?
@@ -117,7 +120,7 @@ endif;
 					</td>
 				</tr>
 			</tbody>
- 			<tfoot>
+			<tfoot>
 				<tr>
 					<td class="forum-column-footer">
 						<div class="forum-footer-inner">&nbsp;</div>
@@ -130,13 +133,13 @@ else:
 			<thead>
 				<tr>
 					<th class="forum-column-title" colspan="2"><div class="forum-head-title"><span><?=GetMessage("F_HEAD_TOPICS")?></span></div></th>
- <?
- if ($arParams["SHOW_AUTHOR_COLUMN"] == "Y"):
- ?>
- 	<th class="forum-column-replies"><span><?=GetMessage("F_HEAD_AUTHOR")?></span></th>
- <?
- endif;
- ?>
+<?
+if ($arParams["SHOW_AUTHOR_COLUMN"] == "Y"):
+?>
+	<th class="forum-column-replies"><span><?=GetMessage("F_HEAD_AUTHOR")?></span></th>
+<?
+endif;
+?>
 					<th class="forum-column-replies"><span><?=GetMessage("F_HEAD_POSTS")?></span></th>
 					<th class="forum-column-views"><span><?=GetMessage("F_HEAD_VIEWS")?></span></th>
 					<th class="forum-column-lastpost"><span><?=GetMessage("F_HEAD_LAST_POST")?></span></th>
@@ -149,14 +152,14 @@ $iCount = 0;
 foreach ($arResult["TOPICS"] as $res):
 	$iCount++;
 ?>
- 				<tr class="<?=($iCount == 1 ? "forum-row-first " : "")?><?
- 					?><?=($iCount == count($arResult["TOPICS"]) ? "forum-row-last " : "")?><?
- 					?><?=($iCount%2 == 1 ? "forum-row-odd " : "forum-row-even ")?><?
- 					?><?=(intVal($res["SORT"]) != 150 ? "forum-row-sticky " : "")?><?
- 					?><?=($res["STATE"] != "Y" && $res["STATE"] != "L" ? "forum-row-closed " : "")?><?
- 					?><?=($res["TopicStatus"] == "MOVED" ? "forum-row-moved " : "")?><?
- 					?><?=($res["APPROVED"] != "Y" ? " forum-row-hidden ": "")?><?
- 					?>">
+				<tr class="<?=($iCount == 1 ? "forum-row-first " : "")?><?
+					?><?=($iCount == count($arResult["TOPICS"]) ? "forum-row-last " : "")?><?
+					?><?=($iCount%2 == 1 ? "forum-row-odd " : "forum-row-even ")?><?
+					?><?=(intVal($res["SORT"]) != 150 ? "forum-row-sticky " : "")?><?
+					?><?=($res["STATE"] != "Y" && $res["STATE"] != "L" ? "forum-row-closed " : "")?><?
+					?><?=($res["TopicStatus"] == "MOVED" ? "forum-row-moved " : "")?><?
+					?><?=($res["APPROVED"] != "Y" ? " forum-row-hidden ": "")?><?
+					?>">
 					<td class="forum-column-icon">
 						<div class="forum-icon-container">
 							<div class="forum-icon <?
@@ -194,19 +197,19 @@ foreach ($arResult["TOPICS"] as $res):
 					<td class="forum-column-title">
 						<div class="forum-item-info">
 							<div class="forum-item-name"><?
-						if (intVal($res["SORT"]) != 150 && $res["STATE"]!="Y"):
-								?><span class="forum-status-sticky"><?=GetMessage("F_PINNED")?></span>, <?
+						if (intval($res["SORT"]) != 150 && $res["STATE"]!="Y"):
+								?><span class="forum-status-sticky-block"><span class="forum-status-sticky"><?=GetMessage("F_PINNED")?></span>, </span><?
 							if ($res["STATE"] != "L"):
-								?><span class="forum-status-closed"><?=GetMessage("F_CLOSED")?></span>:&nbsp;<?
+								?><span class="forum-status-closed-block"><span class="forum-status-closed"><?=GetMessage("F_CLOSED")?></span>:&nbsp;</span><?
 							else:
-								?><span class="forum-status-moved"><?=GetMessage("F_MOVED")?></span>:&nbsp;<?
+								?><span class="forum-status-moved-block"><span class="forum-status-moved"><?=GetMessage("F_MOVED")?></span>:&nbsp;</span><?
 							endif;
 						elseif ($res["TopicStatus"] == "MOVED" || $res["STATE"]=="L"):
-								?><span class="forum-status-moved"><?=GetMessage("F_MOVED")?></span>:&nbsp;<?
+								?><span class="forum-status-moved-block"><span class="forum-status-moved"><?=GetMessage("F_MOVED")?></span>:&nbsp;</span><?
 						elseif (intVal($res["SORT"]) != 150):
-								?><span class="forum-status-sticky"><?=GetMessage("F_PINNED")?></span>:&nbsp;<?
+								?><span class="forum-status-sticky-block"><span class="forum-status-sticky"><?=GetMessage("F_PINNED")?></span>:&nbsp;</span><?
 						elseif (($res["STATE"]!="Y") && ($res["STATE"]!="L")):
-								?><span class="forum-status-closed"><?=GetMessage("F_CLOSED")?></span>:&nbsp;<?
+								?><span class="forum-status-closed-block"><span class="forum-status-closed"><?=GetMessage("F_CLOSED")?></span>:&nbsp;</span><?
 						endif;
 								?><span class="forum-item-title"><?
 						if (false && strLen($res["IMAGE"]) > 0):
@@ -250,15 +253,11 @@ foreach ($arResult["TOPICS"] as $res):
 						if ($arParams["SHOW_AUTHOR_COLUMN"] == "Y"):
 ?>
 					<td class="forum-column-author"><span><?
-							if ($res["USER_START_ID"] > 0):
-								if ($arParams["SEO_USER"]):
-						?><noindex><a rel="nofollow" href="<?=$res["URL"]["USER_START"]?>"><?=$res["USER_START_NAME"]?></a></noindex><?
-								else:
-						?><a href="<?=$res["URL"]["USER_START"]?>"><?=$res["USER_START_NAME"]?></a><?
-								endif;
-							else:
-						?><?=$res["USER_START_NAME"]?><?
-							endif;
+						if ($res["USER_START_ID"] > 0):
+							?><?=str_replace(array("#URL#", "#NAME#"), array($res["URL"]["USER_START"], $res["USER_START_NAME"]), $arParams["USER_TMPL"]);
+						else:
+							?><?=$res["USER_START_NAME"]?><?
+						endif;
 					?></span></td>
 <?
 						endif;

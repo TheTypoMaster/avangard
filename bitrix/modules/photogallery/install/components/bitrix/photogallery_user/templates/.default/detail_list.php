@@ -14,7 +14,7 @@
 		if (empty($arParams[strToUpper($URL)."_URL"]))
 			$arParams[strToUpper($URL)."_URL"] = $APPLICATION->GetCurPage().($URL == "index" ? "" : "?");
 		$arParams["~".strToUpper($URL)."_URL"] = $arParams[strToUpper($URL)."_URL"];
-		$arParams[strToUpper($URL)."_URL"] = htmlspecialchars($arParams["~".strToUpper($URL)."_URL"]);
+		$arParams[strToUpper($URL)."_URL"] = htmlspecialcharsbx($arParams["~".strToUpper($URL)."_URL"]);
 	}
 //***************** STANDART ****************************************/
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] != "N" ? "Y" : "N"); //Turn on by default
@@ -310,7 +310,7 @@ $APPLICATION->IncludeComponent(
 		"SHOW_SHOWS" => ($arResult["ORDER_BY"] == "shows" ? "Y" : "N"),
 		"SHOW_DATE" => $arResult["GROUP_BY_DATE_CREATE"],
 		"NEW_DATE_TIME_FORMAT" => (empty($arParams["DATE_FORMAT"]) ? $arParams["DATE_TIME_FORMAT_DETAIL"] : $arParams["DATE_FORMAT"]),
-		
+
 		"INCLUDE_SLIDER" => "Y",
 
 		"USE_RATING" => $arParams["USE_RATING"],

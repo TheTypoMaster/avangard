@@ -66,11 +66,11 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 		<td><input type="text" name="LAST_NAME" size="40" maxlength="50" value="<?=$arResult["str_LAST_NAME"]?>"/></td>
 	</tr>
 	<tr>
-		<th><font class="starrequired">*</font>E-Mail:</td>
+		<th><span class="starrequired">*</span>E-Mail:</th>
 		<td><input type="text" name="EMAIL" size="40" maxlength="50" value="<?=$arResult["str_EMAIL"]?>"/></td>
 	</tr>
 	<tr>
-		<th><font class="starrequired">*</font><?=GetMessage("F_LOGIN")?></th>
+		<th><span class="starrequired">*</span><?=GetMessage("F_LOGIN")?></th>
 		<td><input type="text" name="LOGIN" size="30" maxlength="50" value="<?=$arResult["str_LOGIN"]?>"/><input type="hidden" name="OLD_LOGIN" value="<?=$arResult["str_LOGIN"]?>"/></td>
 	</tr>
 	<tr>
@@ -100,13 +100,13 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 		<td>
 			<select name="TIME_ZONE"<?if($arResult["str_AUTO_TIME_ZONE"] <> "N") echo ' disabled="disabled"'?>>
 <?foreach($arResult["TIME_ZONE_LIST"] as $tz=>$tz_name):?>
-				<option value="<?=htmlspecialchars($tz)?>"<?=($arResult["str_TIME_ZONE"] == $tz? ' SELECTED="SELECTED"' : '')?>><?=htmlspecialchars($tz_name)?></option>
+				<option value="<?=htmlspecialcharsbx($tz)?>"<?=($arResult["str_TIME_ZONE"] == $tz? ' SELECTED="SELECTED"' : '')?>><?=htmlspecialcharsbx($tz_name)?></option>
 <?endforeach?>
 			</select>
 		</td>
 	</tr>
 <?endif?>
-	<tr><th colspan="2"><font class="starrequired">*</font> <?=GetMessage("F_REQUIED_FILEDS")?></th></tr>
+	<tr><th colspan="2"><span class="starrequired">*</span> <?=GetMessage("F_REQUIED_FILEDS")?></th></tr>
 <?=$tabControl->BeginNextTab();?>
 	<tr>
 		<th><?=GetMessage("F_PROFESSION")?></th>
@@ -114,10 +114,10 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 	</tr>
 	<tr>
 		<th><?=GetMessage("F_WWW_PAGE")?></th>
-		<td><input type="text" name="PERSONAL_WWW" size="45" maxlength="255" value="<?=$arResult["str_PERSONAL_WWW"]?>"/></td>
+		<td><input type="text" name="PERSONAL_WWW" size="45" maxlength="255" value="<?=$arResult["str_PERSONAL_WWW"]?>" /></td>
 	</tr>
 	<tr>
-		<th>ICQ:</td>
+		<th>ICQ:</th>
 		<td><input type="text" name="PERSONAL_ICQ" size="45" maxlength="255" value="<?=$arResult["str_PERSONAL_ICQ"]?>"/></td>
 	</tr>
 	<tr>
@@ -146,14 +146,15 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 					"INPUT_VALUE" => $arResult["~str_PERSONAL_BIRTHDAY"]),
 				$component,
 				array("HIDE_ICONS" => "Y"));
-	?></th>
+		?></td>
 	</tr>
 	<tr>
 		<th><?=GetMessage("F_PHOTO")?></th>
 		<td><input name="PERSONAL_PHOTO" size="30" type="file" />
 			<?if ($arResult["SHOW_DELETE_PERSONAL_PHOTO"] == "Y"):?>
-			<br/><input type="checkbox" name="PERSONAL_PHOTO_del" value="Y" id="PERSONAL_PHOTO_del" /> 
+			<br /><input type="checkbox" name="PERSONAL_PHOTO_del" value="Y" id="PERSONAL_PHOTO_del" />
 				<label for="PERSONAL_PHOTO_del"><?=GetMessage("FILE_DELETE")?></label>
+
 			<br/>
 				<?=$arResult["str_PERSONAL_PHOTO_IMG"]?>
 			<?endif;?>

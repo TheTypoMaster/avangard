@@ -2,13 +2,13 @@
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
 $FORM_RIGHT = $APPLICATION->GetGroupRight("form");
-if($FORM_RIGHT<="D") 
+if($FORM_RIGHT<="D")
 	die(GetMessage("ACCESS_DENIED"));
 
 if (!CModule::IncludeModule('form'))
 	die(GetMessage("FORM_MODULE_NOT_INSTALLED"));
 
-	
+
 IncludeModuleLangFile(__FILE__);
 ?>
 <div class="title">
@@ -33,59 +33,59 @@ while ($arValidatorInfo = $rsValidators->Fetch())
 }
 if ($bFound)
 {
-	if (is_array($arValidatorInfo["SETTINGS"]) || strlen($arValidatorInfo["SETTINGS"] > 0))
+	if (is_array($arValidatorInfo["SETTINGS"]) || strlen($arValidatorInfo["SETTINGS"]) > 0)
 	{
-		
+
 		$arSettings = call_user_func($arValidatorInfo["SETTINGS"]);
-	
+
 		//echo "<pre>"; print_r($arSettings); echo "</pre>";
 ?>
 <div class="content" id="_f_popup_content">
 	<div class="description">
 		<p>
-			<b><?=htmlspecialchars($arValidatorInfo["DESCRIPTION"])?></b> [<?=htmlspecialchars($arValidatorInfo["NAME"])?>]
+			<b><?=htmlspecialcharsbx($arValidatorInfo["DESCRIPTION"])?></b> [<?=htmlspecialcharsbx($arValidatorInfo["NAME"])?>]
 		</p>
 	</div>
 	<form name="val_settings_form">
-		<input type="hidden" name="VALIDATOR" value="<?=htmlspecialchars($validator_name)?>" />
+		<input type="hidden" name="VALIDATOR" value="<?=htmlspecialcharsbx($validator_name)?>" />
 		<table cellspacing="0" align="center">
 <?
 		foreach ($arSettings as $settingName => $arSetting)
 		{
 ?>
 			<tr>
-				<td id="PARAM_TITLE_<?=htmlspecialchars($settingName);?>"><?=htmlspecialchars($arSetting["TITLE"])?>:</td>
+				<td id="PARAM_TITLE_<?=htmlspecialcharsbx($settingName);?>"><?=htmlspecialcharsbx($arSetting["TITLE"])?>:</td>
 				<td>
 <?
 			switch ($arSetting["TYPE"])
 			{
 				case "CHECKBOX":
-					$res = "<input type=\"checkbox\" id=\"PARAM_".htmlspecialchars($settingName)."\" name=\"PARAMS[".htmlspecialchars($settingName)."]\" value=\"Y\"".($arSetting["DEFAULT"] == "Y" ? " checked=\"checked\"" : "")." />";
+					$res = "<input type=\"checkbox\" id=\"PARAM_".htmlspecialcharsbx($settingName)."\" name=\"PARAMS[".htmlspecialcharsbx($settingName)."]\" value=\"Y\"".($arSetting["DEFAULT"] == "Y" ? " checked=\"checked\"" : "")." />";
 				break;
-					
+
 				case "DROPDOWN":
-					$res = "<select id=\"PARAM_".htmlspecialchars($settingName)."\" name=\"PARAMS[".htmlspecialchars($settingName)."]\">";
-					
+					$res = "<select id=\"PARAM_".htmlspecialcharsbx($settingName)."\" name=\"PARAMS[".htmlspecialcharsbx($settingName)."]\">";
+
 					foreach ($arSetting["VALUES"] as $value => $title)
 					{
-						$res .= "<option value=\"".htmlspecialchars($value)."\"".($value == $arSetting["DEFAULT"] ? " selected=\"selected\"" : "").">".htmlspecialchars($title)."</option>";
+						$res .= "<option value=\"".htmlspecialcharsbx($value)."\"".($value == $arSetting["DEFAULT"] ? " selected=\"selected\"" : "").">".htmlspecialcharsbx($title)."</option>";
 					}
-					
+
 					$res .= "</select>";
-				
+
 				break;
-				
+
 				case "DATE":
-					$res = "<input type=\"text\" name=\"PARAMS[".htmlspecialchars($settingName)."]\" id=\"PARAM_".htmlspecialchars($settingName)."\" value=\"".htmlspecialchars($arSettings["DEFAULT"])."\" />\n".Calendar("PARAMS[".htmlspecialchars($settingName)."]", "form1");
+					$res = "<input type=\"text\" name=\"PARAMS[".htmlspecialcharsbx($settingName)."]\" id=\"PARAM_".htmlspecialcharsbx($settingName)."\" value=\"".htmlspecialcharsbx($arSettings["DEFAULT"])."\" />\n".Calendar("PARAMS[".htmlspecialcharsbx($settingName)."]", "form1");
 				break;
-				
+
 				default:
-					$res = "<input type=\"text\" id=\"PARAM_".htmlspecialchars($settingName)."\" name=\"PARAMS[".htmlspecialchars($settingName)."]\" value=\"".htmlspecialchars($arSetting["DEFAULT"])."\" />";
+					$res = "<input type=\"text\" id=\"PARAM_".htmlspecialcharsbx($settingName)."\" name=\"PARAMS[".htmlspecialcharsbx($settingName)."]\" value=\"".htmlspecialcharsbx($arSetting["DEFAULT"])."\" />";
 				break;
 			} // endswitch
-			
+
 			echo $res;
-?>	
+?>
 				</td>
 			</tr>
 <?

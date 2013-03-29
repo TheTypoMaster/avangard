@@ -35,23 +35,27 @@ endif;
 		if (strLen(trim($arParams["URL_TEMPLATES_".strToUpper($URL)])) <= 0)
 			$arParams["URL_TEMPLATES_".strToUpper($URL)] = $APPLICATION->GetCurPage()."?".$URL_VALUE;
 		$arParams["~URL_TEMPLATES_".strToUpper($URL)] = $arParams["URL_TEMPLATES_".strToUpper($URL)];
-		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialchars($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
+		$arParams["URL_TEMPLATES_".strToUpper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".strToUpper($URL)]);
 	}
 /***************** ADDITIONAL **************************************/
 	// Data and data-time format
 	$arParams["TOPICS_PER_PAGE"] = intVal($arParams["TOPICS_PER_PAGE"] > 0 ? $arParams["TOPICS_PER_PAGE"] : COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"));
 	$arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
+	$arParams["NAME_TEMPLATE"] = (!empty($arParams["NAME_TEMPLATE"]) ? $arParams["NAME_TEMPLATE"] : false);
 	$arParams["PAGE_NAVIGATION_TEMPLATE"] = trim($arParams["PAGE_NAVIGATION_TEMPLATE"]);
 	$arParams["PAGE_NAVIGATION_WINDOW"] = intVal(intVal($arParams["PAGE_NAVIGATION_WINDOW"]) > 0 ? $arParams["PAGE_NAVIGATION_WINDOW"] : 11);
 /***************** STANDART ****************************************/
 	$arParams["SET_NAVIGATION"] = ($arParams["SET_NAVIGATION"] == "N" ? "N" : "Y");
-	$arParams["DISPLAY_PANEL"] = ($arParams["DISPLAY_PANEL"] == "Y" ? "Y" : "N");
 	$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y");
 /********************************************************************
 				/Input params
 ********************************************************************/
 $arResult["USER"] = array();
-$db_res = CForumUser::GetList(array(), array("USER_ID" => $arParams["UID"], "SHOW_ABC" => ""));
+$db_res = CForumUser::GetList(
+	array(),
+	array("USER_ID" => $arParams["UID"], "SHOW_ABC" => ""),
+	array("sNameTemplate" => $arParams["NAME_TEMPLATE"])
+);
 if ($db_res && $res = $db_res->GetNext())
 	$arResult["USER"] = $res;
 if (empty($arResult["USER"])):
@@ -84,8 +88,6 @@ if ($arParams["ACTION"] == "DEL")
 /********************************************************************
 				/Action
 ********************************************************************/
-
-ForumSetLastVisit($FID);
 
 /********************************************************************
 				Default values
@@ -149,15 +151,14 @@ if ($db_res && $res = $db_res->GetNext())
 /********************************************************************
 				/Data
 ********************************************************************/
+/*******************************************************************/
+$this->IncludeComponentTemplate();
+/*******************************************************************/
 if ($arParams["SET_NAVIGATION"] != "N"):
-	$APPLICATION->AddChainItem($arResult["USER"]["SHOW_ABC"], 
+	$APPLICATION->AddChainItem($arResult["USER"]["SHOW_ABC"],
 		CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_PROFILE_VIEW"], array("UID" => $arParams["UID"])));
 	$APPLICATION->AddChainItem(GetMessage("FSL_TITLE"));
 endif;
 if ($arParams["SET_TITLE"] != "N")
 	$APPLICATION->SetTitle(GetMessage("FSL_TITLE"));
-if ($arParams["DISPLAY_PANEL"] == "Y" && $USER->IsAuthorized())
-		CForumNew::ShowPanel(0, 0, false);
-/*******************************************************************/
-$this->IncludeComponentTemplate();
 ?>

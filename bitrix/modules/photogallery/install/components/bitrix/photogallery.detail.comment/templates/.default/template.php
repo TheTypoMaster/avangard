@@ -23,9 +23,11 @@ if ($arParams["COMMENTS_TYPE"] == "blog")
 			"NOT_USE_COMMENT_TITLE" => "Y",
 			"EDITOR_DEFAULT_HEIGHT" => "100",
 			"EDITOR_WIDTH" => "400",
-			"DATE_TIME_FORMAT" => "d.m.Y H:i",
+			"DATE_TIME_FORMAT" => $DB->DateFormatToPhp(FORMAT_DATETIME),
 			"SHOW_RATING" => $arParams["SHOW_RATING"],
-			"RATING_TYPE" => $arParams["RATING_TYPE"],			
+			"RATING_TYPE" => $arParams["RATING_TYPE"],
+			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
+			"FETCH_USER_ALIAS" => $arParams["FETCH_USER_ALIAS"]
 		),
 		($this->__component->__parent ? $this->__component->__parent : $component),
 		array("HIDE_ICONS" => "Y")
@@ -45,19 +47,21 @@ else
 			"PATH_TO_SMILE" => $arParams["PATH_TO_SMILE"],
 			"FORUM_ID" => $arParams["FORUM_ID"],
 			"URL_TEMPLATES_READ" => $arParams["URL_TEMPLATES_READ"],
+			"URL_TEMPLATES_DETAIL" => $arParams["DETAIL_URL"],
 			"URL_TEMPLATES_PROFILE_VIEW" => $arParams["URL_TEMPLATES_PROFILE_VIEW"],
 			"SHOW_LINK_TO_FORUM" => $arParams["SHOW_LINK_TO_FORUM"],
 			"ELEMENT_ID" => $arParams["ELEMENT_ID"],
 			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 			"POST_FIRST_MESSAGE" => $arParams["POST_FIRST_MESSAGE"],
-			"DATE_TIME_FORMAT" => "d.m.Y H:i",
+			"DATE_TIME_FORMAT" => $DB->DateFormatToPhp(FORMAT_DATETIME),
 			"NO_REDIRECT_AFTER_SUBMIT" => "Y",
 			"~ACTION_URL" => $arParams["ACTION_URL"],
 			"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 			"PATH_TO_USER" => $arParams["PATH_TO_USER"],
 			"SHOW_RATING" => $arParams["SHOW_RATING"],
 			"RATING_TYPE" => $arParams["RATING_TYPE"],
-			"AUTOSAVE" => false
+			"AUTOSAVE" => false,
+			"FETCH_USER_ALIAS" => $arParams["FETCH_USER_ALIAS"]
 		),
 		($this->__component->__parent ? $this->__component->__parent : $component),
 		array("HIDE_ICONS" => "Y")

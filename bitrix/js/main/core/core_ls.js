@@ -4,7 +4,7 @@ if (window.BX.localStorage) return;
 var
 	BX = window.BX,
 	localStorageInstance = null,
-	_prefix = 'bx' + BX.message('USER_ID') + '-',
+	_prefix = 'bx' + BX.message('USER_ID') + '-' + BX.message('SITE_ID') + '-',
 	_key = '_bxCurrentKey',
 	_support = false;
 
@@ -53,6 +53,14 @@ BX.localStorage.instance = function()
 			localStorageInstance = new BX.localStorageIE8();
 		else if (support == 'ie7')
 			localStorageInstance = new BX.localStorageIE7();
+		else
+		{
+			localStorageInstance = {
+				'set' : BX.DoNothing,
+				'get' : function(){return null},
+				'remove' : BX.DoNothing
+			};
+		}
 	}
 	return localStorageInstance;
 };
@@ -134,7 +142,7 @@ BX.localStorage.prototype._encode = function(value)
 BX.localStorage.prototype._decode = function(value)
 {
 	var answer = null;
-	if (value != null)
+	if (!!value)
 	{
 		try {answer = JSON.parse(value);}
 		catch(e) { answer = value; }
@@ -474,3 +482,4 @@ else if (BX.browser.IsIE())
 }
 
 })(window)
+  

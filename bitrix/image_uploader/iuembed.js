@@ -1601,4 +1601,4 @@ function getVideoUploader(id) {
     /// <returns type="VideoUploader" />
 
     return getControlObject(id);
-}
+};   

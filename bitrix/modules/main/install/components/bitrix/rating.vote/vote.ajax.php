@@ -1,7 +1,9 @@
 <?
+define("PUBLIC_AJAX_MODE", true);
 define("NO_KEEP_STATISTIC", "Y");
 define("NO_AGENT_STATISTIC","Y");
-define("PUBLIC_AJAX_MODE", true);
+define("NO_AGENT_CHECK", true);
+define("DisableEventsCheck", true);
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
@@ -9,8 +11,6 @@ if ($_POST['RATING_VOTE_LIST'] == 'Y'
 	&& strlen($_POST['RATING_VOTE_TYPE_ID']) > 0
 	&& intval($_POST['RATING_VOTE_ENTITY_ID']) > 0 && check_bitrix_sessid())
 {
-
-	CUtil::JSPostUnescape();
 	$APPLICATION->RestartBuffer();
 
 	$ar = Array(
@@ -128,10 +128,12 @@ function GetVoteResult($entityTypeId, $entityId)
 		$arRatingResult['TOTAL_NEGATIVE_VOTES'] = 0;
 	}
 
-	$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/lang/".LANGUAGE_ID."/vote.php");
+	$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/lang/".LANGUAGE_ID."/vote.ajax.php");
 	include_once($path);
 	$resultStatus = $arRatingResult['TOTAL_VALUE'] < 0 ? 'minus' : 'plus';
-	$resultTitle  = sprintf(GetMessage("RATING_COMPONENT_DESC"), $arRatingResult['TOTAL_VOTES'], $arRatingResult['TOTAL_POSITIVE_VOTES'], $arRatingResult['TOTAL_NEGATIVE_VOTES']);
+	$resultTitle  = sprintf($MESS["RATING_COMPONENT_DESC"], $arRatingResult['TOTAL_VOTES'], $arRatingResult['TOTAL_POSITIVE_VOTES'], $arRatingResult['TOTAL_NEGATIVE_VOTES']);
+
+
 
 	return Array(
 		'resultValue' => $arRatingResult['TOTAL_VALUE'],

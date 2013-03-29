@@ -36,6 +36,11 @@ ForumFormAutosave = function (params) {
 			window.oLHE.fAutosave = _ob;
 			BX.bind(window.oLHE.pEditorDocument, 'keydown', BX.proxy(_ob.Init, _ob));
 			BX.bind(window.oLHE.pTextarea, 'keydown', BX.proxy(_ob.Init, _ob));
+			BX.addCustomEvent(window.oLHE, 'OnChangeView', function(){
+				if (!!this.fAutosave && this.sEditorMode == 'html'){
+					BX.bind(this.pEditorDocument, 'keydown', BX.proxy(_ob.Init, _ob));
+				}
+			});
 		}
 	}
 
@@ -141,4 +146,4 @@ ForumFormAutosave = function (params) {
 		if (!! recoverNotify)
 			BX.remove(recoverNotify);
 	});
-}
+}  

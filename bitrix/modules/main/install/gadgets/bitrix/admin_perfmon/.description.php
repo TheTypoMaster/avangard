@@ -9,6 +9,7 @@ $arDescription = Array(
 		"GROUP" => Array("ID"=>"admin_settings"),
 		"NOPARAMS" => "Y",
 		"AI_ONLY" => true,
-		"PERFMON_ONLY" => true
+		"PERFMON_ONLY" => true,
+		"COLOURFUL" => true
 	);
 ?>

@@ -16,15 +16,14 @@ if(!defined("BX_GADGET_DEFAULT"))
 	var langGDClearConfirm = '<?=CUtil::JSEscape(GetMessage("CMDESKTOP_TDEF_CLEAR_CONF"))?>';
 	var langGDCancel = "<?echo CUtil::JSEscape(GetMessage("CMDESKTOP_TDEF_CANCEL"))?>";
 	</script>
-	<?if($arResult["PERMISSION"]>"R"):?>
-	<script type="text/javascript" src="/bitrix/components/bitrix/desktop/script.js?v=<?=filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/desktop/script.js');?>"></script>
-	<?endif?>
 	<div id="antiselect" style="height:100%; width:100%; left: 0; top: 0; position: absolute; -moz-user-select: none !important; display: none; background-color:#FFFFFF; -moz-opacity: 0.01;"></div>
 	<?
 }
 ?>
 <?if($arResult["PERMISSION"]>"R"):?>
 <?
+$APPLICATION->AddHeadScript("/bitrix/components/bitrix/desktop/script.js");
+
 $allGD = Array();
 foreach($arResult['ALL_GADGETS'] as $gd)
 {
@@ -32,7 +31,7 @@ foreach($arResult['ALL_GADGETS'] as $gd)
 		'ID' => $gd["ID"],
 		'TEXT' =>
 			'<div style="text-align: left;">'.($gd['ICON1']?'<img src="'.($gd['ICON']).'" align="left">':'').
-			'<b>'.(htmlspecialchars($gd['NAME'])).'</b><br>'.(htmlspecialchars($gd['DESCRIPTION'])).'</div>',
+			'<b>'.(htmlspecialcharsbx($gd['NAME'])).'</b><br>'.(htmlspecialcharsbx($gd['DESCRIPTION'])).'</div>',
 		);
 }
 ?>
@@ -81,24 +80,24 @@ new BXGadget('<?=$arResult["ID"]?>', <?=CUtil::PhpToJSObject($allGD)?>);
 </form>
 
 <table class="gadgetholder" cellspacing="0" cellpadding="0" width="100%" id="GDHolder_<?=$arResult["ID"]?>">
-  <tbody>
-    <tr>
-    <?for($i=0; $i<$arResult["COLS"]; $i++):?>
-    	<?if($i==0):?>
-    	<td class="gd-page-column<?=$i?>" valign="top" width="<?=$arResult["COLUMN_WIDTH"][$i]?>" id="s0">
-    	<?elseif($i==$arResult["COLS"]-1):?>
-	 	  <td width="10">
-	        <div style="WIDTH: 10px"></div>
-	        <br />
-	      </td>
-	      <td class="gd-page-column<?=$i?>" valign="top" width="<?=$arResult["COLUMN_WIDTH"][$i]?>" id="s2">
-    	<?else:?>
-	 	  <td width="10">
-	        <div style="WIDTH: 10px"></div>
-	        <br />
-	      </td>
-	      <td class="gd-page-column<?=$i?>" valign="top"  width="<?=$arResult["COLUMN_WIDTH"][$i]?>" id="s1">
- 		<?endif?>
+	<tbody>
+		<tr>
+	<?for($i=0; $i<$arResult["COLS"]; $i++):?>
+		<?if($i==0):?>
+			<td class="gd-page-column<?=$i?>" valign="top" width="<?=$arResult["COLUMN_WIDTH"][$i]?>" id="s0">
+		<?elseif($i==$arResult["COLS"]-1):?>
+			<td width="10">
+				<div style="WIDTH: 10px"></div>
+				<br />
+			</td>
+			<td class="gd-page-column<?=$i?>" valign="top" width="<?=$arResult["COLUMN_WIDTH"][$i]?>" id="s2">
+		<?else:?>
+			<td width="10">
+				<div style="WIDTH: 10px"></div>
+				<br />
+			</td>
+			<td class="gd-page-column<?=$i?>" valign="top"  width="<?=$arResult["COLUMN_WIDTH"][$i]?>" id="s1">
+		<?endif?>
 		<?foreach($arResult["GADGETS"][$i] as $arGadget):
 			$bChangable = true;
 			if (
@@ -140,9 +139,9 @@ new BXGadget('<?=$arResult["ID"]?>', <?=CUtil::PhpToJSObject($allGD)?>);
 				<div style="position:relative;"><div class="gdbcorn"></div></div>
 			</div></td></tr></table>
 			<div style="display:none; border:1px #404040 dashed; margin-bottom:8px;" id="d<?=$arGadget["ID"]?>"></div>
- 		<?endforeach;?>
- 	  </td>
-    <?endfor;?>
-    </tr>
-  </tbody>
+		<?endforeach;?>
+		</td>
+	<?endfor;?>
+		</tr>
+	</tbody>
 </table>

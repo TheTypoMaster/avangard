@@ -49,4 +49,7 @@ $MESS["BPC_MES_SPAM"] = "Спам?";
 $MESS["BPC_MES_SPAM_TITLE"] = "Администрировать все комментарии пользователя";
 $MESS["BLOG_IMAGE"] = "Изображение";
 $MESS["BLOG_P_IMAGE_UPLOAD"] = "Загрузка изображения";
+$MESS["BLOG_PHOTO"] = "Фото:";
+$MESS["MPF_IMAGE_TITLE"] = "Вставить изображение в сообщение";
+$MESS["BLOG_ADD_FILES"] = "Добавить файлы";
 ?>

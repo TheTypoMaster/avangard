@@ -1,8 +1,8 @@
 /*----------------------------------------------------Table Cells And Backgrounds------------------------------------------------ */
 
 /* Table Header, Reply Form Header, BBCode Icons Highlighting */
-table.forum-table th, div.forum-reply-header,
-div.forum-bbcode-line a:hover, div.forum-bbcode-line a:hover img { background-color: #cce2d5; }
+table.forum-table th, div.forum-reply-header { background-color: #cce2d5; }
+
 
 /* Table Cell Border */
 table.forum-table td, 
@@ -10,11 +10,13 @@ table.forum-table th.forum-column-lastpost,
 table.forum-table th.forum-column-title, 
 table.forum-table th.forum-first-column,
 table.forum-table th.forum-last-column,
-div.forum-info-box, 
+div.forum-info-box,
 div.forum-reply-form { border-color: #d4e7dc;}
 
 /* Table Cell, Info Box, Reply Form */
 table.forum-table td, div.forum-info-box, div.forum-reply-form { background:#fafcfb; }
+div.forum-reply-form table.bxlhe-frame-table td.bxlhe-editor-buttons { background-color:#fafcfb!important; }
+div.forum-reply-field td.bxlhe-editor-cell, div.forum-reply-field .feed-add-post-form-but-wrap {border-color: #ced0d1;}
 
 /* Hidden Table Cell and Row */
 table.forum-table tr.forum-row-hidden td, 
@@ -91,8 +93,8 @@ div.forum-header-box { color: #fff; background:#006e2e; border-color: #197c42;}
 div.forum-navigation-box { background:#fff; border-color: #d4e7dc; }
 
 /*BBCode: Quote and Code*/
-table.forum-quote, table.forum-spoiler, table.forum-code, div.forum-code-box {  border-color: #add0bc; }
-table.forum-quote td, table.forum-spoiler td, table.forum-code td, div.forum-code-box ol {background:#fdfefe !important; color:#696a6a;}
+table.forum-quote, table.forum-spoiler, table.forum-code, div.forum-code-box, div.forum-post-attachments {  border-color: #add0bc; }
+table.forum-quote td, table.forum-spoiler td, table.forum-code td, div.forum-code-box ol, div.forum-post-attachments {background:#fdfefe !important; color:#696a6a;}
 table.forum-quote th, table.forum-spoiler th, table.forum-code th, div.forum-code-box {background:#d9e9e0 !important; color:#5d625f;}
 
 div.forum-note-box {border-color: #ffce6e; background: #fffdbc; }

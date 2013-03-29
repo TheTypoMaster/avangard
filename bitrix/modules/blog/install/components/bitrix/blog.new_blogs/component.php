@@ -40,11 +40,11 @@ if(strLen($arParams["USER_VAR"])<=0)
 	
 $arParams["PATH_TO_BLOG"] = trim($arParams["PATH_TO_BLOG"]);
 if(strlen($arParams["PATH_TO_BLOG"])<=0)
-	$arParams["PATH_TO_BLOG"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
+	$arParams["PATH_TO_BLOG"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=blog&".$arParams["BLOG_VAR"]."=#blog#");
 	
 $arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
 if(strlen($arParams["PATH_TO_USER"])<=0)
-	$arParams["PATH_TO_USER"] = htmlspecialchars($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
+	$arParams["PATH_TO_USER"] = htmlspecialcharsbx($APPLICATION->GetCurPage()."?".$arParams["PAGE_VAR"]."=user&".$arParams["USER_VAR"]."=#user_id#");
 
 $SORT = Array($arParams["SORT_BY1"]=>$arParams["SORT_ORDER1"], $arParams["SORT_BY2"]=>$arParams["SORT_ORDER2"]);
 
@@ -74,7 +74,7 @@ else
 	if(!empty($arParams["GROUP_ID"]))
 		$arFilter["GROUP_ID"] = $arParams["GROUP_ID"];
 
-	$arSelectedFields = array("ID", "NAME", "DESCRIPTION", "URL", "OWNER_ID", "OWNER_NAME", "OWNER_LAST_NAME", "OWNER_SECOND_NAME", "OWNER_LOGIN", "BLOG_USER_ALIAS", "GROUP_ID", "SOCNET_GROUP_ID");
+	$arSelectedFields = array("ID", "NAME", "DESCRIPTION", "URL", "OWNER_ID", "OWNER_NAME", "OWNER_LAST_NAME", "OWNER_SECOND_NAME", "OWNER_LOGIN", "BLOG_USER_ALIAS", "GROUP_ID", "SOCNET_GROUP_ID", "LAST_POST_ID");
 	
 	if(CModule::IncludeModule("socialnetwork") && $arParams["USE_SOCNET"] == "Y")
 	{

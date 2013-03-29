@@ -112,7 +112,7 @@ class CForumEMail
 		}
 
 		return $ID;
- 	}
+	}
 
 	function OnGetSocNetFilterList()
 	{
@@ -475,7 +475,8 @@ class CForumEMail
 				"SMILES" => "N",
 				"UPLOAD" => $arForum["ALLOW_UPLOAD"],
 				"NL2BR" => "N",
-				"TABLE" => "N"
+				"TABLE" => "N",
+				"ALIGN" => "N",
 			);
 
 			if ($arFields["NEW_TOPIC"] == "Y")
@@ -614,10 +615,10 @@ class CForumEMail
 	{
 		$MESS = Array();
 		if(file_exists($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/forum/lang/'.$lang.'/mail/mail.php'))
-			include(file_exists($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/forum/lang/'.$lang.'/mail/mail.php'));
+			include($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/forum/lang/'.$lang.'/mail/mail.php');
 		if($MESS[$ID])
 			return $MESS[$ID];
-		include(file_exists($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/forum/lang/en/mail/mail.php'));
+		include($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/forum/lang/en/mail/mail.php');
 		return $MESS[$ID];
 	}
 }

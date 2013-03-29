@@ -518,6 +518,70 @@ class CSecurityIPRule
 		return $res;
 	}
 
+	function DeleteRuleExclFiles($files)
+	{
+		global $DB;
+		if (!is_array($files))
+			$files = array($files);
+
+		foreach ($files as $file) 
+				$DB->Query("DELETE FROM b_sec_iprule_excl_mask WHERE RULE_MASK = '".$DB->ForSQL($file)."'", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+	}
+
+	function AddRuleExclFiles($files)
+	{
+		if (empty($files))
+			return;
+	
+		$exclToUpdate = array();
+		if (!is_array($files))
+			$files = array($files);
+
+		foreach ($files as $file)
+		{
+			$rsIPRule = CSecurityIPRule::GetList(array("ID"), array(
+					"PATH" => $file,
+					"ACTIVE" => "Y",
+					), array("ID" => "ASC"));
+
+			while ($arIPRule = $rsIPRule->Fetch())
+			{
+
+				if (array_key_exists($arIPRule["ID"], $exclToUpdate))
+					$masks = array_merge($exclToUpdate[$arIPRule["ID"]],$masks);
+				else
+					$masks = array($file);
+
+				$exclToUpdate[$arIPRule["ID"]]= $masks;
+			}
+		}
+
+		foreach ($exclToUpdate as $rule_id => $excl_mask) 
+		{
+			$masks=CSecurityIPRule::GetRuleExclMasks($rule_id);
+			$masks = array_unique(array_merge($masks,$excl_mask));
+			CSecurityIPRule::UpdateRuleMasks($rule_id,false,$masks);
+		}
+	}
+
+	function GetRuleExclFiles($files)
+	{
+		global $DB;
+		$res=array();
+		if (!is_array($files))
+			$files = array($files);
+		
+		if (!empty($files))
+		{
+			$files=array_map(array($DB,'ForSQL'),$files);
+			$masks=implode("','", $files);
+			$rs = $DB->Query("SELECT IPRULE_ID FROM b_sec_iprule_excl_mask WHERE RULE_MASK IN ('".$masks."')", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			while($ar = $rs->Fetch())
+				$res[] = $ar["IPRULE_ID"];
+		}
+		return $res;
+	}
+
 	function GetRuleExclMasks($IPRULE_ID)
 	{
 		global $DB;
@@ -759,7 +823,7 @@ class CSecurityIPRule
 				".implode(", ", $arQueryOrder)."
 			";
 		}
-		//echo "<pre>",htmlspecialchars($strSql),"</pre><hr>";
+		//echo "<pre>",htmlspecialcharsbx($strSql),"</pre><hr>";
 		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 	}
 
@@ -1088,7 +1152,7 @@ class CSecurityIPRule
 						AND ".$ip2check." between ii.IP_START and ii.IP_END
 						AND ei.IPRULE_ID is null
 				";
-				//echo "<pre>".htmlspecialchars($strSql)."</pre>";
+				//echo "<pre>".htmlspecialcharsbx($strSql)."</pre>";
 				$rs = $DB->Query($strSql);
 
 				if($arRule = $rs->Fetch())

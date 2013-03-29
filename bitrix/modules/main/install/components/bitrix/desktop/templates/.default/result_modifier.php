@@ -32,7 +32,7 @@ if (!empty($arDiff))
 					continue;
 				
 				$arGadgetDefault = array_merge($arGadgetDefault, $arGadgetDefaultAll);
-				$arGadgetDefault["TITLE"] = htmlspecialchars($arGadgetDefault["NAME"]);
+				$arGadgetDefault["TITLE"] = htmlspecialcharsbx($arGadgetDefault["NAME"]);
 
 				if (!array_key_exists("SETTINGS", $arGadgetDefault))
 					$arGadgetDefault["SETTINGS"] = array();

@@ -15,6 +15,8 @@ div.forum-reply-form { border-color: #dae0e7;}
 
 /* Table Cell, Info Box, Reply Form */
 table.forum-table td, div.forum-info-box, div.forum-reply-form { background:#fbfcfd; }
+div.forum-reply-form table.bxlhe-frame-table td.bxlhe-editor-buttons { background-color:#fbfcfd!important; }
+div.forum-reply-field td.bxlhe-editor-cell, div.forum-reply-field .feed-add-post-form-but-wrap {border-color: #ced0d1;}
 
 /* Hidden Table Cell and Row */
 table.forum-table tr.forum-row-hidden td, 
@@ -91,8 +93,8 @@ div.forum-header-box { color: #fff; background:#163f72; border-color: #406390;}
 div.forum-navigation-box { background:#fff; border-color: #dae0e7; }
 
 /*BBCode: Quote and Code*/
-table.forum-quote, table.forum-spoiler, table.forum-code, div.forum-code-box {  border-color: #abbacc; }
-table.forum-quote td, table.forum-spoiler td, table.forum-code td, div.forum-code-box ol {background:#fff !important; color:#696969;}
+table.forum-quote, table.forum-spoiler, table.forum-code, div.forum-code-box, div.forum-post-attachments {  border-color: #abbacc; }
+table.forum-quote td, table.forum-spoiler td, table.forum-code td, div.forum-code-box ol, div.forum-post-attachments {background:#fff !important; color:#696969;}
 table.forum-quote th, table.forum-spoiler th, table.forum-code th, div.forum-code-box {background:#e5eaf0 !important; color: #606264;}
 
 div.forum-note-box {border-color: #ffc34f; background: #fffdbe; }

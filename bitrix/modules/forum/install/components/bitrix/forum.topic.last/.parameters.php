@@ -11,6 +11,11 @@ $arComponentParameters = Array(
 	
 	"PARAMETERS" => Array(
 		"FID" => CForumParameters::GetForumsMultiSelect(GetMessage("F_DEFAULT_FID"), "BASE"),
+		"SHOW_FORUM_ANOTHER_SITE" => Array(
+			"PARENT" => "BASE",
+			"NAME" => GetMessage("F_SHOW_FORUM_ANOTHER_SITE"),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "Y"),
 		"SORT_BY" => Array(
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("F_SORTING_ORD"),
@@ -32,8 +37,7 @@ $arComponentParameters = Array(
 			"PARENT" => "BASE",
 			"NAME" => GetMessage("F_SORT_BY_SORT_FIRST"),
 			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "Y"),
-
+			"DEFAULT" => "N"),
 		"URL_TEMPLATES_INDEX" => Array(
 			"PARENT" => "URL_TEMPLATES",
 			"NAME" => GetMessage("F_INDEX_TEMPLATE"),
@@ -59,32 +63,27 @@ $arComponentParameters = Array(
 			"NAME" => GetMessage("F_PROFILE_VIEW_TEMPLATE"),
 			"TYPE" => "STRING",
 			"DEFAULT" => "profile_view.php?UID=#UID#"),
-		
-		"TOPICS_PER_PAGE" => Array(
-			"PARENT" => "ADDITIONAL_SETTINGS",
-			"NAME" => GetMessage("F_TOPICS_PER_PAGE"),
-			"TYPE" => "STRING",
-			"DEFAULT" => intVal(COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"))),
+
 		"DATE_TIME_FORMAT" => CComponentUtil::GetDateTimeFormatField(GetMessage("F_DATE_TIME_FORMAT"), "ADDITIONAL_SETTINGS"),
-		"SHOW_FORUM_ANOTHER_SITE" => Array(
-			"PARENT" => "ADDITIONAL_SETTINGS",
-			"NAME" => GetMessage("F_SHOW_FORUM_ANOTHER_SITE"),
-			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "Y"),
 		"SET_NAVIGATION" => Array(
 			"PARENT" => "PAGER_SETTINGS",
 			"NAME" => GetMessage("F_SET_NAVIGATION"),
 			"TYPE" => "CHECKBOX",
-			"DEFAULT" => "Y"),
-		// "DISPLAY_PANEL" => Array(
-			// "PARENT" => "ADDITIONAL_SETTINGS",
-			// "NAME" => GetMessage("F_DISPLAY_PANEL"),
-			// "TYPE" => "CHECKBOX",
-			// "DEFAULT" => "N"),
-		
+			"DEFAULT" => "N",
+			"REFRESH" => "Y"),
+		"TOPICS_PER_PAGE" => Array(
+			"PARENT" => "PAGER_SETTINGS",
+			"NAME" => GetMessage("F_TOPICS_PER_PAGE"),
+			"TYPE" => "STRING",
+			"DEFAULT" => intVal(COption::GetOptionString("forum", "TOPICS_PER_PAGE", "10"))),
+
 		"CACHE_TIME" => Array(),
 		"SET_TITLE" => Array(),
 	)
 );
-CForumParameters::AddPagerSettings($arComponentParameters, GetMessage("F_TOPICS"));
+
+CForumParameters::AddPagerSettings(
+	$arComponentParameters,
+	GetMessage("F_TOPICS"),
+	array("bAddGroupOnly" => ($arCurrentValues["SET_NAVIGATION"] != "Y")));
 ?>

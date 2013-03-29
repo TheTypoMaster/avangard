@@ -63,4 +63,7 @@ $MESS["M_START_SITE_WIZARD_Y"] = "Den Assistenten der Lösungsinstallation starte
 $MESS["M_START_SITE_WIZARD_N"] = "Eine Vorlage auswählen";
 $MESS["M_START_SITE_WIZARD_REWRITE"] = "Beim Bedarf  existierende Vorlage ersetzen";
 $MESS["START_SITE_WIZARD_REWRITE_ERROR"] = "Der Ordner zur Installation der Vorlage ist nicht leer. Geben Sie einen anderen Ordner an oder markieren Sie die Option &#8222;Beim Bedarf  existierende Vorlage ersetzen&#8220;. ";
+$MESS["SITE_EDIT_WEEK_START"] = "Erster Wochentag:";
+$MESS["SITE_EDIT_WEEK_START_DEFAULT"] = "1";
+$MESS["FORMAT_NAME"] = "Namenformat:";
 ?>

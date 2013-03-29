@@ -13,28 +13,22 @@ class CRubric
 		$arFilter = array();
 		foreach($aFilter as $key=>$val)
 		{
-			$val = $DB->ForSql($val);
 			if(strlen($val)<=0)
 				continue;
-			switch(strtoupper($key))
+
+			$key = strtoupper($key);
+			switch($key)
 			{
-				case "ACTIVE":
-					$arFilter[] = "R.ACTIVE='".$val."'";
-					break;
-				case "LID":
-					$arFilter[] = "R.LID='".$val."'";
-					break;
-				case "AUTO":
-					$arFilter[] = "R.AUTO='".$val."'";
-					break;
-				case "VISIBLE":
-					$arFilter[] = "R.VISIBLE='".$val."'";
-					break;
 				case "ID":
-					$arFilter[] = "R.ID='".$val."'";
+				case "ACTIVE":
+				case "VISIBLE":
+				case "LID":
+				case "AUTO":
+				case "CODE":
+					$arFilter[] = "R.".$key." = '".$DB->ForSql($val)."'";
 					break;
 				case "NAME":
-					$arFilter[] = "R.NAME like '%".$val."%'";
+					$arFilter[] = "R.NAME like '%".$DB->ForSql($val)."%'";
 					break;
 			}
 		}
@@ -42,32 +36,23 @@ class CRubric
 		$arOrder = array();
 		foreach($aSort as $key=>$val)
 		{
-			$ord = (strtoupper($val) <> "ASC"?"DESC":"ASC");
-			switch(strtoupper($key))
+			$ord = (strtoupper($val) <> "ASC"? "DESC": "ASC");
+			$key = strtoupper($key);
+
+			switch($key)
 			{
+				case "ID":
 				case "NAME":
-					$arOrder[] = "R.NAME ".$ord;
-					break;
+				case "SORT":
+				case "LAST_EXECUTED":
+				case "VISIBLE":
 				case "LID":
-					$arOrder[] = "R.LID ".$ord;
+				case "AUTO":
+				case "CODE":
+					$arOrder[] = "R.".$key." ".$ord;
 					break;
 				case "ACT":
 					$arOrder[] = "R.ACTIVE ".$ord;
-					break;
-				case "SORT":
-					$arOrder[] = "R.SORT ".$ord;
-					break;
-				case "ID":
-					$arOrder[] = "R.ID ".$ord;
-					break;
-				case "AUTO":
-					$arOrder[] = "R.AUTO ".$ord;
-					break;
-				case "VISIBLE":
-					$arOrder[] = "R.VISIBLE ".$ord;
-					break;
-				case "LAST_EXECUTED":
-					$arOrder[] = "R.LAST_EXECUTED ".$ord;
 					break;
 			}
 		}
@@ -84,6 +69,7 @@ class CRubric
 			SELECT
 				R.ID
 				,R.NAME
+				,R.CODE
 				,R.SORT
 				,R.LID
 				,R.ACTIVE

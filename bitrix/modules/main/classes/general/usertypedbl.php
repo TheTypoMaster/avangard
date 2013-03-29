@@ -53,7 +53,7 @@ class CUserTypeDouble
 		else
 			$value = 4;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_DOUBLE_PRECISION").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[PRECISION]" size="20"  maxlength="225" value="'.$value.'">
@@ -67,7 +67,7 @@ class CUserTypeDouble
 		else
 			$value = "";
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_DOUBLE_DEFAULT_VALUE").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[DEFAULT_VALUE]" size="20"  maxlength="225" value="'.$value.'">
@@ -81,7 +81,7 @@ class CUserTypeDouble
 		else
 			$value = 20;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_DOUBLE_SIZE").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[SIZE]" size="20"  maxlength="20" value="'.$value.'">
@@ -95,7 +95,7 @@ class CUserTypeDouble
 		else
 			$value = 0;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_DOUBLE_MIN_VALUE").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[MIN_VALUE]" size="20"  maxlength="20" value="'.$value.'">
@@ -109,7 +109,7 @@ class CUserTypeDouble
 		else
 			$value = 0;
 		$result .= '
-		<tr valign="top">
+		<tr>
 			<td>'.GetMessage("USER_TYPE_DOUBLE_MAX_VALUE").':</td>
 			<td>
 				<input type="text" name="'.$arHtmlControl["NAME"].'[MAX_VALUE]" size="20"  maxlength="20" value="'.$value.'">
@@ -125,6 +125,7 @@ class CUserTypeDouble
 			$arHtmlControl["VALUE"] = $arUserField["SETTINGS"]["DEFAULT_VALUE"];
 		if(strlen($arHtmlControl["VALUE"])>0)
 			$arHtmlControl["VALUE"] = round(doubleval($arHtmlControl["VALUE"]), $arUserField["SETTINGS"]["PRECISION"]);
+		$arHtmlControl["VALIGN"] = "middle";
 		return '<input type="text" '.
 			'name="'.$arHtmlControl["NAME"].'" '.
 			'size="'.$arUserField["SETTINGS"]["SIZE"].'" '.
@@ -208,5 +209,5 @@ class CUserTypeDouble
 			return "".round(doubleval($value), $arUserField["SETTINGS"]["PRECISION"]);
 	}
 }
-AddEventHandler("main", "OnUserTypeBuildList", array("CUserTypeDouble", "GetUserTypeDescription"));
+
 ?>

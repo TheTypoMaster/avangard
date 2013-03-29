@@ -1,4 +1,5 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+CUtil::InitJSCore(array('popup'));
 
 if($arParams["USE_FILTER"]=="Y")
 {
@@ -39,6 +40,9 @@ if($arParams["SEF_MODE"] == "Y")
 		$arUrlTemplates,
 		$arVariables
 	);
+
+	if(!$componentPage && isset($_REQUEST["q"]))
+		$componentPage = "search";
 
 	$b404 = false;
 	if(!$componentPage)
@@ -103,15 +107,17 @@ else
 		$componentPage = "section";
 	elseif(isset($arVariables["SECTION_CODE"]) && strlen($arVariables["SECTION_CODE"]) > 0)
 		$componentPage = "section";
+	elseif(isset($_REQUEST["q"]))
+		$componentPage = "search";
 	else
 		$componentPage = "sections";
 
 	$arResult = array(
 		"FOLDER" => "",
 		"URL_TEMPLATES" => Array(
-			"section" => htmlspecialchars($APPLICATION->GetCurPage())."?".$arVariableAliases["SECTION_ID"]."=#SECTION_ID#",
-			"element" => htmlspecialchars($APPLICATION->GetCurPage())."?".$arVariableAliases["SECTION_ID"]."=#SECTION_ID#"."&".$arVariableAliases["ELEMENT_ID"]."=#ELEMENT_ID#",
-			"compare" => htmlspecialchars($APPLICATION->GetCurPage())."?".$arVariableAliases["action"]."=COMPARE",
+			"section" => htmlspecialcharsbx($APPLICATION->GetCurPage())."?".$arVariableAliases["SECTION_ID"]."=#SECTION_ID#",
+			"element" => htmlspecialcharsbx($APPLICATION->GetCurPage())."?".$arVariableAliases["SECTION_ID"]."=#SECTION_ID#"."&".$arVariableAliases["ELEMENT_ID"]."=#ELEMENT_ID#",
+			"compare" => htmlspecialcharsbx($APPLICATION->GetCurPage())."?".$arVariableAliases["action"]."=COMPARE",
 		),
 		"VARIABLES" => $arVariables,
 		"ALIASES" => $arVariableAliases
