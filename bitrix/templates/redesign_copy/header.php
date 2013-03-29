@@ -28,8 +28,6 @@ var pageTracker = _gat._getTracker("UA-9600751-1"); pageTracker._trackPageview()
         <script type="text/javascript">
             swfobject.embedSWF("/flash/188x134.swf?link1=/8days/", "flash_container_id", "188", "134", "6.0.0");
 </script>
-
-<script type="text/javascript">document.write(unescape("%3Cscript src='" + (("https:" == document.location.protocol) ? "https" : "http") + "://a.mouseflow.com/projects/7ccdfd23-7475-49c4-b767-dcf9da14fd83.js' type='text/javascript'%3E%3C/script%3E"));</script>
 </head>
 <body>
  <?$APPLICATION->ShowPanel();?>

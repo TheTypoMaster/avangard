@@ -62,7 +62,6 @@ if ( dw_scrollObj.isSupported() ) {
 
 
 </script>
-<script type="text/javascript">document.write(unescape("%3Cscript src='" + (("https:" == document.location.protocol) ? "https" : "http") + "://a.mouseflow.com/projects/7ccdfd23-7475-49c4-b767-dcf9da14fd83.js' type='text/javascript'%3E%3C/script%3E"));</script>
 </head>
 <body>
  <?$APPLICATION->ShowPanel();?>
