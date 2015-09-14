@@ -1,0 +1,65 @@
+<?
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
+$APPLICATION->SetTitle("Диван фабрики Авангард");
+?>
+<div><?$APPLICATION->IncludeComponent("anp:catalog.element", "slider", array(
+	"IBLOCK_TYPE" => "catalogue",
+	"IBLOCK_ID" => "31",
+	"ELEMENT_ID" => $_REQUEST["id"],
+	"ELEMENT_CODE" => "",
+	"SECTION_ID" => $_REQUEST["SECTION_ID"],
+	"SECTION_CODE" => "",
+	"PROPERTY_CODE" => array(
+		0 => "MODEL",
+		1 => "MATERIAL",
+		2 => "COMPLECTATION",
+		3 => "SLEEPER_SIZE",
+		4 => "MECHANISM",
+		5 => "",
+		6 => "",
+		7 => "",
+		8 => "",
+		9 => "",
+		10 => "",
+		11 => "",
+		12 => "",
+		13 => "",
+	),
+	"OFFERS_LIMIT" => "0",
+	"SECTION_URL" => "",
+	"DETAIL_URL" => "",
+	"BASKET_URL" => "/personal/basket.php",
+	"ACTION_VARIABLE" => "action",
+	"PRODUCT_ID_VARIABLE" => "id",
+	"PRODUCT_QUANTITY_VARIABLE" => "quantity",
+	"PRODUCT_PROPS_VARIABLE" => "prop",
+	"SECTION_ID_VARIABLE" => "SECTION_ID",
+	"CACHE_TYPE" => "A",
+	"CACHE_TIME" => "36000000",
+	"CACHE_GROUPS" => "Y",
+	"META_KEYWORDS" => "-",
+	"META_DESCRIPTION" => "-",
+	"BROWSER_TITLE" => "-",
+	"SET_TITLE" => "Y",
+	"SET_STATUS_404" => "Y",
+	"ADD_SECTIONS_CHAIN" => "Y",
+	"SMALL_WIDTH" => "99",
+	"SMALL_HEIGHT" => "45",
+	"USE_ELEMENT_COUNTER" => "Y",
+	"PRICE_CODE" => array(
+	),
+	"USE_PRICE_COUNT" => "N",
+	"SHOW_PRICE_COUNT" => "1",
+	"PRICE_VAT_INCLUDE" => "N",
+	"PRICE_VAT_SHOW_VALUE" => "N",
+	"PRODUCT_PROPERTIES" => array(
+	),
+	"USE_PRODUCT_QUANTITY" => "N",
+	"LINK_IBLOCK_TYPE" => "",
+	"LINK_IBLOCK_ID" => "",
+	"LINK_PROPERTY_SID" => "",
+	"LINK_ELEMENTS_URL" => "link.php?PARENT_ELEMENT_ID=#ELEMENT_ID#"
+	),
+	false
+);?> </div>
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

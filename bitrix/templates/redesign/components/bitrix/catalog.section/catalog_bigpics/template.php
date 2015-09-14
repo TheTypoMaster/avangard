@@ -24,8 +24,14 @@
 				$img_path = $el["DISPLAY_PROPERTIES"]["FULLCOLOR_PIC"]["FILE_VALUE"]["SRC"]; 
 			else
 				$img_path = $el["PREVIEW_PICTURE"]["SRC"];
+		$skidka_div = '';    
+		if($el["DISPLAY_PROPERTIES"]["SKIDKA"]["VALUE"]) {
+			$skidka_value = $el["DISPLAY_PROPERTIES"]["SKIDKA"]["VALUE"]; /* если есть скидка, то выводится введенное значение */
+			$skidka_div .='<div style="margin: 0px; padding: 0px; position: absolute; z-index: 90;"><div style="text-align:center; background: url(/images/skidka.gif) no-repeat center center; position: relative; left: 200px; top: -12px; color: #ffffff; height: 36px; width: 36px; " height=36 width=36 ><img src="/images/gif.gif" height="10" width="20"><br>-'.$skidka_value.'%</div></div>';
+		}
 		?>
 			<td class="catalog_td">
+				<? echo $skidka_div; ?>
 				<a href="/catalog/divan<?=$el["ID"] ?>.htm"><!--
 					--><img onMouseOver="this.src='<?=$img_path ?>';" onMouseOut="this.src='<?=$el["DISPLAY_PROPERTIES"]["BLACKWHITE_PIC"]["FILE_VALUE"]["SRC"]?>';" class="catalog_picture" src="<?=$el["DISPLAY_PROPERTIES"]["BLACKWHITE_PIC"]["FILE_VALUE"]["SRC"]?>" alt="<?=$el["NAME"] ?>"><!--
 				--></a><br>
@@ -35,7 +41,7 @@
 							<a class="catalog_name" href="/catalog/divan<?=$el["ID"] ?>.htm"><?=$el["NAME"] ?></a>
 						</td>
 						<td id="price_new1">
-							<?=$el["DISPLAY_PROPERTIES"]["PRICE"]["VALUE"]?>
+							<?=$el["DISPLAY_PROPERTIES"]["PRICE"]["VALUE"][0]?>
 						</td>
 					</tr>
 				</table>

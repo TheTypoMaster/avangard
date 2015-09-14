@@ -6,42 +6,43 @@ $APPLICATION->SetTitle("Купить кровать фабрики мягкой мебели Авангард");
 ?> 
 <table cellspacing="0" cellpadding="0"> 
   <tbody> 
-    <tr><td> <?$APPLICATION->IncludeComponent(
-	"anp:catalog.section",
-	"seo_krovati_no_sl",
-	Array(
-		"IBLOCK_TYPE" => "news",
-		"IBLOCK_ID" => "",
-		"SECTION_ID" => $_REQUEST["SECTION_ID"],
-		"ELEMENT_SORT_FIELD" => "sort",
-		"ELEMENT_SORT_ORDER" => "asc",
-		"FILTER_NAME" => "arrFilter",
-		"PAGE_ELEMENT_COUNT" => "30",
-		"LINE_ELEMENT_COUNT" => "3",
-		"PROPERTY_CODE" => array(0=>"",1=>"",),
-		"SECTION_URL" => "section.php?IBLOCK_ID=#IBLOCK_ID#&SECTION_ID=#SECTION_ID#",
-		"DETAIL_URL" => "element.php?IBLOCK_ID=#IBLOCK_ID#&SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#",
-		"BASKET_URL" => "/personal/basket.php",
-		"ACTION_VARIABLE" => "action",
-		"PRODUCT_ID_VARIABLE" => "id",
-		"SECTION_ID_VARIABLE" => "SECTION_ID",
-		"CACHE_TYPE" => "A",
-		"CACHE_TIME" => "3600",
-		"DISPLAY_PANEL" => "N",
-		"DISPLAY_COMPARE" => "N",
-		"SET_TITLE" => "Y",
-		"CACHE_FILTER" => "N",
-		"PRICE_CODE" => array(),
-		"USE_PRICE_COUNT" => "N",
-		"SHOW_PRICE_COUNT" => "1",
-		"DISPLAY_TOP_PAGER" => "N",
-		"DISPLAY_BOTTOM_PAGER" => "Y",
-		"PAGER_TITLE" => "Товары",
-		"PAGER_SHOW_ALWAYS" => "Y",
-		"PAGER_TEMPLATE" => "",
-		"PAGER_DESC_NUMBERING" => "N",
-		"PAGER_DESC_NUMBERING_CACHE_TIME" => "36000"
-	)
+    <tr><td> <?$APPLICATION->IncludeComponent("anp:catalog.section", "seo_krovati_no_sl", Array(
+	"IBLOCK_TYPE" => "news",	// Тип инфо-блока
+	"IBLOCK_ID" => "",	// Инфо-блок
+	"SECTION_ID" => $_REQUEST["SECTION_ID"],	// ID раздела
+	"ELEMENT_SORT_FIELD" => "sort",	// По какому полю сортируем элементы
+	"ELEMENT_SORT_ORDER" => "asc",	// Порядок сортировки элементов
+	"FILTER_NAME" => "arrFilter",	// Имя массива со значениями фильтра для фильтрации элементов
+	"PAGE_ELEMENT_COUNT" => "30",	// Количество элементов на странице
+	"LINE_ELEMENT_COUNT" => "3",	// Количество элементов выводимых в одной строке таблицы
+	"PROPERTY_CODE" => array(	// Свойства
+		0 => "",
+		1 => "",
+	),
+	"SECTION_URL" => "section.php?IBLOCK_ID=#IBLOCK_ID#&SECTION_ID=#SECTION_ID#",	// URL, ведущий на страницу с содержимым раздела
+	"DETAIL_URL" => "element.php?IBLOCK_ID=#IBLOCK_ID#&SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#",	// URL, ведущий на страницу с содержимым элемента раздела
+	"BASKET_URL" => "/personal/basket.php",	// URL, ведущий на страницу с корзиной покупателя
+	"ACTION_VARIABLE" => "action",	// Название переменной, в которой передается действие
+	"PRODUCT_ID_VARIABLE" => "id",	// Название переменной, в которой передается код товара для покупки
+	"SECTION_ID_VARIABLE" => "SECTION_ID",	// Название переменной, в которой передается код группы
+	"CACHE_TYPE" => "A",	// Тип кеширования
+	"CACHE_TIME" => "3600",	// Время кеширования (сек.)
+	"DISPLAY_PANEL" => "N",	// Добавлять в админ. панель кнопки для данного компонента
+	"DISPLAY_COMPARE" => "N",	// Выводить кнопку сравнения
+	"SET_TITLE" => "Y",	// Устанавливать заголовок страницы
+	"CACHE_FILTER" => "N",	// Кэшировать при установленном фильтре
+	"PRICE_CODE" => "",	// Тип цены
+	"USE_PRICE_COUNT" => "N",	// Использовать вывод цен с диапазонами
+	"SHOW_PRICE_COUNT" => "1",	// Выводить цены для количества
+	"DISPLAY_TOP_PAGER" => "N",	// Выводить над списком
+	"DISPLAY_BOTTOM_PAGER" => "Y",	// Выводить под списком
+	"PAGER_TITLE" => "Товары",	// Название категорий
+	"PAGER_SHOW_ALWAYS" => "Y",	// Выводить всегда
+	"PAGER_TEMPLATE" => "",	// Название шаблона
+	"PAGER_DESC_NUMBERING" => "N",	// Использовать обратную навигацию
+	"PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",	// Время кеширования страниц для обратной навигации
+	),
+	false
 );?> </td></tr>
    
     <tr><td> 

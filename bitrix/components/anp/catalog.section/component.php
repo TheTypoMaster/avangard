@@ -12,6 +12,7 @@ if(!isset($arParams["CACHE_TIME"]))
 $arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
 $arParams["IBLOCK_ID"] = intval($arParams["IBLOCK_ID"]);
 $arParams["SECTION_ID"] = intval($arParams["SECTION_ID"]);
+//echo 'SECTION_ID = '.$arParams["SECTION_ID"].'<br>';
 
 if(strlen($arParams["ELEMENT_SORT_FIELD"])<=0)
 	$arParams["ELEMENT_SORT_FIELD"]="sort";
@@ -94,6 +95,9 @@ if(!$arParams["CACHE_FILTER"] && count($arrFilter)>0)
 //Hidden triky parameter USED to display linked
 if($arParams["BY_LINK"]=="Y")
 	unset($arParams["SECTION_ID"]);
+
+//echo '<pre> arParams='; print_r($arParams); echo '</pre>';
+
 /*************************************************************************
 			Processing of the Buy link
 *************************************************************************/
@@ -145,6 +149,7 @@ if($this->StartResultCache(false, array($arrFilter, $USER->GetGroups(), $arNavig
 		"IBLOCK_ID"=>$arParams["IBLOCK_ID"],
 		"IBLOCK_ACTIVE"=>"Y",
 	);
+
 	if($arParams["SECTION_ID"])
 		$arFilter["ID"]=$arParams["SECTION_ID"];
 	elseif($arParams["SECTION_CODE"])
@@ -290,7 +295,7 @@ if($this->StartResultCache(false, array($arrFilter, $USER->GetGroups(), $arNavig
 		}
 		$arResult["NAV_STRING"] = $rsElements->GetPageNavString($arParams["PAGER_TITLE"], $arParams["PAGER_TEMPLATE"], $arParams["PAGER_SHOW_ALWAYS"]);
 		$arResult["NAV_RESULT"] = $rsElements;
-		//echo "<pre>",htmlspecialchars(print_r($arResult,true)),"</pre>";
+		//echo "<pre>  arResult=",htmlspecialchars(print_r($arResult,true)),"</pre>";
 		$this->IncludeComponentTemplate();
 	}
 	else

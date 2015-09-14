@@ -384,3 +384,23 @@ div.wtb ul
 	margin:10px 0px 0px 10px;
 	padding:0px;
 }
+.pluso-wrap {
+/* position: relative;
+  left: 10px;
+  top: 0px; */
+}
+.pluso-wrap a {
+  background-image: url(/images/04_1.png);
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+}
+.pluso-wrap a.pluso-facebook {
+  background-position: 0 0;
+}
+.pluso-wrap a.pluso-vkontakte {
+  background-position: -124px 0;
+}
+.pluso-wrap a.pluso-instagram {
+    background-position: -1395px 0;
+}

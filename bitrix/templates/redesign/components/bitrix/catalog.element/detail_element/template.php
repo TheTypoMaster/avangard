@@ -11,13 +11,12 @@ $APPLICATION->SetTitle($seotitle);
 <div class="bottext">
 	<div class="gray_td" id="extra_controls">
 		<h1 class="itemtitle"><?=$arResult["PROPERTIES"]["F_TYPE"]["VALUE"] ?> <?=$arResult["NAME"] ?>
-			<font style="font-weight:normal; color: #000000; margin-left: 22px;">Коллекция:</font>
-			<?
-			$id_collection = $arResult["PROPERTIES"]["COLLECTION"]["VALUE"];
-			$arResColl = GetIBlockElement($id_collection);
-			echo($arResColl["NAME"]);
-			?>
-			<a name="top" target="_new" href="/mebel_sal.php?all_models=<?=$arResult["ID"] ?>"><font style="font-weight:bold; color: #000000; margin-left: 22px;">Эта модель в салонах</font></a>
+			<? if ($arResult["PROPERTIES"]["COLLECTION"]["VALUE"]) {
+				$id_collection = $arResult["PROPERTIES"]["COLLECTION"]["VALUE"];
+				$arResColl = GetIBlockElement($id_collection);
+				echo '<font style="font-weight:normal; color: #000000; margin-left: 22px;">Коллекция:</font>'.$arResColl["NAME"];
+			}?>
+			<a name="top" target="_new" href="/wharetobuy/mebel_in_salon.php?all_models=<?=$arResult["ID"] ?>"><font style="font-weight:bold; color: #000000; margin-left: 22px;">В салонах</font></a>
 		</h1>
 	</div>
 
@@ -91,20 +90,101 @@ $APPLICATION->SetTitle($seotitle);
 		</tr>
 	</table>
 	<br />
-<table width="100%"><tr><td>
-<? if($arResult["PROPERTIES"]["HREF_3D"]["VALUE"]) echo '<a href="/catalog/vybor_tkani.php?id='.$arResult["PROPERTIES"]["HREF_3D"]["VALUE"].'" target="_blank"><img src="/images/btn3D.png" alt="Переодевание 3D" border=0></a>';?>
-</td><td></td></tr></table>
+<script>
+	$(function() {
+		$( "#tabs" ).tabs();
+	});
+</script>
+<?
+$tab_matras = ($arResult["PROPERTIES"]["MATRESS"]["VALUE"]) ? true : false;
+$tab_massiv = ($arResult["PROPERTIES"]["CARCASS"]["VALUE"]) ? true : false;
+$tab_cover = ($arResult["PROPERTIES"]["COVER"]["VALUE"]) ? true : false;
+/*if($arResult[SECTION][IBLOCK_SECTION_ID] = 110) {
+	$tab_matras = false;
+	$tab_massiv = false;
+	$tab_cover = false;
+}*/
+?>
 
-<br />
-<table class="s" cellspacing="1" cellpadding="1" border="0" align="left"> 
-    <tr><td style="vertical-align :center; padding:6px;">Модель можно купить в любом из салонов</td>
-        <td style="vertical-align :center; padding:6px;">или в интернет-магазине при фабрике</td></tr> 
-    <tr><td><a href="/redesign/where_buy/" ><img  src="/images/msk_shop.png" style="border-style:none; height:24px;" /></a></td>
-        <td><a href="/shop/catalog/divan<?=$arResult["ID"] ?>.htm" ><img src="/images/i_shop.png" style="border-style:none; height:24px;" /></a></td></tr> 
-    <tr><td></td>
-        <td style="vertical-align :center; padding:6px;">посмотреть цену в интернет-магазине</td></tr> 
-</table>
-<div style="clear: left"></div>
+<div class="mainpage_tabs">
+	<div id="tabs">
+		<ul>
+		<?if($tab_matras): ?><li><a href="#tabs-1">матрасы</a></li>	<?endif; ?>
+		<?if($tab_massiv): ?><li><a href="#tabs-2">цвет массива бука</a></li><?endif; ?>
+		<?if($tab_cover):  ?><li><a href="#tabs-3">варианты чехла</a></li><?endif; ?>
+		<li><a href="#tabs-4">размеры</a></li>
+		<li><a href="#tabs-5">информация</a></li>
+		</ul>
+<?if($tab_matras): ?>
+		<div id="tabs-1">
+<div>
+	<? if($arResult["PROPERTIES"]["MATRESS"]["VALUE"]) {?>
+	<p style="margin-top:15px;">Используются ортопедические матрасы:</p>
+		<a style="text-decoration: none;" href="/8days/orthopedic_furniture.php">
+	<?  foreach($arResult["PROPERTIES"]["MATRESS"]["VALUE"] as $matress_id) {    
+			$resMatress = CIBlockElement::GetByID($matress_id);
+			$arMatress = $resMatress->Fetch();
+			############  получаем картинку ################################
+			$resFileMatress = CFile::GetById($arMatress[PREVIEW_PICTURE]);
+			$arFileMatress = $resFileMatress->Fetch();
+			$src_matr = "/upload/".$arFileMatress[SUBDIR]."/".$arFileMatress[FILE_NAME]; ?>
+			<div style="margin-bottom:10px;">
+				<img style="border-style:none; height:32px;" src="<?=$src_matr?>" title="<?=$arMatress[NAME]?>" alt="<?=$arMatress[NAME]?>">
+				&nbsp;&nbsp;<?if($arMatress["PREVIEW_TEXT"]) echo $arMatress["PREVIEW_TEXT"]; ?>
+				<p><?if($arMatress["DETAIL_TEXT"]) echo $arMatress["DETAIL_TEXT"]; ?></p>
+			</div>
+	<?  } ?>
+		</a>
+		<div style="clear: left;"></div>
+	<? } ?>
+</div>
+		</div>
+<?endif; ?>
+<?if($tab_massiv): ?>
+		<div id="tabs-2">
+<div>
+	<? if($arResult["PROPERTIES"]["CARCASS"]["VALUE"]) {?>
+		<h1 class="itemtitle" style="margin-top: 8px;">ЦВЕТ МАССИВА БУКА</h1>
+	<?  foreach($arResult["PROPERTIES"]["CARCASS"]["VALUE"] as $carcass_id) {    
+			$resCarcass = CIBlockElement::GetByID($carcass_id);
+			$arCarcass = $resCarcass->Fetch();
+			############  получаем картинку ################################
+			$resFileCarcass = CFile::GetById($arCarcass[PREVIEW_PICTURE]);
+			$arFileCarcass = $resFileCarcass->Fetch();
+			$src_texture = "/upload/".$arFileCarcass[SUBDIR]."/".$arFileCarcass[FILE_NAME]; ?>
+			<div class="carcass">
+				<img src="<? echo $src_texture; ?>" style="border: 2px solid #C5C5C5; margin-bottom: 4px;" width="110" height="65" />
+				<br><? echo $arCarcass[NAME]; ?>
+			</div>
+	<?  } ?>
+		<div style="clear: left"></div>
+	<? } ?>
+</div>
+		</div>
+<?endif; ?>
+<?if($tab_cover):  ?>
+		<div id="tabs-3">
+<div>
+	<? if($arResult["PROPERTIES"]["COVER"]["VALUE"]) {?>
+		<h1 class="itemtitle" style="margin-top: 8px;">ВАРИАНТЫ ЧЕХЛА</h1>
+	<?  foreach($arResult["PROPERTIES"]["COVER"]["VALUE"] as $chehol_id) {    
+			$resChehol = CIBlockElement::GetByID($chehol_id);
+			$arChehol = $resChehol->Fetch();
+			############  получаем картинку ################################
+			$resFileChehol = CFile::GetById($arChehol[PREVIEW_PICTURE]);
+			$arFileChehol = $resFileChehol->Fetch();
+			$src_texture = "/upload/".$arFileChehol[SUBDIR]."/".$arFileChehol[FILE_NAME]; ?>
+			<div class="chehol">
+				<img src="<? echo $src_texture; ?>" style="border: 2px solid #C5C5C5; margin-bottom: 4px;" width="110" height="65" />
+				<br><? echo $arChehol[NAME]; ?>
+			</div>
+	<?  } ?>
+		<div style="clear: left"></div>
+	<? } ?>
+</div>
+		</div>
+<?endif; ?>
+		<div id="tabs-4">
 	<table width="100%">
 		<tr>
 			<td<?=$width_td ?>>
@@ -191,9 +271,11 @@ $APPLICATION->SetTitle($seotitle);
 			</td>
 		</tr>
 	</table>
-	<br />
+	<br>
+		</div>
+		<div id="tabs-5">
 	<?if($arResult["DETAIL_TEXT"]): ?>
-		<br /><?=$arResult["DETAIL_TEXT"] ?><br />
+		<?=$arResult["DETAIL_TEXT"] ?><br />
 	<?elseif($arResult["PREVIEW_TEXT"]): ?>
 		<br /><?=$arResult["PREVIEW_TEXT"] ?><br />
 	<?endif; ?>
@@ -205,6 +287,23 @@ $APPLICATION->SetTitle($seotitle);
 	<br>
 	<strong><a style="color: #000000;" target="_new" href="/mebel_sal.php?all_models=<?=$arResult["ID"] ?>">Данная модель во всех салонах Москвы и Московской области</a></strong>
 	<br>
+		</div>
+	</div>
 </div>
 
-<?//echo "<pre>"; print_r($arResult); echo "</pre>"; ?>
+<div>
+	<br>
+	<? if($arResult["PROPERTIES"]["HREF_3D"]["VALUE"]) {?>
+		<div style="margin:10px 10px 20px 0; float:left;"><a href="/catalog/vybor_tkani.php?id=<?=$arResult["PROPERTIES"]["HREF_3D"]["VALUE"]?>" target="_blank"><img src="/images/btn3D.png" title="Переодевание 3D" alt="Переодевание 3D" border=0></a></div>
+	<? } ?>
+	<div style="margin:10px 10px 20px 0; float:left;"><a href="/redesign/where_buy/" ><img  src="/images/msk_shop.png" style="border-style:none; height:24px;" title="адреса салонов" alt="адреса салонов" /></a></div>
+	<div style="margin:10px 10px 20px 0; float:left;"><a href="/shop/catalog/divan<?=$arResult["ID"] ?>.htm" ><img src="/images/i_shop.png" style="border-style:none; height:24px;" title="посмотреть цену" alt="посмотреть цену" /></a></div>
+</div>
+<div style="clear: left"></div>
+
+
+
+
+	<br />
+
+</div>

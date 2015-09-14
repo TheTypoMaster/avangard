@@ -64,8 +64,21 @@
 				dw_Event.add( window, 'load', init_dw_Scroll);
 			}
 		</script>
+
+<!-- RedHelper -->
+<script id="rhlpscrtg" type="text/javascript" charset="utf-8" async="async" src="https://web.redhelper.ru/service/main.js?c=avshop2015"></script>
+<!-- /RedHelper -->
 	</head>
 	<body>
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-W86TKX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-W86TKX');</script>
+<!-- End Google Tag Manager -->
 		<? $APPLICATION->ShowPanel(); ?>
 		<? $APPLICATION->AddHeadScript("/basket/basket.js"); ?>
 		<? if (CModule::IncludeModule('iblock')) $incl = "Y"; ?>
@@ -105,7 +118,10 @@
 		<div id="top_line">
 			<div id="t_l_content">
 				<div id="t_l_logo"><a href="/"><img src="/images/logo.gif" alt="" border=0></a></div>
-				<div id="t_l_fone"><p class="p_fone"><span>(495)</span> <span id="ya-phone-1">981-66-44</span></p><p>многоканальный телефон</p></div>
+				<div id="t_l_fone"><p class="p_fone"><span>(495)</span> <span id="ya-phone-1">357-13-00</span></p><p>многоканальный телефон</p></div>
+				<div class="pluso-wrap">
+					<span><a href="https://www.facebook.com/avangard.biz" title="Facebook" class="pluso-facebook"></a> <a href="http://vk.com/club57166671" title="ВКонтакте" class="pluso-vkontakte"></a> <a href="https://instagram.com/avangard_fm" title="Instagram" class="pluso-instagram"></a></span>
+				</div>
 			</div>
 		</div>
 		

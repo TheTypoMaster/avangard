@@ -8,7 +8,7 @@ function showInfo(id){
 }
 
 function showDivans(id){ 
-	w = window.open('/mebel_sal.php?id='+id, 'detail','location=yes,resizable=yes,toolbar=yes,menubar=yes,status=no,scrollbars=yes,width=970,height=700');
+	w = window.open('/wharetobuy/mebel_in_salon.php?id='+id, 'detail','location=yes,resizable=yes,toolbar=yes,menubar=yes,status=no,scrollbars=yes,width=970,height=700');
 	w.focus(); 
 }
 //-->
@@ -45,25 +45,7 @@ if($arElement["DISPLAY_PROPERTIES"]["SALON_CITY"]["DISPLAY_VALUE"] =='Королев') 
 		</td>
 		<td  align="center">
 			<?if($arElement["DISPLAY_PROPERTIES"]["SALON_ACTION_TEXT"]["DISPLAY_VALUE"]) echo '<center><img width="24" height="24" border="0" src="/images/akciya.gif" alt="'.$arElement["DISPLAY_PROPERTIES"]["SALON_ACTION_TEXT"]["DISPLAY_VALUE"].'"></center>';?>
-			<?
-			switch ($arElement["ID"]) {
-			case 326:
-			case 327:
-			case 329:
-                        case 4311:
-			echo '<center><img width="30" src="/wharetobuy/maps/small_15.png" alt="Акция -15%"></center>';
-			}
-			switch ($arElement["ID"]) {
-			case 325:
-			case 356:
-			case 333:
-                        case 338:
-                        case 503:
-                        case 2322:
-                        case 5312:
-			echo '<center><img width="32" src="/wharetobuy/maps/BF.png" alt="Коллекция BEFRESH"></center>';
-			}
-			?>
+
 			<?if($arElement["DISPLAY_PROPERTIES"]["SALON_ACTION_TEXT_2"]["DISPLAY_VALUE"]) echo '<center><img width="47" height="20" border="0" src="/images/podarki.gif" alt="'.$arElement["DISPLAY_PROPERTIES"]["SALON_ACTION_TEXT_2"]["DISPLAY_VALUE"].'"></center>';?>
 		</td>
 		<td>
@@ -75,8 +57,10 @@ switch ($arElement["ID"]) {
 case 1472:
 case 1682:
 case 499:
+case 8704:
 case 3485:
 case 5242:
+case 6157:
     echo '<br />', $arElement["DISPLAY_PROPERTIES"]["SALON_PHONE"]["DISPLAY_VALUE"];
 }
 ?>
@@ -91,7 +75,7 @@ $res_items = CIBlockElement::GetList(Array(), $arFilter, false, Array("nPageSize
 $counter = 0;
 //$res_items->NavStart(500);
 $ob = $res_items->SelectedRowsCount();
-if($ob>0){?><a style="text-decoration: none; font-size: 14px; " href="/mebel_sal.php?id=<?=$arElement["ID"]?>" onClick="showDivans(<?=$arElement["ID"]?>); return false;"    target="_new"><img style="padding-top: 3px;" src="/images/camera.gif" border="0" alt="Диваны в наличии"> (<?=$ob?>)
+if($ob>0){?><a style="text-decoration: none; font-size: 14px; " href="/wharetobuy/mebel_in_salon.php?id=<?=$arElement["ID"]?>" onClick="showDivans(<?=$arElement["ID"]?>); return false;"    target="_new"><img style="padding-top: 3px;" src="/images/camera.gif" border="0" alt="Диваны в наличии"> (<?=$ob?>)
 </a>
 <?}?></center>
 		</td>

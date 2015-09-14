@@ -26,7 +26,7 @@ $aMenuLinks = Array(
 		Array(
 			"class"=>"oform",
 			"hover_win"=>'
-				<p><a href="/bitrix/templates/avangard/doc/ava_dogovor_oferta_1_11_11_a.pdf" ><strong>ДОГОВОР розничной купли-продажи мебели (Публичная оферта)</strong></a></p>
+				<p><a href="/bitrix/templates/avangard/doc/ava_dogovor_oferta_29_08_13_a.pdf" ><strong>ДОГОВОР розничной купли-продажи мебели (Публичная оферта)</strong></a></p>
 				<p><a href="/bitrix/templates/avangard/doc/vbank_blank.doc" ><strong>БЛАНК для оплаты</strong></a></p>
 				<h4>НАЙТИ И ВЫБРАТЬ ИНТЕРЕСУЮЩИЙ ВАС ТОВАР ВЫ МОЖЕТЕ СЛЕДУЮЩИМИ СПОСОБАМИ:</h4>
 				<h5>1.	ВОСПЛЬЗОВАТЬСЯ КАТАЛОГОМ ИНТЕРНЕТ- МАГАЗИНА (МОДЕЛЬ>ПОДРОБНОСТИ И ЦЕНЫ> КОРЗИНА)</h5>
@@ -44,7 +44,7 @@ $aMenuLinks = Array(
 				<h5>6.	ВОСПОЛЬЗОВАТЬСЯ УСЛУГАМИ SKYPE (ELENA_AVANGARD)</h5>
 				<h5>ОБРАТИТЕ ВНИМАНИЕ:</h5>
 				<p>Информация переданная по средствам массовых коммуникаций обрабатывается нашими специалистами с 9.00. до 18.00. Кроме субботы и воскресенья.</p>
-				<p>Вы можете ознакомиться со всеми условиями договорных отношений в <a href="/bitrix/templates/avangard/doc/ava_dogovor_oferta_1_11_11_a.pdf" ><strong>ДОГОВОРЕ</strong></a>. </p>
+				<p>Вы можете ознакомиться со всеми условиями договорных отношений в <a href="/bitrix/templates/avangard/doc/ava_dogovor_oferta_29_08_13_a.pdf" ><strong>ДОГОВОРЕ</strong></a>. </p>
 				<h5>СПОСОБЫ ОПЛАТЫ:</h5>
 				<p>1. Безналичный</p>
 				<p>2. Наличными</p>

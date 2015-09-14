@@ -78,8 +78,8 @@ IncludeTemplateLangFile(__FILE__);
 <tr id="logotype_tr"><td colspan="2" height="70">
 <td align="center">
 <table align="center"><tr><td align="left"><a href="/"><img border="0" src="/images/logotype.gif"></a></td>
-<td></td>
-<td  align="right"><font class="phonecode">(495)</font> <font class="phonenum"><span id="ya-phone-1">981-66-44</span></font><br><font class="phonetext">многоканальный телефон</font></td>
+<td  align="right"><div class="pluso-wrap"><span><a href="https://www.facebook.com/avangard.biz" title="Facebook" class="pluso-facebook"></a> <a href="http://vk.com/club57166671" title="ВКонтакте" class="pluso-vkontakte"></a> <a href="https://instagram.com/avangard_fm" title="Instagram" class="pluso-instagram"></a></span></div></td>
+<td  align="right"><font class="phonecode">(495)</font> <font class="phonenum"><span id="ya-phone-1">357-13-00</span></font><br><font class="phonetext">многоканальный телефон</font></td>
 </tr>
 </table>
 </td>
@@ -121,27 +121,34 @@ IncludeTemplateLangFile(__FILE__);
 
 <!--****************************Счётчики************************************-->
 <!-- Yandex.Metrika counter -->
-<div style="display:none;"><script type="text/javascript">
-(function(w, c) {
-    (w[c] = w[c] || []).push(function() {
-        try {
-            w.yaCounter11801303 = new Ya.Metrika({id:11801303, enableAll: true, ut:"noindex", webvisor:true});
-        }
-        catch(e) { }
-    });
-})(window, "yandex_metrika_callbacks");
-</script></div>
-<script src="//mc.yandex.ru/metrika/watch.js" type="text/javascript" defer="defer"></script>
-<noscript><div><img src="//mc.yandex.ru/watch/11801303?ut=noindex" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function (d, w, c) {
+        (w[c] = w[c] || []).push(function() {
+            try {
+                w.yaCounter11801303 = new Ya.Metrika({
+                    id:11801303,
+                    clickmap:true,
+                    trackLinks:true,
+                    accurateTrackBounce:true,
+                    webvisor:true
+                });
+            } catch(e) { }
+        });
 
-<script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www."); document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+        var n = d.getElementsByTagName("script")[0],
+            s = d.createElement("script"),
+            f = function () { n.parentNode.insertBefore(s, n); };
+        s.type = "text/javascript";
+        s.async = true;
+        s.src = "https://mc.yandex.ru/metrika/watch.js";
+
+        if (w.opera == "[object Opera]") {
+            d.addEventListener("DOMContentLoaded", f, false);
+        } else { f(); }
+    })(document, window, "yandex_metrika_callbacks");
 </script>
-<script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-9600751-1"); pageTracker._trackPageview(); } catch(err) {}
-</script>
+<noscript><div><img src="https://mc.yandex.ru/watch/11801303" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
 
 <!-- Yandex.Metrika Marked Phone -->
 <script type="text/javascript" src="//mc.yandex.ru/metrika/phone.js?counter=11801303" defer="defer"></script>

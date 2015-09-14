@@ -1,52 +1,25 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die(); ?>
+<?$sid = IntVal($arResult["ITEMS"][0][IBLOCK_SECTION_ID]); ?>
+
 <?$_POST['design_tmp'] = 'seo'; ?>
+<?if ($arResult["ITEMS"][0][IBLOCK_SECTION_ID]): ?>
 <table align="right" cellspacing="0" cellpadding="0">
 	<tbody>
 		<tr><td width="100%">
 				<div class="gray_td">
-					<h1>Аксессуары</h1>
+					<h1><?=$arResult[NAME]?></h1>
 				</div>
 			</td></tr>
 
 		<tr><td>
 				<table width="738" align="center">
 					<?
-					$arSelect = Array("ID", "NAME", "PREVIEW_TEXT", "DATE_ACTIVE_FROM");
-					$arFilter = Array("IBLOCK_ID" => IntVal(9), "ACTIVE_DATE" => "Y", "ACTIVE" => "Y");
-
-					$res = CIBlockElement::GetList(Array("SORT" => "ASC", "PROPERTY_PRIORITY" => "ASC"), $arFilter, false, Array("nPageSize" => 50), $arSelect);
-					$i = 0;
-
-					$cat_array = array();
-
-					while($ob = $res->GetNextElement()){
-						$i++;
-						$arFields = $ob->GetFields();
-						$cat_array[$i][name] = $arFields[NAME];
-						$cat_array[$i][text] = $arFields[PREVIEW_TEXT];
-						$cat_array[$i][id] = $arFields[ID];
-					}
-					$kolvo_elems = count($cat_array);
-					$kol = 0;
-					foreach($cat_array as $category){
-						$kol++;
 
 						$arElementSelect = Array("ID", "NAME", "DATE_ACTIVE_FROM", "PREVIEW_PICTURE", "PROPERTY_FULLCOLOR_PIC", "PROPERTY_NOVELTY", "PROPERTY_BLACKWHITE_PIC", "PROPERTY_HIT", "PROPERTY_COLLECTION", "IBLOCK_ID");
 
-						$arElementFilter = Array("IBLOCK_ID" => IntVal(5), "SECTION_ID" => IntVal(5), "ACTIVE_DATE" => "Y", "ACTIVE" => "Y", "PROPERTY_COLLECTION" => IntVal($category[id]));
+						$arElementFilter = Array("IBLOCK_ID" => IntVal(5), "SECTION_ID" => $sid, "ACTIVE_DATE" => "Y", "ACTIVE" => "Y");
 
 						$resElement = CIBlockElement::GetList(Array("SORT" => "ASC", "PROPERTY_PRIORITY" => "ASC"), $arElementFilter, false, Array("nPageSize" => 50), $arElementSelect);
-
-						if(intval($resElement->SelectedRowsCount()) > 0){
-							?>
-							<?if(($kol > 1) && ($kol <= $kolvo_elems)): ?>
-								<tr><td colspan="5" class="gray_line_small"></td></tr>
-							<?endif ?>
-							<tr><td colspan="5"><b><?=$category[name] ?></b>
-								</td></tr>
-		<?
-						}
-
 
 						$i = 0;
 						$rows_count= $resElement->SelectedRowsCount();
@@ -79,10 +52,23 @@
 								</tr>
 							<?}
 						}
-					}
+
 					?>
 				</table>
 			</td></tr>
-
 	</tbody>
 </table>
+<?else: ?>
+<table align="right" cellspacing="0" cellpadding="0">
+		<tr><td width="735">
+				<div class="gray_td">
+					<?if ($arResult[NAME]): ?>
+						<h1><?=$arResult[NAME]?></h1>
+					<?else: ?>
+						<h1>Пустой раздел</h1>
+					<?endif ?>
+				</div>
+			</td>
+		</tr>
+</table>
+<?endif ?>

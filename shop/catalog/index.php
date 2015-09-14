@@ -1,88 +1,153 @@
 <?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetPageProperty("title", "Каталог мягкой мебели, диванов");
-$APPLICATION->SetPageProperty("up_inc_file", "none");
-$APPLICATION->SetPageProperty("right_inc_file", "right_nomain_inc_file.php");
-$APPLICATION->SetTitle("Каталог товаров");
+require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
+$APPLICATION->SetPageProperty("title", "Мягкая мебель купить магазин. Фото каталог диванов для дома, продажа");
+$APPLICATION->SetTitle("Мягкая мебель купить магазин. Фото каталог диванов для дома, продажа");
 ?> 
-<table cellspacing="0" cellpadding="0" align="right"> 
-  <tbody> 
-    <tr><td width="100%"> 
-        <div class="gray_td"> 
-          <h1>Каталог мягкой мебели, диванов по коллекциям</h1>
-         </div>
-       </td></tr>
-   
-    <tr><td><?$APPLICATION->IncludeComponent(
-	"bitrix:catalog.section",
-	"catalog_bigpics",
-	Array(
-		"AJAX_MODE" => "N",
-		"IBLOCK_TYPE" => "",
-		"IBLOCK_ID" => "",
-		"SECTION_ID" => $_REQUEST["SECTION_ID"],
-		"ELEMENT_SORT_FIELD" => "sort",
-		"ELEMENT_SORT_ORDER" => "asc",
-		"FILTER_NAME" => "arrFilter",
-		"INCLUDE_SUBSECTIONS" => "Y",
-		"SECTION_URL" => "section.php?IBLOCK_ID=#IBLOCK_ID#&SECTION_ID=#SECTION_ID#",
-		"DETAIL_URL" => "element.php?IBLOCK_ID=#IBLOCK_ID#&SECTION_ID=#SECTION_ID#&ELEMENT_ID=#ELEMENT_ID#",
-		"BASKET_URL" => "/personal/basket.php",
-		"ACTION_VARIABLE" => "action",
-		"PRODUCT_ID_VARIABLE" => "id",
-		"SECTION_ID_VARIABLE" => "SECTION_ID",
-		"META_KEYWORDS" => "-",
-		"META_DESCRIPTION" => "-",
-		"DISPLAY_PANEL" => "N",
-		"DISPLAY_COMPARE" => "N",
-		"SET_TITLE" => "Y",
-		"PAGE_ELEMENT_COUNT" => "30",
-		"LINE_ELEMENT_COUNT" => "3",
-		"PROPERTY_CODE" => "",
-		"PRICE_CODE" => "",
-		"USE_PRICE_COUNT" => "N",
-		"SHOW_PRICE_COUNT" => "1",
-		"PRICE_VAT_INCLUDE" => "Y",
-		"CACHE_TYPE" => "A",
-		"CACHE_TIME" => "3600",
-		"CACHE_FILTER" => "N",
-		"DISPLAY_TOP_PAGER" => "N",
-		"DISPLAY_BOTTOM_PAGER" => "Y",
-		"PAGER_TITLE" => "Товары",
-		"PAGER_SHOW_ALWAYS" => "Y",
-		"PAGER_TEMPLATE" => "",
-		"PAGER_DESC_NUMBERING" => "N",
-		"PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",
-		"AJAX_OPTION_SHADOW" => "Y",
-		"AJAX_OPTION_JUMP" => "N",
-		"AJAX_OPTION_STYLE" => "Y",
-		"AJAX_OPTION_HISTORY" => "N"
-	)
-);?></td></tr>
-   
-    <tr><td> 
-        <p>За 12 лет существования, фабрика мягкой мебели &laquo;Авангард&raquo; заняла достойное место на отечественном мебельном рынке, демонстрируя высокое качество своих диванов и кресел. Верхние строчки в рейтинге продаж в разные годы занимали 70 моделей мебели (из 200 производимых фабрикой). Мягкая мебель «Авангард» не только экологична (что подтверждено Экологическим Сертификатом Соответствия), но и оказывает полезное воздействие на окружающую среду и человека. Сомневаетесь? Вот доказательства. </p>
-       
-        <p>В производстве наших диванов и кресел используется натуральная древесина &ndash; массив бука высокогорных районов Северного Кавказа. Этот бук отличается своей экологической чистотой, прочностью и красотой. Натуральное дерево позволит Вам каждый день соприкасаться с природой, а его энергетика создаст в вашем доме атмосферу стабильности и уверенности, снимет стресс, успокоит, а значит, повысит иммунитет.</p>
-       
-        <p>В нашем каталоге, мягкая мебель представлена в четырёх коллекциях: «EKKA», «Искусства и ремёсла», «Le Roi», «Mix Line» . Коллекции различаются своей направленностью, стилями.</p>
-       
-        <p>«Искусства и ремёсла» - одна из самых востребованных коллекций на сегодняшний день. Здесь мы возвращаемся к народным истокам творчества, ко времени, когда каждый дом был уникален, неповторим. Потому что и сам дом, и мебель в нём, и домашняя утварь, и украшения - всё было сделано руками хозяина и хозяйки. Дом, где атмосфера пропитана любовью, желанием жить и творить на благо семьи.</p>
-       
-        <p>Коллекция «ЕККА» создана по эскизам итальянских дизайнеров. Пока здесь две модели. Дизайн модульной системы «Анталия» с округлыми изгибами, отсутствием острых углов внесёт мягкость и гармонию в Вашу жизнь. «Неаполь» придаст пространству комнаты ясность, упорядоченность. Эта экологичная, комфортная и качественная мебель доставит вам истинное удовольствие.</p>
-       
-        <p>«Mix Line» - Различные стили комбинируются друг с другом и образуют эклектическое смешение. Создаётся оригинальный дизайн мебели не только для того, чтобы радовать глаз, но быть удобной и практичной. Это самый популярный стиль у современных дизайнеров.</p>
-       
-        <p>«Lе Roi» . Мягкая мебель чутко реагирует на изменения моды. Но мода изменчива: то, что было модным вчера, завтра утрачивает свою новизну. Только классика остаётся неизменной. Совершенствуясь, она приобретает новые очертания, цвет, фактуру. Классическая мягкая мебель «Le Roi» своими формами и отделкой напоминает старинную мебель, а отличается тем, что изготавливается из современных материалов с использованием современных технологий, что делает её более долговечной и приспособленной к нашей жизни.</p>
-       </td></tr>
-   </tbody>
- </table>
- <?
- global $USER;
- if ($USER->GetId()) {
- 	echo "<!-- user показать авторизованному пользователю -->";
- }
- else {
- 	echo "<!-- user не нужно показывать -->";
- }
- ?> <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
+<?
+if($_REQUEST["SECTION_ID"]!='')
+{
+$mainFilter= array("ACTIVE_DATE" => "Y", "ACTIVE" => "Y");
+$APPLICATION->IncludeComponent("bitrix:catalog.section", "ava_shop_cat", array(
+	"IBLOCK_TYPE" => "news",
+	"IBLOCK_ID" => "31",
+	"SECTION_ID" => $_REQUEST["SECTION_ID"],
+	"SECTION_CODE" => "",
+	"SECTION_USER_FIELDS" => array(
+		0 => "UF_COLLECTION",
+		1 => "",
+	),
+	"ELEMENT_SORT_FIELD" => "sort",
+	"ELEMENT_SORT_ORDER" => "asc",
+	"FILTER_NAME" => "mainFilter",
+	"INCLUDE_SUBSECTIONS" => "Y",
+	"SHOW_ALL_WO_SECTION" => "Y",
+	"PAGE_ELEMENT_COUNT" => "40",
+	"LINE_ELEMENT_COUNT" => "2",
+	"PROPERTY_CODE" => array(
+		0 => "MATERIAL",
+		1 => "",
+	),
+	"OFFERS_LIMIT" => "0",
+	"SECTION_URL" => "?SECTION_ID=#SECTION_ID#",
+	"DETAIL_URL" => "#SITE_DIR#/shop/catalog/element.php?id=#ELEMENT_ID#",
+	"BASKET_URL" => "/personal/basket.php",
+	"ACTION_VARIABLE" => "action",
+	"PRODUCT_ID_VARIABLE" => "id",
+	"PRODUCT_QUANTITY_VARIABLE" => "quantity",
+	"PRODUCT_PROPS_VARIABLE" => "prop",
+	"SECTION_ID_VARIABLE" => "SECTION_ID",
+	"AJAX_MODE" => "N",
+	"AJAX_OPTION_JUMP" => "N",
+	"AJAX_OPTION_STYLE" => "Y",
+	"AJAX_OPTION_HISTORY" => "N",
+	"CACHE_TYPE" => "N",
+	"CACHE_TIME" => "0",
+	"CACHE_GROUPS" => "Y",
+	"META_KEYWORDS" => "-",
+	"META_DESCRIPTION" => "-",
+	"BROWSER_TITLE" => "-",
+	"ADD_SECTIONS_CHAIN" => "N",
+	"DISPLAY_COMPARE" => "N",
+	"SET_TITLE" => "Y",
+	"SET_STATUS_404" => "N",
+	"CACHE_FILTER" => "N",
+	"PRICE_CODE" => array(
+	),
+	"USE_PRICE_COUNT" => "N",
+	"SHOW_PRICE_COUNT" => "1",
+	"PRICE_VAT_INCLUDE" => "N",
+	"PRODUCT_PROPERTIES" => array(
+	),
+	"USE_PRODUCT_QUANTITY" => "N",
+	"DISPLAY_TOP_PAGER" => "N",
+	"DISPLAY_BOTTOM_PAGER" => "N",
+	"PAGER_TITLE" => "Товары",
+	"PAGER_SHOW_ALWAYS" => "N",
+	"PAGER_TEMPLATE" => "",
+	"PAGER_DESC_NUMBERING" => "N",
+	"PAGER_DESC_NUMBERING_CACHE_TIME" => "36000",
+	"PAGER_SHOW_ALL" => "N",
+	"AJAX_OPTION_ADDITIONAL" => ""
+	),
+	false
+);
+}
+else
+{
+### список разделов интернет-магазина
+$res = CIBlockSection::GetList(
+	Array("LEFT_MARGIN"=>"ASC"), 
+	Array("IBLOCK_ID"=>31, "SECTION_ID"=>"false","ACTIVE"=>"Y", "GLOBAL_ACTIVE"=>"Y"), 
+	true,
+	Array("ID", "NAME", "PICTURE", "UF_COLLECTION")
+);
+$elements = array();  
+while($arSection = $res->GetNext())
+	$elements[] = $arSection;
+
+### список коллекций сайта
+$res_col = CIBlockElement::GetList(
+	Array("SORT"=>"ASC"), 
+	Array("IBLOCK_ID"=>9,"ACTIVE"=>"Y", "GLOBAL_ACTIVE"=>"Y"), 
+	false,
+	false,
+	Array("ID", "NAME")
+);
+$collection = array();
+$collection_count = 0;
+while($arSection_col = $res_col->GetNext())
+{
+	$collection_count++;
+	$collection[$collection_count] = $arSection_col;
+	foreach($elements as $el)
+		if ($el[UF_COLLECTION] == $arSection_col[ID])
+			$collection[$collection_count]["el"][] = $el;
+}
+?> 
+<div class="gray_td">
+	<h1>Каталог интернет магазина</h1>
+</div>
+<table width="738" align="center">
+<?
+$kol = 0;
+foreach($collection as $co)
+{
+	if ($co[el]) 
+	{
+		$rows_count = count($co[el]); 
+		$kol++;
+		if(($kol > 1) && ($kol <= $collection_count))
+			echo '<tr><td colspan="5" class="gray_line_small"></td></tr>';
+		?>
+		<tr>
+			<td colspan="5"><b><?=$co[NAME] ?></b></td>
+		</tr>
+		<?$i=0;
+		foreach($co[el] as $cur_elem)
+		{
+			$i++;
+			$rows_count--;
+			if($i == 1)
+				//echo '<tr class="divan_row last_row">';
+				echo "<tr class='divan_row ".($rows_count<3 ? 'last_row' : '')."'>";
+			$elem_picture = CFile::GetPath($cur_elem["PICTURE"]);
+			?>
+			<td class="catalog_td">			
+				<a href="/shop/catalogue/?SECTION_ID=<?=$cur_elem['ID']?>"><img class="catalog_picture" src="<?=$elem_picture ?>" alt="<?=$cur_elem['NAME'] ?>"></a><br>
+				<a class="catalog_name" href="/shop/catalogue/?SECTION_ID=<?=$cur_elem['ID']?>"><?=$cur_elem['NAME'] ?></a>
+			</td>
+			<?
+			if($i < 3) echo '<td width="26"></td>'; 			 
+			if($i == 3){
+				$i = 0;
+				echo "</tr>";
+			}				
+		}
+	}
+}
+?>
+</table>
+<?}?>
+<br />
+<br /> 
+<?require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php"); ?>

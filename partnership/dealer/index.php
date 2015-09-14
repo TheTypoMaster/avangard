@@ -10,44 +10,82 @@ $APPLICATION->SetTitle("Дилерам");
  </div>
  
 <p>&nbsp;</p>
-<p style="font-size:11pt;line-height:1.5;"><b>Уважаемые коллеги!</b>
-<br /><br />Мы предлагаем расширить ассортимент ваших салонов на очень выгодных условиях. Ощутимая прибыль, которую вы получите при продаже нашей мебели, лучше любых слов.
-<br /><br />Преимущество работы с нами:
-<br /><br /><b><i>Широкий ассортимент</i></b></p>
-<ul style="font-size:11pt;line-height:1.5;">
-  <li>разнообразное направление стилей, от классики до hi-tech;</li>
-  <li>большой размерный ряд,  наличие модульных систем - позволяет выбрать модель для помещения любой площади;</li>
-  <li>многообразие обивочных тканей.</li>
-</ul>
-<p style="font-size:11pt;line-height:1.5;"><br /><br /><b><i>Качественный и  востребованный продукт</i></b></p>
-<ul style="font-size:11pt;line-height:1.5;">
-  <li>наличие сертификатов соответствия;</li>
-  <li>экологичность на всех этапах существования;</li>
-  <li>мебель соответствует запросам потребителя.</li>
-</ul>
-<p style="font-size:11pt;line-height:1.5;"><br /><br /><b><i>Финансовая и информационная поддержка партнеров</i></b></p>
-<ul style="font-size:11pt;line-height:1.5;">
-  <li>индивидуальный подход к каждому клиенту;</li>
-  <li>гибкая система скидок;</li>
-  <li>создание на сайте фабрики индивидуальной страницы для каждого партнера;</li>  
-  <li>массированная рекламная компания в интернете (более 2000 посещений ежедневно);</li>
-  <li>обеспечение  рекламными материалами (VIP-каталоги, раздаточные материалы и т.д.); </li>
-  <li>разработка индивидуального дизайн-проекта подиума;</li>
-  <li>изготовление логотипа;</li>
-  <li>профессиональные тренинги для продавцов;</li>
-  <li>информационное обеспечение.</li>
-</ul>
-<p style="font-size:11pt;line-height:1.5;"><br /><br /><i>телефон/факс: (498) 719 0237 
-<br /><br />e-mail: <a href="mailto:op@avangard.biz" >op@avangard.biz</a>
-<br /><br />адрес: 141070, Московская обл., г. Королев, ул. Калининградская 12, ДСК 160 
+ 
+<p style="font-size: 11pt; line-height: 1.5;"><b>Уважаемые коллеги!</b> 
+  <br />
+ 
+  <br /><b>
+ Почему Вам надо выбрать НАС !!! 
+  <br /><br /></b> 
+	<b><i>1. Узнаваемый бренд:</i></b></p>
+<br />
+ <img height="46" width="300" align="left" src="/upload/medialibrary/847/Logo.jpg" />
+<ul style="font-size: 11pt; line-height: 1.5;"> &nbsp;&nbsp; - &nbsp; более 200 салонов в России;
 
-<br /><br />Отдел региональных продаж (495) 981 6644</i>
-</p>
+  </ul>
+ 
+<p style="font-size: 11pt; line-height: 1.5;"> 
 
 
+  <br />
+	<b><i>2. Уникальный и неповторимый дизайн</i></b></p>
 
+<p style="font-size: 11pt; line-height: 1.5;"> 
 
+   <br />
+	<b><i>3. Уникальный продукт:</i></b></p>
+ 
+<ul style="font-size: 11pt; line-height: 1.5;"> 
+  <li>Высший сорт массива бука высокогорных районов Северного Кавказа;</li>
 
+<img height="105" width="175" align="left" src="/upload/medialibrary/6b1/Doska1.jpg" />&nbsp;<img height="105" width="175" src="/upload/medialibrary/745/doska2.jpg" />&nbsp;<img height="105" width="175" src="/upload/medialibrary/eaf/doska3.jpg" /><img height="105" width="175" src="/upload/medialibrary/27c/doska4.jpg" />
+<br />
+ <li>Ортопедические матрысы в диване;</li>
+<img height="100" width="100" align="left" src="/upload/medialibrary/cc3/orot1.jpg" />&nbsp;<img height="100" width="100" src="/upload/medialibrary/c1c/orto2.jpg" />&nbsp;<img height="100" width="100" src="/upload/medialibrary/979/orto3.jpg" />&nbsp;<img height="100" width="100" src="/upload/medialibrary/976/orto4.jpg" />&nbsp;<img height="100" width="100"  src="/upload/medialibrary/748/CertiPUR_220.png" />
+<br />
+
+<li>Пропитка ортопедических матрасов Алоэ Вера;</li>
+
+<img height="160" width="220" align="left"  src="/upload/medialibrary/1dd/Orto-pora11.jpg" />
+
+<br /><br /><br />
+<p style="font-size: 11pt; line-height: 1.5;"> 
+  <br /><br /><br /><br /><br /><br />
+
+<b><i> 4. Огромный выбор обивочных материалов:</i></b></p>
+
+<li>Более 2000 дизайнов тканей;</li>
+
+<li>Более 50 оттенков натуральной кожи; </li>
+
+<p style="font-size: 11pt; line-height: 1.5;"> 
+
+  <br />
+	<b><i>5. Индивидуальный подход к каждому партнёру:</i></b></p>
+
+  <li>Гибкая система скидок!;</li>
+ 
+  <li>Разработка дизайн-проекта по оформлению торговой площади;</li>
+ 
+	<li>Создание на сайте www.avangard.biz собственной страницы партнёра с указанием:;</li>
+а)Адреса<br />
+б)Схемы проезда<br />
+в)Фотографий всех представленных на торговой площади моделей<br />
+г)Информация о всех прводимых партнёром акциях!!!<br />
+
+  <li>Контекстная реклама в интернете направленная на регион партнёра!!!</li>
+ </ul>
+ 
+<p style="font-size: 11pt; line-height: 1.5;"> 
+  <br />
+
+  <i>
+   	<b><i>Звоните нам: 8(495) 357-13-00, 8(915) 083-51-59</i></b>
+    <br />
+   <b>Пишите нам: <a href="mailto:op@avangard.biz" >info@avangard.biz</a></b>
+    <br />
+       <br /> <br />
+   </i><b>С уважением и пожеланием больших продаж коммерческий отдел мебельной фабрики "Авангард"</i></p></b>
  
 <p></p>
  

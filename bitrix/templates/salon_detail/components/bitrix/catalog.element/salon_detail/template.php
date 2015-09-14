@@ -18,7 +18,11 @@ padding: 2px;
 <?if($arResult["PROPERTY_SALON_TYPE_2_VALUE"] == "Фирменный Подиум") echo "<h1 class='header'><img alt='Фирменный подиум' 
 
 src='/wharetobuy/maps/podium.gif'>".$arResult["NAME"]."</h1>"; else
-echo "<h1 class='header'><img alt='Фирменный салон' src='/wharetobuy/maps/salon.gif'>".$arResult["NAME"]."</h1>"; 
+echo "<h1 class='header'><img alt='Фирменный салон' src='/wharetobuy/maps/salon.gif'>".$arResult["NAME"]."</h1>";
+//echo "<pre>";
+//print_r($arResult["PROPERTIES"]["SALON_REGION"]);
+//echo "</pre>"; 
+//if($arResult["PROPERTIES"]["SALON_REGION"]["VALUE"]) echo "REGIONALNY";
 ?>
 <h5 class="pole"><font style="color: #adadad;">адрес:</font> <br> <?=$arResult["PROPERTIES"]["SALON_ADRESS"]["VALUE"]?></h5>
 <h5 class="pole"><font style="color: #adadad;">телефон:</font> <br> <?=$arResult["PROPERTIES"]["SALON_PHONE"]["VALUE"]?></h5>
@@ -37,11 +41,15 @@ onclick="return hs.expand(this, {wrapperClassName: 'borderless floating-caption'
 			
 			
 			</td>
+<?if(!$arResult["PROPERTIES"]["SALON_REGION"]["VALUE"]){?>
 <td valign="top" width="470" height="380" rowspan="2">
 <?echo htmlspecialchars_decode($arResult["PROPERTIES"]["GOOGLE_MAP"]["VALUE"]);?>
 	</td>
+		<?} else {?>
+		<td></td>
+<?}?>
 	</tr>
-	
+<?if(!$arResult["PROPERTIES"]["SALON_REGION"]["VALUE"]){?>
 	<tr>
 	<td align="center">
 
@@ -58,7 +66,8 @@ CFile::ShowImage($PHOTO, 160, 90, "class=preview");?></a></div>
 	</center>
 	</div>
 	</td>
-	</tr>
+	</tr>	
+	<?}?>
 </table></td></tr>
 <?if($arResult["PROPERTIES"]["SALON_ACTION_TEXT"]["VALUE"] || $arResult["PROPERTIES"]["SALON_ACTION_PHOTO"]["VALUE"]){?>
 	<tr>
@@ -74,8 +83,8 @@ class="highslide" onclick="return hs.expand(this,{wrapperClassName: 'borderless 
 'center'})"><img src="<? echo CFile::GetPath($arResult["PROPERTIES"]["SALON_ACTION_PHOTO"]["VALUE"]);?> " border="0" 
 
 width="100" height="60"></a></div><?}?>
-   	<?=$arResult["PROPERTIES"]["SALON_ACTION_TEXT"]["VALUE"]?>
-   	<?=$arResult["PROPERTIES"]["SALON_ACTION_TEXT_2"]["VALUE"]?>
+		<span class="action_txt"><?=$arResult["PROPERTIES"]["SALON_ACTION_TEXT"]["VALUE"]?>
+	<?=$arResult["PROPERTIES"]["SALON_ACTION_TEXT_2"]["VALUE"]?></span>
 	</div>
 
 
@@ -86,9 +95,10 @@ width="100" height="60"></a></div><?}?>
 	</td>
 	</tr>
 	<?}?>
+	<?if(!$arResult["PROPERTIES"]["SALON_REGION"]["VALUE"]){?>
 	<tr>
 	<td align="center">
-	<h3 align="left"><a href="/mebel_sal.php?id=<?=$_GET['id']?>">Диваны в наличии в этом салоне</a></h3>
+	<h3 align="left"><a href="/wharetobuy/mebel_in_salon.php?id=<?=$_GET['id']?>">Диваны в наличии в этом салоне</a></h3>
 	<div align="center"  style="text-align: center; width: 100%; height: 66px; padding: 3px;"><center><?
 	$arSelect = Array("ID", "NAME", "DATE_ACTIVE_FROM", "PREVIEW_PICTURE", "PROPERTY_salon", "PROPERTY_razmeri", 
 
@@ -102,15 +112,19 @@ width="100" height="60"></a></div><?}?>
     $arFields = $ob->GetFields(); ?>
 	<div align="center" style="background: #e9e9e9; float: left; padding:5px;"><a 
 
-href="/mebel_sal.php?id=<?=$_GET['id']?>"><img src="<? echo CFile::GetPath($arFields['PREVIEW_PICTURE']);?> " border="0" 
+href="/wharetobuy/mebel_in_salon.php?id=<?=$_GET['id']?>"><img src="<? echo CFile::GetPath($arFields['PREVIEW_PICTURE']);?> " border="0" 
 
 width="100" height="60"></a></div>
 	<?}?>
-	
+
 	</center>
 	</div>
 	</td>
 	</tr>
+	<?}
+	else {?>
+	
+	<?}	?>
 <tr>
 	<td align="left">
 <br />
@@ -127,3 +141,4 @@ width="100" height="60"></a></div>
 	</tr>	
 	
 	</table>
+

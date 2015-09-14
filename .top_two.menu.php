@@ -64,6 +64,13 @@ $aMenuLinks = Array(
 		"" 
 	),
 	Array(
+		"ÄÈÇÀÉÍÅÐÀÌ", 
+		"/partnership/designers/", 
+		Array(), 
+		Array(), 
+		"" 
+	),
+	Array(
 		"ÀÊÖÈÈ", 
 		"/8days/index.php", 
 		Array(), 
@@ -85,17 +92,10 @@ $aMenuLinks = Array(
 		"" 
 	),
 	Array(
-		"Êîëëåêöèÿ BEFRESH", 
-		"/catalog/?collection=4228", 
+		"Êîëëåêöèÿ Äåíü è Íî÷ü", 
+		"/catalog/?collection=43", 
 		Array(), 
-		Array("ID"=>"sub_4228", "IS_PARENT"=>"0", "PARENT"=>"catalog"), 
-		"" 
-	),
-	Array(
-		"Êîëëåêöèÿ EKKA", 
-		"/catalog/?collection=45", 
-		Array(), 
-		Array("ID"=>"sub_45", "IS_PARENT"=>"0", "PARENT"=>"catalog"), 
+		Array("ID"=>"sub_43", "IS_PARENT"=>"0", "PARENT"=>"catalog"), 
 		"" 
 	),
 	Array(
@@ -106,10 +106,10 @@ $aMenuLinks = Array(
 		"" 
 	),
 	Array(
-		"Êîëëåêöèÿ Mix'Line", 
-		"/catalog/?collection=43", 
+		"Êîëëåêöèÿ BEFRESH", 
+		"/catalog/?collection=4228", 
 		Array(), 
-		Array("ID"=>"sub_43", "IS_PARENT"=>"0", "PARENT"=>"catalog"), 
+		Array("ID"=>"sub_4228", "IS_PARENT"=>"0", "PARENT"=>"catalog"), 
 		"" 
 	)
 );

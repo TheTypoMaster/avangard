@@ -19,9 +19,21 @@
 		<script src="/yescreditservice/yescredit/js/jquery-1.7.1.min.js" type="text/javascript"></script>
 		<script src="/yescreditservice/yescredit/js/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>
 		<script src="/yescreditservice/yescredit/js/yescredit.js" type="text/javascript"></script>
+		<script type="text/javascript" src="http://cdn.dev.skype.com/uri/skype-uri.js"></script>
 		<link href="/yescreditservice/yescredit/css/cupertino/jquery-ui-1.8.18.custom.css" rel="stylesheet" type="text/css" />
+
+
 	</head>
 	<body>
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-W86TKX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-W86TKX');</script>
+<!-- End Google Tag Manager -->
 		<? $APPLICATION->ShowPanel(); ?>
 		<? $APPLICATION->AddHeadScript("/shop/basket/basket.js?" . rand(99, 9999)); ?>
 		<? if (CModule::IncludeModule('iblock')) $incl = "Y"; ?>
@@ -47,15 +59,15 @@
 							<div id="t_l_logo_4"><a href="/"><img src="/images/logo.gif" alt="" border=0></a></div>
 							<table cellpadding="0" cellspacing="0" border="0" width="100%">
 								<tr>
-									<td><div><p class="p_fone"><span>(495)</span> 981-66-44</p><p>доб. 146, 129</p></div></td>
-									<td><p>Обработка заказов<br>понедельник - пятница<br>с 9.00 до 18.00</p></td>
+									<td><div><p class="p_fone"><span>(495)</span> 357-13-00 доб.134, 133</p><p class="p_fone"><span>(916)</span> 406-57-05</p></div></td>
+									<td><p>Прием заявок<br>понедельник - пятница<br>с 9.00 до 18.00</p></td>
 								</tr>
 							</table>
 						</td>
 						<td id="t_l_center0">
 							<table cellpadding="0" cellspacing="0" border="0" width="459">
 								<tr>
-									<td><div align="left"><a href="/shop/credit/"><img src="/images/credit_top.png" border="0" width="245" alt="" ></a></div></td>
+									<td><div align="left"><a href="/redesign/where_buy/detail.php?id=5360"><img src="/upload/medialibrary/444/showroom_im_245x135.png" border="0" width="245" alt="" ></a></div></td>
 									<td id="t_l_center2">
 										<div style="display:none;" id="mobmen">- Консультация по модельному ряду (габариты, механизмы и др.)<br>- Предложения по обивочным материалам (ткани, кожа)<br>- Оформление договора (спецификации)</div>
 									</td>
@@ -68,7 +80,7 @@
 								<script type="text/javascript">
 									$(document).ready(function(){
 										$("a.bskype").hover(function () { $("#skype").slideToggle(100); }, function () { $("#skype").slideToggle(100); });
-										$("#t_l_center2").hover(function () { $("#mobmen").slideToggle(100); }, function () { $("#mobmen").slideToggle(100); });										
+										//$("#t_l_center2").hover(function () { $("#mobmen").slideToggle(100); }, function () { $("#mobmen").slideToggle(100); });										
 										//$("#bzvonok").hover(function () { $("#zvonok").slideToggle(100); }, function () { $("#zvonok").slideToggle(100); });
 										$("#bzvonok").hover(function () { 
 											if (!$("#zvonok").hasClass("needclose")) {
@@ -123,12 +135,24 @@
 									</tr>
 									<tr>
 										<td>
-											<a class="bskype" href="skype:av-internet"><img src="/images/skype.jpg" alt="" border="0"></a>
-											<div style="display:none;" id="skype">Номер скайпа:<br>av-internet</div>
+											<div style="margin: 0px; padding: 0px; position: absolute; z-index: 100;">
+											<div style="position: relative; left: -23px; top: -45px; height: 50px; width: 50px;">
+											<div id="SkypeButton_Call_av-internet_1">
+											  <script type="text/javascript">
+											    Skype.ui({
+											      "name": "call",
+											      "element": "SkypeButton_Call_av-internet_1",
+											      "participants": ["av-internet"],
+											      "imageSize": 32
+											    });
+											  </script>
+											</div>
+											</div>
+											</div>
 										</td>
 										<td colspan="2">
 											<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-													<td><div><p class="p_fone"><span>(916)</span> 406-51-88</p><p>9.00 - 20.00, без выходных</p></div></td>
+													<td><div style="text-align: right;"><p class="p_fone" ><span>(916)</span> 406-53-24</p><p>9.00 - 21.00, без выходных</p></div></td>
 												</tr></table>
 										</td>
 									</tr>
@@ -198,13 +222,17 @@
 
 			<div id="rc_4">
 				<?
-				$APPLICATION->IncludeComponent("bitrix:subscribe.form", "new", Array(
-					"USE_PERSONALIZATION" => "Y", // Определять подписку текущего пользователя
-					"SHOW_HIDDEN" => "Y", // Показать скрытые рубрики подписки
-					"PAGE" => "#SITE_DIR#shop/subscr_edit.php", // Страница редактирования подписки (доступен макрос #SITE_DIR#)
-					"CACHE_TYPE" => "A", // Тип кеширования
-					"CACHE_TIME" => "3600", // Время кеширования (сек.)
-						), false
-				);
+				$APPLICATION->IncludeComponent("bitrix:subscribe.form", "new", array(
+	"USE_PERSONALIZATION" => "Y",
+	"SHOW_HIDDEN" => "Y",
+	"PAGE" => "#SITE_DIR#shop/subscr_edit.php",
+	"CACHE_TYPE" => "A",
+	"CACHE_TIME" => "3600"
+	),
+	false,
+	array(
+	"ACTIVE_COMPONENT" => "N"
+	)
+);
 				?>
 				

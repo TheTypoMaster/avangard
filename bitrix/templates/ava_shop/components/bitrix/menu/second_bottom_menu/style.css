@@ -1,0 +1,52 @@
+.second_menu_bottom_table a {
+color: #000000;
+}
+.second_menu_bottom_table a:hover {
+text-decoration: none;
+color: #d41f1f;
+}
+.second_menu_bottom_table td{
+color: #d41f1f;
+}
+#footer_menu .menu_item {
+	position: relative;
+}
+#footer_menu .menu_item .bigwindow {
+	width:500px;
+	height:300px;
+	padding: 20px 20px 20px 25px;
+	border: 2px solid #ff0f0e;
+	border-radius:3px;
+	-moz-border-radius:3px;
+	position:absolute;
+	display:none;
+	z-index: 999;
+	margin-top:25px;
+	text-align:left;
+	overflow:auto;
+	background:#fff;
+	bottom: 25px;
+	right: -100px;
+}
+#footer_menu .menu_item .bigwindow .closew {
+	width:17px;
+	height:17px;
+	background: url('/images/close.gif') left top;
+	position:absolute;
+	top:0px;
+	left:0px;
+	cursor:pointer;
+}
+#footer_menu .menu_item .bigwindow a {
+	float:none;
+	color: #000;
+	background:none;
+	text-decoration:underline;
+	width:auto;
+	padding:0;
+	height:auto;
+	cursor: pointer;
+	font-size:13px;
+	text-transform:none;
+	text-indent:0;
+}

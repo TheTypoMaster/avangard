@@ -10,10 +10,21 @@
 	<li><a href="/krovati/index.php">Кровати</a></li>
 	<li><a href="/tipy_mehanizmov/divan_akkordeon.php">Диваны-аккордеоны</a></li>
 	<li><a href="/tipy_mehanizmov/divan_knizhka.php">Диваны-книжка</a></li>
+	<li><a href="/catalog/divan6857.htm">Диваны-еврософа</a></li>
 	<li><a href="/tipy_mehanizmov/vykatnye_divany.php">Диваны выкатные</a></li>
 	<li><a href="/modulnie_sistemi/mjagkaja_mebel-transformer.php">Диваны-трансформеры</a></li>
-	<li><a href="/accessories/">Аксессуары</a></li>
+	<li><a href="/catalog/divan5814.htm">Гостиные</a></li>
+	<li><a href="/accessories/accessories.php">Аксессуары</a></li>
+	<li><a href="/8days/avangard_for_children.php">Авангард детям</a></li>
+	<li><a href="/svetilniki_i_torshery/">Светильники и торшеры</a></li>
+	<li><a href="/partners/mattresses/mattresses.php">Матрасы</a></li>
 </ul>
+
+<div class="discount_banner">
+	<a href="/8days/orthopedic_furniture.php">
+		<img src="/images/ortom_banner_i.png"/>
+	</a>
+</div>
  		
 <div class="discount_banner">
 	<a href="http://www.avangard.biz/8days/sale_centers.php">
@@ -22,14 +33,8 @@
 </div>
 
 <div class="discount_banner">
-	<a href="#">
-		<img src="/images/dostavka_banner.png"/>
-	</a>
-</div>
-
-<div class="discount_banner">
-	<a href="/information/expert-advice.php">
-		<img src="/images/doctor_banner2.png"/>
+	<a href="http://www.avangard.biz/news/news_7709.html">
+		<img src="/images/dostavka_banner.jpg"/>
 	</a>
 </div>
 

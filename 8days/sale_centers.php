@@ -5,68 +5,70 @@ $APPLICATION->SetTitle("Распродажа диванов, мягкой мебели");
 <div class="gray_td"> 
   <h1>ЦЕНТРЫ РАСПРОДАЖ</h1>
  </div>
- 
-<br />
- 
-<br />
-
-<br />
 
 <br />
 
 <table height="20" width="100%" cellspacing="1" cellpadding="1" border="0" align="center"> 
-  <tbody> 
-    <tr><td><a href="/redesign/where_buy/detail.php?id=566" target="_blank" ><img height="115" width="230" border="0" src="/8days/image/pulmart_230x115.jpg"  /></a></td> <td><a href="/redesign/where_buy/detail.php?id=566" target="_blank" ><strong>Центр распродаж</strong></a> 
+  <tbody>   
+
+
+
+
+<tr>    
+    <tr> <td>&nbsp;</td><td></td> <td></td></tr> 
+
+
+
+<tr> <td><a href="/redesign/where_buy/detail.php?id=329" ><img height="115" width="230" border="0" src="/upload/medialibrary/dc8/Fasad2.png"  /></a></td> <td>
         <br />
-       
-        <br />
-       Ярославское шоссе, 20 км. от МКАД, владение 190, корп. 100</td> <td></td></tr>
-   
-    <tr><td> 
-        <br />
-       
-        <br />
-       
-        <br />
-       
-        <br />
-       
-        <br />
-       </td> <td></td> <td></td></tr>
-   
-    <tr> <td></td> <td></td> <td></td></tr>
-   
-    <tr> <td><a href="/redesign/where_buy/detail.php?id=2635" target="_blank" ><img height="115" width="230" border="0" src="/8days/image/stroim_dom_230x115.jpg"  /></a></td> <td> 
-        <br />
-       
-        <h3 style="color:red;">ЗАКРЫТИЕ ЦЕНТРА РАСПРОДАЖ<br />с 15 марта<br />Спешите! скидки увеличены до 90%</h3><br />
-       <a href="/redesign/where_buy/detail.php?id=2635" target="_blank" ><strong>ТК &quot;Строим Дом&quot; - Центр распродаж</strong></a> 
-        <br />
-       
-        <br />
-       Ярославское шоссе, дом 118, корп. Д</td> <td></td></tr>
-   
-    <tr> <td></td> <td></td> <td></td></tr><tr><td> 
-        <br />
-       
-        <br />
-       
-        <br />
-       
-        <br />
-       
-        <br />
-       </td> <td></td> <td></td></tr>
-   
-    <tr> <td><a href="/redesign/where_buy/detail.php?id=5059" target="_blank" ><img height="115" width="230" border="0" src="/8days/image/okean_230x115.jpg"  /></a></td> <td>
-        <br /><br />
-        <a href="/redesign/where_buy/detail.php?id=5059" target="_blank" ><strong>ТЦ &quot;Океан Мебели&quot; - Центр распродаж</strong></a>
+        <a href="/redesign/where_buy/detail.php?id=329" ><strong>ТЦ "Мебель России" (смена коллекции)</strong></a>
         <br />
       
         <br />
-      <span style="font-family: Arial, Helvetica, sans-serif; ">ул.Нижегородская д.29 строение 33</span></td></tr>
+      <span style="font-family: Arial, Helvetica, sans-serif; ">Москва, ш.Энтузиастов, д.54</span></td></tr>
+
+    <tr>
    
-    <tr> <td></td> <td></td> <td></td></tr>
+    <tr> <td>&nbsp;</td><td></td> <td></td></tr> 
+
+
+    <tr> <td><a href="/redesign/where_buy/detail.php?id=5360" ><img height="115" width="230" border="0" src="/8days/image/avangard.jpg"  /></a></td> <td>
+        <br />
+        <a href="/redesign/where_buy/detail.php?id=5360" ><strong>Склад фабрики. Распродажа образцов</strong></a>
+        <br />
+      
+        <br />
+      <span style="font-family: Arial, Helvetica, sans-serif; ">Московская обл., г.Королёв, ул.Калининградская, 12</span></td></tr>
+
+    <tr>
+   
+    <tr> <td>&nbsp;</td><td></td> <td></td></tr> 
+
+    <tr> <td><a href="/redesign/where_buy/detail.php?id=566" ><img height="115" width="230" border="0" src="/upload/medialibrary/d6b/Fasad.png"  /></a></td> <td>
+        <br />
+        <a href="/redesign/where_buy/detail.php?id=566" ><strong>МебельГрад. "Центр распродаж"</strong></a>
+        <br />
+      
+        <br />
+      <span style="font-family: Arial, Helvetica, sans-serif; ">г. Москва, улица Генерала Белова, дом 35</span></td></tr>
+
+    <tr>
+   
+    <tr> <td>&nbsp;</td><td></td> <td></td></tr> 
+
+        <br />
+      
+        <br />
+		<tr> <td><a href="/redesign/where_buy/detail.php?id=8314" ><img height="115" width="230" border="0" src="/upload/medialibrary/f34/zv1.jpg"  /></a></td> <td>
+        <a href="/redesign/where_buy/detail.php?id=8314" ><strong>ТЦ "Золотой Вавилон" (Дисконт)</strong></a>
+        <br />
+      
+        <br />
+      <span style="font-family: Arial, Helvetica, sans-serif; ">Москва, проспект Мира, д.211</span></td></tr>
+   
+    <tr>
+   
+    <tr> <td>&nbsp;</td><td></td> <td></td></tr>
    </tbody>
  </table>
  

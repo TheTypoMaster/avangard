@@ -5,6 +5,7 @@ html, body{
 	margin:0;
         font-family: Arial, Verdana, Tahoma;
         font-size:12px;
+background: #ffffff;
 }
 td, a, p, font {
   font-size:12px;
@@ -70,7 +71,7 @@ padding-left:12px;
 }
 .filter_td{
 	width: 100%;
-        height:169px;
+        height:115px;
         padding: 0px;
         margin: 0px;
 position: absolute;
@@ -331,4 +332,19 @@ background: url(/images/mob_spb_1.png) top no-repeat;
 display:block !important; 
 display:inline-block;
 z-index: 300;
+}
+.catalog_picture {
+width: 230px;
+height: 115px;
+border: solid 1px #E1E1E1;
+}
+.gray_td {
+padding: 0px;
+border-bottom: solid #E1E1E1 10px;
+margin-bottom: 12px;
+}
+span.action_txt {
+font-size: 14px; 
+font-weight: bold;
+color: red;
 }

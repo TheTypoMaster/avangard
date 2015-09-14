@@ -28,8 +28,18 @@ var pageTracker = _gat._getTracker("UA-9600751-1"); pageTracker._trackPageview()
         <script type="text/javascript">
             swfobject.embedSWF("/flash/188x134.swf?link1=/8days/", "flash_container_id", "188", "134", "6.0.0");
 </script>
+
 </head>
 <body>
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-W86TKX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-W86TKX');</script>
+<!-- End Google Tag Manager -->
  <?$APPLICATION->ShowPanel();?>
  <? $APPLICATION->AddHeadScript("/basket/basket.js"); ?>
  <? if(CModule::IncludeModule('iblock')) $incl="Y"; ?>

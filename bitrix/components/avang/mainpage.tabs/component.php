@@ -35,7 +35,7 @@ if($this->StartResultCache($arParams["CACHE_TIME"]))
 			$arFilter, 
 			false, 
 			false, 
-			array("ID", "NAME", "PROPERTY_COLLECTION.NAME", "PROPERTY_FULLCOLOR_PIC", "DETAIL_PAGE_URL")
+			array("ID", "NAME", "PROPERTY_COLLECTION.NAME", "PROPERTY_SKIDKA", "PROPERTY_FULLCOLOR_PIC", "DETAIL_PAGE_URL")
 		);
 	while($novelty_el = $res->GetNext()){
 		$novelty_el["PROPERTY_FULLCOLOR_PIC_VALUE_SRC"] = CFile::GetPath($novelty_el["PROPERTY_FULLCOLOR_PIC_VALUE"]);
@@ -53,7 +53,7 @@ if($this->StartResultCache($arParams["CACHE_TIME"]))
 			$arFilter, 
 			false, 
 			false, 
-			array("ID", "NAME", "PROPERTY_COLLECTION.NAME", "PROPERTY_FULLCOLOR_PIC", "DETAIL_PAGE_URL")
+			array("ID", "NAME", "PROPERTY_COLLECTION.NAME", "PROPERTY_SKIDKA", "PROPERTY_FULLCOLOR_PIC", "DETAIL_PAGE_URL")
 		);
 	while($hit_el = $res->GetNext()){
 		$hit_el["PROPERTY_FULLCOLOR_PIC_VALUE_SRC"] = CFile::GetPath($hit_el["PROPERTY_FULLCOLOR_PIC_VALUE"]);

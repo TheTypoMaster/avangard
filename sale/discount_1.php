@@ -426,15 +426,16 @@ $g_counter = 0;
 //print_r($res_items);
 //echo "</pre>";
 
-$collections[44]="Искусства & Ремесла";
-$collections[4228]="BEFRESH";
+
 $collections[43]="Mix'Line";
+$collections[4228]="BEFRESH";
 $collections[42]="Le Roi";
 $collections[45]="EKKA";
 $collections[2761]="кроватей";
+$collections[44]="Искусства & Ремесла";
 
 
-echo "<H3><span style='color:#FF0000;'>Копирование, публикация и использование материалов сайта ЗАПРЕЩЕНЫ!</span></H3><br>";
+//echo "<H3><span style='color:#FF0000;'>Копирование, публикация и использование материалов сайта ЗАПРЕЩЕНЫ!</span></H3><br>";
 
 foreach ($collections as $key => $value) {
  $c_counter = 0;
@@ -496,7 +497,11 @@ opacity: 0.5; /* CSS3 - Mozilla 1.7b +, Firefox 0.9 +, Safari 1.2+, Opera 9 */ "
 	<img style="padding: 0px; margin: 0px;" src="';
 	$html_temp .=CFile::GetPath($arFields['PREVIEW_PICTURE']);
 	$html_temp .='" border="0" width="200" height="100"></a><div class="highslide-caption">'.$arFields['PREVIEW_TEXT'].'</div></td></tr>
-		<tr><td style="padding-top: 2px; padding-bottom: 2px;  background: #e9e9e9;" nowrap>&nbsp;'.$arFields["PROPERTY_RAZMERI_VALUE"].'</td><td style="padding-top: 2px; padding-bottom: 2px; background: #e9e9e9;" nowrap align="right">сп.м.&nbsp;'.$arFields["PROPERTY_SPAL_VALUE"].'&nbsp;</td></tr>
+		<tr><td style="padding-top: 2px; padding-bottom: 2px;  background: #e9e9e9;" nowrap>';
+			if($arFields["PROPERTY_RAZMERI_VALUE"]) $html_temp .='&nbsp;'.$arFields["PROPERTY_RAZMERI_VALUE"];
+			$html_temp .='</td><td style="padding-top: 2px; padding-bottom: 2px; background: #e9e9e9;" nowrap align="right">';
+			if($arFields["PROPERTY_SPAL_VALUE"]) $html_temp .= 'сп.м.&nbsp;'.$arFields["PROPERTY_SPAL_VALUE"].'&nbsp;';
+			$html_temp .='</td></tr>
 		<tr><td class="item_name_td"><a href="/catalog/divan'.$arFields["PROPERTY_TOVAR_VALUE"].'.htm">';
 		$res = CIBlockElement::GetByID($arFields["PROPERTY_TOVAR_VALUE"]);
 		if($ar_res = $res->GetNext())  $html_temp .= $ar_res['NAME'];
@@ -508,7 +513,11 @@ opacity: 0.5; /* CSS3 - Mozilla 1.7b +, Firefox 0.9 +, Safari 1.2+, Opera 9 */ "
 		if($arFields["PROPERTY_PRICE_NEW_VALUE"]) $html_temp .= $arFields["PROPERTY_PRICE_NEW_VALUE"].' р.';
 		$html_temp .='</td></tr>
 			<tr><td class="all_items_td">';
-			$html_temp .='<a href="/redesign/where_buy/detail.php?id='.$arFields["PROPERTY_SALON_VALUE"].'">Показать салон</a>';
+
+			$res1 = CIBlockElement::GetByID($arFields["PROPERTY_SALON_VALUE"]);
+			if($ar_res1 = $res1->GetNext())  $saloname = $ar_res1['NAME'];
+
+			$html_temp .='<a href="/redesign/where_buy/detail.php?id='.$arFields["PROPERTY_SALON_VALUE"].'">'.$saloname.'</a>';
 			$html_temp .='</td><td';
 			if($arFields["PROPERTY_PRICE_OLD_VALUE"]) $html_temp .= ' class="price_old" nowrap';
 			$html_temp .='>';

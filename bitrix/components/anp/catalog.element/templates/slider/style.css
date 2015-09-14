@@ -1,0 +1,6 @@
+.catalog-price {
+	 color:red;
+}
+
+/*  Скрывать пагинацию  */
+#bx-pager{ display: none; }

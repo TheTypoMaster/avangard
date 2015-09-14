@@ -51,8 +51,12 @@ $APPLICATION->SetTitle("Диван за 7 дней");
 <?php include_once( $_SERVER['DOCUMENT_ROOT']. '/8days/action20_regions.php' ); ?>
 <p></p>
  
-<p style="color:#000000;font-size:11pt;line-height:1.5;">Более подробную информацию об акциях Вы можете узнать в <a href = "/redesign/where_buy/rus.php?russia=1">салонах</a>. Наши специалисты будут рады ответить на Ваши вопросы.
- 
+<p style="color:#000000;font-size:11pt;line-height:1.5;">В региональных <a href = "/redesign/where_buy/rus.php?russia=1"><b>салонах</b></a> проходит акция "<b>Скидка 25%</b> на весь ассортимент" <b>до 2 июля</b>.
+		<br /> 
+		<br /> 
+<tr><td style="vertical-align: top;"><a href="/redesign/where_buy/rus.php?russia=1"><img src="/upload/medialibrary/1fa/25.png" height="140" width="250" style="border:none;"  /></td><td width="60px">&nbsp;</td><td>
+		<br />
+		<br /> 
 <br />Приходите, мы будем рады встрече с Вами!</p>
 
  <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

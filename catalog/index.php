@@ -5,18 +5,15 @@ $APPLICATION->SetPageProperty("up_inc_file", "none");
 $APPLICATION->SetPageProperty("right_inc_file", "right_nomain_inc_file.php");
 $APPLICATION->SetTitle("ћ€гка€ мебель купить магазин. ‘ото каталог диванов дл€ дома, продажа");
 ?> 
-<table cellspacing="0" cellpadding="0"> 
-	<tbody> 
-		<tr>
-			<td width="100%"> 
-				<div class="gray_td"> 
-					<h1> аталог м€гкой мебели, диванов по коллекци€м</h1>
-				</div>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<?
+<table cellspacing="0" cellpadding="0"> 	
+  <tbody> 		
+    <tr> 			<td width="100%"> 				
+        <div class="gray_td"> 					
+          <h1> аталог м€гкой мебели.</h1>
+         				</div>
+       			</td> 		</tr>
+   		
+    <tr> 			<td> 				<?
 				$mainFilter= array("ACTIVE_DATE" => "Y", "ACTIVE" => "Y", "!PROPERTY_IN_CATALOG" => false);
 				if($_REQUEST["collection"]!='')
 					$mainFilter["PROPERTY_COLLECTION"]= (int)$_REQUEST["collection"];
@@ -34,15 +31,16 @@ $APPLICATION->SetTitle("ћ€гка€ мебель купить магазин. ‘ото каталог диванов дл€ д
 	"FILTER_NAME" => "mainFilter",
 	"INCLUDE_SUBSECTIONS" => "Y",
 	"SHOW_ALL_WO_SECTION" => "Y",
-	"PAGE_ELEMENT_COUNT" => "40",
+	"PAGE_ELEMENT_COUNT" => "200",
 	"LINE_ELEMENT_COUNT" => "3",
 	"PROPERTY_CODE" => array(
 		0 => "COLLECTION",
 		1 => "PRICE",
-		2 => "IN_CATALOG",
-		3 => "FULLCOLOR_PIC",
-		4 => "BLACKWHITE_PIC",
-		5 => "",
+		2 => "SKIDKA",
+		3 => "IN_CATALOG",
+		4 => "FULLCOLOR_PIC",
+		5 => "BLACKWHITE_PIC",
+		6 => "",
 	),
 	"OFFERS_LIMIT" => "0",
 	"SECTION_URL" => "section.php?IBLOCK_ID=#IBLOCK_ID#&SECTION_ID=#SECTION_ID#",
@@ -87,9 +85,7 @@ $APPLICATION->SetTitle("ћ€гка€ мебель купить магазин. ‘ото каталог диванов дл€ д
 	"AJAX_OPTION_ADDITIONAL" => ""
 	),
 	false
-);?>
-			</td>
-		</tr>
-	</tbody>
-</table>
-<?require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php"); ?>
+);?> 			</td> 		</tr>
+   	</tbody>
+ </table>
+ <?require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php"); ?>

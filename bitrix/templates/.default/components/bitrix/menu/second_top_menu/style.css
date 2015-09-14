@@ -29,6 +29,11 @@
 	color: white;
 	font-weight: bold;
 }
+.top_menu .menuitem_ > a {
+	background: url(images/menuitem_designers_bg.png) repeat-x left center;
+	color: white;
+	font-weight: bold;
+}
 .top_menu .menuitem:hover > a {
 	background: url(images/tm_2_bg_2.gif) repeat-x left center;
 }

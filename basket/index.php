@@ -27,7 +27,8 @@ global $APPLICATION;
 $APPLICATION->SetTitle("Корзина");
 $APPLICATION->SetPageProperty("up_inc_file", "none");
 $APPLICATION->SetPageProperty("right_inc_file", "right_nomain_inc_file.php");
-$APPLICATION->AddHeadScript("/basket/basket.js");
+$APPLICATION->AddHeadScript("/basket/basket.js"); 
+");
 
 echo "<br><h1>Корзина</h1><br>";
 /*foreach($APPLICATION->get_cookie("basket") as $key => $val){

@@ -1,0 +1,51 @@
+.elem-box {
+width: 230px;
+height: auto;
+float: left;
+margin: 25px 15px 0 0;
+position: relative;
+text-align: center;
+}
+
+.elem-box-cont {
+position: relative;
+}
+
+.elem-box img {
+margin-bottom: 15px;
+}
+
+img {
+border: none;
+}
+
+.elem-info {
+width: 205px;
+border-top: 1px solid #e3e3e3;
+padding-top: 10px;
+margin: 0 auto;
+text-align: center;
+font-size: 12px;
+}
+
+.elem-info a.elem-ref {
+margin-bottom: 10px;
+display: inline-block;
+}
+
+.elem-info a.elem-ref {
+color: #636363; /* #104889 */
+line-height: 18px;
+}
+
+.elem-info a {
+text-decoration: none;
+}
+
+.elem-info a:hover {
+color: #dc4025;
+}
+
+.elem-name {
+font-size: 11px;
+}

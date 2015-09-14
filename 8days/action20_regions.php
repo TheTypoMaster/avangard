@@ -3,15 +3,9 @@
 <!-- <div class="gray_td"></div> -->
 
 
-<p style="color:#ff0000; font-size:11pt; font-weight:600;">
-<img height="115" src="/upload/iblock/c0b/reg_2013_02_230x115.gif" />
+<!-- <img src="/upload/medialibrary/a0c/all-15-percent.png"  height="115" width="230" style="border:none;" />
+<br /> 		 
+<p style="font-size: 12px; line-height: 1.5; "><span style="color: rgb(102, 102, 102); font-weight: 700; ">С 27 по 30 апреля проходит акция «СКИДКА 15%»</span></p> 
 <br /><br />
-МОДЕЛЬ МЕСЯЦА! Скидка 15% на хиты продаж в регионах России</p>
-<br />
-<p style="font-size:11pt;line-height:1.5;">С 1 по 28 ФЕВРАЛЯ проходит акция &laquo;МОДЕЛЬ МЕСЯЦА&raquo;. У Вас есть уникальная возможность приобрести мягкую мебель фабрики &laquo;Авангард&raquo; со скидкой <span  style="color:#ff0000; font-size:12pt;"><b>15</b>%</span>.
-<br />В акции участвуют модели: 
-<br />&#160;&#160;&#160;&#160;«Аризона»;
-<br />&#160;&#160;&#160;&#160;«Орегон».
-<br />Цвет декора - орех.
-<br />Скидка распространяется на заказы, выполненные в ткани не ниже 3 категории.</p>
-<br /><br />
+<p style="font-size: 12px; line-height: 1.5; ">На ВЕСЬ модельный ряд предоставляется скидка - <span style="color: rgb(102, 102, 102); font-weight: 700; "> 15%.</span></p>
+<br /><br /> -->

@@ -7,6 +7,9 @@ AddEventHandler("iblock", "OnAfterIBlockElementUpdate", "OnAfterIBlockElementUpd
 AddEventHandler("iblock", "OnAfterIBlockElementAdd", "OnAfterIBlockElementUpdateHandler");
 AddEventHandler("iblock", "OnBeforeIBlockElementUpdate","OnBeforeIBlockElementUpdateHandler");
 
+AddEventHandler('form', 'onAfterResultAdd', 'ava_onAfterResultAddUpdate'); 
+AddEventHandler('form', 'onAfterResultUpdate', 'ava_onAfterResultAddUpdate');
+
 function CreatePreviewFromDetail(&$arFields) {
 	if ($arFields["IBLOCK_ID"]==5) {
 		//     print_r($arFields);
@@ -453,5 +456,18 @@ function ruslat($str)
     $str = preg_replace("/w+/ei","ucfirst('\0')",$str);
     $str = str_replace(" ","",$str);
     return $str;
+}
+
+function ava_onAfterResultAddUpdate($WEB_FORM_ID, $RESULT_ID) 
+{ 
+  // действие обработчика распространяется только на форму с ID=11 
+  if ($WEB_FORM_ID == 11)  
+  { 
+    $out = 'HTTP_VIA = '.$_SERVER['HTTP_VIA'];
+    $out .= ' HTTP_X_REAL_IP = '.$_SERVER['HTTP_X_REAL_IP'];
+    $out .= ' REMOTE_ADDR = '.$_SERVER['REMOTE_ADDR'];
+    // запишем в поле 'user_ip'
+    CFormResult::SetField($RESULT_ID, 'user_ip', $out); 
+  } 
 }
 ?>

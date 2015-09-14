@@ -38,7 +38,11 @@ else $sect = 6;
 		</tbody>
 	</table>
 </div>
- 
+<div style="margin: 10px 0 15px 0;">
+	<img style="margin-right: 20px; float: left;" src="/upload/medialibrary/8ed/sale_centers.gif" height="115" width="230" style="border:none;"  />
+	ГЛОБАЛЬНАЯ РАСПРОДАЖА<br>в центрах распродаж,<br>в интернет-магазине ФМ "АВАНГАРД".<br>ВЕСОМЫЕ СКИДКИ!<br>(список салонов ниже)<br><br><b><font color="#CC0000"></font></b><br><br>
+<div style="clear: left;"></div>
+</div> 
 <div style="text-align: justify; margin-bottom: 5px; " class="cityname"><img width="25" height="20" border="0" style="border-width: 0px; border-style: none;" src="/wharetobuy/maps/salon.gif"  />Фирменные Салоны</div>
  	 
 <div style="text-align: justify; "><?$arrFilterType = Array( "PROPERTY_SALON_TYPE_2_VALUE" => "Фирменный Салон");?> <?$APPLICATION->IncludeComponent("anp:catalog.section", "spisok3_2", Array(

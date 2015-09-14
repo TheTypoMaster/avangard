@@ -6,3 +6,4 @@ Disallow: /catalogue/
 Sitemap: http://www.avangard.biz/sitemap.xml
 Host: www.avangard.biz
 
+

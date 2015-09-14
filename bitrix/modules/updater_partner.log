@@ -52,3 +52,15 @@
 2012-11-28 22:23:07 -  - exec CUpdateClientPartner::GetHTTPPage
 2012-11-28 22:23:08 -  - TIME GetUpdatesList(request) 0.724 sec
 2012-11-28 22:23:08 -  - exec CUpdateClientPartner::ParseServerData
+2015-02-08 22:13:35 -  - exec CUpdateClientPartner::GetUpdatesList
+2015-02-08 22:13:35 -  - exec CUpdateClientPartner::__CollectRequestData
+2015-02-08 22:13:35 -  - utf=N&lang=ru&stable=Y&CANGZIP=Y&SUPD_DBS=MYSQL&XE=N&CLIENT_SITE=www.avangard.biz&LICENSE_KEY=X&SUPD_STS=1&SUPD_URS=0&SUPD_URSA=3&TYPENC=E&CLIENT_PHPVER=5.3.3-7%2Bsqueeze23&dbv=5.1.73&instm=main%2C12.0.8%2CN%3Bseo%2C11.5.0%2CN%3Bblog%2C12.0.1%2CN%3Bform%2C12.0.0%2CN%3Bsale%2C12.0.4%2CN%3Bvote%2C12.0.5%2CN%3Btranslate%2C12.0.1%2CN%3Bforum%2C12.0.3%2CN%3Bfileman%2C12.0.6%2CN%3Bbitrixcloud%2C12.0.4%2CN%3Bcurrency%2C12.0.1%2CN%3Bcompression%2C11.0.0%2CN%3Bclouds%2C12.0.3%2CN%3Bsubscribe%2C12.0.1%2CN%3Biblock%2C12.0.6%2CN%3Bsecurity%2C12.0.8%2CN%3Breport%2C12.0.2%2CN%3Bsearch%2C12.0.0%2CN%3Bphotogallery%2C12.0.1%2CN%3Bsocialservices%2C12.0.6%2CN%3Bperfmon%2C12.0.2%2CN%3Bcatalog%2C12.0.9%2CN&fullmoduleinfo=Y
+2015-02-08 22:13:35 -  - exec CUpdateClientPartner::GetHTTPPage
+2015-02-08 22:13:35 -  - TIME GetUpdatesList(request) 0.395 sec
+2015-02-08 22:13:35 -  - exec CUpdateClientPartner::ParseServerData
+2015-02-08 22:13:50 -  - exec CUpdateClientPartner::GetUpdatesList
+2015-02-08 22:13:50 -  - exec CUpdateClientPartner::__CollectRequestData
+2015-02-08 22:13:50 -  - utf=N&lang=ru&stable=Y&CANGZIP=Y&SUPD_DBS=MYSQL&XE=N&CLIENT_SITE=www.avangard.biz&LICENSE_KEY=X&SUPD_STS=1&SUPD_URS=0&SUPD_URSA=3&TYPENC=E&CLIENT_PHPVER=5.3.3-7%2Bsqueeze23&dbv=5.1.73&instm=main%2C12.0.8%2CN%3Bseo%2C11.5.0%2CN%3Bblog%2C12.0.1%2CN%3Bform%2C12.0.0%2CN%3Bsale%2C12.0.4%2CN%3Bvote%2C12.0.5%2CN%3Btranslate%2C12.0.1%2CN%3Bforum%2C12.0.3%2CN%3Bfileman%2C12.0.6%2CN%3Bbitrixcloud%2C12.0.4%2CN%3Bcurrency%2C12.0.1%2CN%3Bcompression%2C11.0.0%2CN%3Bclouds%2C12.0.3%2CN%3Bsubscribe%2C12.0.1%2CN%3Biblock%2C12.0.6%2CN%3Bsecurity%2C12.0.8%2CN%3Breport%2C12.0.2%2CN%3Bsearch%2C12.0.0%2CN%3Bphotogallery%2C12.0.1%2CN%3Bsocialservices%2C12.0.6%2CN%3Bperfmon%2C12.0.2%2CN%3Bcatalog%2C12.0.9%2CN
+2015-02-08 22:13:50 -  - exec CUpdateClientPartner::GetHTTPPage
+2015-02-08 22:13:51 -  - TIME GetUpdatesList(request) 0.236 sec
+2015-02-08 22:13:51 -  - exec CUpdateClientPartner::ParseServerData

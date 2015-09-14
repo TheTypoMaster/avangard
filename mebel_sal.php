@@ -561,10 +561,9 @@ $g_counter = 0;
 //echo "</pre>";
 
 $collections[44]="Искусства & Ремесла";
-$collections[4228]="BEFRESH";
 $collections[43]="Mix'Line";
 $collections[42]="Le Roi";
-$collections[45]="EKKA";
+$collections[4228]="BEFRESH";
 $collections[2761]="кроватей";
 
 echo "<H1>При заказе цена может быть более выгодной для Вас.<br>Уточняйте стоимость выбранной Вами модели у продавцов салонов,<br>с учетом проводимых акций и действующих скидок.</H1><br><br>";

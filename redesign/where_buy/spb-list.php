@@ -8,17 +8,17 @@ $APPLICATION->SetTitle("Салоны Санкт-Петербурга");
  <?
  $sect = 38;
  ?> 
-<div style="position: relative; top: -13px; width: 100%; height: 40px; border: 1px solid rgb(225, 225, 225); "> 	
-  <table class="zakladki" width="100%" cellpadding="0" cellspacing="0" height="40"> 		
-    <tbody> 			
-      <tr> 				<td style="vertical-align: middle; text-align: center; width: 34%;"> 					<b><font style="font-size: 14px; ">Санкт-Петербург</font></b> 					
+<div style="position: relative; top: -13px; width: 100%; height: 40px; border: 1px solid rgb(225, 225, 225);"> 	 
+  <table class="zakladki" width="100%" cellpadding="0" cellspacing="0" height="40"> 		 
+    <tbody> 			 
+      <tr> 				<td style="vertical-align: middle; text-align: center; width: 34%;"> 					<b><font style="font-size: 14px;">Санкт-Петербург</font></b> 					 
           <br />
          					<a href="/redesign/where_buy/map.php?id=38" target="_new" >посмотреть на карте</a> 				</td> 				<td style="vertical-align: middle; text-align: center; width: 33%;" bgcolor="#e1e1e1"> 					&nbsp; 				</td> 				<td bgcolor="#e1e1e1" style="vertical-align: middle; text-align: center; width: 33%;"> 					&nbsp; 				</td> 			</tr>
      		</tbody>
    	</table>
  </div>
  
-<div class="cityname" style="margin-bottom: 5px; "> <img src="/wharetobuy/maps/podium.gif" style="border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-top-style: none; border-right-style: none; border-bottom-style: none; border-left-style: none; border-color: initial; " width="25" border="0" height="20"  /> 		 Фирменные подиумы</div>
+<div class="cityname" style="margin-bottom: 5px;"> <img src="/wharetobuy/maps/podium.gif" style="border-top-width: 0px; border-right-width: 0px; border-bottom-width: 0px; border-left-width: 0px; border-top-style: none; border-right-style: none; border-bottom-style: none; border-left-style: none; border-color: initial; " width="25" border="0" height="20"  /> 		 Фирменные подиумы</div>
  
 <p> 	 <?$arrFilterType = Array( "PROPERTY_SALON_TYPE_2_VALUE" => "Фирменный Подиум");?> <?$APPLICATION->IncludeComponent(
 	"anp:catalog.section",
@@ -62,39 +62,27 @@ $APPLICATION->SetTitle("Салоны Санкт-Петербурга");
  
 <div class="gray_line_small"> </div>
  
-<p style="font-size: 10pt; line-height: 1.2; "><img height="77" src="/8days/image/mmSPB_1.gif"  />&nbsp;<img height="77" src="/8days/image/mmFoto_1.png"  /> 
+<br />
+ 
+<p style="font-size: 10pt; line-height: 1.2;">            
   <br />
+ 
+  <br />
+<b style="font-size: 10pt; line-height: 1.2; color: rgb(0, 0, 255);">Служба Сервиса</b><span style="font-size: 10pt; line-height: 1.2;"> </span></p>
 
-  <br />
-<b style="color: rgb(0, 0, 255); ">Выезд менеджера в удобное для Вас время (в пределах Санкт-Петербурга)</b> 
-  <br />
-</p>
- 
-<ul style="font-size: 10pt; line-height: 1.2; "> 
-  <li>Консультация по модельному ряду (габариты, механизмы и др.)</li>
- 
-  <li> Предложения по обивочным материалам (ткани, кожа)</li>
- </ul>
- 
-<p style="font-size: 10pt; line-height: 1.2; ">тел.: <b>+7-921-418-15-84</b></p>
+<p style="font-size: 10pt; line-height: 1.2;"> По вопросам гарантийного и послегарантийного обслуживания просьба обращаться по тел.<b>+7-921-418-15-84</b></p>
  
 <div class="gray_line_small"> </div>
- 
-<p style="font-size: 10pt; line-height: 1.2; "><b style="color: rgb(0, 0, 255); ">Служба Сервиса</b> 
-  <br />
-По вопросам гарантийного и послегарантийного обслуживания просьба обращаться по тел.<b>+7-921-418-15-84</b></p>
- 
-<div class="gray_line_small"> </div>
-<?php
+ <?php
 /*
  
 <p style="font-size: 10pt; line-height: 1.2; "><strong style="color: rgb(0, 0, 255); ">&laquo;Модель недели&raquo;:</strong>
   <br />
  
   <br />
-1-10 декабря: - «Чикаго» -15%, «Lemon» -10% 
+1-10 декабря: - &laquo;Чикаго&raquo; -15%, &laquo;Lemon&raquo; -10% 
   <br />
-11-20 декабря: - «Ричмонд» -15%, «Mango» -10% 
+11-20 декабря: - &laquo;Ричмонд&raquo; -15%, &laquo;Mango&raquo; -10% 
   <br />
 21-30 декабря: - «Орегон» -15%, «Orange» -10% 
   <br />
@@ -109,7 +97,7 @@ $APPLICATION->SetTitle("Салоны Санкт-Петербурга");
  
 <table class="s" width="100%" cellspacing="1" cellpadding="1" border="0" align="Left"> 
   <tbody> 
-    <tr><td style="vertical-align: top;"><img width="230" src="/upload/medialibrary/4a7/banner_230x115_spb.png"  /></td> 	<td width="60px">&nbsp;</td> 	<td> 		 
+    <tr><td style="vertical-align: top;"><img id="bxid_56899" width="230" src="/upload/medialibrary/4a7/banner_230x115_spb.png"  /></td> 	<td width="60px">&nbsp;</td> 	<td> 		 
         <p style="font-size: 12px; line-height: 1.5; "><span style="color: rgb(102, 102, 102); font-weight: 700; ">«Магическое число 13»</span> 
           <br />
          </p>
@@ -124,14 +112,18 @@ $APPLICATION->SetTitle("Салоны Санкт-Петербурга");
 <div style="clear: both; ">&nbsp;</div>
 
 <div class="gray_line_small"></div>
+<img id="bxid_768979" src="/upload/medialibrary/a0c/all-15-percent.png" height="115" width="230" style="border:none;"  />
+<br /> 		 
+<p style="font-size: 12px; line-height: 1.5; "><span style="color: rgb(102, 102, 102); font-weight: 700; ">С 27 по 30 апреля проходит акция «СКИДКА 15%»</span></p> 
+<br />
+<p style="font-size: 12px; line-height: 1.5; ">На ВЕСЬ модельный ряд предоставляется скидка - <span style="color: rgb(102, 102, 102); font-weight: 700; "> 15%.</span></p>
+
+<div class="gray_line_small"></div>
 */
 ?> 
- 
-<p style="font-size: 10pt; line-height: 1.2; "><img height="115" src="/8days/image/skidi_SPB_188x115_6.gif"  /> 
+<p style="font-size: 10pt; line-height: 1.2;">
   <br />
-
-  <br />
-<b style="color: rgb(0, 0, 255); "> Скидки от 30% до 70% на выставочные образцы</b> </p>
+</p>
  
 <p>&nbsp;</p>
  
