@@ -2,18 +2,18 @@
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 
 if ($_GET[order]) {
-	if (sizeof($APPLICATION->get_cookie("basket")) > 0) {
-		foreach ($APPLICATION->get_cookie("basket") as $key => $val) {
+	if (sizeof($basket) > 0) {
+		foreach ($basket as $key => $val) {
 			$APPLICATION->set_cookie("basket[" . $key . "]", "");
 			//echo "удаление $key; ";
 		}
 	}
-	//print_r($APPLICATION->get_cookie("basket"));
+	//print_r($basket);
 }
 ?>
-<link rel="stylesheet" type="text/css" href="/shadowbox/shadowbox.css"> 
-<script type="text/javascript" src="/shadowbox/shadowbox.js"></script> 
-<script type="text/javascript"> 
+<link rel="stylesheet" type="text/css" href="/shadowbox/shadowbox.css">
+<script type="text/javascript" src="/shadowbox/shadowbox.js"></script>
+<script type="text/javascript">
 	Shadowbox.init({
 		handleOversize: "drag",
 		modal: true
@@ -29,10 +29,10 @@ $APPLICATION->SetPageProperty("right_inc_file", "right_nomain_inc_file.php");
 
 echo "<br><h1>Корзина</h1><br>";
 
-
-if (sizeof($APPLICATION->get_cookie("basket")) > 0 && is_array($APPLICATION->get_cookie("basket"))) {
+$basket = $APPLICATION->get_cookie("basket");
+if (sizeof($basket) > 0 && is_array($basket)) {
 	echo "<table id=\"t_basket\"><tr><th>Наименование</th><th>Изображение</th><th>Комбинация</th><th>Материалы</th><th>Цена</th><th>Удалить</th></tr>";
-	foreach ($APPLICATION->get_cookie("basket") as $key_in_basket => $val) {
+	foreach ($basket as $key_in_basket => $val) {
 		//$APPLICATION->set_cookie("basket[".$key."]", " ");
 		//continue;
 		$srcTexture = $arFileRecommTexture = $resCombinacProperty = array();
@@ -47,7 +47,7 @@ if (sizeof($APPLICATION->get_cookie("basket")) > 0 && is_array($APPLICATION->get
 			$all_edit_param = array("subj_id" => $subject[subj_id], "combinac_id" => $subject[combinac_id], "texture_id" => $subject[texture_id]);
 			$APPLICATION->set_cookie("basket[" . $key_in_basket . "]", serialize($all_edit_param));
 			/* echo "<pre>";
-			  print_r(unserialize($APPLICATION->get_cookie("basket")));
+			  print_r(unserialize($basket));
 			  echo "</pre>"; */
 		}
 		if ($_GET[rec_color] == 0 && $subject[subj_id] == $_GET[subj_id]) { // стираем из сессии рекомендуемые цвета
@@ -56,7 +56,7 @@ if (sizeof($APPLICATION->get_cookie("basket")) > 0 && is_array($APPLICATION->get
 			$all_edit_param = array("subj_id" => $subject[subj_id], "combinac_id" => $subject[combinac_id], "texture_id" => $subject[texture_id]);
 			$APPLICATION->set_cookie("basket[" . $key_in_basket . "]", serialize($all_edit_param));
 			/* echo "<pre>";
-			  print_r($APPLICATION->get_cookie("basket"));
+			  print_r($basket);
 			  echo "</pre>"; */
 		}
 		if ($_GET[texture_id] > 0 && $key_in_basket == $_GET['key']) { // добавляем рекомендумый материал выбранный пользоватлем
@@ -65,7 +65,7 @@ if (sizeof($APPLICATION->get_cookie("basket")) > 0 && is_array($APPLICATION->get
 			$all_edit_param = array("subj_id" => $subject[subj_id], "combinac_id" => $subject[combinac_id], "texture_id" => $subject[texture_id]);
 			$APPLICATION->set_cookie("basket[" . $key_in_basket . "]", serialize($all_edit_param));
 			/* echo "<pre>";
-			  print_r($APPLICATION->get_cookie("basket"));
+			  print_r($basket);
 			  echo "</pre>"; */
 		}
 
@@ -143,18 +143,6 @@ if (sizeof($APPLICATION->get_cookie("basket")) > 0 && is_array($APPLICATION->get
 //				echo "$key_in_basket srcTexture12 - ";				print_r($srcTexture);
 			}
 		} elseif (is_array($subject[texture_id]) && sizeof($subject[texture_id]) > 0) { // выбираем кол-во материалов в комбинации, т.к. не выбраны рекомендованные цвета
-
-			/* echo "обработка texture у товара - ".$subject[subj_id];
-			  echo "<pre>texture_id - ";
-			  print_r($subject[texture_id]);
-			  echo "</pre>"; */
-
-			/*
-			  $res = CIBlockElement::GetProperty(24, 1796, "sort", "asc", array("CODE" => "COUNT_COLOR"));
-			  while ($ob = $res->GetNext()){
-			  $VALUES[] = $ob['VALUE'];
-			  }
-			 */
 		}
 		$key = key($subject[texture_id]);
 		$err = (key($subject[texture_id]) == '' && sizeof($subject[texture_id]) == 1) ? 1 : 0; // массив $subject[texture_id] с пустым ключом и пустым значением
@@ -173,9 +161,7 @@ if (sizeof($APPLICATION->get_cookie("basket")) > 0 && is_array($APPLICATION->get
 		  echo "$key_in_basket srcTexture11 - ";
 		  print_r($srcTexture); */
 		//echo "<br> sizeof(srcCombinac) - ".sizeof($srcCombinac)."<br> subject[recommend_id] - $subject[recommend_id]<br>";
-		if (
-				($subject[recommend_id]) // 
-		) { // если нет рекомендуемой картинки, то показываем картинку с комбинацией
+		if ($subject[recommend_id]) { // если нет рекомендуемой картинки, то показываем картинку с комбинацией
 			$srcCombinac = ""; // не показываем изобржение если выбрана комбинация, и нет рекомендуемых цветов и нет материалов
 		}
 		//echo "файл - ".$arSubj[PREVIEW_PICTURE]."<br>";
