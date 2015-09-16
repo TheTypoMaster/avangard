@@ -10,3 +10,7 @@ upload
 .htaccess
 db_log.php
 myYML.xml
+.gitignore
+.idea/
+/nbproject/private/
+nbproject/
