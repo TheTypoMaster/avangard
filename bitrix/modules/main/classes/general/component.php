@@ -293,7 +293,7 @@ class CBitrixComponent
 	/**
 	* Function initializes the component. Returns true on success.
 	*
-	* <p>It is absolutly necessery to call this function before any component usage.</p>
+	* <p>It is absolutely necessery to call this function before any component usage.</p>
 	* @param string $componentName
 	* @param string $componentTemplate
 	* @return bool
