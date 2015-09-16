@@ -51,7 +51,7 @@ foreach($APPLICATION->get_cookie("basket") as $key => $val){
 //if ($count==1){
 	if (sizeof($APPLICATION->get_cookie("basket"))>=0 || $object_id>0) {
 		//$c=1;
-		if (sizeof($APPLICATION->get_cookie("basket"))>0 && is_array(sizeof($APPLICATION->get_cookie("basket"))) $c=sizeof($APPLICATION->get_cookie("basket"));
+		if (sizeof($APPLICATION->get_cookie("basket"))>0 && is_array(sizeof($APPLICATION->get_cookie("basket")))) $c=sizeof($APPLICATION->get_cookie("basket"));
 		else $c =0;
 		if ($object_id>0) $c++; 
 		if ($del_object_id>0) $c--; 
